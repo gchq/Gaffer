@@ -44,11 +44,11 @@ public class ExportToOtherGraphExample extends OperationExample {
         final OperationChain<CloseableIterable<? extends Element>> opChain = new OperationChain.Builder()
                 .first(new GetAllElements())
                 .then(new ExportToOtherGraph.Builder<CloseableIterable<? extends Element>>()
-                        .storeProperties(new StoreProperties(Paths.get("/src/main/resources/othermockaccumulostore.properties")))
+                        .storeProperties(new StoreProperties(Paths.get("doc/src/main/resources/othermockaccumulostore.properties")))
                         .build())
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(opChain);
+        return runExample(opChain, null);
     }
 }
