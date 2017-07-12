@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.EdgeDirection;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
@@ -585,10 +586,10 @@ public class ElementSerialisationTest {
         final byte[][] sourceDestValues = new byte[2][];
 
         // When
-        final ElementSerialisation.EdgeDirection direction = serialisation.getSourceAndDestination(rowKey, sourceDestValues);
+        final EdgeDirection direction = serialisation.getSourceAndDestination(rowKey, sourceDestValues);
 
         // Then
-        assertEquals(ElementSerialisation.EdgeDirection.DIRECTED, direction);
+        assertEquals(EdgeDirection.DIRECTED, direction);
     }
 
     @Test
@@ -605,10 +606,10 @@ public class ElementSerialisationTest {
         final byte[][] sourceDestValues = new byte[2][];
 
         // When
-        final ElementSerialisation.EdgeDirection direction = serialisation.getSourceAndDestination(rowKey, sourceDestValues);
+        final EdgeDirection direction = serialisation.getSourceAndDestination(rowKey, sourceDestValues);
 
         // Then
-        assertEquals(ElementSerialisation.EdgeDirection.DIRECTED_REVERSED, direction);
+        assertEquals(EdgeDirection.DIRECTED_REVERSED, direction);
     }
 
     @Test
@@ -624,10 +625,10 @@ public class ElementSerialisationTest {
         final byte[][] sourceDestValues = new byte[2][];
 
         // When
-        final ElementSerialisation.EdgeDirection direction = serialisation.getSourceAndDestination(rowKey, sourceDestValues);
+        final EdgeDirection direction = serialisation.getSourceAndDestination(rowKey, sourceDestValues);
 
         // Then
-        assertEquals(ElementSerialisation.EdgeDirection.UNDIRECTED, direction);
+        assertEquals(EdgeDirection.UNDIRECTED, direction);
     }
 
     private Entity getExampleEntity(final int value) {
