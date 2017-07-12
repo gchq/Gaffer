@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.EdgeDirection;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
@@ -48,14 +49,6 @@ public class ElementSerialisation {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementSerialisation.class);
 
     private final Schema schema;
-
-    protected enum EdgeDirection {
-        DIRECTED, UNDIRECTED, DIRECTED_REVERSED;
-
-        public boolean isDirected() {
-            return DIRECTED == this || DIRECTED_REVERSED == this;
-        }
-    }
 
     public ElementSerialisation(final Schema schema) {
         this.schema = schema;

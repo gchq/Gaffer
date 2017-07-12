@@ -46,7 +46,7 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
                     "Instead of flipping the Edges around the result Edges will have a matchedVertex field set specifying if the SOURCE or DESTINATION was matched.");
         }
         try {
-            return store.createRetriever(operation, user, operation.getInput(), SeedMatching.SeedMatchingType.RELATED == operation.getSeedMatching());
+            return store.createRetriever(operation, user, operation.getInput(), SeedMatching.SeedMatchingType.EQUAL != operation.getSeedMatching());
         } catch (final StoreException e) {
             throw new OperationException("Unable to fetch elements", e);
         }

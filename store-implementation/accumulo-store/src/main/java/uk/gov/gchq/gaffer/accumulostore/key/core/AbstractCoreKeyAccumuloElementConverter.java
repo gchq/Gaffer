@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.EdgeDirection;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
@@ -47,14 +48,6 @@ import java.util.Iterator;
 @SuppressWarnings("unchecked")
 public abstract class AbstractCoreKeyAccumuloElementConverter implements AccumuloElementConverter {
     protected final Schema schema;
-
-    protected enum EdgeDirection {
-        DIRECTED, UNDIRECTED, DIRECTED_REVERSED;
-
-        public boolean isDirected() {
-            return DIRECTED == this || DIRECTED_REVERSED == this;
-        }
-    }
 
     public AbstractCoreKeyAccumuloElementConverter(final Schema schema) {
         this.schema = schema;

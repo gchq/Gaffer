@@ -35,8 +35,8 @@ public class ToVertices implements
         MultiInput<ElementId> {
 
     private Iterable<? extends ElementId> input;
-    private UseMatchedVertex useMatchedVertex = UseMatchedVertex.IGNORE;
-    private EdgeVertices edgeVertices = EdgeVertices.NONE;
+    private UseMatchedVertex useMatchedVertex;
+    private EdgeVertices edgeVertices;
 
     @Override
     public Iterable<? extends ElementId> getInput() {

@@ -29,7 +29,7 @@ public class AccumuloElementsRetriever extends AccumuloSingleIDRetriever<GetElem
                                      final User user)
             throws IteratorSettingException, StoreException {
         super(store, operation, user,
-                SeedMatching.SeedMatchingType.RELATED == operation.getSeedMatching(),
+                SeedMatching.SeedMatchingType.EQUAL != operation.getSeedMatching(),
                 store.getKeyPackage().getIteratorFactory().getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
                 store.getKeyPackage().getIteratorFactory().getElementPostAggregationFilterIteratorSetting(operation.getView(), store),
                 store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation),

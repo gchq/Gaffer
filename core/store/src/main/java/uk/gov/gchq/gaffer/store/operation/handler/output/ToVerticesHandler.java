@@ -83,19 +83,23 @@ public class ToVerticesHandler implements OutputOperationHandler<ToVertices, Ite
 
     private Stream<Object> getEdgeVertices(final EdgeVertices edgeVertices, final EdgeId edgeId) {
         final Stream<Object> vertices;
-        switch (edgeVertices) {
-            case BOTH:
-                vertices = Stream.of(edgeId.getSource(), edgeId.getDestination());
-                break;
-            case SOURCE:
-                vertices = Stream.of(edgeId.getSource());
-                break;
-            case DESTINATION:
-                vertices = Stream.of(edgeId.getDestination());
-                break;
-            default:
-                vertices = Stream.empty();
-                break;
+        if (null == edgeVertices) {
+            vertices = Stream.empty();
+        } else {
+            switch (edgeVertices) {
+                case BOTH:
+                    vertices = Stream.of(edgeId.getSource(), edgeId.getDestination());
+                    break;
+                case SOURCE:
+                    vertices = Stream.of(edgeId.getSource());
+                    break;
+                case DESTINATION:
+                    vertices = Stream.of(edgeId.getDestination());
+                    break;
+                default:
+                    vertices = Stream.empty();
+                    break;
+            }
         }
 
         return vertices;
