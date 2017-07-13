@@ -25,6 +25,7 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.signature.Signature;
 import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -160,19 +161,45 @@ public class SchemaElementDefinitionValidator {
                             aggregatedProperties.add(key);
                         }
                     }
+                    if (selection.length > 1) {
+                        Boolean containsGroupByProp = null;
+                        // Check properties are stored in the same position: groupBy, non-groupBy, visibility, timestamp
+                        for (final String key : selection) {
+                            if (key.equals(elementDef.getSchemaReference().getVisibilityProperty())) {
+                                result.addError("The visibility property must be aggregated by itself. " +
+                                        "It is currently aggregated in the tuple: " + Arrays.toString(selection)
+                                        + ", by aggregate function: " + adaptedFunction.getBinaryOperator().getClass().getName());
+                            } else if (key.equals(elementDef.getSchemaReference().getTimestampProperty())) {
+                                result.addError("The timestamp property must be aggregated by itself. " +
+                                        "It is currently aggregated in the tuple: " + Arrays.toString(selection)
+                                        + ", by aggregate function: " + adaptedFunction.getBinaryOperator().getClass().getName());
+                                break;
+                            } else {
+                                final boolean newContainsGroupByProp = elementDef.getGroupBy().contains(key);
+                                if (null == containsGroupByProp) {
+                                    containsGroupByProp = newContainsGroupByProp;
+                                } else if (newContainsGroupByProp != containsGroupByProp) {
+                                    result.addError("groupBy properties and non-groupBy properties must be not be aggregated using the same BinaryOperator. " +
+                                            "Selection tuple: " + Arrays.toString(selection)
+                                            + ", is aggregated by: " + adaptedFunction.getBinaryOperator().getClass().getName());
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
 
         final Set<String> propertyNamesTmp = new HashSet<>(elementDef.getProperties());
         propertyNamesTmp.removeAll(aggregatedProperties);
-        if (propertyNamesTmp.isEmpty()) {
-            return result;
+        if (!propertyNamesTmp.isEmpty()) {
+            result.addError("No aggregator found for properties '" + propertyNamesTmp.toString() + "' in the supplied schema. "
+                    + "This framework requires that all of the defined properties have an aggregator function associated with them. "
+                    + "To disable aggregation for a group set the 'aggregate' field to false.");
         }
 
-        result.addError("No aggregator found for properties '" + propertyNamesTmp.toString() + "' in the supplied schema. "
-                + "This framework requires that all of the defined properties have an aggregator function associated with them. "
-                + "To disable aggregation for a group set the 'aggregate' field to false.");
+
         return result;
     }
 

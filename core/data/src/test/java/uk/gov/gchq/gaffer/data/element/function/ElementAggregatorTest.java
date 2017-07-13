@@ -20,6 +20,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
+import uk.gov.gchq.gaffer.function.ExampleTuple2BinaryOperator;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.n.Tuple3;
@@ -274,5 +275,37 @@ public class ElementAggregatorTest {
         assertEquals(property3, adaptedFunction.getSelection()[0]);
 
         assertEquals(i, aggregator.getComponents().size());
+    }
+
+    @Test
+    public void shouldAggregateWithTuple2BinaryOperator() {
+        // Given
+        final String property1 = "property 1";
+        final String property2 = "property 2";
+        final BinaryOperator func1 = new ExampleTuple2BinaryOperator();
+        final ElementAggregator aggregator = new ElementAggregator.Builder()
+                .select(property1, property2)
+                .execute(func1)
+                .build();
+
+        final Properties props1 = new Properties();
+        props1.put(property1, 1);
+        props1.put(property2, "value1");
+
+        final Properties props2 = new Properties();
+        props2.put(property1, 10);
+        props2.put(property2, "value10");
+
+        final Properties props3 = new Properties();
+        props3.put(property1, 5);
+        props3.put(property2, "value5");
+
+        // When
+        Properties state = props1;
+        state = aggregator.apply(state, props2);
+        state = aggregator.apply(state, props3);
+
+        // Then
+        assertEquals(props2, state);
     }
 }
