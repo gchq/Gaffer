@@ -50,8 +50,16 @@ public abstract class Element implements ElementId {
     }
 
     Element(final String group) {
+        this(group, new Properties());
+    }
+
+    Element(final String group, final Properties properties) {
         this.group = group;
-        properties = new Properties();
+        if (null == properties) {
+            this.properties = new Properties();
+        } else {
+            this.properties = properties;
+        }
     }
 
     public void putProperty(final String name, final Object value) {
@@ -120,7 +128,7 @@ public abstract class Element implements ElementId {
     @JsonIgnore
     public abstract Object getIdentifier(final IdentifierType identifierType);
 
-    public abstract void putIdentifier(final IdentifierType identifierType, final Object propertyToBeSet);
+    abstract void putIdentifier(final IdentifierType identifierType, final Object value);
 
     @JsonIgnore
     public Element getElement() {

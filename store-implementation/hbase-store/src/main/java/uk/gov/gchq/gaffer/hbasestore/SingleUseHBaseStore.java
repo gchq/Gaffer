@@ -34,7 +34,7 @@ public class SingleUseHBaseStore extends HBaseStore {
         // The second call is used to re-create the table
 
         try {
-            super.initialise(graphId, schema, properties);
+            super.preInitialise(graphId, schema, properties);
         } catch (final StoreException e) {
             // This is due to an invalid table, but the table is about to be deleted to we can ignore it.
         }

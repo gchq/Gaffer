@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.accumulostore.key.core.impl.gaffer1;
+package uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic;
 
-import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
-import uk.gov.gchq.gaffer.accumulostore.key.core.impl.AbstractAccumuloElementConverterTest;
-import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloElementConverter;
+import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyAccumuloElementConverterTest;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 /**
  * Tests are inherited from AbstractAccumuloElementConverterTest.
  */
-public class Gaffer1AccumuloElementConverterTest extends AbstractAccumuloElementConverterTest {
+public class ClassicAccumuloElementConverterTest extends AbstractCoreKeyAccumuloElementConverterTest {
 
     @Override
-    protected AccumuloElementConverter createConverter(final Schema schema) {
+    protected ClassicAccumuloElementConverter createConverter(final Schema schema) {
         return new ClassicAccumuloElementConverter(schema);
     }
 }

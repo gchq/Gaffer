@@ -57,12 +57,9 @@ public class GetAdjacentIdsIT extends AbstractStoreIT {
 
         final List<IncludeIncomingOutgoingType> inOutTypes = Lists.newArrayList(IncludeIncomingOutgoingType.values());
         inOutTypes.add(null);
-        inOutTypes.clear();
-        inOutTypes.add(IncludeIncomingOutgoingType.OUTGOING);
         for (final IncludeIncomingOutgoingType inOutType : inOutTypes) {
             for (final DirectedType directedType : directedTypes) {
                 final List<String> expectedSeeds = new ArrayList<>();
-
 
                 if (DirectedType.DIRECTED != directedType) {
                     expectedSeeds.add(DEST_1);

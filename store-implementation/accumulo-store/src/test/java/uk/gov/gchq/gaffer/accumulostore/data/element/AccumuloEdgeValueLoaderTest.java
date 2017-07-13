@@ -24,8 +24,7 @@ import org.mockito.Mockito;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.data.element.IdentifierType;
-import uk.gov.gchq.gaffer.data.element.LazyEdge;
+import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.LazyProperties;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
@@ -33,7 +32,6 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
-import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
@@ -44,83 +42,24 @@ import static org.mockito.Mockito.verify;
 public class AccumuloEdgeValueLoaderTest {
 
     @Test
-    public void shouldLoadAllIdentifiersWhenGetSourceIdentifier() throws SerialisationException {
+    public void shouldLoadAllIdentifiers() throws SerialisationException {
         // Given
         final String group = TestGroups.EDGE;
         final Key key = mock(Key.class);
         final Value value = mock(Value.class);
         final AccumuloElementConverter converter = mock(AccumuloElementConverter.class);
         final Schema schema = createSchema();
-        final AccumuloEdgeValueLoader loader = new AccumuloEdgeValueLoader(group, key, value, converter, schema);
-        final LazyEdge lazyEdge = mock(LazyEdge.class);
+        final AccumuloEdgeValueLoader loader = new AccumuloEdgeValueLoader(group, key, value, converter, schema, false);
+        final Edge edge = mock(Edge.class);
         final EdgeId elementId = new EdgeSeed("source", "dest", true);
 
-        given(converter.getElementId(key, Collections.emptyMap())).willReturn(elementId);
+        given(converter.getElementId(key, false)).willReturn(elementId);
 
         // When
-        final Object identifier = loader.getIdentifier(IdentifierType.SOURCE, lazyEdge);
+        loader.loadIdentifiers(edge);
 
         // Then
-        assertEquals("source", identifier);
-        verify(lazyEdge).setSource("source");
-        verify(lazyEdge).setDestination("dest");
-        verify(lazyEdge).setDirected(true);
-        verify(converter, never()).getPropertiesFromColumnQualifier(Mockito.eq(group), Mockito.any(byte[].class));
-        verify(converter, never()).getPropertiesFromColumnVisibility(Mockito.eq(group), Mockito.any(byte[].class));
-        verify(converter, never()).getPropertiesFromTimestamp(Mockito.eq(group), Mockito.anyLong());
-        verify(converter, never()).getPropertiesFromValue(Mockito.eq(group), Mockito.any(Value.class));
-    }
-
-    @Test
-    public void shouldLoadAllIdentifiersWhenGetDestinationIdentifier() throws SerialisationException {
-        // Given
-        final String group = TestGroups.EDGE;
-        final Key key = mock(Key.class);
-        final Value value = mock(Value.class);
-        final AccumuloElementConverter converter = mock(AccumuloElementConverter.class);
-        final Schema schema = createSchema();
-        final AccumuloEdgeValueLoader loader = new AccumuloEdgeValueLoader(group, key, value, converter, schema);
-        final LazyEdge lazyEdge = mock(LazyEdge.class);
-        final EdgeId elementId = new EdgeSeed("source", "dest", true);
-
-        given(converter.getElementId(key, Collections.emptyMap())).willReturn(elementId);
-
-        // When
-        final Object identifier = loader.getIdentifier(IdentifierType.DESTINATION, lazyEdge);
-
-        // Then
-        assertEquals("dest", identifier);
-        verify(lazyEdge).setSource("source");
-        verify(lazyEdge).setDestination("dest");
-        verify(lazyEdge).setDirected(true);
-        verify(converter, never()).getPropertiesFromColumnQualifier(Mockito.eq(group), Mockito.any(byte[].class));
-        verify(converter, never()).getPropertiesFromColumnVisibility(Mockito.eq(group), Mockito.any(byte[].class));
-        verify(converter, never()).getPropertiesFromTimestamp(Mockito.eq(group), Mockito.anyLong());
-        verify(converter, never()).getPropertiesFromValue(Mockito.eq(group), Mockito.any(Value.class));
-    }
-
-    @Test
-    public void shouldLoadAllIdentifiersWhenGetDirectedIdentifier() throws SerialisationException {
-        // Given
-        final String group = TestGroups.EDGE;
-        final Key key = mock(Key.class);
-        final Value value = mock(Value.class);
-        final AccumuloElementConverter converter = mock(AccumuloElementConverter.class);
-        final Schema schema = createSchema();
-        final AccumuloEdgeValueLoader loader = new AccumuloEdgeValueLoader(group, key, value, converter, schema);
-        final LazyEdge lazyEdge = mock(LazyEdge.class);
-        final EdgeId elementId = new EdgeSeed("source", "dest", true);
-
-        given(converter.getElementId(key, Collections.emptyMap())).willReturn(elementId);
-
-        // When
-        final Object identifier = loader.getIdentifier(IdentifierType.DIRECTED, lazyEdge);
-
-        // Then
-        assertEquals(true, identifier);
-        verify(lazyEdge).setSource("source");
-        verify(lazyEdge).setDestination("dest");
-        verify(lazyEdge).setDirected(true);
+        verify(edge).setIdentifiers("source", "dest", true);
         verify(converter, never()).getPropertiesFromColumnQualifier(Mockito.eq(group), Mockito.any(byte[].class));
         verify(converter, never()).getPropertiesFromColumnVisibility(Mockito.eq(group), Mockito.any(byte[].class));
         verify(converter, never()).getPropertiesFromTimestamp(Mockito.eq(group), Mockito.anyLong());
@@ -135,7 +74,7 @@ public class AccumuloEdgeValueLoaderTest {
         final Value value = mock(Value.class);
         final AccumuloElementConverter converter = mock(AccumuloElementConverter.class);
         final Schema schema = createSchema();
-        final AccumuloEdgeValueLoader loader = new AccumuloEdgeValueLoader(group, key, value, converter, schema);
+        final AccumuloEdgeValueLoader loader = new AccumuloEdgeValueLoader(group, key, value, converter, schema, false);
         final LazyProperties lazyProperties = mock(LazyProperties.class);
         final Properties properties = mock(Properties.class);
         final ByteSequence cqData = mock(ByteSequence.class);
@@ -151,7 +90,7 @@ public class AccumuloEdgeValueLoaderTest {
         // Then
         assertEquals("propValue1", property);
         verify(lazyProperties).putAll(properties);
-        verify(converter, never()).getElementId(key, Collections.emptyMap());
+        verify(converter, never()).getElementId(key, false);
         verify(converter, never()).getPropertiesFromColumnVisibility(Mockito.eq(group), Mockito.any(byte[].class));
         verify(converter, never()).getPropertiesFromTimestamp(Mockito.eq(group), Mockito.anyLong());
         verify(converter, never()).getPropertiesFromValue(Mockito.eq(group), Mockito.any(Value.class));
@@ -165,7 +104,7 @@ public class AccumuloEdgeValueLoaderTest {
         final Value value = mock(Value.class);
         final AccumuloElementConverter converter = mock(AccumuloElementConverter.class);
         final Schema schema = createSchema();
-        final AccumuloEdgeValueLoader loader = new AccumuloEdgeValueLoader(group, key, value, converter, schema);
+        final AccumuloEdgeValueLoader loader = new AccumuloEdgeValueLoader(group, key, value, converter, schema, false);
         final LazyProperties lazyProperties = mock(LazyProperties.class);
         final Properties properties = mock(Properties.class);
         given(converter.getPropertiesFromValue(group, value)).willReturn(properties);
@@ -177,7 +116,7 @@ public class AccumuloEdgeValueLoaderTest {
         // Then
         assertEquals("propValue3", property);
         verify(lazyProperties).putAll(properties);
-        verify(converter, never()).getElementId(key, Collections.emptyMap());
+        verify(converter, never()).getElementId(key, false);
         verify(converter, never()).getPropertiesFromColumnVisibility(Mockito.eq(group), Mockito.any(byte[].class));
         verify(converter, never()).getPropertiesFromTimestamp(Mockito.eq(group), Mockito.anyLong());
         verify(converter, never()).getPropertiesFromColumnQualifier(Mockito.eq(group), Mockito.any(byte[].class));
@@ -191,7 +130,7 @@ public class AccumuloEdgeValueLoaderTest {
         final Value value = mock(Value.class);
         final AccumuloElementConverter converter = mock(AccumuloElementConverter.class);
         final Schema schema = createSchema();
-        final AccumuloEdgeValueLoader loader = new AccumuloEdgeValueLoader(group, key, value, converter, schema);
+        final AccumuloEdgeValueLoader loader = new AccumuloEdgeValueLoader(group, key, value, converter, schema, false);
         final LazyProperties lazyProperties = mock(LazyProperties.class);
         final Properties properties = mock(Properties.class);
         final ByteSequence cvData = mock(ByteSequence.class);
@@ -207,7 +146,7 @@ public class AccumuloEdgeValueLoaderTest {
         // Then
         assertEquals("vis1", property);
         verify(lazyProperties).putAll(properties);
-        verify(converter, never()).getElementId(key, Collections.emptyMap());
+        verify(converter, never()).getElementId(key, false);
         verify(converter, never()).getPropertiesFromColumnQualifier(Mockito.eq(group), Mockito.any(byte[].class));
         verify(converter, never()).getPropertiesFromTimestamp(Mockito.eq(group), Mockito.anyLong());
         verify(converter, never()).getPropertiesFromValue(Mockito.eq(group), Mockito.any(Value.class));
@@ -221,7 +160,7 @@ public class AccumuloEdgeValueLoaderTest {
         final Value value = mock(Value.class);
         final AccumuloElementConverter converter = mock(AccumuloElementConverter.class);
         final Schema schema = createSchema();
-        final AccumuloEdgeValueLoader loader = new AccumuloEdgeValueLoader(group, key, value, converter, schema);
+        final AccumuloEdgeValueLoader loader = new AccumuloEdgeValueLoader(group, key, value, converter, schema, false);
         final LazyProperties lazyProperties = mock(LazyProperties.class);
         final Properties properties = mock(Properties.class);
         final Long timestamp = 10L;
@@ -235,7 +174,7 @@ public class AccumuloEdgeValueLoaderTest {
         // Then
         assertEquals(timestamp, property);
         verify(lazyProperties).putAll(properties);
-        verify(converter, never()).getElementId(key, Collections.emptyMap());
+        verify(converter, never()).getElementId(key, false);
         verify(converter, never()).getPropertiesFromColumnQualifier(Mockito.eq(group), Mockito.any(byte[].class));
         verify(converter, never()).getPropertiesFromColumnVisibility(Mockito.eq(group), Mockito.any(byte[].class));
         verify(converter, never()).getPropertiesFromValue(Mockito.eq(group), Mockito.any(Value.class));

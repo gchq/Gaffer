@@ -17,16 +17,19 @@
 package uk.gov.gchq.gaffer.data.element;
 
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import uk.gov.gchq.gaffer.data.element.comparison.ComparableOrToStringComparator;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import java.util.Comparator;
 
 /**
  * An <code>Edge</code> in an {@link uk.gov.gchq.gaffer.data.element.Element} containing a source, destination and a directed flag.
@@ -41,9 +44,11 @@ import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 public class Edge extends Element implements EdgeId {
     private static final Logger LOGGER = LoggerFactory.getLogger(Edge.class);
     private static final long serialVersionUID = -5596452468277807842L;
+    private static final Comparator<Object> VERTEX_COMPARATOR = new ComparableOrToStringComparator();
     private Object source;
     private Object destination;
     private boolean directed;
+    private MatchedVertex matchedVertex;
 
     Edge() {
         super();
@@ -53,11 +58,49 @@ public class Edge extends Element implements EdgeId {
         super(group);
     }
 
+    /**
+     * Constructs an instance of Edge.
+     * <p>
+     * If the edge is undirected the the source and destination vertices may get
+     * swapped to ensure undirected edges are consistently constructed.
+     * </p>
+     *
+     * @param group       the Edge group
+     * @param source      the source vertex
+     * @param destination the destination vertex
+     * @param directed    true if the edge is directed
+     */
     public Edge(final String group, final Object source, final Object destination, final boolean directed) {
-        super(group);
+        this(group, source, destination, directed, null, null);
+    }
+
+    /**
+     * Constructs an instance of Edge.
+     * <p>
+     * If the edge is undirected the the source and destination vertices may get
+     * swapped to ensure undirected edges are consistently constructed.
+     * </p>
+     *
+     * @param group         the Edge group
+     * @param source        the source vertex
+     * @param destination   the destination vertex
+     * @param directed      true if the edge is directed
+     * @param matchedVertex used at query time to mark which vertex was matched.
+     * @param properties    the edge properties
+     */
+    @JsonCreator
+    public Edge(@JsonProperty("group") final String group,
+                @JsonProperty("source")  final Object source,
+                @JsonProperty("destination") final Object destination,
+                @JsonProperty("directed") final boolean directed,
+                @JsonProperty("matchedVertex")  final MatchedVertex matchedVertex,
+                @JsonProperty("properties") final Properties properties) {
+        super(group, properties);
         this.source = source;
         this.destination = destination;
         this.directed = directed;
+        this.matchedVertex = matchedVertex;
+        orderVertices();
     }
 
     @Override
@@ -66,18 +109,8 @@ public class Edge extends Element implements EdgeId {
     }
 
     @Override
-    public void setSource(final Object source) {
-        this.source = source;
-    }
-
-    @Override
     public Object getDestination() {
         return destination;
-    }
-
-    @Override
-    public void setDestination(final Object destination) {
-        this.destination = destination;
     }
 
     @JsonIgnore
@@ -97,15 +130,8 @@ public class Edge extends Element implements EdgeId {
         return directed;
     }
 
-    @JsonSetter("directed")
-    @Override
-    public void setDirected(final boolean directed) {
-        this.directed = directed;
-    }
-
-    @Override
-    public void setDirectedType(final DirectedType directed) {
-        setDirected(DirectedType.UNDIRECTED != directed);
+    public MatchedVertex getMatchedVertex() {
+        return matchedVertex;
     }
 
     @Override
@@ -122,45 +148,140 @@ public class Edge extends Element implements EdgeId {
         }
     }
 
+    /**
+     * This may cause undirected edges to be inconsistent as the source and
+     * destination values may not be ordered correctly.
+     *
+     * @param identifierType the identifier type to update
+     * @param value          the identifier value
+     */
     @Override
-    public void putIdentifier(final IdentifierType identifierType, final Object propertyToBeSet) {
+    void putIdentifier(final IdentifierType identifierType, final Object value) {
         switch (identifierType) {
             case SOURCE:
-                setSource(propertyToBeSet);
+                source = value;
                 break;
             case DESTINATION:
-                setDestination(propertyToBeSet);
+                destination = value;
                 break;
             case DIRECTED:
-                setDirected(null != propertyToBeSet && (boolean) propertyToBeSet);
+                directed = (null != value && (value instanceof Boolean && (boolean) value) || (value instanceof DirectedType && ((DirectedType) value).isDirected()));
                 break;
             default:
                 LOGGER.error("Unknown identifier type: {} detected.", identifierType);
         }
     }
 
-    @Override
-    public int hashCode() {
-        int hash;
-        if (isDirected()) {
-            hash = new HashCodeBuilder(21, 3)
-                    .appendSuper(super.hashCode())
-                    .append(getSource())
-                    .append(getDestination())
-                    .append(isDirected())
-                    .toHashCode();
-        } else {
-            hash = super.hashCode();
-            if (null != getSource()) {
-                hash ^= getSource().hashCode();
-            }
-            if (null != getDestination()) {
-                hash ^= getDestination().hashCode();
-            }
-        }
-        return hash;
+    /**
+     * Sets the identifiers for an Edge.
+     * <p>
+     * If the edge is undirected the the source and destination vertices may get
+     * swapped to ensure undirected edges are consistently constructed.
+     * </p>
+     *
+     * @param source       the source vertex
+     * @param destination  the destination vertex
+     * @param directedType the edge directedType
+     */
+    public void setIdentifiers(final Object source, final Object destination, final DirectedType directedType) {
+        setIdentifiers(source, destination, directedType.isDirected());
     }
 
+    /**
+     * Sets the identifiers for an Edge.
+     * <p>
+     * If the edge is undirected the the source and destination vertices may get
+     * swapped to ensure undirected edges are consistently constructed.
+     * </p>
+     *
+     * @param source      the source vertex
+     * @param destination the destination vertex
+     * @param directed    true if the edge is directed
+     */
+    public void setIdentifiers(final Object source, final Object destination, final boolean directed) {
+        setIdentifiers(source, destination, directed, matchedVertex);
+    }
+
+    /**
+     * Sets the identifiers for an Edge.
+     * <p>
+     * If the edge is undirected the the source and destination vertices may get
+     * swapped to ensure undirected edges are consistently constructed.
+     * </p>
+     *
+     * @param source        the source vertex
+     * @param destination   the destination vertex
+     * @param directedType  the edge directedType
+     * @param matchedVertex the vertex that matched a query seed
+     */
+    @Override
+    public void setIdentifiers(final Object source, final Object destination, final DirectedType directedType, final MatchedVertex matchedVertex) {
+        setIdentifiers(source, destination, directedType.isDirected(), matchedVertex);
+    }
+
+    /**
+     * Sets the identifiers for an Edge.
+     * <p>
+     * If the edge is undirected the the source and destination vertices may get
+     * swapped to ensure undirected edges are consistently constructed.
+     * </p>
+     *
+     * @param source        the source vertex
+     * @param destination   the destination vertex
+     * @param directed      true if the edge is directed
+     * @param matchedVertex the vertex that matched a query seed
+     */
+    public void setIdentifiers(final Object source, final Object destination, final boolean directed, final MatchedVertex matchedVertex) {
+        this.source = source;
+        this.destination = destination;
+        this.directed = directed;
+        this.matchedVertex = matchedVertex;
+        orderVertices();
+    }
+
+    private void orderVertices() {
+        if (!directed) {
+            if (VERTEX_COMPARATOR.compare(source, destination) > 0) {
+                swapVertices();
+            }
+        }
+    }
+
+    private void swapVertices() {
+        final Object tmp = this.source;
+        this.source = this.destination;
+        this.destination = tmp;
+        if (matchedVertex != null) {
+            if (matchedVertex == MatchedVertex.DESTINATION) {
+                this.matchedVertex = MatchedVertex.SOURCE;
+            } else {
+                this.matchedVertex = MatchedVertex.DESTINATION;
+            }
+        }
+    }
+
+    /**
+     * Note this does not include the matchedVertex field.
+     *
+     * @return a hash code value for this edge.
+     */
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(21, 3)
+                .appendSuper(super.hashCode())
+                .append(getSource())
+                .append(getDestination())
+                .append(isDirected())
+                .toHashCode();
+    }
+
+    /**
+     * Note this does not include the matchedVertex field.
+     *
+     * @param obj the reference object with which to compare.
+     * @return {@code true} if this object is the same as the obj
+     * argument; {@code false} otherwise.
+     */
     @Override
     public boolean equals(final Object obj) {
         return null != obj
@@ -168,22 +289,21 @@ public class Edge extends Element implements EdgeId {
                 && equals((Edge) obj);
     }
 
+    /**
+     * Note this does not include the matchedVertex field.
+     *
+     * @param edge the reference Edge with which to compare.
+     * @return {@code true} if this object is the same as the edge
+     * argument; {@code false} otherwise.
+     */
     public boolean equals(final Edge edge) {
         return null != edge
-                && (new EqualsBuilder()
+                && new EqualsBuilder()
                 .append(isDirected(), edge.isDirected())
                 .append(getSource(), edge.getSource())
                 .append(getDestination(), edge.getDestination())
                 .appendSuper(super.equals(edge))
-                .isEquals()
-                || new EqualsBuilder()
-                .append(isDirected(), false)
-                .append(edge.isDirected(), false)
-                .append(getSource(), edge.getDestination())
-                .append(getDestination(), edge.getSource())
-                .appendSuper(super.equals(edge))
-                .isEquals()
-        );
+                .isEquals();
     }
 
     @Override
@@ -192,7 +312,9 @@ public class Edge extends Element implements EdgeId {
                 getGroup(),
                 getSource(),
                 getDestination(),
-                isDirected()
+                isDirected(),
+                getMatchedVertex(),
+                new Properties()
         );
     }
 
@@ -202,40 +324,51 @@ public class Edge extends Element implements EdgeId {
                 .append("source", getSource())
                 .append("destination", getDestination())
                 .append("directed", isDirected())
+                .append("matchedVertex", getMatchedVertex())
                 .appendSuper(super.toString())
                 .build();
     }
 
     public static class Builder {
-        private final Edge edge = new Edge();
+        private String group = Element.DEFAULT_GROUP;
+        private Object source;
+        private Object dest;
+        private boolean directed;
+        private MatchedVertex matchedVertex;
+        private Properties properties = new Properties();
 
         public Builder group(final String group) {
-            edge.setGroup(group);
+            this.group = group;
             return this;
         }
 
         public Builder source(final Object source) {
-            edge.setSource(source);
+            this.source = source;
             return this;
         }
 
         public Builder dest(final Object dest) {
-            edge.setDestination(dest);
+            this.dest = dest;
             return this;
         }
 
         public Builder directed(final boolean directed) {
-            edge.setDirected(directed);
+            this.directed = directed;
+            return this;
+        }
+
+        public Builder matchedVertex(final MatchedVertex matchedVertex) {
+            this.matchedVertex = matchedVertex;
             return this;
         }
 
         public Builder property(final String name, final Object value) {
-            edge.putProperty(name, value);
+            properties.put(name, value);
             return this;
         }
 
         public Edge build() {
-            return edge;
+            return new Edge(group, source, dest, directed, matchedVertex, properties);
         }
     }
 }

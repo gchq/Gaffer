@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.hbasestore.coprocessor.scanner;
 
-import com.google.common.collect.Lists;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.regionserver.InternalScanner;
 import org.apache.hadoop.hbase.regionserver.ScannerContext;
@@ -24,25 +23,27 @@ import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.LazyElementCell;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public abstract class GafferScanner implements InternalScanner {
     private final InternalScanner scanner;
     private final ElementSerialisation serialisation;
     private final List<GafferScannerProcessor> processors;
+    private final boolean includeMatchedVertex;
 
     public GafferScanner(final InternalScanner scanner,
                          final ElementSerialisation serialisation,
-                         final GafferScannerProcessor... processors) {
-        this(scanner, serialisation, Lists.newArrayList(processors));
-    }
-
-    protected GafferScanner(final InternalScanner scanner,
-                            final ElementSerialisation serialisation,
-                            final List<GafferScannerProcessor> processors) {
+                         final List<GafferScannerProcessor> processors,
+                         final boolean includeMatchedVertex) {
         this.scanner = scanner;
         this.serialisation = serialisation;
-        this.processors = processors;
+        if (null == processors) {
+            this.processors = Collections.emptyList();
+        } else {
+            this.processors = processors;
+        }
+        this.includeMatchedVertex = includeMatchedVertex;
     }
 
     @Override
@@ -66,7 +67,7 @@ public abstract class GafferScanner implements InternalScanner {
     protected void _next(final List<Cell> input, final List<Cell> output) throws IOException {
         List<LazyElementCell> elementCells = new ArrayList<>(input.size());
         for (final Cell cell : input) {
-            elementCells.add(new LazyElementCell(cell, serialisation));
+            elementCells.add(new LazyElementCell(cell, serialisation, includeMatchedVertex));
         }
 
         for (final GafferScannerProcessor processor : processors) {
