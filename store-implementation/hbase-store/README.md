@@ -282,7 +282,7 @@ The following changes to your schema are allowed:
 - add new groups
 - add new non-groupBy properties (including visibility and timestamp), but they must go after the other properties
 - rename properties
-- change aggregators
+- change aggregators (your data may become inconsistent as any elements that were aggregated on ingest will not be updated.)
 - change validators
 - change descriptions
 
