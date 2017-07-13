@@ -21,7 +21,6 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedLongSerialiser;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Date;
 
 public class OrderedLocalDateTimeSerialiser implements ToBytesSerialiser<LocalDateTime> {
 

@@ -18,11 +18,8 @@ package uk.gov.gchq.gaffer.serialisation.implementation.ordered.datetime;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedLongSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
 import java.time.LocalTime;
-import java.time.LocalTime;
-import java.time.ZoneOffset;
 
 public class OrderedLocalTimeSerialiser implements ToBytesSerialiser<LocalTime> {
 
