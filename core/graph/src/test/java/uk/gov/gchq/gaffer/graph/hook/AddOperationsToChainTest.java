@@ -39,12 +39,7 @@ public class AddOperationsToChainTest {
     public static final String ADD_OPERATIONS_TO_CHAIN_PATH = "src/test/resources/addOperationsToChain.json";
 
     @Test
-    public void shouldAddOperations() throws IOException {
-        AddOperationsToChain addOperationsToChain = new AddOperationsToChain(ADD_OPERATIONS_TO_CHAIN_PATH);
-    }
-
-    @Test
-    public void shouldAddBeforeOperation() throws IOException {
+    public void shouldAddAllOperations() throws IOException {
         AddOperationsToChain addOperationsToChain = new AddOperationsToChain(ADD_OPERATIONS_TO_CHAIN_PATH);
 
         Operation discardOutput = mock(DiscardOutput.class);
