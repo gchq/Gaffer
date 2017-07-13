@@ -106,16 +106,16 @@ public class AddOperationsToChain implements GraphHook {
             newOpChain.getOperations().addAll(start);
         }
         if (opChain != null) {
-            for (Operation originalOp : opChain.getOperations()) {
+            for (final Operation originalOp : opChain.getOperations()) {
 
-                for (String beforeOpKey : before.keySet()) {
+                for (final String beforeOpKey : before.keySet()) {
                     if (originalOp.getClass().getName().contains(beforeOpKey)) {
                         newOpChain.getOperations().addAll(before.get(beforeOpKey));
                     }
                     newOpChain.getOperations().add(originalOp);
                 }
 
-                for (String afterOpKey : after.keySet()) {
+                for (final String afterOpKey : after.keySet()) {
                     if (originalOp.getClass().getName().contains(afterOpKey)) {
                         newOpChain.getOperations().addAll(after.get(afterOpKey));
                     }
