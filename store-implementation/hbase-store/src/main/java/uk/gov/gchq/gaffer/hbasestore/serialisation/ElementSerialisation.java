@@ -27,9 +27,11 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.EdgeDirection;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
@@ -42,7 +44,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.Map;
 
 public class ElementSerialisation {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementSerialisation.class);
@@ -144,25 +145,17 @@ public class ElementSerialisation {
         return properties;
     }
 
-    public Element getPartialElement(final String group, final byte[] rowId) throws SerialisationException {
-        return getPartialElement(group, rowId, null);
+    public Element getPartialElement(final String group, final byte[] rowId, final boolean includeMatchedVertex) throws SerialisationException {
+        return getElement(CellUtil.createCell(rowId, HBaseStoreConstants.getColFam(), getColumnQualifier(group, new Properties())), includeMatchedVertex);
     }
 
-    public Element getPartialElement(final String group, final byte[] rowId, final Map<String, String> options) throws SerialisationException {
-        return getElement(CellUtil.createCell(rowId, HBaseStoreConstants.getColFam(), getColumnQualifier(group, new Properties())), options);
-    }
-
-    public Element getElement(final Cell cell) throws SerialisationException {
-        return getElement(cell, null);
-    }
-
-    public Element getElement(final Cell cell, final Map<String, String> options)
+    public Element getElement(final Cell cell, final boolean includeMatchedVertex)
             throws SerialisationException {
         final boolean keyRepresentsEntity = isEntity(cell);
         if (keyRepresentsEntity) {
             return getEntity(cell);
         }
-        return getEdge(cell, options);
+        return getEdge(cell, includeMatchedVertex);
     }
 
     public byte[] getColumnVisibility(final Element element) throws SerialisationException {
@@ -491,8 +484,7 @@ public class ElementSerialisation {
         return puts;
     }
 
-    public boolean getSourceAndDestination(final byte[] rowKey, final byte[][] sourceDestValues,
-                                           final Map<String, String> options) throws SerialisationException {
+    public EdgeDirection getSourceAndDestination(final byte[] rowKey, final byte[][] sourceDestValues) throws SerialisationException {
         // Get element class, sourceValue, destinationValue and directed flag from row cell
         // Expect to find 3 delimiters (4 fields)
         final int[] positionsOfDelimiters = new int[3];
@@ -524,23 +516,21 @@ public class ElementSerialisation {
         byte[] destBytes = ByteArrayEscapeUtils.unEscape(rowKey, positionsOfDelimiters[1] + 1, positionsOfDelimiters[2]);
         sourceDestValues[0] = sourceBytes;
         sourceDestValues[1] = destBytes;
-        boolean rtn;
+        EdgeDirection rtn;
         switch (directionFlag) {
             case HBaseStoreConstants.UNDIRECTED_EDGE:
                 // Edge is undirected
-                rtn = false;
+                rtn = EdgeDirection.UNDIRECTED;
                 break;
             case HBaseStoreConstants.CORRECT_WAY_DIRECTED_EDGE:
                 // Edge is directed and the first identifier is the source of the edge
-                rtn = true;
+                rtn = EdgeDirection.DIRECTED;
                 break;
             case HBaseStoreConstants.INCORRECT_WAY_DIRECTED_EDGE:
                 // Edge is directed and the second identifier is the source of the edge
-                if (!matchEdgeSource(options)) {
-                    sourceDestValues[0] = destBytes;
-                    sourceDestValues[1] = sourceBytes;
-                }
-                rtn = true;
+                sourceDestValues[0] = destBytes;
+                sourceDestValues[1] = sourceBytes;
+                rtn = EdgeDirection.DIRECTED_REVERSED;
                 break;
             default:
                 throw new SerialisationException(
@@ -570,14 +560,27 @@ public class ElementSerialisation {
                 getPropertiesFromTimestamp(element.getGroup(), cell.getTimestamp()));
     }
 
-    private Edge getEdge(final Cell cell, final Map<String, String> options)
+    private Edge getEdge(final Cell cell)
+            throws SerialisationException {
+        return getEdge(cell, false);
+    }
+
+    private Edge getEdge(final Cell cell, final boolean includeMatchedVertex)
             throws SerialisationException {
         final byte[][] result = new byte[3][];
-        final boolean directed = getSourceAndDestination(CellUtil.cloneRow(cell), result, options);
+        final EdgeDirection direction = getSourceAndDestination(CellUtil.cloneRow(cell), result);
+        final EdgeId.MatchedVertex matchedVertex;
+        if (!includeMatchedVertex) {
+            matchedVertex = null;
+        } else if (EdgeDirection.DIRECTED_REVERSED == direction) {
+            matchedVertex = EdgeId.MatchedVertex.DESTINATION;
+        } else {
+            matchedVertex = EdgeId.MatchedVertex.SOURCE;
+        }
         final String group = getGroup(cell);
         try {
             final Edge edge = new Edge(group, ((ToBytesSerialiser) schema.getVertexSerialiser()).deserialise(result[0]),
-                    ((ToBytesSerialiser) schema.getVertexSerialiser()).deserialise(result[1]), directed);
+                    ((ToBytesSerialiser) schema.getVertexSerialiser()).deserialise(result[1]), direction.isDirected(), matchedVertex, null);
             addPropertiesToElement(edge, cell);
             return edge;
         } catch (final SerialisationException e) {
@@ -596,11 +599,5 @@ public class ElementSerialisation {
         } catch (final SerialisationException e) {
             throw new SerialisationException("Failed to re-create Entity from cell", e);
         }
-    }
-
-    private boolean matchEdgeSource(final Map<String, String> options) {
-        return options != null
-                && options.containsKey(HBaseStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE)
-                && "true".equalsIgnoreCase(options.get(HBaseStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE));
     }
 }

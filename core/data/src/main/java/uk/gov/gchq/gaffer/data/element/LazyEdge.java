@@ -16,8 +16,7 @@
 
 package uk.gov.gchq.gaffer.data.element;
 
-import java.util.HashSet;
-import java.util.Set;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 
 /**
  * An <code>LazyEdge</code> wraps an {@link uk.gov.gchq.gaffer.data.element.Edge} and lazily loads identifiers and properties when
@@ -28,8 +27,8 @@ public class LazyEdge extends Edge {
     private static final long serialVersionUID = 3950963135470686691L;
     private final Edge edge;
     private final ElementValueLoader valueLoader;
-    private final Set<IdentifierType> loadedIdentifiers;
     private final LazyProperties lazyProperties;
+    private boolean identifiersLoaded = false;
 
     /**
      * Constructs a {@link uk.gov.gchq.gaffer.data.element.LazyEdge} by wrapping the provided {@link uk.gov.gchq.gaffer.data.element.Edge}
@@ -44,11 +43,16 @@ public class LazyEdge extends Edge {
     }
 
     protected LazyEdge(final Edge edge, final ElementValueLoader valueLoader, final LazyProperties lazyProperties) {
-        super(edge.getGroup());
+        super(edge.getGroup(), null, null, false);
         this.edge = edge;
         this.valueLoader = valueLoader;
         this.lazyProperties = lazyProperties;
-        loadedIdentifiers = new HashSet<>();
+    }
+
+    @Override
+    public void setIdentifiers(final Object source, final Object destination, final boolean directed, final MatchedVertex matchedVertex) {
+        edge.setIdentifiers(source, destination, directed, matchedVertex);
+        identifiersLoaded = true;
     }
 
     @Override
@@ -58,46 +62,31 @@ public class LazyEdge extends Edge {
 
     @Override
     public Object getSource() {
-        return lazyLoadIdentifier(edge.getSource(), IdentifierType.SOURCE);
+        loadIdentifiers();
+        return edge.getSource();
     }
 
     @Override
     public Object getDestination() {
-        return lazyLoadIdentifier(edge.getDestination(), IdentifierType.DESTINATION);
+        loadIdentifiers();
+        return edge.getDestination();
     }
 
     @Override
     public boolean isDirected() {
-        if (loadedIdentifiers.contains(IdentifierType.DIRECTED)) {
-            return edge.isDirected();
-        }
-
-        lazyLoadIdentifier(IdentifierType.DIRECTED);
+        loadIdentifiers();
         return edge.isDirected();
-    }
-
-    @Override
-    public void setSource(final Object source) {
-        edge.setSource(source);
-        loadedIdentifiers.add(IdentifierType.SOURCE);
-    }
-
-    @Override
-    public void setDestination(final Object destination) {
-        edge.setDestination(destination);
-        loadedIdentifiers.add(IdentifierType.DESTINATION);
-    }
-
-    @Override
-    public void setDirected(final boolean directed) {
-        edge.setDirected(directed);
-        loadedIdentifiers.add(IdentifierType.DIRECTED);
     }
 
     @Override
     public void putIdentifier(final IdentifierType name, final Object value) {
         edge.putIdentifier(name, value);
-        loadedIdentifiers.add(name);
+    }
+
+    @Override
+    public void setIdentifiers(final Object source, final Object destination, final DirectedType directedType) {
+        edge.setIdentifiers(source, destination, directedType);
+        identifiersLoaded = true;
     }
 
     @Override
@@ -130,20 +119,11 @@ public class LazyEdge extends Edge {
         return edge.hashCode();
     }
 
-    private Object lazyLoadIdentifier(final Object currentValue, final IdentifierType name) {
-        Object value = currentValue;
-        if (null == value && !loadedIdentifiers.contains(name)) {
-            value = lazyLoadIdentifier(name);
+    private void loadIdentifiers() {
+        if (!identifiersLoaded) {
+            valueLoader.loadIdentifiers(edge);
+            identifiersLoaded = true;
         }
-
-        return value;
-    }
-
-    private Object lazyLoadIdentifier(final IdentifierType name) {
-        Object value = valueLoader.getIdentifier(name, this);
-        putIdentifier(name, value);
-
-        return value;
     }
 }
 

@@ -26,8 +26,10 @@ import java.util.List;
 
 public class StoreScanner extends GafferScanner {
     public StoreScanner(final InternalScanner scanner,
-                        final Schema schema, final ElementSerialisation serialisation) {
-        super(scanner, serialisation, createProcessors(schema, serialisation));
+                        final Schema schema,
+                        final ElementSerialisation serialisation,
+                        final boolean includeMatchedVertex) {
+        super(scanner, serialisation, createProcessors(schema, serialisation), includeMatchedVertex);
     }
 
     protected static List<GafferScannerProcessor> createProcessors(final Schema schema, final ElementSerialisation serialisation) {

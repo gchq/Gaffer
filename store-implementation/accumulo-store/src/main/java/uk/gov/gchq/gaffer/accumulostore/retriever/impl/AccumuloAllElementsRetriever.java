@@ -45,7 +45,7 @@ public class AccumuloAllElementsRetriever extends AccumuloItemRetriever<GetAllEl
     public AccumuloAllElementsRetriever(final AccumuloStore store, final GetAllElements operation,
                                         final User user)
             throws IteratorSettingException, StoreException {
-        super(store, operation, user,
+        super(store, operation, user, false,
                 store.getKeyPackage().getIteratorFactory().getElementPropertyRangeQueryFilter(operation),
                 store.getKeyPackage().getIteratorFactory().getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
                 store.getKeyPackage().getIteratorFactory().getElementPostAggregationFilterIteratorSetting(operation.getView(), store),

@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.EdgeDirection;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
@@ -43,7 +44,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
-import java.util.Map;
 
 @SuppressWarnings("unchecked")
 public abstract class AbstractCoreKeyAccumuloElementConverter implements AccumuloElementConverter {
@@ -54,12 +54,12 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     @Override
-    public ElementId getElementId(final Key key, final Map<String, String> options) {
+    public ElementId getElementId(final Key key, final boolean includeMatchedVertex) {
         final byte[] row = key.getRowData().getBackingArray();
         if (doesKeyRepresentEntity(row)) {
             return getEntityId(row);
         }
-        return getEdgeId(row, options);
+        return getEdgeId(row, includeMatchedVertex);
     }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
@@ -151,28 +151,18 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     @Override
-    public Element getElementFromKey(final Key key) {
-        return getElementFromKey(key, null);
-    }
-
-    @Override
-    public Element getElementFromKey(final Key key, final Map<String, String> options) {
+    public Element getElementFromKey(final Key key, final boolean includeMatchedVertex) {
         final byte[] row = key.getRowData().getBackingArray();
         final boolean keyRepresentsEntity = doesKeyRepresentEntity(row);
         if (keyRepresentsEntity) {
             return getEntityFromKey(key, row);
         }
-        return getEdgeFromKey(key, row, options);
+        return getEdgeFromKey(key, row, includeMatchedVertex);
     }
 
     @Override
-    public Element getFullElement(final Key key, final Value value) {
-        return getFullElement(key, value, null);
-    }
-
-    @Override
-    public Element getFullElement(final Key key, final Value value, final Map<String, String> options) {
-        final Element element = getElementFromKey(key, options);
+    public Element getFullElement(final Key key, final Value value, final boolean includeMatchedVertex) {
+        final Element element = getElementFromKey(key, includeMatchedVertex);
         element.copyProperties(getPropertiesFromValue(element.getGroup(), value));
         return element;
     }
@@ -399,17 +389,25 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
 
     protected abstract Entity getEntityFromKey(final Key key, final byte[] row);
 
-    protected abstract boolean getSourceAndDestinationFromRowKey(final byte[] rowKey,
-                                                                 final byte[][] sourceValueDestinationValue, final Map<String, String> options);
+    protected abstract EdgeDirection getSourceAndDestinationFromRowKey(final byte[] rowKey,
+                                                                       final byte[][] sourceValueDestinationValue);
 
     protected abstract EntityId getEntityId(final byte[] row);
 
-    protected EdgeId getEdgeId(final byte[] row, final Map<String, String> options) {
+    protected EdgeId getEdgeId(final byte[] row, final boolean includeMatchedVertex) {
         final byte[][] result = new byte[2][];
-        final boolean directed = getSourceAndDestinationFromRowKey(row, result, options);
+        final EdgeDirection direction = getSourceAndDestinationFromRowKey(row, result);
+        final EdgeId.MatchedVertex matchedVertex;
+        if (!includeMatchedVertex) {
+            matchedVertex = null;
+        } else if (EdgeDirection.DIRECTED_REVERSED == direction) {
+            matchedVertex = EdgeId.MatchedVertex.DESTINATION;
+        } else {
+            matchedVertex = EdgeId.MatchedVertex.SOURCE;
+        }
         try {
             return new EdgeSeed(((ToBytesSerialiser) schema.getVertexSerialiser()).deserialise(result[0]),
-                    ((ToBytesSerialiser) schema.getVertexSerialiser()).deserialise(result[1]), directed);
+                    ((ToBytesSerialiser) schema.getVertexSerialiser()).deserialise(result[1]), direction.isDirected(), matchedVertex);
         } catch (final SerialisationException e) {
             throw new AccumuloElementConversionException("Failed to create EdgeId from Accumulo row key", e);
         }
@@ -429,9 +427,18 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     @SuppressWarnings("WeakerAccess")
-    protected Edge getEdgeFromKey(final Key key, final byte[] row, final Map<String, String> options) {
+    protected Edge getEdgeFromKey(final Key key, final byte[] row, final boolean includeMatchedVertex) {
         final byte[][] result = new byte[2][];
-        final boolean directed = getSourceAndDestinationFromRowKey(row, result, options);
+        final EdgeDirection direction = getSourceAndDestinationFromRowKey(row, result);
+        final EdgeId.MatchedVertex matchedVertex;
+        if (!includeMatchedVertex) {
+            matchedVertex = null;
+        } else if (EdgeDirection.DIRECTED_REVERSED == direction) {
+            matchedVertex = EdgeId.MatchedVertex.DESTINATION;
+        } else {
+            matchedVertex = EdgeId.MatchedVertex.SOURCE;
+        }
+
         String group;
         try {
             group = new String(key.getColumnFamilyData().getBackingArray(), CommonConstants.UTF_8);
@@ -440,7 +447,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         }
         try {
             final Edge edge = new Edge(group, ((ToBytesSerialiser) schema.getVertexSerialiser()).deserialise(result[0]),
-                    ((ToBytesSerialiser) schema.getVertexSerialiser()).deserialise(result[1]), directed);
+                    ((ToBytesSerialiser) schema.getVertexSerialiser()).deserialise(result[1]), direction.isDirected(), matchedVertex, null);
             addPropertiesToElement(edge, key);
             return edge;
         } catch (final SerialisationException e) {

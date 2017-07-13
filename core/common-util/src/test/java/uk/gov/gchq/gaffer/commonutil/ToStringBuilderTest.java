@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,14 +38,14 @@ public class ToStringBuilderTest {
     public void testDebugOffToStringBuilder() {
         setDebugMode("false");
         ToStringBuilder toStringBuilder = new ToStringBuilder("Test String");
-        assertEquals(ToStringStyle.SHORT_PREFIX_STYLE, toStringBuilder.getStyle());
+        assertEquals(ToStringBuilder.SHORT_STYLE, toStringBuilder.getStyle());
     }
 
     @Test
     public void testDebugOnToStringBuilder() {
         setDebugMode("true");
         ToStringBuilder toStringBuilder = new ToStringBuilder("Test String");
-        assertEquals(ToStringStyle.DEFAULT_STYLE, toStringBuilder.getStyle());
+        assertEquals(ToStringBuilder.FULL_STYLE, toStringBuilder.getStyle());
     }
 
     private void setDebugMode(final String value) {

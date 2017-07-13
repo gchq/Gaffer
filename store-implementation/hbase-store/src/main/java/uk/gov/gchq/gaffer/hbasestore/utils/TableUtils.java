@@ -64,6 +64,7 @@ public final class TableUtils {
 
     /**
      * Utility for creating and updating an HBase table.
+     * See the HBase Store README for more information on what changes to your schema you are allowed to make.
      * HBase tables are automatically created when the Gaffer HBase store is initialised when an instance of Graph is created.
      * <p>
      * Running this with an existing table will remove the existing Gaffer Coprocessor and recreate it.

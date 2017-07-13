@@ -42,13 +42,12 @@ public class EdgeKryoSerializer extends Serializer<Edge> {
     @Override
     public Edge read(final Kryo kryo, final Input input, final Class<Edge> type) {
         final String group = input.readString();
-        final Edge edge = new Edge(group);
         Registration reg = kryo.readClass(input);
-        edge.setSource(kryo.readObject(input, reg.getType()));
+        final Object source = kryo.readObject(input, reg.getType());
         reg = kryo.readClass(input);
-        edge.setDestination(kryo.readObject(input, reg.getType()));
-        edge.setDirected(input.readBoolean());
-        edge.copyProperties(kryo.readObjectOrNull(input, Properties.class));
-        return edge;
+        final Object dest = kryo.readObject(input, reg.getType());
+        final boolean directed = input.readBoolean();
+        final Properties properties = kryo.readObjectOrNull(input, Properties.class);
+        return new Edge(group, source, dest, directed, null, properties);
     }
 }

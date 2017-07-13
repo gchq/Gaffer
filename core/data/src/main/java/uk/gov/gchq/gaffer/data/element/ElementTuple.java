@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.data.element.function;
+package uk.gov.gchq.gaffer.data.element;
 
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
-import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.koryphe.tuple.Tuple;
 
 /**
