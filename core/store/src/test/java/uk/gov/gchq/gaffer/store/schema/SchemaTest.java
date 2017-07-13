@@ -301,10 +301,10 @@ public class SchemaTest {
                         .description(STRING_TYPE_DESCRIPTION)
                         .build())
                 .type(TestTypes.PROP_MAP, new TypeDefinition.Builder()
-                        .description(MAP_TYPE_DESCRIPTION)
-                        .clazz(LinkedHashMap.class)
-                        .serialiser(mapSerialiser)
-                        .build()
+                                .description(MAP_TYPE_DESCRIPTION)
+                                .clazz(LinkedHashMap.class)
+                                .serialiser(mapSerialiser)
+                                .build()
                 )
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
@@ -1064,6 +1064,34 @@ public class SchemaTest {
 
         // Then
         assertFalse(result);
+    }
+
+    @Test
+    public void shouldThrowExceptionWithEdgeWhenSerialiserNotDefined() throws SerialisationException {
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.EDGE)
+                .build();
+
+        try {
+            schema.getVertexSerialiser().serialise(schema.getEdge(TestGroups.EDGE));
+            fail("Exception expected");
+        } catch (NullPointerException e) {
+            //assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionWithEntityWhenSerialiserNotDefined() throws SerialisationException {
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.ENTITY)
+                .build();
+
+        try {
+            schema.getVertexSerialiser().serialise(schema.getEdge(TestGroups.ENTITY));
+            fail("Exception expected");
+        } catch (NullPointerException e) {
+            //assertNotNull(e.getMessage());
+        }
     }
 
 
