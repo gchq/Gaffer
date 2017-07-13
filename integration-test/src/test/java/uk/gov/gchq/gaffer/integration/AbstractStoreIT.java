@@ -68,10 +68,10 @@ public abstract class AbstractStoreIT {
     protected static final long AGE_OFF_TIME = 4L * 1000; // 4 seconds;
 
     // Identifier prefixes
-    public static final String SOURCE = "source";
-    public static final String DEST = "dest";
-    public static final String SOURCE_DIR = "sourceDir";
-    public static final String DEST_DIR = "destDir";
+    public static final String SOURCE = "1-Source";
+    public static final String DEST = "2-Dest";
+    public static final String SOURCE_DIR = "1-SourceDir";
+    public static final String DEST_DIR = "2-DestDir";
     public static final String A = "A";
     public static final String B = "B";
     public static final String C = "C";

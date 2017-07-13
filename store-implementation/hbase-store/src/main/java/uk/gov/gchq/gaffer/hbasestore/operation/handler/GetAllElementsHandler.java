@@ -37,7 +37,7 @@ public class GetAllElementsHandler implements OutputOperationHandler<GetAllEleme
 
     private CloseableIterable<? extends Element> doOperation(final GetAllElements operation, final User user, final HBaseStore store) throws OperationException {
         try {
-            return store.createRetriever(operation, user, null, ElementDedupeFilterProcessor.class);
+            return store.createRetriever(operation, user, null, false, ElementDedupeFilterProcessor.class);
         } catch (final StoreException e) {
             throw new OperationException("Unable to fetch elements", e);
         }

@@ -159,7 +159,7 @@ public class AddElementsHandlerTest {
             }
         }
         final Element[] expectedElementsArr = expectedElements.toArray(new Element[expectedElements.size()]);
-        final List<Element> elementsAdded = CellUtil.getElements(puts, new ElementSerialisation(SCHEMA));
+        final List<Element> elementsAdded = CellUtil.getElements(puts, new ElementSerialisation(SCHEMA), false);
         assertEquals(expectedElements.size(), elementsAdded.size());
         assertThat(elementsAdded, IsCollectionContaining.hasItems(expectedElementsArr));
 
@@ -206,11 +206,11 @@ public class AddElementsHandlerTest {
         final List<Put> puts1 = putsCaptor.getAllValues().get(0);
         final List<Put> puts2 = putsCaptor.getAllValues().get(1);
 
-        final List<Element> elementsAdded1 = CellUtil.getElements(puts1, new ElementSerialisation(SCHEMA));
+        final List<Element> elementsAdded1 = CellUtil.getElements(puts1, new ElementSerialisation(SCHEMA), false);
         assertEquals(expectedElements.size(), elementsAdded1.size());
         assertThat(elementsAdded1, IsCollectionContaining.hasItems(expectedElementsArr));
 
-        final List<Element> elementsAdded2 = CellUtil.getElements(puts2, new ElementSerialisation(SCHEMA));
+        final List<Element> elementsAdded2 = CellUtil.getElements(puts2, new ElementSerialisation(SCHEMA), false);
         assertEquals(expectedElements.size(), elementsAdded2.size());
         assertThat(elementsAdded2, IsCollectionContaining.hasItems(expectedElementsArr));
 
@@ -260,7 +260,7 @@ public class AddElementsHandlerTest {
             }
         }
         final Element[] expectedElementsArr = expectedElements.toArray(new Element[expectedElements.size()]);
-        final List<Element> elementsAdded = CellUtil.getElements(puts, new ElementSerialisation(SCHEMA));
+        final List<Element> elementsAdded = CellUtil.getElements(puts, new ElementSerialisation(SCHEMA), false);
         assertEquals(expectedElements.size(), elementsAdded.size());
         assertThat(elementsAdded, IsCollectionContaining.hasItems(expectedElementsArr));
 

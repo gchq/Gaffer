@@ -171,8 +171,9 @@ public class HBaseStore extends Store {
     createRetriever(final OP operation,
                     final User user,
                     final Iterable<? extends ElementId> ids,
+                    final boolean includeMatchedVertex,
                     final Class<?>... extraProcessors) throws StoreException {
-        return new HBaseRetriever<>(this, operation, user, ids, extraProcessors);
+        return new HBaseRetriever<>(this, operation, user, ids, includeMatchedVertex, extraProcessors);
     }
 
     @Override

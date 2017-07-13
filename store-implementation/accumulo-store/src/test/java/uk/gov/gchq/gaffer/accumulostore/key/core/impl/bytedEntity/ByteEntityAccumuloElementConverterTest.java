@@ -15,13 +15,8 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.key.core.impl.bytedEntity;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
-import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
-import uk.gov.gchq.gaffer.accumulostore.key.core.impl.AbstractAccumuloElementConverterTest;
+import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyAccumuloElementConverterTest;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.accumulostore.utils.ByteUtils;
@@ -30,12 +25,16 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 /**
  * Tests are inherited from AbstractAccumuloElementConverterTest.
  */
-public class ByteEntityAccumuloElementConverterTest extends AbstractAccumuloElementConverterTest {
+public class ByteEntityAccumuloElementConverterTest extends AbstractCoreKeyAccumuloElementConverterTest {
     @Override
-    protected AccumuloElementConverter createConverter(final Schema schema) {
+    protected ByteEntityAccumuloElementConverter createConverter(final Schema schema) {
         return new ByteEntityAccumuloElementConverter(schema);
     }
 

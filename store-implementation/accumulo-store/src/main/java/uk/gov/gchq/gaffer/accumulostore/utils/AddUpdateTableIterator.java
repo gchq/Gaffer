@@ -38,9 +38,9 @@ import java.util.EnumSet;
  * table.
  * <p>
  * This class also has an executable main method that can be used to either
- * re-add or update the aggregator iterator that is set on a table.
+ * re-add or update the aggregator iterators that is set on a table.
  * It should be run on an accumulo cluster. The main
- * method takes 3 arguments: a comma separated list of paths to schemas,
+ * method takes 4 arguments: a graphId, a comma separated list of paths to schemas,
  * a path to a store properties file and the type of operation to perform on the
  * table iterators - add, update or remove.
  * <p>
@@ -50,8 +50,9 @@ import java.util.EnumSet;
  * iterator with options for the store and data schemas provided previously to
  * the main method. The remove option allows an iterator to be removed.
  * <p>
- * This is useful if you wish to change the way data is aggregated or validated
- * after you have put some data in a table.
+ * This is useful if you wish to change your schema or upgrade to a newer version
+ * of Gaffer. See the Accumulo Store README for more information on what changes
+ * to your schema you are allowed to make.
  */
 public final class AddUpdateTableIterator {
     public static final String UPDATE_KEY = "update";

@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.accumulostore.key.core.impl.gaffer1;
+package uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic;
 
 import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyIteratorSettingsFactoryTest;
-import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicIteratorSettingsFactory;
 
 public class ClassicIteratorSettingsFactoryTest extends AbstractCoreKeyIteratorSettingsFactoryTest {
     public ClassicIteratorSettingsFactoryTest() {
