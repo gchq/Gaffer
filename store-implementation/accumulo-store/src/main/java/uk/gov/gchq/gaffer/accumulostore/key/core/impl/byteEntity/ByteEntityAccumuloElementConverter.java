@@ -19,10 +19,10 @@ package uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity;
 import org.apache.accumulo.core.data.Key;
 import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
-import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.EdgeDirection;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -30,7 +30,6 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Arrays;
-import java.util.Map;
 
 /**
  * The ByteEntityAccumuloElementConverter converts Gaffer Elements to Accumulo
@@ -137,8 +136,7 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
     }
 
     @Override
-    protected boolean getSourceAndDestinationFromRowKey(final byte[] rowKey, final byte[][] sourceDestValues,
-                                                        final Map<String, String> options) {
+    protected EdgeDirection getSourceAndDestinationFromRowKey(final byte[] rowKey, final byte[][] sourceDestValues) {
         // Get element class, sourceValue, destinationValue and directed flag from row key
         // Expect to find 3 delimiters (4 fields)
         final int[] positionsOfDelimiters = new int[3];
@@ -169,37 +167,29 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
 
         byte[] sourceBytes = ByteArrayEscapeUtils.unEscape(rowKey, 0, positionsOfDelimiters[0]);
         byte[] destBytes = ByteArrayEscapeUtils.unEscape(rowKey, positionsOfDelimiters[1] + 1, positionsOfDelimiters[2]);
-        boolean rtn;
+        EdgeDirection rtn;
         sourceDestValues[0] = sourceBytes;
         sourceDestValues[1] = destBytes;
 
         switch (directionFlag) {
             case ByteEntityPositions.UNDIRECTED_EDGE:
                 // Edge is undirected
-                rtn = false;
+                rtn = EdgeDirection.UNDIRECTED;
                 break;
             case ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE:
                 // Edge is directed and the first identifier is the source of the edge
-                rtn = true;
+                rtn = EdgeDirection.DIRECTED;
                 break;
             case ByteEntityPositions.INCORRECT_WAY_DIRECTED_EDGE:
                 // Edge is directed and the second identifier is the source of the edge
-                if (!matchEdgeSource(options)) {
-                    sourceDestValues[0] = destBytes;
-                    sourceDestValues[1] = sourceBytes;
-                }
-                rtn = true;
+                sourceDestValues[0] = destBytes;
+                sourceDestValues[1] = sourceBytes;
+                rtn = EdgeDirection.DIRECTED_REVERSED;
                 break;
             default:
                 throw new AccumuloElementConversionException(
                         "Invalid direction flag in row key - flag was " + directionFlag);
         }
         return rtn;
-    }
-
-    private boolean matchEdgeSource(final Map<String, String> options) {
-        return options != null
-                && options.containsKey(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE)
-                && "true".equalsIgnoreCase(options.get(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE));
     }
 }

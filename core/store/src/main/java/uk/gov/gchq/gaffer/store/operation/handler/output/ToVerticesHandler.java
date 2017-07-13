@@ -38,34 +38,70 @@ public class ToVerticesHandler implements OutputOperationHandler<ToVertices, Ite
         }
 
         return new StreamIterable<>(Streams.toStream(operation.getInput())
-                                           .flatMap(elementIdsToVertices(operation)));
+                .flatMap(elementIdsToVertices(operation)));
     }
 
     private Function<ElementId, Stream<Object>> elementIdsToVertices(final ToVertices operation) {
         return e -> {
-            Stream<Object> vertices = Stream.empty();
+            final Stream<Object> vertices;
 
             if (e instanceof EdgeId) {
                 final EdgeId edgeId = (EdgeId) e;
-                if (operation.getEdgeVertices() != EdgeVertices.NONE) {
-                    switch (operation.getEdgeVertices()) {
-                        case BOTH:
-                            vertices = Stream.of(edgeId.getSource(), edgeId.getDestination());
-                            break;
-                        case SOURCE:
-                            vertices = Stream.of(edgeId.getSource());
-                            break;
-                        case DESTINATION:
-                            vertices = Stream.of(edgeId.getDestination());
-                            break;
-                        default:
-                            break;
-                    }
+                if (operation.getEdgeVertices() == EdgeVertices.NONE) {
+                    vertices = Stream.empty();
+                } else if (null != edgeId.getMatchedVertex()) {
+                    vertices = getMatchedEdgeVertices(operation, edgeId);
+                } else {
+                    vertices = getEdgeVertices(operation.getEdgeVertices(), edgeId);
                 }
             } else {
                 vertices = Stream.of(((EntityId) e).getVertex());
             }
             return vertices;
         };
+    }
+
+    private Stream<Object> getMatchedEdgeVertices(final ToVertices operation, final EdgeId edgeId) {
+        final Stream<Object> vertices;
+        if (ToVertices.UseMatchedVertex.EQUAL == operation.getUseMatchedVertex()) {
+            if (EdgeId.MatchedVertex.SOURCE == edgeId.getMatchedVertex()) {
+                vertices = Stream.of(edgeId.getSource());
+            } else {
+                vertices = Stream.of(edgeId.getDestination());
+            }
+        } else if (ToVertices.UseMatchedVertex.OPPOSITE == operation.getUseMatchedVertex()) {
+            if (EdgeId.MatchedVertex.SOURCE == edgeId.getMatchedVertex()) {
+                vertices = Stream.of(edgeId.getDestination());
+            } else {
+                vertices = Stream.of(edgeId.getSource());
+            }
+        } else {
+            vertices = getEdgeVertices(operation.getEdgeVertices(), edgeId);
+        }
+        return vertices;
+    }
+
+    private Stream<Object> getEdgeVertices(final EdgeVertices edgeVertices, final EdgeId edgeId) {
+        final Stream<Object> vertices;
+        if (null == edgeVertices) {
+            vertices = Stream.empty();
+        } else {
+            switch (edgeVertices) {
+                case BOTH:
+                    vertices = Stream.of(edgeId.getSource(), edgeId.getDestination());
+                    break;
+                case SOURCE:
+                    vertices = Stream.of(edgeId.getSource());
+                    break;
+                case DESTINATION:
+                    vertices = Stream.of(edgeId.getDestination());
+                    break;
+                default:
+                    vertices = Stream.empty();
+                    break;
+            }
+        }
+
+        return vertices;
     }
 }

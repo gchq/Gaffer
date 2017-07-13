@@ -49,12 +49,14 @@ public abstract class AccumuloItemRetriever<OP extends Output<CloseableIterable<
         extends AccumuloRetriever<OP, Element> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloItemRetriever.class);
 
+    protected final boolean includeMatchedVertex;
     private final Iterable<? extends I_ITEM> ids;
 
     protected AccumuloItemRetriever(final AccumuloStore store, final OP operation,
-                                    final User user,
+                                    final User user, final boolean includeMatchedVertex,
                                     final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, user, iteratorSettings);
+        this.includeMatchedVertex = includeMatchedVertex;
         this.ids = operation instanceof Input ? ((Input<Iterable<? extends I_ITEM>>) operation).getInput() : null;
     }
 
@@ -128,7 +130,7 @@ public abstract class AccumuloItemRetriever<OP extends Output<CloseableIterable<
                     nextElm = elementConverter.getFullElement(
                             entry.getKey(),
                             entry.getValue(),
-                            operation.getOptions());
+                            includeMatchedVertex);
                 } catch (final AccumuloElementConversionException e) {
                     LOGGER.error("Failed to re-create an element from a key value entry set returning next element as null",
                             e);

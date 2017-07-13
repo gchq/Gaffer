@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.store.operation.handler.output;
 
 import com.google.common.collect.Sets;
 import org.junit.Test;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -58,12 +59,79 @@ public class ToVerticesHandlerTest {
     }
 
     @Test
+    public void shouldConvertEdgeSeedsToVertices_matchedVertexEqual() throws OperationException {
+        // Given
+        final Object vertex1 = "vertex1";
+        final Object vertex2 = "vertex2";
+        final Object vertex3 = "vertex3";
+        final Object vertex4 = "vertex4";
+        final Object vertex5 = "vertex5";
+        final Object vertex6 = "vertex6";
+        final Object vertex7 = "vertex7";
+        final Object vertex8 = "vertex8";
+
+        final List elementIds = Arrays.asList(
+                new EdgeSeed(vertex1, vertex2, false, EdgeId.MatchedVertex.SOURCE),
+                new EdgeSeed(vertex3, vertex4, false, EdgeId.MatchedVertex.DESTINATION),
+                new EdgeSeed(vertex5, vertex6, false, EdgeId.MatchedVertex.DESTINATION),
+                new EdgeSeed(vertex7, vertex8, false, null)
+        );
+
+        final ToVerticesHandler handler = new ToVerticesHandler();
+        final ToVertices operation = mock(ToVertices.class);
+
+        given(operation.getInput()).willReturn(elementIds);
+        given(operation.getUseMatchedVertex()).willReturn(ToVertices.UseMatchedVertex.EQUAL);
+        given(operation.getEdgeVertices()).willReturn(EdgeVertices.DESTINATION);
+
+        //When
+        final Iterable<Object> results = handler.doOperation(operation, new Context(), null);
+
+        //Then
+        assertThat(Sets.newHashSet(results), containsInAnyOrder(vertex1, vertex4, vertex6, vertex8));
+    }
+
+    @Test
+    public void shouldConvertEdgeSeedsToVertices_matchedVertexOpposite() throws OperationException {
+        // Given
+        final Object vertex1 = "vertex1";
+        final Object vertex2 = "vertex2";
+        final Object vertex3 = "vertex3";
+        final Object vertex4 = "vertex4";
+        final Object vertex5 = "vertex5";
+        final Object vertex6 = "vertex6";
+        final Object vertex7 = "vertex7";
+        final Object vertex8 = "vertex8";
+
+        final List elementIds = Arrays.asList(
+                new EdgeSeed(vertex1, vertex2, false, EdgeId.MatchedVertex.SOURCE),
+                new EdgeSeed(vertex3, vertex4, false, EdgeId.MatchedVertex.DESTINATION),
+                new EdgeSeed(vertex5, vertex6, false, EdgeId.MatchedVertex.DESTINATION),
+                new EdgeSeed(vertex7, vertex8, false, null)
+        );
+
+        final ToVerticesHandler handler = new ToVerticesHandler();
+        final ToVertices operation = mock(ToVertices.class);
+
+        given(operation.getInput()).willReturn(elementIds);
+        given(operation.getUseMatchedVertex()).willReturn(ToVertices.UseMatchedVertex.OPPOSITE);
+        given(operation.getEdgeVertices()).willReturn(EdgeVertices.SOURCE);
+
+        //When
+        final Iterable<Object> results = handler.doOperation(operation, new Context(), null);
+
+        //Then
+        assertThat(Sets.newHashSet(results), containsInAnyOrder(vertex2, vertex3, vertex5, vertex7));
+    }
+
+    @Test
     public void shouldConvertEdgeSeedsToVertices_sourceAndDestination() throws OperationException {
         // Given
         final Object vertex1 = "vertex1";
         final Object vertex2 = "vertex2";
+        final Object vertex3 = "vertex3";
 
-        final List elementIds = Arrays.asList(new EdgeSeed(vertex1, vertex2, false), new EdgeSeed(vertex2, vertex1, false));
+        final List elementIds = Arrays.asList(new EdgeSeed(vertex1, vertex2, false), new EdgeSeed(vertex1, vertex3, false));
 
         final ToVerticesHandler handler = new ToVerticesHandler();
         final ToVertices operation = mock(ToVertices.class);
@@ -75,7 +143,7 @@ public class ToVerticesHandlerTest {
         final Iterable<Object> results = handler.doOperation(operation, new Context(), null);
 
         //Then
-        assertThat(Sets.newHashSet(results), containsInAnyOrder(vertex1, vertex2));
+        assertThat(Sets.newHashSet(results), containsInAnyOrder(vertex1, vertex2, vertex3));
     }
 
     @Test

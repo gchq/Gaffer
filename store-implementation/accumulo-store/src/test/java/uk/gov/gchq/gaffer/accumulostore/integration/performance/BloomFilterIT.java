@@ -175,7 +175,7 @@ public class BloomFilterIT {
             // Write data to file
             writer.startDefaultLocalityGroup();
             for (final Key key : keys) {
-                if (elementConverter.getElementFromKey(key)
+                if (elementConverter.getElementFromKey(key, false)
                         .getGroup()
                         .equals(TestGroups.ENTITY)) {
                     writer.append(key, value);
