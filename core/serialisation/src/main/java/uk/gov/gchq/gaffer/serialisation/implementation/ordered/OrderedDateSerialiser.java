@@ -16,33 +16,26 @@
 
 package uk.gov.gchq.gaffer.serialisation.implementation.ordered;
 
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.DelegateSerialiser;
 import java.util.Date;
 
-public class OrderedDateSerialiser implements ToBytesSerialiser<Date> {
+public class OrderedDateSerialiser extends DelegateSerialiser<Date, Long> {
 
     private static final long serialVersionUID = 6636121009320739764L;
     private static final OrderedLongSerialiser LONG_SERIALISER = new OrderedLongSerialiser();
 
-    @Override
-    public byte[] serialise(final Date object) {
-        return LONG_SERIALISER.serialise(object.getTime());
+    public OrderedDateSerialiser() {
+        super(LONG_SERIALISER);
     }
 
     @Override
-    public Date deserialise(final byte[] bytes) throws SerialisationException {
-        return new Date(LONG_SERIALISER.deserialise(bytes));
+    public Date fromDelegateType(final Long object) {
+        return new Date(object);
     }
 
     @Override
-    public Date deserialiseEmpty() {
-        return null;
-    }
-
-    @Override
-    public boolean preservesObjectOrdering() {
-        return true;
+    public Long toDelegateType(final Date object) {
+        return object.getTime();
     }
 
     @Override

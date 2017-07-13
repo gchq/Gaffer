@@ -16,35 +16,28 @@
 
 package uk.gov.gchq.gaffer.serialisation.implementation.ordered.datetime;
 
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.DelegateSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedLongSerialiser;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
-public class OrderedLocalDateTimeSerialiser implements ToBytesSerialiser<LocalDateTime> {
+public class OrderedLocalDateTimeSerialiser extends DelegateSerialiser<LocalDateTime, Long> {
 
     private static final long serialVersionUID = 6636121009320739764L;
     private static final OrderedLongSerialiser LONG_SERIALISER = new OrderedLongSerialiser();
 
-    @Override
-    public byte[] serialise(final LocalDateTime object) {
-        return LONG_SERIALISER.serialise(object.toEpochSecond(ZoneOffset.UTC));
+    public OrderedLocalDateTimeSerialiser() {
+        super(LONG_SERIALISER);
     }
 
     @Override
-    public LocalDateTime deserialise(final byte[] bytes) throws SerialisationException {
-        return LocalDateTime.ofEpochSecond(LONG_SERIALISER.deserialise(bytes), 0, ZoneOffset.UTC);
+    public LocalDateTime fromDelegateType(final Long object) {
+        return LocalDateTime.ofEpochSecond(object, 0, ZoneOffset.UTC);
     }
 
     @Override
-    public LocalDateTime deserialiseEmpty() {
-        return null;
-    }
-
-    @Override
-    public boolean preservesObjectOrdering() {
-        return true;
+    public Long toDelegateType(final LocalDateTime object) {
+        return object.toEpochSecond(ZoneOffset.UTC);
     }
 
     @Override

@@ -16,28 +16,20 @@
 
 package uk.gov.gchq.gaffer.serialisation.implementation.ordered;
 
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.DelegateSerialiser;
 
-public class OrderedFloatSerialiser implements ToBytesSerialiser<Float> {
+public class OrderedFloatSerialiser extends DelegateSerialiser<Float, Integer> {
 
     private static final long serialVersionUID = 6829577492677279853L;
     private static final OrderedIntegerSerialiser INTEGER_SERIALISER = new OrderedIntegerSerialiser();
 
-    @Override
-    public byte[] serialise(final Float object) {
-        int i = Float.floatToRawIntBits(object);
-        if (i < 0) {
-            i = ~i;
-        } else {
-            i = i ^ 0x80000000;
-        }
-        return INTEGER_SERIALISER.serialise(i);
+    public OrderedFloatSerialiser() {
+        super(INTEGER_SERIALISER);
     }
 
     @Override
-    public Float deserialise(final byte[] bytes) throws SerialisationException {
-        int i = INTEGER_SERIALISER.deserialise(bytes);
+    public Float fromDelegateType(final Integer object) {
+        int i = object;
         if (i < 0) {
             i = i ^ 0x80000000;
         } else {
@@ -47,13 +39,14 @@ public class OrderedFloatSerialiser implements ToBytesSerialiser<Float> {
     }
 
     @Override
-    public Float deserialiseEmpty() {
-        return null;
-    }
-
-    @Override
-    public boolean preservesObjectOrdering() {
-        return true;
+    public Integer toDelegateType(final Float object) {
+        int i = Float.floatToRawIntBits(object);
+        if (i < 0) {
+            i = ~i;
+        } else {
+            i = i ^ 0x80000000;
+        }
+        return i;
     }
 
     @Override

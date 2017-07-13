@@ -16,34 +16,27 @@
 
 package uk.gov.gchq.gaffer.serialisation.implementation.ordered.datetime;
 
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.DelegateSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
 import java.time.LocalTime;
 
-public class OrderedLocalTimeSerialiser implements ToBytesSerialiser<LocalTime> {
+public class OrderedLocalTimeSerialiser extends DelegateSerialiser<LocalTime, Integer> {
 
     private static final long serialVersionUID = 6636121009320739764L;
     private static final CompactRawIntegerSerialiser INT_SERIALISER = new CompactRawIntegerSerialiser();
 
-    @Override
-    public byte[] serialise(final LocalTime object) throws SerialisationException {
-        return INT_SERIALISER.serialise(object.toSecondOfDay());
+    public OrderedLocalTimeSerialiser() {
+        super(INT_SERIALISER);
     }
 
     @Override
-    public LocalTime deserialise(final byte[] bytes) throws SerialisationException {
-        return LocalTime.ofSecondOfDay(INT_SERIALISER.deserialise(bytes));
+    public LocalTime fromDelegateType(final Integer object) {
+        return LocalTime.ofSecondOfDay(object);
     }
 
     @Override
-    public LocalTime deserialiseEmpty() {
-        return null;
-    }
-
-    @Override
-    public boolean preservesObjectOrdering() {
-        return true;
+    public Integer toDelegateType(final LocalTime object) {
+        return object.toSecondOfDay();
     }
 
     @Override

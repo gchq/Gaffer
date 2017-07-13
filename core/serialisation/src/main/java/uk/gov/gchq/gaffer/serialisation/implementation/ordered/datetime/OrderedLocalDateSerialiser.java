@@ -16,34 +16,27 @@
 
 package uk.gov.gchq.gaffer.serialisation.implementation.ordered.datetime;
 
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.DelegateSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedLongSerialiser;
 import java.time.LocalDate;
 
-public class OrderedLocalDateSerialiser implements ToBytesSerialiser<LocalDate> {
+public class OrderedLocalDateSerialiser extends DelegateSerialiser<LocalDate, Long> {
 
     private static final long serialVersionUID = 6636121009320739764L;
     private static final OrderedLongSerialiser LONG_SERIALISER = new OrderedLongSerialiser();
 
-    @Override
-    public byte[] serialise(final LocalDate object) {
-        return LONG_SERIALISER.serialise(object.toEpochDay());
+    public OrderedLocalDateSerialiser() {
+        super(LONG_SERIALISER);
     }
 
     @Override
-    public LocalDate deserialise(final byte[] bytes) throws SerialisationException {
-        return LocalDate.ofEpochDay(LONG_SERIALISER.deserialise(bytes));
+    public LocalDate fromDelegateType(final Long object) {
+        return LocalDate.ofEpochDay(object);
     }
 
     @Override
-    public LocalDate deserialiseEmpty() {
-        return null;
-    }
-
-    @Override
-    public boolean preservesObjectOrdering() {
-        return true;
+    public Long toDelegateType(final LocalDate object) {
+        return object.toEpochDay();
     }
 
     @Override
