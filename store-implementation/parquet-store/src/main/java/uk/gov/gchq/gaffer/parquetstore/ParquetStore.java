@@ -217,7 +217,7 @@ public class ParquetStore extends Store {
 
     public static String getGroupDirectory(final String group, final String column, final String rootDir) {
         if (ParquetStoreConstants.VERTEX.equals(column) || ParquetStoreConstants.SOURCE.equals(column)) {
-            return rootDir + "/graph/" + ParquetStoreConstants.GROUP + "=" + group;
+            return rootDir + "/" + ParquetStoreConstants.GRAPH + "/" + ParquetStoreConstants.GROUP + "=" + group;
         } else {
             return rootDir + "/sortedBy=" + column + "/" + ParquetStoreConstants.GROUP + "=" + group;
         }

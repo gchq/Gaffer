@@ -60,7 +60,7 @@ public class GetDataframeOfElementsHandler implements OutputOperationHandler<Get
             final Dataset<Row> dataset = spark
                     .read()
                     .option("mergeSchema", true)
-                    .parquet( rootDir + "graph");
+                    .parquet(rootDir + ParquetStoreConstants.GRAPH);
             LOGGER.info("The merged schema that the data is being loaded using is: {}", dataset.schema().treeString());
             return dataset;
         } else {

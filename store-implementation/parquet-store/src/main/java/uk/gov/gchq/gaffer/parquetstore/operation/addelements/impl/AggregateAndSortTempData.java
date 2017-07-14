@@ -63,7 +63,7 @@ public class AggregateAndSortTempData {
         for (final String group : schemaUtils.getEntityGroups()) {
             final String currentDataInThisGroupDir;
             if (currentDataDir != null) {
-                currentDataInThisGroupDir = ParquetStore.getGroupDirectory(group,ParquetStoreConstants.SOURCE, currentDataDir);
+                currentDataInThisGroupDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.SOURCE, currentDataDir);
             } else {
                 currentDataInThisGroupDir = null;
             }

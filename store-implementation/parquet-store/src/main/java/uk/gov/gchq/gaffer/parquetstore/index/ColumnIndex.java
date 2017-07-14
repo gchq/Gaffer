@@ -97,7 +97,7 @@ public class ColumnIndex {
             return BytesUtils.intToBytes(Float.floatToIntBits((float) value));
         } else if ("String".equals(objectType)) {
             return StringUtil.toBytes((String) value);
-        } else if ("byte[]".equals(objectType)){
+        } else if ("byte[]".equals(objectType)) {
             return (byte[]) value;
         } else {
             throw new StoreException("Cannot serialise objects of type " + objectType);

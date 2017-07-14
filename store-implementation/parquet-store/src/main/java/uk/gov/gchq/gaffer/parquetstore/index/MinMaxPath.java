@@ -17,13 +17,12 @@ package uk.gov.gchq.gaffer.parquetstore.index;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.types.TypeValue;
 
 import java.util.Arrays;
 
 /**
  * This class is used to store a single parquet file's path along with the Min and Max parquet objects that are contained in that file
- * for a specific gaffer column, i.e. if the vertex was a {@link TypeValue} object then the Min would consist of two Strings,
+ * for a specific gaffer column, i.e. if the vertex was a {@link uk.gov.gchq.gaffer.types.TypeValue} object then the Min would consist of two Strings,
  * the first representing the type and the second representing the value.
  */
 public class MinMaxPath {

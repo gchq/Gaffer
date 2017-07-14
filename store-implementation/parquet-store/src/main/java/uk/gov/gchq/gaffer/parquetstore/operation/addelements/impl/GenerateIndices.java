@@ -21,22 +21,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.parquetstore.index.ColumnIndex;
-import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
+import uk.gov.gchq.gaffer.parquetstore.index.ColumnIndex;
+import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.index.GroupIndex;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.koryphe.tuple.n.Tuple3;
 import uk.gov.gchq.koryphe.tuple.n.Tuple4;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -45,7 +42,6 @@ import java.util.concurrent.Future;
 
 public class GenerateIndices {
     private static final Logger LOGGER = LoggerFactory.getLogger(GenerateIndices.class);
-    private static final String SORTED = "/sorted";
     private final GraphIndex graphIndex;
 
     public GenerateIndices(final ParquetStore store) throws OperationException, SerialisationException, StoreException {
@@ -54,7 +50,7 @@ public class GenerateIndices {
         final ExecutorService pool = Executors.newFixedThreadPool(parquetStoreProperties.getThreadsAvailable());
         final String tempFileDir = parquetStoreProperties.getTempFilesDir();
         final SchemaUtils schemaUtils = store.getSchemaUtils();
-        final String rootDir = tempFileDir + SORTED;
+        final String rootDir = tempFileDir + "/" + ParquetStoreConstants.SORTED;
         final List<Callable<Tuple4<String, String, ColumnIndex, OperationException>>> tasks = new ArrayList<>();
         for (final String group : schemaUtils.getEntityGroups()) {
             final String directory = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.VERTEX, rootDir);
