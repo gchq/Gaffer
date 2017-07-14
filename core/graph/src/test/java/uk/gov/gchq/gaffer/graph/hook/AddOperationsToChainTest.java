@@ -165,11 +165,11 @@ public class AddOperationsToChainTest {
     @Test
     public void shouldThrowExceptionWhenAddingEmptyExtraOperation() throws IOException {
         // Given
-        final String nullTestJson = "{\"start\":[{\"class\": \"\"}]}";
+        final String emptyTestJson = "{\"start\":[{\"class\": \"\"}]}";
 
         //When / Then
         try {
-            new AddOperationsToChain(nullTestJson.getBytes());
+            new AddOperationsToChain(emptyTestJson.getBytes());
             fail("Exception expected");
         } catch (SchemaException e) {
             assertNotNull(e.getMessage());
@@ -179,27 +179,13 @@ public class AddOperationsToChainTest {
     @Test
     public void shouldThrowExceptionWhenAddingFalseExtraOperation() throws IOException {
         // Given
-        final String nullTestJson = "{\"start\":[{\"class\": \"this.Operation.Doesnt.Exist\"}]}";
+        final String falseOperationTestJson = "{\"start\":[{\"class\": \"this.Operation.Doesnt.Exist\"}]}";
 
         //When / Then
         try {
-            new AddOperationsToChain(nullTestJson.getBytes());
+            new AddOperationsToChain(falseOperationTestJson.getBytes());
             fail("Exception expected");
         } catch (SchemaException e) {
-            assertNotNull(e.getMessage());
-        }
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenAddingBadlySpeltExtraOperation() throws IOException {
-        // Given
-        final String nullTestJson = "{\"start\":[{\"class\": \"uk.gov.gchq.gaffer.Operation.impl.get.gETAdjAcentids\"}]}";
-
-        //When / Then
-        try {
-            new AddOperationsToChain(nullTestJson.getBytes());
-            fail("Exception expected");
-        } catch (NoClassDefFoundError e) {
             assertNotNull(e.getMessage());
         }
     }

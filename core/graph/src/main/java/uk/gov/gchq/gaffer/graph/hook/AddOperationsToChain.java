@@ -32,6 +32,11 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A <code>AddOperationsToChain</code> is a {@link GraphHook} that allows a
+ * user to insert additional operations at certain points on the operation chain.
+ * At the start, before a specific Operation, after a specific Operation, or at the end.
+ */
 public class AddOperationsToChain implements GraphHook {
     private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
 
@@ -40,9 +45,19 @@ public class AddOperationsToChain implements GraphHook {
     private Map<String, List<Operation>> before;
     private Map<String, List<Operation>> after;
 
+    /**
+     * Default constructor.
+     */
     public AddOperationsToChain() {
     }
 
+    /**
+     * Constructs a {@link AddOperationsToChain} using the path to json
+     * file specifying Operations to add.
+     *
+     * @param addOperationsPath Path to file containing Operations to add.
+     * @throws IOException if the file reading fails.
+     */
     public AddOperationsToChain(final String addOperationsPath) throws IOException {
 
         Path path = Paths.get(addOperationsPath);
@@ -55,8 +70,15 @@ public class AddOperationsToChain implements GraphHook {
         setOperations(addOperations);
     }
 
-    public AddOperationsToChain(final byte[] addOperationsJson) throws IOException {
-        setOperations(fromJson(addOperationsJson));
+    /**
+     * Constructs a {@link AddOperationsToChain} using the json byte[]
+     * specifying Operations to add.
+     *
+     * @param addOperationsBytes byte[] containing Operations to add.
+     * @throws IOException if the byte[] fails to be deserialised.
+     */
+    public AddOperationsToChain(final byte[] addOperationsBytes) throws IOException {
+        setOperations(fromJson(addOperationsBytes));
     }
 
     public List<Operation> getStart() {
@@ -91,6 +113,13 @@ public class AddOperationsToChain implements GraphHook {
         this.after = after;
     }
 
+    /**
+     * Adds in the additional Operations specified.  The original opChain will
+     * be updated.
+     *
+     * @param opChain the {@link OperationChain} being executed.
+     * @param user    the {@link User} executing the operation chain
+     */
     @Override
     public void preExecute(final OperationChain<?> opChain, final User user) {
         OperationChain<?> newOpChain = new OperationChain<>();
@@ -131,7 +160,7 @@ public class AddOperationsToChain implements GraphHook {
         return result;
     }
 
-    public static AddOperationsToChain fromJson(final byte[] json) {
+    private static AddOperationsToChain fromJson(final byte[] json) {
         try {
             return JSON_SERIALISER.deserialise(json, AddOperationsToChain.class);
         } catch (final SerialisationException e) {
@@ -139,7 +168,7 @@ public class AddOperationsToChain implements GraphHook {
         }
     }
 
-    public static AddOperationsToChain fromJson(final InputStream inputStream) {
+    private static AddOperationsToChain fromJson(final InputStream inputStream) {
         try {
             return JSON_SERIALISER.deserialise(inputStream, AddOperationsToChain.class);
         } catch (final SerialisationException e) {
@@ -147,7 +176,7 @@ public class AddOperationsToChain implements GraphHook {
         }
     }
 
-    private void setOperations(AddOperationsToChain addOperations) {
+    private void setOperations(final AddOperationsToChain addOperations) {
         if (addOperations.getStart() != null) {
             this.setStart(addOperations.getStart());
         }
