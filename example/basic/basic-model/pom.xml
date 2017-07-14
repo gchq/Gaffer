@@ -27,7 +27,7 @@
     <dependencies>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>data</artifactId>
+            <artifactId>store</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
@@ -49,4 +49,38 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>
+                        uk.gov.gchq.gaffer.store.util.SchemaExporter
+                    </mainClass>
+                    <arguments>
+                        <argument>
+                            uk.gov.gchq.gaffer.basic.BasicSchema
+                        </argument>
+                        <argument>
+                            ${project.build.directory}/schema/schema.json
+                        </argument>
+                        <argument>
+                            y
+                        </argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

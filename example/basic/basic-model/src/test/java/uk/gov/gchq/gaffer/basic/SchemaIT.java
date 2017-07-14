@@ -26,13 +26,12 @@ public class SchemaIT {
     public void shouldCreateGraphWithSchemaAndProperties() throws IOException {
         // Given
         final InputStream storeProps = StreamUtil.openStream(getClass(), "/mockaccumulo.properties");
-        final InputStream[] schema = StreamUtil.schemas(ElementGroup.class);
 
         // When
         new Graph.Builder()
                 .graphId("basicGraph")
                 .storeProperties(storeProps)
-                .addSchemas(schema)
+                .addSchemas(BasicSchema.SCHEMA)
                 .build();
 
         // Then - no exceptions thrown

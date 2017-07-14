@@ -123,7 +123,7 @@
                                 <gaffer.rest-api.basePath>${standalone-path}/v1
                                 </gaffer.rest-api.basePath>
                                 <gaffer.schemas>
-                                    ${project.parent.basedir}/basic-model/src/main/resources/schema
+                                    ${project.parent.basedir}/basic-model/target/schema
                                 </gaffer.schemas>
                                 <gaffer.storeProperties>
                                     ${project.build.outputDirectory}/mockaccumulo.properties
