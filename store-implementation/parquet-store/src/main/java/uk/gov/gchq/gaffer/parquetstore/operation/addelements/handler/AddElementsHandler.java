@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.parquetstore.Index;
+import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.AggregateAndSortTempData;
@@ -93,10 +93,10 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             LOGGER.info("Finished writing the sorted and aggregated Parquet data to " + tempDirString + "/sorted");
             // Generate the file based index
             LOGGER.info("Starting to write the indexes");
-            new GenerateIndices(store);
+            final GraphIndex newGraphIndex = new GenerateIndices(store).getGraphIndex();
             LOGGER.info("Finished writing the indexes");
             try {
-                moveDataToDataDir(store, fs, rootDataDirString, tempDirString);
+                moveDataToDataDir(store, fs, rootDataDirString, tempDirString, newGraphIndex);
                 tidyUp(fs, tempDirString);
             } catch (final IOException | StoreException e) {
                 throw new OperationException("Failed to reload the indices", e);
@@ -109,27 +109,18 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
 
     }
 
-    private void moveDataToDataDir(final ParquetStore store, final FileSystem fs, final String dataDirString, final String tempDataDirString) throws StoreException, IOException {
+    private void moveDataToDataDir(final ParquetStore store, final FileSystem fs, final String dataDirString, final String tempDataDirString, final GraphIndex newGraphIndex) throws StoreException, IOException {
         // Move data from temp to data
         final long snapshot = System.currentTimeMillis();
         final String destPath = dataDirString + "/" + snapshot;
         LOGGER.info("Creating directory {}", destPath);
         fs.mkdirs(new Path(destPath));
-        LOGGER.info("Renaming {} to {}",
-                new Path(tempDataDirString + "/" + ParquetStoreConstants.SORTED + "/" + ParquetStoreConstants.GRAPH),
-                new Path(destPath + "/" + ParquetStoreConstants.GRAPH));
-        fs.rename(new Path(tempDataDirString + "/" + ParquetStoreConstants.SORTED + "/" + ParquetStoreConstants.GRAPH),
-                new Path(destPath + "/" + ParquetStoreConstants.GRAPH));
-        final Path tempReversePath = new Path(tempDataDirString
-                + "/" + ParquetStoreConstants.SORTED
-                + "/" + ParquetStoreConstants.REVERSE_EDGES);
-        if (fs.exists(tempReversePath)) {
-            fs.rename(tempReversePath, new Path(destPath + "/" + ParquetStoreConstants.REVERSE_EDGES));
-        }
+        final String tempPath = tempDataDirString + "/" + ParquetStoreConstants.SORTED;
+        LOGGER.info("Renaming {} to {}", tempPath, destPath);
+        fs.rename(new Path(tempPath), new Path(destPath));
         // Reload indices
-        final Index newIndex = new Index();
-        newIndex.loadIndices(fs, store);
-        store.setIndex(newIndex);
+        newGraphIndex.setSnapshotTimestamp(snapshot);
+        store.setGraphIndex(newGraphIndex);
     }
 
     private void tidyUp(final FileSystem fs, final String tempDataDirString) throws IOException {

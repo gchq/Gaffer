@@ -69,7 +69,7 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
                     operation.getSeedMatching(),
                     operation.getInput());
         } catch (final StoreException e) {
-            throw new OperationException("Failed to get elements", e);
+            throw new OperationException("Failed to getGroup elements", e);
         }
     }
 }

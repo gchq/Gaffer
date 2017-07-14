@@ -65,7 +65,7 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
     private static final String SORTED = "/sorted";
     private final String group;
     private final String tempFileDir;
-    private final boolean reverseEdge;
+    private final String column;
     private final SparkSession spark;
     private final Map<String, String[]> columnToPaths;
     private final StructType sparkSchema;
@@ -81,13 +81,13 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
 
 
     public AggregateAndSortGroup(final String group,
-                                 final boolean reverseEdge,
+                                 final String column,
                                  final ParquetStoreProperties parquetStoreProperties,
                                  final String currentGraphDir,
                                  final SchemaUtils schemaUtils,
                                  final SparkSession spark) throws SerialisationException {
         this.group = group;
-        this.reverseEdge = reverseEdge;
+        this.column = column;
         this.tempFileDir = parquetStoreProperties.getTempFilesDir();
         final SchemaElementDefinition gafferSchema = schemaUtils.getGafferSchema().getElement(group);
         this.isEntity = gafferSchema instanceof SchemaEntityDefinition;
@@ -100,12 +100,12 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
         this.sparkSchema = schemaUtils.getSparkSchema(group);
         this.gafferGroupObjectConverter = schemaUtils.getConverter(group);
         this.currentGraphDir = currentGraphDir;
-        if (reverseEdge) {
-            this.inputDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.SOURCE, this.tempFileDir);
-            this.outputDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.DESTINATION, this.tempFileDir + SORTED);
-        } else {
+        if (isEntity) {
             this.inputDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.VERTEX, this.tempFileDir);
-            this.outputDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.VERTEX, this.tempFileDir + SORTED);
+            this.outputDir = ParquetStore.getGroupDirectory(group, column, this.tempFileDir + SORTED);
+        } else {
+            this.inputDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.SOURCE, this.tempFileDir);
+            this.outputDir = ParquetStore.getGroupDirectory(group, column, this.tempFileDir + SORTED);
         }
         this.filesPerGroup = parquetStoreProperties.getAddElementsOutputFilesPerGroup();
     }
@@ -128,8 +128,10 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
             if (fs.exists(new Path(inputDir))) {
                 final List<String> paths = new ArrayList<>();
                 paths.add(inputDir);
-                if (fs.exists(new Path(currentGraphDir))) {
-                    paths.add(currentGraphDir);
+                if (currentGraphDir != null) {
+                    if (fs.exists(new Path(currentGraphDir))) {
+                        paths.add(currentGraphDir);
+                    }
                 }
                 LOGGER.info("Aggregating and sorting the data for group {} stored in directories {}",
                         group, StringUtils.join(paths, ','));
@@ -154,7 +156,7 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
                             isEntity, groupByColumns, columnToPaths, propertyToAggregatorMap, gafferGroupObjectConverter);
                     aggregatedDataKV = groupedData.reduceByKey(aggregator);
                 }
-                final JavaRDD<Row> aggregatedData = aggregatedDataKV.values().map(genericRow -> (Row) genericRow).cache();
+                final JavaRDD<Row> aggregatedData = aggregatedDataKV.values().map(genericRow -> (Row) genericRow);
 
                 // Sort data
                 Dataset<Row> sortedData;
@@ -172,7 +174,7 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
                 } else {
                     final String[] srcPaths = groupPaths.get(ParquetStoreConstants.SOURCE);
                     final String[] destPaths = groupPaths.get(ParquetStoreConstants.DESTINATION);
-                    if (reverseEdge) {
+                    if (ParquetStoreConstants.DESTINATION.equals(column)) {
                         firstSortColumn = destPaths[0];
                         if (destPaths.length > 1) {
                             for (int i = 1; i < destPaths.length; i++) {

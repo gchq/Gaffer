@@ -61,7 +61,7 @@ public class SchemaUtils {
             buildGroupColumnToPaths();
             buildConverters();
         } catch (final SerialisationException e) {
-            throw new RuntimeException("SerialisationException building Avro and Spark schemas", e);
+            throw new RuntimeException("SerialisationException building Parquet and Spark schemas", e);
         }
     }
 

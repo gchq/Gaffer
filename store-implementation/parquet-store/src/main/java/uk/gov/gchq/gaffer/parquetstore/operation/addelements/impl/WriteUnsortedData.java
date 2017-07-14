@@ -22,8 +22,10 @@ import org.apache.hadoop.mapreduce.JobID;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.mapreduce.TaskAttemptID;
 import org.apache.hadoop.mapreduce.TaskID;
+import org.apache.hadoop.mapreduce.TaskInputOutputContext;
 import org.apache.hadoop.mapreduce.TaskType;
 import org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl;
+import org.apache.hadoop.mapreduce.task.TaskInputOutputContextImpl;
 import org.apache.spark.TaskContext;
 import org.apache.spark.sql.execution.datasources.parquet.ParquetOutputWriter;
 import org.apache.spark.sql.execution.datasources.parquet.ParquetSchemaConverter;
@@ -79,8 +81,11 @@ public class WriteUnsortedData {
     public void writeElements(final Iterator<? extends Element> elements) throws OperationException {
         try {
             // Create a writer for each group
-            for (final String group : schemaUtils.getGroups()) {
-                groupToWriter.put(group, buildWriter(group));
+            for (final String group : schemaUtils.getEntityGroups()) {
+                groupToWriter.put(group, buildWriter(group, ParquetStoreConstants.VERTEX));
+            }
+            for (final String group : schemaUtils.getEdgeGroups()) {
+                groupToWriter.put(group, buildWriter(group, ParquetStoreConstants.SOURCE));
             }
             // Write elements
             _writeElements(elements);
@@ -106,14 +111,14 @@ public class WriteUnsortedData {
         }
     }
 
-    private ParquetOutputWriter buildWriter(final String group) throws IOException {
+    private ParquetOutputWriter buildWriter(final String group, final String column) throws IOException {
         Integer fileNumber = groupToFileNumber.get(group);
         if (fileNumber == null) {
             groupToFileNumber.put(group, 0);
             fileNumber = 0;
         }
         LOGGER.debug("Creating a new writer for group: {}", group + " with file number " + fileNumber);
-        final Path filePath = new Path(ParquetStore.getGroupDirectory(group, ParquetStoreConstants.VERTEX,
+        final Path filePath = new Path(ParquetStore.getGroupDirectory(group, column,
                 props.getTempFilesDir()) + "/part-" + TaskContext.getPartitionId() + "-" + fileNumber + ".gz.parquet");
 
         conf.set(ParquetWriteSupport.SPARK_ROW_SCHEMA(), ParquetSchemaConverter.checkFieldNames(schemaUtils.getSparkSchema(group)).json());

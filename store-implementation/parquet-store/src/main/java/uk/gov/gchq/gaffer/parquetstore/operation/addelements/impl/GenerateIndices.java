@@ -21,15 +21,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.parquetstore.index.ColumnIndex;
+import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
+import uk.gov.gchq.gaffer.parquetstore.index.GroupIndex;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.koryphe.tuple.n.Tuple3;
+import uk.gov.gchq.koryphe.tuple.n.Tuple4;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -39,43 +46,66 @@ import java.util.concurrent.Future;
 public class GenerateIndices {
     private static final Logger LOGGER = LoggerFactory.getLogger(GenerateIndices.class);
     private static final String SORTED = "/sorted";
+    private final GraphIndex graphIndex;
 
     public GenerateIndices(final ParquetStore store) throws OperationException, SerialisationException, StoreException {
-        final ArrayList<Callable<OperationException>> tasks = new ArrayList<>();
-        final SchemaUtils schemaUtils = store.getSchemaUtils();
+        graphIndex = new GraphIndex();
         final ParquetStoreProperties parquetStoreProperties = store.getProperties();
+        final ExecutorService pool = Executors.newFixedThreadPool(parquetStoreProperties.getThreadsAvailable());
         final String tempFileDir = parquetStoreProperties.getTempFilesDir();
-        for (final String group : store.getSchemaUtils().getEdgeGroups()) {
-            final Map<String, String[]> columnToPaths = schemaUtils.getColumnToPaths(group);
-            final String directorySource = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.SOURCE, tempFileDir + SORTED);
-            LOGGER.info("Creating a task to create the index for group {} from directory {} and paths {}",
-                    group, directorySource, StringUtils.join(columnToPaths.get(ParquetStoreConstants.SOURCE)));
-            tasks.add(new GenerateIndexForGroup(directorySource, columnToPaths.get(ParquetStoreConstants.SOURCE)));
-            final String directoryDestination = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.DESTINATION, tempFileDir + SORTED);
-            LOGGER.info("Creating a task to create the index for group {} from directory {} and paths {}",
-                    group, directorySource, StringUtils.join(columnToPaths.get(ParquetStoreConstants.DESTINATION)));
-            tasks.add(new GenerateIndexForGroup(directoryDestination, columnToPaths.get(ParquetStoreConstants.DESTINATION)));
-        }
+        final SchemaUtils schemaUtils = store.getSchemaUtils();
+        final String rootDir = tempFileDir + SORTED;
+        final List<Callable<Tuple4<String, String, ColumnIndex, OperationException>>> tasks = new ArrayList<>();
         for (final String group : schemaUtils.getEntityGroups()) {
-            final String directory = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.VERTEX, tempFileDir + SORTED);
-            tasks.add(new GenerateIndexForGroup(directory, schemaUtils.getPaths(group, ParquetStoreConstants.VERTEX)));
-            LOGGER.info("Created a task to create the index for group {} from directory {} and paths {}",
+            final String directory = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.VERTEX, rootDir);
+            tasks.add(new GenerateIndexForColumnGroup(directory, schemaUtils.getPaths(group, ParquetStoreConstants.VERTEX), group, ParquetStoreConstants.VERTEX));
+            LOGGER.info("Created a task to create the graphIndex for group {} from directory {} and paths {}",
                     group, directory, schemaUtils.getPaths(group, ParquetStoreConstants.VERTEX));
         }
-        final ExecutorService pool = Executors.newFixedThreadPool(parquetStoreProperties.getThreadsAvailable());
+        for (final String group : store.getSchemaUtils().getEdgeGroups()) {
+            final Map<String, String[]> columnToPaths = schemaUtils.getColumnToPaths(group);
+            final String directorySource = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.SOURCE, rootDir);
+            LOGGER.info("Creating a task to create the graphIndex for group {} from directory {} and paths {}",
+                    group, directorySource, StringUtils.join(columnToPaths.get(ParquetStoreConstants.SOURCE)));
+            tasks.add(new GenerateIndexForColumnGroup(directorySource, columnToPaths.get(ParquetStoreConstants.SOURCE), group, ParquetStoreConstants.SOURCE));
+            final String directoryDestination = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.DESTINATION, rootDir);
+            LOGGER.info("Creating a task to create the graphIndex for group {} from directory {} and paths {}",
+                    group, directorySource, StringUtils.join(columnToPaths.get(ParquetStoreConstants.DESTINATION)));
+            tasks.add(new GenerateIndexForColumnGroup(directoryDestination, columnToPaths.get(ParquetStoreConstants.DESTINATION), group, ParquetStoreConstants.DESTINATION));
+        }
+
         try {
-            final List<Future<OperationException>> results = pool.invokeAll(tasks);
+            final List<Future<Tuple4<String, String, ColumnIndex, OperationException>>> results = pool.invokeAll(tasks);
             for (int i = 0; i < tasks.size(); i++) {
-                final OperationException result = results.get(i).get();
-                if (result != null) {
-                    throw result;
+                final Tuple4<String, String, ColumnIndex, OperationException> result = results.get(i).get();
+                final OperationException error = result.get3();
+                if (error != null) {
+                    throw error;
+                }
+                final ColumnIndex colIndex = result.get2();
+                if (!colIndex.isEmpty()) {
+                    addColumnIndexToGraphIndex(result.get2(), result.get0(), result.get1());
                 }
             }
+            graphIndex.writeGroups(rootDir, store.getFS());
             pool.shutdown();
         } catch (final InterruptedException e) {
             throw new OperationException("AggregateAndSortData was interrupted", e);
         } catch (final ExecutionException e) {
             throw new OperationException("AggregateAndSortData had an execution exception thrown", e);
         }
+    }
+
+    private void addColumnIndexToGraphIndex(final ColumnIndex columnIndex, final String group, final String column) {
+        GroupIndex groupIndex = graphIndex.getGroup(group);
+        if (groupIndex == null) {
+            groupIndex = new GroupIndex();
+            graphIndex.add(group, groupIndex);
+        }
+        groupIndex.add(column, columnIndex);
+    }
+
+    public GraphIndex getGraphIndex() {
+        return graphIndex;
     }
 }

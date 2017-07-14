@@ -56,10 +56,11 @@ public class GetDataframeOfElementsHandler implements OutputOperationHandler<Get
         if (operation.getView().equals(store.getSchemaUtils().getEmptyView())) {
             LOGGER.info("Retrieving elements as a dataframe");
             final ParquetStoreProperties props = store.getProperties();
+            final String rootDir = props.getDataDir() + "/" + store.getGraphIndex().getSnapshotTimestamp() + "/";
             final Dataset<Row> dataset = spark
                     .read()
                     .option("mergeSchema", true)
-                    .parquet(props.getDataDir() + "/" + store.getIndex().getSnapshotTimestamp() + "/" + ParquetStoreConstants.GRAPH);
+                    .parquet( rootDir + "graph");
             LOGGER.info("The merged schema that the data is being loaded using is: {}", dataset.schema().treeString());
             return dataset;
         } else {

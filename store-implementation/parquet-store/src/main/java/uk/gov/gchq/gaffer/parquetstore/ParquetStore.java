@@ -18,7 +18,9 @@ package uk.gov.gchq.gaffer.parquetstore;
 import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.spark.SparkConf;
 import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
@@ -28,6 +30,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.AddElementsFromRDDHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.AddElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetAdjacentIdsHandler;
@@ -69,7 +72,7 @@ public class ParquetStore extends Store {
                     INGEST_AGGREGATION,
                     PRE_AGGREGATION_FILTERING
             ));
-    private Index index;
+    private GraphIndex graphIndex;
     private SchemaUtils schemaUtils;
     private FileSystem fs;
 
@@ -88,8 +91,36 @@ public class ParquetStore extends Store {
             throw new StoreException("Could not connect to the file system", e);
         }
         schemaUtils = new SchemaUtils(getSchema());
-        index = new Index();
-        index.loadIndices(fs, this);
+        loadIndex((ParquetStoreProperties) properties);
+    }
+
+    private void loadIndex(final ParquetStoreProperties properties) throws StoreException {
+        final String rootDir = properties.getDataDir();
+        try {
+            if (fs.exists(new Path(rootDir))) {
+                graphIndex = new GraphIndex();
+                final long snapshot = getLatestSnapshot(rootDir);
+                graphIndex.readGroups(schemaUtils.getGroups(), rootDir + "/" + snapshot, fs);
+                graphIndex.setSnapshotTimestamp(snapshot);
+            }
+        } catch (IOException e) {
+            throw new StoreException(e.getMessage());
+        }
+    }
+
+    private long getLatestSnapshot(final String rootDir) throws StoreException {
+        long latestSnapshot = 0L;
+        try {
+            for (final FileStatus status : fs.listStatus(new Path(rootDir))) {
+                final long currentSnapshot = Long.parseLong(status.getPath().getName());
+                if (latestSnapshot < currentSnapshot) {
+                    latestSnapshot = currentSnapshot;
+                }
+            }
+        } catch (IOException e) {
+            throw new StoreException(e.getMessage());
+        }
+        return latestSnapshot;
     }
 
     public FileSystem getFS() throws StoreException {
@@ -176,19 +207,19 @@ public class ParquetStore extends Store {
         return (ParquetStoreProperties) super.getProperties();
     }
 
-    public void setIndex(final Index index) {
-        this.index = index;
+    public void setGraphIndex(final GraphIndex graphIndex) {
+        this.graphIndex = graphIndex;
     }
 
-    public Index getIndex() {
-        return index;
+    public GraphIndex getGraphIndex() {
+        return graphIndex;
     }
 
-    public static String getGroupDirectory(final String group, final String identifier, final String rootDir) {
-        if (ParquetStoreConstants.DESTINATION.equals(identifier)) {
-            return rootDir + "/" + ParquetStoreConstants.REVERSE_EDGES + "/" + ParquetStoreConstants.GROUP + "=" + group;
+    public static String getGroupDirectory(final String group, final String column, final String rootDir) {
+        if (ParquetStoreConstants.VERTEX.equals(column) || ParquetStoreConstants.SOURCE.equals(column)) {
+            return rootDir + "/graph/" + ParquetStoreConstants.GROUP + "=" + group;
         } else {
-            return rootDir + "/" + ParquetStoreConstants.GRAPH + "/" + ParquetStoreConstants.GROUP + "=" + group;
+            return rootDir + "/sortedBy=" + column + "/" + ParquetStoreConstants.GROUP + "=" + group;
         }
     }
 }

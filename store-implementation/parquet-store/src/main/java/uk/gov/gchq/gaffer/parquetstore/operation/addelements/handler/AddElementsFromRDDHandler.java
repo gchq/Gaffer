@@ -22,7 +22,7 @@ import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.parquetstore.Index;
+import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.AggregateAndSortTempData;
@@ -77,18 +77,18 @@ public class AddElementsFromRDDHandler implements OperationHandler<ImportRDDOfEl
                 LOGGER.info("Finished writing the sorted and aggregated Parquet data to " + tempDataDirString);
                 // Generate the file based index
                 LOGGER.info("Starting to write the indexes");
-                new GenerateIndices(store);
+                final GraphIndex newGraphIndex = new GenerateIndices(store).getGraphIndex();
                 LOGGER.info("Finished writing the indexes");
+                try {
+                    moveDataToDataDir(store, fs, rootDataDirString, tempDataDirString, newGraphIndex);
+                    tidyUp(fs, tempDataDirString);
+                } catch (final StoreException e) {
+                    throw new OperationException("Failed to reload the indices", e);
+                } catch (final IOException e) {
+                    throw new OperationException("Failed to move data from temporary files directory to the data directory.", e);
+                }
             } else {
                 throw new OperationException("This operation requires the user to be of type SparkUser.");
-            }
-            try {
-                moveDataToDataDir(store, fs, rootDataDirString, tempDataDirString);
-                tidyUp(fs, tempDataDirString);
-            } catch (final StoreException e) {
-                throw new OperationException("Failed to reload the indices", e);
-            } catch (final IOException e) {
-                throw new OperationException("Failed to move data from temporary files directory to the data directory.", e);
             }
         } catch (final IOException e) {
             throw new OperationException("IOException: Failed to connect to the file system", e);
@@ -101,23 +101,16 @@ public class AddElementsFromRDDHandler implements OperationHandler<ImportRDDOfEl
     private void moveDataToDataDir(final ParquetStore store,
                                    final FileSystem fs,
                                    final String rootDataDirString,
-                                   final String tempDataDirString) throws StoreException, IOException {
+                                   final String tempDataDirString,
+                                   final GraphIndex newGraphIndex) throws StoreException, IOException {
         // Move data from temp to data
         final long snapshot = System.currentTimeMillis();
         final String destPath = rootDataDirString + "/" + snapshot;
         fs.mkdirs(new Path(destPath));
-        fs.rename(new Path(tempDataDirString + "/" + ParquetStoreConstants.SORTED + "/" + ParquetStoreConstants.GRAPH),
-                new Path(destPath + "/" + ParquetStoreConstants.GRAPH));
-        final Path tempReversePath = new Path(tempDataDirString
-                + "/" + ParquetStoreConstants.SORTED
-                + "/" + ParquetStoreConstants.REVERSE_EDGES);
-        if (fs.exists(tempReversePath)) {
-            fs.rename(tempReversePath, new Path(destPath + "/" + ParquetStoreConstants.REVERSE_EDGES));
-        }
+        fs.rename(new Path(tempDataDirString + "/" + ParquetStoreConstants.SORTED), new Path(destPath));
         // Reload indices
-        final Index newIndex = new Index();
-        newIndex.loadIndices(fs, store);
-        store.setIndex(newIndex);
+        newGraphIndex.setSnapshotTimestamp(snapshot);
+        store.setGraphIndex(newGraphIndex);
     }
 
     private void tidyUp(final FileSystem fs, final String tempDataDirString) throws IOException {

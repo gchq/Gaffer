@@ -370,14 +370,14 @@ parquet_data
     |   `-- GROUP=BasicEntity
     |       |-- _index
     |       `-- part-00000.gz.parquet
-    `-- reverseEdges
+    `-- sortedBy=DESTINATION
         `-- GROUP=BasicEdge
             |-- _index
             `-- part-00000.gz.parquet
 ```
 
 The root directory has two folders, one for the main graph which is what is returned when a `GetAllElements` operation is 
-executed and the other is a reverseEdges folder. The reverseEdges folder is there to store all the Edge groups data again 
+executed and the other is a sortedBy destination folder. The sortedBy destination folder is there to store all the Edge groups data again 
 but this time the data is sorted by the destination, allowing for quick random access for seeds equal to the destination 
 of an edge.
 
@@ -388,11 +388,11 @@ The main two operations are the `AddElements` and the `GetElements`.
 The `AddElements` operation is a three stage process:
 1. Write the unsorted data split by group and `Element` type into Parquet files in the temporary files directory using the `AvroParquetWriter`;
 2. Using Spark, sort and aggregate the data in the temporary files directory and the current store files on a per group basis;
-3. Generate an index containing the range of vertices in each file and load that into memory.
+3. Generate an `GraphIndex` containing the range of vertices in each file and load that into memory.
 
 The `GetElements` operation is a four stage process per group:
 1. From the Gaffer view build up a corresponding Parquet filter;
-2. For each seed, build a map from file path to Parquet filter. This is done by using the index to determine which files 
+2. For each seed, build a map from file path to Parquet filter. This is done by using the `GraphIndex` to determine which files 
 will contain which seeds;
 3. If the query has seeds then for each filter in the path to filter map add in the group filter built in the first stage;
 4. Using the path to filter map build an `Iterable` that will iterate through the required files applying only the 

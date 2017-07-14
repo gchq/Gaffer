@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
+import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 
@@ -41,17 +42,32 @@ public class AggregateAndSortTempData {
         final List<Callable<OperationException>> tasks = new ArrayList<>();
         final SchemaUtils schemaUtils = store.getSchemaUtils();
         final ParquetStoreProperties parquetStoreProperties = store.getProperties();
-        final String currentDataDir = parquetStoreProperties.getDataDir()
-                + "/" + store.getIndex().getSnapshotTimestamp()
-                + "/" + ParquetStoreConstants.GRAPH;
+        final GraphIndex index = store.getGraphIndex();
+        final String currentDataDir;
+        if (index != null) {
+            currentDataDir = parquetStoreProperties.getDataDir()
+                    + "/" + index.getSnapshotTimestamp();
+        } else {
+            currentDataDir = null;
+        }
         for (final String group : schemaUtils.getEdgeGroups()) {
-            final String currentDataInThisGroupDir = currentDataDir + "/" + ParquetStoreConstants.GROUP + "=" + group;
-            tasks.add(new AggregateAndSortGroup(group, false, parquetStoreProperties, currentDataInThisGroupDir, schemaUtils, spark));
-            tasks.add(new AggregateAndSortGroup(group, true, parquetStoreProperties, currentDataInThisGroupDir, schemaUtils, spark));
+            final String currentDataInThisGroupDir;
+            if (currentDataDir != null) {
+                currentDataInThisGroupDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.VERTEX, currentDataDir);
+            } else {
+                currentDataInThisGroupDir = null;
+            }
+            tasks.add(new AggregateAndSortGroup(group, ParquetStoreConstants.SOURCE, parquetStoreProperties, currentDataInThisGroupDir, schemaUtils, spark));
+            tasks.add(new AggregateAndSortGroup(group, ParquetStoreConstants.DESTINATION, parquetStoreProperties, currentDataInThisGroupDir, schemaUtils, spark));
         }
         for (final String group : schemaUtils.getEntityGroups()) {
-            final String currentDataInThisGroupDir = currentDataDir + "/" + ParquetStoreConstants.GROUP + "=" + group;
-            tasks.add(new AggregateAndSortGroup(group, false, parquetStoreProperties, currentDataInThisGroupDir, schemaUtils, spark));
+            final String currentDataInThisGroupDir;
+            if (currentDataDir != null) {
+                currentDataInThisGroupDir = ParquetStore.getGroupDirectory(group,ParquetStoreConstants.SOURCE, currentDataDir);
+            } else {
+                currentDataInThisGroupDir = null;
+            }
+            tasks.add(new AggregateAndSortGroup(group, ParquetStoreConstants.VERTEX, parquetStoreProperties, currentDataInThisGroupDir, schemaUtils, spark));
         }
         final ExecutorService pool = Executors.newFixedThreadPool(store.getProperties().getThreadsAvailable());
         LOGGER.info("Created thread pool of size {} to aggregate and sort data", store.getProperties().getThreadsAvailable());
