@@ -66,6 +66,24 @@ public class AddOperationsToChain implements GraphHook {
         }
     }
 
+    public AddOperationsToChain(final byte[] addOperationsJson) throws IOException {
+
+        AddOperationsToChain addOperations;
+        addOperations = fromJson(addOperationsJson);
+        if (addOperations.getStart() != null) {
+            this.setStart(addOperations.getStart());
+        }
+        if (addOperations.getEnd() != null) {
+            this.setEnd(addOperations.getEnd());
+        }
+        if (addOperations.getBefore() != null) {
+            this.setBefore(addOperations.getBefore());
+        }
+        if (addOperations.getAfter() != null) {
+            this.setAfter(addOperations.getAfter());
+        }
+    }
+
     public List<Operation> getStart() {
         return start;
     }
@@ -108,16 +126,20 @@ public class AddOperationsToChain implements GraphHook {
         if (opChain != null) {
             for (final Operation originalOp : opChain.getOperations()) {
 
-                for (final String beforeOpKey : before.keySet()) {
-                    if (originalOp.getClass().getName().contains(beforeOpKey)) {
-                        newOpChain.getOperations().addAll(before.get(beforeOpKey));
+                if (!before.isEmpty() && before != null) {
+                    for (final String beforeOpKey : before.keySet()) {
+                        if (originalOp.getClass().getName().contains(beforeOpKey)) {
+                            newOpChain.getOperations().addAll(before.get(beforeOpKey));
+                        }
                     }
-                    newOpChain.getOperations().add(originalOp);
                 }
+                newOpChain.getOperations().add(originalOp);
 
-                for (final String afterOpKey : after.keySet()) {
-                    if (originalOp.getClass().getName().contains(afterOpKey)) {
-                        newOpChain.getOperations().addAll(after.get(afterOpKey));
+                if (!after.isEmpty() && after != null) {
+                    for (final String afterOpKey : after.keySet()) {
+                        if (originalOp.getClass().getName().contains(afterOpKey)) {
+                            newOpChain.getOperations().addAll(after.get(afterOpKey));
+                        }
                     }
                 }
             }

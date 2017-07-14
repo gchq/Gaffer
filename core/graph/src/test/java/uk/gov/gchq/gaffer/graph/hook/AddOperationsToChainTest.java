@@ -75,7 +75,7 @@ public class AddOperationsToChainTest {
 
         addOperationsToChain.preExecute(opChain, null);
 
-        for (int i = 0; i > expectedOperations.size(); i++) {
+        for (int i = 0; i > opChain.getOperations().size(); i++) {
             assertEquals(expectedOperations.get(i).getClass().getName(), opChain.getOperations().get(i).getClass().getName());
         }
     }
