@@ -50,7 +50,7 @@ public class FileGraphLibrary extends GraphLibrary {
             try {
                 List<String> lines = Files.readAllLines(getGraphsPath(graphId));
                 String[] split = lines.get(0).trim().split(",");
-                if (split[0] == null || split[0].isEmpty() && split[1] == null || split[1].isEmpty()) {
+                if ((split[0] == null || split[0].isEmpty()) || (split[1] == null || split[1].isEmpty())) {
                     return null;
                 }
                 ids = new Pair<>(split[0], split[1]);
@@ -75,7 +75,7 @@ public class FileGraphLibrary extends GraphLibrary {
 
     @Override
     protected void _addSchema(final String schemaId,
-                          final byte[] schema) throws OverwritingException {
+                              final byte[] schema) throws OverwritingException {
         if (schema != null) {
             try {
                 FileUtils.writeByteArrayToFile(getSchemaPath(schemaId).toFile(), schema);
@@ -89,7 +89,7 @@ public class FileGraphLibrary extends GraphLibrary {
 
     @Override
     protected void _addProperties(final String propertiesId,
-                              final StoreProperties properties) {
+                                  final StoreProperties properties) {
         if (properties != null) {
             try (FileOutputStream propertiesFileOutputStream = new FileOutputStream(getPropertiesPath(propertiesId).toFile())) {
                 properties.getProperties().store(propertiesFileOutputStream, null);
