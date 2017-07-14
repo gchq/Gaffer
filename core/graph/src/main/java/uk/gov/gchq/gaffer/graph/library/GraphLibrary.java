@@ -38,8 +38,8 @@ public abstract class GraphLibrary {
         final String propertiesId = null != properties && null != properties.getId() ? properties.getId() : graphId;
 
         _addIds(graphId, new Pair<>(schemaId, propertiesId));
-        addSchema(schemaId, schemaJson);
-        addProperties(propertiesId, properties);
+        _addSchema(schemaId, schemaJson);
+        _addProperties(propertiesId, properties);
     }
 
     public void addOrUpdate(final String graphId, final Schema schema, final StoreProperties properties) {
@@ -52,11 +52,12 @@ public abstract class GraphLibrary {
 
         if (null != schema) {
             final byte[] schemaJson = schema.toJson(false);
-            addSchema(schemaId, schemaJson);
+            _addSchema(schemaId, schemaJson);
         }
 
         if (null != properties) {
-            addProperties(propertiesId, properties);
+
+            _addProperties(propertiesId, properties);
         }
     }
 
@@ -100,15 +101,24 @@ public abstract class GraphLibrary {
     public void addSchema(final String schemaId, final Schema schema) throws OverwritingException {
         if (null != schema) {
             final byte[] schemaJson = schema.toJson(false);
-            addSchema(schemaId, schemaJson);
+            validateId(schemaId);
+            _addSchema(schemaId, schemaJson);
         }
+    }
+
+    public void addProperties(final String propertiesId, final StoreProperties properties) {
+        if (properties != null) {
+            validateId(propertiesId);
+            _addProperties(propertiesId, properties);
+        }
+
     }
 
     protected abstract void _addIds(final String graphId, final Pair<String, String> schemaAndPropsIds) throws OverwritingException;
 
-    public abstract void addSchema(final String schemaId, final byte[] schema) throws OverwritingException;
+    protected abstract void _addSchema(final String schemaId, final byte[] schema) throws OverwritingException;
 
-    public abstract void addProperties(final String propertiesId, final StoreProperties properties);
+    protected abstract void _addProperties(final String propertiesId, final StoreProperties properties);
 
     protected abstract byte[] _getSchema(final String schemaId);
 

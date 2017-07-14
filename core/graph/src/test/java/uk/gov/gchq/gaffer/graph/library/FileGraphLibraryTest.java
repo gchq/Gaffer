@@ -142,10 +142,11 @@ public class FileGraphLibraryTest {
 
         // When / Then
         try {
-            fileGraphLibrary.add(GRAPH_ID, schema, null);
+            fileGraphLibrary.add(GRAPH_ID, null, storeProperties);
             fail("Exception expected");
         } catch (IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("StoreProperties cannot be null"));
+
+            assertTrue(e.getMessage().contains("Schema cannot be null"));
         }
     }
 
@@ -157,10 +158,10 @@ public class FileGraphLibraryTest {
 
         // When / Then
         try {
-            fileGraphLibrary.add(GRAPH_ID, null, storeProperties);
+            fileGraphLibrary.add(GRAPH_ID, schema, null);
             fail("Exception expected");
         } catch (IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Schema cannot be null"));
+            assertTrue(e.getMessage().contains("StoreProperties cannot be null"));
         }
     }
 

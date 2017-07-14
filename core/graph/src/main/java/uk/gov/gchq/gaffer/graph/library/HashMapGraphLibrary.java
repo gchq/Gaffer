@@ -40,12 +40,12 @@ public class HashMapGraphLibrary extends GraphLibrary {
 
 
     @Override
-    public void addSchema(final String schemaId, final byte[] schema) throws OverwritingException {
+    protected void _addSchema(final String schemaId, final byte[] schema) throws OverwritingException {
         SCHEMAS.put(schemaId, schema);
     }
 
     @Override
-    public void addProperties(final String propertiesId, final StoreProperties properties) {
+    protected void _addProperties(final String propertiesId, final StoreProperties properties) {
         PROPERTIES.put(propertiesId, properties);
     }
 

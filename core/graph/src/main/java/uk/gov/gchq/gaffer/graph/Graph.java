@@ -284,10 +284,10 @@ public final class Graph {
     }
 
     /**
-     * @return the Store for this Graph.
+     * @return the StoreProperties for this Graph.
      */
-    public Store getStore() {
-        return store;
+    public StoreProperties getStoreProperties() {
+        return store.getProperties();
     }
 
     public GraphLibrary getLibrary() {
