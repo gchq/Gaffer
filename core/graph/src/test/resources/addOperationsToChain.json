@@ -33,7 +33,7 @@
         "class": "uk.gov.gchq.gaffer.operation.impl.Validate"
       }
     ],
-    "uk.gov.gchq.gaffer.operation.impl.get.getAdjacentIds": [
+    "uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds": [
       {
         "class": "uk.gov.gchq.gaffer.operation.impl.Count"
       },

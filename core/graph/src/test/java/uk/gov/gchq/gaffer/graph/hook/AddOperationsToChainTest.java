@@ -32,8 +32,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
+import static org.junit.Assert.assertTrue;
 
 public class AddOperationsToChainTest {
     public static final String ADD_OPERATIONS_TO_CHAIN_PATH = "src/test/resources/addOperationsToChain.json";
@@ -42,15 +41,15 @@ public class AddOperationsToChainTest {
     public void shouldAddAllOperations() throws IOException {
         AddOperationsToChain addOperationsToChain = new AddOperationsToChain(ADD_OPERATIONS_TO_CHAIN_PATH);
 
-        Operation discardOutput = mock(DiscardOutput.class);
-        Operation splitStore = mock(SplitStore.class);
-        Operation validate = mock(Validate.class);
-        Operation getAdjacentIds = mock(GetAdjacentIds.class);
-        Operation count = mock(Count.class);
-        Operation countGroups = mock(CountGroups.class);
-        Operation getElements = mock(GetElements.class);
-        Operation getAllElements = mock(GetAllElements.class);
-        Operation limit = mock(Limit.class);
+        Operation discardOutput = new DiscardOutput();
+        Operation splitStore = new SplitStore();
+        Operation validate = new Validate();
+        Operation getAdjacentIds = new GetAdjacentIds();
+        Operation count = new Count<>();
+        Operation countGroups = new CountGroups();
+        Operation getElements = new GetElements();
+        Operation getAllElements = new GetAllElements();
+        Operation limit = new Limit<>();
 
 
         final List expectedOperations = new ArrayList<Operation>();
@@ -75,8 +74,8 @@ public class AddOperationsToChainTest {
 
         addOperationsToChain.preExecute(opChain, null);
 
-        for (int i = 0; i > opChain.getOperations().size(); i++) {
-            assertEquals(expectedOperations.get(i).getClass().getName(), opChain.getOperations().get(i).getClass().getName());
+        for (int i = 0; i < opChain.getOperations().size(); i++) {
+            assertTrue(expectedOperations.get(i).getClass().getSuperclass().getName().contains(opChain.getOperations().get(i).getClass().getSimpleName()));
         }
     }
 }
