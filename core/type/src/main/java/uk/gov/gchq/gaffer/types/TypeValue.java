@@ -20,7 +20,13 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 
-public class TypeValue {
+import java.util.Comparator;
+
+public class TypeValue implements Comparable<TypeValue> {
+
+    private static Comparator<String> stringComparator = Comparator
+            .nullsFirst(String::compareTo);
+
     private String type;
     private String value;
 
@@ -81,5 +87,17 @@ public class TypeValue {
                 .append("type", type)
                 .append("value", value)
                 .toString();
+    }
+
+    @Override
+    public int compareTo(final TypeValue typeValue) {
+        if (typeValue == null) {
+            return 1;
+        }
+        int i = stringComparator.compare(type, typeValue.getType());
+        if (i != 0) {
+            return i;
+        }
+        return stringComparator.compare(value, typeValue.getValue());
     }
 }
