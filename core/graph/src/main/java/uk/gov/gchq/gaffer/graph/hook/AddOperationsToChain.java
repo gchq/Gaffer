@@ -52,36 +52,11 @@ public class AddOperationsToChain implements GraphHook {
         } else {
             addOperations = fromJson(StreamUtil.openStream(OperationDeclarations.class, addOperationsPath));
         }
-        if (addOperations.getStart() != null) {
-            this.setStart(addOperations.getStart());
-        }
-        if (addOperations.getEnd() != null) {
-            this.setEnd(addOperations.getEnd());
-        }
-        if (addOperations.getBefore() != null) {
-            this.setBefore(addOperations.getBefore());
-        }
-        if (addOperations.getAfter() != null) {
-            this.setAfter(addOperations.getAfter());
-        }
+        setOperations(addOperations);
     }
 
     public AddOperationsToChain(final byte[] addOperationsJson) throws IOException {
-
-        AddOperationsToChain addOperations;
-        addOperations = fromJson(addOperationsJson);
-        if (addOperations.getStart() != null) {
-            this.setStart(addOperations.getStart());
-        }
-        if (addOperations.getEnd() != null) {
-            this.setEnd(addOperations.getEnd());
-        }
-        if (addOperations.getBefore() != null) {
-            this.setBefore(addOperations.getBefore());
-        }
-        if (addOperations.getAfter() != null) {
-            this.setAfter(addOperations.getAfter());
-        }
+        setOperations(fromJson(addOperationsJson));
     }
 
     public List<Operation> getStart() {
@@ -169,6 +144,21 @@ public class AddOperationsToChain implements GraphHook {
             return JSON_SERIALISER.deserialise(inputStream, AddOperationsToChain.class);
         } catch (final SerialisationException e) {
             throw new SchemaException("Failed to load element definitions from bytes", e);
+        }
+    }
+
+    private void setOperations(AddOperationsToChain addOperations) {
+        if (addOperations.getStart() != null) {
+            this.setStart(addOperations.getStart());
+        }
+        if (addOperations.getEnd() != null) {
+            this.setEnd(addOperations.getEnd());
+        }
+        if (addOperations.getBefore() != null) {
+            this.setBefore(addOperations.getBefore());
+        }
+        if (addOperations.getAfter() != null) {
+            this.setAfter(addOperations.getAfter());
         }
     }
 

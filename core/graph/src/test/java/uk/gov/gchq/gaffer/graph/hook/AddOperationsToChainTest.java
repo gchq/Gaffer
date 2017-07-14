@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.Count;
@@ -29,16 +30,22 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class AddOperationsToChainTest {
     public static final String ADD_OPERATIONS_TO_CHAIN_PATH = "src/test/resources/addOperationsToChain.json";
 
     @Test
-    public void shouldAddAllOperations() throws IOException {
+    public void shouldAddAllOperationsGivenPath() throws IOException {
+        // Given
         AddOperationsToChain addOperationsToChain = new AddOperationsToChain(ADD_OPERATIONS_TO_CHAIN_PATH);
 
         Operation discardOutput = new DiscardOutput();
@@ -50,7 +57,6 @@ public class AddOperationsToChainTest {
         Operation getElements = new GetElements();
         Operation getAllElements = new GetAllElements();
         Operation limit = new Limit<>();
-
 
         final List expectedOperations = new ArrayList<Operation>();
         expectedOperations.add(discardOutput);
@@ -72,10 +78,129 @@ public class AddOperationsToChainTest {
                 .then(getAllElements)
                 .build();
 
+        // When
         addOperationsToChain.preExecute(opChain, null);
 
+        // Then
         for (int i = 0; i < opChain.getOperations().size(); i++) {
-            assertTrue(expectedOperations.get(i).getClass().getSuperclass().getName().contains(opChain.getOperations().get(i).getClass().getSimpleName()));
+            assertTrue(expectedOperations.get(i).getClass().getName().contains(opChain.getOperations().get(i).getClass().getSimpleName()));
+        }
+    }
+
+    @Test
+    public void shouldAddAllOperationsGivenJson() throws IOException {
+
+        Path addOpsPath = Paths.get(ADD_OPERATIONS_TO_CHAIN_PATH);
+
+        // Given
+        AddOperationsToChain addOperationsToChain = new AddOperationsToChain(Files.readAllBytes(addOpsPath));
+
+        Operation discardOutput = new DiscardOutput();
+        Operation splitStore = new SplitStore();
+        Operation validate = new Validate();
+        Operation getAdjacentIds = new GetAdjacentIds();
+        Operation count = new Count<>();
+        Operation countGroups = new CountGroups();
+        Operation getElements = new GetElements();
+        Operation getAllElements = new GetAllElements();
+        Operation limit = new Limit<>();
+
+        final List expectedOperations = new ArrayList<Operation>();
+        expectedOperations.add(discardOutput);
+        expectedOperations.add(splitStore);
+        expectedOperations.add(validate);
+        expectedOperations.add(getAdjacentIds);
+        expectedOperations.add(count);
+        expectedOperations.add(discardOutput);
+        expectedOperations.add(countGroups);
+        expectedOperations.add(getElements);
+        expectedOperations.add(getAllElements);
+        expectedOperations.add(limit);
+        expectedOperations.add(validate);
+        expectedOperations.add(count);
+
+        final OperationChain opChain = new OperationChain.Builder()
+                .first(getAdjacentIds)
+                .then(getElements)
+                .then(getAllElements)
+                .build();
+
+        // When
+        addOperationsToChain.preExecute(opChain, null);
+
+        // Then
+        for (int i = 0; i < opChain.getOperations().size(); i++) {
+            assertTrue(expectedOperations.get(i).getClass().getName().contains(opChain.getOperations().get(i).getClass().getSimpleName()));
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenFileDoesntExist() throws IOException {
+        // Given
+        final String falseAddOperationsPath = "/this/path/doesnt/exist";
+
+        // When / Then
+        try {
+            new AddOperationsToChain(falseAddOperationsPath);
+            fail("Exception expected");
+        } catch (IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenAddingNullExtraOperation() throws IOException {
+        // Given
+        final String nullTestJson = "{\"start\":[{\"class\": null}]}";
+
+        //When / Then
+        try {
+            new AddOperationsToChain(nullTestJson.getBytes());
+            fail("Exception expected");
+        } catch (SchemaException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenAddingEmptyExtraOperation() throws IOException {
+        // Given
+        final String nullTestJson = "{\"start\":[{\"class\": \"\"}]}";
+
+        //When / Then
+        try {
+            new AddOperationsToChain(nullTestJson.getBytes());
+            fail("Exception expected");
+        } catch (SchemaException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenAddingFalseExtraOperation() throws IOException {
+        // Given
+        final String nullTestJson = "{\"start\":[{\"class\": \"this.Operation.Doesnt.Exist\"}]}";
+
+        //When / Then
+        try {
+            new AddOperationsToChain(nullTestJson.getBytes());
+            fail("Exception expected");
+        } catch (SchemaException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenAddingBadlySpeltExtraOperation() throws IOException {
+        // Given
+        final String nullTestJson = "{\"start\":[{\"class\": \"uk.gov.gchq.gaffer.Operation.impl.get.gETAdjAcentids\"}]}";
+
+        //When / Then
+        try {
+            new AddOperationsToChain(nullTestJson.getBytes());
+            fail("Exception expected");
+        } catch (NoClassDefFoundError e) {
+            assertNotNull(e.getMessage());
         }
     }
 }
