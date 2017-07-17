@@ -19,11 +19,12 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.graph.library.FileGraphLibrary;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherGraph;
-import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
 
 public class ExportToOtherGraphExample extends OperationExample {
@@ -32,28 +33,57 @@ public class ExportToOtherGraphExample extends OperationExample {
     }
 
     public ExportToOtherGraphExample() {
-        super(ExportToSet.class);
+        super(ExportToOtherGraph.class);
     }
 
     @Override
     public void runExamples() {
         simpleExport();
+        exportUsingGraphLibrary();
     }
 
     public Iterable<?> simpleExport() {
         // ---------------------------------------------------------
         final OperationChain<CloseableIterable<? extends Element>> opChain;
         final AccumuloProperties storeProperties = new AccumuloProperties();
+        final Schema schema = new Schema.Builder().build();
         try {
             storeProperties.getProperties().load(StreamUtil.openStream(getClass(), "othermockaccumulostore.properties"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         opChain = new OperationChain.Builder()
-                .first(new GetAllElements())
+                .first(new GetElements())
                 .then(new ExportToOtherGraph.Builder<CloseableIterable<? extends Element>>()
                         .graphId("graphId")
                         .storeProperties(storeProperties)
+                        .schema(schema)
+                        .build())
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(opChain, null);
+    }
+
+    public Iterable<?> exportUsingGraphLibrary() {
+        // ---------------------------------------------------------
+        final OperationChain<CloseableIterable<? extends Element>> opChain;
+        final AccumuloProperties storeProperties = new AccumuloProperties();
+        storeProperties.setId("storePropertiesId");
+        final Schema schema = new Schema.Builder().id("schemaId").build();
+        try {
+            storeProperties.getProperties().load(StreamUtil.openStream(getClass(), "othermockaccumulostore.properties"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        FileGraphLibrary graphLibrary = new FileGraphLibrary("doc/src/main/resources/ExportToOtherGraphGraphLibrary");
+        graphLibrary.add("graphId1", schema, storeProperties);
+        opChain = new OperationChain.Builder()
+                .first(new GetElements())
+                .then(new ExportToOtherGraph.Builder<CloseableIterable<? extends Element>>()
+                        .graphId("graphId1")
+                        .graphLibrary(graphLibrary)
                         .build())
                 .build();
         // ---------------------------------------------------------
