@@ -19,7 +19,6 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.graph.library.FileGraphLibrary;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherGraph;
@@ -70,20 +69,16 @@ public class ExportToOtherGraphExample extends OperationExample {
         final OperationChain<CloseableIterable<? extends Element>> opChain;
         final AccumuloProperties storeProperties = new AccumuloProperties();
         storeProperties.setId("storePropertiesId");
-        final Schema schema = new Schema.Builder().id("schemaId").build();
         try {
             storeProperties.getProperties().load(StreamUtil.openStream(getClass(), "othermockaccumulostore.properties"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        FileGraphLibrary graphLibrary = new FileGraphLibrary("doc/src/main/resources/ExportToOtherGraphGraphLibrary");
-        graphLibrary.add("graphId1", schema, storeProperties);
         opChain = new OperationChain.Builder()
                 .first(new GetElements())
                 .then(new ExportToOtherGraph.Builder<CloseableIterable<? extends Element>>()
                         .graphId("graphId1")
-                        .graphLibrary(graphLibrary)
                         .build())
                 .build();
         // ---------------------------------------------------------

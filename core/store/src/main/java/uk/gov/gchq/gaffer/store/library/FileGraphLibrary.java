@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.graph.library;
+package uk.gov.gchq.gaffer.store.library;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.io.FileUtils;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
-import uk.gov.gchq.gaffer.graph.exception.OverwritingException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.exception.OverwritingException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;

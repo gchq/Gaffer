@@ -17,17 +17,20 @@
 package uk.gov.gchq.gaffer.operation.export.graph.handler;
 
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
 import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherGraph;
 import uk.gov.gchq.gaffer.operation.export.graph.OtherGraphExporter;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.handler.export.ExportToHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.ValidationResult;
 
 public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGraph, OtherGraphExporter> {
     private static final String ID = "gaffer.store.id";
+    private GraphLibrary storeLibrary;
+    private String graphId;
 
     @Override
     protected Class<OtherGraphExporter> getExporterClass() {
@@ -36,24 +39,34 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
 
     @Override
     protected OtherGraphExporter createExporter(final ExportToOtherGraph export, final Context context, final Store store) {
+
         return new OtherGraphExporter(
                 context.getUser(),
                 context.getJobId(),
-                createGraph(export, store)
-        );
+                createGraph(export, store));
     }
 
     protected Graph createGraph(final ExportToOtherGraph export, final Store store) {
+
+        ValidationResult validationResult = validate(export, store);
+        if (!validationResult.isValid()) {
+            throw new IllegalArgumentException(validationResult.getErrorString());
+        }
+
+        storeLibrary = store.getGraphLibrary();
+        graphId = export.getGraphId();
+
+        StoreProperties storeProperties;
+        Schema schema;
+
         final String exportGraphId = export.getGraphId();
         if (store.getGraphId().equals(exportGraphId)) {
             throw new IllegalArgumentException("Cannot export to the same graph: " + exportGraphId);
         }
 
-        final GraphLibrary graphLibrary = export.getGraphLibrary();
-
-        // No graph library so we cannot look up the graphId/schemaId/storePropertiesId
-        if (null == graphLibrary) {
-            final Schema schema = null != export.getSchema() ? export.getSchema() : store.getSchema();
+        // No store graph library so we create a new Graph
+        if (null == storeLibrary) {
+            schema = null != export.getSchema() ? export.getSchema() : store.getSchema();
             final StoreProperties properties = null != export.getStoreProperties() ? export.getStoreProperties() : store.getProperties();
             return new Graph.Builder()
                     .graphId(exportGraphId)
@@ -63,18 +76,35 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
         }
 
         // If the graphId exists in the graphLibrary then just use it
-        if (graphLibrary.exists(exportGraphId)) {
+        if (storeLibrary.exists(exportGraphId)) {
             return new Graph.Builder()
                     .graphId(exportGraphId)
-                    .library(graphLibrary)
+                    .library(storeLibrary)
                     .build();
         } else {
-            Schema schema = null;
-            if (null != export.getParentSchemaId()) {
-                schema = graphLibrary.getSchema(export.getParentSchemaId());
+            storeProperties = null;
+            if (export.getParentStorePropertiesId() != null) {
+                storeProperties = storeLibrary.getProperties(export.getParentStorePropertiesId());
             }
-            if (null != export.getSchema()) {
-                if (null == schema) {
+            if (export.getStoreProperties() != null) {
+                if (storeProperties == null) {
+                    storeProperties = export.getStoreProperties();
+                } else {
+                    // delete the old properties id as we are about to modify the properties
+                    storeProperties.getProperties().remove(ID);
+                    storeProperties.getProperties().putAll(export.getStoreProperties().getProperties());
+                }
+            }
+            if (null == storeProperties) {
+                storeProperties = export.getStoreProperties();
+            }
+
+            schema = null;
+            if (export.getParentSchemaId() != null) {
+                schema = storeLibrary.getSchema(export.getParentSchemaId());
+            }
+            if (export.getSchema() != null) {
+                if (schema == null) {
                     schema = export.getSchema();
                 } else {
                     // delete the old schema id as we are about to modify the schema
@@ -86,34 +116,57 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
                 }
             }
             if (null == schema) {
-                // as a last resort just use the schema from the current store
                 schema = store.getSchema();
             }
+        }
 
-            StoreProperties storeProperties = null;
+        return new Graph.Builder()
+                .graphId(exportGraphId)
+                .library(storeLibrary)
+                .addSchema(schema)
+                .storeProperties(storeProperties)
+                .build();
+    }
+
+    public ValidationResult validate(final ExportToOtherGraph export, final Store store) {
+
+        final ValidationResult result = new ValidationResult();
+
+        if (null == store.getGraphLibrary()) {
+            // No graph library so we cannot look up the graphId/schemaId/storePropertiesId
+            if (null != export.getParentSchemaId()) {
+                result.addError("parentSchemaId cannot be used without a GraphLibrary");
+            }
             if (null != export.getParentStorePropertiesId()) {
-                storeProperties = graphLibrary.getProperties(export.getParentStorePropertiesId());
+                result.addError("parentStorePropertiesId cannot be used without a GraphLibrary");
+            }
+        } else if (store.getGraphLibrary().exists(graphId)) {
+            if (null != export.getParentSchemaId()) {
+                throw new IllegalArgumentException("GraphId " + graphId + " already exists so you cannot use a different schema. Do not set the parentSchemaId field");
+            }
+            if (null != export.getSchema()) {
+                throw new IllegalArgumentException("GraphId " + graphId + "already exists so you cannot provide a different schema. Do not set the schema field.");
+            }
+            if (null != export.getParentStorePropertiesId()) {
+                throw new IllegalArgumentException("GraphId " + graphId + " already exists so you cannot use different store properties. Do not set the parentStorePropertiesId field");
             }
             if (null != export.getStoreProperties()) {
-                if (null == storeProperties) {
-                    storeProperties = export.getStoreProperties();
-                } else {
-                    // delete the old properties id as we are about to modify the properties
-                    storeProperties.getProperties().remove(ID);
-                    storeProperties.getProperties().putAll(export.getStoreProperties().getProperties());
+                throw new IllegalArgumentException("GraphId " + graphId + " already exists so you cannot provide different store properties. Do not set the storeProperties field.");
+            }
+        } else {
+            if (null != export.getParentSchemaId()) {
+                final Schema parentSchema = store.getGraphLibrary().getSchema(export.getParentSchemaId());
+                if (null == parentSchema) {
+                    throw new IllegalArgumentException("Schema could not be found in the graphLibrary with id: " + export.getParentSchemaId());
                 }
             }
-            if (null == storeProperties) {
-                // as a last resort just use the properties from the current store
-                storeProperties = store.getProperties();
+            if (null != export.getParentStorePropertiesId()) {
+                final StoreProperties parentStoreProperties = store.getGraphLibrary().getProperties(export.getParentStorePropertiesId());
+                if (null == parentStoreProperties) {
+                    throw new IllegalArgumentException("Store properties could not be found in the graphLibrary with id: " + export.getParentStorePropertiesId());
+                }
             }
-
-            return new Graph.Builder()
-                    .graphId(exportGraphId)
-                    .library(graphLibrary)
-                    .addSchema(schema)
-                    .storeProperties(storeProperties)
-                    .build();
         }
+        return result;
     }
 }

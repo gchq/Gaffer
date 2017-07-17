@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.graph.library;
+package uk.gov.gchq.gaffer.store.library;
 
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
-import uk.gov.gchq.gaffer.graph.exception.OverwritingException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.exception.OverwritingException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.regex.Pattern;
 
@@ -92,10 +92,7 @@ public abstract class GraphLibrary {
     }
 
     public boolean exists(final String graphId) {
-        if (getIds(graphId) != null) {
-            return true;
-        }
-        return false;
+        return getIds(graphId) != null;
     }
 
     public void addSchema(final String schemaId, final Schema schema) throws OverwritingException {
