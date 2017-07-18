@@ -57,7 +57,7 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
         final StoreProperties storeStoreProperties = store.getProperties();
         final Schema storeSchema = store.getSchema();
 
-        ValidationResult validationResult = validate(storeGraphId, exportGraphId, exportParentSchemaId, exportParentStorePropertiesId,
+        ValidationResult validationResult = validate(exportGraphId, exportParentSchemaId, exportParentStorePropertiesId,
                 storeLibrary, exportSchema, exportStoreProperties, store);
         if (!validationResult.isValid()) {
             throw new IllegalArgumentException(validationResult.getErrorString());
@@ -131,14 +131,14 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
                 .build();
     }
 
-    public ValidationResult validate(final String storeGraphId, final String exportGraphId, final String exportParentSchemaId,
+    public ValidationResult validate(final String exportGraphId, final String exportParentSchemaId,
                                      final String exportParentStorePropertiesId, final GraphLibrary storeGraphLibrary,
                                      final Schema exportSchema, final StoreProperties exportStoreProperties,
                                      final Store store) {
 
         final ValidationResult result = new ValidationResult();
 
-        if (storeGraphId.equals(exportGraphId)) {
+        if (store.getGraphId().equals(exportGraphId)) {
             result.addError("Cannot export to the same graph: " + exportGraphId);
         }
         if (null == storeGraphLibrary) {

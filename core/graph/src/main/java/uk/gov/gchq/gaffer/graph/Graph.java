@@ -61,7 +61,7 @@ import java.util.Set;
  * @see uk.gov.gchq.gaffer.graph.Graph.Builder
  */
 public final class Graph {
-    private final GraphLibrary library;
+    private GraphLibrary library;
 
     /**
      * The instance of the store.
@@ -292,6 +292,11 @@ public final class Graph {
 
     public GraphLibrary getLibrary() {
         return library;
+    }
+
+    public void setLibrary(final GraphLibrary library) {
+        this.library = library;
+        store.setGraphLibrary(library);
     }
 
     /**

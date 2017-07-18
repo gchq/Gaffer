@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.regex.Pattern;
 
 public abstract class GraphLibrary {
-    protected static final Pattern GRAPH_ID_ALLOWED_CHARACTERS = Pattern.compile("[a-zA-Z0-9_]*");
+    protected static final Pattern ID_ALLOWED_CHARACTERS = Pattern.compile("[a-zA-Z0-9_]*");
 
     public void add(final String graphId, final Schema schema, final StoreProperties properties) throws OverwritingException {
         validateId(graphId);
@@ -121,9 +121,9 @@ public abstract class GraphLibrary {
 
     protected abstract StoreProperties _getProperties(final String propertiesId);
 
-    private void validateId(final String graphId) {
-        if (null == graphId || !GRAPH_ID_ALLOWED_CHARACTERS.matcher(graphId).matches()) {
-            throw new IllegalArgumentException("graphId is invalid: " + graphId + ", it must match regex: " + GRAPH_ID_ALLOWED_CHARACTERS);
+    private void validateId(final String id) {
+        if (null == id || !ID_ALLOWED_CHARACTERS.matcher(id).matches()) {
+            throw new IllegalArgumentException("Id is invalid: " + id + ", it must match regex: " + ID_ALLOWED_CHARACTERS);
         }
     }
 

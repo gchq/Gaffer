@@ -38,6 +38,7 @@ import java.util.stream.Stream;
 
 public abstract class OperationExample extends Example {
     private final Graph graph = createExampleGraph();
+    //private Graph graph;
 
     public OperationExample(final Class<? extends Operation> classForExample) {
         super(classForExample);
