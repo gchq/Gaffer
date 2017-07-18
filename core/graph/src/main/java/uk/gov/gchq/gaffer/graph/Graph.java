@@ -517,14 +517,24 @@ public final class Graph {
                 graphId = store.getGraphId();
             }
 
-            if (null == graphId) {
-                throw new IllegalArgumentException("graphId is required");
+            final Pair<Schema, StoreProperties> parentGraph;
+            if (null != graphId) {
+                parentGraph = library.get(graphId);
+            } else {
+                parentGraph = new Pair<>();
             }
 
-            final Pair<Schema, StoreProperties> parentGraph = library.get(graphId);
             updateSchema(parentGraph);
             updateStore(parentGraph);
             updateView();
+
+            if (null == graphId) {
+                graphId = store.getGraphId();
+            }
+
+            if (null == graphId) {
+                throw new IllegalArgumentException("graphId is required");
+            }
 
             library.add(graphId, schema, store.getProperties());
 

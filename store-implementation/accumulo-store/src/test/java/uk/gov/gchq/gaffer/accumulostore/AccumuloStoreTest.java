@@ -47,6 +47,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -142,6 +143,23 @@ public class AccumuloStoreTest {
 
         // Then
         assertEquals("tableName", store.getTableName());
+        assertEquals("tableName", store.getGraphId());
+    }
+
+    @Test
+    public void shouldBuildGraphAndGetGraphIdFromTableName() throws Exception {
+        // Given
+        final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
+        properties.setTable("tableName");
+
+        // When
+        final Graph graph = new Graph.Builder()
+                .addSchemas(StreamUtil.schemas(getClass()))
+                .storeProperties(properties)
+                .build();
+
+        // Then
+        assertEquals("tableName", graph.getGraphId());
     }
 
     @Test
