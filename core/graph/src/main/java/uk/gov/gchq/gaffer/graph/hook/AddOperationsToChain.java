@@ -52,7 +52,7 @@ public class AddOperationsToChain implements GraphHook {
     public AddOperationsToChain() {
     }
 
-    public void setStart(List<Operation> start) {
+    public void setStart(final List<Operation> start) {
         this.defaultOperations.setStart(start);
     }
 
@@ -60,7 +60,7 @@ public class AddOperationsToChain implements GraphHook {
         return defaultOperations.getStart();
     }
 
-    public void setEnd(List<Operation> end) {
+    public void setEnd(final List<Operation> end) {
         this.defaultOperations.setEnd(end);
     }
 
@@ -68,7 +68,7 @@ public class AddOperationsToChain implements GraphHook {
         return defaultOperations.getEnd();
     }
 
-    public void setBefore(Map<String, List<Operation>> before) {
+    public void setBefore(final Map<String, List<Operation>> before) {
         this.defaultOperations.setBefore(before);
     }
 
@@ -76,7 +76,7 @@ public class AddOperationsToChain implements GraphHook {
         return defaultOperations.getBefore();
     }
 
-    public void setAfter(Map<String, List<Operation>> after) {
+    public void setAfter(final Map<String, List<Operation>> after) {
         this.defaultOperations.setAfter(after);
     }
 
@@ -84,7 +84,7 @@ public class AddOperationsToChain implements GraphHook {
         return defaultOperations.getAfter();
     }
 
-    public void setDefaultOperations(AdditionalOperations defaultOperations) {
+    public void setDefaultOperations(final AdditionalOperations defaultOperations) {
         this.defaultOperations = defaultOperations;
     }
 
@@ -92,7 +92,7 @@ public class AddOperationsToChain implements GraphHook {
         return defaultOperations;
     }
 
-    public void setAuthorisedOps(LinkedHashMap<String, AdditionalOperations> authorisedOps) {
+    public void setAuthorisedOps(final LinkedHashMap<String, AdditionalOperations> authorisedOps) {
         this.authorisedOps = authorisedOps;
     }
 
@@ -140,11 +140,11 @@ public class AddOperationsToChain implements GraphHook {
      */
     @Override
     public void preExecute(final OperationChain<?> opChain, final User user) {
-        OperationChain<?> newOpChain = new OperationChain<>();
+        final OperationChain<?> newOpChain = new OperationChain<>();
 
         boolean hasAuth = false;
         if (!authorisedOps.isEmpty() && !user.getOpAuths().isEmpty()) {
-            for (String auth : authorisedOps.keySet()) {
+            for (final String auth : authorisedOps.keySet()) {
                 if (user.getOpAuths().contains(auth)) {
                     newOpChain.getOperations().addAll(addOperationsToChain(opChain, authorisedOps.get(auth)).getOperations());
                     hasAuth = true;
@@ -201,7 +201,7 @@ public class AddOperationsToChain implements GraphHook {
         }
     }
 
-    private OperationChain<?> addOperationsToChain(OperationChain<?> opChain, AdditionalOperations additionalOperations) {
+    private OperationChain<?> addOperationsToChain(final OperationChain<?> opChain, final AdditionalOperations additionalOperations) {
         OperationChain<?> newOpChain = new OperationChain<>();
         if (additionalOperations.getStart() != null) {
             newOpChain.getOperations().addAll(additionalOperations.getStart());
