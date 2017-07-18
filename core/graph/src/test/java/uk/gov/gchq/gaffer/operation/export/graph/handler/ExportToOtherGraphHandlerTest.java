@@ -56,10 +56,8 @@ public class ExportToOtherGraphHandlerTest {
         if (new File(TEST_FILE_PATH).exists()) {
             FileUtils.forceDelete(new File(TEST_FILE_PATH));
         }
-
         storeProperties = new StoreProperties(Paths.get("src/test/resources/store.properties"));
         storeProperties.setId(STORE_PROPS_ID);
-
     }
 
     @Test
@@ -111,10 +109,8 @@ public class ExportToOtherGraphHandlerTest {
     @Test
     public void shouldCreateNewGraphWithStoresStoreProperties() {
         // Given
-        graphLibrary.add(GRAPH_ID + 1, schema, storeProperties);
         Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
         given(store.getProperties()).willReturn(storeProperties);
-        given(store.getGraphLibrary()).willReturn(graphLibrary);
         given(store.getGraphId()).willReturn(GRAPH_ID);
 
         final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
@@ -134,15 +130,11 @@ public class ExportToOtherGraphHandlerTest {
 
     @Test
     public void shouldCreateNewGraphWithStoresSchema() {
-
         // Given
-        graphLibrary.add(GRAPH_ID + 1, schema, storeProperties);
-
         StoreProperties storeProperties1 = new StoreProperties(Paths.get("src/test/resources/store.properties"));
         storeProperties1.setId(STORE_PROPS_ID + 1);
 
-        given(store.getProperties()).willReturn(storeProperties);
-        given(store.getGraphLibrary()).willReturn(graphLibrary);
+        given(store.getSchema()).willReturn(schema);
         given(store.getGraphId()).willReturn(GRAPH_ID);
 
         final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
@@ -163,7 +155,6 @@ public class ExportToOtherGraphHandlerTest {
     @Test
     public void shouldCreateNewGraphWithParentSchemaId() {
         // Given
-
         given(store.getGraphId()).willReturn(GRAPH_ID);
 
         Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
@@ -184,7 +175,38 @@ public class ExportToOtherGraphHandlerTest {
 
         // Then
         assertEquals(GRAPH_ID + 2, graph.getGraphId());
-        assertEquals(new Schema.Builder().merge(schema).merge(schema1).id(null).build(), graph.getSchema());
+        assertEquals(schema1, graph.getSchema());
+        //assertEquals(new Schema.Builder().merge(schema).merge(schema1).id(null).build(), graph.getSchema());
+        assertEquals(storeProperties, graph.getStoreProperties());
+    }
+
+    @Test
+    public void shouldCreateNewGraphWithMergedParentSchemaIdAndProvidedSchema() {
+        // Given
+        given(store.getGraphId()).willReturn(GRAPH_ID);
+
+        Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
+
+        graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
+        graphLibrary.addSchema(SCHEMA_ID + 1, schema1);
+        given(store.getGraphLibrary()).willReturn(graphLibrary);
+
+        final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
+        final ExportToOtherGraph export = new ExportToOtherGraph.Builder<>()
+                .graphId(GRAPH_ID + 2)
+                .parentSchemaId(SCHEMA_ID + 1)
+                .schema(schema)
+                .storeProperties(storeProperties)
+                .build();
+
+        // When
+        Graph graph = handler.createGraph(export, store);
+
+        // Then
+        assertEquals(GRAPH_ID + 2, graph.getGraphId());
+        assertEquals(schema1, graph.getSchema());
+        assertEquals(schema.getId(), graph.getSchema().getId());
+        assertEquals(new Schema.Builder().merge(schema).id(null).merge(schema1).build(), graph.getSchema());
         assertEquals(storeProperties, graph.getStoreProperties());
     }
 
@@ -213,8 +235,40 @@ public class ExportToOtherGraphHandlerTest {
         // Then
         assertEquals(GRAPH_ID + 2, graph.getGraphId());
         assertEquals(schema, graph.getSchema());
+        //storeProperties1.getProperties().remove(ID);
+        //storeProperties1.getProperties().putAll(storeProperties.getProperties());
+        assertEquals(storeProperties1, graph.getStoreProperties());
+    }
+
+    @Test
+    public void shouldCreateNewGraphWithMergedParentStorePropertiesIdAndProvidedStoreProperties() {
+        // Given
+        given(store.getGraphId()).willReturn(GRAPH_ID);
+
+        StoreProperties storeProperties1 = new StoreProperties(Paths.get("src/test/resources/store.properties"));
+        storeProperties1.setId(STORE_PROPS_ID + 1);
+
+        graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
+        graphLibrary.addProperties(STORE_PROPS_ID + 1, storeProperties1);
+        given(store.getGraphLibrary()).willReturn(graphLibrary);
+
+        final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
+        final ExportToOtherGraph export = new ExportToOtherGraph.Builder<>()
+                .graphId(GRAPH_ID + 2)
+                .schema(schema)
+                .parentStorePropertiesId(STORE_PROPS_ID + 1)
+                .storeProperties(storeProperties)
+                .build();
+
+        // When
+        Graph graph = handler.createGraph(export, store);
+
+        // Then
+        assertEquals(GRAPH_ID + 2, graph.getGraphId());
+        assertEquals(schema, graph.getSchema());
         storeProperties1.getProperties().remove(ID);
         storeProperties1.getProperties().putAll(storeProperties.getProperties());
-        assertEquals(storeProperties, graph.getStoreProperties());
+        assertEquals(storeProperties1, graph.getStoreProperties());
+        assertEquals(storeProperties1.getId(), graph.getStoreProperties().getId());
     }
 }

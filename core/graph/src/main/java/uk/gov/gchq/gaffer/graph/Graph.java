@@ -521,10 +521,9 @@ public final class Graph {
             updateStore(parentGraph);
             updateView();
 
-            if (store != null) {
-                store.setGraphLibrary(library);
-            }
             library.add(graphId, schema, store.getProperties());
+
+            store.setGraphLibrary(library);
 
             return new Graph(library, schema, store, view, graphHooks);
         }
