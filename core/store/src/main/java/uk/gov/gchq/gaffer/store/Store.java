@@ -64,6 +64,7 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.OperationUtil;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
@@ -137,6 +138,7 @@ public abstract class Store {
     private StoreProperties properties;
 
     private final SchemaOptimiser schemaOptimiser;
+    private GraphLibrary library;
 
     private JobTracker jobTracker;
     private ExecutorService executorService;
@@ -414,6 +416,14 @@ public abstract class Store {
      */
     public StoreProperties getProperties() {
         return properties;
+    }
+
+    public void setGraphLibrary(final GraphLibrary library) {
+        this.library = library;
+    }
+
+    public GraphLibrary getGraphLibrary() {
+        return library;
     }
 
     public void optimiseSchema() {
