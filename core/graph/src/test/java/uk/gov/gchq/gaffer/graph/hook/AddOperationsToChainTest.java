@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,7 +45,7 @@ public class AddOperationsToChainTest {
     public static final String ADD_OPERATIONS_TO_CHAIN_PATH = "src/test/resources/addOperationsToChain.json";
 
     @Test
-    public void shouldAddAllOperationsGivenPath() throws IOException {
+    public void shouldAddAllOperationsWithNoAuthsGivenPath() throws IOException {
         // Given
         AddOperationsToChain addOperationsToChain = new AddOperationsToChain(ADD_OPERATIONS_TO_CHAIN_PATH);
 
@@ -79,7 +80,79 @@ public class AddOperationsToChainTest {
                 .build();
 
         // When
-        addOperationsToChain.preExecute(opChain, null);
+        addOperationsToChain.preExecute(opChain, new User());
+
+        // Then
+        for (int i = 0; i < opChain.getOperations().size(); i++) {
+            assertTrue(expectedOperations.get(i).getClass().getName().contains(opChain.getOperations().get(i).getClass().getSimpleName()));
+        }
+    }
+
+    @Test
+    public void shouldAddAllOperationsWithFirstAuthsGivenPath() throws IOException {
+        // Given
+        AddOperationsToChain addOperationsToChain = new AddOperationsToChain(ADD_OPERATIONS_TO_CHAIN_PATH);
+
+        User user = new User.Builder().opAuths("auth1", "auth2").build();
+
+        Operation discardOutput = new DiscardOutput();
+        Operation splitStore = new SplitStore();
+        Operation getAdjacentIds = new GetAdjacentIds();
+        Operation getElements = new GetElements();
+        Operation getAllElements = new GetAllElements();
+
+        final List expectedOperations = new ArrayList<Operation>();
+        expectedOperations.add(discardOutput);
+        expectedOperations.add(getAdjacentIds);
+        expectedOperations.add(getElements);
+        expectedOperations.add(getAllElements);
+        expectedOperations.add(splitStore);
+
+        final OperationChain opChain = new OperationChain.Builder()
+                .first(getAdjacentIds)
+                .then(getElements)
+                .then(getAllElements)
+                .build();
+
+        // When
+        addOperationsToChain.preExecute(opChain, user);
+
+        // Then
+        for (int i = 0; i < opChain.getOperations().size(); i++) {
+            assertTrue(expectedOperations.get(i).getClass().getName().contains(opChain.getOperations().get(i).getClass().getSimpleName()));
+        }
+    }
+
+    @Test
+    public void shouldAddAllOperationsWithSecondAuthsGivenPath() throws IOException {
+        // Given
+        AddOperationsToChain addOperationsToChain = new AddOperationsToChain(ADD_OPERATIONS_TO_CHAIN_PATH);
+
+        User user = new User.Builder().opAuths("auth2").build();
+
+        Operation splitStore = new SplitStore();
+        Operation validate = new Validate();
+        Operation getAdjacentIds = new GetAdjacentIds();
+        Operation countGroups = new CountGroups();
+        Operation getElements = new GetElements();
+        Operation getAllElements = new GetAllElements();
+
+        final List expectedOperations = new ArrayList<Operation>();
+        expectedOperations.add(validate);
+        expectedOperations.add(getAdjacentIds);
+        expectedOperations.add(countGroups);
+        expectedOperations.add(getElements);
+        expectedOperations.add(getAllElements);
+        expectedOperations.add(splitStore);
+
+        final OperationChain opChain = new OperationChain.Builder()
+                .first(getAdjacentIds)
+                .then(getElements)
+                .then(getAllElements)
+                .build();
+
+        // When
+        addOperationsToChain.preExecute(opChain, user);
 
         // Then
         for (int i = 0; i < opChain.getOperations().size(); i++) {
@@ -126,7 +199,7 @@ public class AddOperationsToChainTest {
                 .build();
 
         // When
-        addOperationsToChain.preExecute(opChain, null);
+        addOperationsToChain.preExecute(opChain, new User());
 
         // Then
         for (int i = 0; i < opChain.getOperations().size(); i++) {

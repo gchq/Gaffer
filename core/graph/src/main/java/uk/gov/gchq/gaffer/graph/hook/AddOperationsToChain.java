@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,19 +37,67 @@ import java.util.Map;
  * A <code>AddOperationsToChain</code> is a {@link GraphHook} that allows a
  * user to insert additional operations at certain points on the operation chain.
  * At the start, before a specific Operation, after a specific Operation, or at the end.
+ * A user can also specify authorised Operations to add, and if the user has
+ * the opAuths, the additional Operations will be added to the chain.
  */
 public class AddOperationsToChain implements GraphHook {
     private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
 
-    private List<Operation> start;
-    private List<Operation> end;
-    private Map<String, List<Operation>> before;
-    private Map<String, List<Operation>> after;
+    private AdditionalOperations defaultOperations = new AdditionalOperations();
+    private LinkedHashMap<String, AdditionalOperations> authorisedOps;
 
     /**
      * Default constructor.
      */
     public AddOperationsToChain() {
+    }
+
+    public void setStart(List<Operation> start) {
+        this.defaultOperations.setStart(start);
+    }
+
+    public List<Operation> getStart() {
+        return defaultOperations.getStart();
+    }
+
+    public void setEnd(List<Operation> end) {
+        this.defaultOperations.setEnd(end);
+    }
+
+    public List<Operation> getEnd() {
+        return defaultOperations.getEnd();
+    }
+
+    public void setBefore(Map<String, List<Operation>> before) {
+        this.defaultOperations.setBefore(before);
+    }
+
+    public Map<String, List<Operation>> getBefore() {
+        return defaultOperations.getBefore();
+    }
+
+    public void setAfter(Map<String, List<Operation>> after) {
+        this.defaultOperations.setAfter(after);
+    }
+
+    public Map<String, List<Operation>> getAfter() {
+        return defaultOperations.getAfter();
+    }
+
+    public void setDefaultOperations(AdditionalOperations defaultOperations) {
+        this.defaultOperations = defaultOperations;
+    }
+
+    public AdditionalOperations getDefaultOperations() {
+        return defaultOperations;
+    }
+
+    public void setAuthorisedOps(LinkedHashMap<String, AdditionalOperations> authorisedOps) {
+        this.authorisedOps = authorisedOps;
+    }
+
+    public LinkedHashMap<String, AdditionalOperations> getAuthorisedOps() {
+        return authorisedOps;
     }
 
     /**
@@ -81,37 +130,6 @@ public class AddOperationsToChain implements GraphHook {
         setOperations(fromJson(addOperationsBytes));
     }
 
-    public List<Operation> getStart() {
-        return start;
-    }
-
-    public void setStart(final List<Operation> start) {
-        this.start = start;
-    }
-
-    public List<Operation> getEnd() {
-        return end;
-    }
-
-    public void setEnd(final List<Operation> end) {
-        this.end = end;
-    }
-
-    public Map<String, List<Operation>> getBefore() {
-        return before;
-    }
-
-    public void setBefore(final Map<String, List<Operation>> before) {
-        this.before = before;
-    }
-
-    public Map<String, List<Operation>> getAfter() {
-        return after;
-    }
-
-    public void setAfter(final Map<String, List<Operation>> after) {
-        this.after = after;
-    }
 
     /**
      * Adds in the additional Operations specified.  The original opChain will
@@ -124,32 +142,21 @@ public class AddOperationsToChain implements GraphHook {
     public void preExecute(final OperationChain<?> opChain, final User user) {
         OperationChain<?> newOpChain = new OperationChain<>();
 
-        if (start != null) {
-            newOpChain.getOperations().addAll(start);
-        }
-        if (opChain != null) {
-            for (final Operation originalOp : opChain.getOperations()) {
-
-                if (before != null) {
-                    List<Operation> beforeOps = before.get(originalOp.getClass().getName());
-                    if (beforeOps != null) {
-                        newOpChain.getOperations().addAll(beforeOps);
-                    }
-                }
-
-                newOpChain.getOperations().add(originalOp);
-
-                if (after != null) {
-                    List<Operation> afterOps = after.get(originalOp.getClass().getName());
-                    if (afterOps != null) {
-                        newOpChain.getOperations().addAll(afterOps);
-                    }
+        boolean hasAuth = false;
+        if (!authorisedOps.isEmpty() && !user.getOpAuths().isEmpty()) {
+            for (String auth : authorisedOps.keySet()) {
+                if (user.getOpAuths().contains(auth)) {
+                    newOpChain.getOperations().addAll(addOperationsToChain(opChain, authorisedOps.get(auth)).getOperations());
+                    hasAuth = true;
+                    break;
                 }
             }
         }
-        if (end != null) {
-            newOpChain.getOperations().addAll(end);
+
+        if (!hasAuth) {
+            newOpChain.getOperations().addAll(addOperationsToChain(opChain, defaultOperations).getOperations());
         }
+
         opChain.getOperations().clear();
         opChain.getOperations().addAll(newOpChain.getOperations());
     }
@@ -177,18 +184,51 @@ public class AddOperationsToChain implements GraphHook {
     }
 
     private void setOperations(final AddOperationsToChain addOperations) {
-        if (addOperations.getStart() != null) {
-            this.setStart(addOperations.getStart());
+        if (addOperations.getAuthorisedOps() != null) {
+            this.setAuthorisedOps(addOperations.getAuthorisedOps());
         }
-        if (addOperations.getEnd() != null) {
-            this.setEnd(addOperations.getEnd());
+        if (addOperations.getDefaultOperations().getStart() != null) {
+            this.getDefaultOperations().setStart(addOperations.getDefaultOperations().getStart());
         }
-        if (addOperations.getBefore() != null) {
-            this.setBefore(addOperations.getBefore());
+        if (addOperations.getDefaultOperations().getEnd() != null) {
+            this.getDefaultOperations().setEnd(addOperations.getDefaultOperations().getEnd());
         }
-        if (addOperations.getAfter() != null) {
-            this.setAfter(addOperations.getAfter());
+        if (addOperations.getDefaultOperations().getBefore() != null) {
+            this.getDefaultOperations().setBefore(addOperations.getDefaultOperations().getBefore());
+        }
+        if (addOperations.getDefaultOperations().getAfter() != null) {
+            this.getDefaultOperations().setAfter(addOperations.getDefaultOperations().getAfter());
         }
     }
 
+    private OperationChain<?> addOperationsToChain(OperationChain<?> opChain, AdditionalOperations additionalOperations) {
+        OperationChain<?> newOpChain = new OperationChain<>();
+        if (additionalOperations.getStart() != null) {
+            newOpChain.getOperations().addAll(additionalOperations.getStart());
+        }
+        if (opChain != null) {
+            for (final Operation originalOp : opChain.getOperations()) {
+
+                if (additionalOperations.getBefore() != null) {
+                    List<Operation> beforeOps = additionalOperations.getBefore().get(originalOp.getClass().getName());
+                    if (beforeOps != null) {
+                        newOpChain.getOperations().addAll(beforeOps);
+                    }
+                }
+
+                newOpChain.getOperations().add(originalOp);
+
+                if (additionalOperations.getAfter() != null) {
+                    List<Operation> afterOps = additionalOperations.getAfter().get(originalOp.getClass().getName());
+                    if (afterOps != null) {
+                        newOpChain.getOperations().addAll(afterOps);
+                    }
+                }
+            }
+        }
+        if (additionalOperations.getEnd() != null) {
+            newOpChain.getOperations().addAll(additionalOperations.getEnd());
+        }
+        return newOpChain;
+    }
 }
