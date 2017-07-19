@@ -73,6 +73,18 @@ public abstract class OperationExample extends Example {
         log(METHOD_DIVIDER);
     }
 
+    protected void showExample(final OperationChain operation,
+                               final String description) {
+        log("#### " + getMethodNameAsSentence(1) + "\n");
+        if (StringUtils.isNotBlank(description)) {
+            log(description);
+        }
+        printMethodJavaSnippet();
+        printAsJson(operation);
+
+        log(METHOD_DIVIDER);
+    }
+
     protected void showExample(final Operation operation,
                                final String description) {
         log("#### " + getMethodNameAsSentence(1) + "\n");
