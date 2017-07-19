@@ -18,6 +18,13 @@ package uk.gov.gchq.gaffer.serialisation;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
+/**
+ * Abstract serialiser for serialising types to bytes by delegating to a different
+ * serialiser.
+ *
+ * @param <T> type to delegate from
+ * @param <U> type to delegate to
+ */
 public abstract class DelegateSerialiser<T, U> implements ToBytesSerialiser<T> {
 
     public final ToBytesSerialiser<U> delegateSerialiser;
