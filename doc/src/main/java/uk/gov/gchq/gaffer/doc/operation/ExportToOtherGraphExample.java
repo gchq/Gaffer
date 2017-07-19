@@ -42,7 +42,9 @@ public class ExportToOtherGraphExample extends OperationExample {
     }
 
     public ExportToOtherGraphExample() {
-        super(ExportToOtherGraph.class, "These export examples export all edges in the example graph to another Gaffer instance.");
+        super(ExportToOtherGraph.class, "These export examples export all edges in the example graph to another Gaffer instance. \n\n" +
+                "To add this operation to your Gaffer graph you will need to include the ExportToOtherGraphOperationDeclarations.json in your store properties, i.e. set this property: " +
+                "gaffer.store.operation.declarations=ExportToOtherGraphOperationDeclarations.json\n");
     }
 
     @Override
