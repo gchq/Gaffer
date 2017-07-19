@@ -176,7 +176,6 @@ public class ExportToOtherGraphHandlerTest {
         // Then
         assertEquals(GRAPH_ID + 2, graph.getGraphId());
         assertEquals(schema1, graph.getSchema());
-        //assertEquals(new Schema.Builder().merge(schema).merge(schema1).id(null).build(), graph.getSchema());
         assertEquals(storeProperties, graph.getStoreProperties());
     }
 
@@ -235,8 +234,6 @@ public class ExportToOtherGraphHandlerTest {
         // Then
         assertEquals(GRAPH_ID + 2, graph.getGraphId());
         assertEquals(schema, graph.getSchema());
-        //storeProperties1.getProperties().remove(ID);
-        //storeProperties1.getProperties().putAll(storeProperties.getProperties());
         assertEquals(storeProperties1, graph.getStoreProperties());
     }
 

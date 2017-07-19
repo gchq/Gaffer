@@ -53,12 +53,12 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
         final String exportParentStorePropertiesId = export.getParentStorePropertiesId();
 
         final String storeGraphId = store.getGraphId();
-        final GraphLibrary storeLibrary = store.getGraphLibrary();
+        final GraphLibrary graphLibrary = store.getGraphLibrary();
         final StoreProperties storeStoreProperties = store.getProperties();
         final Schema storeSchema = store.getSchema();
 
         ValidationResult validationResult = validate(exportGraphId, exportParentSchemaId, exportParentStorePropertiesId,
-                storeLibrary, exportSchema, exportStoreProperties, store);
+                graphLibrary, exportSchema, exportStoreProperties, store);
         if (!validationResult.isValid()) {
             throw new IllegalArgumentException(validationResult.getErrorString());
         }
@@ -67,8 +67,7 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
         Schema schema;
 
         // No store graph library so we create a new Graph
-        // Im pretty sure this isnt possible, storeLibrary will never be null as it is set in the graph.Builder?
-        if (null == storeLibrary) {
+        if (null == graphLibrary) {
             schema = null != exportSchema ? exportSchema : storeSchema;
             final StoreProperties properties = null != exportStoreProperties ? exportStoreProperties : storeStoreProperties;
             return new Graph.Builder()
@@ -79,15 +78,15 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
         }
 
         // If the graphId exists in the graphLibrary then just use it
-        if (storeLibrary.exists(exportGraphId)) {
+        if (graphLibrary.exists(exportGraphId)) {
             return new Graph.Builder()
                     .graphId(exportGraphId)
-                    .library(storeLibrary)
+                    .library(graphLibrary)
                     .build();
         } else {
             storeProperties = null;
             if (export.getParentStorePropertiesId() != null) {
-                storeProperties = storeLibrary.getProperties(export.getParentStorePropertiesId());
+                storeProperties = graphLibrary.getProperties(export.getParentStorePropertiesId());
             }
             if (export.getStoreProperties() != null) {
                 if (storeProperties == null) {
@@ -104,7 +103,7 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
 
             schema = null;
             if (export.getParentSchemaId() != null) {
-                schema = storeLibrary.getSchema(export.getParentSchemaId());
+                schema = graphLibrary.getSchema(export.getParentSchemaId());
             }
             if (export.getSchema() != null) {
                 if (schema == null) {
@@ -125,7 +124,7 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
 
         return new Graph.Builder()
                 .graphId(exportGraphId)
-                .library(storeLibrary)
+                .library(graphLibrary)
                 .addSchema(schema)
                 .storeProperties(storeProperties)
                 .build();

@@ -290,15 +290,6 @@ public final class Graph {
         return store.getProperties();
     }
 
-    public GraphLibrary getLibrary() {
-        return library;
-    }
-
-    public void setLibrary(final GraphLibrary library) {
-        this.library = library;
-        store.setGraphLibrary(library);
-    }
-
     /**
      * Builder for {@link Graph}.
      */
