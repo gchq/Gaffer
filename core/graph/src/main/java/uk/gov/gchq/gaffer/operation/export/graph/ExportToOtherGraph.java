@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.export.graph;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -23,6 +24,7 @@ import uk.gov.gchq.gaffer.operation.export.ExportTo;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import java.util.Properties;
 
 public class ExportToOtherGraph<T> implements
         Operation,
@@ -90,12 +92,26 @@ public class ExportToOtherGraph<T> implements
         this.parentStorePropertiesId = parentStorePropertiesId;
     }
 
+    @JsonIgnore
     public StoreProperties getStoreProperties() {
         return storeProperties;
     }
 
+    @JsonIgnore
     public void setStoreProperties(final StoreProperties storeProperties) {
         this.storeProperties = storeProperties;
+    }
+
+    public Properties getProperties() {
+        return null != storeProperties ? storeProperties.getProperties() : null;
+    }
+
+    public void setProperties(final Properties properties) {
+        if (null == properties) {
+            this.storeProperties = null;
+        } else {
+            this.storeProperties = StoreProperties.loadStoreProperties(properties);
+        }
     }
 
     @Override
