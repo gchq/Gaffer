@@ -132,13 +132,13 @@ public class AddOperationsToChain implements GraphHook {
      */
     @Override
     public void preExecute(final OperationChain<?> opChain, final User user) {
-        final OperationChain<?> newOpChain = new OperationChain<>();
+        final List<Operation> newOpList = new ArrayList<>();
 
         boolean hasAuth = false;
         if (!authorisedOps.isEmpty() && !user.getOpAuths().isEmpty()) {
             for (final String auth : authorisedOps.keySet()) {
                 if (user.getOpAuths().contains(auth)) {
-                    newOpChain.getOperations().addAll(addOperationsToChain(opChain, authorisedOps.get(auth)));
+                    newOpList.addAll(addOperationsToChain(opChain, authorisedOps.get(auth)));
                     hasAuth = true;
                     break;
                 }
@@ -146,11 +146,11 @@ public class AddOperationsToChain implements GraphHook {
         }
 
         if (!hasAuth) {
-            newOpChain.getOperations().addAll(addOperationsToChain(opChain, defaultOperations));
+            newOpList.addAll(addOperationsToChain(opChain, defaultOperations));
         }
 
         opChain.getOperations().clear();
-        opChain.getOperations().addAll(newOpChain.getOperations());
+        opChain.getOperations().addAll(newOpList);
     }
 
     @Override
