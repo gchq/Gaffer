@@ -77,7 +77,7 @@ public abstract class OperationExample extends Example {
                                final String description) {
         log("#### " + getMethodNameAsSentence(1) + "\n");
         if (StringUtils.isNotBlank(description)) {
-            log(description);
+            log(description + "\n");
         }
         printMethodJavaSnippet();
         printAsJson(operation);
