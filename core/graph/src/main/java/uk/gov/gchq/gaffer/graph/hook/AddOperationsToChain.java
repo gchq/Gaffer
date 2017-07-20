@@ -169,9 +169,9 @@ public class AddOperationsToChain implements GraphHook {
     public void setAuthorisedOps(final LinkedHashMap<String, AdditionalOperations> authorisedOps) {
         if (authorisedOps == null) {
             this.authorisedOps = new LinkedHashMap<>();
-            return;
+        } else {
+            this.authorisedOps = authorisedOps;
         }
-        this.authorisedOps = authorisedOps;
 
     }
 

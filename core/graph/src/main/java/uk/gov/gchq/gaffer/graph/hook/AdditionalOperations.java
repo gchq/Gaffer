@@ -42,9 +42,9 @@ public class AdditionalOperations {
     public void setStart(final List<Operation> start) {
         if (start == null) {
             this.start = new ArrayList<>();
-            return;
+        } else {
+            this.start = start;
         }
-        this.start = start;
     }
 
     public List<Operation> getEnd() {
@@ -54,9 +54,9 @@ public class AdditionalOperations {
     public void setEnd(final List<Operation> end) {
         if (end == null) {
             this.end = new ArrayList<>();
-            return;
+        } else {
+            this.end = end;
         }
-        this.end = end;
     }
 
     public Map<String, List<Operation>> getBefore() {
@@ -66,9 +66,9 @@ public class AdditionalOperations {
     public void setBefore(final Map<String, List<Operation>> before) {
         if (before == null) {
             this.before = new HashMap<>();
-            return;
+        } else {
+            this.before = before;
         }
-        this.before = before;
     }
 
     public Map<String, List<Operation>> getAfter() {
@@ -78,8 +78,8 @@ public class AdditionalOperations {
     public void setAfter(final Map<String, List<Operation>> after) {
         if (after == null) {
             this.after = new HashMap<>();
-            return;
+        } else {
+            this.after = after;
         }
-        this.after = after;
     }
 }
