@@ -49,8 +49,6 @@ public abstract class SystemProperty {
     public static final String SERVICES_PACKAGE_PREFIX_DEFAULT = "uk.gov.gchq.gaffer.rest";
     public static final String BASE_PATH_DEFAULT = "rest";
     public static final String CORE_VERSION = "2.0.0";
-    public static final String GAFFER_MEDIA_TYPE_V1 = "application/vnd.gaffer.v1+json";
-    public static final String GAFFER_MEDIA_TYPE_V2 = "application/vnd.gaffer.v2+json";
     public static final String GRAPH_FACTORY_CLASS_DEFAULT = DefaultGraphFactory.class.getName();
     public static final String USER_FACTORY_CLASS_DEFAULT = UnknownUserFactory.class.getName();
     public static final String REST_DEBUG_DEFAULT = DebugUtil.DEBUG_DEFAULT;

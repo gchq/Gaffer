@@ -34,14 +34,14 @@ public class GetSetExport implements
         Output<Iterable<?>> {
     private String jobId;
     private String key;
-    private int start = 0;
+    private Integer start = 0;
     private Integer end = null;
 
-    public int getStart() {
+    public Integer getStart() {
         return start;
     }
 
-    public void setStart(final int start) {
+    public void setStart(final Integer start) {
         this.start = start;
     }
 

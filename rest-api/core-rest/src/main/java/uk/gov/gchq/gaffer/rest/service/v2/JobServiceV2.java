@@ -33,8 +33,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 
-import static uk.gov.gchq.gaffer.rest.service.v2.ServiceConstants.GAFFER_MEDIA_TYPE;
-import static uk.gov.gchq.gaffer.rest.service.v2.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
 
 /**
  * An implementation of {@link IJobServiceV2}. By default it will use a singleton

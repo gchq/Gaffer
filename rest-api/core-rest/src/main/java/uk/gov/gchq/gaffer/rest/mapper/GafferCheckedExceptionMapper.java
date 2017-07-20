@@ -23,6 +23,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
+
 /**
  * Jersey {@link javax.ws.rs.ext.ExceptionMapper} to be used to handle
  * {@link uk.gov.gchq.gaffer.core.exception.GafferCheckedException}s.
@@ -35,6 +38,7 @@ public class GafferCheckedExceptionMapper implements ExceptionMapper<GafferCheck
         final Error error = ErrorFactory.from(gce);
 
         return Response.status(error.getStatusCode())
+                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                        .entity(error)
                        .build();
     }

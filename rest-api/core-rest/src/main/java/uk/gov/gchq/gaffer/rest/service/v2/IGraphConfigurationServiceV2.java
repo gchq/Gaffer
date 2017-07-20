@@ -93,23 +93,14 @@ public interface IGraphConfigurationServiceV2 {
             @ApiResponse(code = 500, message = "Something went wrong in the server")})
     Response getStoreTraits();
 
-    @GET
-    @Path("/nextOperations/{className}")
-    @ApiOperation(value = "Gets all the compatible operations that could be added to an operation chain after the provided operation.",
-            response = String.class, responseContainer = "list", produces = APPLICATION_JSON)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 404, message = "Operation not found."),
-            @ApiResponse(code = 500, message = "Something went wrong in the server")})
-    Response getNextOperations(@ApiParam(value = "an operation class name") @PathParam("className") final String operationClassName);
-
-    @POST
-    @Path("/isOperationSupported")
-    @ApiOperation(value = "Determines whether the operation type supplied is supported by the store",
-            response = Boolean.class, produces = APPLICATION_JSON)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 404, message = "Operation not found."),
-            @ApiResponse(code = 500, message = "Something went wrong in the server")})
-    Response isOperationSupported(final Class operation);
+//    @POST
+//    @Path("/isOperationSupported")
+//    @ApiOperation(value = "Determines whether the operation type supplied is supported by the store",
+//            response = Boolean.class, produces = APPLICATION_JSON)
+//    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
+//            @ApiResponse(code = 404, message = "Operation not found."),
+//            @ApiResponse(code = 500, message = "Something went wrong in the server")})
+//    Response isOperationSupported(final Class operation);
 
     @GET
     @Path("/serialisedFields/{className}")

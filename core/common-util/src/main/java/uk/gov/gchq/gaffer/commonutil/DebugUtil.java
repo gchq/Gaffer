@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class DebugUtil {
     public static final String DEBUG = "gaffer.error-mode.debug";
-    public static final String DEBUG_DEFAULT = String.valueOf(false);
+    public static final String DEBUG_DEFAULT = String.valueOf(true);
     public static Boolean isDebug;
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugUtil.class);
 

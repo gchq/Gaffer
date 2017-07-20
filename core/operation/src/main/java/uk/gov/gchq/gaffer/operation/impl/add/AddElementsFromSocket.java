@@ -44,7 +44,7 @@ public class AddElementsFromSocket implements
     private String hostname;
 
     @Required
-    private int port;
+    private Integer port;
 
     @Required
     private Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> elementGenerator;

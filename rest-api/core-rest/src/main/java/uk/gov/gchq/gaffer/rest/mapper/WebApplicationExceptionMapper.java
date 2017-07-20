@@ -22,6 +22,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
+
 /**
  * Jersey {@link javax.ws.rs.ext.ExceptionMapper} used to handle internal
  * {@link javax.ws.rs.WebApplicationException}s thrown by the Jersey framework.
@@ -39,6 +42,7 @@ public class WebApplicationExceptionMapper implements ExceptionMapper<WebApplica
                 .build();
 
         return Response.status(ex.getResponse().getStatus())
+                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                        .entity(error)
                        .build();
     }

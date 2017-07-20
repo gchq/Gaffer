@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest.service.v1;
+package uk.gov.gchq.gaffer.rest.service.v1.example;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -32,7 +32,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 /**
  * An <code>IExamplesService</code> has methods to produce example {@link uk.gov.gchq.gaffer.operation.Operation}s to be applied
- * to the methods in {@link IOperationService}.
+ * to the methods in {@link uk.gov.gchq.gaffer.rest.service.v1.IOperationService}.
  * Each example method path should be equal to the corresponding IOperationService method with /example as a prefix.
  * Each example method should return a populated {@link uk.gov.gchq.gaffer.operation.Operation} which can be used to call the
  * corresponding IOperationService method.

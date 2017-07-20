@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.rest.application;
 
 import io.swagger.jaxrs.config.BeanConfig;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
-import uk.gov.gchq.gaffer.rest.service.v1.ExamplesService;
+import uk.gov.gchq.gaffer.rest.service.v1.example.ExamplesService;
 import uk.gov.gchq.gaffer.rest.service.v1.GraphConfigurationService;
 import uk.gov.gchq.gaffer.rest.service.v1.JobService;
 import uk.gov.gchq.gaffer.rest.service.v1.OperationService;
@@ -33,7 +33,7 @@ public class ApplicationConfigV1 extends ApplicationConfig {
 
     @Override
     protected void setupBeanConfig() {
-        BeanConfig beanConfig = new BeanConfig();
+        final BeanConfig beanConfig = new BeanConfig();
 
         String basePath = System.getProperty(SystemProperty.BASE_PATH, SystemProperty.BASE_PATH_DEFAULT);
         if (!basePath.startsWith("/")) {

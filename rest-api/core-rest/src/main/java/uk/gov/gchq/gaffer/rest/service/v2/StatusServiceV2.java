@@ -24,8 +24,8 @@ import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
-import static uk.gov.gchq.gaffer.rest.service.v2.ServiceConstants.GAFFER_MEDIA_TYPE;
-import static uk.gov.gchq.gaffer.rest.service.v2.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
 
 /**
  * An implementation of {@link uk.gov.gchq.gaffer.rest.service.v1.IStatusService}.

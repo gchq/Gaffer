@@ -26,7 +26,6 @@ import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.data.generator.ObjectGenerator;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
@@ -43,8 +42,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static uk.gov.gchq.gaffer.rest.service.v2.ServiceConstants.GAFFER_MEDIA_TYPE;
-import static uk.gov.gchq.gaffer.rest.service.v2.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
 
 /**
  * An implementation of {@link uk.gov.gchq.gaffer.rest.service.v2.IGraphConfigurationServiceV2}. By default it will use a singleton
@@ -191,23 +190,6 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
     }
 
     @Override
-    public Response getNextOperations(final String operationClassName) {
-        Class<? extends Operation> opClass;
-        try {
-            opClass = Class.forName(operationClassName)
-                           .asSubclass(Operation.class);
-        } catch (final ClassNotFoundException e) {
-            throw new IllegalArgumentException("Operation class was not found: " + operationClassName, e);
-        } catch (final ClassCastException e) {
-            throw new IllegalArgumentException(operationClassName + " does not extend Operation", e);
-        }
-
-        return Response.ok(graphFactory.getGraph().getNextOperations(opClass))
-                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                       .build();
-    }
-
-    @Override
     public Response getElementGenerators() {
         return Response.ok(ELEMENT_GENERATORS)
                        .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
@@ -221,10 +203,10 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
                        .build();
     }
 
-    @Override
-    public Response isOperationSupported(final Class operation) {
-        return Response.ok(graphFactory.getGraph().isSupported(operation))
-                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                       .build();
-    }
+//    @Override
+//    public Response isOperationSupported(final Class operation) {
+//        return Response.ok(graphFactory.getGraph().isSupported(operation))
+//                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+//                       .build();
+//    }
 }

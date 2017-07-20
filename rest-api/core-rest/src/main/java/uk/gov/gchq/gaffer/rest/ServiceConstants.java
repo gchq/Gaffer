@@ -13,14 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.rest.service.v2;
+package uk.gov.gchq.gaffer.rest;
 
-public final class ServiceConstants {
+public class ServiceConstants {
 
-    static final String GAFFER_MEDIA_TYPE_HEADER = "X-Gaffer-Media-Type";
-    static final String GAFFER_MEDIA_TYPE = "gaffer.v2; format=json";
+    // REST Headers
+    public static final String GAFFER_MEDIA_TYPE_HEADER = "X-Gaffer-Media-Type";
+    public static final String GAFFER_MEDIA_TYPE;
+
+    static {
+        final String apiVersion = System.getProperty(SystemProperty.REST_API_VERSION, SystemProperty.CORE_VERSION);
+        GAFFER_MEDIA_TYPE = "gaffer.v" + apiVersion.charAt(0) + "; format=json";
+    }
 
     private ServiceConstants() {
-        // Empty
+        // Empty constructor to prevent instantiation.
     }
 }

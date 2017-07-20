@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest.service.v2;
+package uk.gov.gchq.gaffer.rest.service.v1.example;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -58,7 +58,7 @@ import java.util.Locale;
 import java.util.Map.Entry;
 
 
-public class ExamplesServiceV2 implements IExamplesServiceV2 {
+public class ExamplesService implements IExamplesService {
     public static final String TRANSFORMED_PROPERTIES = "transformedProperties";
 
     @Inject
@@ -68,12 +68,7 @@ public class ExamplesServiceV2 implements IExamplesServiceV2 {
     private UserFactory userFactory;
 
     @Override
-    public Operation executeOperation() {
-        return getAllElements();
-    }
-
-    @Override
-    public OperationChain executeOperationChain() {
+    public OperationChain execute() {
         return new OperationChain.Builder()
                 .first(getAllElements())
                 .then(new Limit.Builder<Element>()
@@ -83,13 +78,54 @@ public class ExamplesServiceV2 implements IExamplesServiceV2 {
     }
 
     @Override
-    public Operation executeChunked() {
+    public Operation executeOperation() {
+        return getAllElements();
+    }
+
+    @Override
+    public OperationChain executeChunked() {
+        return execute();
+    }
+
+    @Override
+    public Operation executeChunkedOperation() {
         return executeOperation();
     }
 
     @Override
-    public OperationChain executeChunkedOperationChain() {
-        return executeOperationChain();
+    public GetElements getElementsBySeed() {
+        final GetElements op = new GetElements();
+        final List<ElementId> seeds = new ArrayList<>();
+        if (hasEntities()) {
+            seeds.add(getEntityId(1));
+        }
+
+        if (hasEdges()) {
+            seeds.add(getEdgeId(1, 2));
+        }
+
+        op.setInput(seeds);
+        populateOperation(op);
+        return op;
+    }
+
+    @Override
+    public GetElements getRelatedElements() {
+        final GetElements op = new GetElements();
+        final List<ElementId> seeds = new ArrayList<>();
+        if (hasEntities()) {
+            seeds.add(getEntityId(1));
+        } else if (hasEdges()) {
+            seeds.add(new EntitySeed(getEdgeId(1, 2).getSource()));
+        }
+
+        if (hasEdges()) {
+            seeds.add(getEdgeId(1, 2));
+        }
+
+        op.setInput(seeds);
+        populateOperation(op);
+        return op;
     }
 
     @Override
@@ -132,6 +168,7 @@ public class ExamplesServiceV2 implements IExamplesServiceV2 {
         populateOperation(op);
         return op;
     }
+
 
     @Override
     public AddElements addElements() {
@@ -201,7 +238,7 @@ public class ExamplesServiceV2 implements IExamplesServiceV2 {
         populateOperation((Operation) operation);
     }
 
-    protected View.Builder generateViewBuilder() {
+    public View.Builder generateViewBuilder() {
         final View.Builder viewBuilder = new View.Builder();
         if (hasEntities()) {
             final ViewElementDefinition viewElement;
@@ -248,8 +285,11 @@ public class ExamplesServiceV2 implements IExamplesServiceV2 {
         final String group = getAnEntityGroup();
         final SchemaElementDefinition entityDef = getSchema().getEntity(group);
 
-        final Entity entity = new Entity(group);
-        entity.setVertex(getExampleVertex(entityDef.getIdentifierClass(IdentifierType.VERTEX), uniqueId));
+        final Entity entity = new Entity.Builder()
+                .group(group)
+                .vertex(getExampleVertex(entityDef
+                        .getIdentifierClass(IdentifierType.VERTEX), uniqueId))
+                .build();
         populateProperties(entity, entityDef, uniqueId);
 
         return entity;
@@ -259,10 +299,13 @@ public class ExamplesServiceV2 implements IExamplesServiceV2 {
         final String group = getAnEdgeGroup();
         final SchemaElementDefinition edgeDef = getSchema().getEdge(group);
 
-        final Edge edge = new Edge(group);
-        edge.setSource(getExampleVertex(edgeDef.getIdentifierClass(IdentifierType.SOURCE), uniqueId1));
-        edge.setDestination(getExampleVertex(edgeDef.getIdentifierClass(IdentifierType.DESTINATION), uniqueId2));
-        edge.setDirected(isAnEdgeDirected());
+        final Edge edge = new Edge.Builder()
+                .group(group)
+                .source(getExampleVertex(edgeDef.getIdentifierClass(IdentifierType.SOURCE), uniqueId1))
+                .dest(getExampleVertex(edgeDef
+                        .getIdentifierClass(IdentifierType.DESTINATION), uniqueId2))
+                .directed(isAnEdgeDirected())
+                .build();
 
         populateProperties(edge, edgeDef, uniqueId1);
 
@@ -271,24 +314,18 @@ public class ExamplesServiceV2 implements IExamplesServiceV2 {
 
     protected EntityId getEntityId(final int uniqueId) {
         return new EntitySeed(
-                getExampleVertex(getSchema().getEntity(getAnEntityGroup())
-                                            .getIdentifierClass(IdentifierType.VERTEX), uniqueId));
+                getExampleVertex(getSchema().getEntity(getAnEntityGroup()).getIdentifierClass(IdentifierType.VERTEX), uniqueId));
     }
 
     protected EdgeId getEdgeId(final int uniqueId1, final int uniqueId2) {
         return new EdgeSeed(
-                getExampleVertex(getSchema().getEdge(getAnEdgeGroup())
-                                            .getIdentifierClass(IdentifierType.SOURCE), uniqueId1),
-                getExampleVertex(getSchema().getEdge(getAnEdgeGroup())
-                                            .getIdentifierClass(IdentifierType.DESTINATION), uniqueId2),
+                getExampleVertex(getSchema().getEdge(getAnEdgeGroup()).getIdentifierClass(IdentifierType.SOURCE), uniqueId1),
+                getExampleVertex(getSchema().getEdge(getAnEdgeGroup()).getIdentifierClass(IdentifierType.DESTINATION), uniqueId2),
                 isAnEdgeDirected());
     }
 
     protected boolean isAnEdgeDirected() {
-        return !getSchema().getEdge(getAnEdgeGroup())
-                           .getDirected()
-                           .toLowerCase(Locale.getDefault())
-                           .contains("false");
+        return !getSchema().getEdge(getAnEdgeGroup()).getDirected().toLowerCase(Locale.getDefault()).contains("false");
     }
 
     protected String getAnEntityPropertyName() {
@@ -303,14 +340,9 @@ public class ExamplesServiceV2 implements IExamplesServiceV2 {
 
     protected String getAnEntityGroup() {
         if (!getSchema().getEntityGroups().isEmpty()) {
-            for (final Entry<String, SchemaEntityDefinition> entry : getSchema()
-                    .getEntities()
-                    .entrySet()) {
+            for (final Entry<String, SchemaEntityDefinition> entry : getSchema().getEntities().entrySet()) {
                 // Try and find an entity that has properties
-                if (null != entry.getValue()
-                                 .getProperties() && !entry.getValue()
-                                                           .getProperties()
-                                                           .isEmpty()) {
+                if (null != entry.getValue().getProperties() && !entry.getValue().getProperties().isEmpty()) {
                     return entry.getKey();
                 }
             }
@@ -335,13 +367,9 @@ public class ExamplesServiceV2 implements IExamplesServiceV2 {
 
     protected String getAnEdgeGroup() {
         if (!getSchema().getEdgeGroups().isEmpty()) {
-            for (final Entry<String, SchemaEdgeDefinition> entry : getSchema().getEdges()
-                                                                              .entrySet()) {
+            for (final Entry<String, SchemaEdgeDefinition> entry : getSchema().getEdges().entrySet()) {
                 // Try and find an edge that has properties
-                if (null != entry.getValue()
-                                 .getProperties() && !entry.getValue()
-                                                           .getProperties()
-                                                           .isEmpty()) {
+                if (null != entry.getValue().getProperties() && !entry.getValue().getProperties().isEmpty()) {
                     return entry.getKey();
                 }
             }
