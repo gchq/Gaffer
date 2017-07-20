@@ -41,7 +41,7 @@ public class FreqMapParquetSerialiser implements ParquetSerialiser<FreqMap> {
         if (object != null) {
             return new Object[]{object};
         }
-        return new Comparable[0];
+        return new Object[]{null};
     }
 
     @Override

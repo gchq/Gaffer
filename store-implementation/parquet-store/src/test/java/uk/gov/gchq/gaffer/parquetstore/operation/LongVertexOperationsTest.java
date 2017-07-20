@@ -97,7 +97,7 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
                     new ViewElementDefinition.Builder()
                         .preAggregationFilter(
                             new ElementFilter.Builder()
-                                .select("property4_cardinality", "property2")
+                                .select("treeSet_cardinality", "double")
                                 .execute(
                                     new Or.Builder()
                                         .select(0)
@@ -106,16 +106,16 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
                                         .execute(new IsMoreThan(3.0, true))
                                         .build())
                                 .build())
-                        .transientProperty("property4_cardinality", Long.class)
+                        .transientProperty("treeSet_cardinality", Long.class)
                         .build())
                 .entity("BasicEntity",
                     new ViewElementDefinition.Builder().preAggregationFilter(
                         new ElementFilter.Builder()
-                            .select("property8.cardinality")
+                            .select("freqMap.cardinality")
                             .execute(
                                 new Not(new IsMoreThan(2L, false)))
                             .build())
-                    .transientProperty("property8.cardinality", Long.class).build())
+                    .transientProperty("freqMap.cardinality", Long.class).build())
                 .build();
     }
 

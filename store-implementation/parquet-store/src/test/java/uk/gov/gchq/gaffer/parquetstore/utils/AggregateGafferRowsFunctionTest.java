@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.parquetstore.utils;
 
-import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.sql.catalyst.expressions.GenericRow;
@@ -33,10 +32,12 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
+import uk.gov.gchq.gaffer.types.FreqMap;
 
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.TreeSet;
 
 import static org.junit.Assert.assertEquals;
 
@@ -79,14 +80,20 @@ public class AggregateGafferRowsFunctionTest {
         final AggregateGafferRowsFunction aggregator = new AggregateGafferRowsFunction(gafferProperties,
                 true, elementSchema.getGroupBy(), utils.getColumnToPaths(group), columnToAggregator, converter);
         final Date date = new Date();
-        final HyperLogLogPlus h = new HyperLogLogPlus(5, 5);
-        h.offer("A");
-        h.offer("B");
-        final HyperLogLogPlus h1 = new HyperLogLogPlus(5, 5);
-        h.offer("A");
-        h.offer("C");
-        final GenericRowWithSchema row1 = DataGen.generateEntityRow(utils, group, "vertex", (byte) 'a', 0.2, 3f, h, 5L, (short) 6, date);
-        final GenericRowWithSchema row2 = DataGen.generateEntityRow(utils, group, "vertex", (byte) 'c', 0.7, 4f, h1, 7L, (short) 4, date);
+        final TreeSet<String> t = new TreeSet<>();
+        t.add("A");
+        t.add("B");
+        final TreeSet<String> t2 = new TreeSet<>();
+        t2.add("A");
+        t2.add("C");
+        final FreqMap f = new FreqMap();
+        f.upsert("a", 1L);
+        f.upsert("b", 1L);
+        final FreqMap f2 = new FreqMap();
+        f2.upsert("a", 1L);
+        f2.upsert("c", 1L);
+        final GenericRowWithSchema row1 = DataGen.generateEntityRow(utils, group, "vertex", (byte) 'a', 0.2, 3f, t, 5L, (short) 6, date, f);
+        final GenericRowWithSchema row2 = DataGen.generateEntityRow(utils, group, "vertex", (byte) 'c', 0.7, 4f, t2, 7L, (short) 4, date, f2);
         final GenericRowWithSchema merged = aggregator.call(row1, row2);
         final RawFloatSerialiser floatSerialiser = new RawFloatSerialiser();
         assertEquals(12, merged.size());
@@ -114,14 +121,20 @@ public class AggregateGafferRowsFunctionTest {
         final AggregateGafferRowsFunction aggregator = new AggregateGafferRowsFunction(gafferProperties,
                 false, elementSchema.getGroupBy(), utils.getColumnToPaths(group), columnToAggregator, converter);
         final Date date = new Date();
-        final HyperLogLogPlus h = new HyperLogLogPlus(5, 5);
-        h.offer("A");
-        h.offer("B");
-        final HyperLogLogPlus h1 = new HyperLogLogPlus(5, 5);
-        h.offer("A");
-        h.offer("C");
-        final GenericRowWithSchema row1 = DataGen.generateEdgeRow(utils, group, "src", "dst", true, (byte) 'a', 0.2, 3f, h, 5L, (short) 6, date);
-        final GenericRowWithSchema row2 = DataGen.generateEdgeRow(utils, group, "src", "dst", true, (byte) 'c', 0.7, 4f, h1, 7L, (short) 4, date);
+        final TreeSet<String> t = new TreeSet<>();
+        t.add("A");
+        t.add("B");
+        final TreeSet<String> t2 = new TreeSet<>();
+        t2.add("A");
+        t2.add("C");
+        final FreqMap f = new FreqMap();
+        f.upsert("a", 1L);
+        f.upsert("b", 1L);
+        final FreqMap f2 = new FreqMap();
+        f2.upsert("a", 1L);
+        f2.upsert("c", 1L);
+        final GenericRowWithSchema row1 = DataGen.generateEdgeRow(utils, group, "src", "dst", true, (byte) 'a', 0.2, 3f, t, 5L, (short) 6, date, f);
+        final GenericRowWithSchema row2 = DataGen.generateEdgeRow(utils, group, "src", "dst", true, (byte) 'c', 0.7, 4f, t2, 7L, (short) 4, date, f2);
         final GenericRowWithSchema merged = aggregator.call(row1, row2);
         final RawFloatSerialiser floatSerialiser = new RawFloatSerialiser();
         assertEquals(14, merged.size());

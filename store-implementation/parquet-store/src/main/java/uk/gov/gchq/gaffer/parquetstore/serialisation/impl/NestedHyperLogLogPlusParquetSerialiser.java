@@ -43,7 +43,7 @@ public class NestedHyperLogLogPlusParquetSerialiser implements ParquetSerialiser
         } catch (IOException e) {
             throw new SerialisationException("Failed to get bytes from the HyperLogLogPlus object.");
         }
-        return new Comparable[0];
+        return new Object[]{null};
     }
 
     @Override

@@ -18,11 +18,11 @@
     "simpleIntProperty": {
       "class": "java.lang.Integer"
     },
-    "HyperLogLogPlus.nested": {
-      "class": "com.clearspring.analytics.stream.cardinality.HyperLogLogPlus"
+    "treeSet": {
+      "class": "java.util.TreeSet"
     },
-    "HyperLogLogPlus.inline": {
-      "class": "com.clearspring.analytics.stream.cardinality.HyperLogLogPlus"
+    "freqMap": {
+      "class": "uk.gov.gchq.gaffer.types.FreqMap"
     },
     "simpleLongProperty": {
       "class": "java.lang.Long"

@@ -151,8 +151,8 @@ public class SchemaUtils {
     private MessageType buildParquetSchema(final String group) throws SerialisationException {
         SchemaElementDefinition groupGafferSchema;
         final boolean isEntity = gafferSchema.getEntityGroups().contains(group);
-        final StringBuilder schemaString = new StringBuilder("message Entity {\n");
-        schemaString.append("required binary " + ParquetStoreConstants.GROUP + " (UTF8);\n");
+        final StringBuilder schemaString = new StringBuilder("message Element {\n");
+//        schemaString.append("required binary " + ParquetStoreConstants.GROUP + " (UTF8);\n");
         Serialiser serialiser = gafferSchema.getVertexSerialiser();
         // Check that the vertex does not get stored as nested data
         if (serialiser instanceof ParquetSerialiser &&
@@ -279,7 +279,7 @@ public class SchemaUtils {
 
     private void buildConverters() throws SerialisationException {
         for (final String group : gafferSchema.getGroups()) {
-            final GafferGroupObjectConverter converter = new GafferGroupObjectConverter(getColumnToSerialiser(group),
+            final GafferGroupObjectConverter converter = new GafferGroupObjectConverter(group, getColumnToSerialiser(group),
                     getSerialisers(), getColumnToPaths(group));
             groupToObjectConverter.put(group, converter);
         }

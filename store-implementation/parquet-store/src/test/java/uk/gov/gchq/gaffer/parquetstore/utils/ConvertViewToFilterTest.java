@@ -54,14 +54,14 @@ public class ConvertViewToFilterTest {
         final View view = new View.Builder().entity("BasicEntity",
                 new ViewElementDefinition.Builder().preAggregationFilter(
                         new ElementFilter.Builder()
-                                .select("property2")
+                                .select("double")
                                 .execute(
                                 new IsEqual(2.0))
                                 .build())
                         .build())
                 .build();
         final FilterPredicate filter = ParquetFilterUtils.buildGroupFilter(view, schemaUtils, "BasicEntity", DirectedType.EITHER, true).get0();
-        final FilterPredicate expected = eq(doubleColumn("property2"), 2.0);
+        final FilterPredicate expected = eq(doubleColumn("double"), 2.0);
         assertEquals(expected, filter);
     }
 
@@ -74,14 +74,14 @@ public class ConvertViewToFilterTest {
         final View view = new View.Builder().entity("BasicEntity",
                 new ViewElementDefinition.Builder().preAggregationFilter(
                         new ElementFilter.Builder()
-                                .select("property4")
+                                .select("treeSet")
                                 .execute(
                                         new IsEqual(hllp))
                                 .build())
                         .build())
                 .build();
         final FilterPredicate filter = ParquetFilterUtils.buildGroupFilter(view, schemaUtils, "BasicEntity", DirectedType.EITHER, true).get0();
-        final FilterPredicate expected = and(eq(binaryColumn("property4_raw_bytes"), Binary.fromReusedByteArray(hllp.getBytes())), eq(longColumn("property4_cardinality"), 2L));
+        final FilterPredicate expected = and(eq(binaryColumn("treeSet_raw_bytes"), Binary.fromReusedByteArray(hllp.getBytes())), eq(longColumn("treeSet_cardinality"), 2L));
         assertEquals(expected, filter);
     }
 
@@ -94,14 +94,14 @@ public class ConvertViewToFilterTest {
         final View view = new View.Builder().entity("BasicEntity",
                 new ViewElementDefinition.Builder().preAggregationFilter(
                         new ElementFilter.Builder()
-                                .select("property8")
+                                .select("freqMap")
                                 .execute(
                                         new IsEqual(hllp))
                                 .build())
                         .build())
                 .build();
         final FilterPredicate filter = ParquetFilterUtils.buildGroupFilter(view, schemaUtils, "BasicEntity", DirectedType.EITHER, true).get0();
-        final FilterPredicate expected = and(eq(binaryColumn("property8.raw_bytes"), Binary.fromReusedByteArray(hllp.getBytes())), eq(longColumn("property8.cardinality"), 2L));
+        final FilterPredicate expected = and(eq(binaryColumn("freqMap.raw_bytes"), Binary.fromReusedByteArray(hllp.getBytes())), eq(longColumn("freqMap.cardinality"), 2L));
         assertEquals(expected, filter);
     }
 }

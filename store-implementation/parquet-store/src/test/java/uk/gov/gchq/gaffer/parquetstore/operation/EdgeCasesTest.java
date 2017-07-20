@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.parquetstore.operation;
 
-import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -24,8 +23,6 @@ import org.apache.log4j.Level;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -45,17 +42,18 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
+import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TreeSet;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class EdgeCasesTest {
     private static User USER = new User();
@@ -103,11 +101,16 @@ public class EdgeCasesTest {
                 .build();
 
         final ArrayList<Element> elements = new ArrayList<>(1);
-        final HyperLogLogPlus h = new HyperLogLogPlus(5, 5);
-        h.offer("A");
-        h.offer("B");
-        elements.add(DataGen.getEntity("BasicEntity", "vertex", (byte) 'a', 0.2, 3f, h, 5L, (short) 6,
-                new java.util.Date()));
+        final TreeSet<String> t = new TreeSet<>();
+        t.add("A");
+        t.add("B");
+
+        final FreqMap f = new FreqMap();
+        f.upsert("a", 1L);
+        f.upsert("b", 1L);
+
+        elements.add(DataGen.getEntity("BasicEntity", "vertex", (byte) 'a', 0.2, 3f, t, 5L, (short) 6,
+                new java.util.Date(), f));
         graph.execute(new AddElements.Builder().input(elements).build(), USER);
         graph.execute(new AddElements.Builder().input(elements).build(), USER);
         CloseableIterator<? extends Element> results = graph.execute(new GetAllElements.Builder().build(), USER).iterator();

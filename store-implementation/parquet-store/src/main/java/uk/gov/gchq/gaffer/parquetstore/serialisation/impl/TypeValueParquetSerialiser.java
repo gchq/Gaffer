@@ -34,7 +34,7 @@ public class TypeValueParquetSerialiser implements ParquetSerialiser<TypeValue> 
         if (object != null) {
             return new Object[]{object.getType(), object.getValue()};
         }
-        return new Object[0];
+        return new Object[]{null, null};
     }
 
     @Override

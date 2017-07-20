@@ -64,21 +64,21 @@ public class SchemaUtilsTest {
         assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.BooleanParquetSerialiser",
                 columnToSerialiser.get(ParquetStoreConstants.DIRECTED));
         assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.ByteParquetSerialiser",
-                columnToSerialiser.get("property1"));
+                columnToSerialiser.get("byte"));
         assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.DoubleParquetSerialiser",
-                columnToSerialiser.get("property2"));
-        assertEquals("uk.gov.gchq.gaffer.serialisation.implementation.raw.RawFloatSerialiser",
-                columnToSerialiser.get("property3"));
-        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.InLineHyperLogLogPlusParquetSerialiser",
-                columnToSerialiser.get("property4"));
+                columnToSerialiser.get("double"));
+        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.floatParquetSerialiser",
+                columnToSerialiser.get("float"));
+        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.TreeSetStringSerialiser",
+                columnToSerialiser.get("treeSet"));
         assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.LongParquetSerialiser",
-                columnToSerialiser.get("property5"));
+                columnToSerialiser.get("long"));
         assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.ShortParquetSerialiser",
-                columnToSerialiser.get("property6"));
+                columnToSerialiser.get("short"));
         assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.DateParquetSerialiser",
-                columnToSerialiser.get("property7"));
-        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.NestedHyperLogLogPlusParquetSerialiser",
-                columnToSerialiser.get("property8"));
+                columnToSerialiser.get("date"));
+        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.FreqMapParquetSerialiser",
+                columnToSerialiser.get("freqMap"));
         assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.IntegerParquetSerialiser",
                 columnToSerialiser.get("count"));
     }

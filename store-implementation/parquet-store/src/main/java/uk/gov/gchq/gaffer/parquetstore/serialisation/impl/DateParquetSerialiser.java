@@ -31,7 +31,11 @@ public class DateParquetSerialiser implements ParquetSerialiser<Date> {
 
     @Override
     public Object[] serialise(final Date object) throws SerialisationException {
-        return new Object[]{object.getTime()};
+        if (object != null) {
+            return new Object[]{object.getTime()};
+        } else {
+            return new Object[]{null};
+        }
     }
 
     @Override

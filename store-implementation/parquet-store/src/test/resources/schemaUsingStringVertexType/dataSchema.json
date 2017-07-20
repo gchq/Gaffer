@@ -3,31 +3,31 @@
     "BasicEntity": {
       "vertex": "vertex.string",
       "properties": {
-        "property1": "simpleByteProperty",
-        "property2": "simpleDoubleProperty",
-        "property3": "simpleFloatProperty",
-        "property4": "HyperLogLogPlus.inline",
-        "property5": "simpleLongProperty",
-        "property6": "simpleShortProperty",
-        "property7": "simpleDateProperty",
-        "property8": "HyperLogLogPlus.nested",
+        "byte": "simpleByteProperty",
+        "double": "simpleDoubleProperty",
+        "float": "simpleFloatProperty",
+        "treeSet": "treeSet",
+        "long": "simpleLongProperty",
+        "short": "simpleShortProperty",
+        "date": "simpleDateProperty",
+        "freqMap": "freqMap",
         "count": "simpleIntProperty"
       },
       "groupBy": [
-        "property7"
+        "date"
       ]
     },
     "BasicEntity2": {
       "vertex": "vertex.string",
       "properties": {
-        "property1": "simpleByteProperty",
-        "property2": "simpleDoubleProperty",
-        "property3": "simpleFloatProperty",
-        "property4": "HyperLogLogPlus.inline",
-        "property5": "simpleLongProperty",
-        "property6": "simpleShortProperty",
-        "property7": "simpleDateProperty",
-        "property8": "HyperLogLogPlus.nested",
+        "byte": "simpleByteProperty",
+        "double": "simpleDoubleProperty",
+        "float": "simpleFloatProperty",
+        "treeSet": "treeSet",
+        "long": "simpleLongProperty",
+        "short": "simpleShortProperty",
+        "date": "simpleDateProperty",
+        "freqMap": "freqMap",
         "count": "simpleIntProperty"
       }
     }
@@ -38,18 +38,18 @@
       "destination": "vertex.string",
       "directed": "directed.either",
       "properties": {
-        "property1": "simpleByteProperty",
-        "property2": "simpleDoubleProperty",
-        "property3": "simpleFloatProperty",
-        "property4": "HyperLogLogPlus.inline",
-        "property5": "simpleLongProperty",
-        "property6": "simpleShortProperty",
-        "property7": "simpleDateProperty",
-        "property8": "HyperLogLogPlus.nested",
+        "byte": "simpleByteProperty",
+        "double": "simpleDoubleProperty",
+        "float": "simpleFloatProperty",
+        "treeSet": "treeSet",
+        "long": "simpleLongProperty",
+        "short": "simpleShortProperty",
+        "date": "simpleDateProperty",
+        "freqMap": "freqMap",
         "count": "simpleIntProperty"
       },
       "groupBy": [
-        "property7"
+        "date"
       ]
     },
     "BasicEdge2": {
@@ -57,14 +57,14 @@
       "destination": "vertex.string",
       "directed": "directed.either",
       "properties": {
-        "property1": "simpleByteProperty",
-        "property2": "simpleDoubleProperty",
-        "property3": "simpleFloatProperty",
-        "property4": "HyperLogLogPlus.inline",
-        "property5": "simpleLongProperty",
-        "property6": "simpleShortProperty",
-        "property7": "simpleDateProperty",
-        "property8": "HyperLogLogPlus.nested",
+        "byte": "simpleByteProperty",
+        "double": "simpleDoubleProperty",
+        "float": "simpleFloatProperty",
+        "treeSet": "treeSet",
+        "long": "simpleLongProperty",
+        "short": "simpleShortProperty",
+        "date": "simpleDateProperty",
+        "freqMap": "freqMap",
         "count": "simpleIntProperty"
       }
     }

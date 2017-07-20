@@ -18,18 +18,16 @@
     "simpleFloatProperty": {
       "aggregateFunction": {
         "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
-      },
-      "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.raw.RawFloatSerialiser"
+      }
     },
-    "HyperLogLogPlus.nested": {
+    "treeSet": {
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.sketches.binaryoperator.HyperLogLogPlusAggregator"
-      },
-      "serialiserClass": "uk.gov.gchq.gaffer.parquetstore.serialisation.impl.NestedHyperLogLogPlusParquetSerialiser"
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.CollectionConcat"
+      }
     },
-    "HyperLogLogPlus.inline": {
+    "freqMap": {
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.sketches.binaryoperator.HyperLogLogPlusAggregator"
+        "class": "uk.gov.gchq.gaffer.binaryoperator.FreqMapAggregator"
       }
     },
     "simpleLongProperty": {

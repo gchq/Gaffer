@@ -127,7 +127,7 @@ public abstract class AbstractOperationsTest {
                 new ViewElementDefinition.Builder()
                         .postAggregationFilter(
                                 new ElementFilter.Builder()
-                                        .select("property2")
+                                        .select("double")
                                         .execute(
                                                 new IsEqual(2.0))
                                         .build())
@@ -149,7 +149,7 @@ public abstract class AbstractOperationsTest {
                 new ViewElementDefinition.Builder()
                         .postTransformFilter(
                                 new ElementFilter.Builder()
-                                        .select("property2")
+                                        .select("double")
                                         .execute(
                                                 new IsEqual(2.0))
                                         .build())

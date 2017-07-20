@@ -67,7 +67,6 @@ public class AggregateGafferRowsFunction implements Function2<GenericRowWithSche
         LOGGER.trace("First Row object to be aggregated: {}", v1);
         LOGGER.trace("Second Row object to be aggregated: {}", v2);
         ArrayList<Object> outputRow = new ArrayList<>(v1.size());
-        outputRow.add(v1.getAs(ParquetStoreConstants.GROUP));
         if (isEntity) {
             for (final String col : columnToPaths.get(ParquetStoreConstants.VERTEX)) {
                 outputRow.add(v1.getAs(col));
@@ -107,7 +106,7 @@ public class AggregateGafferRowsFunction implements Function2<GenericRowWithSche
                     outputRow.add(v1.getAs(column));
                 }
             } else {
-                objectConverter.addGafferObjectToSparkRow(propName, mergedProperties.get(propName), outputRow, v1.schema(), false);
+                objectConverter.addGafferObjectToSparkRow(propName, mergedProperties.get(propName), outputRow, v1.schema());
             }
         }
         final GenericRowWithSchema mergedRow = new GenericRowWithSchema(outputRow.toArray(), v1.schema());

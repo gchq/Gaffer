@@ -29,7 +29,9 @@ public class TreeSetStringParquetSerialiser implements ParquetSerialiser<TreeSet
     @Override
     public String getParquetSchema(final String colName) {
         return "optional group " + colName + " (LIST) {\n" +
-                "  repeated binary element (UTF8);\n" +
+                " repeated group list {\n" +
+                "  optional binary element (UTF8);\n" +
+                " }\n" +
                 "}";
     }
 
@@ -38,16 +40,16 @@ public class TreeSetStringParquetSerialiser implements ParquetSerialiser<TreeSet
         if (object != null) {
             final String[] objects = new String[object.size()];
             object.toArray(objects);
-            return objects;
+            return new Object[]{objects};
         }
-        return new Comparable[0];
+        return new Object[]{null};
     }
 
     @Override
     public TreeSet<String> deserialise(final Object[] objects) throws SerialisationException {
         if (objects.length == 1 && objects[0] instanceof String[]) {
             final TreeSet<String> treeSet = new TreeSet<>();
-            treeSet.addAll(Arrays.asList(((String[]) objects)));
+            treeSet.addAll(Arrays.asList(((String[]) objects[0])));
             return treeSet;
         }
         return null;

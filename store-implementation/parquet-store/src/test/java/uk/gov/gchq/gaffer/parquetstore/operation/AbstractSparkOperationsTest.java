@@ -135,7 +135,7 @@ public abstract class AbstractSparkOperationsTest {
         final View view = new View.Builder()
                 .entity("BasicEntity",
                         new ViewElementDefinition.Builder().preAggregationFilter(
-                                new ElementFilter.Builder().select("property2").execute(new IsEqual(0.2)).build()
+                                new ElementFilter.Builder().select("double").execute(new IsEqual(0.2)).build()
                         ).build())
                 .build();
         try {

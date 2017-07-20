@@ -86,9 +86,9 @@ public class GenerateIndices {
             graphIndex.writeGroups(rootDir, store.getFS());
             pool.shutdown();
         } catch (final InterruptedException e) {
-            throw new OperationException("AggregateAndSortData was interrupted", e);
+            throw new OperationException("GenerateIndices was interrupted", e);
         } catch (final ExecutionException e) {
-            throw new OperationException("AggregateAndSortData had an execution exception thrown", e);
+            throw new OperationException("GenerateIndices had an execution exception thrown", e);
         }
     }
 

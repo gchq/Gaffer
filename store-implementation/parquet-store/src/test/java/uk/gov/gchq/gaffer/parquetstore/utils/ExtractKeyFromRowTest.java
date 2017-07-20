@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.parquetstore.utils;
 
-import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.sql.Row;
@@ -31,10 +30,12 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
+import uk.gov.gchq.gaffer.types.FreqMap;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.TreeSet;
 import java.util.function.BinaryOperator;
 
 import static org.junit.Assert.assertEquals;
@@ -49,21 +50,21 @@ public class ExtractKeyFromRowTest {
     public void setUp() throws StoreException {
         Logger.getRootLogger().setLevel(Level.WARN);
         groupByColumns = new LinkedHashSet<>();
-        groupByColumns.add("property2");
-        groupByColumns.add("property7");
+        groupByColumns.add("double");
+        groupByColumns.add("date");
         columnsToPaths = new HashMap<>();
         String[] prop2Paths = new String[1];
-        prop2Paths[0] = "property2";
+        prop2Paths[0] = "double";
         String[] prop7Paths = new String[1];
-        prop7Paths[0] = "property7";
+        prop7Paths[0] = "date";
         String[] vertPaths = new String[1];
         vertPaths[0] = ParquetStoreConstants.VERTEX;
         String[] srcPaths = new String[1];
         srcPaths[0] = ParquetStoreConstants.SOURCE;
         String[] dstPaths = new String[1];
         dstPaths[0] = ParquetStoreConstants.DESTINATION;
-        columnsToPaths.put("property2", prop2Paths);
-        columnsToPaths.put("property7", prop7Paths);
+        columnsToPaths.put("double", prop2Paths);
+        columnsToPaths.put("date", prop7Paths);
         columnsToPaths.put(ParquetStoreConstants.VERTEX, vertPaths);
         columnsToPaths.put(ParquetStoreConstants.SOURCE, srcPaths);
         columnsToPaths.put(ParquetStoreConstants.DESTINATION, dstPaths);
@@ -95,10 +96,13 @@ public class ExtractKeyFromRowTest {
     public void testExtractKeyFromRowForEntity() throws Exception {
         final ExtractKeyFromRow entityConverter = new ExtractKeyFromRow(groupByColumns, columnsToPaths, true, buildcolumnToAggregatorMap(utils.getGafferSchema().getElement("BasicEntity")));
         final Date date = new Date();
-        final HyperLogLogPlus h = new HyperLogLogPlus(5, 5);
-        h.offer("A");
-        h.offer("B");
-        final Row row = DataGen.generateEntityRow(utils, "BasicEntity","vertex", (byte) 'a', 0.2, 3f, h, 5L, (short) 6, date);
+        final TreeSet<String> t = new TreeSet<>();
+        t.add("A");
+        t.add("B");
+        final FreqMap f = new FreqMap();
+        f.upsert("a", 1L);
+        f.upsert("b", 1L);
+        final Row row = DataGen.generateEntityRow(utils, "BasicEntity","vertex", (byte) 'a', 0.2, 3f, t, 5L, (short) 6, date, f);
         final Seq<Object> results = entityConverter.call(row);
         assertEquals(0.2, (double) results.apply(0), 0);
         assertEquals("vertex", results.apply(1).toString());
@@ -110,10 +114,13 @@ public class ExtractKeyFromRowTest {
     public void testExtractKeyFromRowForEdge() throws Exception {
         final ExtractKeyFromRow edgeConverter = new ExtractKeyFromRow(groupByColumns, columnsToPaths, false, buildcolumnToAggregatorMap(utils.getGafferSchema().getElement("BasicEdge")));
         final Date date = new Date();
-        final HyperLogLogPlus h = new HyperLogLogPlus(5, 5);
-        h.offer("A");
-        h.offer("B");
-        final Row row = DataGen.generateEdgeRow(utils, "BasicEdge","src", "dst", true, (byte) 'a', 0.2, 3f, h, 5L, (short) 6, date);
+        final TreeSet<String> t = new TreeSet<>();
+        t.add("A");
+        t.add("B");
+        final FreqMap f = new FreqMap();
+        f.upsert("a", 1L);
+        f.upsert("b", 1L);
+        final Row row = DataGen.generateEdgeRow(utils, "BasicEdge","src", "dst", true, (byte) 'a', 0.2, 3f, t, 5L, (short) 6, date, f);
         final Seq<Object> results = edgeConverter.call(row);
         assertEquals(0.2, (double) results.apply(0), 0);
         assertEquals("dst", results.apply(1).toString());
