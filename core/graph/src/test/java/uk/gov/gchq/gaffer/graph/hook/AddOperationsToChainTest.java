@@ -262,4 +262,36 @@ public class AddOperationsToChainTest {
             assertNotNull(e.getMessage());
         }
     }
+
+    @Test
+    public void shouldClearListWhenAddingOperations() throws IOException {
+        //Given
+        final AddOperationsToChain addOperationsToChain = new AddOperationsToChain(ADD_OPERATIONS_TO_CHAIN_PATH);
+        addOperationsToChain.setBefore(null);
+        addOperationsToChain.setAfter(null);
+
+        Operation discardOutput = new DiscardOutput();
+        Operation splitStore = new SplitStore();
+        Operation count = new Count<>();
+        Operation getElements = new GetElements();
+
+        final List expectedOperations = new ArrayList<Operation>();
+        expectedOperations.add(discardOutput);
+        expectedOperations.add(splitStore);
+        expectedOperations.add(getElements);
+        expectedOperations.add(count);
+
+        final OperationChain opChain = new OperationChain.Builder()
+                .first(getElements)
+                .build();
+
+        // When
+        addOperationsToChain.preExecute(opChain, new User());
+
+        // Then
+        for (int i = 0; i < opChain.getOperations().size(); i++) {
+            assertTrue(expectedOperations.get(i).getClass().getName().contains(opChain.getOperations().get(i).getClass().getSimpleName()));
+        }
+
+    }
 }

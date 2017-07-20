@@ -108,7 +108,6 @@ public class AddOperationsToChain implements GraphHook {
         if (!hasAuth) {
             newOpList.addAll(addOperationsToChain(opChain, defaultOperations));
         }
-
         opChain.getOperations().clear();
         opChain.getOperations().addAll(newOpList);
     }
@@ -136,9 +135,7 @@ public class AddOperationsToChain implements GraphHook {
     }
 
     public void setStart(final List<Operation> start) {
-        if (start != null) {
-            this.defaultOperations.setStart(start);
-        }
+        this.defaultOperations.setStart(start);
     }
 
     public List<Operation> getStart() {
@@ -146,9 +143,7 @@ public class AddOperationsToChain implements GraphHook {
     }
 
     public void setEnd(final List<Operation> end) {
-        if (end != null) {
-            this.defaultOperations.setEnd(end);
-        }
+        this.defaultOperations.setEnd(end);
     }
 
     public List<Operation> getEnd() {
@@ -156,9 +151,7 @@ public class AddOperationsToChain implements GraphHook {
     }
 
     public void setBefore(final Map<String, List<Operation>> before) {
-        if (before != null) {
-            this.defaultOperations.setBefore(before);
-        }
+        this.defaultOperations.setBefore(before);
     }
 
     public Map<String, List<Operation>> getBefore() {
@@ -166,9 +159,7 @@ public class AddOperationsToChain implements GraphHook {
     }
 
     public void setAfter(final Map<String, List<Operation>> after) {
-        if (after != null) {
-            this.defaultOperations.setAfter(after);
-        }
+        this.defaultOperations.setAfter(after);
     }
 
     public Map<String, List<Operation>> getAfter() {
@@ -176,9 +167,12 @@ public class AddOperationsToChain implements GraphHook {
     }
 
     public void setAuthorisedOps(final LinkedHashMap<String, AdditionalOperations> authorisedOps) {
-        if (authorisedOps != null) {
-            this.authorisedOps = authorisedOps;
+        if (authorisedOps == null) {
+            this.authorisedOps = new LinkedHashMap<>();
+            return;
         }
+        this.authorisedOps = authorisedOps;
+
     }
 
     public LinkedHashMap<String, AdditionalOperations> getAuthorisedOps() {
