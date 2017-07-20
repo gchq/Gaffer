@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherGraph;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
+import uk.gov.gchq.gaffer.proxystore.ProxyStore;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.FileGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -100,6 +101,8 @@ public class ExportToOtherGraphExample extends OperationExample {
     public void simpleToOtherGafferRestApi() {
         // ---------------------------------------------------------
         final ProxyProperties proxyProperties = new ProxyProperties();
+        proxyProperties.setStoreClass(ProxyStore.class);
+        proxyProperties.setStorePropertiesClass(ProxyProperties.class);
         proxyProperties.setGafferHost("localhost");
         proxyProperties.setGafferPort(8081);
         proxyProperties.setGafferContextRoot("/rest/v1");
