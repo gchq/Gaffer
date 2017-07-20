@@ -1,0 +1,48 @@
+{
+  "before": {
+    "uk.gov.gchq.gaffer.operation.impl.output.ToSet": [
+      {
+        "class": "uk.gov.gchq.gaffer.operation.impl.Limit",
+        "resultLimit": 100000
+      }
+    ],
+    "uk.gov.gchq.gaffer.operation.impl.output.ToList": [
+      {
+        "class": "uk.gov.gchq.gaffer.operation.impl.Limit",
+        "resultLimit": 100000
+      }
+    ],
+    "uk.gov.gchq.gaffer.operation.impl.output.ToArray": [
+      {
+        "class": "uk.gov.gchq.gaffer.operation.impl.Limit",
+        "resultLimit": 100000
+      }
+    ],
+    "uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet": [
+      {
+        "class": "uk.gov.gchq.gaffer.operation.impl.Limit",
+        "resultLimit": 100000
+      }
+    ]
+  },
+  "after": {
+    "uk.gov.gchq.gaffer.operation.impl.get.GetAllElements": [
+      {
+        "class": "uk.gov.gchq.gaffer.operation.impl.Limit",
+        "resultLimit": 100000
+      }
+    ],
+    "uk.gov.gchq.gaffer.operation.impl.get.GetElements": [
+      {
+        "class": "uk.gov.gchq.gaffer.operation.impl.Limit",
+        "resultLimit": 100000
+      }
+    ],
+    "uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds": [
+      {
+        "class": "uk.gov.gchq.gaffer.operation.impl.Limit",
+        "resultLimit": 100000
+      }
+    ]
+  }
+}
