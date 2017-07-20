@@ -301,10 +301,10 @@ public class SchemaTest {
                         .description(STRING_TYPE_DESCRIPTION)
                         .build())
                 .type(TestTypes.PROP_MAP, new TypeDefinition.Builder()
-                        .description(MAP_TYPE_DESCRIPTION)
-                        .clazz(LinkedHashMap.class)
-                        .serialiser(mapSerialiser)
-                        .build()
+                                .description(MAP_TYPE_DESCRIPTION)
+                                .clazz(LinkedHashMap.class)
+                                .serialiser(mapSerialiser)
+                                .build()
                 )
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
@@ -498,6 +498,7 @@ public class SchemaTest {
         final String type2 = "type2";
         final Serialiser vertexSerialiser = mock(Serialiser.class);
         final Schema schema1 = new Schema.Builder()
+                .id("1")
                 .edge(TestGroups.EDGE)
                 .entity(TestGroups.ENTITY)
                 .vertexSerialiser(vertexSerialiser)
@@ -506,6 +507,7 @@ public class SchemaTest {
                 .build();
 
         final Schema schema2 = new Schema.Builder()
+                .id("2")
                 .entity(TestGroups.ENTITY_2)
                 .edge(TestGroups.EDGE_2)
                 .type(type2, String.class)
@@ -518,6 +520,7 @@ public class SchemaTest {
                 .build();
 
         // Then
+        assertEquals("1,2", mergedSchema.getId());
         assertEquals(2, mergedSchema.getEdges().size());
         assertNotNull(mergedSchema.getEdge(TestGroups.EDGE));
         assertNotNull(mergedSchema.getEdge(TestGroups.EDGE_2));
@@ -539,6 +542,7 @@ public class SchemaTest {
         final String type2 = "type2";
         final Serialiser vertexSerialiser = mock(Serialiser.class);
         final Schema schema1 = new Schema.Builder()
+                .id("1")
                 .edge(TestGroups.EDGE)
                 .entity(TestGroups.ENTITY)
                 .vertexSerialiser(vertexSerialiser)
@@ -547,6 +551,7 @@ public class SchemaTest {
                 .build();
 
         final Schema schema2 = new Schema.Builder()
+                .id("2")
                 .entity(TestGroups.ENTITY_2)
                 .edge(TestGroups.EDGE_2)
                 .type(type2, String.class)
@@ -559,6 +564,7 @@ public class SchemaTest {
                 .build();
 
         // Then
+        assertEquals("2,1", mergedSchema.getId());
         assertEquals(2, mergedSchema.getEdges().size());
         assertNotNull(mergedSchema.getEdge(TestGroups.EDGE));
         assertNotNull(mergedSchema.getEdge(TestGroups.EDGE_2));

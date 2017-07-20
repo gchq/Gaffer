@@ -20,12 +20,15 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Lists;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.ExportTo;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 
 public class ExportToOtherGraph<T> implements
@@ -36,7 +39,7 @@ public class ExportToOtherGraph<T> implements
 
     private T input;
 
-    private String parentSchemaId;
+    private List<String> parentSchemaIds;
     private Schema schema;
 
     private String parentStorePropertiesId;
@@ -62,12 +65,12 @@ public class ExportToOtherGraph<T> implements
         this.input = input;
     }
 
-    public String getParentSchemaId() {
-        return parentSchemaId;
+    public List<String> getParentSchemaIds() {
+        return parentSchemaIds;
     }
 
-    public void setParentSchemaId(final String parentSchemaId) {
-        this.parentSchemaId = parentSchemaId;
+    public void setParentSchemaIds(final List<String> parentSchemaIds) {
+        this.parentSchemaIds = parentSchemaIds;
     }
 
     public Schema getSchema() {
@@ -144,8 +147,12 @@ public class ExportToOtherGraph<T> implements
             return _self();
         }
 
-        public Builder<T> parentSchemaId(final String parentSchemaId) {
-            _getOp().setParentSchemaId(parentSchemaId);
+        public Builder<T> parentSchemaIds(final String... parentSchemaIds) {
+            if (null == _getOp().getParentSchemaIds()) {
+                _getOp().setParentSchemaIds(Lists.newArrayList(parentSchemaIds));
+            } else {
+                Collections.addAll(_getOp().getParentSchemaIds(), parentSchemaIds);
+            }
             return _self();
         }
 

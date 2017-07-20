@@ -20,6 +20,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherGraph;
 import uk.gov.gchq.gaffer.operation.export.graph.OtherGraphExporter;
@@ -166,7 +167,7 @@ public class ExportToOtherGraphHandlerTest {
         final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder<>()
                 .graphId(GRAPH_ID + 2)
-                .parentSchemaId(SCHEMA_ID + 1)
+                .parentSchemaIds(SCHEMA_ID + 1)
                 .storeProperties(storeProperties)
                 .build();
 
@@ -184,16 +185,24 @@ public class ExportToOtherGraphHandlerTest {
         // Given
         given(store.getGraphId()).willReturn(GRAPH_ID);
 
-        Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
+        Schema schema1 = new Schema.Builder()
+                .id(SCHEMA_ID + 1)
+                .entity("entity")
+                .build();
+        Schema schema2 = new Schema.Builder()
+                .id(SCHEMA_ID + 2)
+                .edge("edge")
+                .build();
 
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
         graphLibrary.addSchema(SCHEMA_ID + 1, schema1);
+        graphLibrary.addSchema(SCHEMA_ID + 2, schema2);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
 
         final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder<>()
                 .graphId(GRAPH_ID + 2)
-                .parentSchemaId(SCHEMA_ID + 1)
+                .parentSchemaIds(SCHEMA_ID + 1, SCHEMA_ID + 2)
                 .schema(schema)
                 .storeProperties(storeProperties)
                 .build();
@@ -203,9 +212,12 @@ public class ExportToOtherGraphHandlerTest {
 
         // Then
         assertEquals(GRAPH_ID + 2, graph.getGraphId());
-        assertEquals(schema1, graph.getSchema());
-        assertEquals(schema.getId(), graph.getSchema().getId());
-        assertEquals(new Schema.Builder().merge(schema).id(null).merge(schema1).build(), graph.getSchema());
+        JsonAssert.assertEquals(new Schema.Builder()
+                        .id(SCHEMA_ID)
+                        .entity("entity")
+                        .edge("edge")
+                        .build().toJson(false),
+                graph.getSchema().toJson(false));
         assertEquals(storeProperties, graph.getStoreProperties());
     }
 

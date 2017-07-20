@@ -225,7 +225,7 @@ public class ExportToOtherGraphExample extends OperationExample {
                                 .build())
                         .then(new ExportToOtherGraph.Builder<CloseableIterable<? extends Element>>()
                                 .graphId("newGraphId")
-                                .parentSchemaId("exportSchemaId")
+                                .parentSchemaIds("exportSchemaId")
                                 .parentStorePropertiesId("exportStorePropertiesId")
                                 .build())
                         .build();
