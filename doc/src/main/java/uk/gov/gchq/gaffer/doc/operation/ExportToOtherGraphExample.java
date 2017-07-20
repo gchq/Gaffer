@@ -73,7 +73,9 @@ public class ExportToOtherGraphExample extends OperationExample {
                         .build();
         // ---------------------------------------------------------
 
-        showExample(opChain, null);
+        showExample(opChain, "This example will export all Edges with group 'edge' to another Gaffer graph with new ID 'newGraphId'. " +
+                "The new graph will have the same schema and same store properties as the current graph. " +
+                "In this case it will just create another table in accumulo called 'newGraphId'.");
     }
 
     public void simpleExportWithCustomGraph() {
@@ -88,14 +90,16 @@ public class ExportToOtherGraphExample extends OperationExample {
                                         .build())
                                 .build())
                         .then(new ExportToOtherGraph.Builder<CloseableIterable<? extends Element>>()
-                                .graphId("graphId")
+                                .graphId("newGraphId")
                                 .schema(schema)
                                 .storeProperties(storeProperties)
                                 .build())
                         .build();
         // ---------------------------------------------------------
 
-        showExample(opChain, null);
+        showExample(opChain, "This example will export all Edges with group 'edge' to another Gaffer graph with new ID 'newGraphId'. " +
+                "The new graph will have the custom provided schema (note it must contain the same Edge group 'edge' otherwise the exported edges will be invalid') and custom store properties. " +
+                "The store properties could be any store properties e.g. Accumulo, HBase, Map, Proxy store properties.");
     }
 
     public void simpleToOtherGafferRestApi() {
@@ -115,13 +119,15 @@ public class ExportToOtherGraphExample extends OperationExample {
                                         .build())
                                 .build())
                         .then(new ExportToOtherGraph.Builder<CloseableIterable<? extends Element>>()
-                                .graphId("graphId")
+                                .graphId("otherGafferRestApiGraphId")
                                 .storeProperties(proxyProperties)
                                 .build())
                         .build();
         // ---------------------------------------------------------
 
-        showExample(opChain, "To export to another Gaffer REST API, we go via a Gaffer Proxy Store. So, you will need to include the proxy-store module as a maven dependency.");
+        showExample(opChain, "This example will export all Edges with group 'edge' to another Gaffer REST API." +
+                "To export to another Gaffer REST API, we go via a Gaffer Proxy Store. We just need to tell the proxy store the host, port and context root of the REST API." +
+                "Note that you will need to include the proxy-store module as a maven dependency to do this.");
     }
 
     public void simpleExportUsingGraphFromGraphLibrary() {
@@ -171,7 +177,9 @@ public class ExportToOtherGraphExample extends OperationExample {
                         .build();
         // ---------------------------------------------------------
 
-        showExample(opChain, null);
+        showExample(opChain, "This example will export all Edges with group 'edge' to another existing graph 'exportGraphId' using a GraphLibrary." +
+                "We demonstrate here that if we use a GraphLibrary, we can register a graph ID and reference it from the export operation. " +
+                "This means the user does not have to proxy all the schema and store properties when they configure the export operation, they can just provide the ID.");
     }
 
     public void exportToNewGraphBasedOnConfigFromGraphLibrary() {
@@ -223,7 +231,9 @@ public class ExportToOtherGraphExample extends OperationExample {
                         .build();
         // ---------------------------------------------------------
 
-        showExample(opChain, null);
+        showExample(opChain, "Similar to the previous example, this example will export all Edges with group 'edge' to another graph using a GraphLibrary. " +
+                "But in this example we show that you can export to a new graph with id newGraphId by chosing any combination of schema and store properties registered in the GraphLibrary. " +
+                "This is useful as a system administrator could register various different store properties, of different Accumulo/HBase clusters and a user could them just select which one to use by referring to the relevant store properties ID.");
     }
 
     private void cleanUp() {
