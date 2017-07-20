@@ -49,16 +49,21 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * <p>
  * The Graph separates the user from the {@link Store}. It holds an instance of the {@link Store} and
  * acts as a proxy for the store, delegating {@link Operation}s to the store.
- * <p/>
+ * </p>
+ * <p>
  * The Graph provides users with a single point of entry for executing operations on a store.
  * This allows the underlying store to be swapped and the same operations can still be applied.
- * <p/>
+ * </p>
+ * <p>
  * Graphs also provides a view of the data with a instance of {@link View}. The view filters out unwanted information
  * and can transform {@link uk.gov.gchq.gaffer.data.element.Properties} into transient properties such as averages.
- * <p/>
+ * </p>
+ * <p>
  * When executing operations on a graph, an operation view would override the graph view.
+ * </p>
  *
  * @see uk.gov.gchq.gaffer.graph.Graph.Builder
  */
