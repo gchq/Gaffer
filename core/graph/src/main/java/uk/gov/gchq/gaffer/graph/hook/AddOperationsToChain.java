@@ -83,46 +83,6 @@ public class AddOperationsToChain implements GraphHook {
         setOperations(fromJson(addOperationsBytes));
     }
 
-    public void setStart(final List<Operation> start) {
-        this.defaultOperations.setStart(start);
-    }
-
-    public List<Operation> getStart() {
-        return defaultOperations.getStart();
-    }
-
-    public void setEnd(final List<Operation> end) {
-        this.defaultOperations.setEnd(end);
-    }
-
-    public List<Operation> getEnd() {
-        return defaultOperations.getEnd();
-    }
-
-    public void setBefore(final Map<String, List<Operation>> before) {
-        this.defaultOperations.setBefore(before);
-    }
-
-    public Map<String, List<Operation>> getBefore() {
-        return defaultOperations.getBefore();
-    }
-
-    public void setAfter(final Map<String, List<Operation>> after) {
-        this.defaultOperations.setAfter(after);
-    }
-
-    public Map<String, List<Operation>> getAfter() {
-        return defaultOperations.getAfter();
-    }
-
-    public void setAuthorisedOps(final LinkedHashMap<String, AdditionalOperations> authorisedOps) {
-        this.authorisedOps = authorisedOps;
-    }
-
-    public LinkedHashMap<String, AdditionalOperations> getAuthorisedOps() {
-        return authorisedOps;
-    }
-
     /**
      * Adds in the additional Operations specified.  The original opChain will
      * be updated.
@@ -175,53 +135,84 @@ public class AddOperationsToChain implements GraphHook {
         }
     }
 
+    public void setStart(final List<Operation> start) {
+        if (start != null) {
+            this.defaultOperations.setStart(start);
+        }
+    }
+
+    public List<Operation> getStart() {
+        return defaultOperations.getStart();
+    }
+
+    public void setEnd(final List<Operation> end) {
+        if (end != null) {
+            this.defaultOperations.setEnd(end);
+        }
+    }
+
+    public List<Operation> getEnd() {
+        return defaultOperations.getEnd();
+    }
+
+    public void setBefore(final Map<String, List<Operation>> before) {
+        if (before != null) {
+            this.defaultOperations.setBefore(before);
+        }
+    }
+
+    public Map<String, List<Operation>> getBefore() {
+        return defaultOperations.getBefore();
+    }
+
+    public void setAfter(final Map<String, List<Operation>> after) {
+        if (after != null) {
+            this.defaultOperations.setAfter(after);
+        }
+    }
+
+    public Map<String, List<Operation>> getAfter() {
+        return defaultOperations.getAfter();
+    }
+
+    public void setAuthorisedOps(final LinkedHashMap<String, AdditionalOperations> authorisedOps) {
+        if (authorisedOps != null) {
+            this.authorisedOps = authorisedOps;
+        }
+    }
+
+    public LinkedHashMap<String, AdditionalOperations> getAuthorisedOps() {
+        return authorisedOps;
+    }
+
     private void setOperations(final AddOperationsToChain addOperations) {
-        if (addOperations.getAuthorisedOps() != null) {
-            this.setAuthorisedOps(addOperations.getAuthorisedOps());
-        }
-        addOperations.defaultOperations.getStart();
-        if (addOperations.defaultOperations.getStart() != null) {
-            this.defaultOperations.setStart(addOperations.defaultOperations.getStart());
-        }
-        if (addOperations.defaultOperations.getEnd() != null) {
-            this.defaultOperations.setEnd(addOperations.defaultOperations.getEnd());
-        }
-        if (addOperations.defaultOperations.getBefore() != null) {
-            this.defaultOperations.setBefore(addOperations.defaultOperations.getBefore());
-        }
-        if (addOperations.defaultOperations.getAfter() != null) {
-            this.defaultOperations.setAfter(addOperations.defaultOperations.getAfter());
-        }
+        this.setAuthorisedOps(addOperations.getAuthorisedOps());
+        this.defaultOperations.setStart(addOperations.defaultOperations.getStart());
+        this.defaultOperations.setEnd(addOperations.defaultOperations.getEnd());
+        this.defaultOperations.setBefore(addOperations.defaultOperations.getBefore());
+        this.defaultOperations.setAfter(addOperations.defaultOperations.getAfter());
+
     }
 
     private List<Operation> addOperationsToChain(final OperationChain<?> opChain, final AdditionalOperations additionalOperations) {
         List<Operation> newOpList = new ArrayList<>();
-        if (additionalOperations.getStart() != null) {
-            newOpList.addAll(additionalOperations.getStart());
-        }
-        if (opChain != null) {
+
+        newOpList.addAll(additionalOperations.getStart());
+        if (opChain != null && !opChain.getOperations().isEmpty()) {
             for (final Operation originalOp : opChain.getOperations()) {
-
-                if (additionalOperations.getBefore() != null) {
-                    List<Operation> beforeOps = additionalOperations.getBefore().get(originalOp.getClass().getName());
-                    if (beforeOps != null) {
-                        newOpList.addAll(beforeOps);
-                    }
+                List<Operation> beforeOps = additionalOperations.getBefore().get(originalOp.getClass().getName());
+                if (beforeOps != null) {
+                    newOpList.addAll(beforeOps);
                 }
-
                 newOpList.add(originalOp);
-
-                if (additionalOperations.getAfter() != null) {
-                    List<Operation> afterOps = additionalOperations.getAfter().get(originalOp.getClass().getName());
-                    if (afterOps != null) {
-                        newOpList.addAll(afterOps);
-                    }
+                List<Operation> afterOps = additionalOperations.getAfter().get(originalOp.getClass().getName());
+                if (afterOps != null) {
+                    newOpList.addAll(afterOps);
                 }
             }
         }
-        if (additionalOperations.getEnd() != null) {
-            newOpList.addAll(additionalOperations.getEnd());
-        }
+        newOpList.addAll(additionalOperations.getEnd());
+
         return newOpList;
     }
 }
