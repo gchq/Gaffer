@@ -118,7 +118,7 @@ public class ExportToOtherGraphExample extends OperationExample {
                         .build();
         // ---------------------------------------------------------
 
-        showExample(opChain, null);
+        showExample(opChain, "To export to another Gaffer REST API, we go via a Gaffer Proxy Store. So, you will need to include the proxy-store module as a maven dependency.");
     }
 
     public void simpleExportUsingGraphFromGraphLibrary() {
