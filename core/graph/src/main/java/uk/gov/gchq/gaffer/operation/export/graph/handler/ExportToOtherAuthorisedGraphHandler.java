@@ -39,7 +39,7 @@ public class ExportToOtherAuthorisedGraphHandler extends ExportToHandler<ExportT
         return idAuths;
     }
 
-    public void setIdAuths(Map<String, List<String>> idAuths) {
+    public void setIdAuths(final Map<String, List<String>> idAuths) {
         if (idAuths == null) {
             this.idAuths = new HashMap<>();
         } else {
@@ -89,9 +89,9 @@ public class ExportToOtherAuthorisedGraphHandler extends ExportToHandler<ExportT
         throw new IllegalArgumentException("Export failed with input:\n graphId:" + exportGraphId);
     }
 
-    private boolean isAuthorised(User user, List<String> auths) {
+    private boolean isAuthorised(final User user, final List<String> auths) {
         if (auths != null && !auths.isEmpty()) {
-            for (String auth : auths) {
+            for (final String auth : auths) {
                 if (user.getOpAuths().contains(auth)) {
                     return true;
                 }
