@@ -88,7 +88,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -667,7 +666,7 @@ public class GraphTest {
                             .type("int", new TypeDefinition.Builder()
                                     .clazz(Integer.class)
                                     .aggregateFunction(new Sum())
-                                            // invalid serialiser
+                                    // invalid serialiser
                                     .serialiser(new RawDoubleSerialiser())
                                     .build())
                             .type("string", new TypeDefinition.Builder()
@@ -838,9 +837,7 @@ public class GraphTest {
     }
 
     private File createSchemaDirectory() throws IOException {
-        final File tmpDir;
-        tmpDir = new File("tmpSchemaDir");
-        assumeTrue("Failed to create tmp directory, skipping as this test as it is a permissions issue.", tmpDir.mkdir());
+        final File tmpDir = tempFolder.newFolder("tmpSchemaDir");
         writeToFile("dataSchema.json", tmpDir);
         writeToFile("dataTypes.json", tmpDir);
         return tmpDir;

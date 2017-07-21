@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import org.junit.Test;
+import sun.misc.IOUtils;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -31,23 +33,24 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class AddOperationsToChainTest {
-    public static final String ADD_OPERATIONS_TO_CHAIN_PATH = "src/test/resources/addOperationsToChain.json";
+    private static final String ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH = "addOperationsToChain.json";
 
     @Test
     public void shouldAddAllOperationsWithNoAuthsGivenPath() throws IOException {
         // Given
-        AddOperationsToChain addOperationsToChain = new AddOperationsToChain(ADD_OPERATIONS_TO_CHAIN_PATH);
+        AddOperationsToChain addOperationsToChain = new AddOperationsToChain(ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH);
 
         Operation discardOutput = new DiscardOutput();
         Operation splitStore = new SplitStore();
@@ -91,7 +94,7 @@ public class AddOperationsToChainTest {
     @Test
     public void shouldAddAllOperationsWithFirstAuthsGivenPath() throws IOException {
         // Given
-        AddOperationsToChain addOperationsToChain = new AddOperationsToChain(ADD_OPERATIONS_TO_CHAIN_PATH);
+        AddOperationsToChain addOperationsToChain = new AddOperationsToChain(ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH);
 
         User user = new User.Builder().opAuths("auth1", "auth2").build();
 
@@ -126,7 +129,7 @@ public class AddOperationsToChainTest {
     @Test
     public void shouldAddAllOperationsWithSecondAuthsGivenPath() throws IOException {
         // Given
-        AddOperationsToChain addOperationsToChain = new AddOperationsToChain(ADD_OPERATIONS_TO_CHAIN_PATH);
+        AddOperationsToChain addOperationsToChain = new AddOperationsToChain(ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH);
 
         User user = new User.Builder().opAuths("auth2").build();
 
@@ -162,11 +165,12 @@ public class AddOperationsToChainTest {
 
     @Test
     public void shouldAddAllOperationsGivenJson() throws IOException {
-
-        Path addOpsPath = Paths.get(ADD_OPERATIONS_TO_CHAIN_PATH);
-
         // Given
-        AddOperationsToChain addOperationsToChain = new AddOperationsToChain(Files.readAllBytes(addOpsPath));
+        final byte[] bytes;
+        try (final InputStream inputStream = StreamUtil.openStream(getClass(), ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH)) {
+            bytes = IOUtils.readFully(inputStream, inputStream.available(), true);
+        }
+        final AddOperationsToChain addOperationsToChain = new AddOperationsToChain(bytes);
 
         Operation discardOutput = new DiscardOutput();
         Operation splitStore = new SplitStore();
@@ -266,7 +270,7 @@ public class AddOperationsToChainTest {
     @Test
     public void shouldClearListWhenAddingOperations() throws IOException {
         //Given
-        final AddOperationsToChain addOperationsToChain = new AddOperationsToChain(ADD_OPERATIONS_TO_CHAIN_PATH);
+        final AddOperationsToChain addOperationsToChain = new AddOperationsToChain(ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH);
         addOperationsToChain.setBefore(null);
         addOperationsToChain.setAfter(null);
 
@@ -293,5 +297,33 @@ public class AddOperationsToChainTest {
             assertTrue(expectedOperations.get(i).getClass().getName().contains(opChain.getOperations().get(i).getClass().getSimpleName()));
         }
 
+    }
+
+    @Test
+    public void shouldReturnClonedOperations() throws IOException {
+        // Given
+        final AddOperationsToChain addOperationsToChain = new AddOperationsToChain(ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH);
+
+        // When / Then
+        assertClonedOperations(addOperationsToChain.getStart(), addOperationsToChain.getStart());
+        assertClonedOperations(addOperationsToChain.getBefore(), addOperationsToChain.getBefore());
+        assertClonedOperations(addOperationsToChain.getAfter(), addOperationsToChain.getAfter());
+        assertClonedOperations(addOperationsToChain.getEnd(), addOperationsToChain.getEnd());
+    }
+
+    public void assertClonedOperations(final Map<String, List<Operation>> after1, final Map<String, List<Operation>> after2) {
+        for (Map.Entry<String, List<Operation>> entry1 : after1.entrySet()) {
+            final List<Operation> ops1 = entry1.getValue();
+            final List<Operation> ops2 = after2.get(entry1.getKey());
+            assertClonedOperations(ops1, ops2);
+        }
+    }
+
+    public void assertClonedOperations(final List<Operation> ops1, final List<Operation> ops2) {
+        assertEquals(ops1.size(), ops2.size());
+        for (int i = 0; i < ops1.size(); i++) {
+            assertEquals(ops1.get(i).getClass(), ops2.get(i).getClass());
+            assertNotSame(ops1.get(i), ops2.get(i));
+        }
     }
 }
