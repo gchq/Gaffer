@@ -160,7 +160,6 @@ public class FileGraphLibraryTest {
             fileGraphLibrary.add(GRAPH_ID, null, storeProperties);
             fail("Exception expected");
         } catch (IllegalArgumentException e) {
-
             assertTrue(e.getMessage().contains("Schema cannot be null"));
         }
     }
