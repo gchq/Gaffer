@@ -1,0 +1,29 @@
+{
+  "types": {
+    "vertex.string": {
+      "class": "java.lang.String",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.koryphe.impl.predicate.Exists"
+        }
+      ]
+    },
+    "longs.sketch": {
+      "class": "com.yahoo.sketches.frequencies.LongsSketch",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.sketches.datasketches.frequencies.binaryoperator.LongsSketchAggregator"
+      },
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.sketches.datasketches.frequencies.serialisation.LongsSketchSerialiser"
+      }
+    },
+    "false": {
+      "class": "java.lang.Boolean",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.koryphe.impl.predicate.IsFalse"
+        }
+      ]
+    }
+  }
+}

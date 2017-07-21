@@ -108,21 +108,23 @@ public abstract class WalkthroughStrSubstitutor {
         }
         params.put("STORE_PROPERTIES",
                 "\n```properties\n" + getResource("/mockaccumulostore.properties", exampleClass).replaceAll("#.*\\n", "") + "\n```\n");
-        params.put("DATA_SCHEMA_LINK",
-                getGitHubResourcesLink(schemaPath + "/dataSchema.json", modulePath));
-        params.put("DATA_TYPES_LINK",
-                getGitHubResourcesLink(schemaPath + "/dataTypes.json", modulePath));
-        params.put("STORE_TYPES_LINK",
+        params.put("ELEMENTS_SCHEMA_LINK",
+                getGitHubResourcesLink(schemaPath + "/elements.json", modulePath));
+        params.put("TYPES_SCHEMA_LINK",
+                getGitHubResourcesLink(schemaPath + "/types.json", modulePath));
+        params.put("AGGREGA_LINK",
                 getGitHubResourcesLink(schemaPath + "/storeTypes.json", modulePath));
         params.put("STORE_PROPERTIES_LINK",
                 getGitHubResourcesLink("/mockaccumulostore.properties", modulePath));
         if (null != schemaPath) {
-            params.put("DATA_SCHEMA_JSON",
-                    "\n```json\n" + getResource(schemaPath + "/dataSchema.json", exampleClass) + "\n```\n");
-            params.put("DATA_TYPES_JSON",
-                    "\n```json\n" + getResource(schemaPath + "/dataTypes.json", exampleClass) + "\n```\n");
-            params.put("STORE_TYPES_JSON",
-                    "\n```json\n" + getResource(schemaPath + "/storeTypes.json", exampleClass) + "\n```\n");
+            params.put("ELEMENTS_JSON",
+                    "\n```json\n" + getResource(schemaPath + "/elements.json", exampleClass) + "\n```\n");
+            params.put("TYPES_JSON",
+                    "\n```json\n" + getResource(schemaPath + "/types.json", exampleClass) + "\n```\n");
+            params.put("AGGREGATION_JSON",
+                    "\n```json\n" + getResource(schemaPath + "/aggregation.json", exampleClass) + "\n```\n");
+            params.put("VALIDATION_JSON",
+                    "\n```json\n" + getResource(schemaPath + "/validation.json", exampleClass) + "\n```\n");
         }
 
         params.putAll(createParameterMap(text, example, modulePath));
@@ -203,6 +205,10 @@ public abstract class WalkthroughStrSubstitutor {
     }
 
     public static String getResource(final String resourcePath, final Class<?> clazz) {
+        if (null == clazz.getResource(resourcePath)) {
+            return "";
+        }
+
         final String resource;
         try (final InputStream stream = StreamUtil.openStream(clazz, resourcePath)) {
             if (null == stream) {

@@ -233,9 +233,10 @@ public class AccumuloStoreRelationTest {
     }
 
     private static Schema getSchema() {
-        return Schema.fromJson(AccumuloStoreRelationTest.class.getResourceAsStream("/schema-DataFrame/dataSchema.json"),
-                AccumuloStoreRelationTest.class.getResourceAsStream("/schema-DataFrame/dataTypes.json"),
-                AccumuloStoreRelationTest.class.getResourceAsStream("/schema-DataFrame/storeTypes.json"));
+        return Schema.fromJson(
+                AccumuloStoreRelationTest.class.getResourceAsStream("/schema-DataFrame/elements.json"),
+                AccumuloStoreRelationTest.class.getResourceAsStream("/schema-DataFrame/types.json"),
+                AccumuloStoreRelationTest.class.getResourceAsStream("/schema-DataFrame/serialisation.json"));
     }
 
     private static View getViewFromSchema(final Schema schema) {

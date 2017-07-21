@@ -439,7 +439,7 @@ public class SchemaTest {
 
     @Test
     public void testSchemaConstructedFromInputStream() throws IOException {
-        final InputStream resourceAsStream = this.getClass().getResourceAsStream(StreamUtil.DATA_SCHEMA);
+        final InputStream resourceAsStream = this.getClass().getResourceAsStream(StreamUtil.ELEMENTS_SCHEMA);
         assertNotNull(resourceAsStream);
         final Schema deserialisedSchema = new Schema.Builder().json(resourceAsStream).build();
         assertNotNull(deserialisedSchema);
@@ -577,10 +577,14 @@ public class SchemaTest {
     public void shouldThrowExceptionWhenMergeSchemasWithASharedEdgeGroup() {
         // Given
         final Schema schema1 = new Schema.Builder()
-                .edge(TestGroups.EDGE)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, "string")
+                        .build())
                 .build();
         final Schema schema2 = new Schema.Builder()
-                .edge(TestGroups.EDGE)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_2, "string")
+                        .build())
                 .build();
 
         // When / Then
@@ -590,7 +594,7 @@ public class SchemaTest {
                     .merge(schema2);
             fail("Exception expected");
         } catch (final SchemaException e) {
-            assertTrue(e.getMessage().contains("Element groups cannot be shared"));
+            assertTrue("Actual message was: " + e.getMessage(), e.getMessage().contains("Element group properties cannot be defined in different schema parts"));
         }
     }
 
@@ -598,10 +602,14 @@ public class SchemaTest {
     public void shouldThrowExceptionWhenMergeSchemasWithASharedEntityGroup() {
         // Given
         final Schema schema1 = new Schema.Builder()
-                .entity(TestGroups.ENTITY)
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, "string")
+                        .build())
                 .build();
         final Schema schema2 = new Schema.Builder()
-                .entity(TestGroups.ENTITY)
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.PROP_2, "string")
+                        .build())
                 .build();
 
         // When / Then
@@ -611,7 +619,7 @@ public class SchemaTest {
                     .merge(schema2);
             fail("Exception expected");
         } catch (final SchemaException e) {
-            assertTrue(e.getMessage().contains("Element groups cannot be shared"));
+            assertTrue("Actual message was: " + e.getMessage(), e.getMessage().contains("Element group properties cannot be defined in different schema parts"));
         }
     }
 

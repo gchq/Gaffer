@@ -50,9 +50,9 @@ public class GetJavaRDDOfAllElementsHandlerTest {
     public void checkGetAllElementsInJavaRDD() throws OperationException, IOException {
         final Graph graph1 = new Graph.Builder()
                 .graphId("graphId")
-                .addSchema(getClass().getResourceAsStream("/schema/dataSchema.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/dataTypes.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/storeTypes.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/types.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
                 .build();
 
@@ -125,9 +125,9 @@ public class GetJavaRDDOfAllElementsHandlerTest {
     public void checkGetAllElementsInJavaRDDWithVisibility() throws OperationException, IOException {
         final Graph graph1 = new Graph.Builder()
                 .graphId("graphId")
-                .addSchema(getClass().getResourceAsStream("/schema/dataSchemaWithVisibility.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/dataTypes.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/storeTypes.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/elementsWithVisibility.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/types.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
                 .build();
 

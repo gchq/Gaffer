@@ -681,7 +681,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
 
             if (null == getElementDef().aggregator) {
                 getElementDef().aggregator = elementDef.aggregator;
-            } else {
+            } else if (null != elementDef.getOriginalAggregateFunctions()) {
                 final ElementAggregator combinedAggregator = new ElementAggregator();
                 combinedAggregator.getComponents().addAll(getElementDef().aggregator.getComponents());
                 combinedAggregator.getComponents().addAll(elementDef.aggregator.getComponents());
