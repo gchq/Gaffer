@@ -16,6 +16,17 @@
 
 package uk.gov.gchq.gaffer.store.schema;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+
 import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -51,17 +62,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
 
 public class SchemaTest {
     public static final String EDGE_DESCRIPTION = "Edge description";
@@ -301,11 +301,10 @@ public class SchemaTest {
                         .description(STRING_TYPE_DESCRIPTION)
                         .build())
                 .type(TestTypes.PROP_MAP, new TypeDefinition.Builder()
-                                .description(MAP_TYPE_DESCRIPTION)
-                                .clazz(LinkedHashMap.class)
-                                .serialiser(mapSerialiser)
-                                .build()
-                )
+                        .description(MAP_TYPE_DESCRIPTION)
+                        .clazz(LinkedHashMap.class)
+                        .serialiser(mapSerialiser)
+                        .build())
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
                         .description(STRING_TYPE_DESCRIPTION)
