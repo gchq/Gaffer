@@ -50,6 +50,6 @@ public class Schemas extends DevWalkthrough {
 
     public static void main(final String[] args) throws OperationException {
         final Schemas walkthrough = new Schemas();
-        System.out.println(walkthrough.walkthrough());
+        walkthrough.run();
     }
 }

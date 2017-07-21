@@ -81,9 +81,9 @@
                                 <roadTraffic.dataLoader.dataPath>
                                     ${project.build.outputDirectory}/roadTrafficSampleData.csv
                                 </roadTraffic.dataLoader.dataPath>
-                                <gaffer.graph.hook.add.operations.path>
-                                    ${project.build.outputDirectory}/addOperationsToChain.json
-                                </gaffer.graph.hook.add.operations.path>
+                                <!--<gaffer.graph.hook.add.operations.path>-->
+                                <!--${project.build.outputDirectory}/addOperationsToChain.json-->
+                                <!--</gaffer.graph.hook.add.operations.path>-->
                                 <gaffer.error-mode.debug>
                                     false
                                 </gaffer.error-mode.debug>
