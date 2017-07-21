@@ -21,7 +21,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherPredefinedGraph;
+import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherAuthorisedGraph;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -70,10 +70,10 @@ public class ExportToOtherAuthorisedGraphTest {
     public void shouldThrowExceptionWhenExportingToSameGraph() {
         // Given
         given(store.getGraphId()).willReturn(GRAPH_ID);
-        final ExportToOtherPredefinedGraph export = new ExportToOtherPredefinedGraph.Builder<>()
+        final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder<>()
                 .graphId(GRAPH_ID)
                 .build();
-        final ExportToOtherPredefinedGraphHandler handler = new ExportToOtherPredefinedGraphHandler();
+        final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
 
         // When / Then
         try {
@@ -96,10 +96,10 @@ public class ExportToOtherAuthorisedGraphTest {
         List<String> graphID1OpAuths = new ArrayList<>();
         graphID1OpAuths.add("auth1");
         idAuths.put(GRAPH_ID + 1, graphID1OpAuths);
-        final ExportToOtherPredefinedGraph export = new ExportToOtherPredefinedGraph.Builder<>()
+        final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder<>()
                 .graphId(GRAPH_ID + 1)
                 .build();
-        final ExportToOtherPredefinedGraphHandler handler = new ExportToOtherPredefinedGraphHandler();
+        final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
         handler.setIdAuths(idAuths);
 
         // When
