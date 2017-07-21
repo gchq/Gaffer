@@ -37,9 +37,9 @@ Edges and Entities can optionally have the following fields:
 - timestampProperty - if you are using timestamp property in your graph, then set this timestampProperty field to that property name so Gaffer knows to treat that property specially.
 - aggregate - this is true by default. If you would like to disable aggregation for this element group set this to false.
 
-These 2 fields can go in the Elements Schema however, we have split them out into separate Schema files Validation and Aggregation so the logic doesn't complicate the Elements schema.'
-- validateFunctions - an array of selections and predicates to be applied to the element as a whole. This allows you to validate based on multiple properties at once - like check a timestamp property together with a time to live property to check if the element should be aged off. Individual property validation is best done as a validateFunction in the property type definition in Types schema.
-- aggregateFunctions - an array of selections and binary operators to be applied to the element as a whole. This allows you to aggregate based on multiple properties at once. Individual property aggregation is best done as a aggregateFunction in the property type definition in the Types schema.
+These 2 optional fields are for advanced users. They can go in the Elements Schema however, we have split them out into separate Schema files Validation and Aggregation so the logic doesn't complicate the Elements schema.
+- validateFunctions - an array of selections and predicates to be applied to an element. This allows you to validate based on multiple properties at once - like check a timestamp property together with a time to live property to check if the element should be aged off. Individual property validation is best done as a validateFunction in the property type definition in Types schema.
+- aggregateFunctions - an array of selections and binary operators to be applied to an element. This allows you to aggregate based on multiple properties at once. It is important to note that different types of properties (groupBy, non-groupBy, visibility, timestamp) cannot be aggregated in the same aggregate function. Individual property aggregation is best done as a aggregateFunction in the property type definition in the Types schema.
 
 Here is an example of an Elements schema
 

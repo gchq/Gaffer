@@ -651,10 +651,11 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                 getElementDef().properties.putAll(elementDef.getPropertyMap());
             } else {
                 for (final Entry<String, String> entry : elementDef.getPropertyMap().entrySet()) {
-                    if (null == getElementDef().getPropertyTypeName(entry.getKey())) {
+                    final String typeName = getElementDef().getPropertyTypeName(entry.getKey());
+                    if (null == typeName) {
                         getElementDef().properties.put(entry.getKey(), entry.getValue());
-                    } else {
-                        throw new SchemaException("Unable to merge element definitions because the property exists in both definitions");
+                    } else if (!typeName.equals(entry.getValue())) {
+                        throw new SchemaException("Unable to merge element definitions because the property " + entry.getKey() + " exists in both definitions with different types: " + typeName + " and " + entry.getValue());
                     }
                 }
             }

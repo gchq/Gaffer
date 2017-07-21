@@ -112,8 +112,8 @@ public abstract class WalkthroughStrSubstitutor {
                 getGitHubResourcesLink(schemaPath + "/elements.json", modulePath));
         params.put("TYPES_SCHEMA_LINK",
                 getGitHubResourcesLink(schemaPath + "/types.json", modulePath));
-        params.put("AGGREGA_LINK",
-                getGitHubResourcesLink(schemaPath + "/storeTypes.json", modulePath));
+        params.put("AGGREGATION_LINK",
+                getGitHubResourcesLink(schemaPath + "/aggregation.json", modulePath));
         params.put("STORE_PROPERTIES_LINK",
                 getGitHubResourcesLink("/mockaccumulostore.properties", modulePath));
         if (null != schemaPath) {
@@ -121,10 +121,15 @@ public abstract class WalkthroughStrSubstitutor {
                     "\n```json\n" + getResource(schemaPath + "/elements.json", exampleClass) + "\n```\n");
             params.put("TYPES_JSON",
                     "\n```json\n" + getResource(schemaPath + "/types.json", exampleClass) + "\n```\n");
-            params.put("AGGREGATION_JSON",
-                    "\n```json\n" + getResource(schemaPath + "/aggregation.json", exampleClass) + "\n```\n");
-            params.put("VALIDATION_JSON",
-                    "\n```json\n" + getResource(schemaPath + "/validation.json", exampleClass) + "\n```\n");
+
+            if (null != exampleClass.getResource("/" + schemaPath + "/aggregation.json")) {
+                params.put("AGGREGATION_JSON",
+                        "\n```json\n" + getResource(schemaPath + "/aggregation.json", exampleClass) + "\n```\n");
+            }
+            if (null != exampleClass.getResource("/" + schemaPath + "/validation.json")) {
+                params.put("VALIDATION_JSON",
+                        "\n```json\n" + getResource(schemaPath + "/validation.json", exampleClass) + "\n```\n");
+            }
         }
 
         params.putAll(createParameterMap(text, example, modulePath));
@@ -205,14 +210,10 @@ public abstract class WalkthroughStrSubstitutor {
     }
 
     public static String getResource(final String resourcePath, final Class<?> clazz) {
-        if (null == clazz.getResource(resourcePath)) {
-            return "";
-        }
-
         final String resource;
         try (final InputStream stream = StreamUtil.openStream(clazz, resourcePath)) {
             if (null == stream) {
-                resource = "";
+                throw new IllegalArgumentException("Resource was not found: " + resourcePath);
             } else {
                 resource = new String(IOUtils.toByteArray(stream), CommonConstants.UTF_8);
             }
