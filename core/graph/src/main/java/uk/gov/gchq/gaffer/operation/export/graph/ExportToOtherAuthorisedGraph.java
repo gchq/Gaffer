@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Collections;
 import java.util.List;
 
-public class ExportToOtherPredefinedGraph<T> implements Operation, ExportTo<T> {
+public class ExportToOtherAuthorisedGraph<T> implements Operation, ExportTo<T> {
 
     @Required
     private String graphId;
@@ -85,10 +85,10 @@ public class ExportToOtherPredefinedGraph<T> implements Operation, ExportTo<T> {
         return (TypeReference) new TypeReferenceImpl.Object();
     }
 
-    public static final class Builder<T> extends BaseBuilder<ExportToOtherPredefinedGraph<T>, Builder<T>>
-            implements ExportTo.Builder<ExportToOtherPredefinedGraph<T>, T, Builder<T>> {
+    public static final class Builder<T> extends BaseBuilder<ExportToOtherAuthorisedGraph<T>, Builder<T>>
+            implements ExportTo.Builder<ExportToOtherAuthorisedGraph<T>, T, Builder<T>> {
         public Builder() {
-            super(new ExportToOtherPredefinedGraph<>());
+            super(new ExportToOtherAuthorisedGraph<>());
         }
 
         public Builder<T> graphId(final String graphId) {

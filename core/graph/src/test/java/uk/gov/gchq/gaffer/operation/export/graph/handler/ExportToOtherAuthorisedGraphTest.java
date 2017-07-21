@@ -43,7 +43,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class ExportToOtherPredefinedGraphTest {
+public class ExportToOtherAuthorisedGraphTest {
 
     private static final String GRAPH_ID = "graphId";
     private static final String STORE_PROPS_ID = "storePropsId";

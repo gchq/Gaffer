@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.operation.export.graph.handler;
 
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherPredefinedGraph;
+import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherAuthorisedGraph;
 import uk.gov.gchq.gaffer.operation.export.graph.OtherGraphExporter;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -31,7 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ExportToOtherPredefinedGraphHandler extends ExportToHandler<ExportToOtherPredefinedGraph, OtherGraphExporter> {
+public class ExportToOtherAuthorisedGraphHandler extends ExportToHandler<ExportToOtherAuthorisedGraph, OtherGraphExporter> {
 
     private Map<String, List<String>> idAuths = new HashMap<>();
 
@@ -53,11 +53,11 @@ public class ExportToOtherPredefinedGraphHandler extends ExportToHandler<ExportT
     }
 
     @Override
-    protected OtherGraphExporter createExporter(final ExportToOtherPredefinedGraph export, final Context context, final Store store) {
+    protected OtherGraphExporter createExporter(final ExportToOtherAuthorisedGraph export, final Context context, final Store store) {
         return new OtherGraphExporter(context.getUser(), context.getJobId(), createGraph(export, context, store));
     }
 
-    protected Graph createGraph(final ExportToOtherPredefinedGraph export, final Context context, final Store store) {
+    protected Graph createGraph(final ExportToOtherAuthorisedGraph export, final Context context, final Store store) {
         final String exportGraphId = export.getGraphId();
         final List<String> exportParentSchemaIds = export.getParentSchemaIds();
         final String exportParentStorePropertiesId = export.getParentStorePropertiesId();
