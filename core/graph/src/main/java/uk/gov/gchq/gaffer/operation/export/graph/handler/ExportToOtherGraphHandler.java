@@ -39,7 +39,6 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
 
     @Override
     protected OtherGraphExporter createExporter(final ExportToOtherGraph export, final Context context, final Store store) {
-
         return new OtherGraphExporter(context.getUser(),
                                       context.getJobId(),
                                       createGraph(export, store));
@@ -64,7 +63,6 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
 
     private Graph createGraphAfterResolvingSchemaAndProperties(final ExportToOtherGraph<?> export, final Store store) {
         StoreProperties storeProperties = resolveStoreProperties(export, store);
-
         Schema schema = resolveSchema(export, store);
 
         return new Builder()
