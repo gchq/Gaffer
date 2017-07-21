@@ -17,13 +17,10 @@
 package uk.gov.gchq.gaffer.operation.export.graph;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.collect.Lists;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.ExportTo;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
-import java.util.Collections;
-import java.util.List;
 
 public class ExportToOtherAuthorisedGraph<T> implements Operation, ExportTo<T> {
 
@@ -32,7 +29,7 @@ public class ExportToOtherAuthorisedGraph<T> implements Operation, ExportTo<T> {
 
     private T input;
 
-    private List<String> parentSchemaIds;
+    private String parentSchemaId;
 
     private String parentStorePropertiesId;
 
@@ -54,12 +51,12 @@ public class ExportToOtherAuthorisedGraph<T> implements Operation, ExportTo<T> {
         this.input = input;
     }
 
-    public List<String> getParentSchemaIds() {
-        return parentSchemaIds;
+    public String getParentSchemaId() {
+        return parentSchemaId;
     }
 
-    public void setParentSchemaIds(final List<String> parentSchemaId) {
-        this.parentSchemaIds = parentSchemaIds;
+    public void setParentSchemaId(final String parentSchemaId) {
+        this.parentSchemaId = parentSchemaId;
     }
 
     public String getParentStorePropertiesId() {
@@ -101,12 +98,8 @@ public class ExportToOtherAuthorisedGraph<T> implements Operation, ExportTo<T> {
             return _self();
         }
 
-        public Builder<T> parentSchemaId(final String... parentSchemaIds) {
-            if (null == _getOp().getParentSchemaIds()) {
-                _getOp().setParentSchemaIds(Lists.newArrayList(parentSchemaIds));
-            } else {
-                Collections.addAll(_getOp().getParentSchemaIds(), parentSchemaIds);
-            }
+        public Builder<T> parentSchemaIds(final String parentSchemaId) {
+            _getOp().setParentSchemaId(parentSchemaId);
             return _self();
         }
 

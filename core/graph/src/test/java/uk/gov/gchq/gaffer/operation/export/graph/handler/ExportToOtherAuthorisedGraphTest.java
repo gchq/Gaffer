@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.export.graph.handler;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -54,7 +55,7 @@ public class ExportToOtherAuthorisedGraphTest {
     private final Store store = mock(Store.class);
     private final User user = new User.Builder().opAuths("auth1", "auth2").build();
     private final Context context = new Context(user);
-    private Schema schema;
+    private Schema schema = new Schema.Builder().id(SCHEMA_ID).build();
     private StoreProperties storeProperties;
     private Map<String, List<String>> idAuths = new HashMap<>();
 
@@ -64,12 +65,15 @@ public class ExportToOtherAuthorisedGraphTest {
         if (new File(TEST_FILE_PATH).exists()) {
             FileUtils.forceDelete(new File(TEST_FILE_PATH));
         }
+        storeProperties = new StoreProperties(Paths.get("src/test/resources/store.properties"));
+        storeProperties.setId(STORE_PROPS_ID);
     }
 
     @Test
     public void shouldThrowExceptionWhenExportingToSameGraph() {
         // Given
         given(store.getGraphId()).willReturn(GRAPH_ID);
+        given(store.getGraphLibrary()).willReturn(graphLibrary);
         final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder<>()
                 .graphId(GRAPH_ID)
                 .build();
@@ -87,9 +91,6 @@ public class ExportToOtherAuthorisedGraphTest {
     @Test
     public void shouldCreateGraphWithGraphIdInLibraryAndAuths() {
         // Given
-        schema = new Schema.Builder().id(SCHEMA_ID).build();
-        storeProperties = new StoreProperties(Paths.get("src/test/resources/store.properties"));
-        storeProperties.setId(STORE_PROPS_ID);
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
         given(store.getGraphId()).willReturn(GRAPH_ID);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
@@ -109,5 +110,143 @@ public class ExportToOtherAuthorisedGraphTest {
         assertEquals(GRAPH_ID + 1, graph.getGraphId());
         assertEquals(schema, graph.getSchema());
         assertEquals(storeProperties, graph.getStoreProperties());
+    }
+
+    @Test
+    public void shouldCreateGraphWithParentSchemaIdAndStorePropertiesIdAndAuths() {
+        // Given
+        Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
+        graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
+        graphLibrary.addSchema(SCHEMA_ID + 1, schema1);
+        given(store.getGraphId()).willReturn(GRAPH_ID);
+        given(store.getGraphLibrary()).willReturn(graphLibrary);
+        List<String> opAuths = Lists.newArrayList("auth1");
+        idAuths.put(GRAPH_ID + 2, opAuths);
+        idAuths.put(SCHEMA_ID + 1, opAuths);
+        idAuths.put(STORE_PROPS_ID, opAuths);
+        final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder<>()
+                .graphId(GRAPH_ID + 2)
+                .parentSchemaIds(SCHEMA_ID + 1)
+                .parentStorePropertiesId(STORE_PROPS_ID)
+                .build();
+        final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
+        handler.setIdAuths(idAuths);
+
+        // When
+        Graph graph = handler.createGraph(export, context, store);
+
+        // Then
+        assertEquals(GRAPH_ID + 2, graph.getGraphId());
+        assertEquals(schema1, graph.getSchema());
+        assertEquals(storeProperties, graph.getStoreProperties());
+    }
+
+    @Test
+    public void shouldThrowExceptionWithParentSchemaIdAndStorePropertiesIdAndNoGraphAuths() {
+        // Given
+        Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
+        graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
+        graphLibrary.addSchema(SCHEMA_ID + 1, schema1);
+        given(store.getGraphId()).willReturn(GRAPH_ID);
+        given(store.getGraphLibrary()).willReturn(graphLibrary);
+        List<String> opAuths = Lists.newArrayList("auth1");
+        idAuths.put(SCHEMA_ID + 1, opAuths);
+        idAuths.put(STORE_PROPS_ID, opAuths);
+        final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder<>()
+                .graphId(GRAPH_ID + 2)
+                .parentSchemaIds(SCHEMA_ID + 1)
+                .parentStorePropertiesId(STORE_PROPS_ID)
+                .build();
+        final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
+        handler.setIdAuths(idAuths);
+
+        // When / Then
+        try {
+            handler.createGraph(export, context, store);
+            fail("Exception expected");
+        } catch (IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("User is not authorised to export using graph id"));
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionWithParentSchemaIdAndStorePropertiesIdAndNoSchemaAuths() {
+        // Given
+        Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
+        graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
+        graphLibrary.addSchema(SCHEMA_ID + 1, schema1);
+        given(store.getGraphId()).willReturn(GRAPH_ID);
+        given(store.getGraphLibrary()).willReturn(graphLibrary);
+        List<String> opAuths = Lists.newArrayList("auth1");
+        idAuths.put(GRAPH_ID + 2, opAuths);
+        idAuths.put(STORE_PROPS_ID, opAuths);
+        final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder<>()
+                .graphId(GRAPH_ID + 2)
+                .parentSchemaIds(SCHEMA_ID + 1)
+                .parentStorePropertiesId(STORE_PROPS_ID)
+                .build();
+        final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
+        handler.setIdAuths(idAuths);
+
+        // When / Then
+        try {
+            handler.createGraph(export, context, store);
+            fail("Exception expected");
+        } catch (IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("User is not authorised to export using parentSchemaId"));
+        }
+    }
+
+    @Test
+    public void shouldCreateGraphWithParentSchemaIdAndStorePropertiesIdAndNoStorePropsAuths() {
+        // Given
+        Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
+        graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
+        graphLibrary.addSchema(SCHEMA_ID + 1, schema1);
+        given(store.getGraphId()).willReturn(GRAPH_ID);
+        given(store.getGraphLibrary()).willReturn(graphLibrary);
+        List<String> opAuths = Lists.newArrayList("auth1");
+        idAuths.put(GRAPH_ID + 2, opAuths);
+        idAuths.put(SCHEMA_ID + 1, opAuths);
+        final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder<>()
+                .graphId(GRAPH_ID + 2)
+                .parentSchemaIds(SCHEMA_ID + 1)
+                .parentStorePropertiesId(STORE_PROPS_ID)
+                .build();
+        final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
+        handler.setIdAuths(idAuths);
+
+        // When / Then
+        try {
+            handler.createGraph(export, context, store);
+            fail("Exception expected");
+        } catch (IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("User is not authorised to export using parentStorePropertiesId"));
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenGraphIdCannotBeFound() {
+        // Given
+        schema = new Schema.Builder().id(SCHEMA_ID).build();
+        given(store.getGraphId()).willReturn(GRAPH_ID);
+        given(store.getGraphLibrary()).willReturn(graphLibrary);
+        List<String> graphID1OpAuths = new ArrayList<>();
+        graphID1OpAuths.add("auth1");
+        idAuths.put(GRAPH_ID + 1, graphID1OpAuths);
+        final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder<>()
+                .graphId(GRAPH_ID + 1)
+                .build();
+        final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
+        handler.setIdAuths(idAuths);
+
+        // When / Then
+        try {
+            handler.createGraph(export, context, store);
+            fail("Exception expected");
+        } catch (IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("GraphLibrary cannot be found with graphId"));
+        }
+
     }
 }

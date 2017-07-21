@@ -59,37 +59,34 @@ public class ExportToOtherAuthorisedGraphHandler extends ExportToHandler<ExportT
 
     protected Graph createGraph(final ExportToOtherAuthorisedGraph export, final Context context, final Store store) {
         final String exportGraphId = export.getGraphId();
-        final List<String> exportParentSchemaIds = export.getParentSchemaIds();
+        final String exportParentSchemaId = export.getParentSchemaId();
         final String exportParentStorePropertiesId = export.getParentStorePropertiesId();
         final GraphLibrary graphLibrary = store.getGraphLibrary();
 
-        ValidationResult validationResult = validate(exportGraphId, exportParentSchemaIds, exportParentStorePropertiesId, graphLibrary, store);
+        ValidationResult validationResult = validate(exportGraphId, exportParentSchemaId, exportParentStorePropertiesId, graphLibrary, store);
         if (!validationResult.isValid()) {
             throw new IllegalArgumentException(validationResult.getErrorString());
         }
 
-        if (export.getGraphId() != null && exportParentSchemaIds == null && exportParentStorePropertiesId == null) {
-            if (isAuthorised(context.getUser(), idAuths.get(exportGraphId))) {
-                return buildGraph(graphLibrary, exportGraphId, null, null, store);
-            } else {
-                throw new IllegalArgumentException("User is not authorised to export using graph id: " + exportGraphId);
-            }
-        } else if (export.getGraphId() != null && export.getParentSchemaIds() != null && export.getParentStorePropertiesId() != null) {
-            if (isAuthorised(context.getUser(), idAuths.get(exportGraphId))) {
-                if (isAuthorised(context.getUser(), idAuths.get(exportParentSchemaIds))) {
-                    if (isAuthorised(context.getUser(), idAuths.get(exportParentStorePropertiesId))) {
-                        return buildGraph(graphLibrary, exportGraphId, exportParentSchemaIds, exportParentStorePropertiesId, store);
-                    } else {
-                        throw new IllegalArgumentException("User is not authorised to export using parentStorePropertiesId: " + exportParentStorePropertiesId);
-                    }
+        if (!isAuthorised(context.getUser(), idAuths.get(exportGraphId))) {
+            throw new IllegalArgumentException("User is not authorised to export using graph id: " + exportGraphId);
+        }
+
+
+        if (export.getGraphId() != null && exportParentSchemaId == null && exportParentStorePropertiesId == null) {
+            return buildGraph(graphLibrary, exportGraphId, null, null, store);
+        } else if (exportGraphId != null && exportParentSchemaId != null && exportParentStorePropertiesId != null) {
+            if (isAuthorised(context.getUser(), idAuths.get(exportParentSchemaId))) {
+                if (isAuthorised(context.getUser(), idAuths.get(exportParentStorePropertiesId))) {
+                    return buildGraph(graphLibrary, exportGraphId, exportParentSchemaId, exportParentStorePropertiesId, store);
                 } else {
-                    throw new IllegalArgumentException("User is not authorised to export using parent Schema id(s): " + exportParentSchemaIds);
+                    throw new IllegalArgumentException("User is not authorised to export using parentStorePropertiesId: " + exportParentStorePropertiesId);
                 }
             } else {
-                throw new IllegalArgumentException("User is not authorised to export using graph id: " + exportGraphId);
+                throw new IllegalArgumentException("User is not authorised to export using parentSchemaId(s): " + exportParentSchemaId);
             }
         }
-        throw new IllegalArgumentException("Export failed, sorry");
+        throw new IllegalArgumentException("Export failed with input:\n graphId:" + exportGraphId);
     }
 
     private boolean isAuthorised(User user, List<String> auths) {
@@ -104,7 +101,7 @@ public class ExportToOtherAuthorisedGraphHandler extends ExportToHandler<ExportT
     }
 
     private Graph buildGraph(final GraphLibrary graphLibrary, final String graphId,
-                             final List<String> parentSchemaIds, final String parentStorePropertiesId,
+                             final String parentSchemaId, final String parentStorePropertiesId,
                              final Store store) {
         if (graphLibrary == null) {
             throw new IllegalArgumentException("graphLibrary is null");
@@ -115,30 +112,17 @@ public class ExportToOtherAuthorisedGraphHandler extends ExportToHandler<ExportT
                     .library(graphLibrary)
                     .build();
         }
+
         StoreProperties storeProperties = null;
         if (parentStorePropertiesId != null) {
             storeProperties = graphLibrary.getProperties(parentStorePropertiesId);
         }
-        if (storeProperties == null) {
-            storeProperties = store.getProperties();
-        }
 
         Schema schema = null;
-        if (parentSchemaIds != null) {
-            if (parentSchemaIds.size() == 1) {
-                schema = graphLibrary.getSchema(parentSchemaIds.get(0));
-            } else {
-                final Schema.Builder schemaBuilder = new Schema.Builder();
-                for (final String id : parentSchemaIds) {
-                    schemaBuilder.merge(graphLibrary.getSchema(id));
-                }
-                schema = schemaBuilder.build();
-            }
+        if (parentSchemaId != null) {
+            schema = graphLibrary.getSchema(parentSchemaId);
         }
 
-        if (null == schema) {
-            schema = store.getSchema();
-        }
 
         return new Graph.Builder()
                 .graphId(graphId)
@@ -149,7 +133,7 @@ public class ExportToOtherAuthorisedGraphHandler extends ExportToHandler<ExportT
     }
 
     public static ValidationResult validate(final String graphId,
-                                            final List<String> parentSchemaIds,
+                                            final String parentSchemaId,
                                             final String parentStorePropertiesId,
                                             final GraphLibrary graphLibrary,
                                             final Store store) {
@@ -162,28 +146,33 @@ public class ExportToOtherAuthorisedGraphHandler extends ExportToHandler<ExportT
         if (null == graphLibrary) {
             // GraphLibrary is required as only a graphId, a parentStorePropertiesId or a parentSchemaId can be given
             result.addError("GraphLibrary is null");
-        } else if (graphLibrary.exists(graphId)) {
-            if (null != parentSchemaIds) {
+        }
+        if (graphLibrary.exists(graphId)) {
+            if (null != parentSchemaId) {
                 result.addError("GraphId " + graphId + " already exists so you cannot use a different schema. Do not set the parentSchemaIds field");
             }
             if (null != parentStorePropertiesId) {
                 result.addError("GraphId " + graphId + " already exists so you cannot use different store properties. Do not set the parentStorePropertiesId field");
             }
-        } else {
-            if (null != parentSchemaIds) {
-                for (final String exportParentSchemaId : parentSchemaIds) {
-                    if (null == graphLibrary.getSchema(exportParentSchemaId)) {
-                        result.addError("Schema could not be found in the graphLibrary with id: " + parentSchemaIds);
-                    }
-                }
-            }
-            if (null != parentStorePropertiesId) {
-                if (null == graphLibrary.getProperties(parentStorePropertiesId)) {
-                    result.addError("Store properties could not be found in the graphLibrary with id: " + parentStorePropertiesId);
-                }
+        } else if (!graphLibrary.exists(graphId) && parentSchemaId == null && parentStorePropertiesId == null) {
+            result.addError("GraphLibrary cannot be found with graphId: " + graphId);
+        }
+        if (parentSchemaId != null && parentStorePropertiesId == null) {
+            result.addError("parent StoreProperties id must be specified with parent Schema id");
+        }
+        if (parentSchemaId == null && parentStorePropertiesId != null) {
+            result.addError("parent Schema id must be specified with parent StoreProperties id");
+        }
+        if (parentSchemaId != null) {
+            if (null == graphLibrary.getSchema(parentSchemaId)) {
+                result.addError("Schema could not be found in the graphLibrary with id: " + parentSchemaId);
             }
         }
-
+        if (parentStorePropertiesId != null) {
+            if (null == graphLibrary.getProperties(parentStorePropertiesId)) {
+                result.addError("Store properties could not be found in the graphLibrary with id: " + parentStorePropertiesId);
+            }
+        }
         return result;
     }
 }
