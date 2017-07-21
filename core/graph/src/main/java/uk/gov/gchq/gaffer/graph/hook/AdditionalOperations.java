@@ -16,17 +16,21 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class AdditionalOperations {
-    private List<Operation> start;
-    private List<Operation> end;
-    private Map<String, List<Operation>> before;
-    private Map<String, List<Operation>> after;
+    private static final JSONSerialiser SERIALISER = new JSONSerialiser();
+    private List<byte[]> start;
+    private List<byte[]> end;
+    private Map<String, List<byte[]>> before;
+    private Map<String, List<byte[]>> after;
 
     public AdditionalOperations() {
         start = new ArrayList<>();
@@ -36,50 +40,93 @@ public class AdditionalOperations {
     }
 
     public List<Operation> getStart() {
-        return start;
+        return deserialiseOperations(start);
     }
 
     public void setStart(final List<Operation> start) {
-        if (start == null) {
-            this.start = new ArrayList<>();
-        } else {
-            this.start = start;
-        }
+        this.start = serialiseOperations(start);
     }
 
     public List<Operation> getEnd() {
-        return end;
+        return deserialiseOperations(end);
     }
 
     public void setEnd(final List<Operation> end) {
-        if (end == null) {
-            this.end = new ArrayList<>();
-        } else {
-            this.end = end;
-        }
+        this.end = serialiseOperations(end);
     }
 
     public Map<String, List<Operation>> getBefore() {
-        return before;
+        return deserialiseOperations(before);
     }
 
     public void setBefore(final Map<String, List<Operation>> before) {
-        if (before == null) {
-            this.before = new HashMap<>();
-        } else {
-            this.before = before;
-        }
+        this.before = serialiseOperations(before);
     }
 
     public Map<String, List<Operation>> getAfter() {
-        return after;
+        return deserialiseOperations(after);
     }
 
     public void setAfter(final Map<String, List<Operation>> after) {
-        if (after == null) {
-            this.after = new HashMap<>();
-        } else {
-            this.after = after;
+        this.after = serialiseOperations(after);
+    }
+
+    private Map<String, List<byte[]>> serialiseOperations(final Map<String, List<Operation>> ops) {
+        if (null == ops || ops.isEmpty()) {
+            return Collections.emptyMap();
         }
+
+        final Map<String, List<byte[]>> serialisedOps = new HashMap<>(ops.size());
+        for (final Map.Entry<String, List<Operation>> entry : ops.entrySet()) {
+            serialisedOps.put(entry.getKey(), serialiseOperations(entry.getValue()));
+        }
+
+        return serialisedOps;
+    }
+
+    private Map<String, List<Operation>> deserialiseOperations(final Map<String, List<byte[]>> serialisedOps) {
+        if (null == serialisedOps || serialisedOps.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        final Map<String, List<Operation>> ops = new HashMap<>(serialisedOps.size());
+        for (final Map.Entry<String, List<byte[]>> entry : serialisedOps.entrySet()) {
+            ops.put(entry.getKey(), deserialiseOperations(entry.getValue()));
+        }
+
+        return ops;
+    }
+
+    private List<byte[]> serialiseOperations(final List<Operation> ops) {
+        if (null == ops || ops.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        final List<byte[]> serialisedOps = new ArrayList<>(ops.size());
+        for (final Operation op : ops) {
+            try {
+                serialisedOps.add(SERIALISER.serialise(op));
+            } catch (final SerialisationException e) {
+                throw new RuntimeException("Unable to serialise operation: " + op.toString(), e);
+            }
+        }
+
+        return serialisedOps;
+    }
+
+    private List<Operation> deserialiseOperations(final List<byte[]> serialisedOps) {
+        if (null == serialisedOps || serialisedOps.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        final List<Operation> ops = new ArrayList<>(serialisedOps.size());
+        for (final byte[] bytes : serialisedOps) {
+            try {
+                ops.add(SERIALISER.deserialise(bytes, Operation.class));
+            } catch (final SerialisationException e) {
+                throw new RuntimeException("Unable to deserialise operation", e);
+            }
+        }
+        return ops;
     }
 }
