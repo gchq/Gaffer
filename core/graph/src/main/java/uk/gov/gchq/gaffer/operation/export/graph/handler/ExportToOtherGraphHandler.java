@@ -68,24 +68,36 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
         } else if (graphLibrary.exists(exportGraphId)) {
             rtn = getGraphWithLibraryAndID(exportGraphId, graphLibrary);
         } else {
-            StoreProperties storeProperties = resolveStoreProperties(exportStoreProperties,
-                                                                     exportParentStorePropertiesId,
-                                                                     graphLibrary,
-                                                                     storeStoreProperties);
-
-            Schema schema = resolveSchema(exportSchema,
-                                          exportParentSchemaIds,
-                                          graphLibrary,
-                                          storeSchema);
-
-            rtn = new Graph.Builder()
-                    .graphId(exportGraphId)
-                    .library(graphLibrary)
-                    .addSchema(schema)
-                    .storeProperties(storeProperties)
-                    .build();
-
+            rtn = getGraphAfterResolvingSchemaAndProperties(exportGraphId,
+                                                            exportSchema,
+                                                            exportStoreProperties,
+                                                            exportParentSchemaIds,
+                                                            exportParentStorePropertiesId,
+                                                            graphLibrary,
+                                                            storeStoreProperties,
+                                                            storeSchema);
         }
+        return rtn;
+    }
+
+    private Graph getGraphAfterResolvingSchemaAndProperties(final String exportGraphId, final Schema exportSchema, final StoreProperties exportStoreProperties, final List<String> exportParentSchemaIds, final String exportParentStorePropertiesId, final GraphLibrary graphLibrary, final StoreProperties storeStoreProperties, final Schema storeSchema) {
+        final Graph rtn;
+        StoreProperties storeProperties = resolveStoreProperties(exportStoreProperties,
+                                                                 exportParentStorePropertiesId,
+                                                                 graphLibrary,
+                                                                 storeStoreProperties);
+
+        Schema schema = resolveSchema(exportSchema,
+                                      exportParentSchemaIds,
+                                      graphLibrary,
+                                      storeSchema);
+
+        rtn = new Builder()
+                .graphId(exportGraphId)
+                .library(graphLibrary)
+                .addSchema(schema)
+                .storeProperties(storeProperties)
+                .build();
         return rtn;
     }
 
