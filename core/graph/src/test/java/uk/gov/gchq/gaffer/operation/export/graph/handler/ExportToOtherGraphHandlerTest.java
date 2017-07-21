@@ -44,7 +44,7 @@ public class ExportToOtherGraphHandlerTest {
     private static final String GRAPH_ID = "graphId";
     private static final String STORE_PROPS_ID = "storePropsId";
     private static final String SCHEMA_ID = "schemaId";
-    private static final String TEST_FILE_PATH = "src/test/resources/graphLibrary";
+    private static final String TEST_FILE_PATH = "src/test/resources/exportToOtherGraphGraphLibrary";
     private static final String ID = "gaffer.store.id";
     private final GraphLibrary graphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
     private final Store store = mock(Store.class);
