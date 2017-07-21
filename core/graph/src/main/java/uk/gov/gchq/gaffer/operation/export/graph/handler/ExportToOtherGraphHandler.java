@@ -63,19 +63,16 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
     }
 
     private Graph createGraphAfterResolvingSchemaAndProperties(final ExportToOtherGraph<?> export, final Store store) {
-        final Graph rtn;
-
         StoreProperties storeProperties = resolveStoreProperties(export, store);
 
         Schema schema = resolveSchema(export, store);
 
-        rtn = new Builder()
+        return new Builder()
                 .graphId(export.getGraphId())
                 .library(store.getGraphLibrary())
                 .addSchema(schema)
                 .storeProperties(storeProperties)
                 .build();
-        return rtn;
     }
 
     private StoreProperties resolveStoreProperties(final ExportToOtherGraph<?> export, final Store store) {
