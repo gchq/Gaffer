@@ -50,10 +50,12 @@ public final class CollectionUtil {
 
     public static boolean containsAny(final Collection collection, final Object[] objects) {
         boolean result = false;
-        for (final Object object : objects) {
-            if (collection.contains(object)) {
-                result = true;
-                break;
+        if (null != collection && null != objects) {
+            for (final Object object : objects) {
+                if (collection.contains(object)) {
+                    result = true;
+                    break;
+                }
             }
         }
 

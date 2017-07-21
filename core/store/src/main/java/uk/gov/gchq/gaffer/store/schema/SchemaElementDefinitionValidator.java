@@ -133,7 +133,10 @@ public class SchemaElementDefinitionValidator {
         final ValidationResult result = new ValidationResult();
 
         if (null == elementDef.getPropertyMap() || elementDef.getPropertyMap().isEmpty()) {
-            // if no properties then no aggregation is necessary
+            // if no properties then no aggregation should be provided
+            if (null != aggregator && !aggregator.getComponents().isEmpty()) {
+                result.addError("Groups with no properties should not have any aggregators");
+            }
             return result;
         }
 
@@ -150,6 +153,7 @@ public class SchemaElementDefinitionValidator {
         }
 
         // if aggregate functions are defined then check all properties are aggregated
+        // also check that no identifiers are selected
         final Set<String> aggregatedProperties = new HashSet<>();
         if (aggregator.getComponents() != null) {
             for (final TupleAdaptedBinaryOperator<String, ?> adaptedFunction : aggregator.getComponents()) {
@@ -158,7 +162,13 @@ public class SchemaElementDefinitionValidator {
                     for (final String key : selection) {
                         final IdentifierType idType = IdentifierType.fromName(key);
                         if (null == idType) {
-                            aggregatedProperties.add(key);
+                            if (elementDef.containsProperty(key)) {
+                                aggregatedProperties.add(key);
+                            } else {
+                                result.addError("Unknown property used in an aggregator: " + key);
+                            }
+                        } else {
+                            result.addError("Identifiers cannot be selected for aggregation: " + idType.name());
                         }
                     }
                     if (selection.length > 1) {

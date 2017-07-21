@@ -24,11 +24,14 @@ import uk.gov.gchq.gaffer.function.ExampleTuple2BinaryOperator;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.n.Tuple3;
+import java.util.List;
 import java.util.function.BinaryOperator;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -307,5 +310,35 @@ public class ElementAggregatorTest {
 
         // Then
         assertEquals(props2, state);
+    }
+
+    @Test
+    public void shouldReturnUnmodifiableComponentsWhenLocked() {
+        // Given
+        final ElementAggregator aggregator = new ElementAggregator();
+
+        // When
+        aggregator.lock();
+        final List<TupleAdaptedBinaryOperator<String, ?>> components = aggregator.getComponents();
+
+        // Then
+        try {
+            components.add(null);
+            fail("Exception expected");
+        } catch (final UnsupportedOperationException e) {
+            assertNotNull(e);
+        }
+    }
+
+    @Test
+    public void shouldReturnModifiableComponentsWhenNotLocked() {
+        // Given
+        final ElementAggregator aggregator = new ElementAggregator();
+
+        // When
+        final List<TupleAdaptedBinaryOperator<String, ?>> components = aggregator.getComponents();
+
+        // Then - no exceptions
+        components.add(null);
     }
 }
