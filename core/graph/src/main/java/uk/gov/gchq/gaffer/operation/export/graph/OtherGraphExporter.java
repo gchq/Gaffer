@@ -37,6 +37,7 @@ public class OtherGraphExporter implements Exporter {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void add(final String key, final Iterable<?> elements) throws OperationException {
         if (null == elements) {
             return;

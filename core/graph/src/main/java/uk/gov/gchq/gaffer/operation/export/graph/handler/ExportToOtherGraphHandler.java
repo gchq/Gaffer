@@ -57,14 +57,15 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
         final StoreProperties storeStoreProperties = store.getProperties();
         final Schema storeSchema = store.getSchema();
 
-        ValidationResult validationResult = validate(exportGraphId, exportParentSchemaIds, exportParentStorePropertiesId,
+        final ValidationResult validationResult = validate(exportGraphId, exportParentSchemaIds, exportParentStorePropertiesId,
                 graphLibrary, exportSchema, exportStoreProperties, store);
+
         if (!validationResult.isValid()) {
             throw new IllegalArgumentException(validationResult.getErrorString());
         }
 
-        StoreProperties storeProperties;
-        Schema schema;
+        StoreProperties storeProperties = null;
+        Schema schema = null;
 
         // No store graph library so we create a new Graph
         if (null == graphLibrary) {
@@ -84,49 +85,47 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
                     .library(graphLibrary)
                     .build();
         } else {
-            storeProperties = null;
-            if (export.getParentStorePropertiesId() != null) {
-                storeProperties = graphLibrary.getProperties(export.getParentStorePropertiesId());
+            if (exportParentStorePropertiesId != null) {
+                storeProperties = graphLibrary.getProperties(exportParentStorePropertiesId);
             }
-            if (export.getStoreProperties() != null) {
+            if (exportStoreProperties != null) {
                 if (storeProperties == null) {
-                    storeProperties = export.getStoreProperties();
+                    storeProperties = exportStoreProperties;
                 } else {
                     // delete the old properties id as we are about to modify the properties
                     storeProperties.getProperties().remove(ID);
-                    storeProperties.getProperties().putAll(export.getStoreProperties().getProperties());
+                    storeProperties.getProperties().putAll(exportStoreProperties.getProperties());
                 }
             }
             if (storeProperties == null) {
-                storeProperties = store.getProperties();
+                storeProperties = storeStoreProperties;
             }
 
-            schema = null;
-            if (export.getParentSchemaIds() != null) {
-                if (export.getParentSchemaIds().size() == 1) {
-                    schema = graphLibrary.getSchema(export.getParentSchemaIds().get(0));
+            if (exportParentSchemaIds != null) {
+                if (exportParentSchemaIds.size() == 1) {
+                    schema = graphLibrary.getSchema(exportParentSchemaIds.get(0));
                 } else {
                     final Schema.Builder schemaBuilder = new Schema.Builder();
-                    for (final String id : export.getParentSchemaIds()) {
+                    for (final String id : exportParentSchemaIds) {
                         schemaBuilder.merge(graphLibrary.getSchema(id));
                     }
                     schema = schemaBuilder.build();
                 }
             }
-            if (export.getSchema() != null) {
+            if (exportSchema != null) {
                 if (schema == null) {
-                    schema = export.getSchema();
+                    schema = exportSchema;
                 } else {
                     // delete the old schema id as we are about to modify the schema
                     schema = new Schema.Builder()
                             .merge(schema)
                             .id(null)
-                            .merge(export.getSchema())
+                            .merge(exportSchema)
                             .build();
                 }
             }
             if (null == schema) {
-                schema = store.getSchema();
+                schema = storeSchema;
             }
         }
 
