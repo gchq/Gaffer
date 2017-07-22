@@ -26,6 +26,8 @@ import uk.gov.gchq.gaffer.store.Store;
  * All instances of an OperationHandler must be stateless as they are reused for all concurrent operations.
  */
 public interface OperationHandler<OP extends Operation> {
+    String SKIP_FAILED_FEDERATED_STORE_EXECUTE = "skipFailedFederatedStoreExecute";
+
     /**
      * Execute the given {@link uk.gov.gchq.gaffer.operation.Operation}.
      *

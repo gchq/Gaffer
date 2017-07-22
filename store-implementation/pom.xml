@@ -31,5 +31,6 @@
         <module>map-store</module>
         <module>proxy-store</module>
         <module>hbase-store</module>
+        <module>federated-store</module>
     </modules>
 </project>

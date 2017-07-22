@@ -116,6 +116,19 @@ public class OperationChain<OUT> implements Closeable {
         }
     }
 
+    @Override
+    public boolean equals(final Object obj) {
+        return obj != null
+                && obj instanceof OperationChain
+                && (this.getOperations() == null) == (((OperationChain) obj).getOperations() == null)
+                && (this.getOperations() == null) ? true : this.getOperations().equals(((OperationChain) obj).getOperations());
+    }
+
+    @Override
+    public int hashCode() {
+        return (operations == null) ? 0 : operations.hashCode();
+    }
+
     /**
      * A <code>Builder</code> is a type safe way of building an {@link uk.gov.gchq.gaffer.operation.OperationChain}.
      * The builder instance is updated after each method call so it is best to chain the method calls together.
