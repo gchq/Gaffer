@@ -81,6 +81,7 @@ public class FederatedAddAllElmentsHandlerTest {
 
     private Graph getGraphWithMockStore(final Store mockStore) throws uk.gov.gchq.gaffer.operation.OperationException {
         return new Graph.Builder()
+                .graphId("testGraphId")
                 .store(mockStore)
                 .build();
     }

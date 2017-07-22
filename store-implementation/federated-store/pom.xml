@@ -23,7 +23,7 @@
     <parent>
         <artifactId>store-implementation</artifactId>
         <groupId>uk.gov.gchq.gaffer</groupId>
-        <version>0.7.6-SNAPSHOT</version>
+        <version>0.7.8-SNAPSHOT</version>
     </parent>
 
     <artifactId>federated-store</artifactId>
@@ -50,10 +50,23 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>map-store</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>operation</artifactId>
             <version>${project.parent.version}</version>
             <scope>test</scope>
             <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>integration-test</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
