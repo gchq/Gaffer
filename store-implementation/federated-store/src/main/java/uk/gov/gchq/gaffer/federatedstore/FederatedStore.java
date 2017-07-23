@@ -18,15 +18,17 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddElementsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllElementsHandler;
@@ -37,7 +39,9 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveG
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedSortHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.Graph.Builder;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
@@ -58,12 +62,14 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class FederatedStore extends Store {
     public static final String GAFFER_FEDERATEDSTORE = "gaffer.federatedstore.";
@@ -74,15 +80,34 @@ public class FederatedStore extends Store {
     public static final String USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S = "User is attempting to overwrite a graph within FederatedStore. GraphId:%s";
     public static final String GRAPH_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_USER_SUPPLIED_PROPERTIES = "Graph was not able to be created with the user supplied properties";
     private final Map<String, Graph> graphs = Maps.newHashMap();
+    private Schema schema = new Schema();
+    private Set<StoreTrait> traits = new HashSet<>();
+    public static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
 
     @Override
     public void initialise(final String graphId, final Schema unused, final StoreProperties properties) throws StoreException {
-        getGraphsFrom(properties).forEach(this::add);
-
-        super.initialise(graphId, getMergeSchemas(graphs.values()), properties);
+        super.initialise(graphId, new Schema(), properties);
+        loadGraphs();
     }
 
-    public void add(final Graph graph) {
+    @Override
+    public Schema getSchema() {
+        return schema;
+    }
+
+    public void add(final Graph... graphs) {
+        for (final Graph graph : graphs) {
+            _add(graph);
+        }
+        updateMergedGraphConfig();
+    }
+
+    public void add(final Collection<Graph> graphs) {
+        graphs.forEach(this::_add);
+        updateMergedGraphConfig();
+    }
+
+    private void _add(final Graph graph) {
         if (graphs.containsKey(graph.getGraphId())) {
             throw new IllegalStateException((String.format(USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S, graph.getGraphId())));
         }
@@ -91,18 +116,78 @@ public class FederatedStore extends Store {
 
     public void remove(final String graphId) {
         graphs.remove(graphId);
+        updateMergedGraphConfig();
     }
 
-    private Schema getMergeSchemas(final Iterable<Graph> graphs) {
+    public <OP extends Operation> OP updateOperationForGraph(final OP operation, final Graph graph) {
+        OP resultOp = operation;
+
+        if (operation instanceof OperationView) {
+            final View view = ((OperationView) operation).getView();
+            if (null != view && view.hasGroups()) {
+                try {
+                    //TODO: implement this in a better way
+                    resultOp = JSON_SERIALISER.deserialise(JSON_SERIALISER.serialise(operation), (Class<OP>) operation.getClass());
+                } catch (SerialisationException e) {
+                    throw new RuntimeException("Unable to clone operation", e);
+                }
+                final View validView = createValidView(view, graph.getSchema());
+                if (validView.hasGroups()) {
+                    ((OperationView) resultOp).setView(validView);
+                } else {
+                    resultOp = null;
+                }
+
+            }
+        }
+
+        return resultOp;
+    }
+
+    public View createValidView(final View view, final Schema delegateGraphSchema) {
+        View newView;
+        if (view.hasGroups()) {
+            final View.Builder viewBuilder = new View.Builder().merge(view);
+            viewBuilder.entities(new LinkedHashMap<>());
+            viewBuilder.edges(new LinkedHashMap<>());
+
+            final Set<String> validEntities = new HashSet<>(view.getEntityGroups());
+            final Set<String> validEdges = new HashSet<>(view.getEdgeGroups());
+            validEntities.retainAll(delegateGraphSchema.getEntityGroups());
+            validEdges.retainAll(delegateGraphSchema.getEdgeGroups());
+
+            for (final String entity : validEntities) {
+                viewBuilder.entity(entity, view.getEntity(entity));
+            }
+
+            for (final String edge : validEdges) {
+                viewBuilder.edge(edge, view.getEdge(edge));
+            }
+
+            newView = viewBuilder.build();
+        } else {
+            newView = view;
+        }
+        return newView;
+    }
+
+    private void updateMergedGraphConfig() {
         Schema.Builder schemaBuilder = new Schema.Builder();
-        graphs.forEach(graph -> schemaBuilder.merge(graph.getSchema()));
-        return schemaBuilder.build();
+        final Set<StoreTrait> newTraits = Sets.newHashSet(StoreTrait.values());
+        for (final Graph graph : graphs.values()) {
+            schemaBuilder = schemaBuilder.merge(graph.getSchema());
+            newTraits.retainAll(graph.getStoreTraits());
+        }
+
+        schema = schemaBuilder.build();
+        traits = Collections.unmodifiableSet(newTraits);
     }
 
-    private List<Graph> getGraphsFrom(final StoreProperties properties) {
+    private void loadGraphs() {
         //val = graphID: (propertyValue, schemaValue)
-        Map<String, Graph.Builder> graphIdData = getGraphIdData(properties);
-        return getGraphsFrom(graphIdData.values());
+        Map<String, Graph.Builder> graphIdData = getGraphIdData(getProperties());
+        add(getGraphsFrom(graphIdData.values()));
+        updateMergedGraphConfig();
     }
 
     private ArrayList<Graph> getGraphsFrom(final Iterable<Graph.Builder> graphIdData) {
@@ -188,12 +273,7 @@ public class FederatedStore extends Store {
 
     @Override
     public Set<StoreTrait> getTraits() {
-        return graphs
-                .values()
-                .stream()
-                .flatMap(graph -> graph.getStoreTraits().stream())
-                .filter(storeTrait -> storeTrait != null)
-                .collect(Collectors.toSet());
+        return traits;
     }
 
     @Override
@@ -238,7 +318,7 @@ public class FederatedStore extends Store {
 
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
-        return new FederatedAddElementsHandler();
+        return (OperationHandler) new FederatedOperationHandler();
     }
 
     @Override

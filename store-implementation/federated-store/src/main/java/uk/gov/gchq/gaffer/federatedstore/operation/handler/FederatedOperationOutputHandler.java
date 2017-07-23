@@ -35,17 +35,20 @@ public abstract class FederatedOperationOutputHandler<OP extends Output<O>, O> i
         final Collection<Graph> graphs = ((FederatedStore) store).getGraphs();
         final List<O> results = new ArrayList<>(graphs.size());
         for (final Graph graph : graphs) {
-            O execute = null;
-            try {
-                execute = graph.execute(operation, context.getUser());
-            } catch (Exception e) {
-                if (!(operation instanceof Options)
-                        || !Boolean.valueOf(((Options) operation).getOption(SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
-                    throw new OperationException("Graph failed to execute operation", e);
+            final OP updatedOp = ((FederatedStore) store).updateOperationForGraph(operation, graph);
+            if (null != updatedOp) {
+                O execute = null;
+                try {
+                    execute = graph.execute(updatedOp, context.getUser());
+                } catch (Exception e) {
+                    if (!(updatedOp instanceof Options)
+                            || !Boolean.valueOf(((Options) updatedOp).getOption(SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
+                        throw new OperationException("Graph failed to execute operation", e);
+                    }
                 }
-            }
-            if (execute != null) {
-                results.add(execute);
+                if (execute != null) {
+                    results.add(execute);
+                }
             }
         }
         return mergeResults(results, operation, context, store);
