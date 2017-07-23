@@ -21,7 +21,6 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.Options;
-import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -39,13 +38,12 @@ public class FederatedOperationHandler implements OperationHandler<Operation> {
                     ((AddElements) updatedOp).setSkipInvalidElements(true);
                     ((AddElements) updatedOp).setValidate(true);
                 }
-
                 try {
                     graph.execute(updatedOp, context.getUser());
-                } catch (Exception e) {
+                } catch (final Exception e) {
                     if (!(updatedOp instanceof Options)
                             || !Boolean.valueOf(((Options) updatedOp).getOption(SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
-                        throw new OperationException("Graph failed to execute operation", e);
+                        throw new OperationException("Graph failed to execute operation. Graph: " + graph.getGraphId(), e);
                     }
                 }
             }

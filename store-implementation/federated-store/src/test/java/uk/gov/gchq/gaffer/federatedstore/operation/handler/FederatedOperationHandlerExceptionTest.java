@@ -57,6 +57,7 @@ public class FederatedOperationHandlerExceptionTest {
         given(mockStore.execute(new OperationChain<>(mockOp), testUser)).willThrow(Exception.class);
 
         Graph graph = new Builder()
+                .graphId("testGraphId")
                 .store(mockStore)
                 .build();
         LinkedHashSet<Graph> graphs = new LinkedHashSet<>();

@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStore.GRAPH_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_USER_SUPPLIED_PROPERTIES;
 
@@ -25,11 +27,14 @@ import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 
 public class FederatedStoreTest {
 
@@ -107,10 +112,6 @@ public class FederatedStoreTest {
         federatedProperties.set("gaffer.federatedstore.testGraphId1.schema", "/path/to/schema1.json");
 
         store.initialise(TEST_FEDERATED_STORE_ID, mockSchema, federatedProperties);
-
-
-
-
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -121,5 +122,48 @@ public class FederatedStoreTest {
     @Test()
     public void shouldIsValidationRequired() throws Exception {
         assertFalse(store.isValidationRequired());
+    }
+
+    @Test
+    public void shouldUpdateTraitsWhenNewGraphIsAdded() throws Exception {
+        federatedProperties.set("gaffer.federatedstore.testGraphId1.properties", "testGraphId3.properties");
+        federatedProperties.set("gaffer.federatedstore.testGraphId1.schema", "/path/to/schema1.json");
+
+        store.initialise(TEST_FEDERATED_STORE_ID, mockSchema, federatedProperties);
+
+        //With less Traits
+        Set<StoreTrait> before = store.getTraits();
+
+        store.add(new Graph.Builder()
+                          .graphId("testGraph")
+                          .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, "testGraphId1.properties"))
+                          .addSchema(StreamUtil.openStream(FederatedStoreTest.class, "/path/to/schema2.json"))
+                          .addSchema(StreamUtil.openStream(FederatedStoreTest.class, "/path/to/schema2b.json"))
+                          .build());
+
+        //includes same as before but with more Traits
+        Set<StoreTrait> after = store.getTraits();
+        assertNotEquals(before, after);
+        assertTrue(before.size() < after.size());
+    }
+
+    @Test
+    public void shouldUpdateSchemaWhenNewGraphIsAdded() throws Exception {
+        federatedProperties.set("gaffer.federatedstore.testGraphId1.properties", "testGraphId3.properties");
+        federatedProperties.set("gaffer.federatedstore.testGraphId1.schema", "/path/to/schema1.json");
+
+        store.initialise(TEST_FEDERATED_STORE_ID, mockSchema, federatedProperties);
+
+        Schema before = store.getSchema();
+
+        store.add(new Graph.Builder()
+                          .graphId("testGraphAlt")
+                          .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, "testGraphId1.properties"))
+                          .addSchema(StreamUtil.openStream(FederatedStoreTest.class, "/path/to/schema2.json"))
+                          .addSchema(StreamUtil.openStream(FederatedStoreTest.class, "/path/to/schema2b.json"))
+                          .build());
+
+        Schema after = store.getSchema();
+        assertNotEquals(before, after);
     }
 }

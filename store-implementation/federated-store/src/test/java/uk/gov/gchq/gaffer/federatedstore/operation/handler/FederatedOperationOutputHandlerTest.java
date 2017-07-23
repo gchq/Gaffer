@@ -97,6 +97,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
 
     private Graph getGraphWithMockStore(final Store mockStore) throws uk.gov.gchq.gaffer.operation.OperationException {
         return new Graph.Builder()
+                .graphId("TestGraphId")
                 .store(mockStore)
                 .build();
     }
