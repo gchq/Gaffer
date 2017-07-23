@@ -15,8 +15,6 @@
  */
 package uk.gov.gchq.gaffer.federatedstore.integration;
 
-package uk.gov.gchq.gaffer.federatedstore.integration;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
@@ -30,6 +28,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -40,17 +39,17 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class FederatedStoreITs extends AbstractStoreITs {
-    private StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(
+    private static StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(
             StreamUtil.openStream(FederatedStoreITs.class, "predefinedFederatedStore.properties"));
     private FederatedStore federatedStore;
-    
+
     public FederatedStoreITs() {
         super(STORE_PROPERTIES);
     }
-    
+
     @Before
     public void setUp() throws Exception {
-        STORE_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.openStream(FederatedStoreITs.class, "/integration-test-federated.properties"));
+//        STORE_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.openStream(FederatedStoreITs.class, "/integration-test-federated.properties"));
         federatedStore = new FederatedStore();
     }
 
@@ -100,11 +99,11 @@ public class FederatedStoreITs extends AbstractStoreITs {
 
         AddElements op = new AddElements.Builder()
                 .input(new Edge.Builder()
-                        .group("BasicEdge")
-                        .source("testSource")
-                        .dest("testDest")
-                        .property("property1", "testProp")
-                        .build())
+                               .group("BasicEdge")
+                               .source("testSource")
+                               .dest("testDest")
+                               .property("property1", "testProp")
+                               .build())
                 .build();
 
         federatedStore.execute(op, new User("testUser"));

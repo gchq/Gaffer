@@ -173,14 +173,14 @@ public class FederatedStore extends Store {
 
     private void updateMergedGraphConfig() {
         Schema.Builder schemaBuilder = new Schema.Builder();
-        final Set<StoreTrait> newTraits = Sets.newHashSet(StoreTrait.values());
+        final Set<StoreTrait> retainTraits = Sets.newHashSet();
         for (final Graph graph : graphs.values()) {
             schemaBuilder = schemaBuilder.merge(graph.getSchema());
-            newTraits.retainAll(graph.getStoreTraits());
+            retainTraits.addAll(graph.getStoreTraits());
         }
 
         schema = schemaBuilder.build();
-        traits = Collections.unmodifiableSet(newTraits);
+        traits = Collections.unmodifiableSet(retainTraits);
     }
 
     private void loadGraphs() {
