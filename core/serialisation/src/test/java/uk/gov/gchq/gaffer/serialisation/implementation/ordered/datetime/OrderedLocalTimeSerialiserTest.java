@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -99,13 +100,13 @@ public class OrderedLocalTimeSerialiserTest extends ToBytesSerialisationTest<Loc
     public Pair<LocalTime, byte[]>[] getHistoricSerialisationPairs() {
         return new Pair[]{
                 new Pair<>(Instant.ofEpochSecond(60460074000000L)
-                                  .atZone(ZoneId.systemDefault())
-                                  .toLocalTime(), new byte[]{-114, 14, 16}),
+                                  .atZone(ZoneId.ofOffset("UTC", ZoneOffset.UTC))
+                                  .toLocalTime(), new byte[]{0}),
                 new Pair<>(Instant.ofEpochSecond(61406234880000L)
-                                  .atZone(ZoneId.systemDefault())
+                                  .atZone(ZoneId.ofOffset("UTC", ZoneOffset.UTC))
                                   .toLocalTime(), new byte[]{-114, 37, -128}),
                 new Pair<>(Instant.ofEpochSecond(59514676680000L)
-                                  .atZone(ZoneId.systemDefault())
+                                  .atZone(ZoneId.ofOffset("UTC", ZoneOffset.UTC))
                                   .toLocalTime(), new byte[]{-114, -125, 64})
         };
     }
