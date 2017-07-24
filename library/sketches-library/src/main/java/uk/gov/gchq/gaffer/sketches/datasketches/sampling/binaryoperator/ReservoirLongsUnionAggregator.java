@@ -25,6 +25,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * {@link ReservoirLongsUnion#update(com.yahoo.sketches.sampling.ReservoirLongsSketch)}.
  */
 public class ReservoirLongsUnionAggregator extends KorypheBinaryOperator<ReservoirLongsUnion> {
+
     @Override
     protected ReservoirLongsUnion _apply(final ReservoirLongsUnion a, final ReservoirLongsUnion b) {
         a.update(b.getResult());

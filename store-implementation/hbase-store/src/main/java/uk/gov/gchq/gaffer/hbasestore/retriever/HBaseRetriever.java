@@ -61,6 +61,7 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
     private final Authorizations authorisations;
     private final OP operation;
     private final byte[] extraProcessors;
+    private final boolean includeMatchedVertex;
 
     private CloseableIterator<Element> iterator;
     private Iterator<? extends ElementId> idsIterator;
@@ -69,6 +70,7 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
                           final OP operation,
                           final User user,
                           final Iterable<? extends ElementId> ids,
+                          final boolean includeMatchedVertex,
                           final Class<?>... extraProcessors) throws StoreException {
         this.serialisation = new ElementSerialisation(store.getSchema());
         this.rowRangeFactory = new RowRangeFactory(serialisation);
@@ -82,6 +84,8 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
         } else {
             this.authorisations = new Authorizations();
         }
+
+        this.includeMatchedVertex = includeMatchedVertex;
 
         if (null != extraProcessors && extraProcessors.length > 0) {
             this.extraProcessors = StringUtil.toCsv(extraProcessors);
@@ -120,7 +124,7 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
 
     private Element deserialiseAndTransform(final Cell cell) {
         try {
-            Element element = serialisation.getElement(cell, operation.getOptions());
+            Element element = serialisation.getElement(cell, includeMatchedVertex);
             final ViewElementDefinition viewDef = operation.getView().getElement(element.getGroup());
             if (viewDef != null) {
                 final ElementTransformer transformer = viewDef.getTransformer();
@@ -166,6 +170,7 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
 
             scan.setAuthorizations(authorisations);
             scan.setAttribute(HBaseStoreConstants.SCHEMA, store.getSchema().toCompactJson());
+            scan.setAttribute(HBaseStoreConstants.INCLUDE_MATCHED_VERTEX, Bytes.toBytes(Boolean.toString(includeMatchedVertex)));
             scan.setAttribute(HBaseStoreConstants.VIEW, operation.getView().toCompactJson());
             if (null != operation.getDirectedType()) {
                 scan.setAttribute(HBaseStoreConstants.DIRECTED_TYPE, Bytes.toBytes(operation.getDirectedType().name()));

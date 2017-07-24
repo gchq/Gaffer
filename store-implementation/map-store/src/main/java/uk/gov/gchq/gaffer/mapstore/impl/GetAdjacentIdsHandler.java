@@ -22,10 +22,9 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterator;
-import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
-import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -37,8 +36,6 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -76,58 +73,31 @@ public class GetAdjacentIdsHandler implements
 
         @Override
         public CloseableIterator<EntityId> iterator() {
-            // For each EntityId, get relevant elements with group-by properties
-            // Ignore Entities
+            // For each EntityId, get relevant edges with group-by properties
             // Create full Element
             // Apply view
-            // Extract adjacent nodes
-            final Stream<? extends EntityId> entityIdStream = Streams.toStream(getAdjacentIds.getInput());
-            final Stream<Pair<EntityId, Set<Element>>> entityIdRelevantElementsStream = entityIdStream
-                    .map(entityId -> {
-                        final Set<Element> elements = GetElementsUtil.getRelevantElements(mapImpl, entityId, getAdjacentIds.getView(), getAdjacentIds.getIncludeIncomingOutGoing(), SeedMatching.SeedMatchingType.RELATED);
-                        elements.removeIf(e -> !getAdjacentIds.validateFlags((Edge) e));
-                        return new Pair<EntityId, Set<Element>>(entityId, elements);
-                    })
-                    .filter(pair -> !pair.getSecond().isEmpty());
+            // Extract adjacent vertices
+            Stream<Element> elementStream = Streams.toStream(getAdjacentIds.getInput())
+                    .flatMap(entityId ->
+                            GetElementsUtil.getRelevantElements(mapImpl, entityId, getAdjacentIds.getView(), getAdjacentIds.getDirectedType(), getAdjacentIds.getIncludeIncomingOutGoing(), SeedMatching.SeedMatchingType.RELATED)
+                                    .stream()
+                                    .map(mapImpl::getAggElement));
 
-            final Stream<Pair<EntityId, Set<Element>>> entityIdRelevantFullElementsStream = entityIdRelevantElementsStream
-                    .map(pair -> {
-                        final Set<Element> elementsWithProperties =
-                                pair.getSecond()
-                                        .stream()
-                                        .map(mapImpl::getAggElement)
-                                        .collect(Collectors.toSet());
-                        pair.setSecond(elementsWithProperties);
-                        return pair;
+            // Apply the view
+            elementStream = GetElementsUtil.applyView(elementStream, schema, getAdjacentIds.getView());
+
+            final Stream<EntityId> adjacentIdsStream = elementStream
+                    .filter(Objects::nonNull)
+                    .map(element -> {
+                        final Object nextVertex;
+                        if (EdgeId.MatchedVertex.DESTINATION == ((EdgeId) element).getMatchedVertex()) {
+                            nextVertex = ((EdgeId) element).getSource();
+                        } else {
+                            nextVertex = ((EdgeId) element).getDestination();
+                        }
+
+                        return new EntitySeed(nextVertex);
                     });
-
-            final Stream<Pair<EntityId, Stream<Element>>> entityIdRelevantFullElementsStreamAfterView =
-                    entityIdRelevantFullElementsStream
-                            .map(pair -> {
-                                final Stream<Element> elementsAfterView = GetElementsUtil.applyView(pair.getSecond().stream(), schema, getAdjacentIds.getView());
-                                return new Pair<>(pair.getFirst(), elementsAfterView);
-                            });
-
-            final Stream<EntityId> adjacentIdsStream = entityIdRelevantFullElementsStreamAfterView
-                    .flatMap(pair -> {
-                        final Object id = pair.getFirst().getVertex();
-                        return pair.getSecond().<EntityId>map(element -> {
-                            final Edge edge = (Edge) element;
-                            final Object source = edge.getSource();
-                            final Object destination = edge.getDestination();
-                            if (source.equals(id) && !destination.equals(id)) {
-                                return new EntitySeed(destination);
-                            } else if (!source.equals(id) && destination.equals(id)) {
-                                return new EntitySeed(source);
-                            } else if (source.equals(id) && destination.equals(id)) {
-                                return new EntitySeed(id);
-                            } else {
-                                LOGGER.error("Found edge which doesn't correspond to the EntityId (edge = {}; id = {}", edge, id);
-                                return null;
-                            }
-                        });
-                    })
-                    .filter(Objects::nonNull);
 
             return new WrappedCloseableIterator<>(adjacentIdsStream.iterator());
         }

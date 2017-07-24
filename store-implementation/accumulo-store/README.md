@@ -32,6 +32,7 @@ Accumulo Store
 13. [Implementation details](#implementation-details)
 14. [Tests](#tests)
 15. [Accumulo 1.8.0 Support](#accumulo-1.8.0-support)
+16. [Migration](#migration)
 
 
 Introduction
@@ -534,4 +535,93 @@ Gaffer can be compiled with support for Accumulo 1.8.0. Clear your Maven reposit
 
 ```
 mvn clean install -Paccumulo-1.8
+```
+
+## Migration
+
+The Accumulo Store also provides a utility [AddUpdateTableIterator](https://github.com/gchq/Gaffer/blob/master/store-implementation/accumulo-store/src/main/java/uk/gov/gchq/gaffer/accumulostore/utils/AddUpdateTableIterator.java)
+to help with migrations - updating to new versions of Gaffer or updating your schema.
+
+The following changes to your schema are allowed:
+- add new groups
+- add new non-groupBy properties (including visibility and timestamp), but they must go after the other properties
+- rename properties
+- change aggregators (your data may become inconsistent as any elements that were aggregated on ingest will not be updated.)
+- change validators
+- change descriptions
+
+But, you cannot do the following:
+- rename groups
+- remove any properties (groupBy, non-groupBy, visibility or timestamp)
+- add new groupBy properties
+- reorder any of the properties. In the Accumulo store we don't use any property names, we just rely on the order the properties are defined in the schema.
+- change the way properties or vertices are serialised - i.e don't change the serialisers.
+- change which properties are groupBy
+
+Please note, that the validation functions in the schema can be a bit dangerous. 
+If an element is found to be invalid then the element will be permanently deleted from the table. 
+So, be very careful when making changes to your schema that you don't accidentally make all your existing elements invalid as you will quickly realise all your data has been deleted. 
+For example, if you add a new property 'prop1' and set the validateFunctions to be a single Exists predicate. 
+Then when that Exists predicate is applied to all of your existing elements, those old elements will fail validation and be removed.
+
+To carry out the migration you will need the following:
+
+- your schema in 1 or more json files.
+- store.properties file contain your accumulo store properties
+- a jar-with-dependencies containing the Accumulo Store classes and any of your custom classes. 
+If you don't have any custom classes then you can just use the accumulo-store-[version]-utility.jar. 
+Otherwise you can create one by adding a build profile to your maven pom:
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <artifactId>maven-shade-plugin</artifactId>
+            <version>${shade.plugin.version}</version>
+            <executions>
+                <execution>
+                    <id>utility</id>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>shade</goal>
+                    </goals>
+                    <configuration>
+                        <shadedArtifactAttached>true
+                        </shadedArtifactAttached>
+                        <shadedClassifierName>utility
+                        </shadedClassifierName>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
+```
+
+
+If you have existing data, then before doing any form of upgrade or change to your table we strongly recommend using the accumulo shell to clone the table so you have a backup so you can easily restore to that version if things go wrong. 
+Even if you have an error like the one above where all your data is deleted in your table you will still be able to quickly revert back to your backup. 
+Cloning a table in Accumulo is very simple and fast (it doesn't actually copy the data). If you have a table called 'table1', you can do something like the following in the Accumulo shell:
+
+```bash
+> offline -t table1
+> clone table table1 table1-backup
+> offline -t table1-backup
+
+# Do your upgrades
+#   - deploy new gaffer jars to Accumulo's class path on each node in your cluster
+#   - run the AddUpdateTableIterator class to update table1
+
+> online -t table1
+
+# Check table1 is still healthy:
+#   - run a query and check the iterators are successfully aggregating and filtering elements correctly.
+
+> droptable -t table1-backup
+```
+
+You will need to run the AddUpdateTableIterator utility providing it with your graphId, schema and store properties.
+If you run it without any arguments it will tell you how to use it.
+
+```bash
+java -cp [path to your jar-with-dependencies].jar uk.gov.gchq.gaffer.accumulostore.utils.AddUpdateTableIterator
 ```

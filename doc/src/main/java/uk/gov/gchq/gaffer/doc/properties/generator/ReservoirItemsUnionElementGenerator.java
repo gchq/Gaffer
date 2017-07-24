@@ -33,7 +33,7 @@ public class ReservoirItemsUnionElementGenerator implements OneToManyElementGene
     public Iterable<Element> _apply(final String line) {
         final Set<Element> elements = new HashSet<>();
         for (int i = 0; i < 1000; i++) {
-            final ReservoirItemsUnion<String> reservoirStringsUnion = ReservoirItemsUnion.getInstance(20);
+            final ReservoirItemsUnion<String> reservoirStringsUnion = ReservoirItemsUnion.newInstance(20);
             reservoirStringsUnion.update(getRandomString());
             final Edge edge = new Edge.Builder()
                     .group("red")
@@ -50,7 +50,7 @@ public class ReservoirItemsUnionElementGenerator implements OneToManyElementGene
                     .dest("Y" + i)
                     .build();
             elements.add(edge);
-            final ReservoirItemsUnion<String> reservoirStringsUnionX = ReservoirItemsUnion.getInstance(20);
+            final ReservoirItemsUnion<String> reservoirStringsUnionX = ReservoirItemsUnion.newInstance(20);
             reservoirStringsUnionX.update("Y" + i);
             final Entity entityX = new Entity.Builder()
                     .group("blueEntity")
@@ -58,7 +58,7 @@ public class ReservoirItemsUnionElementGenerator implements OneToManyElementGene
                     .property("neighboursSample", reservoirStringsUnionX)
                     .build();
             elements.add(entityX);
-            final ReservoirItemsUnion<String> reservoirStringsUnionY = ReservoirItemsUnion.getInstance(20);
+            final ReservoirItemsUnion<String> reservoirStringsUnionY = ReservoirItemsUnion.newInstance(20);
             reservoirStringsUnionY.update("X");
             final Entity entityY = new Entity.Builder()
                     .group("blueEntity")

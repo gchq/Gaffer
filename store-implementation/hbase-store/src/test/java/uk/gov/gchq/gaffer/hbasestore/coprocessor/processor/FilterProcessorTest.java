@@ -101,7 +101,7 @@ public class FilterProcessorTest {
         final List<LazyElementCell> lazyCells = CellUtil.getLazyCells(ELEMENTS, serialisation);
         final Cell deletedCell = mock(Cell.class);
         given(deletedCell.getTypeByte()).willReturn(KeyValue.Type.Delete.getCode());
-        lazyCells.add(new LazyElementCell(deletedCell, serialisation));
+        lazyCells.add(new LazyElementCell(deletedCell, serialisation, false));
 
         // When
         final List<LazyElementCell> result = processor.process(lazyCells);

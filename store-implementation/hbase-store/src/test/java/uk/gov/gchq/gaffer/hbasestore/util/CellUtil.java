@@ -31,27 +31,39 @@ public final class CellUtil {
     }
 
     public static List<Element> getElements(final Iterable<Put> puts, final ElementSerialisation serialisation) throws SerialisationException {
+        return getElements(puts, serialisation, false);
+    }
+
+    public static List<Element> getElements(final Iterable<Put> puts, final ElementSerialisation serialisation, final boolean includeMatchedVertex) throws SerialisationException {
         final List<Element> cells = new ArrayList<>();
         for (final Put put : puts) {
-            cells.add(getLazyCell(put, serialisation).getElement());
+            cells.add(getLazyCell(put, serialisation, includeMatchedVertex).getElement());
         }
 
         return cells;
     }
 
     public static List<LazyElementCell> getLazyCellsFromPuts(final Iterable<Put> puts, final ElementSerialisation serialisation) throws SerialisationException {
+        return getLazyCellsFromPuts(puts, serialisation, false);
+    }
+
+    public static List<LazyElementCell> getLazyCellsFromPuts(final Iterable<Put> puts, final ElementSerialisation serialisation, final boolean includeMatchedVertex) throws SerialisationException {
         final List<LazyElementCell> cells = new ArrayList<>();
         for (final Put put : puts) {
-            cells.add(getLazyCell(put, serialisation));
+            cells.add(getLazyCell(put, serialisation, includeMatchedVertex));
         }
 
         return cells;
     }
 
     public static List<LazyElementCell> getLazyCells(final Iterable<Element> elements, final ElementSerialisation serialisation) throws SerialisationException {
+        return getLazyCells(elements, serialisation, false);
+    }
+
+    public static List<LazyElementCell> getLazyCells(final Iterable<Element> elements, final ElementSerialisation serialisation, final boolean includeMatchedVertex) throws SerialisationException {
         final List<LazyElementCell> cells = new ArrayList<>();
         for (final Element element : elements) {
-            final Pair<LazyElementCell, LazyElementCell> cellPair = getLazyCells(element, serialisation);
+            final Pair<LazyElementCell, LazyElementCell> cellPair = getLazyCells(element, serialisation, includeMatchedVertex);
             cells.add(cellPair.getFirst());
             if (null != cellPair.getSecond()) {
                 cells.add(cellPair.getSecond());
@@ -62,23 +74,35 @@ public final class CellUtil {
     }
 
     public static LazyElementCell getLazyCell(final Element element, final ElementSerialisation serialisation) throws SerialisationException {
-        return getLazyCells(serialisation.getPuts(element), serialisation).getFirst();
+        return getLazyCell(element, serialisation, false);
+    }
+
+    public static LazyElementCell getLazyCell(final Element element, final ElementSerialisation serialisation, final boolean includeMatchedVertex) throws SerialisationException {
+        return getLazyCells(serialisation.getPuts(element), serialisation, includeMatchedVertex).getFirst();
     }
 
     public static Pair<LazyElementCell, LazyElementCell> getLazyCells(final Element element, final ElementSerialisation serialisation) throws SerialisationException {
-        return getLazyCells(serialisation.getPuts(element), serialisation);
+        return getLazyCells(element, serialisation, false);
     }
 
-    public static LazyElementCell getLazyCell(final Put put, final ElementSerialisation serialisation) {
-        return new LazyElementCell(getCell(put), serialisation);
+    public static Pair<LazyElementCell, LazyElementCell> getLazyCells(final Element element, final ElementSerialisation serialisation, final boolean includeMatchedVertex) throws SerialisationException {
+        return getLazyCells(serialisation.getPuts(element), serialisation, includeMatchedVertex);
+    }
+
+    public static LazyElementCell getLazyCell(final Put put, final ElementSerialisation serialisation, final boolean includeMatchedVertex) {
+        return new LazyElementCell(getCell(put), serialisation, includeMatchedVertex);
     }
 
     public static Pair<LazyElementCell, LazyElementCell> getLazyCells(final Pair<Put, Put> puts, final ElementSerialisation serialisation) {
+        return getLazyCells(puts, serialisation, false);
+    }
+
+    public static Pair<LazyElementCell, LazyElementCell> getLazyCells(final Pair<Put, Put> puts, final ElementSerialisation serialisation, final boolean includeMatchedVertex) {
         final Pair<Cell, Cell> cells = getCells(puts);
         final Pair<LazyElementCell, LazyElementCell> lazyCells = new Pair<>();
-        lazyCells.setFirst(new LazyElementCell(cells.getFirst(), serialisation));
+        lazyCells.setFirst(new LazyElementCell(cells.getFirst(), serialisation, includeMatchedVertex));
         if (null != cells.getSecond()) {
-            lazyCells.setSecond(new LazyElementCell(cells.getSecond(), serialisation));
+            lazyCells.setSecond(new LazyElementCell(cells.getSecond(), serialisation, includeMatchedVertex));
         }
         return lazyCells;
     }

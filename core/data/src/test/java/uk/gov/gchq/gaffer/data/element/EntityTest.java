@@ -208,7 +208,7 @@ public class EntityTest extends ElementTest {
 
     @Override
     protected Entity newElement() {
-        return new Entity();
+        return new Entity.Builder().build();
     }
 
     private Entity cloneCoreFields(final Entity entity) {

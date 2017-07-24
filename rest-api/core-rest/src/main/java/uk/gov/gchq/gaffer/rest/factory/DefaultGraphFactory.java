@@ -17,10 +17,12 @@ package uk.gov.gchq.gaffer.rest.factory;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain;
 import uk.gov.gchq.gaffer.graph.hook.OperationAuthoriser;
 import uk.gov.gchq.gaffer.graph.hook.OperationChainLimiter;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -145,6 +147,11 @@ public class DefaultGraphFactory implements GraphFactory {
             builder.addHook(OPERATION_CHAIN_LIMITER);
         }
 
+        final AddOperationsToChain addOperationsToChain = createAddOperationsToChain();
+        if (null != addOperationsToChain) {
+            builder.addHook(addOperationsToChain);
+        }
+
         return builder;
     }
 
@@ -154,7 +161,7 @@ public class DefaultGraphFactory implements GraphFactory {
 
         final String opAuthsPathStr = System.getProperty(SystemProperty.OP_AUTHS_PATH);
         if (null != opAuthsPathStr) {
-            final Path opAuthsPath = Paths.get(System.getProperty(SystemProperty.OP_AUTHS_PATH));
+            final Path opAuthsPath = Paths.get(opAuthsPathStr);
             if (opAuthsPath.toFile().exists()) {
                 opAuthoriser = new OperationAuthoriser(opAuthsPath);
             } else {
@@ -163,6 +170,22 @@ public class DefaultGraphFactory implements GraphFactory {
         }
 
         return opAuthoriser;
+    }
+
+    @Override
+    public AddOperationsToChain createAddOperationsToChain() {
+        AddOperationsToChain addOperationsToChain = null;
+
+        final String path = System.getProperty(SystemProperty.ADD_OPERATIONS_TO_CHAIN_PATH);
+        if (null != path) {
+            try {
+                addOperationsToChain = new AddOperationsToChain(path);
+            } catch (final IOException e) {
+                throw new IllegalArgumentException("Could not load " + AddOperationsToChain.class.getName() + " graph hook from file: " + path);
+            }
+        }
+
+        return addOperationsToChain;
     }
 
     @Override

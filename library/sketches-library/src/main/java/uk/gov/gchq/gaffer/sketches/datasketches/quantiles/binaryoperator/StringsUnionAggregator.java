@@ -24,6 +24,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * {@link ItemsUnion} and merges that using {@link ItemsUnion#update(com.yahoo.sketches.quantiles.ItemsSketch)}.
  */
 public class StringsUnionAggregator extends KorypheBinaryOperator<ItemsUnion<String>> {
+
     @Override
     protected ItemsUnion<String> _apply(final ItemsUnion<String> a, final ItemsUnion<String> b) {
         a.update(b.getResult());
