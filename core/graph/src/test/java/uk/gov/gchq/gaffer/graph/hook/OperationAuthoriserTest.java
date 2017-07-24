@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.graph.hook;
 
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -35,11 +34,17 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 
-public class OperationAuthoriserTest {
+public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> {
+    private static final String OP_AUTHS_PATH = "/opAuthoriser.json";
+
+    public OperationAuthoriserTest() {
+        super(OperationAuthoriser.class);
+    }
+
     @Test
     public void shouldAcceptOperationChainWhenUserHasAllOpAuths() {
         // Given
-        final OperationAuthoriser opAuthoriser = new OperationAuthoriser(StreamUtil.opAuths(getClass()));
+        final OperationAuthoriser hook = fromJson(OP_AUTHS_PATH);
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GetElements())
                 .then(new GenerateObjects<>())
@@ -49,7 +54,7 @@ public class OperationAuthoriserTest {
                 .build();
 
         // When
-        opAuthoriser.preExecute(opChain, user);
+        hook.preExecute(opChain, user);
 
         // Then - no exceptions
     }
@@ -57,7 +62,7 @@ public class OperationAuthoriserTest {
     @Test
     public void shouldRejectOperationChainWhenUserDoesntHaveAllOpAuthsForAllOperations() {
         // Given
-        final OperationAuthoriser opAuthoriser = new OperationAuthoriser(StreamUtil.opAuths(getClass()));
+        final OperationAuthoriser hook = fromJson(OP_AUTHS_PATH);
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GetAdjacentIds())  // Requires SuperUser
                 .build();
@@ -68,7 +73,7 @@ public class OperationAuthoriserTest {
 
         // When/Then
         try {
-            opAuthoriser.preExecute(opChain, user);
+            hook.preExecute(opChain, user);
             fail("Exception expected");
         } catch (final UnauthorisedException e) {
             assertNotNull(e.getMessage());
@@ -78,7 +83,7 @@ public class OperationAuthoriserTest {
     @Test
     public void shouldRejectOperationChainWhenUserDoesntHaveAnyOpAuths() throws OperationException {
         // Given
-        final OperationAuthoriser opAuthoriser = new OperationAuthoriser(StreamUtil.opAuths(getClass()));
+        final OperationAuthoriser hook = fromJson(OP_AUTHS_PATH);
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GetAdjacentIds())
                 .then(new GetElements())
@@ -88,7 +93,7 @@ public class OperationAuthoriserTest {
 
         // When/Then
         try {
-            opAuthoriser.preExecute(opChain, user);
+            hook.preExecute(opChain, user);
             fail("Exception expected");
         } catch (final UnauthorisedException e) {
             assertNotNull(e.getMessage());
@@ -98,7 +103,7 @@ public class OperationAuthoriserTest {
     @Test
     public void shouldRejectOperationChainWhenUserDoesntHaveAllowedAuth() throws OperationException {
         // Given
-        final OperationAuthoriser opAuthoriser = new OperationAuthoriser(StreamUtil.opAuths(getClass()));
+        final OperationAuthoriser hook = fromJson(OP_AUTHS_PATH);
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GetAdjacentIds())
                 .then(new GetElements())
@@ -110,7 +115,7 @@ public class OperationAuthoriserTest {
 
         // When/Then
         try {
-            opAuthoriser.preExecute(opChain, user);
+            hook.preExecute(opChain, user);
             fail("Exception expected");
         } catch (final UnauthorisedException e) {
             assertNotNull(e.getMessage());
@@ -120,10 +125,10 @@ public class OperationAuthoriserTest {
     @Test
     public void shouldReturnAllOpAuths() {
         // Given
-        final OperationAuthoriser opAuthoriser = new OperationAuthoriser(StreamUtil.opAuths(getClass()));
+        final OperationAuthoriser hook = fromJson(OP_AUTHS_PATH);
 
         // When
-        final Set<String> allOpAuths = opAuthoriser.getAllOpAuths();
+        final Set<String> allOpAuths = hook.getAllAuths();
 
         // Then
         assertThat(allOpAuths,
@@ -133,7 +138,7 @@ public class OperationAuthoriserTest {
     @Test
     public void shouldReturnResultWithoutModification() {
         // Given
-        final OperationAuthoriser opAuthoriser = new OperationAuthoriser(StreamUtil.opAuths(getClass()));
+        final OperationAuthoriser hook = fromJson(OP_AUTHS_PATH);
         final Object result = mock(Object.class);
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GenerateObjects<>())
@@ -143,9 +148,22 @@ public class OperationAuthoriserTest {
                 .build();
 
         // When
-        final Object returnedResult = opAuthoriser.postExecute(result, opChain, user);
+        final Object returnedResult = hook.postExecute(result, opChain, user);
 
         // Then
         assertSame(result, returnedResult);
+    }
+
+    @Override
+    public void shouldJsonSerialiseAndDeserialise() {
+        // Given
+        final OperationAuthoriser hook = fromJson(OP_AUTHS_PATH);
+
+        // When
+        final byte[] json = toJson(hook);
+        final OperationAuthoriser deserialisedHook = fromJson(json);
+
+        // Then
+        assertNotNull(deserialisedHook);
     }
 }

@@ -1,0 +1,3 @@
+{
+  "class": "uk.gov.gchq.gaffer.graph.hook.OperationChainLimiter"
+}

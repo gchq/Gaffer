@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.store.operation.handler;
 
 
-import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -51,12 +50,6 @@ public class ScoreOperationChainHandlerTest {
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
-    @After
-    public void after() {
-        System.clearProperty(ScoreOperationChainHandler.AUTH_SCORES_FILE_KEY);
-        System.clearProperty(ScoreOperationChainHandler.OPERATION_SCORES_FILE_KEY);
-    }
-
     @Test
     public void shouldLoadFromScoreOperationChainDeclarationFile() throws SerialisationException {
         final InputStream s = StreamUtil.openStream(getClass(), "TestScoreOperationChainDeclaration.json");
@@ -67,30 +60,9 @@ public class ScoreOperationChainHandlerTest {
     }
 
     @Test
-    public void shouldLoadFromScoreOperationChainDeclarationFileUsingFileProperties() throws SerialisationException {
-        System.setProperty(ScoreOperationChainHandler.AUTH_SCORES_FILE_KEY, getClass().getResource("/authScores.properties").getPath());
-        System.setProperty(ScoreOperationChainHandler.OPERATION_SCORES_FILE_KEY, getClass().getResource("/opScores.properties").getPath());
-
-        final InputStream s = StreamUtil.openStream(getClass(), "ScoreOperationChainDeclarationNoFileNames.json");
-        final OperationDeclarations deserialised = json.deserialise(s, OperationDeclarations.class);
-
-        assertEquals(1, deserialised.getOperations().size());
-        assert (deserialised.getOperations().get(0).getHandler() instanceof ScoreOperationChainHandler);
-    }
-
-    @Test
-    public void shouldFailToLoadFromScoreOperationChainDeclarationFileWithNoFileNames() throws SerialisationException {
-        final InputStream s = StreamUtil.openStream(getClass(), "ScoreOperationChainDeclarationNoFileNames.json");
-        exception.expect(SerialisationException.class);
-        json.deserialise(s, OperationDeclarations.class);
-    }
-
-    @Test
-    public void shouldExecuteScoreChainOperationWithFilesFromProperties() throws OperationException {
+    public void shouldExecuteScoreChainOperation
+            () throws OperationException {
         // Given
-        System.setProperty(ScoreOperationChainHandler.AUTH_SCORES_FILE_KEY, getClass().getResource("/authScores.properties").getPath());
-        System.setProperty(ScoreOperationChainHandler.OPERATION_SCORES_FILE_KEY, getClass().getResource("/opScores.properties").getPath());
-
         final ScoreOperationChainHandler operationHandler = new ScoreOperationChainHandler();
 
         final Context context = mock(Context.class);
@@ -121,48 +93,5 @@ public class ScoreOperationChainHandlerTest {
 
         // Then
         assertSame(expectedResult, result);
-    }
-
-    @Test
-    public void shouldExecuteScoreChainOperationWithCustomFileNames() throws OperationException {
-        // Given
-        final ScoreOperationChainHandler operationHandler =
-                new ScoreOperationChainHandler(getClass().getResource("/customOpScores.properties").getPath(),
-                        getClass().getResource("/authScores.properties").getPath());
-
-        final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
-        final User user = mock(User.class);
-        final ScoreOperationChain scoreOperationChain = mock(ScoreOperationChain.class);
-
-        StoreProperties storeProperties = new StoreProperties();
-
-        final GetAdjacentIds op1 = mock(GetAdjacentIds.class);
-        final GetElements op2 = mock(GetElements.class);
-        final OperationChain opChain = new OperationChain(Arrays.asList(op1, op2));
-        final Integer expectedResult = 4;
-
-        given(context.getUser()).willReturn(user);
-        Set<String> opAuths = new HashSet<>();
-        opAuths.add("TEST_USER");
-        given(user.getOpAuths()).willReturn(opAuths);
-        given(scoreOperationChain.getOperationChain()).willReturn(opChain);
-        given(store.getProperties()).willReturn(storeProperties);
-
-        // When
-        final Object result = operationHandler.doOperation(
-                new ScoreOperationChain.Builder()
-                        .operationChain(opChain)
-                        .build(),
-                context, store);
-
-        // Then
-        assertSame(expectedResult, result);
-    }
-
-    @Test
-    public void shouldFailToCreateScoreChainOperationHandlerWhenPropertiesNotSet() throws OperationException {
-        exception.expect(IllegalArgumentException.class);
-        new ScoreOperationChainHandler();
     }
 }
