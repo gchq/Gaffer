@@ -125,22 +125,29 @@ public class FederatedStore extends Store {
         if (operation instanceof OperationView) {
             final View view = ((OperationView) operation).getView();
             if (null != view && view.hasGroups()) {
-                try {
-                    //TODO: implement this in a better way
-                    resultOp = JSON_SERIALISER.deserialise(JSON_SERIALISER.serialise(operation), (Class<OP>) operation.getClass());
-                } catch (SerialisationException e) {
-                    throw new RuntimeException("Unable to clone operation", e);
-                }
+                resultOp = cloneOP(operation);
                 final View validView = createValidView(view, graph.getSchema());
                 if (validView.hasGroups()) {
                     ((OperationView) resultOp).setView(validView);
                 } else {
                     resultOp = null;
                 }
-
             }
+        } else if ( operation instanceof AddElements){
+            resultOp = cloneOP(operation);
         }
 
+        return resultOp;
+    }
+
+    private <OP extends Operation> OP cloneOP(final OP operation) {
+        final OP resultOp;
+        try {
+            //TODO: implement this in a better way
+            resultOp = JSON_SERIALISER.deserialise(JSON_SERIALISER.serialise(operation), (Class<OP>) operation.getClass());
+        } catch (SerialisationException e) {
+            throw new RuntimeException("Unable to clone operation", e);
+        }
         return resultOp;
     }
 

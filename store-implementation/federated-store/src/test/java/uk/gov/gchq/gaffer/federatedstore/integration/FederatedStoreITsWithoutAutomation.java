@@ -27,8 +27,8 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -97,7 +97,7 @@ public class FederatedStoreITsWithoutAutomation {
                                .group("BasicEdge")
                                .source("testSource")
                                .dest("testDest")
-                               .property("property1", "testProp")
+                               .property("property1", 12)
                                .build())
                 .build();
 
@@ -108,13 +108,14 @@ public class FederatedStoreITsWithoutAutomation {
     }
 
     private Set<Element> getElements() throws uk.gov.gchq.gaffer.operation.OperationException {
-        Set<Element> elementSet = Sets.newHashSet();
-        for (Graph graph : federatedStore.getGraphs()) {
-            CloseableIterable<? extends Element> elements = graph.execute(new GetAllElements(), new User("testUser"));
-            for (Element element : elements) {
-                elementSet.add(element);
-            }
-        }
-        return elementSet;
+        CloseableIterable<? extends Element> elements = federatedStore
+                .execute(new GetAllElements.Builder()
+                                 .view(new View.Builder()
+                                               .edges(federatedStore.getSchema().getEdgeGroups())
+                                               .entities(federatedStore.getSchema().getEntityGroups())
+                                               .build())
+                                 .build(), new User("testUser"));
+
+        return Sets.newHashSet(elements);
     }
 }
