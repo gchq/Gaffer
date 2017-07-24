@@ -1,6 +1,5 @@
 package uk.gov.gchq.gaffer.parquetstore.utils;
 
-import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.parquet.filter2.predicate.FilterPredicate;
@@ -18,6 +17,7 @@ import uk.gov.gchq.gaffer.store.SerialisationFactory;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
+import uk.gov.gchq.gaffer.types.TypeValue;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 
 import java.io.IOException;
@@ -26,7 +26,6 @@ import static org.apache.parquet.filter2.predicate.FilterApi.and;
 import static org.apache.parquet.filter2.predicate.FilterApi.binaryColumn;
 import static org.apache.parquet.filter2.predicate.FilterApi.doubleColumn;
 import static org.apache.parquet.filter2.predicate.FilterApi.eq;
-import static org.apache.parquet.filter2.predicate.FilterApi.longColumn;
 import static org.junit.Assert.assertEquals;
 
 public class ConvertViewToFilterTest {
@@ -36,10 +35,10 @@ public class ConvertViewToFilterTest {
     public void setUp() throws StoreException {
         Logger.getRootLogger().setLevel(Level.WARN);
         final Schema schema = Schema.fromJson(
-                getClass().getResourceAsStream("/schemaUsingStringVertexType/dataSchema.json"),
-                getClass().getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
-                getClass().getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
-                getClass().getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
+                getClass().getResourceAsStream("/schemaUsingTypeValueVertexType/dataSchema.json"),
+                getClass().getResourceAsStream("/schemaUsingTypeValueVertexType/dataTypes.json"),
+                getClass().getResourceAsStream("/schemaUsingTypeValueVertexType/storeSchema.json"),
+                getClass().getResourceAsStream("/schemaUsingTypeValueVertexType/storeTypes.json"));
         final SchemaOptimiser optimiser = new SchemaOptimiser(new SerialisationFactory(ParquetStoreConstants.SERIALISERS));
         schemaUtils = new SchemaUtils(optimiser.optimise(schema, true));
     }
@@ -67,41 +66,33 @@ public class ConvertViewToFilterTest {
 
     @Test
     public void getMultiColumnGroupFilterTest() throws OperationException, IOException {
-        final HyperLogLogPlus hllp = new HyperLogLogPlus(5,5);
-        hllp.offer("test1");
-        hllp.offer("test2");
-
         final View view = new View.Builder().entity("BasicEntity",
                 new ViewElementDefinition.Builder().preAggregationFilter(
                         new ElementFilter.Builder()
-                                .select("treeSet")
+                                .select(ParquetStoreConstants.VERTEX)
                                 .execute(
-                                        new IsEqual(hllp))
+                                        new IsEqual(new TypeValue("type", "value")))
                                 .build())
                         .build())
                 .build();
         final FilterPredicate filter = ParquetFilterUtils.buildGroupFilter(view, schemaUtils, "BasicEntity", DirectedType.EITHER, true).get0();
-        final FilterPredicate expected = and(eq(binaryColumn("treeSet_raw_bytes"), Binary.fromReusedByteArray(hllp.getBytes())), eq(longColumn("treeSet_cardinality"), 2L));
+        final FilterPredicate expected = and(eq(binaryColumn("VERTEX_type"), Binary.fromString("type")), eq(binaryColumn("VERTEX_value"), Binary.fromString("value")));
         assertEquals(expected, filter);
     }
 
     @Test
     public void getNestedGroupFilterTest() throws OperationException, IOException {
-        final HyperLogLogPlus hllp = new HyperLogLogPlus(5,5);
-        hllp.offer("test1");
-        hllp.offer("test2");
-
         final View view = new View.Builder().entity("BasicEntity",
                 new ViewElementDefinition.Builder().preAggregationFilter(
                         new ElementFilter.Builder()
-                                .select("freqMap")
+                                .select("freqMap.type_value.key")
                                 .execute(
-                                        new IsEqual(hllp))
+                                        new IsEqual("test"))
                                 .build())
                         .build())
                 .build();
         final FilterPredicate filter = ParquetFilterUtils.buildGroupFilter(view, schemaUtils, "BasicEntity", DirectedType.EITHER, true).get0();
-        final FilterPredicate expected = and(eq(binaryColumn("freqMap.raw_bytes"), Binary.fromReusedByteArray(hllp.getBytes())), eq(longColumn("freqMap.cardinality"), 2L));
+        final FilterPredicate expected = eq(binaryColumn("freqMap.type_value.key"), Binary.fromString("test"));
         assertEquals(expected, filter);
     }
 }

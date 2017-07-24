@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.parquetstore.data;
+package uk.gov.gchq.gaffer.parquetstore.testutils;
 
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema;
-import org.apache.spark.sql.types.StructType;
 import scala.collection.JavaConversions;
 import scala.collection.Seq;
+import scala.collection.mutable.WrappedArray$;
 import scala.reflect.ClassTag$;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -38,7 +38,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
+
 
 public class DataGen {
     private static final String EntityGroup1 = "BasicEntity";
@@ -46,8 +48,9 @@ public class DataGen {
     private static final String EdgeGroup1 = "BasicEdge";
     private static final String EdgeGroup2 = "BasicEdge2";
 
-    public static Entity getEntity(final String group, final Object vertex, final Byte aByte, final Double aDouble, final Float aFloat,
-                                   final TreeSet<String> treeSet, final Long aLong, final Short aShort, final Date date, final FreqMap freqMap) {
+    public static Entity getEntity(final String group, final Object vertex, final Byte aByte, final Double aDouble,
+                                   final Float aFloat, final TreeSet<String> treeSet, final Long aLong,
+                                   final Short aShort, final Date date, final FreqMap freqMap, final int count) {
         final Entity entity = new Entity(group, vertex);
         entity.putProperty("byte", aByte);
         entity.putProperty("double", aDouble);
@@ -57,13 +60,13 @@ public class DataGen {
         entity.putProperty("short", aShort);
         entity.putProperty("date", date);
         entity.putProperty("freqMap", freqMap);
-        entity.putProperty("count", 1);
+        entity.putProperty("count", count);
         return entity;
     }
 
     public static Edge getEdge(final String group, final Object src, final Object dst, final Boolean directed,
                                final Byte aByte, final Double aDouble, final Float aFloat, final TreeSet<String> treeSet,
-                               final Long aLong, final Short aShort, final Date date, final FreqMap freqMap) {
+                               final Long aLong, final Short aShort, final Date date, final FreqMap freqMap, final int count) {
         final Edge edge = new Edge(group, src, dst, directed);
         edge.putProperty("byte", aByte);
         edge.putProperty("double", aDouble);
@@ -73,7 +76,7 @@ public class DataGen {
         edge.putProperty("short", aShort);
         edge.putProperty("date", date);
         edge.putProperty("freqMap", freqMap);
-        edge.putProperty("count", 1);
+        edge.putProperty("count", count);
         return edge;
     }
 
@@ -86,19 +89,20 @@ public class DataGen {
                 utils.getColumnToSerialiser(group),
                 utils.getSerialisers(),
                 utils.getColumnToPaths(group));
-
         final List<Object> list = new ArrayList<>();
-        list.add(group);
+        final scala.collection.mutable.Map<String, Long> map = new scala.collection.mutable.HashMap<>();
+        for (final Map.Entry<String, Long> entry : freqMap.entrySet()) {
+            map.put(entry.getKey(), entry.getValue());
+        }
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects(ParquetStoreConstants.VERTEX, vertex)));
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects("byte", aByte)));
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects("double", aDouble)));
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects("float", aFloat)));
-        list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects("treeSet", treeSet)));
+        list.add(WrappedArray$.MODULE$.make(entityConverter.gafferObjectToParquetObjects("treeSet", treeSet)[0]));
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects("long", aLong)));
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects("short", aShort)));
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects("date", date)));
-        list.add(new GenericRowWithSchema(entityConverter.gafferObjectToParquetObjects("freqMap", freqMap),
-                (StructType) utils.getSparkSchema(group).apply("freqMap").dataType()));
+        list.add(map);
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects("count", 1)));
 
         final Object[] objects = new Object[list.size()];
@@ -116,21 +120,22 @@ public class DataGen {
                 utils.getColumnToSerialiser(group),
                 utils.getSerialisers(),
                 utils.getColumnToPaths(group));
-
         final List<Object> list = new ArrayList<>();
-        list.add(group);
+        final scala.collection.mutable.Map<String, Long> map = new scala.collection.mutable.HashMap<>();
+        for (final Map.Entry<String, Long> entry : freqMap.entrySet()) {
+            map.put(entry.getKey(), entry.getValue());
+        }
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects(ParquetStoreConstants.SOURCE, src)));
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects(ParquetStoreConstants.DESTINATION, dst)));
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects(ParquetStoreConstants.DIRECTED, directed)));
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects("byte", aByte)));
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects("double", aDouble)));
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects("float", aFloat)));
-        list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects("treeSet", treeSet)));
+        list.add(WrappedArray$.MODULE$.make(edgeConverter.gafferObjectToParquetObjects("treeSet", treeSet)[0]));
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects("long", aLong)));
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects("short", aShort)));
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects("date", date)));
-        list.add(new GenericRowWithSchema(edgeConverter.gafferObjectToParquetObjects("freqMap", freqMap),
-                (StructType) utils.getSparkSchema(group).apply("freqMap").dataType()));
+        list.add(map);
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects("count", 1)));
 
         final Object[] objects = new Object[list.size()];
@@ -143,8 +148,8 @@ public class DataGen {
         final List<Element> entities = new ArrayList<>();
 
         for (int x = 0 ; x < size/2 ; x++){
-            final Entity entity = DataGen.getEntity(group, "vert" + x, null, null, null, null, null, null, null, null);
-            final Entity entity1 = DataGen.getEntity(group, "vert" + x, null, null, null, null, null, null, null, null);
+            final Entity entity = DataGen.getEntity(group, "vert" + x, null, null, null, null, null, null, null, null, 1);
+            final Entity entity1 = DataGen.getEntity(group, "vert" + x, null, null, null, null, null, null, null, null, 1);
             entities.add(entity);
             entities.add(entity1);
         }
@@ -155,10 +160,10 @@ public class DataGen {
         final List<Element> edges = new ArrayList<>();
 
         for (int x = 0 ; x < size/4 ; x++){
-            final Edge edge = DataGen.getEdge(group, "src" + x, "dst" + x, true, null, null, null, null, null, null, null, null);
-            final Edge edge2 = DataGen.getEdge(group, "src" + x, "dst" + x, true, null, null, null, null, null, null, null, null);
-            final Edge edge3 = DataGen.getEdge(group, "src" + x, "dst" + x, false, null, null, null, null, null, null, null, null);
-            final Edge edge4 = DataGen.getEdge(group, "src" + x, "dst" + x, false, null, null, null, null, null, null, null, null);
+            final Edge edge = DataGen.getEdge(group, "src" + x, "dst" + x, true, null, null, null, null, null, null, null, null, 1);
+            final Edge edge2 = DataGen.getEdge(group, "src" + x, "dst" + x, true, null, null, null, null, null, null, null, null, 1);
+            final Edge edge3 = DataGen.getEdge(group, "src" + x, "dst" + x, false, null, null, null, null, null, null, null, null, 1);
+            final Edge edge4 = DataGen.getEdge(group, "src" + x, "dst" + x, false, null, null, null, null, null, null, null, null, 1);
             edges.add(edge);
             edges.add(edge2);
             edges.add(edge3);
@@ -169,27 +174,10 @@ public class DataGen {
 
     private static List<Element> generateBasicLongEntitys(final String group, final int size) {
         final List<Element> entities = new ArrayList<>();
-        final TreeSet<String> t = new TreeSet<>();
-        t.add("A");
-        t.add("B");
-
-        final TreeSet<String> t2 = new TreeSet<>();
-        t2.add("A");
-        t2.add("C");
-
-        final FreqMap f = new FreqMap();
-        f.upsert("a", 1L);
-        f.upsert("b", 1L);
-
-        final FreqMap f2 = new FreqMap();
-        f2.upsert("a", 1L);
-        f2.upsert("c", 1L);
-
-        final Date date = new Date();
 
         for (int x = 0 ; x < size/2 ; x++){
-            final Entity entity = DataGen.getEntity(group, (long) x, (byte) 'a', 0.2, 3f, t, 5L * x, (short) 6, date, f);
-            final Entity entity1 = DataGen.getEntity(group, (long) x, (byte) 'b', 0.3, 4f, t2, 6L * x, (short) 7, date, f2);
+            final Entity entity = DataGen.getEntity(group, (long) x, (byte) 'a', 0.2, 3f, TestUtils.TREESET1, 5L * x, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1, 1);
+            final Entity entity1 = DataGen.getEntity(group, (long) x, (byte) 'b', 0.3, 4f, TestUtils.TREESET2, 6L * x, (short) 7, TestUtils.DATE, TestUtils.FREQMAP2, 1);
             entities.add(entity);
             entities.add(entity1);
         }
@@ -198,29 +186,12 @@ public class DataGen {
 
     private static List<Element> generateBasicLongEdges(final String group, final int size) {
         final List<Element> edges = new ArrayList<>();
-        final TreeSet<String> t = new TreeSet<>();
-        t.add("A");
-        t.add("B");
-
-        final TreeSet<String> t2 = new TreeSet<>();
-        t2.add("A");
-        t2.add("C");
-
-        final FreqMap f = new FreqMap();
-        f.upsert("a", 1L);
-        f.upsert("b", 1L);
-
-        final FreqMap f2 = new FreqMap();
-        f2.upsert("a", 1L);
-        f2.upsert("c", 1L);
-
-        final Date date = new Date();
 
         for (int x = 0 ; x < size/4 ; x++){
-            final Edge edge = DataGen.getEdge(group, (long) x, (long) x + 1, true, (byte) 'a', 0.2 * x, 2f, t, 5L, (short) 6, date, f);
-            final Edge edge2 = DataGen.getEdge(group, (long) x, (long) x + 1, true, (byte) 'b', 0.3, 4f, t2, 6L * x, (short) 7, date, f2);
-            final Edge edge3 = DataGen.getEdge(group, (long) x, (long) x + 1, false, (byte) 'a', 0.2 * x, 2f, t, 5L, (short) 6, date, f);
-            final Edge edge4 = DataGen.getEdge(group, (long) x, (long) x + 1, false, (byte) 'b', 0.3, 4f, t2, 6L * x, (short) 7, new Date(date.getTime() + 1000), f2);
+            final Edge edge = DataGen.getEdge(group, (long) x, (long) x + 1, true, (byte) 'a', 0.2 * x, 2f, TestUtils.TREESET1, 5L, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1, 1);
+            final Edge edge2 = DataGen.getEdge(group, (long) x, (long) x + 1, true, (byte) 'b', 0.3, 4f, TestUtils.TREESET2, 6L * x, (short) 7, TestUtils.DATE, TestUtils.FREQMAP2, 1);
+            final Edge edge3 = DataGen.getEdge(group, (long) x, (long) x + 1, false, (byte) 'a', 0.2 * x, 2f, TestUtils.TREESET1, 5L, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1, 1);
+            final Edge edge4 = DataGen.getEdge(group, (long) x, (long) x + 1, false, (byte) 'b', 0.3, 4f, TestUtils.TREESET2, 6L * x, (short) 7, TestUtils.DATE1, TestUtils.FREQMAP2, 1);
             edges.add(edge);
             edges.add(edge2);
             edges.add(edge3);
@@ -231,29 +202,12 @@ public class DataGen {
 
     private static List<Element> generateBasicTypeValueEntitys(final String group, final int size) {
         final List<Element> entities = new ArrayList<>();
-        final TreeSet<String> t = new TreeSet<>();
-        t.add("A");
-        t.add("B");
-
-        final TreeSet<String> t2 = new TreeSet<>();
-        t2.add("A");
-        t2.add("C");
-
-        final FreqMap f = new FreqMap();
-        f.upsert("a", 1L);
-        f.upsert("b", 1L);
-
-        final FreqMap f2 = new FreqMap();
-        f2.upsert("a", 1L);
-        f2.upsert("c", 1L);
-
-        final Date date = new Date();
 
         for (int x = 0 ; x < size/2 ; x++){
             final String type = "type" + (x % 5);
             final TypeValue vrt = new TypeValue(type, "vrt" + x);
-            final Entity entity = DataGen.getEntity(group, vrt, (byte) 'a', 0.2, 3f, t, 5L * x, (short) 6, date, f);
-            final Entity entity1 = DataGen.getEntity(group, vrt, (byte) 'b', 0.3, 4f, t2, 6L * x, (short) 7, date, f2);
+            final Entity entity = DataGen.getEntity(group, vrt, (byte) 'a', 0.2, 3f, TestUtils.TREESET1, 5L * x, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1, 1);
+            final Entity entity1 = DataGen.getEntity(group, vrt, (byte) 'b', 0.3, 4f, TestUtils.TREESET2, 6L * x, (short) 7, TestUtils.DATE, TestUtils.FREQMAP2, 1);
             entities.add(entity);
             entities.add(entity1);
         }
@@ -262,32 +216,15 @@ public class DataGen {
 
     private static List<Element> generateBasicTypeValueEdges(final String group, final int size) {
         final List<Element> edges = new ArrayList<>();
-        final TreeSet<String> t = new TreeSet<>();
-        t.add("A");
-        t.add("B");
-
-        final TreeSet<String> t2 = new TreeSet<>();
-        t2.add("A");
-        t2.add("C");
-
-        final FreqMap f = new FreqMap();
-        f.upsert("a", 1L);
-        f.upsert("b", 1L);
-
-        final FreqMap f2 = new FreqMap();
-        f2.upsert("a", 1L);
-        f2.upsert("c", 1L);
-
-        final Date date = new Date();
 
         for (int x = 0 ; x < size/4 ; x++){
             final String type = "type" + (x % 5);
             final TypeValue src = new TypeValue(type, "src" + x);
             final TypeValue dst = new TypeValue(type, "dst" + (x + 1));
-            final Edge edge = DataGen.getEdge(group, src, dst, true, (byte) 'a', 0.2 * x, 2f, t, 5L, (short) 6, date, f);
-            final Edge edge2 = DataGen.getEdge(group, src, dst, true, (byte) 'b', 0.3, 4f, t2, 6L * x, (short) 7, date, f2);
-            final Edge edge3 = DataGen.getEdge(group, src, dst, false, (byte) 'a', 0.2 * x, 2f, t, 5L, (short) 6, date, f);
-            final Edge edge4 = DataGen.getEdge(group, src, dst, false, (byte) 'b', 0.3, 4f, t2, 6L * x, (short) 7, new Date(date.getTime() + 1000), f2);
+            final Edge edge = DataGen.getEdge(group, src, dst, true, (byte) 'a', 0.2 * x, 2f, TestUtils.TREESET1, 5L, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1, 1);
+            final Edge edge2 = DataGen.getEdge(group, src, dst, true, (byte) 'b', 0.3, 4f, TestUtils.TREESET2, 6L * x, (short) 7, TestUtils.DATE, TestUtils.FREQMAP2, 1);
+            final Edge edge3 = DataGen.getEdge(group, src, dst, false, (byte) 'a', 0.2 * x, 2f, TestUtils.TREESET1, 5L, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1, 1);
+            final Edge edge4 = DataGen.getEdge(group, src, dst, false, (byte) 'b', 0.3, 4f, TestUtils.TREESET2, 6L * x, (short) 7, TestUtils.DATE1, TestUtils.FREQMAP2, 1);
             edges.add(edge);
             edges.add(edge2);
             edges.add(edge3);

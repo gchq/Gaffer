@@ -19,6 +19,7 @@ import org.apache.parquet.column.Dictionary;
 import org.apache.parquet.io.api.Binary;
 import org.apache.parquet.schema.OriginalType;
 
+import java.lang.reflect.Array;
 import java.util.Map;
 
 public class PrimitiveConverter extends org.apache.parquet.io.api.PrimitiveConverter {
@@ -119,13 +120,14 @@ public class PrimitiveConverter extends org.apache.parquet.io.api.PrimitiveConve
         addObject(value);
     }
 
-    private void addObject(final Object object) {
+    private <T extends Object> void addObject(final T object) {
         final Object[] currentArray = parquetColumnToObject.getOrDefault(column, null);
         final Object[] newArray;
         if (currentArray == null) {
-            newArray = new Object[]{object};
+            newArray = (T[]) Array.newInstance(object.getClass(), 1);
+            newArray[0] = object;
         } else {
-            newArray = new Object[currentArray.length + 1];
+            newArray = (T[]) Array.newInstance(object.getClass(), currentArray.length + 1);
             System.arraycopy(currentArray, 0, newArray, 0, currentArray.length);
             newArray[newArray.length - 1] = object;
         }

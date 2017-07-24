@@ -26,13 +26,19 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
-import uk.gov.gchq.gaffer.parquetstore.data.DataGen;
+import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
+import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
+import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.types.TypeValue;
 
-import static org.junit.Assert.assertEquals;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
+import static org.junit.Assert.assertThat;
 
 public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsTest {
 
@@ -65,7 +71,47 @@ public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsT
 
     @Override
     void checkGetDataFrameOfElements(final Dataset<Row> data) {
-        assertEquals(18, data.columns().length);
-        assertEquals(175L, data.count());
+        // check all columns are present
+        final String[] actualColumns = data.columns();
+        final List<String> expectedColumns = new ArrayList<>(17);
+        expectedColumns.add(ParquetStoreConstants.GROUP);
+        expectedColumns.add(ParquetStoreConstants.VERTEX + "_type");
+        expectedColumns.add(ParquetStoreConstants.VERTEX + "_value");
+        expectedColumns.add(ParquetStoreConstants.SOURCE + "_type");
+        expectedColumns.add(ParquetStoreConstants.SOURCE + "_value");
+        expectedColumns.add(ParquetStoreConstants.DESTINATION + "_type");
+        expectedColumns.add(ParquetStoreConstants.DESTINATION + "_value");
+        expectedColumns.add(ParquetStoreConstants.DIRECTED);
+        expectedColumns.add("byte");
+        expectedColumns.add("double");
+        expectedColumns.add("float");
+        expectedColumns.add("treeSet");
+        expectedColumns.add("long");
+        expectedColumns.add("short");
+        expectedColumns.add("date");
+        expectedColumns.add("freqMap");
+        expectedColumns.add("count");
+
+        assertThat(expectedColumns, containsInAnyOrder(actualColumns));
+
+        //check returned elements are correct
+        final List<Element> expected = new ArrayList<>(175);
+        final List<Element> actual = TestUtils.convertTypeValueRowsToElements(data);
+        for (int x = 0 ; x < 25; x++) {
+            final String type = "type" + (x % 5);
+            final TypeValue src = new TypeValue(type, "src" + x);
+            final TypeValue dst = new TypeValue(type, "dst" + (x + 1));
+            final TypeValue vrt = new TypeValue(type, "vrt" + x);
+            expected.add(DataGen.getEdge("BasicEdge", src, dst, true, (byte) 'b', (0.2 * x) + 0.3, 6f, TestUtils.MERGED_TREESET, (6L * x) + 5L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
+            expected.add(DataGen.getEdge("BasicEdge", src, dst, false, (byte) 'a', 0.2 * x, 2f, TestUtils.TREESET1, 5L, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1, 1));
+            expected.add(DataGen.getEdge("BasicEdge", src, dst, false, (byte) 'b', 0.3, 4f, TestUtils.TREESET2, 6L * x, (short) 7, TestUtils.DATE1, TestUtils.FREQMAP2, 1));
+
+            expected.add(DataGen.getEdge("BasicEdge2", src, dst, true, (byte) 'b', (0.2 * x) + 0.3, 6f, TestUtils.MERGED_TREESET, (6L * x) + 5L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
+            expected.add(DataGen.getEdge("BasicEdge2", src, dst, false, (byte) 'b', (0.2 * x) + 0.3, 6f, TestUtils.MERGED_TREESET, (6L * x) + 5L, (short) 13, TestUtils.DATE1, TestUtils.MERGED_FREQMAP, 2));
+
+            expected.add(DataGen.getEntity("BasicEntity", vrt, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, (5L * x) + (6L * x), (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
+            expected.add(DataGen.getEntity("BasicEntity2", vrt, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, (5L * x) + (6L * x), (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
+        }
+        assertThat(expected, containsInAnyOrder(actual.toArray()));
     }
 }

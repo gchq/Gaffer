@@ -26,13 +26,18 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
-import uk.gov.gchq.gaffer.parquetstore.data.DataGen;
+import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
+import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
+import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import static org.junit.Assert.assertEquals;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
+import static org.junit.Assert.assertThat;
 
 public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest {
 
@@ -65,7 +70,39 @@ public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest
 
     @Override
     void checkGetDataFrameOfElements(final Dataset<Row> data) {
-        assertEquals(15, data.columns().length);
-        assertEquals(150L, data.count());
+        // check all columns are present
+        final String[] actualColumns = data.columns();
+        final List<String> expectedColumns = new ArrayList<>(14);
+        expectedColumns.add(ParquetStoreConstants.GROUP);
+        expectedColumns.add(ParquetStoreConstants.VERTEX);
+        expectedColumns.add(ParquetStoreConstants.SOURCE);
+        expectedColumns.add(ParquetStoreConstants.DESTINATION);
+        expectedColumns.add(ParquetStoreConstants.DIRECTED);
+        expectedColumns.add("byte");
+        expectedColumns.add("double");
+        expectedColumns.add("float");
+        expectedColumns.add("treeSet");
+        expectedColumns.add("long");
+        expectedColumns.add("short");
+        expectedColumns.add("date");
+        expectedColumns.add("freqMap");
+        expectedColumns.add("count");
+
+        assertThat(expectedColumns, containsInAnyOrder(actualColumns));
+
+        //check returned elements are correct
+        final List<Element> expected = new ArrayList<>(175);
+        final List<Element> actual = TestUtils.convertStringRowsToElements(data);
+        for (long i = 0 ; i < 25; i++) {
+            expected.add(DataGen.getEdge("BasicEdge", "src" + i, "dst" + i, true, null, null, null, null, null, null, null, null, 2));
+            expected.add(DataGen.getEdge("BasicEdge", "src" + i, "dst" + i, false, null, null, null, null, null, null, null, null, 2));
+
+            expected.add(DataGen.getEdge("BasicEdge2", "src" + i, "dst" + i, true, null, null, null, null, null, null, null, null, 2));
+            expected.add(DataGen.getEdge("BasicEdge2", "src" + i, "dst" + i, false, null, null, null, null, null, null, null, null, 2));
+
+            expected.add(DataGen.getEntity("BasicEntity", "vert" + i, null, null, null, null, null, null, null, null, 2));
+            expected.add(DataGen.getEntity("BasicEntity2", "vert" + i, null, null, null, null, null, null, null, null, 2));
+        }
+        assertThat(expected, containsInAnyOrder(actual.toArray()));
     }
 }

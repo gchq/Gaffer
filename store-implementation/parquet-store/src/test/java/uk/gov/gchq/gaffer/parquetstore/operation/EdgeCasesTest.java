@@ -35,13 +35,11 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
-import uk.gov.gchq.gaffer.parquetstore.data.DataGen;
-import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
-import uk.gov.gchq.gaffer.store.SerialisationFactory;
+import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
+import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -49,10 +47,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.TreeSet;
 
+import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class EdgeCasesTest {
@@ -99,58 +98,54 @@ public class EdgeCasesTest {
                 .storeProperties(parquetProperties)
                 .graphId("test")
                 .build();
-
-        final ArrayList<Element> elements = new ArrayList<>(1);
-        final TreeSet<String> t = new TreeSet<>();
-        t.add("A");
-        t.add("B");
-
-        final FreqMap f = new FreqMap();
-        f.upsert("a", 1L);
-        f.upsert("b", 1L);
-
-        elements.add(DataGen.getEntity("BasicEntity", "vertex", (byte) 'a', 0.2, 3f, t, 5L, (short) 6,
-                new java.util.Date(), f));
+        final FreqMap f2 = new FreqMap();
+        f2.upsert("A", 2L);
+        f2.upsert("B", 2L);
+        final ArrayList<Element> elements = new ArrayList<>(2);
+        elements.add(DataGen.getEntity("BasicEntity", "vertex", (byte) 'a', 0.2, 3f, TestUtils.TREESET1, 5L, (short) 6,
+                TestUtils.DATE , TestUtils.FREQMAP1, 1));
+        final Entity expected = DataGen.getEntity("BasicEntity", "vertex", (byte) 'a', 0.4, 6f, TestUtils.TREESET1, 10L, (short) 12,
+                TestUtils.DATE, f2, 2);
         graph.execute(new AddElements.Builder().input(elements).build(), USER);
         graph.execute(new AddElements.Builder().input(elements).build(), USER);
         CloseableIterator<? extends Element> results = graph.execute(new GetAllElements.Builder().build(), USER).iterator();
         assertTrue(results.hasNext());
-        Entity entity = (Entity) results.next();
-        assertEquals(2, entity.getProperty("count"));
+        assertEquals(expected, results.next());
         assertFalse(results.hasNext());
     }
 
     @Test
     public void readElementsWithZeroElementFiles() throws IOException, OperationException, StoreException {
-        final Iterable<? extends Element> elements = DataGen.generate300StringElementsWithNullProperties();
+        try {
+            final List<Element> elements = new ArrayList<>(2);
+            elements.add(DataGen.getEntity("BasicEntity", "vert1", null, null, null, null, null, null, null, null, 1));
+            elements.add(DataGen.getEntity("BasicEntity", "vert2", null, null, null, null, null, null, null, null, 1));
 
-        final Schema gafferSchema = Schema.fromJson(
-                EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataSchema.json"),
-                EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
-                EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
-                EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
-        ParquetStoreProperties parquetProperties = getParquetStoreProperties();
-        parquetProperties.setDataDir("readElementsWithZeroElementFiles");
-        parquetProperties.setAddElementsOutputFilesPerGroup(200);
-        final SchemaOptimiser optimiser = new SchemaOptimiser(new SerialisationFactory(ParquetStoreConstants.SERIALISERS));
-        final Graph graph = new Graph.Builder()
-                .addSchema(optimiser.optimise(gafferSchema, true))
-                .storeProperties(parquetProperties)
-                .graphId("test")
-                .build();
-        graph.execute(new AddElements.Builder().input(elements).build(), USER);
-
-        final Iterable<? extends Element> retrievedElements = graph.execute(new GetAllElements(), USER);
-        final Iterator<? extends Element> iter = retrievedElements.iterator();
-        assertTrue(iter.hasNext());
-        int counter = 0;
-        while (iter.hasNext()) {
-            iter.next();
-            counter++;
-        }
-        assertEquals(150, counter);
-        try (final FileSystem fs = FileSystem.get(new Configuration())) {
-            deleteFolder("readElementsWithZeroElementFiles", fs);
+            final Schema gafferSchema = Schema.fromJson(
+                    EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataSchema.json"),
+                    EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
+                    EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
+                    EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
+            ParquetStoreProperties parquetProperties = getParquetStoreProperties();
+            parquetProperties.setDataDir("readElementsWithZeroElementFiles");
+            parquetProperties.setAddElementsOutputFilesPerGroup(3);
+            final Graph graph = new Graph.Builder()
+                    .addSchema(gafferSchema)
+                    .storeProperties(parquetProperties)
+                    .graphId("test")
+                    .build();
+            graph.execute(new AddElements.Builder().input(elements).build(), USER);
+            final List<Element> retrievedElements = new ArrayList<>();
+            final CloseableIterator<? extends Element> iter = graph.execute(new GetAllElements(), USER).iterator();
+            assertTrue(iter.hasNext());
+            while (iter.hasNext()) {
+                retrievedElements.add(iter.next());
+            }
+            assertThat(elements, containsInAnyOrder(retrievedElements.toArray()));
+        } finally {
+            try (final FileSystem fs = FileSystem.get(new Configuration())) {
+                deleteFolder("readElementsWithZeroElementFiles", fs);
+            }
         }
     }
 
@@ -217,23 +212,13 @@ public class EdgeCasesTest {
         Iterable<? extends Element> results = graph.execute(new GetElements.Builder().input(entitySeeds).build(), USER);
         Iterator<? extends Element> iter = results.iterator();
         assertTrue(iter.hasNext());
-        Edge edge = (Edge) iter.next();
-        assertEquals("BasicEdge", edge.getGroup());
-        assertEquals("A", edge.getSource());
-        assertEquals("A", edge.getDestination());
-        assertEquals(false, edge.isDirected());
-        assertEquals(1, edge.getProperty("count"));
+        assertEquals(A2A, iter.next());
         assertFalse(iter.hasNext());
 
         results = graph.execute(new GetAllElements.Builder().build(), USER);
         iter = results.iterator();
         assertTrue(iter.hasNext());
-        edge = (Edge) iter.next();
-        assertEquals("BasicEdge", edge.getGroup());
-        assertEquals("A", edge.getSource());
-        assertEquals("A", edge.getDestination());
-        assertEquals(false, edge.isDirected());
-        assertEquals(1, edge.getProperty("count"));
+        assertEquals(A2A, iter.next());
         assertFalse(iter.hasNext());
     }
 }

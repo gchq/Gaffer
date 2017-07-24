@@ -47,12 +47,10 @@ public final class SparkParquetUtils {
         LOGGER.info("Setting the parquet file properties");
         LOGGER.info("Row group size: {}", props.getRowGroupSize());
         LOGGER.info("Page size: {}", props.getPageSize());
-//        hadoopConf.setInt("parquet.block.size", props.getRowGroupSize());
-//        hadoopConf.setInt("parquet.page.size", props.getPageSize());
-//        hadoopConf.setInt("parquet.dictionary.page.size", props.getPageSize());
+        hadoopConf.setInt("parquet.block.size", props.getRowGroupSize());
+        hadoopConf.setInt("parquet.page.size", props.getPageSize());
+        hadoopConf.setInt("parquet.dictionary.page.size", props.getPageSize());
         hadoopConf.set("mapreduce.fileoutputcommitter.marksuccessfuljobs", "false");
         hadoopConf.set("parquet.enable.summary-metadata", "true");
-//        hadoopConf.set("parquet.write.support.class", ParquetWriteSupport.class.getCanonicalName());
-//        hadoopConf.set("parquet.compression", "none");
     }
 }

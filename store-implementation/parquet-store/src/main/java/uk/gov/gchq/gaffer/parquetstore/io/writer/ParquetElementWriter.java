@@ -22,6 +22,7 @@ import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.hadoop.api.WriteSupport;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.apache.parquet.schema.MessageType;
+import org.apache.spark.sql.types.StructType;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 
@@ -62,6 +63,7 @@ public class ParquetElementWriter extends ParquetWriter<Element> {
         private MessageType type = null;
         private boolean isEntity = true;
         private GafferGroupObjectConverter converter = null;
+        private StructType sparkSchema = null;
 
         public Builder(final Path file) {
             super(file);
@@ -82,6 +84,11 @@ public class ParquetElementWriter extends ParquetWriter<Element> {
             return this;
         }
 
+        public Builder withSparkSchema(final StructType sparkSchema) {
+            this.sparkSchema = sparkSchema;
+            return this;
+        }
+
         @Override
         protected Builder self() {
             return this;
@@ -89,7 +96,7 @@ public class ParquetElementWriter extends ParquetWriter<Element> {
 
         @Override
         protected WriteSupport<Element> getWriteSupport(final Configuration conf) {
-            return new ElementWriteSupport(type, isEntity, converter);
+            return new ElementWriteSupport(type, isEntity, converter, sparkSchema);
         }
     }
 }

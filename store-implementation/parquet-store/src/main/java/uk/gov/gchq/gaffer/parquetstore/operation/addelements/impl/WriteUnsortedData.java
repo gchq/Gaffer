@@ -97,6 +97,7 @@ public class WriteUnsortedData {
                 .withType(schemaUtils.getParquetSchema(group))
                 .usingConverter(schemaUtils.getConverter(group))
                 .withCompressionCodec(CompressionCodecName.UNCOMPRESSED)
+                .withSparkSchema(schemaUtils.getSparkSchema(group))
                 .build();
     }
 }

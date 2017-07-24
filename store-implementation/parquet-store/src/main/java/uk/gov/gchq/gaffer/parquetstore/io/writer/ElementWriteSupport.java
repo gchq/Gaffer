@@ -19,6 +19,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.parquet.hadoop.api.WriteSupport;
 import org.apache.parquet.io.api.RecordConsumer;
 import org.apache.parquet.schema.MessageType;
+import org.apache.spark.sql.execution.datasources.parquet.ParquetReadSupport;
+import org.apache.spark.sql.types.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -28,40 +30,33 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 
 import java.util.HashMap;
-
-import static org.apache.parquet.Preconditions.checkNotNull;
-import static org.apache.parquet.schema.MessageTypeParser.parseMessageType;
+import java.util.Map;
 
 public class ElementWriteSupport extends WriteSupport<Element> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementWriteSupport.class);
     private boolean isEntity;
     private GafferGroupObjectConverter converter;
-
-    public static final String PARQUET_SCHEMA = "parquet.schema";
-
-    public static MessageType getSchema(final Configuration configuration) {
-        return parseMessageType(checkNotNull(configuration.get(PARQUET_SCHEMA), PARQUET_SCHEMA));
-    }
-
     private MessageType schema = null;
     private ElementWriter elementWriter;
+    private StructType sparkSchema;
 
     public ElementWriteSupport() {
     }
 
-    ElementWriteSupport(final MessageType schema, final boolean isEntity, final GafferGroupObjectConverter converter) {
+    ElementWriteSupport(final MessageType schema, final boolean isEntity, final GafferGroupObjectConverter converter, final StructType sparkSchema) {
         this.schema = schema;
         this.isEntity = isEntity;
         this.converter = converter;
+        this.sparkSchema = sparkSchema;
     }
 
     @Override
     public org.apache.parquet.hadoop.api.WriteSupport.WriteContext init(final Configuration configuration) {
-        // if present, prefer the schema passed to the constructor
-        if (schema == null) {
-            schema = getSchema(configuration);
+        final Map<String, String> extraMeta = new HashMap<>();
+        if (sparkSchema != null) {
+            extraMeta.put(ParquetReadSupport.SPARK_METADATA_KEY(), sparkSchema.json());
         }
-        return new WriteContext(schema, new HashMap<String, String>());
+        return new WriteContext(schema, extraMeta);
     }
 
     @Override

@@ -152,7 +152,6 @@ public class SchemaUtils {
         SchemaElementDefinition groupGafferSchema;
         final boolean isEntity = gafferSchema.getEntityGroups().contains(group);
         final StringBuilder schemaString = new StringBuilder("message Element {\n");
-//        schemaString.append("required binary " + ParquetStoreConstants.GROUP + " (UTF8);\n");
         Serialiser serialiser = gafferSchema.getVertexSerialiser();
         // Check that the vertex does not get stored as nested data
         if (serialiser instanceof ParquetSerialiser &&

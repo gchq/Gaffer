@@ -243,12 +243,7 @@ public class GafferGroupObjectConverter implements Serializable {
                             }
                             parquetObjectsForColumn[i] = list;
                         } else {
-                            final Object[] array = new Object[parquetColumnObjects.length];
-                            int arrayIndex = 0;
-                            for (final Object arrayObject : parquetColumnObjects) {
-                                array[arrayIndex] = arrayObject;
-                            }
-                            parquetObjectsForColumn[i] = array;
+                            parquetObjectsForColumn[i] = parquetColumnObjects;
                         }
                     } else {
                         if (isMap) {

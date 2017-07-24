@@ -24,21 +24,22 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import scala.collection.Seq;
-import uk.gov.gchq.gaffer.parquetstore.data.DataGen;
+import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
+import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.store.SerialisationFactory;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
-import uk.gov.gchq.gaffer.types.FreqMap;
 
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.TreeSet;
+import java.util.List;
 import java.util.function.BinaryOperator;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 public class ExtractKeyFromRowTest {
@@ -95,39 +96,35 @@ public class ExtractKeyFromRowTest {
     @Test
     public void testExtractKeyFromRowForEntity() throws Exception {
         final ExtractKeyFromRow entityConverter = new ExtractKeyFromRow(groupByColumns, columnsToPaths, true, buildcolumnToAggregatorMap(utils.getGafferSchema().getElement("BasicEntity")));
-        final Date date = new Date();
-        final TreeSet<String> t = new TreeSet<>();
-        t.add("A");
-        t.add("B");
-        final FreqMap f = new FreqMap();
-        f.upsert("a", 1L);
-        f.upsert("b", 1L);
-        final Row row = DataGen.generateEntityRow(utils, "BasicEntity","vertex", (byte) 'a', 0.2, 3f, t, 5L, (short) 6, date, f);
+        final Row row = DataGen.generateEntityRow(utils, "BasicEntity","vertex", (byte) 'a', 0.2, 3f, TestUtils.TREESET1, 5L, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1);
         final Seq<Object> results = entityConverter.call(row);
-        assertEquals(0.2, (double) results.apply(0), 0);
-        assertEquals("vertex", results.apply(1).toString());
-        assertEquals(date, new Date((long) results.apply(2)));
-        assertEquals(3, results.size());
+        final List<Object> actual = new ArrayList<>(3);
+        for (int i = 0; i < results.length(); i++) {
+            actual.add(results.apply(i));
+        }
+        final List<Object> expected = new ArrayList<>(3);
+        expected.add(0.2);
+        expected.add("vertex");
+        expected.add(TestUtils.DATE.getTime());
+        assertThat(expected, containsInAnyOrder(actual.toArray()));
     }
 
     @Test
     public void testExtractKeyFromRowForEdge() throws Exception {
         final ExtractKeyFromRow edgeConverter = new ExtractKeyFromRow(groupByColumns, columnsToPaths, false, buildcolumnToAggregatorMap(utils.getGafferSchema().getElement("BasicEdge")));
-        final Date date = new Date();
-        final TreeSet<String> t = new TreeSet<>();
-        t.add("A");
-        t.add("B");
-        final FreqMap f = new FreqMap();
-        f.upsert("a", 1L);
-        f.upsert("b", 1L);
-        final Row row = DataGen.generateEdgeRow(utils, "BasicEdge","src", "dst", true, (byte) 'a', 0.2, 3f, t, 5L, (short) 6, date, f);
+        final Row row = DataGen.generateEdgeRow(utils, "BasicEdge","src", "dst", true, (byte) 'a', 0.2, 3f, TestUtils.TREESET1, 5L, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1);
         final Seq<Object> results = edgeConverter.call(row);
-        assertEquals(0.2, (double) results.apply(0), 0);
-        assertEquals("dst", results.apply(1).toString());
-        assertEquals("src", results.apply(2).toString());
-        assertEquals(true, results.apply(3));
-        assertEquals(date, new Date((long) results.apply(4)));
-        assertEquals(5, results.size());
+        final List<Object> actual = new ArrayList<>(5);
+        for (int i = 0; i < results.length(); i++) {
+            actual.add(results.apply(i));
+        }
+        final List<Object> expected = new ArrayList<>(5);
+        expected.add(0.2);
+        expected.add("dst");
+        expected.add("src");
+        expected.add(true);
+        expected.add(TestUtils.DATE.getTime());
+        assertThat(expected, containsInAnyOrder(actual.toArray()));
     }
 
     @Test

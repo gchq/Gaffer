@@ -30,31 +30,16 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.BooleanParquetSerialiser;
-import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.ByteParquetSerialiser;
-import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.DateParquetSerialiser;
-import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.DoubleParquetSerialiser;
-import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.FloatParquetSerialiser;
-import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.InLineHyperLogLogPlusParquetSerialiser;
-import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.IntegerParquetSerialiser;
-import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.LongParquetSerialiser;
-import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.ShortParquetSerialiser;
-import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.StringParquetSerialiser;
-import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.TypeValueParquetSerialiser;
-import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
-import uk.gov.gchq.gaffer.spark.SparkUser;
-import uk.gov.gchq.gaffer.store.SerialisationFactory;
-import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
-import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
+import uk.gov.gchq.gaffer.spark.SparkUser;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 
 import java.io.IOException;
 
@@ -74,19 +59,6 @@ public abstract class AbstractSparkOperationsTest {
             .getOrCreate();
     static User USER = new SparkUser(new User(), spark);
     Graph graph;
-    private static final Serialiser[] SERIALISERS = new Serialiser[] {
-            new StringParquetSerialiser(),
-            new ByteParquetSerialiser(),
-            new IntegerParquetSerialiser(),
-            new LongParquetSerialiser(),
-            new BooleanParquetSerialiser(),
-            new DateParquetSerialiser(),
-            new DoubleParquetSerialiser(),
-            new FloatParquetSerialiser(),
-            new InLineHyperLogLogPlusParquetSerialiser(),
-            new ShortParquetSerialiser(),
-            new TypeValueParquetSerialiser(),
-            new JavaSerialiser()};
 
     static ParquetStoreProperties getParquetStoreProperties() {
         return (ParquetStoreProperties) StoreProperties.loadStoreProperties(
@@ -94,9 +66,8 @@ public abstract class AbstractSparkOperationsTest {
     }
 
     static Graph getGraph(final Schema schema, final ParquetStoreProperties properties) throws StoreException {
-        final SchemaOptimiser optimiser = new SchemaOptimiser(new SerialisationFactory(SERIALISERS));
         return new Graph.Builder()
-                .addSchema(optimiser.optimise(schema, true))
+                .addSchema(schema)
                 .storeProperties(properties)
                 .graphId("test")
                 .build();

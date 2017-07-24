@@ -67,9 +67,9 @@ public class SchemaUtilsTest {
                 columnToSerialiser.get("byte"));
         assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.DoubleParquetSerialiser",
                 columnToSerialiser.get("double"));
-        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.floatParquetSerialiser",
+        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.FloatParquetSerialiser",
                 columnToSerialiser.get("float"));
-        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.TreeSetStringSerialiser",
+        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.TreeSetStringParquetSerialiser",
                 columnToSerialiser.get("treeSet"));
         assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.LongParquetSerialiser",
                 columnToSerialiser.get("long"));

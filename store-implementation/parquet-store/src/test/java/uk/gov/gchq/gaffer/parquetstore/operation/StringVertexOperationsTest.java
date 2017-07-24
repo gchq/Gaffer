@@ -31,7 +31,7 @@ import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
-import uk.gov.gchq.gaffer.parquetstore.data.DataGen;
+import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -42,8 +42,10 @@ import uk.gov.gchq.koryphe.impl.predicate.Or;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class StringVertexOperationsTest extends AbstractOperationsTest {
@@ -100,7 +102,7 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
                     .preAggregationFilter(
                         new ElementFilter.Builder()
                             .select(ParquetStoreConstants.SOURCE)
-                            .execute(new Or(new IsLessThan("src12", true), new IsMoreThan("src4", true)))
+                            .execute(new Or<>(new IsLessThan("src12", true), new IsMoreThan("src4", true)))
                             .build())
                     .build())
             .entity("BasicEntity",
@@ -109,7 +111,7 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
                         new ElementFilter.Builder()
                             .select(ParquetStoreConstants.VERTEX)
                             .execute(
-                                new Not(new IsMoreThan("vert12", false)))
+                                new Not<>(new IsMoreThan("vert12", false)))
                             .build())
                 .build())
             .build();
@@ -117,49 +119,112 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
 
     @Override
     protected void checkData(final CloseableIterable<? extends Element> data) {
+        final List<Element> expected = new ArrayList<>(150);
+        final List<Element> actual = new ArrayList<>(150);
         final Iterator<? extends Element> dataIter = data.iterator();
         assertTrue(dataIter.hasNext());
-        int counter = 0;
         while (dataIter.hasNext()) {
-            dataIter.next();
-            counter++;
+            actual.add(dataIter.next());
         }
-        assertEquals(150, counter);
+        for (int i = 0; i < 25; i++) {
+            expected.add(DataGen.getEdge("BasicEdge", "src" + i, "dst" + i, true, null, null, null, null, null, null, null, null, 2));
+            expected.add(DataGen.getEdge("BasicEdge", "src" + i, "dst" + i, false, null, null, null, null, null, null, null, null, 2));
+
+            expected.add(DataGen.getEdge("BasicEdge2", "src" + i, "dst" + i, true, null, null, null, null, null, null, null, null, 2));
+            expected.add(DataGen.getEdge("BasicEdge2", "src" + i, "dst" + i, false, null, null, null, null, null, null, null, null, 2));
+
+            expected.add(DataGen.getEntity("BasicEntity", "vert" + i, null, null, null, null, null, null, null, null, 2));
+            expected.add(DataGen.getEntity("BasicEntity2", "vert" + i, null, null, null, null, null, null, null, null, 2));
+        }
+        assertThat(expected, containsInAnyOrder(actual.toArray()));
     }
 
     @Override
     void checkGetSeededElementsData(final CloseableIterable<? extends Element> data) {
+        final List<Element> expected = new ArrayList<>(18);
+        final List<Element> actual = new ArrayList<>(18);
         final Iterator<? extends Element> dataIter = data.iterator();
         assertTrue(dataIter.hasNext());
-        int counter = 0;
         while (dataIter.hasNext()) {
-            dataIter.next();
-            counter++;
+            actual.add(dataIter.next());
         }
-        assertEquals(18, counter);
+        expected.add(DataGen.getEdge("BasicEdge", "src13", "dst13", true, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src2", "dst2", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src5", "dst5", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src5", "dst5", true, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge2", "src13", "dst13", true, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge2", "src2", "dst2", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge2", "src5", "dst5", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge2", "src5", "dst5", true, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEntity("BasicEntity", "vert10", null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEntity("BasicEntity2", "vert10", null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src15", "dst15", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src15", "dst15", true, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src7", "dst7", true, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src7", "dst7", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge2", "src15", "dst15", true, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge2", "src15", "dst15", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge2", "src7", "dst7", true, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge2", "src7", "dst7", false, null, null, null, null, null, null, null, null, 2));
+
+        assertThat(expected, containsInAnyOrder(actual.toArray()));
     }
 
     @Override
     void checkGetFilteredElementsData(final CloseableIterable<? extends Element> data) {
+        final List<Element> expected = new ArrayList<>(27);
+        final List<Element> actual = new ArrayList<>(27);
         final Iterator<? extends Element> dataIter = data.iterator();
         assertTrue(dataIter.hasNext());
-        int counter = 0;
         while (dataIter.hasNext()) {
-            dataIter.next();
-            counter++;
+            actual.add(dataIter.next());
         }
-        assertEquals(27, counter);
+        expected.add(DataGen.getEdge("BasicEdge", "src0", "dst0", true, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src0", "dst0", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src1", "dst1", true, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src1", "dst1", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src10", "dst10", true, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src10", "dst10", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src11", "dst11", true, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src11", "dst11", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src12", "dst12", true, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src12", "dst12", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src4", "dst4", true, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src4", "dst4", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src5", "dst5", true, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src5", "dst5", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src6", "dst6", true, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src6", "dst6", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src7", "dst7", true, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src7", "dst7", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src8", "dst8", true, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src8", "dst8", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src9", "dst9", true, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src9", "dst9", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEntity("BasicEntity", "vert0", null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEntity("BasicEntity", "vert1", null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEntity("BasicEntity", "vert10", null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEntity("BasicEntity", "vert11", null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEntity("BasicEntity", "vert12", null, null, null, null, null, null, null, null, 2));
+
+        assertThat(expected, containsInAnyOrder(actual.toArray()));
     }
 
     @Override
     void checkGetSeededAndFilteredElementsData(final CloseableIterable<? extends Element> data) {
+        final List<Element> expected = new ArrayList<>(5);
+        final List<Element> actual = new ArrayList<>(5);
         final Iterator<? extends Element> dataIter = data.iterator();
         assertTrue(dataIter.hasNext());
-        int counter = 0;
         while (dataIter.hasNext()) {
-            dataIter.next();
-            counter++;
+            actual.add(dataIter.next());
         }
-        assertEquals(5, counter);
+        expected.add(DataGen.getEdge("BasicEdge", "src5", "dst5", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src5", "dst5", true, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEntity("BasicEntity", "vert10", null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src7", "dst7", true, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src7", "dst7", false, null, null, null, null, null, null, null, null, 2));
+
+        assertThat(expected, containsInAnyOrder(actual.toArray()));
     }
 }
