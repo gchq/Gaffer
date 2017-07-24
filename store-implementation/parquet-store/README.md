@@ -386,7 +386,7 @@ of an edge.
 The main two operations are the `AddElements` and the `GetElements`.
 
 The `AddElements` operation is a three stage process:
-1. Write the unsorted data split by group and `Element` type into Parquet files in the temporary files directory using the `AvroParquetWriter`;
+1. Write the unsorted data split by group and `Element` type into Parquet files in the temporary files directory using the `ParquetElementWriter`;
 2. Using Spark, sort and aggregate the data in the temporary files directory and the current store files on a per group basis;
 3. Generate an `GraphIndex` containing the range of vertices in each file and load that into memory.
 
