@@ -152,8 +152,8 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
 
     @Override
     void checkGetSeededElementsData(final CloseableIterable<? extends Element> data) {
-        final List<Element> expected = new ArrayList<>(12);
-        final List<Element> actual = new ArrayList<>(12);
+        final List<Element> expected = new ArrayList<>(8);
+        final List<Element> actual = new ArrayList<>(8);
         final Iterator<? extends Element> dataIter = data.iterator();
         assertTrue(dataIter.hasNext());
         while (dataIter.hasNext()) {
@@ -163,12 +163,8 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
         expected.add(DataGen.getEdge("BasicEdge", new TypeValue("type1", "src1"), new TypeValue("type1", "dst2"), false, (byte) 'b', 0.3, 4f, TestUtils.TREESET2, 6L, (short) 7, TestUtils.DATE1, TestUtils.FREQMAP2, 1));
         expected.add(DataGen.getEdge("BasicEdge", new TypeValue("type1", "src11"), new TypeValue("type1", "dst12"), true, (byte) 'b', 2.5, 6f, TestUtils.MERGED_TREESET, 71L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
         expected.add(DataGen.getEdge("BasicEdge", new TypeValue("type2", "src17"), new TypeValue("type2", "dst18"), false, (byte) 'a', 3.4000000000000004, 2f, TestUtils.TREESET1, 5L, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1, 1));
-        expected.add(DataGen.getEdge("BasicEdge", new TypeValue("type2", "src17"), new TypeValue("type2", "dst18"), false, (byte) 'b', 0.3, 4f, TestUtils.TREESET2, 102L, (short) 7, TestUtils.DATE1, TestUtils.FREQMAP2, 1));
-        expected.add(DataGen.getEdge("BasicEdge", new TypeValue("type2", "src17"), new TypeValue("type2", "dst18"), true, (byte) 'b', 3.7, 6f, TestUtils.MERGED_TREESET, 107L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
         expected.add(DataGen.getEdge("BasicEdge2", new TypeValue("type1", "src1"), new TypeValue("type1", "dst2"), false, (byte) 'b', 0.5, 6f, TestUtils.MERGED_TREESET, 11L, (short) 13, TestUtils.DATE1, TestUtils.MERGED_FREQMAP, 2));
         expected.add(DataGen.getEdge("BasicEdge2", new TypeValue("type1", "src11"), new TypeValue("type1", "dst12"), true, (byte) 'b', 2.5, 6f, TestUtils.MERGED_TREESET, 71L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
-        expected.add(DataGen.getEdge("BasicEdge2", new TypeValue("type2", "src17"), new TypeValue("type2", "dst18"), false, (byte) 'b', 3.7, 6f, TestUtils.MERGED_TREESET, 107L, (short) 13, TestUtils.DATE1, TestUtils.MERGED_FREQMAP, 2));
-        expected.add(DataGen.getEdge("BasicEdge2", new TypeValue("type2", "src17"), new TypeValue("type2", "dst18"), true, (byte) 'b', 3.7, 6f, TestUtils.MERGED_TREESET, 107L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
         expected.add(DataGen.getEntity("BasicEntity", new TypeValue("type0", "vrt10"), (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, 110L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
         expected.add(DataGen.getEntity("BasicEntity2", new TypeValue("type0", "vrt10"), (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, 110L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
 
@@ -211,15 +207,14 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
 
     @Override
     void checkGetSeededAndFilteredElementsData(final CloseableIterable<? extends Element> data) {
-        final List<Element> expected = new ArrayList<>(2);
-        final List<Element> actual = new ArrayList<>(2);
+        final List<Element> expected = new ArrayList<>(1);
+        final List<Element> actual = new ArrayList<>(1);
         final Iterator<? extends Element> dataIter = data.iterator();
         assertTrue(dataIter.hasNext());
         while (dataIter.hasNext()) {
             actual.add(dataIter.next());
         }
         expected.add(DataGen.getEdge("BasicEdge", new TypeValue("type2", "src17"), new TypeValue("type2", "dst18"), false, (byte) 'a', 3.4000000000000004, 2f, TestUtils.TREESET1, 5L, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1, 1));
-        expected.add(DataGen.getEdge("BasicEdge", new TypeValue("type2", "src17"), new TypeValue("type2", "dst18"), true, (byte) 'b', 3.7, 6f, TestUtils.MERGED_TREESET, 107L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
 
         assertThat(expected, containsInAnyOrder(actual.toArray()));
     }

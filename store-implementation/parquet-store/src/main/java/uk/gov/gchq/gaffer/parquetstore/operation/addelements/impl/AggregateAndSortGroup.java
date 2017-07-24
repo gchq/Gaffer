@@ -144,7 +144,7 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
                         .mapToPair(row -> Tuple2$.MODULE$.apply(keyExtractor.call(row), (GenericRowWithSchema) row));
                 final List<Tuple2<Seq<Object>, GenericRowWithSchema>> kvList = groupedData.take(1);
                 if (0 == kvList.size()) {
-                    LOGGER.warn("No data was returned in AggregateAndSortGroup for group = {}", group);
+                    LOGGER.info("No data was returned in AggregateAndSortGroup for group = {}", group);
                     return null;
                 }
                 final Tuple2<Seq<Object>, GenericRowWithSchema> kv = kvList.get(0);

@@ -141,8 +141,8 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
 
     @Override
     void checkGetSeededElementsData(final CloseableIterable<? extends Element> data) {
-        final List<Element> expected = new ArrayList<>(18);
-        final List<Element> actual = new ArrayList<>(18);
+        final List<Element> expected = new ArrayList<>(20);
+        final List<Element> actual = new ArrayList<>(20);
         final Iterator<? extends Element> dataIter = data.iterator();
         assertTrue(dataIter.hasNext());
         while (dataIter.hasNext()) {
@@ -150,10 +150,12 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
         }
         expected.add(DataGen.getEdge("BasicEdge", "src13", "dst13", true, null, null, null, null, null, null, null, null, 2));
         expected.add(DataGen.getEdge("BasicEdge", "src2", "dst2", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src2", "dst2", true, null, null, null, null, null, null, null, null, 2));
         expected.add(DataGen.getEdge("BasicEdge", "src5", "dst5", false, null, null, null, null, null, null, null, null, 2));
         expected.add(DataGen.getEdge("BasicEdge", "src5", "dst5", true, null, null, null, null, null, null, null, null, 2));
         expected.add(DataGen.getEdge("BasicEdge2", "src13", "dst13", true, null, null, null, null, null, null, null, null, 2));
         expected.add(DataGen.getEdge("BasicEdge2", "src2", "dst2", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge2", "src2", "dst2", true, null, null, null, null, null, null, null, null, 2));
         expected.add(DataGen.getEdge("BasicEdge2", "src5", "dst5", false, null, null, null, null, null, null, null, null, 2));
         expected.add(DataGen.getEdge("BasicEdge2", "src5", "dst5", true, null, null, null, null, null, null, null, null, 2));
         expected.add(DataGen.getEntity("BasicEntity", "vert10", null, null, null, null, null, null, null, null, 2));
@@ -172,8 +174,8 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
 
     @Override
     void checkGetFilteredElementsData(final CloseableIterable<? extends Element> data) {
-        final List<Element> expected = new ArrayList<>(27);
-        final List<Element> actual = new ArrayList<>(27);
+        final List<Element> expected = new ArrayList<>(41);
+        final List<Element> actual = new ArrayList<>(41);
         final Iterator<? extends Element> dataIter = data.iterator();
         assertTrue(dataIter.hasNext());
         while (dataIter.hasNext()) {
@@ -189,6 +191,20 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
         expected.add(DataGen.getEdge("BasicEdge", "src11", "dst11", false, null, null, null, null, null, null, null, null, 2));
         expected.add(DataGen.getEdge("BasicEdge", "src12", "dst12", true, null, null, null, null, null, null, null, null, 2));
         expected.add(DataGen.getEdge("BasicEdge", "src12", "dst12", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src13", "dst13", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src14", "dst14", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src15", "dst15", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src16", "dst16", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src17", "dst17", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src18", "dst18", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src19", "dst19", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src2", "dst2", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src20", "dst20", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src21", "dst21", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src22", "dst22", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src23", "dst23", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src24", "dst24", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src3", "dst3", false, null, null, null, null, null, null, null, null, 2));
         expected.add(DataGen.getEdge("BasicEdge", "src4", "dst4", true, null, null, null, null, null, null, null, null, 2));
         expected.add(DataGen.getEdge("BasicEdge", "src4", "dst4", false, null, null, null, null, null, null, null, null, 2));
         expected.add(DataGen.getEdge("BasicEdge", "src5", "dst5", true, null, null, null, null, null, null, null, null, 2));
@@ -212,13 +228,15 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
 
     @Override
     void checkGetSeededAndFilteredElementsData(final CloseableIterable<? extends Element> data) {
-        final List<Element> expected = new ArrayList<>(5);
-        final List<Element> actual = new ArrayList<>(5);
+        final List<Element> expected = new ArrayList<>(7);
+        final List<Element> actual = new ArrayList<>(7);
         final Iterator<? extends Element> dataIter = data.iterator();
         assertTrue(dataIter.hasNext());
         while (dataIter.hasNext()) {
             actual.add(dataIter.next());
         }
+        expected.add(DataGen.getEdge("BasicEdge", "src2", "dst2", false, null, null, null, null, null, null, null, null, 2));
+        expected.add(DataGen.getEdge("BasicEdge", "src15", "dst15", false, null, null, null, null, null, null, null, null, 2));
         expected.add(DataGen.getEdge("BasicEdge", "src5", "dst5", false, null, null, null, null, null, null, null, null, 2));
         expected.add(DataGen.getEdge("BasicEdge", "src5", "dst5", true, null, null, null, null, null, null, null, null, 2));
         expected.add(DataGen.getEntity("BasicEntity", "vert10", null, null, null, null, null, null, null, null, 2));

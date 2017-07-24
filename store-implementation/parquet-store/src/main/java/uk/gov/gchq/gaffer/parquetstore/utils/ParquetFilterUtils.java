@@ -317,7 +317,15 @@ public final class ParquetFilterUtils {
                         newPathToFilter = addPathToSeedFilter(includeIncomingOutgoingType, seedMatchingType,
                                 new Path(fullFilePath), currentSeed, identifier, schemaUtils, group,
                                 seed2Parts.get(currentSeed), newPathToFilter, isEntityGroup);
-                        nextSeed = true;
+                        if (max2seed == 0) {
+                            if (indexIter.hasNext()) {
+                                indexEntry = indexIter.next();
+                            } else {
+                                indexEntry = null;
+                            }
+                        } else {
+                            nextSeed = true;
+                        }
                     } else if (min2seed > 0) {
                         nextSeed = true;
                     } else {

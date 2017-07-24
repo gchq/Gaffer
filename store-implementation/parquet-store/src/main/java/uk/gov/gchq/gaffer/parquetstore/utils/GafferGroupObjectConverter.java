@@ -222,6 +222,9 @@ public class GafferGroupObjectConverter implements Serializable {
         } else {
             e = new Edge(group);
         }
+        Object src = null;
+        Object dst = null;
+        boolean isDir = false;
         for (final Map.Entry<String, String[]> columnToPaths : columnToPaths.entrySet()) {
             final String column = columnToPaths.getKey();
             final String[] paths = columnToPaths.getValue();
@@ -279,16 +282,19 @@ public class GafferGroupObjectConverter implements Serializable {
                     }
                 } else {
                     if (ParquetStoreConstants.SOURCE.equals(column)) {
-                        ((Edge) e).setSource(gafferObject);
+                        src = gafferObject;
                     } else if (ParquetStoreConstants.DESTINATION.equals(column)) {
-                        ((Edge) e).setDestination(gafferObject);
+                        dst = gafferObject;
                     } else if (ParquetStoreConstants.DIRECTED.equals(column)) {
-                        ((Edge) e).setDirected((boolean) gafferObject);
+                        isDir = (boolean) gafferObject;
                     } else {
                         e.putProperty(column, gafferObject);
                     }
                 }
             }
+        }
+        if (!isEntity) {
+            ((Edge) e).setIdentifiers(src, dst, isDir);
         }
         return e;
     }
