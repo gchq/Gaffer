@@ -32,7 +32,7 @@ public class DeleteNamedOperation implements Operation {
         this.operationName = operationName;
     }
 
-    public static class Builder extends Operation.BaseBuilder<DeleteNamedOperation, Builder> {
+    public static class Builder extends BaseBuilder<DeleteNamedOperation, Builder> {
         public Builder() {
             super(new DeleteNamedOperation());
         }

@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.graph;
 
 
+import com.google.common.collect.Lists;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -26,6 +27,8 @@ import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
 import uk.gov.gchq.gaffer.graph.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.graph.hook.NamedOperationGraphHook;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -95,10 +98,13 @@ public final class Graph {
      */
     private Graph(final GraphLibrary library, final Schema schema, final Store store, final View view, final List<GraphHook> graphHooks) {
         this.library = library;
+        this.schema = schema;
         this.store = store;
         this.view = view;
         this.graphHooks = graphHooks;
-        this.schema = schema;
+        if (store.isSupported(NamedOperation.class)) {
+            graphHooks.add(0, new NamedOperationGraphHook());
+        }
     }
 
     /**
@@ -299,7 +305,7 @@ public final class Graph {
         private StoreProperties properties;
         private Schema schema;
         private View view;
-        private List<GraphHook> graphHooks = new ArrayList<>();
+        private List<GraphHook> graphHooks = Lists.newArrayList(new NamedOperationGraphHook());
         private String[] parentSchemaIds;
         private String parentStorePropertiesId;
 

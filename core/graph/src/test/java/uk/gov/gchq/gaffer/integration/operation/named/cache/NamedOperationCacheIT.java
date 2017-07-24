@@ -1,4 +1,4 @@
-package uk.gov.gchq.gaffer.named.operation.cache.integration;
+package uk.gov.gchq.gaffer.integration.operation.named.cache;
 
 
 import com.google.common.collect.Lists;
@@ -9,8 +9,6 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
-import uk.gov.gchq.gaffer.cache.impl.HazelcastCacheService;
-import uk.gov.gchq.gaffer.cache.impl.JcsCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -72,18 +70,6 @@ public class NamedOperationCacheIT
     @Test
     public void shouldWorkUsingHashMapServiceClass() throws OperationException, CacheOperationException {
         reInitialiseCacheService(HashMapCacheService.class);
-        runTests();
-    }
-
-    @Test
-    public void shouldWorkUsingJCSWithNoConfig() throws OperationException, CacheOperationException {
-        reInitialiseCacheService(JcsCacheService.class);
-        runTests();
-    }
-
-    @Test
-    public void shouldWorkUsingHazelcastWithNoConfig() throws OperationException, CacheOperationException {
-        reInitialiseCacheService(HazelcastCacheService.class);
         runTests();
     }
 

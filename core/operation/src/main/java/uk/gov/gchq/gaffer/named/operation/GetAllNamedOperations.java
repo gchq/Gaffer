@@ -30,7 +30,7 @@ public class GetAllNamedOperations implements
         return new NamedOperationTypeReference.IterableNamedOperationDetail();
     }
 
-    public static class Builder extends Operation.BaseBuilder<GetAllNamedOperations, Builder>
+    public static class Builder extends BaseBuilder<GetAllNamedOperations, Builder>
             implements Output.Builder<GetAllNamedOperations, CloseableIterable<NamedOperationDetail>, Builder> {
         public Builder() {
             super(new GetAllNamedOperations());

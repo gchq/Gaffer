@@ -1,4 +1,4 @@
-package uk.gov.gchq.gaffer.named.operation.cache;
+package uk.gov.gchq.gaffer.store.operation.handler.named.cache;
 
 
 import com.google.common.collect.Iterables;
@@ -14,6 +14,7 @@ import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
+import uk.gov.gchq.gaffer.named.operation.cache.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;

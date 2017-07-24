@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.named.operation.handler;
+package uk.gov.gchq.gaffer.store.operation.handler.named;
 
 
 import com.google.common.collect.Maps;
