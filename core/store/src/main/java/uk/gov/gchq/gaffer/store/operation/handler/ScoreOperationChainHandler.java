@@ -91,7 +91,7 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
                 }
             }
         }
-        LOGGER.info("Returning users max operation chain limit score of {}", maxUserScore);
+        LOGGER.debug("Returning users max operation chain limit score of {}", maxUserScore);
         return maxUserScore;
     }
 
@@ -132,6 +132,7 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
     public void setOpScoresFromStrings(final LinkedHashMap<String, Integer> opScores) throws ClassNotFoundException {
         this.opScores.clear();
         CollectionUtil.toMapWithClassKeys(opScores, this.opScores);
+        validateOpScores();
     }
 
     public Map<String, Integer> getAuthScores() {
@@ -141,5 +142,25 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
     public void setAuthScores(final Map<String, Integer> authScores) {
         this.authScores.clear();
         this.authScores.putAll(authScores);
+        validateOpScores();
+    }
+
+    public void validateOpScores() {
+        final List<Class<? extends Operation>> ops = new ArrayList<>(opScores.keySet());
+        int i = 0;
+        for (final Class<? extends Operation> op : ops) {
+            for (int j = 0; j < i; j++) {
+                if (op.isAssignableFrom(ops.get(j))) {
+                    throw new IllegalArgumentException(
+                            "Operation scores are configured incorrectly. "
+                                    + " The operation " + op.getSimpleName()
+                                    + " is a parent operation of " + ops.get(j).getSimpleName()
+                                    + " so the score of " + ops.get(j).getSimpleName()
+                                    + " can never be accessed."
+                    );
+                }
+            }
+            i++;
+        }
     }
 }

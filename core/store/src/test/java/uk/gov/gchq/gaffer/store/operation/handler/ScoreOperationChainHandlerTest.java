@@ -45,6 +45,8 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -65,8 +67,7 @@ public class ScoreOperationChainHandlerTest {
     }
 
     @Test
-    public void shouldExecuteScoreChainOperation
-            () throws OperationException {
+    public void shouldExecuteScoreChainOperation() throws OperationException {
         // Given
         final ScoreOperationChainHandler operationHandler = new ScoreOperationChainHandler();
 
@@ -149,5 +150,38 @@ public class ScoreOperationChainHandlerTest {
 
         // Then
         assertEquals(opScores, result);
+    }
+
+    @Test
+    public void shouldPassValidationOfOperationScores() throws ClassNotFoundException {
+        // Given
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
+        final LinkedHashMap<String, Integer> opScores = new LinkedHashMap<>();
+        opScores.put(Operation.class.getName(), 1);
+        opScores.put(GetElements.class.getName(), 2);
+        opScores.put(GetAllElements.class.getName(), 3);
+
+        // When
+        handler.setOpScoresFromStrings(opScores);
+
+        // Then - no exceptions
+    }
+
+    @Test
+    public void shouldFailValidationOfOperationScores() throws ClassNotFoundException {
+        // Given
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
+        final LinkedHashMap<String, Integer> opScores = new LinkedHashMap<>();
+        opScores.put(GetElements.class.getName(), 2);
+        opScores.put(GetAllElements.class.getName(), 3);
+        opScores.put(Operation.class.getName(), 1);
+
+        // When / Then
+        try {
+            handler.setOpScoresFromStrings(opScores);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Operation scores are configured incorrectly."));
+        }
     }
 }
