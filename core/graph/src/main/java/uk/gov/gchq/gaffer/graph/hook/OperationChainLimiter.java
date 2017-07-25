@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.graph.hook;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.store.operation.handler.ScoreOperationChainHandler;
@@ -42,12 +41,9 @@ import java.util.Map;
  *
  * The class delegates the logic to {@link ScoreOperationChainHandler}. If you
  * wish to use the {@link ScoreOperationChain} operation and this graph hook,
- * then both need to have the same score configuration. Rather than duplicating
- * the logic in 2 config files you can reference the ScoreOperationChainHandler
- * config file using the scoresPath field.
+ * then both need to have the same score configuration.
  */
 public class OperationChainLimiter implements GraphHook {
-    private static final JSONSerialiser SERIALISER = new JSONSerialiser();
     private ScoreOperationChainHandler scorer = new ScoreOperationChainHandler();
 
     /**
