@@ -37,13 +37,11 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
 
     @Override
     protected OtherGraphExporter createExporter(final ExportToOtherGraph export, final Context context, final Store store) {
-        return new OtherGraphExporter(context.getUser(),
-                context.getJobId(),
-                createGraph(export, store));
+        return new OtherGraphExporter(context.getUser(), createGraph(export, store));
     }
 
     protected Graph createGraph(final ExportToOtherGraph export, final Store store) {
-        validate(store, export);
+        validate(export, store);
 
         final String exportGraphId = export.getGraphId();
         final GraphLibrary graphLibrary = store.getGraphLibrary();
@@ -151,7 +149,7 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
                 .build();
     }
 
-    public void validate(final Store store, final ExportToOtherGraph export) {
+    public void validate(final ExportToOtherGraph export, final Store store) {
         final String exportGraphId = export.getGraphId();
         final List<String> exportParentSchemaIds = export.getParentSchemaIds();
         final String exportParentStorePropertiesId = export.getParentStorePropertiesId();
@@ -159,26 +157,26 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
 
         final ValidationResult result = new ValidationResult();
 
-        if (store.getGraphId().equals(exportGraphId)) {
+        if (exportGraphId.equals(store.getGraphId())) {
             result.addError("Cannot export to the same graph: " + exportGraphId);
         }
         if (null == graphLibrary) {
             // No graph library so we cannot look up the graphId/schemaId/storePropertiesId
             if (null != exportParentSchemaIds) {
-                result.addError("parentSchemaId cannot be used without a GraphLibrary");
+                result.addError("parentSchemaIds cannot be used without a GraphLibrary");
             }
             if (null != exportParentStorePropertiesId) {
                 result.addError("parentStorePropertiesId cannot be used without a GraphLibrary");
             }
         } else if (graphLibrary.exists(exportGraphId)) {
             if (null != exportParentSchemaIds) {
-                result.addError("GraphId " + exportGraphId + " already exists so you cannot use a different schema. Do not set the parentSchemaIds field");
+                result.addError("GraphId " + exportGraphId + " already exists so you cannot use a different schema. Do not set the parentSchemaIds field.");
             }
             if (null != export.getSchema()) {
                 result.addError("GraphId " + exportGraphId + " already exists so you cannot provide a different schema. Do not set the schema field.");
             }
             if (null != exportParentStorePropertiesId) {
-                result.addError("GraphId " + exportGraphId + " already exists so you cannot use different store properties. Do not set the parentStorePropertiesId field");
+                result.addError("GraphId " + exportGraphId + " already exists so you cannot use different store properties. Do not set the parentStorePropertiesId field.");
             }
             if (null != export.getStoreProperties()) {
                 result.addError("GraphId " + exportGraphId + " already exists so you cannot provide different store properties. Do not set the storeProperties field.");

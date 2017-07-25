@@ -25,14 +25,12 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.user.User;
 
 public class OtherGraphExporter implements Exporter {
-    private final String jobId;
     private final Graph graph;
     private final User user;
 
 
-    public OtherGraphExporter(final User user, final String jobId, final Graph graph) {
+    public OtherGraphExporter(final User user, final Graph graph) {
         this.user = user;
-        this.jobId = jobId;
         this.graph = graph;
     }
 
@@ -51,17 +49,5 @@ public class OtherGraphExporter implements Exporter {
     @Override
     public CloseableIterable<?> get(final String key) throws OperationException {
         throw new UnsupportedOperationException("Getting export from another Graph is not supported");
-    }
-
-    protected String getJobId() {
-        return jobId;
-    }
-
-    protected User getUser() {
-        return user;
-    }
-
-    protected Graph getGraph() {
-        return graph;
     }
 }
