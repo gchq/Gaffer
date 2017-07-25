@@ -99,4 +99,9 @@ public class TestStore extends Store {
     protected Object doUnhandledOperation(final Operation operation, final Context context) {
         return null;
     }
+
+    @Override
+    public boolean isSupported(final Class<? extends Operation> operationClass) {
+        return mockStore.isSupported(operationClass);
+    }
 }

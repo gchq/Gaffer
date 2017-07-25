@@ -50,10 +50,10 @@ Then to register this file in your store.properties file you will need to add th
 gaffer.store.operation.declarations=/path/to/ResultCacheExportOperations.json
 ```
 
-If you are also adding NamedOperation handlers you can just supply a comma separated list of operation declaration files:
+If you are also registering other operations you can just supply a comma separated list of operation declaration files:
 
 ```
-gaffer.store.operation.declarations=/path/to/NamedOperationDeclarations,/path/to/ResultCacheExportOperations.json
+gaffer.store.operation.declarations=/path/to/operations1.json,/path/to/ResultCacheExportOperations.json
 ```
 
 The JSON files can either be placed on your file system or bundled as a resource in your JAR or WAR archive.

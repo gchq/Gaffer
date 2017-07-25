@@ -23,12 +23,13 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 /**
- * Operation Handler for NamedOperation. This handler should never be invoked as
- * the named operations should be resolved by the NamedOperationGraphHook.
+ * Operation Handler for NamedOperation. NamedOperations are resolved
+ * the NamedOperationResolver GraphHook.
+ * If this handler is invoked then it means the named operation could not be resolved.
  */
 public class NamedOperationHandler implements OutputOperationHandler<NamedOperation<?, Object>, Object> {
     @Override
     public Object doOperation(final NamedOperation<?, Object> operation, final Context context, final Store store) throws OperationException {
-        throw new UnsupportedOperationException("The named operation should be resolved by the NamedOperationGraphHook. This handler should never be invoked.");
+        throw new UnsupportedOperationException("The named operation: " + operation.getOperationName() + " was not found.");
     }
 }

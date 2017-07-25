@@ -17,18 +17,19 @@
 package uk.gov.gchq.gaffer.graph;
 
 
-import com.google.common.collect.Lists;
+import org.apache.commons.io.FileUtils;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
+import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
 import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
 import uk.gov.gchq.gaffer.graph.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
-import uk.gov.gchq.gaffer.graph.hook.NamedOperationGraphHook;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -46,8 +47,10 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * The Graph separates the user from the {@link Store}. It holds an instance of the {@link Store} and
@@ -64,6 +67,8 @@ import java.util.Set;
  * @see uk.gov.gchq.gaffer.graph.Graph.Builder
  */
 public final class Graph {
+    private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
+
     private final GraphLibrary library;
 
     /**
@@ -102,9 +107,6 @@ public final class Graph {
         this.store = store;
         this.view = view;
         this.graphHooks = graphHooks;
-        if (store.isSupported(NamedOperation.class)) {
-            graphHooks.add(0, new NamedOperationGraphHook());
-        }
     }
 
     /**
@@ -293,6 +295,14 @@ public final class Graph {
         return library;
     }
 
+    public List<Class<? extends GraphHook>> getGraphHooks() {
+        if (graphHooks.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return graphHooks.stream().map(GraphHook::getClass).collect(Collectors.toList());
+    }
+
     /**
      * Builder for {@link Graph}.
      */
@@ -305,7 +315,7 @@ public final class Graph {
         private StoreProperties properties;
         private Schema schema;
         private View view;
-        private List<GraphHook> graphHooks = Lists.newArrayList(new NamedOperationGraphHook());
+        private List<GraphHook> graphHooks = new ArrayList<>();
         private String[] parentSchemaIds;
         private String parentStorePropertiesId;
 
@@ -497,8 +507,40 @@ public final class Graph {
             return this;
         }
 
+        public Builder addHooks(final Path hooksPath) {
+            if (null == hooksPath || !hooksPath.toFile().exists()) {
+                throw new IllegalArgumentException("Unable to find graph hooks file: " + hooksPath);
+            }
+            final GraphHook[] hooks;
+            try {
+                hooks = JSON_SERIALISER.deserialise(FileUtils.readFileToByteArray(hooksPath.toFile()), GraphHook[].class);
+            } catch (final IOException e) {
+                throw new IllegalArgumentException("Unable to load graph hooks file: " + hooksPath, e);
+            }
+            return addHooks(hooks);
+        }
+
+        public Builder addHook(final Path hookPath) {
+            if (null == hookPath || !hookPath.toFile().exists()) {
+                throw new IllegalArgumentException("Unable to find graph hook file: " + hookPath);
+            }
+
+            final GraphHook hook;
+            try {
+                hook = JSON_SERIALISER.deserialise(FileUtils.readFileToByteArray(hookPath.toFile()), GraphHook.class);
+            } catch (final IOException e) {
+                throw new IllegalArgumentException("Unable to load graph hook file: " + hookPath, e);
+            }
+            return addHook(hook);
+        }
+
         public Builder addHook(final GraphHook graphHook) {
             this.graphHooks.add(graphHook);
+            return this;
+        }
+
+        public Builder addHooks(final GraphHook... graphHooks) {
+            Collections.addAll(this.graphHooks, graphHooks);
             return this;
         }
 
@@ -532,7 +574,23 @@ public final class Graph {
 
             library.add(graphId, schema, store.getProperties());
 
+            updateGraphHooks();
             return new Graph(library, schema, store, view, graphHooks);
+        }
+
+        private void updateGraphHooks() {
+            if (store.isSupported(NamedOperation.class)) {
+                boolean hasNamedOpHook = false;
+                for (final GraphHook graphHook : graphHooks) {
+                    if (NamedOperationResolver.class.isAssignableFrom(graphHook.getClass())) {
+                        hasNamedOpHook = true;
+                        break;
+                    }
+                }
+                if (!hasNamedOpHook) {
+                    graphHooks.add(0, new NamedOperationResolver());
+                }
+            }
         }
 
         private void updateSchema(final Pair<Schema, StoreProperties> parentGraph) {

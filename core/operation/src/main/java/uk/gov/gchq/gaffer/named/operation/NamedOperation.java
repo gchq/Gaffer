@@ -19,8 +19,6 @@ package uk.gov.gchq.gaffer.named.operation;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.Required;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
@@ -28,24 +26,12 @@ import java.util.Map;
 
 public class NamedOperation<I_ITEM, O> implements
         InputOutput<Iterable<? extends I_ITEM>, O>,
-        MultiInput<I_ITEM>,
-        OperationView {
-    private View view;
+        MultiInput<I_ITEM> {
     private Iterable<? extends I_ITEM> input;
 
     @Required
     private String operationName;
     private Map<String, Object> parameters;
-
-    @Override
-    public View getView() {
-        return view;
-    }
-
-    @Override
-    public void setView(final View view) {
-        this.view = view;
-    }
 
     @Override
     public Iterable<? extends I_ITEM> getInput() {
@@ -80,8 +66,7 @@ public class NamedOperation<I_ITEM, O> implements
 
     public static class Builder<I_ITEM, O> extends BaseBuilder<NamedOperation<I_ITEM, O>, Builder<I_ITEM, O>>
             implements InputOutput.Builder<NamedOperation<I_ITEM, O>, Iterable<? extends I_ITEM>, O, Builder<I_ITEM, O>>,
-            MultiInput.Builder<NamedOperation<I_ITEM, O>, I_ITEM, Builder<I_ITEM, O>>,
-            OperationView.Builder<NamedOperation<I_ITEM, O>, Builder<I_ITEM, O>> {
+            MultiInput.Builder<NamedOperation<I_ITEM, O>, I_ITEM, Builder<I_ITEM, O>> {
         public Builder() {
             super(new NamedOperation<>());
         }

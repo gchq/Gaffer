@@ -11,27 +11,7 @@ any other Operation. When run it executes the encapsulated OperationChain. There
 In addition to the NamedOperation there are a set of operations which manage named operations (AddNamedOperation, GetAllNamedOperations, DeleteNamedOperation).
 
 #### Configuration
-
-The Named operation management operations need to be registered by providing an Operations Declarations JSON file in your store.properties file.
-The Named operations declarations JSON file would need to look something like:
-
-${NAMED_OPERATION_DECLARATIONS}
-
-Then to register this file in your store.properties file you will need to add the following:
-
-```
-gaffer.store.operation.declarations=/path/to/NamedOperationDeclarations.json
-```
-
-If you are also adding Job handlers and need operations to export to and retrieve from a GafferResultCache you can just supply a comma separated list of operation declaration files:
-
-```
-gaffer.store.operation.declarations=/path/to/NamedOperationDeclarations,/path/to/ResultCacheExportOperations.json
-```
-
-The JSON files can either be placed on your file system or bundled as a resource in your JAR or WAR archive.
-
-You will also need to configure what cache to use for storing NamedOperations. The same cache is used for named operations and the job tracker.
+You will need to configure what cache to use for storing NamedOperations. The same cache is used for named operations and the job tracker.
 For example, to use the JCS cache service, add a dependency on the jcs-cache-service and set these store.properties:
 
 ```xml
