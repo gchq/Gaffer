@@ -82,7 +82,7 @@ public class GenerateIndexForColumnGroup implements Callable<Tuple4<String, Stri
                 }
         } catch (final IOException e) {
             return new Tuple4<>(group, column, null, new OperationException("IOException generating the index files", e));
-        } catch (StoreException e) {
+        } catch (final StoreException e) {
             return new Tuple4<>(group, column, null, new OperationException(e.getMessage()));
         }
         return new Tuple4<>(group, column, columnIndex, null);

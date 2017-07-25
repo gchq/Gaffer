@@ -270,7 +270,7 @@ public class HyperLogLogPlusParquetSerialiser implements ParquetSerialiser<Hyper
                 parquetObjects[1] = object.cardinality();
                 return parquetObjects;
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException("Failed to get bytes from the HyperLogLogPlus object.");
         }
         return new Comparable[0];
@@ -282,7 +282,7 @@ public class HyperLogLogPlusParquetSerialiser implements ParquetSerialiser<Hyper
             if (objects.length == 2 && objects[0] instanceof byte[]) {
                 return HyperLogLogPlus.Builder.build(((byte[]) objects[0]));
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException("Failed to build the HyperLogLogPlus object from byte[]");
         }
         return null;

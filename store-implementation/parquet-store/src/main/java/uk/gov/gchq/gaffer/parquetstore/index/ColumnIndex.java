@@ -80,7 +80,7 @@ public class ColumnIndex {
             }
             outputFile.hsync();
             outputFile.close();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new StoreException(e.getMessage());
         }
     }
@@ -125,7 +125,7 @@ public class ColumnIndex {
                 add(new MinMaxPath(min, max, StringUtil.toString(filePath)));
             }
             reader.close();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new StoreException(e.getMessage());
         }
     }
@@ -138,7 +138,7 @@ public class ColumnIndex {
                 bytesRead += reader.read(bytes, bytesRead, length - bytesRead);
             }
             return bytes;
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new StoreException(e.getMessage());
         }
     }

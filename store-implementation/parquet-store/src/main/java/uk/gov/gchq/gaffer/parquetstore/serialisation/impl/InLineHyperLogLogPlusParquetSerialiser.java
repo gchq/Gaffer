@@ -37,7 +37,7 @@ public class InLineHyperLogLogPlusParquetSerialiser implements ParquetSerialiser
             if (object != null) {
                 return new Object[]{object.getBytes(), object.cardinality()};
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException("Failed to get bytes from the HyperLogLogPlus object.");
         }
         return new Object[]{null};
@@ -54,7 +54,7 @@ public class InLineHyperLogLogPlusParquetSerialiser implements ParquetSerialiser
                 }
             }
             throw new SerialisationException("Failed to build the HyperLogLogPlus object from objects");
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException("Failed to build the HyperLogLogPlus object from byte[]");
         }
     }

@@ -72,7 +72,7 @@ public class ElementWriteSupport extends WriteSupport<Element> {
             } else {
                 elementWriter.write((Edge) record);
             }
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             LOGGER.warn(e.getMessage());
         }
     }

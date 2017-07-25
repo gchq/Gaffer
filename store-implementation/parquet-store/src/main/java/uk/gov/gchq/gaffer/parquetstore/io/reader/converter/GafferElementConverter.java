@@ -74,7 +74,7 @@ public class GafferElementConverter extends GroupConverter {
     public void end() {
         try {
             currentRecord = gafferGroupObjectConverter.buildElementFromParquetObjects(parquetColumnToObject, isEntity);
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             LOGGER.warn("Failed to build the Element, skipping this Element", parquetColumnToObject);
         }
     }

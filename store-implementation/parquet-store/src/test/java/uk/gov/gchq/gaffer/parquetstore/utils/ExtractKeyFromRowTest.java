@@ -133,7 +133,7 @@ public class ExtractKeyFromRowTest {
         try {
             edgeConverter.call(Row$.MODULE$.empty());
             fail();
-        } catch (Exception ignored) {
+        } catch (final Exception ignored) {
         }
     }
 }

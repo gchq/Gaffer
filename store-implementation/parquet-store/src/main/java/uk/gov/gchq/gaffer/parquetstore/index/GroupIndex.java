@@ -58,7 +58,7 @@ public class GroupIndex {
                 final Path path = new Path(indexDir + ParquetStoreConstants.INDEX);
                 colIndex.write(fs.create(path));
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new StoreException(e.getMessage());
         }
     }
@@ -75,7 +75,7 @@ public class GroupIndex {
                     add(column, colIndex);
                 }
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new StoreException(e.getMessage());
         }
     }

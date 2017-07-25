@@ -103,7 +103,7 @@ public class ParquetStore extends Store {
                 graphIndex.readGroups(schemaUtils.getGroups(), rootDir + "/" + snapshot, fs);
                 graphIndex.setSnapshotTimestamp(snapshot);
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new StoreException(e.getMessage());
         }
     }
@@ -117,13 +117,13 @@ public class ParquetStore extends Store {
                     latestSnapshot = currentSnapshot;
                 }
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new StoreException(e.getMessage());
         }
         return latestSnapshot;
     }
 
-    public FileSystem getFS() throws StoreException {
+    public FileSystem getFS() {
         return fs;
     }
 

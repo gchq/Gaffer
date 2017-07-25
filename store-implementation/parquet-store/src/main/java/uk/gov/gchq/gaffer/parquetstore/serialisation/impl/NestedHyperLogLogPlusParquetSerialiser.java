@@ -40,7 +40,7 @@ public class NestedHyperLogLogPlusParquetSerialiser implements ParquetSerialiser
             if (object != null) {
                 return new Object[]{object.getBytes(), object.cardinality()};
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException("Failed to get bytes from the HyperLogLogPlus object.");
         }
         return new Object[]{null};
@@ -55,9 +55,9 @@ public class NestedHyperLogLogPlusParquetSerialiser implements ParquetSerialiser
                 return null;
             }
             throw new SerialisationException("Failed to build the HyperLogLogPlus object from objects");
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw e;
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException("Failed to build the HyperLogLogPlus object from byte[]");
         }
     }
