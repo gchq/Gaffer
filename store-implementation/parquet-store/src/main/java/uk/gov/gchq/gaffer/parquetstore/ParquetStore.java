@@ -31,8 +31,8 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
-import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.AddElementsFromRDDHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.AddElementsHandler;
+import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.ImportRDDOfElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetDataframeOfElementsHandler;
@@ -169,7 +169,7 @@ public class ParquetStore extends Store {
 
     protected void addAdditionalOperationHandlers() {
         addOperationHandler(GetDataFrameOfElements.class, new GetDataframeOfElementsHandler());
-        addOperationHandler(ImportRDDOfElements.class, new AddElementsFromRDDHandler());
+        addOperationHandler(ImportRDDOfElements.class, new ImportRDDOfElementsHandler());
     }
 
     @Override

@@ -40,8 +40,8 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
 
-public class AddElementsFromRDDHandler implements OperationHandler<ImportRDDOfElements> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsFromRDDHandler.class);
+public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfElements> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ImportRDDOfElementsHandler.class);
 
     @Override
     public Void doOperation(final ImportRDDOfElements operation, final Context context, final Store store)
