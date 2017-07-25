@@ -50,6 +50,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -198,17 +199,6 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
                         groupBySeq.$plus$eq(ParquetStoreConstants.DIRECTED);
                     }
                 }
-                for (final String propName : groupByColumns) {
-                    final String[] pathsForPropName = groupPaths.get(propName);
-                    if (pathsForPropName != null) {
-                        for (final String path : pathsForPropName) {
-                            groupBySeq.$plus$eq(path);
-                        }
-                    } else {
-                        LOGGER.debug("Property " + propName + " does not have any paths");
-                    }
-                }
-
                 sortedData = spark
                         .createDataFrame(aggregatedData, sparkSchema)
                         .sort(firstSortColumn, groupBySeq.result());

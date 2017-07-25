@@ -59,7 +59,11 @@ public class ExtractKeyFromRow implements Function<Row, Seq<Object>>, Serializab
     private void addGroupByColumns(final Map<String, String[]> columnToPaths, final String col) {
         final String[] paths = columnToPaths.get(col);
         if (paths != null) {
-            Collections.addAll(groupByColumns, paths);
+            if (paths[0].contains(".")) {
+                groupByColumns.add(col);
+            } else {
+                Collections.addAll(groupByColumns, paths);
+            }
         }
     }
 
