@@ -16,11 +16,13 @@
 
 package uk.gov.gchq.gaffer.operation.export.graph.handler;
 
-import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherGraph;
 import uk.gov.gchq.gaffer.operation.export.graph.OtherGraphExporter;
@@ -31,7 +33,6 @@ import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -44,21 +45,22 @@ public class ExportToOtherGraphHandlerTest {
     private static final String GRAPH_ID = "graphId";
     private static final String STORE_PROPS_ID = "storePropsId";
     private static final String SCHEMA_ID = "schemaId";
-    private static final String TEST_FILE_PATH = "src/test/resources/graphLibrary";
     private static final String ID = "gaffer.store.id";
-    private final GraphLibrary graphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
     private final Store store = mock(Store.class);
     private final Schema schema = new Schema.Builder().id(SCHEMA_ID).build();
+    private GraphLibrary graphLibrary;
     private StoreProperties storeProperties;
 
+    @Rule
+    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
     @Before
-    @After
     public void cleanUp() throws IOException {
-        if (new File(TEST_FILE_PATH).exists()) {
-            FileUtils.forceDelete(new File(TEST_FILE_PATH));
-        }
-        storeProperties = new StoreProperties(Paths.get("src/test/resources/store.properties"));
+        storeProperties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
         storeProperties.setId(STORE_PROPS_ID);
+
+        final File graphLibraryFolder = testFolder.newFolder("graphLibrary");
+        graphLibrary = new FileGraphLibrary(graphLibraryFolder.getPath());
     }
 
     @Test
@@ -132,7 +134,7 @@ public class ExportToOtherGraphHandlerTest {
     @Test
     public void shouldCreateNewGraphWithStoresSchema() {
         // Given
-        StoreProperties storeProperties1 = new StoreProperties(Paths.get("src/test/resources/store.properties"));
+        final StoreProperties storeProperties1 = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
         storeProperties1.setId(STORE_PROPS_ID + 1);
 
         given(store.getSchema()).willReturn(schema);
@@ -226,7 +228,7 @@ public class ExportToOtherGraphHandlerTest {
         // Given
         given(store.getGraphId()).willReturn(GRAPH_ID);
 
-        StoreProperties storeProperties1 = new StoreProperties(Paths.get("src/test/resources/store.properties"));
+        StoreProperties storeProperties1 = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
         storeProperties1.setId(STORE_PROPS_ID + 1);
 
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
@@ -254,7 +256,7 @@ public class ExportToOtherGraphHandlerTest {
         // Given
         given(store.getGraphId()).willReturn(GRAPH_ID);
 
-        StoreProperties storeProperties1 = new StoreProperties(Paths.get("src/test/resources/store.properties"));
+        StoreProperties storeProperties1 = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
         storeProperties1.setId(STORE_PROPS_ID + 1);
 
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
