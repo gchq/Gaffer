@@ -38,6 +38,7 @@ public class Limit<T> implements
     @Required
     protected Integer resultLimit;
     private Iterable<? extends T> input;
+    private Boolean truncate = true;
 
     public Limit() {
     }
@@ -46,12 +47,25 @@ public class Limit<T> implements
         this.resultLimit = resultLimit;
     }
 
+    public Limit(final Integer resultLimit, final Boolean truncate) {
+        this.resultLimit = resultLimit;
+        this.truncate = truncate;
+    }
+
     public Integer getResultLimit() {
         return resultLimit;
     }
 
     public void setResultLimit(final Integer resultLimit) {
         this.resultLimit = resultLimit;
+    }
+
+    public Boolean getTruncate() {
+        return truncate;
+    }
+
+    public void setTruncate(final boolean truncate) {
+        this.truncate = truncate;
     }
 
     @Override

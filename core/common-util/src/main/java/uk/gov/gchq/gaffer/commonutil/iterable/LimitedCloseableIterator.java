@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
+
+import uk.gov.gchq.gaffer.commonutil.exception.LimitExceededException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -23,12 +25,21 @@ public class LimitedCloseableIterator<T> implements CloseableIterator<T> {
     private final CloseableIterator<T> iterator;
     private final Integer end;
     private int index = 0;
+    private Boolean truncate = true;
 
     public LimitedCloseableIterator(final Iterator<T> iterator, final int start, final Integer end) {
-        this(new WrappedCloseableIterator<>(iterator), start, end);
+        this(iterator, start, end, true);
+    }
+
+    public LimitedCloseableIterator(final Iterator<T> iterator, final int start, final Integer end, final Boolean truncate) {
+        this(new WrappedCloseableIterator<>(iterator), start, end, truncate);
     }
 
     public LimitedCloseableIterator(final CloseableIterator<T> iterator, final int start, final Integer end) {
+        this(iterator, start, end, true);
+    }
+
+    public LimitedCloseableIterator(final CloseableIterator<T> iterator, final int start, final Integer end, final Boolean truncate) {
         if (null != end && start > end) {
             throw new IllegalArgumentException("start should be less than end");
         }
@@ -39,6 +50,7 @@ public class LimitedCloseableIterator<T> implements CloseableIterator<T> {
             this.iterator = iterator;
         }
         this.end = end;
+        this.truncate = truncate;
 
         while (index < start && hasNext()) {
             next();
@@ -52,12 +64,18 @@ public class LimitedCloseableIterator<T> implements CloseableIterator<T> {
 
     @Override
     public boolean hasNext() {
-        boolean hasNext = (null == end || index < end) && iterator.hasNext();
-        if (!hasNext) {
+        boolean hasNext = (null == end || index < end);
+        boolean iteratorHasNext = iterator.hasNext();
+
+        if (!hasNext && iteratorHasNext && !truncate) {
+            throw new LimitExceededException("Limit exceeded - not all data could be shown");
+        }
+
+        if (!hasNext || !iteratorHasNext) {
             close();
         }
 
-        return hasNext;
+        return hasNext && iteratorHasNext;
     }
 
     @Override
