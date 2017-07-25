@@ -114,8 +114,9 @@ The other way to import data is to from an `RDD<Element>` using the `ImportRDDOf
 
 ```
 RDD<Element> elements = ..// Create an RDD<Element> from your data
-AddElementsFromRDD addElements = new ImportRDDOfElements.Builder()
+ImportRDDOfElements addElements = new ImportRDDOfElements.Builder()
         .input(elements)
+        .sparkContext(<SparkContext>)
         .build();
 graph.execute(addElements, new User());
 ```
@@ -217,15 +218,19 @@ public class LongParquetSerialiser implements ParquetSerialiser<Long> {
 
     @Override
     public Long deserialise(final Object[] objects) throws SerialisationException {
-        if (objects.length == 1 && objects[0] instanceof Long) {
-            return (Long) objects[0];
+        if (objects.length == 1) {
+            if (objects[0] instanceof Long) {
+                return (Long) objects[0];
+            } else if (objects[0] == null) {
+                return null;
+            }
         }
-        return null;
+        throw new SerialisationException("Could not de-serialise objects to a Long");
     }
 
     @Override
     public Long deserialiseEmpty() throws SerialisationException {
-        return null;
+        throw new SerialisationException("Could not de-serialise the empty bytes to a Long");
     }
 
     @Override
@@ -279,18 +284,22 @@ public class HyperLogLogPlusParquetSerialiser implements ParquetSerialiser<Hyper
     @Override
     public HyperLogLogPlus deserialise(final Object[] objects) throws SerialisationException {
         try {
-            if (objects.length == 2 && objects[0] instanceof byte[]) {
-                return HyperLogLogPlus.Builder.build(((byte[]) objects[0]));
+            if (objects.length == 2) {
+                if (objects[0] instanceof byte[]) {
+                    return HyperLogLogPlus.Builder.build(((byte[]) objects[0]));
+                } else if (objects[0] == null) {
+                    return null;
+                }
             }
+            throw new SerialisationException("Could not de-serialise the HyperLogLogPlus object from objects");
         } catch (final IOException e) {
-            throw new SerialisationException("Failed to build the HyperLogLogPlus object from byte[]");
+            throw new SerialisationException("Could not de-serialise the HyperLogLogPlus object from byte[]");
         }
-        return null;
     }
 
     @Override
     public HyperLogLogPlus deserialiseEmpty() throws SerialisationException {
-        return null;
+        throw new SerialisationException("Could not de-serialise the empty bytes to a HyperLogLogPlus");
     }
 
     @Override
