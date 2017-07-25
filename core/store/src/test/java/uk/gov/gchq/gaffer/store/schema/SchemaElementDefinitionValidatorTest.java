@@ -441,13 +441,13 @@ public class SchemaElementDefinitionValidatorTest {
         // Then
         assertFalse(result.isValid());
         assertEquals(com.google.common.collect.Sets.newHashSet(
-                        "The visibility property must be aggregated by itself. It is currently aggregated in the tuple: [stringProperty, visibility], by aggregate function: " + function1.getClass().getName()
+                "The visibility property must be aggregated by itself. It is currently aggregated in the tuple: [stringProperty, visibility], by aggregate function: " + function1.getClass().getName()
                 ),
                 result.getErrors());
     }
 
     @Test
-    public void shouldValidateAndReturnFalseWhenTimestampIsAggregatedWithOtherProperty() {
+    public void shouldValidateAndReturnTrueWhenTimestampIsAggregatedWithANonGroupByProperty() {
         // Given
         final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
         final BinaryOperator<Integer> function1 = mock(BinaryOperator.class);
@@ -475,9 +475,42 @@ public class SchemaElementDefinitionValidatorTest {
         final ValidationResult result = validator.validate(schema.getElement(TestGroups.ENTITY));
 
         // Then
+        assertTrue(result.isValid());
+    }
+
+    @Test
+    public void shouldValidateAndReturnFalseWhenTimestampIsAggregatedWithAGroupByProperty() {
+        // Given
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+        final BinaryOperator<Integer> function1 = mock(BinaryOperator.class);
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex("id")
+                        .property(TestPropertyNames.STRING, "string")
+                        .property(TestPropertyNames.TIMESTAMP, "string")
+                        .groupBy(TestPropertyNames.STRING)
+                        .aggregator(new ElementAggregator.Builder()
+                                .select(TestPropertyNames.STRING, TestPropertyNames.TIMESTAMP)
+                                .execute(function1)
+                                .build())
+                        .build())
+                .timestampProperty(TestPropertyNames.TIMESTAMP)
+                .type("id", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .type("string", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .aggregateFunction(function1)
+                        .build())
+                .build();
+
+        // When
+        final ValidationResult result = validator.validate(schema.getElement(TestGroups.ENTITY));
+
+        // Then
         assertFalse(result.isValid());
         assertEquals(com.google.common.collect.Sets.newHashSet(
-                        "The timestamp property must be aggregated by itself. It is currently aggregated in the tuple: [stringProperty, timestamp], by aggregate function: " + function1.getClass().getName()
+                "groupBy properties and non-groupBy properties (including timestamp) must be not be aggregated using the same BinaryOperator. Selection tuple: [stringProperty, timestamp], is aggregated by: " + function1.getClass().getName()
                 ),
                 result.getErrors());
     }
@@ -513,7 +546,7 @@ public class SchemaElementDefinitionValidatorTest {
         // Then
         assertFalse(result.isValid());
         assertEquals(com.google.common.collect.Sets.newHashSet(
-                        "groupBy properties and non-groupBy properties must be not be aggregated using the same BinaryOperator. Selection tuple: [property1, property2], is aggregated by: " + function1.getClass().getName()
+                "groupBy properties and non-groupBy properties (including timestamp) must be not be aggregated using the same BinaryOperator. Selection tuple: [property1, property2], is aggregated by: " + function1.getClass().getName()
                 ),
                 result.getErrors());
     }
@@ -546,7 +579,7 @@ public class SchemaElementDefinitionValidatorTest {
         // Then
         assertFalse(result.isValid());
         assertEquals(com.google.common.collect.Sets.newHashSet(
-                        "ElementAggregator contains a null function."
+                "ElementAggregator contains a null function."
                 ),
                 result.getErrors());
     }
@@ -580,7 +613,7 @@ public class SchemaElementDefinitionValidatorTest {
         // Then
         assertFalse(result.isValid());
         assertEquals(com.google.common.collect.Sets.newHashSet(
-                        "Unknown property used in an aggregator: " + TestPropertyNames.PROP_1
+                "Unknown property used in an aggregator: " + TestPropertyNames.PROP_1
                 ),
                 result.getErrors());
     }

@@ -179,17 +179,13 @@ public class SchemaElementDefinitionValidator {
                                 result.addError("The visibility property must be aggregated by itself. " +
                                         "It is currently aggregated in the tuple: " + Arrays.toString(selection)
                                         + ", by aggregate function: " + adaptedFunction.getBinaryOperator().getClass().getName());
-                            } else if (key.equals(elementDef.getSchemaReference().getTimestampProperty())) {
-                                result.addError("The timestamp property must be aggregated by itself. " +
-                                        "It is currently aggregated in the tuple: " + Arrays.toString(selection)
-                                        + ", by aggregate function: " + adaptedFunction.getBinaryOperator().getClass().getName());
                                 break;
                             } else {
                                 final boolean newContainsGroupByProp = elementDef.getGroupBy().contains(key);
                                 if (null == containsGroupByProp) {
                                     containsGroupByProp = newContainsGroupByProp;
                                 } else if (newContainsGroupByProp != containsGroupByProp) {
-                                    result.addError("groupBy properties and non-groupBy properties must be not be aggregated using the same BinaryOperator. " +
+                                    result.addError("groupBy properties and non-groupBy properties (including timestamp) must be not be aggregated using the same BinaryOperator. " +
                                             "Selection tuple: " + Arrays.toString(selection)
                                             + ", is aggregated by: " + adaptedFunction.getBinaryOperator().getClass().getName());
                                     break;

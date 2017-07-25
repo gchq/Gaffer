@@ -131,4 +131,82 @@ public class CollectionUtilTest {
         // Then
         assertFalse(result);
     }
+
+    @Test
+    public void shouldReturnFalseWhenAnyMissingCalledWhenTheCollectionContainsAllValues() {
+        // Given
+        final Collection collection = Sets.newHashSet(10, 20, 30);
+        final Object[] values = new Object[]{10, 20, 30};
+
+        // When
+        final boolean result = CollectionUtil.anyMissing(collection, values);
+
+        // Then
+        assertFalse(result);
+    }
+
+    @Test
+    public void shouldReturnFalseWhenAnyMissingCalledWhenNullValues() {
+        // Given
+        final Collection collection = Sets.newHashSet(10, 20, 30);
+        final Object[] values = null;
+
+        // When
+        final boolean result = CollectionUtil.anyMissing(collection, values);
+
+        // Then
+        assertFalse(result);
+    }
+
+    @Test
+    public void shouldReturnTrueWhenAnyMissingCalledWhenTheCollectionDoesNotContainAProvidedValue() {
+        // Given
+        final Collection collection = Sets.newHashSet(10, 20, 30);
+        final Object[] values = new Object[]{1, 2, 3};
+
+        // When
+        final boolean result = CollectionUtil.anyMissing(collection, values);
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    public void shouldReturnFalseWhenAnyMissingCalledWithNullValue() {
+        // Given
+        final Collection collection = Sets.newHashSet(10, 20, 30);
+        final Object[] values = null;
+
+        // When
+        final boolean result = CollectionUtil.anyMissing(collection, values);
+
+        // Then
+        assertFalse(result);
+    }
+
+    @Test
+    public void shouldReturnTrueWhenAnyMissingCalledWithNullCollectionAndSomeValues() {
+        // Given
+        final Collection collection = null;
+        final Object[] values = new Object[]{1, 2, 3};
+
+        // When
+        final boolean result = CollectionUtil.anyMissing(collection, values);
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    public void shouldReturnFalseWhenAnyMissingCalledWithNullCollectionAndValues() {
+        // Given
+        final Collection collection = null;
+        final Object[] values = null;
+
+        // When
+        final boolean result = CollectionUtil.anyMissing(collection, values);
+
+        // Then
+        assertFalse(result);
+    }
 }

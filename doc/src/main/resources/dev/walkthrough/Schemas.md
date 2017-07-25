@@ -39,7 +39,7 @@ Edges and Entities can optionally have the following fields:
 
 These 2 optional fields are for advanced users. They can go in the Elements Schema however, we have split them out into separate Schema files Validation and Aggregation so the logic doesn't complicate the Elements schema.
 - validateFunctions - an array of selections and predicates to be applied to an element. This allows you to validate based on multiple properties at once - like check a timestamp property together with a time to live property to check if the element should be aged off. Individual property validation is best done as a validateFunction in the property type definition in Types schema.
-- aggregateFunctions - an array of selections and binary operators to be applied to an element. This allows you to aggregate based on multiple properties at once. It is important to note that different types of properties (groupBy, non-groupBy, visibility, timestamp) cannot be aggregated in the same aggregate function. Individual property aggregation is best done as a aggregateFunction in the property type definition in the Types schema.
+- aggregateFunctions - an array of selections and binary operators to be applied to an element. This allows you to aggregate based on multiple properties at once. It is important to note that types of properties (groupBy, non-groupBy, visibility) cannot be aggregated in the same aggregate function. The timestamp property is treated as a non-groupBy property. Individual property aggregation is best done as a aggregateFunction in the property type definition in the Types schema.
 
 Here is an example of an Elements schema
 

@@ -255,20 +255,24 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             queryAggregatorCache = new ElementAggregator();
             if (aggregate) {
                 final Set<String> mergedGroupBy = null == viewGroupBy ? groupBy : viewGroupBy;
-                final Set<String> aggregatorProperties = getAggregatorProperties();
-                if (null != aggregator) {
+                if (null == aggregator) {
+                    for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
+                        if (!mergedGroupBy.contains(entry.getKey())) {
+                            addTypeAggregateFunction(queryAggregatorCache, entry.getKey(), entry.getValue());
+                        }
+                    }
+                } else {
                     for (final TupleAdaptedBinaryOperator<String, ?> component : aggregator.getComponents()) {
                         final String[] selection = component.getSelection();
-                        if (selection.length == 1 && !mergedGroupBy.contains(selection[0]) && !selection[0].equals(schemaReference.getVisibilityProperty())) {
+                        if (selection.length == 1 && !mergedGroupBy.contains(selection[0])) {
                             queryAggregatorCache.getComponents().add(component);
-                        } else if (!CollectionUtil.containsAny(mergedGroupBy, selection)) {
+                        } else if (CollectionUtil.anyMissing(mergedGroupBy, selection)) {
                             queryAggregatorCache.getComponents().add(component);
                         }
                     }
-                }
-                for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
-                    if (!aggregatorProperties.contains(entry.getKey())) {
-                        if (!mergedGroupBy.contains(entry.getKey())) {
+                    final Set<String> aggregatorProperties = getAggregatorProperties();
+                    for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
+                        if (!mergedGroupBy.contains(entry.getKey()) && !aggregatorProperties.contains(entry.getKey())) {
                             addTypeAggregateFunction(queryAggregatorCache, entry.getKey(), entry.getValue());
                         }
                     }
