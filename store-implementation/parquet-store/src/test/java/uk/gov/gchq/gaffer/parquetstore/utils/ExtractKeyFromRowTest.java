@@ -23,7 +23,13 @@ import org.apache.spark.sql.Row$;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import scala.collection.JavaConversions;
 import scala.collection.Seq;
+import scala.collection.mutable.WrappedArray;
+import scala.collection.mutable.WrappedArray$;
+import scala.collection.mutable.WrappedArrayBuilder;
+import scala.reflect.ClassTag;
+import scala.reflect.ClassTag$;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.store.SerialisationFactory;
@@ -53,19 +59,23 @@ public class ExtractKeyFromRowTest {
         groupByColumns = new LinkedHashSet<>();
         groupByColumns.add("double");
         groupByColumns.add("date");
+        groupByColumns.add("treeSet");
         columnsToPaths = new HashMap<>();
-        String[] prop2Paths = new String[1];
-        prop2Paths[0] = "double";
-        String[] prop7Paths = new String[1];
-        prop7Paths[0] = "date";
+        String[] treeSetPropertyPaths = new String[1];
+        treeSetPropertyPaths[0] = "treeSet.list.element";
+        String[] doublePropertyPaths = new String[1];
+        doublePropertyPaths[0] = "double";
+        String[] datePropertyPaths = new String[1];
+        datePropertyPaths[0] = "date";
         String[] vertPaths = new String[1];
         vertPaths[0] = ParquetStoreConstants.VERTEX;
         String[] srcPaths = new String[1];
         srcPaths[0] = ParquetStoreConstants.SOURCE;
         String[] dstPaths = new String[1];
         dstPaths[0] = ParquetStoreConstants.DESTINATION;
-        columnsToPaths.put("double", prop2Paths);
-        columnsToPaths.put("date", prop7Paths);
+        columnsToPaths.put("treeSet", treeSetPropertyPaths);
+        columnsToPaths.put("double", doublePropertyPaths);
+        columnsToPaths.put("date", datePropertyPaths);
         columnsToPaths.put(ParquetStoreConstants.VERTEX, vertPaths);
         columnsToPaths.put(ParquetStoreConstants.SOURCE, srcPaths);
         columnsToPaths.put(ParquetStoreConstants.DESTINATION, dstPaths);
@@ -98,14 +108,15 @@ public class ExtractKeyFromRowTest {
         final ExtractKeyFromRow entityConverter = new ExtractKeyFromRow(groupByColumns, columnsToPaths, true, buildcolumnToAggregatorMap(utils.getGafferSchema().getElement("BasicEntity")));
         final Row row = DataGen.generateEntityRow(utils, "BasicEntity","vertex", (byte) 'a', 0.2, 3f, TestUtils.TREESET1, 5L, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1);
         final Seq<Object> results = entityConverter.call(row);
-        final List<Object> actual = new ArrayList<>(3);
+        final List<Object> actual = new ArrayList<>(4);
         for (int i = 0; i < results.length(); i++) {
             actual.add(results.apply(i));
         }
-        final List<Object> expected = new ArrayList<>(3);
+        final List<Object> expected = new ArrayList<>(4);
         expected.add(0.2);
         expected.add("vertex");
         expected.add(TestUtils.DATE.getTime());
+        expected.add(WrappedArray$.MODULE$.make(TestUtils.TREESET1.toArray()));
         assertThat(expected, containsInAnyOrder(actual.toArray()));
     }
 
@@ -114,11 +125,12 @@ public class ExtractKeyFromRowTest {
         final ExtractKeyFromRow edgeConverter = new ExtractKeyFromRow(groupByColumns, columnsToPaths, false, buildcolumnToAggregatorMap(utils.getGafferSchema().getElement("BasicEdge")));
         final Row row = DataGen.generateEdgeRow(utils, "BasicEdge","src", "dst", true, (byte) 'a', 0.2, 3f, TestUtils.TREESET1, 5L, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1);
         final Seq<Object> results = edgeConverter.call(row);
-        final List<Object> actual = new ArrayList<>(5);
+        final List<Object> actual = new ArrayList<>(6);
         for (int i = 0; i < results.length(); i++) {
             actual.add(results.apply(i));
         }
-        final List<Object> expected = new ArrayList<>(5);
+        final List<Object> expected = new ArrayList<>(6);
+        expected.add(WrappedArray$.MODULE$.make(TestUtils.TREESET1.toArray()));
         expected.add(0.2);
         expected.add("dst");
         expected.add("src");

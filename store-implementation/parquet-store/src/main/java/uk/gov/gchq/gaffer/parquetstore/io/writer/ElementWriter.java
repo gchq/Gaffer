@@ -94,8 +94,8 @@ public class ElementWriter {
     private void writeObject(final Type type, final Object object, final int index) throws SerialisationException {
         if (object != null) {
             final String fieldName = type.getName();
-            recordConsumer.startField(fieldName, index);
             if (type.isPrimitive()) {
+                recordConsumer.startField(fieldName, index);
                 if (object instanceof Object[]) {
                     for (final Object innerObject : (Object[]) object) {
                         writePrimitive(innerObject);
@@ -103,43 +103,60 @@ public class ElementWriter {
                 } else {
                     writePrimitive(object);
                 }
+                recordConsumer.endField(fieldName, index);
             } else {
-                recordConsumer.startGroup();
                 final String originalType = type.getOriginalType().name();
                 if ("MAP".equals(originalType)) {
-                    writeMap((Map<Object, Object>) object, type);
+                    writeMap(fieldName, index, (Map<Object, Object>) object, type);
                 } else if ("LIST".equals(originalType)) {
-                    writeList(object, type);
+                    writeList(fieldName, index, object, type);
                 } else {
                     throw new SerialisationException("Could not write object " + object.toString() + " with type " + type.toString());
                 }
-                recordConsumer.endGroup();
             }
+        }
+    }
+
+    private void writeMap(final String fieldName, final int index, final Map<Object, Object> object, final Type type) throws SerialisationException {
+        if (!object.isEmpty()) {
+            recordConsumer.startField(fieldName, index);
+            recordConsumer.startGroup();
+            recordConsumer.startField(KEY_VALUE, 0);
+            recordConsumer.startGroup();
+            writeObject(type.asGroupType().getType(0).asGroupType().getType(0), object.keySet().toArray(), 0);
+            writeObject(type.asGroupType().getType(0).asGroupType().getType(1), object.values().toArray(), 1);
+            recordConsumer.endGroup();
+            recordConsumer.endField(KEY_VALUE, 0);
+            recordConsumer.endGroup();
             recordConsumer.endField(fieldName, index);
         }
     }
 
-    private void writeMap(final Map<Object, Object> object, final Type type) throws SerialisationException {
-        recordConsumer.startField(KEY_VALUE, 0);
-        recordConsumer.startGroup();
-        writeObject(type.asGroupType().getType(0).asGroupType().getType(0), object.keySet().toArray(), 0);
-        writeObject(type.asGroupType().getType(0).asGroupType().getType(1), object.values().toArray(), 1);
-        recordConsumer.endGroup();
-        recordConsumer.endField(KEY_VALUE, 0);
-    }
+    private void writeList(final String fieldName, final int index, final Object object, final Type type) throws SerialisationException {
 
-    private void writeList(final Object object, final Type type) throws SerialisationException {
-        recordConsumer.startField(LIST, 0);
-        recordConsumer.startGroup();
         if (object instanceof List) {
-            writeObject(type.asGroupType().getType(0).asGroupType().getType(0), ((List) object).toArray(), 0);
+            if (!((List) object).isEmpty()) {
+                recordConsumer.startField(fieldName, index);
+                recordConsumer.startGroup();
+                recordConsumer.startField(LIST, 0);
+                recordConsumer.startGroup();
+                writeObject(type.asGroupType().getType(0).asGroupType().getType(0), ((List) object).toArray(), 0);
+                recordConsumer.endGroup();
+                recordConsumer.endField(LIST, 0);
+                recordConsumer.endGroup();
+                recordConsumer.endField(fieldName, index);
+            }
         } else if (object instanceof Object[]) {
+            recordConsumer.startField(fieldName, index);
+            recordConsumer.startGroup();
+            recordConsumer.startField(LIST, 0);
+            recordConsumer.startGroup();
             writeObject(type.asGroupType().getType(0).asGroupType().getType(0), object, 0);
-        } else {
-            throw new SerialisationException("Cannot write list for object " + object.toString() + " with type " + type.toString());
+            recordConsumer.endGroup();
+            recordConsumer.endField(LIST, 0);
+            recordConsumer.endGroup();
+            recordConsumer.endField(fieldName, index);
         }
-        recordConsumer.endGroup();
-        recordConsumer.endField(LIST, 0);
     }
 
     private void writePrimitive(final Object object) throws SerialisationException {

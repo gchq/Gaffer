@@ -27,4 +27,5 @@ target/
 __pycache__
 *.pem
 *.DS_Store
-.gaffer
+.gaffer/
+parquet_data/

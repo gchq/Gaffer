@@ -109,7 +109,7 @@ public class GafferGroupObjectConverter implements Serializable {
                 } else if (nestedRow instanceof WrappedArray) {
                     objectsList.add(((WrappedArray) nestedRow).array());
                 } else if (nestedRow instanceof scala.collection.Map) {
-                    objectsList.add((Wrappers.MapWrapper<Object, Object>) scala.collection.JavaConversions.mapAsJavaMap((scala.collection.Map) nestedRow));
+                    objectsList.add(scala.collection.JavaConversions.mapAsJavaMap((scala.collection.Map) nestedRow));
                 } else {
                     throw new SerialisationException("sparkRowToGafferObject does not know how to deal with a " + nestedRow.getClass().getCanonicalName());
                 }

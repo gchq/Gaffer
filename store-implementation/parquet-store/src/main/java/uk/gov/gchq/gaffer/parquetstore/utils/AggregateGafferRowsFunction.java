@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BinaryOperator;
@@ -102,8 +103,13 @@ public class AggregateGafferRowsFunction implements Function2<GenericRowWithSche
         //add properties to the row maintaining the order
         for (final String propName : gafferProperties) {
             if (groupByColumns.contains(propName)) {
-                for (final String column : columnToPaths.get(propName)) {
-                    outputRow.add(v1.getAs(column));
+                final String[] paths = columnToPaths.get(propName);
+                if (paths[0].contains(".")) {
+                    outputRow.add(v1.getAs(propName));
+                } else {
+                    for (final String column : paths) {
+                        outputRow.add(v1.getAs(column));
+                    }
                 }
             } else {
                 objectConverter.addGafferObjectToSparkRow(propName, mergedProperties.get(propName), outputRow, v1.schema());
