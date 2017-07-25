@@ -27,10 +27,6 @@
 
     <artifactId>parquet-store</artifactId>
 
-    <properties>
-        <parquet.version>1.8.1</parquet.version>
-    </properties>
-
     <dependencies>
         <!-- Gaffer dependencies -->
         <dependency>
