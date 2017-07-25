@@ -146,11 +146,11 @@ public final class Graph {
      */
     public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
         try {
-            updateOperationChainView(operationChain);
-
             for (final GraphHook graphHook : graphHooks) {
                 graphHook.preExecute(operationChain, user);
             }
+
+            updateOperationChainView(operationChain);
 
             JobDetail result = store.executeJob(operationChain, user);
 
@@ -180,11 +180,11 @@ public final class Graph {
     public <O> O execute(final OperationChain<O> operationChain, final User user) throws OperationException {
         O result = null;
         try {
-            updateOperationChainView(operationChain);
-
             for (final GraphHook graphHook : graphHooks) {
                 graphHook.preExecute(operationChain, user);
             }
+
+            updateOperationChainView(operationChain);
 
             result = store.execute(operationChain, user);
 

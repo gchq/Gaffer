@@ -88,7 +88,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -283,9 +282,9 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldCallAllGraphHooksBeforeOperationExecuted() throws OperationException {
+    public void shouldCallAllGraphHooksBeforeOperationChainExecuted() throws OperationException {
         // Given
-        final Operation operation = mock(Operation.class);
+        final GetElements operation = mock(GetElements.class);
         final OperationChain opChain = mock(OperationChain.class);
         given(opChain.getOperations()).willReturn(Collections.singletonList(operation));
 
@@ -306,9 +305,10 @@ public class GraphTest {
         // Then
         final ArgumentCaptor<OperationChain> captor1 = ArgumentCaptor.forClass(OperationChain.class);
         final ArgumentCaptor<OperationChain> captor2 = ArgumentCaptor.forClass(OperationChain.class);
-        final InOrder inOrder = inOrder(hook1, hook2);
+        final InOrder inOrder = inOrder(hook1, hook2, operation);
         inOrder.verify(hook1).preExecute(captor1.capture(), Mockito.eq(user));
         inOrder.verify(hook2).preExecute(captor2.capture(), Mockito.eq(user));
+        inOrder.verify(operation).setView(Mockito.any(View.class));
         assertSame(captor1.getValue(), captor2.getValue());
         final List<Operation> ops = captor1.getValue().getOperations();
         assertEquals(1, ops.size());
@@ -316,36 +316,11 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldCallAllGraphHooksBeforeOperationChainExecuted() throws OperationException {
-        // Given
-        final OperationChain opChain = mock(OperationChain.class);
-        given(opChain.getOperations()).willReturn(Collections.singletonList(mock(Operation.class)));
-
-        final User user = mock(User.class);
-        final GraphHook hook1 = mock(GraphHook.class);
-        final GraphHook hook2 = mock(GraphHook.class);
-        final Graph graph = new Graph.Builder()
-                .graphId(GRAPH_ID)
-                .storeProperties(StreamUtil.storeProps(getClass()))
-                .addSchema(new Schema.Builder().build())
-                .addHook(hook1)
-                .addHook(hook2)
-                .build();
-
-        // When
-        graph.execute(opChain, user);
-
-        // Then
-        final InOrder inOrder = inOrder(hook1, hook2);
-        inOrder.verify(hook1).preExecute(opChain, user);
-        inOrder.verify(hook2).preExecute(opChain, user);
-    }
-
-    @Test
     public void shouldCallAllGraphHooksBeforeJobExecuted() throws OperationException {
         // Given
+        final GetElements operation = mock(GetElements.class);
         final OperationChain opChain = mock(OperationChain.class);
-        given(opChain.getOperations()).willReturn(Collections.singletonList(mock(Operation.class)));
+        given(opChain.getOperations()).willReturn(Collections.singletonList(operation));
 
         final User user = mock(User.class);
         final GraphHook hook1 = mock(GraphHook.class);
@@ -362,9 +337,16 @@ public class GraphTest {
         graph.executeJob(opChain, user);
 
         // Then
-        final InOrder inOrder = inOrder(hook1, hook2);
-        inOrder.verify(hook1).preExecute(opChain, user);
-        inOrder.verify(hook2).preExecute(opChain, user);
+        final ArgumentCaptor<OperationChain> captor1 = ArgumentCaptor.forClass(OperationChain.class);
+        final ArgumentCaptor<OperationChain> captor2 = ArgumentCaptor.forClass(OperationChain.class);
+        final InOrder inOrder = inOrder(hook1, hook2, operation);
+        inOrder.verify(hook1).preExecute(captor1.capture(), Mockito.eq(user));
+        inOrder.verify(hook2).preExecute(captor2.capture(), Mockito.eq(user));
+        inOrder.verify(operation).setView(Mockito.any(View.class));
+        assertSame(captor1.getValue(), captor2.getValue());
+        final List<Operation> ops = captor1.getValue().getOperations();
+        assertEquals(1, ops.size());
+        assertSame(operation, ops.get(0));
     }
 
     @Test
@@ -667,7 +649,7 @@ public class GraphTest {
                             .type("int", new TypeDefinition.Builder()
                                     .clazz(Integer.class)
                                     .aggregateFunction(new Sum())
-                                            // invalid serialiser
+                                    // invalid serialiser
                                     .serialiser(new RawDoubleSerialiser())
                                     .build())
                             .type("string", new TypeDefinition.Builder()
@@ -838,9 +820,7 @@ public class GraphTest {
     }
 
     private File createSchemaDirectory() throws IOException {
-        final File tmpDir;
-        tmpDir = new File("tmpSchemaDir");
-        assumeTrue("Failed to create tmp directory, skipping as this test as it is a permissions issue.", tmpDir.mkdir());
+        final File tmpDir = tempFolder.newFolder("tmpSchemaDir");
         writeToFile("dataSchema.json", tmpDir);
         writeToFile("dataTypes.json", tmpDir);
         return tmpDir;
