@@ -23,10 +23,12 @@ import org.junit.rules.ExpectedException;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.ScoreOperationChain;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -35,7 +37,10 @@ import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -93,5 +98,56 @@ public class ScoreOperationChainHandlerTest {
 
         // Then
         assertSame(expectedResult, result);
+    }
+
+    @Test
+    public void shouldSetAndGetAuthScores() {
+        // Given
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
+        final Map<String, Integer> authScores = new HashMap<>();
+        authScores.put("auth1", 1);
+        authScores.put("auth2", 2);
+        authScores.put("auth3", 3);
+
+        // When
+        handler.setAuthScores(authScores);
+        final Map<String, Integer> result = handler.getAuthScores();
+
+        // Then
+        assertEquals(authScores, result);
+    }
+
+    @Test
+    public void shouldSetAndGetOpScores() {
+        // Given
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
+        final LinkedHashMap<Class<? extends Operation>, Integer> opScores = new LinkedHashMap<>();
+        opScores.put(Operation.class, 1);
+        opScores.put(GetElements.class, 2);
+        opScores.put(GetAllElements.class, 3);
+
+        // When
+        handler.setOpScores(opScores);
+        final Map<Class<? extends Operation>, Integer> result = handler.getOpScores();
+
+        // Then
+        assertEquals(opScores, result);
+    }
+
+    @Test
+    public void shouldSetAndGetOpScoresAsStrings() throws ClassNotFoundException {
+        // Given
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
+        final LinkedHashMap<String, Integer> opScores = new LinkedHashMap<>();
+        opScores.put(Operation.class.getName(), 1);
+        opScores.put(GetElements.class.getName(), 2);
+        opScores.put(GetAllElements.class.getName(), 3);
+
+        // When
+        handler.setOpScoresFromStrings(opScores);
+        final Map<String, Integer> result = handler.getOpScoresAsStrings();
+
+        // Then
+        assertEquals(opScores, result);
     }
 }

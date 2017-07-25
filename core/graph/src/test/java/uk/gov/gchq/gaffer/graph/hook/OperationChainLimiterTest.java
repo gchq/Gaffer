@@ -19,13 +19,18 @@ package uk.gov.gchq.gaffer.graph.hook;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
@@ -191,5 +196,56 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
 
         // Then
         assertNotNull(deserialisedHook);
+    }
+
+    @Test
+    public void shouldSetAndGetAuthScores() {
+        // Given
+        final OperationChainLimiter hook = new OperationChainLimiter();
+        final Map<String, Integer> authScores = new HashMap<>();
+        authScores.put("auth1", 1);
+        authScores.put("auth2", 2);
+        authScores.put("auth3", 3);
+
+        // When
+        hook.setAuthScores(authScores);
+        final Map<String, Integer> result = hook.getAuthScores();
+
+        // Then
+        assertEquals(authScores, result);
+    }
+
+    @Test
+    public void shouldSetAndGetOpScores() {
+        // Given
+        final OperationChainLimiter hook = new OperationChainLimiter();
+        final LinkedHashMap<Class<? extends Operation>, Integer> opScores = new LinkedHashMap<>();
+        opScores.put(Operation.class, 1);
+        opScores.put(GetElements.class, 2);
+        opScores.put(GetAllElements.class, 3);
+
+        // When
+        hook.setOpScores(opScores);
+        final Map<Class<? extends Operation>, Integer> result = hook.getOpScores();
+
+        // Then
+        assertEquals(opScores, result);
+    }
+
+    @Test
+    public void shouldSetAndGetOpScoresAsStrings() throws ClassNotFoundException {
+        // Given
+        final OperationChainLimiter hook = new OperationChainLimiter();
+        final LinkedHashMap<String, Integer> opScores = new LinkedHashMap<>();
+        opScores.put(Operation.class.getName(), 1);
+        opScores.put(GetElements.class.getName(), 2);
+        opScores.put(GetAllElements.class.getName(), 3);
+
+        // When
+        hook.setOpScoresFromStrings(opScores);
+        final Map<String, Integer> result = hook.getOpScoresAsStrings();
+
+        // Then
+        assertEquals(opScores, result);
     }
 }
