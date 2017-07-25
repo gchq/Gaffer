@@ -90,7 +90,7 @@ public class GraphFactoryTest {
     }
 
     @Test
-    public void shouldNotAddGraphHooksWhenSystemPropertyNoSet() throws IOException {
+    public void shouldNotAddGraphHooksWhenSystemPropertyNotSet() throws IOException {
         // Given
         System.setProperty(SystemProperty.GRAPH_ID, "graphId");
         System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, "store.properties");
