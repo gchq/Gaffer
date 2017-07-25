@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationAddElementsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAdjacentIdsHandler;
@@ -133,7 +134,7 @@ public class FederatedStore extends Store {
                     resultOp = null;
                 }
             }
-        } else if ( operation instanceof AddElements){
+        } else if (operation instanceof AddElements) {
             resultOp = cloneOP(operation);
         }
 
@@ -325,7 +326,7 @@ public class FederatedStore extends Store {
 
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
-        return (OperationHandler) new FederatedOperationHandler();
+        return new FederatedOperationAddElementsHandler();
     }
 
     @Override

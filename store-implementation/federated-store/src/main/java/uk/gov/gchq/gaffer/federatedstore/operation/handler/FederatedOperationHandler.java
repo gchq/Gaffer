@@ -16,19 +16,15 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
-import com.google.common.collect.Sets;
-import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.Options;
-import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import java.util.Collection;
-import java.util.HashSet;
 
 public class FederatedOperationHandler implements OperationHandler<Operation> {
     public Object doOperation(final Operation operation, final Context context, final Store store) throws OperationException {
@@ -36,24 +32,12 @@ public class FederatedOperationHandler implements OperationHandler<Operation> {
         for (final Graph graph : graphs) {
             final Operation updatedOp = ((FederatedStore) store).updateOperationForGraph(operation, graph);
             if (null != updatedOp) {
-                // TODO: implement this in a better way.
-                if (updatedOp instanceof AddElements) {
-                    HashSet<Element> retain = Sets.newHashSet();
-                    for (Element element : ((AddElements) updatedOp).getInput()) {
-                        if (graph.getSchema().getGroups().contains(element.getGroup())) {
-                            retain.add(element);
-                        }
-                    }
-                    ((AddElements) updatedOp).setInput(retain);
-//                    ((AddElements) updatedOp).setSkipInvalidElements(false);
-//                    ((AddElements) updatedOp).setValidate(true);
-                }
                 try {
                     graph.execute(updatedOp, context.getUser());
                 } catch (final Exception e) {
                     if (!(updatedOp instanceof Options)
                             || !Boolean.valueOf(((Options) updatedOp).getOption(SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
-                        throw new OperationException("Graph failed to execute operation. Graph: " + graph.getGraphId() + " Operation: "+operation.getClass().getSimpleName(), e);
+                        throw new OperationException("Graph failed to execute operation. Graph: " + graph.getGraphId() + " Operation: " + operation.getClass().getSimpleName(), e);
                     }
                 }
             }
