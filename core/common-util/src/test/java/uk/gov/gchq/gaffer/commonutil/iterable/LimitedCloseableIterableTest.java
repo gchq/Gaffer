@@ -107,7 +107,7 @@ public class LimitedCloseableIterableTest {
         final List<Integer> values = Arrays.asList(0, 1, 2, 3);
         final int start = 0;
         final int end = 2;
-        final Boolean truncate = false;
+        final boolean truncate = false;
 
         // When
         final CloseableIterable<Integer> limitedValues = new LimitedCloseableIterable<>(values, start, end, truncate);
@@ -119,7 +119,8 @@ public class LimitedCloseableIterableTest {
             }
             fail("Exception expected");
         } catch (final LimitExceededException e) {
-            assertEquals("Limit exceeded - not all data could be shown", e.getMessage());
+            assertEquals("Limit of " + end + " exceeded - not all data could be shown", e
+                    .getMessage());
         }
     }
 
@@ -130,5 +131,21 @@ public class LimitedCloseableIterableTest {
 
         // Then
         assertTrue(Lists.newArrayList(nullIterable).isEmpty());
+    }
+
+    @Test
+    public void shouldHandleLimitEqualToIterableLength() {
+        // Given
+        final List<Integer> values = Arrays.asList(0, 1, 2, 3);
+        final int start = 0;
+        final int end = 4;
+        final boolean truncate = false;
+
+        // When
+        final CloseableIterable<Integer> equalValues = new LimitedCloseableIterable<>(values, start, end, truncate);
+
+        // Then
+        assertEquals(values, Lists.newArrayList(equalValues));
+
     }
 }

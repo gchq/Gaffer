@@ -36,12 +36,9 @@ public class LimitHandler<T> implements OutputOperationHandler<Limit<T>, Iterabl
         }
 
         if (null != operation.getResultLimit()) {
-            if (null != operation.getTruncate()) {
-                return new LimitedCloseableIterable<>(operation.getInput(), 0, operation
-                        .getResultLimit(), operation.getTruncate());
-            } else {
-                return new LimitedCloseableIterable<>(operation.getInput(), 0, operation.getResultLimit());
-            }
+            return new LimitedCloseableIterable<>(operation.getInput(), 0, operation
+                    .getResultLimit(), operation.getTruncate());
+
         }
 
         return operation.getInput();
