@@ -41,12 +41,12 @@ public class BooleanParquetSerialiser implements ParquetSerialiser<Boolean> {
                 return null;
             }
         }
-        throw new SerialisationException("Could not deserialise objects to a Boolean");
+        throw new SerialisationException("Could not de-serialise objects to a Boolean");
     }
 
     @Override
     public Boolean deserialiseEmpty() throws SerialisationException {
-        throw new SerialisationException("Cannot deserialise the empty bytes to a Boolean");
+        throw new SerialisationException("Could not de-serialise the empty bytes to a Boolean");
     }
 
     @Override

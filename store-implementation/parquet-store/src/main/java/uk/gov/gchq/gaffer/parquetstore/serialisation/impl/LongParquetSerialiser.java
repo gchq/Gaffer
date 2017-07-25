@@ -41,12 +41,12 @@ public class LongParquetSerialiser implements ParquetSerialiser<Long> {
                 return null;
             }
         }
-        throw new SerialisationException("Cannot deserialise objects to a Long");
+        throw new SerialisationException("Could not de-serialise objects to a Long");
     }
 
     @Override
     public Long deserialiseEmpty() throws SerialisationException {
-        throw new SerialisationException("Cannot deserialise the empty bytes to a Long");
+        throw new SerialisationException("Could not de-serialise the empty bytes to a Long");
     }
 
     @Override

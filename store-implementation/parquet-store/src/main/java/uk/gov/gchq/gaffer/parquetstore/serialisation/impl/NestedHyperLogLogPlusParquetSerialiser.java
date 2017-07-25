@@ -54,17 +54,17 @@ public class NestedHyperLogLogPlusParquetSerialiser implements ParquetSerialiser
             } else if (objects.length == 2 && objects[0] == null) {
                 return null;
             }
-            throw new SerialisationException("Failed to build the HyperLogLogPlus object from objects");
+            throw new SerialisationException("Could not de-serialise the HyperLogLogPlus object from objects");
         } catch (final SerialisationException e) {
             throw e;
         } catch (final IOException e) {
-            throw new SerialisationException("Failed to build the HyperLogLogPlus object from byte[]");
+            throw new SerialisationException("Could not de-serialise the HyperLogLogPlus object from byte[]");
         }
     }
 
     @Override
     public HyperLogLogPlus deserialiseEmpty() throws SerialisationException {
-        throw new SerialisationException("Cannot deserialise the empty bytes to a HyperLogLogPlus");
+        throw new SerialisationException("Could not de-serialise the empty bytes to a HyperLogLogPlus");
     }
 
     @Override

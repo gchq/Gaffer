@@ -41,12 +41,12 @@ public class FloatParquetSerialiser implements ParquetSerialiser<Float> {
                 return null;
             }
         }
-        throw new SerialisationException("Cannot deserialise objects to a Float");
+        throw new SerialisationException("Could not de-serialise objects to a Float");
     }
 
     @Override
     public Float deserialiseEmpty() throws SerialisationException {
-        throw new SerialisationException("Cannot deserialise the empty bytes to a Float");
+        throw new SerialisationException("Could not de-serialise the empty bytes to a Float");
     }
 
     @Override

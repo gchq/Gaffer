@@ -47,17 +47,21 @@ public class TreeSetStringParquetSerialiser implements ParquetSerialiser<TreeSet
 
     @Override
     public TreeSet<String> deserialise(final Object[] objects) throws SerialisationException {
-        if (objects.length == 1 && objects[0] instanceof String[]) {
-            final TreeSet<String> treeSet = new TreeSet<>();
-            treeSet.addAll(Arrays.asList(((String[]) objects[0])));
-            return treeSet;
+        if (objects.length == 1) {
+            if (objects[0] instanceof String[]) {
+                final TreeSet<String> treeSet = new TreeSet<>();
+                treeSet.addAll(Arrays.asList(((String[]) objects[0])));
+                return treeSet;
+            } else if (objects[0] == null) {
+                return null;
+            }
         }
-        return null;
+        throw new SerialisationException("Could not de-serialise objects to a TreeSet<String>");
     }
 
     @Override
     public TreeSet<String> deserialiseEmpty() throws SerialisationException {
-        return null;
+        throw new SerialisationException("Could not de-serialise objects to a TreeSet<String>");
     }
 
     @Override

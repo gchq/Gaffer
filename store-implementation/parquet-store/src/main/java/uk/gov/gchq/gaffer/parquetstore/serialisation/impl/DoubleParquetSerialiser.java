@@ -41,12 +41,12 @@ public class DoubleParquetSerialiser implements ParquetSerialiser<Double> {
                 return null;
             }
         }
-        throw new SerialisationException("Cannot deserialise objects to a Double");
+        throw new SerialisationException("Could not de-serialise objects to a Double");
     }
 
     @Override
     public Double deserialiseEmpty() throws SerialisationException {
-        throw new SerialisationException("Cannot deserialise the empty bytes to a Double");
+        throw new SerialisationException("Could not de-serialise the empty bytes to a Double");
     }
 
     @Override

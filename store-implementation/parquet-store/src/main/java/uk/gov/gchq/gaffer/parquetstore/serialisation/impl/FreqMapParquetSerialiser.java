@@ -46,15 +46,19 @@ public class FreqMapParquetSerialiser implements ParquetSerialiser<FreqMap> {
 
     @Override
     public FreqMap deserialise(final Object[] objects) throws SerialisationException {
-        if (objects.length == 1 && objects[0] instanceof Map) {
-            return new FreqMap((Map<String, Long>) objects[0]);
+        if (objects.length == 1) {
+            if (objects[0] instanceof Map) {
+                return new FreqMap((Map<String, Long>) objects[0]);
+            } else if (objects[0] == null) {
+                return null;
+            }
         }
-        return null;
+        throw new SerialisationException("Could not de-serialise objects to a FreqMap");
     }
 
     @Override
     public FreqMap deserialiseEmpty() throws SerialisationException {
-        return null;
+        throw new SerialisationException("Could not de-serialise objects to a FreqMap");
     }
 
     @Override

@@ -41,12 +41,12 @@ public class StringParquetSerialiser implements ParquetSerialiser<String> {
                 return null;
             }
         }
-        throw new SerialisationException("Cannot deserialise objects to a String");
+        throw new SerialisationException("Could not de-serialise objects to a String");
     }
 
     @Override
     public String deserialiseEmpty() throws SerialisationException {
-        throw new SerialisationException("Cannot deserialise the empty bytes to a String");
+        throw new SerialisationException("Could not de-serialise the empty bytes to a String");
     }
 
     @Override

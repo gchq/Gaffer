@@ -41,12 +41,12 @@ public class IntegerParquetSerialiser implements ParquetSerialiser<Integer> {
                 return null;
             }
         }
-        throw new SerialisationException("Cannot deserialise objects to an Integer");
+        throw new SerialisationException("Could not de-serialise objects to an Integer");
     }
 
     @Override
     public Integer deserialiseEmpty() throws SerialisationException {
-        throw new SerialisationException("Cannot deserialise the empty bytes to an Integer");
+        throw new SerialisationException("Could not de-serialise the empty bytes to an Integer");
     }
 
     @Override

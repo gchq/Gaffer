@@ -46,12 +46,12 @@ public class ShortParquetSerialiser implements ParquetSerialiser<Short> {
                 return null;
             }
         }
-        throw new SerialisationException("Cannot deserialise objects to a Short");
+        throw new SerialisationException("Could not de-serialise objects to a Short");
     }
 
     @Override
     public Short deserialiseEmpty() throws SerialisationException {
-        throw new SerialisationException("Cannot deserialise the empty bytes to a Short");
+        throw new SerialisationException("Could not de-serialise the empty bytes to a Short");
     }
 
     @Override

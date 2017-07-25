@@ -47,12 +47,12 @@ public class DateParquetSerialiser implements ParquetSerialiser<Date> {
                 return null;
             }
         }
-        throw new SerialisationException("Could not deserialise objects to a java.util.Date");
+        throw new SerialisationException("Could not de-serialise objects to a java.util.Date");
     }
 
     @Override
     public Date deserialiseEmpty() throws SerialisationException {
-        throw new SerialisationException("Cannot deserialise the empty bytes to a java.util.Date");
+        throw new SerialisationException("Could not de-serialise the empty bytes to a java.util.Date");
     }
 
     @Override

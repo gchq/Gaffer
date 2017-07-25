@@ -46,12 +46,12 @@ public class TypeValueParquetSerialiser implements ParquetSerialiser<TypeValue> 
                 return null;
             }
         }
-        throw new SerialisationException("Cannot deserialise objects to a TypeValue");
+        throw new SerialisationException("Could not de-serialise objects to a TypeValue");
     }
 
     @Override
     public TypeValue deserialiseEmpty() throws SerialisationException {
-        throw new SerialisationException("Cannot deserialise the empty bytes to a TypeValue");
+        throw new SerialisationException("Could not de-serialise the empty bytes to a TypeValue");
     }
 
     @Override

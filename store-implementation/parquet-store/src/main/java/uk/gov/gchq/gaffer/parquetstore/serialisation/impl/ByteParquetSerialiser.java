@@ -46,12 +46,12 @@ public class ByteParquetSerialiser implements ParquetSerialiser<Byte> {
                 return null;
             }
         }
-        throw new SerialisationException("Cannot to de-serialise objects to Byte");
+        throw new SerialisationException("Could not de-serialise objects to Byte");
     }
 
     @Override
     public Byte deserialiseEmpty() throws SerialisationException {
-        throw new SerialisationException("Cannot deserialise the empty bytes to a Byte");
+        throw new SerialisationException("Could not de-serialise the empty bytes to a Byte");
     }
 
     @Override

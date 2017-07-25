@@ -38,7 +38,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * This class is responsible for converting a Gaffer {@link Schema} to an Avro {@link org.apache.avro.Schema} per group
+ * This class is responsible for converting a Gaffer {@link Schema} to an Parquet {@link MessageType} per group
  * and to a Spark schema (a {@link StructType} per group).
  */
 public class SchemaUtils {
