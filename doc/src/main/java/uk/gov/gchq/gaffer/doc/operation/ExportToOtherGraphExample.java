@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.doc.operation;
 import org.apache.commons.io.FileUtils;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -60,14 +59,14 @@ public class ExportToOtherGraphExample extends OperationExample {
 
     public void simpleExport() {
         // ---------------------------------------------------------
-        final OperationChain<CloseableIterable<? extends Element>> opChain =
+        final OperationChain<Iterable<? extends Element>> opChain =
                 new OperationChain.Builder()
                         .first(new GetAllElements.Builder()
                                 .view(new View.Builder()
                                         .edge("edge")
                                         .build())
                                 .build())
-                        .then(new ExportToOtherGraph.Builder<CloseableIterable<? extends Element>>()
+                        .then(new ExportToOtherGraph.Builder()
                                 .graphId("newGraphId")
                                 .build())
                         .build();
@@ -82,14 +81,14 @@ public class ExportToOtherGraphExample extends OperationExample {
         // ---------------------------------------------------------
         final Schema schema = Schema.fromJson(StreamUtil.openStreams(getClass(), "operation/schema"));
         final StoreProperties storeProperties = StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), "othermockaccumulostore.properties"));
-        final OperationChain<CloseableIterable<? extends Element>> opChain =
+        final OperationChain<Iterable<? extends Element>> opChain =
                 new OperationChain.Builder()
                         .first(new GetAllElements.Builder()
                                 .view(new View.Builder()
                                         .edge("edge")
                                         .build())
                                 .build())
-                        .then(new ExportToOtherGraph.Builder<CloseableIterable<? extends Element>>()
+                        .then(new ExportToOtherGraph.Builder()
                                 .graphId("newGraphId")
                                 .schema(schema)
                                 .storeProperties(storeProperties)
@@ -111,14 +110,14 @@ public class ExportToOtherGraphExample extends OperationExample {
         proxyProperties.setGafferPort(8081);
         proxyProperties.setGafferContextRoot("/rest/v1");
 
-        final OperationChain<CloseableIterable<? extends Element>> opChain =
+        final OperationChain<Iterable<? extends Element>> opChain =
                 new OperationChain.Builder()
                         .first(new GetAllElements.Builder()
                                 .view(new View.Builder()
                                         .edge("edge")
                                         .build())
                                 .build())
-                        .then(new ExportToOtherGraph.Builder<CloseableIterable<? extends Element>>()
+                        .then(new ExportToOtherGraph.Builder()
                                 .graphId("otherGafferRestApiGraphId")
                                 .storeProperties(proxyProperties)
                                 .build())
@@ -164,14 +163,14 @@ public class ExportToOtherGraphExample extends OperationExample {
                 .library(graphLibrary)
                 .build();
 
-        final OperationChain<CloseableIterable<? extends Element>> opChain =
+        final OperationChain<Iterable<? extends Element>> opChain =
                 new OperationChain.Builder()
                         .first(new GetAllElements.Builder()
                                 .view(new View.Builder()
                                         .edge("edge")
                                         .build())
                                 .build())
-                        .then(new ExportToOtherGraph.Builder<CloseableIterable<? extends Element>>()
+                        .then(new ExportToOtherGraph.Builder()
                                 .graphId("exportGraphId")
                                 .build())
                         .build();
@@ -216,14 +215,14 @@ public class ExportToOtherGraphExample extends OperationExample {
                 .library(graphLibrary)
                 .build();
 
-        final OperationChain<CloseableIterable<? extends Element>> opChain =
+        final OperationChain<Iterable<? extends Element>> opChain =
                 new OperationChain.Builder()
                         .first(new GetAllElements.Builder()
                                 .view(new View.Builder()
                                         .edge("edge")
                                         .build())
                                 .build())
-                        .then(new ExportToOtherGraph.Builder<CloseableIterable<? extends Element>>()
+                        .then(new ExportToOtherGraph.Builder()
                                 .graphId("newGraphId")
                                 .parentSchemaIds("exportSchemaId")
                                 .parentStorePropertiesId("exportStorePropertiesId")

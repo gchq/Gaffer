@@ -75,7 +75,7 @@ public class ExportToOtherGraphHandlerTest {
         // Given
         given(store.getGraphId()).willReturn(GRAPH_ID);
         graphLibrary.add(GRAPH_ID, schema, storeProperties);
-        final ExportToOtherGraph export = new ExportToOtherGraph.Builder<>()
+        final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID)
                 .build();
         final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
@@ -95,7 +95,7 @@ public class ExportToOtherGraphHandlerTest {
         given(store.getGraphId()).willReturn(GRAPH_ID);
         graphLibrary.add(GRAPH_ID + 1, schema, storeProperties);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
-        final ExportToOtherGraph export = new ExportToOtherGraph.Builder<>()
+        final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .build();
         final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
@@ -117,7 +117,7 @@ public class ExportToOtherGraphHandlerTest {
         given(store.getGraphId()).willReturn(GRAPH_ID);
 
         final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
-        final ExportToOtherGraph export = new ExportToOtherGraph.Builder<>()
+        final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .schema(schema1)
                 .build();
@@ -141,7 +141,7 @@ public class ExportToOtherGraphHandlerTest {
         given(store.getGraphId()).willReturn(GRAPH_ID);
 
         final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
-        final ExportToOtherGraph export = new ExportToOtherGraph.Builder<>()
+        final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .storeProperties(storeProperties1)
                 .build();
@@ -167,7 +167,7 @@ public class ExportToOtherGraphHandlerTest {
         given(store.getGraphLibrary()).willReturn(graphLibrary);
 
         final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
-        final ExportToOtherGraph export = new ExportToOtherGraph.Builder<>()
+        final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 2)
                 .parentSchemaIds(SCHEMA_ID + 1)
                 .storeProperties(storeProperties)
@@ -202,7 +202,7 @@ public class ExportToOtherGraphHandlerTest {
         given(store.getGraphLibrary()).willReturn(graphLibrary);
 
         final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
-        final ExportToOtherGraph export = new ExportToOtherGraph.Builder<>()
+        final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 2)
                 .parentSchemaIds(SCHEMA_ID + 1, SCHEMA_ID + 2)
                 .schema(schema)
@@ -236,7 +236,7 @@ public class ExportToOtherGraphHandlerTest {
         given(store.getGraphLibrary()).willReturn(graphLibrary);
 
         final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
-        final ExportToOtherGraph export = new ExportToOtherGraph.Builder<>()
+        final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 2)
                 .schema(schema)
                 .parentStorePropertiesId(STORE_PROPS_ID + 1)
@@ -264,7 +264,7 @@ public class ExportToOtherGraphHandlerTest {
         given(store.getGraphLibrary()).willReturn(graphLibrary);
 
         final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
-        final ExportToOtherGraph export = new ExportToOtherGraph.Builder<>()
+        final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 2)
                 .schema(schema)
                 .parentStorePropertiesId(STORE_PROPS_ID + 1)

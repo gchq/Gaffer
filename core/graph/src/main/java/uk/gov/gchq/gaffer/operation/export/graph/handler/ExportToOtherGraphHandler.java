@@ -30,8 +30,6 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.List;
 
 public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGraph, OtherGraphExporter> {
-    private static final String ID = "gaffer.store.id";
-
     @Override
     protected Class<OtherGraphExporter> getExporterClass() {
         return OtherGraphExporter.class;
@@ -40,11 +38,11 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
     @Override
     protected OtherGraphExporter createExporter(final ExportToOtherGraph export, final Context context, final Store store) {
         return new OtherGraphExporter(context.getUser(),
-                                      context.getJobId(),
-                                      createGraph(export, store));
+                context.getJobId(),
+                createGraph(export, store));
     }
 
-    protected Graph createGraph(final ExportToOtherGraph<?> export, final Store store) {
+    protected Graph createGraph(final ExportToOtherGraph export, final Store store) {
         validate(store, export);
 
         final String exportGraphId = export.getGraphId();
@@ -61,7 +59,7 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
         return rtn;
     }
 
-    private Graph createGraphAfterResolvingSchemaAndProperties(final ExportToOtherGraph<?> export, final Store store) {
+    private Graph createGraphAfterResolvingSchemaAndProperties(final ExportToOtherGraph export, final Store store) {
         StoreProperties storeProperties = resolveStoreProperties(export, store);
         Schema schema = resolveSchema(export, store);
 
@@ -73,7 +71,7 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
                 .build();
     }
 
-    private StoreProperties resolveStoreProperties(final ExportToOtherGraph<?> export, final Store store) {
+    private StoreProperties resolveStoreProperties(final ExportToOtherGraph export, final Store store) {
         StoreProperties rtn = null;
         final StoreProperties exportStoreProperties = export.getStoreProperties();
         final String exportParentStorePropertiesId = export.getParentStorePropertiesId();
@@ -86,7 +84,7 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
                 rtn = exportStoreProperties;
             } else {
                 // delete the old properties id as we are about to modify the properties
-                rtn.getProperties().remove(ID);
+                rtn.getProperties().remove(StoreProperties.ID);
                 rtn.getProperties().putAll(exportStoreProperties.getProperties());
             }
         }
@@ -96,7 +94,7 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
         return rtn;
     }
 
-    private Schema resolveSchema(final ExportToOtherGraph<?> export, final Store store) {
+    private Schema resolveSchema(final ExportToOtherGraph export, final Store store) {
         final Schema exportSchema = export.getSchema();
         final List<String> exportParentSchemaIds = export.getParentSchemaIds();
         final GraphLibrary graphLibrary = store.getGraphLibrary();
@@ -140,7 +138,7 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
                 .build();
     }
 
-    private Graph createGraphWithoutLibrary(final ExportToOtherGraph<?> export, final Store store) {
+    private Graph createGraphWithoutLibrary(final ExportToOtherGraph export, final Store store) {
         // No store graph library so we create a new Graph
         final Schema exportSchema = export.getSchema();
         final Schema schema = (null == exportSchema) ? store.getSchema() : exportSchema;
@@ -153,7 +151,7 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
                 .build();
     }
 
-    public void validate(final Store store, final ExportToOtherGraph<?> export) {
+    public void validate(final Store store, final ExportToOtherGraph export) {
         final String exportGraphId = export.getGraphId();
         final List<String> exportParentSchemaIds = export.getParentSchemaIds();
         final String exportParentStorePropertiesId = export.getParentStorePropertiesId();
