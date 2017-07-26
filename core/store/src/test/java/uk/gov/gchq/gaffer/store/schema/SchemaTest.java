@@ -16,17 +16,6 @@
 
 package uk.gov.gchq.gaffer.store.schema;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-
 import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -62,6 +51,17 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 public class SchemaTest {
     public static final String EDGE_DESCRIPTION = "Edge description";
@@ -438,7 +438,7 @@ public class SchemaTest {
 
     @Test
     public void testSchemaConstructedFromInputStream() throws IOException {
-        final InputStream resourceAsStream = this.getClass().getResourceAsStream(StreamUtil.DATA_SCHEMA);
+        final InputStream resourceAsStream = this.getClass().getResourceAsStream(StreamUtil.ELEMENTS_SCHEMA);
         assertNotNull(resourceAsStream);
         final Schema deserialisedSchema = new Schema.Builder().json(resourceAsStream).build();
         assertNotNull(deserialisedSchema);
@@ -493,40 +493,57 @@ public class SchemaTest {
     @Test
     public void shouldMergeDifferentSchemas() {
         // Given
+        final String typeShared = "typeShared";
         final String type1 = "type1";
         final String type2 = "type2";
         final Serialiser vertexSerialiser = mock(Serialiser.class);
         final Schema schema1 = new Schema.Builder()
                 .id("1")
-                .edge(TestGroups.EDGE)
-                .entity(TestGroups.ENTITY)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, type1)
+                        .build())
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.COUNT, typeShared)
+                        .build())
                 .vertexSerialiser(vertexSerialiser)
+                .type(typeShared, Long.class)
                 .type(type1, Integer.class)
                 .visibilityProperty(TestPropertyNames.VISIBILITY)
                 .build();
 
         final Schema schema2 = new Schema.Builder()
                 .id("2")
-                .entity(TestGroups.ENTITY_2)
-                .edge(TestGroups.EDGE_2)
+                .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.COUNT, typeShared)
+                        .build())
+                .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_2, type2)
+                        .build())
                 .type(type2, String.class)
+                .type(typeShared, Long.class)
                 .build();
 
         // When
         final Schema mergedSchema = new Schema.Builder()
                 .merge(schema1)
+                .merge(schema1)
                 .merge(schema2)
+                .merge(schema2) // should be able to merge a duplicate schema
                 .build();
 
         // Then
         assertEquals("1,2", mergedSchema.getId());
         assertEquals(2, mergedSchema.getEdges().size());
-        assertNotNull(mergedSchema.getEdge(TestGroups.EDGE));
-        assertNotNull(mergedSchema.getEdge(TestGroups.EDGE_2));
+        assertEquals(1, mergedSchema.getEdge(TestGroups.EDGE).getPropertyMap().size());
+        assertEquals(type1, mergedSchema.getEdge(TestGroups.EDGE).getPropertyMap().get(TestPropertyNames.PROP_1));
+        assertEquals(1, mergedSchema.getEdge(TestGroups.EDGE_2).getPropertyMap().size());
+        assertEquals(type2, mergedSchema.getEdge(TestGroups.EDGE_2).getPropertyMap().get(TestPropertyNames.PROP_2));
 
         assertEquals(2, mergedSchema.getEntities().size());
-        assertNotNull(mergedSchema.getEntity(TestGroups.ENTITY));
-        assertNotNull(mergedSchema.getEntity(TestGroups.ENTITY_2));
+        assertEquals(1, mergedSchema.getEntity(TestGroups.ENTITY).getPropertyMap().size());
+        assertEquals(typeShared, mergedSchema.getEntity(TestGroups.ENTITY).getPropertyMap().get(TestPropertyNames.COUNT));
+        assertEquals(1, mergedSchema.getEntity(TestGroups.ENTITY_2).getPropertyMap().size());
+        assertEquals(typeShared, mergedSchema.getEntity(TestGroups.ENTITY_2).getPropertyMap().get(TestPropertyNames.COUNT));
 
         assertEquals(Integer.class, mergedSchema.getType(type1).getClazz());
         assertEquals(String.class, mergedSchema.getType(type2).getClazz());
@@ -537,40 +554,58 @@ public class SchemaTest {
     @Test
     public void shouldMergeDifferentSchemasOppositeWayAround() {
         // Given
+        // Given
+        final String typeShared = "typeShared";
         final String type1 = "type1";
         final String type2 = "type2";
         final Serialiser vertexSerialiser = mock(Serialiser.class);
         final Schema schema1 = new Schema.Builder()
                 .id("1")
-                .edge(TestGroups.EDGE)
-                .entity(TestGroups.ENTITY)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, type1)
+                        .build())
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.COUNT, typeShared)
+                        .build())
                 .vertexSerialiser(vertexSerialiser)
+                .type(typeShared, Long.class)
                 .type(type1, Integer.class)
                 .visibilityProperty(TestPropertyNames.VISIBILITY)
                 .build();
 
         final Schema schema2 = new Schema.Builder()
                 .id("2")
-                .entity(TestGroups.ENTITY_2)
-                .edge(TestGroups.EDGE_2)
+                .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.COUNT, typeShared)
+                        .build())
+                .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_2, type2)
+                        .build())
                 .type(type2, String.class)
+                .type(typeShared, Long.class)
                 .build();
 
         // When
         final Schema mergedSchema = new Schema.Builder()
                 .merge(schema2)
+                .merge(schema2)
                 .merge(schema1)
+                .merge(schema1) // should be able to merge a duplicate schema
                 .build();
 
         // Then
         assertEquals("2,1", mergedSchema.getId());
         assertEquals(2, mergedSchema.getEdges().size());
-        assertNotNull(mergedSchema.getEdge(TestGroups.EDGE));
-        assertNotNull(mergedSchema.getEdge(TestGroups.EDGE_2));
+        assertEquals(1, mergedSchema.getEdge(TestGroups.EDGE).getPropertyMap().size());
+        assertEquals(type1, mergedSchema.getEdge(TestGroups.EDGE).getPropertyMap().get(TestPropertyNames.PROP_1));
+        assertEquals(1, mergedSchema.getEdge(TestGroups.EDGE_2).getPropertyMap().size());
+        assertEquals(type2, mergedSchema.getEdge(TestGroups.EDGE_2).getPropertyMap().get(TestPropertyNames.PROP_2));
 
         assertEquals(2, mergedSchema.getEntities().size());
-        assertNotNull(mergedSchema.getEntity(TestGroups.ENTITY));
-        assertNotNull(mergedSchema.getEntity(TestGroups.ENTITY_2));
+        assertEquals(1, mergedSchema.getEntity(TestGroups.ENTITY).getPropertyMap().size());
+        assertEquals(typeShared, mergedSchema.getEntity(TestGroups.ENTITY).getPropertyMap().get(TestPropertyNames.COUNT));
+        assertEquals(1, mergedSchema.getEntity(TestGroups.ENTITY_2).getPropertyMap().size());
+        assertEquals(typeShared, mergedSchema.getEntity(TestGroups.ENTITY_2).getPropertyMap().get(TestPropertyNames.COUNT));
 
         assertEquals(Integer.class, mergedSchema.getType(type1).getClazz());
         assertEquals(String.class, mergedSchema.getType(type2).getClazz());
@@ -582,10 +617,14 @@ public class SchemaTest {
     public void shouldThrowExceptionWhenMergeSchemasWithASharedEdgeGroup() {
         // Given
         final Schema schema1 = new Schema.Builder()
-                .edge(TestGroups.EDGE)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, "string")
+                        .build())
                 .build();
         final Schema schema2 = new Schema.Builder()
-                .edge(TestGroups.EDGE)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_2, "string")
+                        .build())
                 .build();
 
         // When / Then
@@ -595,7 +634,7 @@ public class SchemaTest {
                     .merge(schema2);
             fail("Exception expected");
         } catch (final SchemaException e) {
-            assertTrue(e.getMessage().contains("Element groups cannot be shared"));
+            assertTrue("Actual message was: " + e.getMessage(), e.getMessage().contains("Element group properties cannot be defined in different schema parts"));
         }
     }
 
@@ -603,10 +642,14 @@ public class SchemaTest {
     public void shouldThrowExceptionWhenMergeSchemasWithASharedEntityGroup() {
         // Given
         final Schema schema1 = new Schema.Builder()
-                .entity(TestGroups.ENTITY)
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, "string")
+                        .build())
                 .build();
         final Schema schema2 = new Schema.Builder()
-                .entity(TestGroups.ENTITY)
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.PROP_2, "string")
+                        .build())
                 .build();
 
         // When / Then
@@ -616,7 +659,7 @@ public class SchemaTest {
                     .merge(schema2);
             fail("Exception expected");
         } catch (final SchemaException e) {
-            assertTrue(e.getMessage().contains("Element groups cannot be shared"));
+            assertTrue("Actual message was: " + e.getMessage(), e.getMessage().contains("Element group properties cannot be defined in different schema parts"));
         }
     }
 
