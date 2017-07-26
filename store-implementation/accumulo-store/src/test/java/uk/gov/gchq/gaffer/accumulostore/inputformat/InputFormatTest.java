@@ -313,12 +313,7 @@ public class InputFormatTest {
     }
 
     private Schema getSchemaWithVisibilities() {
-        final Schema schema = Schema.fromJson(
-                this.getClass().getResourceAsStream("/schemaWithVisibilities/dataSchemaWithVisibilities.json"),
-                this.getClass().getResourceAsStream("/schemaWithVisibilities/dataTypes.json"),
-                this.getClass().getResourceAsStream("/schemaWithVisibilities/storeSchema.json"),
-                this.getClass().getResourceAsStream("/schemaWithVisibilities/storeTypes.json"));
-        return schema;
+        return Schema.fromJson(StreamUtil.openStreams(getClass(), "schemaWithVisibilities"));
     }
 
     private class Driver extends Configured implements Tool {

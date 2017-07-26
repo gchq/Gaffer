@@ -22,11 +22,14 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperatorComposite;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.BinaryOperator;
 
 public class ElementAggregator extends TupleAdaptedBinaryOperatorComposite<String> {
     private final PropertiesTuple stateTuple = new PropertiesTuple();
     private final PropertiesTuple propertiesTuple = new PropertiesTuple();
+    private boolean readOnly;
 
     /**
      * Aggregates the element. Note - only the element properties are aggregated.
@@ -54,6 +57,19 @@ public class ElementAggregator extends TupleAdaptedBinaryOperatorComposite<Strin
         stateTuple.setProperties(state);
         apply(stateTuple, propertiesTuple);
         return state;
+    }
+
+    @Override
+    public List<TupleAdaptedBinaryOperator<String, ?>> getComponents() {
+        if (readOnly) {
+            return Collections.unmodifiableList(super.getComponents());
+        }
+
+        return super.getComponents();
+    }
+
+    public void lock() {
+        readOnly = true;
     }
 
     @Override

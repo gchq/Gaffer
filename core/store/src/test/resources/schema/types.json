@@ -1,0 +1,52 @@
+{
+  "types": {
+    "id.string": {
+      "description": "ID/Vertex type description",
+      "class": "java.lang.String"
+    },
+    "prop.map": {
+      "description": "Map type description",
+      "class": "java.util.LinkedHashMap",
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.serialisation.implementation.MapSerialiser",
+        "keySerialiser": "uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser",
+        "valueSerialiser": "uk.gov.gchq.gaffer.serialisation.implementation.raw.RawLongSerialiser"
+      }
+    },
+    "directed.true": {
+      "class": "java.lang.Boolean",
+      "description": "Directed true type description",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.gaffer.function.ExampleFilterFunction"
+        }
+      ]
+    },
+    "prop.string": {
+      "description": "String type description",
+      "class": "java.lang.String",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.gaffer.function.ExampleFilterFunction"
+        }
+      ],
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.ExampleAggregateFunction"
+      }
+    },
+    "prop.date": {
+      "description": "Date type description",
+      "class": "java.util.Date",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.ExampleAggregateFunction"
+      }
+    },
+    "timestamp": {
+      "description": "Timestamp type description",
+      "class": "java.lang.Long",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.ExampleAggregateFunction"
+      }
+    }
+  }
+}
