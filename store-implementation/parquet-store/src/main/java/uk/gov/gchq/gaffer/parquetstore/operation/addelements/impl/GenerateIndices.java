@@ -47,7 +47,7 @@ public class GenerateIndices {
         graphIndex = new GraphIndex();
         final ParquetStoreProperties parquetStoreProperties = store.getProperties();
         final ExecutorService pool = Executors.newFixedThreadPool(parquetStoreProperties.getThreadsAvailable());
-        final String tempFileDir = parquetStoreProperties.getTempFilesDir();
+        final String tempFileDir = store.getTempFilesDir();
         final SchemaUtils schemaUtils = store.getSchemaUtils();
         final String rootDir = tempFileDir + "/" + ParquetStoreConstants.SORTED;
         final List<Callable<Tuple4<String, String, ColumnIndex, OperationException>>> tasks = new ArrayList<>();

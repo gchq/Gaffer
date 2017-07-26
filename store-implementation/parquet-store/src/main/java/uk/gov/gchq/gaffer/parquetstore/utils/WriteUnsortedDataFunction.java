@@ -23,32 +23,27 @@ import scala.runtime.AbstractFunction1;
 import scala.runtime.BoxedUnit;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.WriteUnsortedData;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-
 import java.io.Serializable;
-import java.util.Properties;
 
 public class WriteUnsortedDataFunction extends AbstractFunction1<Iterator<Element>, BoxedUnit> implements Serializable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WriteUnsortedDataFunction.class);
     private static final long serialVersionUID = 1420859039414174311L;
+    private final String tempFilesDir;
     private final byte[] gafferSchema;
-    private final Properties props;
 
 
-    public WriteUnsortedDataFunction(final SchemaUtils schemaUtils, final ParquetStoreProperties props) {
+    public WriteUnsortedDataFunction(final String tempFilesDir, final SchemaUtils schemaUtils) {
+        this.tempFilesDir = tempFilesDir;
         this.gafferSchema = schemaUtils.getGafferSchema().toCompactJson();
-        this.props = props.getProperties();
     }
 
     @Override
     public BoxedUnit apply(final Iterator<Element> elements) {
         SchemaUtils utils = new SchemaUtils(Schema.fromJson(gafferSchema));
-        ParquetStoreProperties pp = new ParquetStoreProperties();
-        pp.setProperties(props);
-        final WriteUnsortedData writer = new WriteUnsortedData(pp, utils);
+        final WriteUnsortedData writer = new WriteUnsortedData(tempFilesDir, utils);
         try {
             writer.writeElements(scala.collection.JavaConversions.asJavaIterator(elements));
         } catch (final OperationException e) {

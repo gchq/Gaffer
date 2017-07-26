@@ -38,12 +38,10 @@ import scala.collection.mutable.Builder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.utils.AggregateGafferRowsFunction;
 import uk.gov.gchq.gaffer.parquetstore.utils.ExtractKeyFromRow;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
-import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import java.io.IOException;
@@ -81,23 +79,22 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
 
     public AggregateAndSortGroup(final String group,
                                  final String column,
-                                 final ParquetStoreProperties parquetStoreProperties,
+                                 final ParquetStore store,
                                  final String currentGraphDir,
-                                 final SchemaUtils schemaUtils,
                                  final SparkSession spark) throws SerialisationException {
         this.group = group;
         this.column = column;
-        this.tempFileDir = parquetStoreProperties.getTempFilesDir();
-        final SchemaElementDefinition gafferSchema = schemaUtils.getGafferSchema().getElement(group);
+        this.tempFileDir = store.getTempFilesDir();
+        final SchemaElementDefinition gafferSchema = store.getSchemaUtils().getGafferSchema().getElement(group);
         this.isEntity = gafferSchema instanceof SchemaEntityDefinition;
         this.propertyToAggregatorMap = buildColumnToAggregatorMap(gafferSchema);
         this.groupByColumns = new HashSet<>(gafferSchema.getGroupBy());
         this.gafferProperties = new String[gafferSchema.getProperties().size()];
         gafferSchema.getProperties().toArray(this.gafferProperties);
         this.spark = spark;
-        this.columnToPaths = schemaUtils.getColumnToPaths(group);
-        this.sparkSchema = schemaUtils.getSparkSchema(group);
-        this.gafferGroupObjectConverter = schemaUtils.getConverter(group);
+        this.columnToPaths = store.getSchemaUtils().getColumnToPaths(group);
+        this.sparkSchema = store.getSchemaUtils().getSparkSchema(group);
+        this.gafferGroupObjectConverter = store.getSchemaUtils().getConverter(group);
         this.currentGraphDir = currentGraphDir;
         if (isEntity) {
             this.inputDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.VERTEX, this.tempFileDir);
@@ -106,7 +103,7 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
             this.inputDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.SOURCE, this.tempFileDir);
             this.outputDir = ParquetStore.getGroupDirectory(group, column, this.tempFileDir + SORTED);
         }
-        this.filesPerGroup = parquetStoreProperties.getAddElementsOutputFilesPerGroup();
+        this.filesPerGroup = store.getProperties().getAddElementsOutputFilesPerGroup();
     }
 
     private HashMap<String, String> buildColumnToAggregatorMap(final SchemaElementDefinition gafferSchema) {

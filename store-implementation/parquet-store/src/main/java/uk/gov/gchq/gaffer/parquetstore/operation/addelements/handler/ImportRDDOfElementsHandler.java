@@ -53,9 +53,9 @@ public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfE
         try {
             final FileSystem fs = store.getFS();
             final ParquetStoreProperties parquetStoreProperties = store.getProperties();
-            final String tempDataDirString = parquetStoreProperties.getTempFilesDir();
+            final String tempDataDirString = store.getTempFilesDir();
             final Path tempDir = new Path(tempDataDirString);
-            final String rootDataDirString = parquetStoreProperties.getDataDir();
+            final String rootDataDirString = store.getDataDir();
             if (fs.exists(tempDir)) {
                 fs.delete(tempDir, true);
                 LOGGER.warn("Temp data directory '{}' has been deleted.", tempDataDirString);
@@ -67,7 +67,7 @@ public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfE
                 // Write the data out
                 LOGGER.debug("Starting to write the unsorted Parquet data to {} split by group", tempDataDirString);
                 final WriteUnsortedDataFunction writeUnsortedDataFunction =
-                        new WriteUnsortedDataFunction(store.getSchemaUtils(), parquetStoreProperties);
+                        new WriteUnsortedDataFunction(store.getTempFilesDir(), store.getSchemaUtils());
                 operation.getInput().foreachPartition(writeUnsortedDataFunction);
                 LOGGER.debug("Finished writing the unsorted Parquet data to {}", tempDataDirString);
                 // Spark read in the data, aggregate and sort the data
