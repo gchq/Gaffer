@@ -1,0 +1,70 @@
+{
+  "types": {
+    "string": {
+      "class": "java.lang.String"
+    },
+    "int": {
+      "class": "java.lang.Integer",
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser"
+      },
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+      }
+    },
+    "float": {
+      "class": "java.lang.Float",
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser"
+      },
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+      }
+    },
+    "double": {
+      "class": "java.lang.Double",
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser"
+      },
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+      }
+    },
+    "long": {
+      "class": "java.lang.Long",
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser"
+      },
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+      }
+    },
+    "directed.either": {
+      "class": "java.lang.Boolean"
+    },
+    "simpleProperty": {
+      "class": "java.lang.Integer",
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser"
+      },
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+      }
+    },
+    "colQualProperty": {
+      "class": "java.lang.Integer",
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser"
+      },
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+      }
+    },
+    "freqMapProperty": {
+      "class": "uk.gov.gchq.gaffer.types.FreqMap"
+    },
+    "hyperLogLogPlus": {
+      "class": "com.clearspring.analytics.stream.cardinality.HyperLogLogPlus"
+    }
+  }
+}

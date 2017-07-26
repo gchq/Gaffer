@@ -69,7 +69,7 @@ public class GetDataFrameOfElementsHandlerTest {
 
     @Test
     public void checkGetCorrectElementsInDataFrame() throws OperationException {
-        final Graph graph = getGraph("/schema-DataFrame/dataSchema.json", getElements());
+        final Graph graph = getGraph("/schema-DataFrame/elements.json", getElements());
         final SQLContext sqlContext = getSqlContext("checkGetCorrectElementsInDataFrame");
 
         // Edges group - check get correct edges
@@ -135,7 +135,7 @@ public class GetDataFrameOfElementsHandlerTest {
 
     @Test
     public void checkGetCorrectElementsInDataFrameMultipleGroups() throws OperationException {
-        final Graph graph = getGraph("/schema-DataFrame/dataSchema.json", getElements());
+        final Graph graph = getGraph("/schema-DataFrame/elements.json", getElements());
         final SQLContext sqlContext = getSqlContext("checkGetCorrectElementsInDataFrameMultipleGroups");
 
         // Use entity and edges group - check get correct data
@@ -215,7 +215,7 @@ public class GetDataFrameOfElementsHandlerTest {
 
     @Test
     public void checkGetCorrectElementsInDataFrameWithProjection() throws OperationException {
-        final Graph graph = getGraph("/schema-DataFrame/dataSchema.json", getElements());
+        final Graph graph = getGraph("/schema-DataFrame/elements.json", getElements());
         final SQLContext sqlContext = getSqlContext("checkGetCorrectElementsInDataFrameWithProjection");
 
         // Get all edges
@@ -260,7 +260,7 @@ public class GetDataFrameOfElementsHandlerTest {
 
     @Test
     public void checkGetCorrectElementsInDataFrameWithProjectionAndFiltering() throws OperationException {
-        final Graph graph = getGraph("/schema-DataFrame/dataSchema.json", getElements());
+        final Graph graph = getGraph("/schema-DataFrame/elements.json", getElements());
         final SQLContext sqlContext = getSqlContext("checkGetCorrectElementsInDataFrameWithProjectionAndFiltering");
 
         // Get DataFrame
@@ -304,7 +304,7 @@ public class GetDataFrameOfElementsHandlerTest {
 
     @Test
     public void checkGetExceptionIfIncompatibleSchemas() throws OperationException {
-        final Graph graph = getGraph("/schema-DataFrame/dataSchemaIncompatible.json", Collections.<Element>emptyList());
+        final Graph graph = getGraph("/schema-DataFrame/elementsIncompatible.json", Collections.<Element>emptyList());
         final SQLContext sqlContext = getSqlContext("checkGetExceptionIfIncompatibleSchemas");
 
         // Use entity and edges group - check get correct data
@@ -325,7 +325,7 @@ public class GetDataFrameOfElementsHandlerTest {
 
     @Test
     public void checkCanDealWithNonStandardProperties() throws OperationException {
-        final Graph graph = getGraph("/schema-DataFrame/dataSchemaNonstandardTypes.json", getElementsWithNonStandardProperties());
+        final Graph graph = getGraph("/schema-DataFrame/elementsNonstandardTypes.json", getElementsWithNonStandardProperties());
         final SQLContext sqlContext = getSqlContext("checkCanDealWithNonStandardProperties");
 
         // Edges group - check get correct edges
@@ -378,7 +378,7 @@ public class GetDataFrameOfElementsHandlerTest {
 
     @Test
     public void checkCanDealWithUserDefinedConversion() throws OperationException {
-        final Graph graph = getGraph("/schema-DataFrame/dataSchemaUserDefinedConversion.json", getElementsForUserDefinedConversion());
+        final Graph graph = getGraph("/schema-DataFrame/elementsUserDefinedConversion.json", getElementsForUserDefinedConversion());
         final SQLContext sqlContext = getSqlContext("checkCanDealWithUserDefinedConversion");
 
         // Edges group - check get correct edges
@@ -437,7 +437,7 @@ public class GetDataFrameOfElementsHandlerTest {
 
     @Test
     public void checkViewIsRespected() throws OperationException {
-        final Graph graph = getGraph("/schema-DataFrame/dataSchema.json", getElements());
+        final Graph graph = getGraph("/schema-DataFrame/elements.json", getElements());
         final SQLContext sqlContext = getSqlContext("checkViewIsRespected");
 
         // Edges group - check get correct edges
@@ -506,12 +506,11 @@ public class GetDataFrameOfElementsHandlerTest {
         sqlContext.sparkContext().stop();
     }
 
-    private Graph getGraph(final String dataSchema, final List<Element> elements) throws OperationException {
+    private Graph getGraph(final String elementsSchema, final List<Element> elements) throws OperationException {
         final Graph graph = new Graph.Builder()
                 .graphId("graphId")
-                .addSchema(getClass().getResourceAsStream(dataSchema))
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataTypes.json"))
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/storeTypes.json"))
+                .addSchema(getClass().getResourceAsStream(elementsSchema))
+                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/types.json"))
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
                 .build();
         graph.execute(new AddElements.Builder().input(elements).build(), new User());
