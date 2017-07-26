@@ -163,7 +163,7 @@ public class GraphTest {
     public void shouldConstructGraphFromSchemaFolderPath() throws IOException {
         // Given
         final Schema expectedSchema = new Schema.Builder()
-                .json(StreamUtil.dataSchema(getClass()), StreamUtil.dataTypes(getClass()))
+                .json(StreamUtil.elementsSchema(getClass()), StreamUtil.typesSchema(getClass()))
                 .build();
 
         Graph graph = null;
@@ -190,11 +190,11 @@ public class GraphTest {
     @Test
     public void shouldConstructGraphFromSchemaURI() throws IOException, URISyntaxException {
         // Given
-        final URI typeInputUri = getResourceUri(StreamUtil.DATA_TYPES);
-        final URI schemaInputUri = getResourceUri(StreamUtil.DATA_SCHEMA);
+        final URI typeInputUri = getResourceUri(StreamUtil.TYPES_SCHEMA);
+        final URI schemaInputUri = getResourceUri(StreamUtil.ELEMENTS_SCHEMA);
         final URI storeInputUri = getResourceUri(StreamUtil.STORE_PROPERTIES);
         final Schema expectedSchema = new Schema.Builder()
-                .json(StreamUtil.dataSchema(getClass()), StreamUtil.dataTypes(getClass()))
+                .json(StreamUtil.elementsSchema(getClass()), StreamUtil.typesSchema(getClass()))
                 .build();
         Graph graph = null;
         File schemaDir = null;
@@ -809,8 +809,8 @@ public class GraphTest {
 
     private File createSchemaDirectory() throws IOException {
         final File tmpDir = tempFolder.newFolder("tmpSchemaDir");
-        writeToFile("dataSchema.json", tmpDir);
-        writeToFile("dataTypes.json", tmpDir);
+        writeToFile("elements.json", tmpDir);
+        writeToFile("types.json", tmpDir);
         return tmpDir;
     }
 
