@@ -39,7 +39,7 @@ public class SingleUseParquetStore extends ParquetStore {
     private void cleanUp() throws StoreException {
         String dataDir = "";
         try {
-            dataDir = getProperties().getDataDir();
+            dataDir = getDataDir();
             deleteFolder(dataDir, getFS());
         } catch (final IOException e) {
             throw new StoreException("Exception deleting folder: " + dataDir, e);

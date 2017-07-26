@@ -102,6 +102,14 @@ public class ParquetStore extends Store {
         return TRAITS;
     }
 
+    public String getDataDir() {
+        return getProperties().getDataDir() + "/" + getGraphId();
+    }
+
+    public String getTempFilesDir() {
+        return getProperties().getTempFilesDir() + "/" + getGraphId();
+    }
+
     public void setGraphIndex(final GraphIndex graphIndex) {
         this.graphIndex = graphIndex;
     }
@@ -182,7 +190,7 @@ public class ParquetStore extends Store {
     }
 
     private void loadIndex(final ParquetStoreProperties properties) throws StoreException {
-        final String rootDir = properties.getDataDir();
+        final String rootDir = getDataDir();
         try {
             if (fs.exists(new Path(rootDir))) {
                 graphIndex = new GraphIndex();
