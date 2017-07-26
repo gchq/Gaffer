@@ -25,6 +25,7 @@ import org.apache.spark.sql.sources.GreaterThan;
 import org.apache.spark.sql.sources.LessThan;
 import org.apache.spark.sql.sources.Or;
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -452,10 +453,7 @@ public class FilterToOperationConverterTest {
     }
 
     private Schema getSchema() {
-        return Schema.fromJson(
-                getClass().getResourceAsStream("/schema-DataFrame/dataSchema.json"),
-                getClass().getResourceAsStream("/schema-DataFrame/dataTypes.json"),
-                getClass().getResourceAsStream("/schema-DataFrame/storeTypes.json"));
+        return Schema.fromJson(StreamUtil.schemas(getClass()));
     }
 
     private View getViewFromSchema(final Schema schema) {

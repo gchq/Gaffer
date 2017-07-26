@@ -16,13 +16,16 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
+import com.google.common.collect.Sets;
 import org.junit.Test;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Collection;
 import java.util.TreeSet;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class CollectionUtilTest {
@@ -159,5 +162,134 @@ public class CollectionUtilTest {
         expectedResult.put(Double.class, "double");
         expectedResult.put(Long.class, "long");
         assertEquals(expectedResult, result);
+
+   @Test
+   public void shouldReturnTrueWhenCollectionContainsAProvidedValue() {
+        // Given
+        final Collection collection = Sets.newHashSet(10, 20, 2, 30);
+        final Object[] values = new Object[]{1, 2, 3};
+
+        // When
+        final boolean result = CollectionUtil.containsAny(collection, values);
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    public void shouldReturnFalseWhenCollectionDoesNotContainsAProvidedValue() {
+        // Given
+        final Collection collection = Sets.newHashSet(10, 20, 30);
+        final Object[] values = new Object[]{1, 2, 3};
+
+        // When
+        final boolean result = CollectionUtil.containsAny(collection, values);
+
+        // Then
+        assertFalse(result);
+    }
+
+    @Test
+    public void shouldReturnFalseWhenContainsAnyCalledWithNullValue() {
+        // Given
+        final Collection collection = Sets.newHashSet(10, 20, 30);
+        final Object[] values = null;
+
+        // When
+        final boolean result = CollectionUtil.containsAny(collection, values);
+
+        // Then
+        assertFalse(result);
+    }
+
+    @Test
+    public void shouldReturnFalseWhenContainsAnyCalledWithNullCollection() {
+        // Given
+        final Collection collection = null;
+        final Object[] values = new Object[]{1, 2, 3};
+
+        // When
+        final boolean result = CollectionUtil.containsAny(collection, values);
+
+        // Then
+        assertFalse(result);
+    }
+
+    @Test
+    public void shouldReturnFalseWhenAnyMissingCalledWhenTheCollectionContainsAllValues() {
+        // Given
+        final Collection collection = Sets.newHashSet(10, 20, 30);
+        final Object[] values = new Object[]{10, 20, 30};
+
+        // When
+        final boolean result = CollectionUtil.anyMissing(collection, values);
+
+        // Then
+        assertFalse(result);
+    }
+
+    @Test
+    public void shouldReturnFalseWhenAnyMissingCalledWhenNullValues() {
+        // Given
+        final Collection collection = Sets.newHashSet(10, 20, 30);
+        final Object[] values = null;
+
+        // When
+        final boolean result = CollectionUtil.anyMissing(collection, values);
+
+        // Then
+        assertFalse(result);
+    }
+
+    @Test
+    public void shouldReturnTrueWhenAnyMissingCalledWhenTheCollectionDoesNotContainAProvidedValue() {
+        // Given
+        final Collection collection = Sets.newHashSet(10, 20, 30);
+        final Object[] values = new Object[]{1, 2, 3};
+
+        // When
+        final boolean result = CollectionUtil.anyMissing(collection, values);
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    public void shouldReturnFalseWhenAnyMissingCalledWithNullValue() {
+        // Given
+        final Collection collection = Sets.newHashSet(10, 20, 30);
+        final Object[] values = null;
+
+        // When
+        final boolean result = CollectionUtil.anyMissing(collection, values);
+
+        // Then
+        assertFalse(result);
+    }
+
+    @Test
+    public void shouldReturnTrueWhenAnyMissingCalledWithNullCollectionAndSomeValues() {
+        // Given
+        final Collection collection = null;
+        final Object[] values = new Object[]{1, 2, 3};
+
+        // When
+        final boolean result = CollectionUtil.anyMissing(collection, values);
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    public void shouldReturnFalseWhenAnyMissingCalledWithNullCollectionAndValues() {
+        // Given
+        final Collection collection = null;
+        final Object[] values = null;
+
+        // When
+        final boolean result = CollectionUtil.anyMissing(collection, values);
+
+        // Then
+        assertFalse(result);
     }
 }

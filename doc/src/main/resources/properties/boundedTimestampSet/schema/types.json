@@ -1,0 +1,29 @@
+{
+  "types": {
+    "vertex.string": {
+      "class": "java.lang.String",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.koryphe.impl.predicate.Exists"
+        }
+      ]
+    },
+    "bounded.timestamp.set": {
+      "class": "uk.gov.gchq.gaffer.time.BoundedTimestampSet",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.time.binaryoperator.BoundedTimestampSetAggregator"
+      },
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.time.serialisation.BoundedTimestampSetSerialiser"
+      }
+    },
+    "false": {
+      "class": "java.lang.Boolean",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.koryphe.impl.predicate.IsFalse"
+        }
+      ]
+    }
+  }
+}

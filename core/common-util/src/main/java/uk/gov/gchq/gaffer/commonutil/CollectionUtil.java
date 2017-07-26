@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.commonutil;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Collection;
 import java.util.TreeSet;
 
 public final class CollectionUtil {
@@ -77,5 +78,36 @@ public final class CollectionUtil {
         final Map<String, V> mapAsStrings = new HashMap<>();
         toMapWithStringKeys(map, mapAsStrings);
         return mapAsStrings;
+
+    public static boolean containsAny(final Collection collection, final Object[] objects) {
+        boolean result = false;
+        if (null != collection && null != objects) {
+            for (final Object object : objects) {
+                if (collection.contains(object)) {
+                    result = true;
+                    break;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public static boolean anyMissing(final Collection collection, final Object[] objects) {
+        boolean result = false;
+        if (null == collection || collection.isEmpty()) {
+            if (null != objects && objects.length > 0) {
+                result = true;
+            }
+        } else if (null != objects) {
+            for (final Object object : objects) {
+                if (!collection.contains(object)) {
+                    result = true;
+                    break;
+                }
+            }
+        }
+
+        return result;
     }
 }

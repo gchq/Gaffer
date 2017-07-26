@@ -108,21 +108,28 @@ public abstract class WalkthroughStrSubstitutor {
         }
         params.put("STORE_PROPERTIES",
                 "\n```properties\n" + getResource("/mockaccumulostore.properties", exampleClass).replaceAll("#.*\\n", "") + "\n```\n");
-        params.put("DATA_SCHEMA_LINK",
-                getGitHubResourcesLink(schemaPath + "/dataSchema.json", modulePath));
-        params.put("DATA_TYPES_LINK",
-                getGitHubResourcesLink(schemaPath + "/dataTypes.json", modulePath));
-        params.put("STORE_TYPES_LINK",
-                getGitHubResourcesLink(schemaPath + "/storeTypes.json", modulePath));
+        params.put("ELEMENTS_SCHEMA_LINK",
+                getGitHubResourcesLink(schemaPath + "/elements.json", modulePath));
+        params.put("TYPES_SCHEMA_LINK",
+                getGitHubResourcesLink(schemaPath + "/types.json", modulePath));
+        params.put("AGGREGATION_LINK",
+                getGitHubResourcesLink(schemaPath + "/aggregation.json", modulePath));
         params.put("STORE_PROPERTIES_LINK",
                 getGitHubResourcesLink("/mockaccumulostore.properties", modulePath));
         if (null != schemaPath) {
-            params.put("DATA_SCHEMA_JSON",
-                    "\n```json\n" + getResource(schemaPath + "/dataSchema.json", exampleClass) + "\n```\n");
-            params.put("DATA_TYPES_JSON",
-                    "\n```json\n" + getResource(schemaPath + "/dataTypes.json", exampleClass) + "\n```\n");
-            params.put("STORE_TYPES_JSON",
-                    "\n```json\n" + getResource(schemaPath + "/storeTypes.json", exampleClass) + "\n```\n");
+            params.put("ELEMENTS_JSON",
+                    "\n```json\n" + getResource(schemaPath + "/elements.json", exampleClass) + "\n```\n");
+            params.put("TYPES_JSON",
+                    "\n```json\n" + getResource(schemaPath + "/types.json", exampleClass) + "\n```\n");
+
+            if (null != exampleClass.getResource("/" + schemaPath + "/aggregation.json")) {
+                params.put("AGGREGATION_JSON",
+                        "\n```json\n" + getResource(schemaPath + "/aggregation.json", exampleClass) + "\n```\n");
+            }
+            if (null != exampleClass.getResource("/" + schemaPath + "/validation.json")) {
+                params.put("VALIDATION_JSON",
+                        "\n```json\n" + getResource(schemaPath + "/validation.json", exampleClass) + "\n```\n");
+            }
         }
 
         params.putAll(createParameterMap(text, example, modulePath));
@@ -206,7 +213,7 @@ public abstract class WalkthroughStrSubstitutor {
         final String resource;
         try (final InputStream stream = StreamUtil.openStream(clazz, resourcePath)) {
             if (null == stream) {
-                resource = "";
+                throw new IllegalArgumentException("Resource was not found: " + resourcePath);
             } else {
                 resource = new String(IOUtils.toByteArray(stream), CommonConstants.UTF_8);
             }

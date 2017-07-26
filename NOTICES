@@ -191,7 +191,6 @@ Apache Flink (org.apache.curator:curator-test:0.5.11)
 
 - Apache License, Version 2.0
 
-
 ------------------------------------------------------------------------------------------------
 
 The Gaffer rest-api module contains the following javascript dependencies:
