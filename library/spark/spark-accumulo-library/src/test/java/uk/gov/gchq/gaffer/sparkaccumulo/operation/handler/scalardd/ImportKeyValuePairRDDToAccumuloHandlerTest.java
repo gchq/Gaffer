@@ -37,6 +37,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.spark.SparkConstants;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.scalardd.ImportKeyValuePairRDDToAccumulo;
@@ -100,9 +101,9 @@ public class ImportKeyValuePairRDDToAccumuloHandlerTest {
         final SparkConf sparkConf = new SparkConf()
                 .setMaster("local")
                 .setAppName("tests")
-                .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-                .set("spark.kryo.registrator", "uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator")
-                .set("spark.driver.allowMultipleContexts", "true");
+                .set(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
+                .set(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
+                .set(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true");
         final SparkContext sparkContext = new SparkContext(sparkConf);
 
         // Create Hadoop configuration and serialise to a string

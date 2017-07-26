@@ -20,13 +20,12 @@ import org.apache.spark.SparkConf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-
 import java.io.Serializable;
 import java.nio.file.Path;
 
-public class ParquetStoreProperties extends StoreProperties implements Serializable {
+public class ParquetProperties extends StoreProperties implements Serializable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ParquetStoreProperties.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ParquetProperties.class);
 
     public static final String DATA_DIR = "parquet.data.dir";
     public static final String TEMP_FILES_DIR = "parquet.temp_data.dir";
@@ -46,13 +45,13 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
     private static final String SPARK_MASTER_DEFAULT = "local[*]";
     private static final long serialVersionUID = 7695540336792378185L;
 
-    public ParquetStoreProperties() {
+    public ParquetProperties() {
         super();
         this.setStoreClass(ParquetStore.class);
         this.setStorePropertiesClass(getClass());
     }
 
-    public ParquetStoreProperties(final Path propFileLocation) {
+    public ParquetProperties(final Path propFileLocation) {
         super(propFileLocation);
     }
 
@@ -111,10 +110,10 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
      * @return The Spark master to be used.
      */
     public String getSparkMaster() {
-        LOGGER.debug("ParquetStoreProperties has Spark master set as: {}", get(SPARK_MASTER, "Is not set"));
+        LOGGER.debug("ParquetProperties has Spark master set as: {}", get(SPARK_MASTER, "Is not set"));
         LOGGER.debug("Spark config has Spark master set as: {}", new SparkConf().get("spark.master", "Is not set"));
         final String sparkMaster = get(SPARK_MASTER, new SparkConf().get("spark.master", SPARK_MASTER_DEFAULT));
-        LOGGER.info("Spark master is set to " + sparkMaster);
+        LOGGER.info("Spark master is set to {}", sparkMaster);
         return sparkMaster;
     }
 

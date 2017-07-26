@@ -22,8 +22,8 @@ import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.parquetstore.ParquetProperties;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.spark.SparkUser;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
@@ -54,14 +54,14 @@ public class GetDataframeOfElementsHandler implements OutputOperationHandler<Get
                                      final ParquetStore store,
                                      final SparkSession spark) throws OperationException {
         if (operation.getView().equals(store.getSchemaUtils().getEmptyView())) {
-            LOGGER.info("Retrieving elements as a dataframe");
-            final ParquetStoreProperties props = store.getProperties();
+            LOGGER.debug("Retrieving elements as a dataframe");
+            final ParquetProperties props = store.getProperties();
             final String rootDir = props.getDataDir() + "/" + store.getGraphIndex().getSnapshotTimestamp() + "/";
             final Dataset<Row> dataset = spark
                     .read()
                     .option("mergeSchema", true)
                     .parquet(rootDir + ParquetStoreConstants.GRAPH);
-            LOGGER.info("The merged schema that the data is being loaded using is: {}", dataset.schema().treeString());
+            LOGGER.debug("The merged schema that the data is being loaded using is: {}", dataset.schema().treeString());
             return dataset;
         } else {
             throw new OperationException("Views are not supported by this operation yet");

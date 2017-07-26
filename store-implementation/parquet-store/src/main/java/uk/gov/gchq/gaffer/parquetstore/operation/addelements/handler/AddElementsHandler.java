@@ -25,8 +25,8 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.parquetstore.ParquetProperties;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.AggregateAndSortTempData;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.GenerateIndices;
@@ -39,7 +39,6 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.user.User;
-
 import java.io.IOException;
 import java.util.Iterator;
 
@@ -67,16 +66,16 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             throws OperationException {
         try {
             final FileSystem fs = store.getFS();
-            final ParquetStoreProperties parquetStoreProperties = store.getProperties();
+            final ParquetProperties parquetStoreProperties = store.getProperties();
             final String rootDataDirString = parquetStoreProperties.getDataDir();
             final String tempDirString = parquetStoreProperties.getTempFilesDir();
             final Path tempDir = new Path(tempDirString);
             if (fs.exists(tempDir)) {
                 fs.delete(tempDir, true);
-                LOGGER.warn("Temp data directory '" + tempDirString + "' has been deleted.");
+                LOGGER.warn("Temp data directory '{}' has been deleted.", tempDirString);
             }
             // Write the data out
-            LOGGER.info("Starting to write the unsorted Parquet data to " + tempDirString + " split by group");
+            LOGGER.debug("Starting to write the unsorted Parquet data to {} split by group", tempDirString);
             final Iterable<? extends Element> input = addElementsOperation.getInput();
             final Iterator<? extends Element> inputIter = input.iterator();
             new WriteUnsortedData(parquetStoreProperties, store.getSchemaUtils()).writeElements(inputIter);
@@ -86,15 +85,15 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             if (input instanceof CloseableIterable) {
                 ((CloseableIterable) input).close();
             }
-            LOGGER.info("Finished writing the unsorted Parquet data to " + tempDirString);
+            LOGGER.debug("Finished writing the unsorted Parquet data to {}", tempDirString);
             // Use to Spark read in all the data, aggregate and sort it
-            LOGGER.info("Starting to write the sorted and aggregated Parquet data to " + tempDirString + "/sorted split by group");
+            LOGGER.debug("Starting to write the sorted and aggregated Parquet data to {}/sorted split by group", tempDirString);
             new AggregateAndSortTempData(store, spark);
-            LOGGER.info("Finished writing the sorted and aggregated Parquet data to " + tempDirString + "/sorted");
+            LOGGER.debug("Finished writing the sorted and aggregated Parquet data to {}/sorted", tempDirString);
             // Generate the file based index
-            LOGGER.info("Starting to write the indexes");
+            LOGGER.debug("Starting to write the indexes");
             final GraphIndex newGraphIndex = new GenerateIndices(store).getGraphIndex();
-            LOGGER.info("Finished writing the indexes");
+            LOGGER.debug("Finished writing the indexes");
             try {
                 moveDataToDataDir(store, fs, rootDataDirString, tempDirString, newGraphIndex);
                 tidyUp(fs, tempDirString);
@@ -113,10 +112,10 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         // Move data from temp to data
         final long snapshot = System.currentTimeMillis();
         final String destPath = dataDirString + "/" + snapshot;
-        LOGGER.info("Creating directory {}", destPath);
+        LOGGER.debug("Creating directory {}", destPath);
         fs.mkdirs(new Path(destPath));
         final String tempPath = tempDataDirString + "/" + ParquetStoreConstants.SORTED;
-        LOGGER.info("Renaming {} to {}", tempPath, destPath);
+        LOGGER.debug("Renaming {} to {}", tempPath, destPath);
         fs.rename(new Path(tempPath), new Path(destPath));
         // Reload indices
         newGraphIndex.setSnapshotTimestamp(snapshot);
@@ -126,10 +125,10 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
     private void tidyUp(final FileSystem fs, final String tempDataDirString) throws IOException {
         Path tempDir = new Path(tempDataDirString);
         fs.delete(tempDir, true);
-        LOGGER.info("Temp data directory '" + tempDataDirString + "' has been deleted.");
+        LOGGER.debug("Temp data directory '{}' has been deleted.", tempDataDirString);
         while (fs.listStatus(tempDir.getParent()).length == 0) {
             tempDir = tempDir.getParent();
-            LOGGER.info("Empty directory '" + tempDataDirString + "' has been deleted.");
+            LOGGER.debug("Empty directory '{}' has been deleted.", tempDataDirString);
             fs.delete(tempDir, true);
         }
     }

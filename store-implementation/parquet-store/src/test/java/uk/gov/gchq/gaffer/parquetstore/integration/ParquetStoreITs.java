@@ -26,7 +26,7 @@ import org.junit.BeforeClass;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.integration.impl.GetAdjacentIdsIT;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
+import uk.gov.gchq.gaffer.parquetstore.ParquetProperties;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
 import java.io.IOException;
@@ -43,7 +43,7 @@ public class ParquetStoreITs extends AbstractStoreITs {
     @AfterClass
     public static void cleanUp() throws IOException {
         final FileSystem fs = FileSystem.get(new Configuration());
-        final ParquetStoreProperties props = new ParquetStoreProperties();
+        final ParquetProperties props = new ParquetProperties();
         Path dataDir = new Path(props.getDataDir());
         fs.delete(dataDir, true);
         while (fs.listStatus(dataDir.getParent()).length == 0) {

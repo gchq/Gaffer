@@ -34,7 +34,7 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
+import uk.gov.gchq.gaffer.parquetstore.ParquetProperties;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -80,8 +80,8 @@ public class EdgeCasesTest {
         }
     }
 
-    private static ParquetStoreProperties getParquetStoreProperties() {
-        return (ParquetStoreProperties) StoreProperties.loadStoreProperties(
+    private static ParquetProperties getParquetStoreProperties() {
+        return (ParquetProperties) StoreProperties.loadStoreProperties(
                 StreamUtil.storeProps(EdgeCasesTest.class));
     }
 
@@ -92,7 +92,7 @@ public class EdgeCasesTest {
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
-        final ParquetStoreProperties parquetProperties = getParquetStoreProperties();
+        final ParquetProperties parquetProperties = getParquetStoreProperties();
         Graph graph = new Graph.Builder()
                 .addSchemas(gafferSchema)
                 .storeProperties(parquetProperties)
@@ -126,7 +126,7 @@ public class EdgeCasesTest {
                     EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
                     EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
                     EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
-            ParquetStoreProperties parquetProperties = getParquetStoreProperties();
+            ParquetProperties parquetProperties = getParquetStoreProperties();
             parquetProperties.setDataDir("readElementsWithZeroElementFiles");
             parquetProperties.setAddElementsOutputFilesPerGroup(3);
             final Graph graph = new Graph.Builder()
@@ -156,7 +156,7 @@ public class EdgeCasesTest {
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
-        final ParquetStoreProperties parquetProperties = getParquetStoreProperties();
+        final ParquetProperties parquetProperties = getParquetStoreProperties();
         parquetProperties.setAddElementsOutputFilesPerGroup(1);
         final Graph graph = new Graph.Builder()
                 .addSchemas(gafferSchema)
@@ -193,7 +193,7 @@ public class EdgeCasesTest {
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
-        ParquetStoreProperties parquetProperties = getParquetStoreProperties();
+        ParquetProperties parquetProperties = getParquetStoreProperties();
         parquetProperties.setAddElementsOutputFilesPerGroup(1);
         Graph graph = new Graph.Builder()
                 .addSchemas(gafferSchema)

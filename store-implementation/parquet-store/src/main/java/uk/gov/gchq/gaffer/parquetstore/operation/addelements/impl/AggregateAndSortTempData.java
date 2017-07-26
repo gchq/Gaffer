@@ -21,12 +21,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.parquetstore.ParquetProperties;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -41,7 +40,7 @@ public class AggregateAndSortTempData {
     public AggregateAndSortTempData(final ParquetStore store, final SparkSession spark) throws OperationException, SerialisationException {
         final List<Callable<OperationException>> tasks = new ArrayList<>();
         final SchemaUtils schemaUtils = store.getSchemaUtils();
-        final ParquetStoreProperties parquetStoreProperties = store.getProperties();
+        final ParquetProperties parquetStoreProperties = store.getProperties();
         final GraphIndex index = store.getGraphIndex();
         final String currentDataDir;
         if (index != null) {
@@ -70,7 +69,7 @@ public class AggregateAndSortTempData {
             tasks.add(new AggregateAndSortGroup(group, ParquetStoreConstants.VERTEX, parquetStoreProperties, currentDataInThisGroupDir, schemaUtils, spark));
         }
         final ExecutorService pool = Executors.newFixedThreadPool(store.getProperties().getThreadsAvailable());
-        LOGGER.info("Created thread pool of size {} to aggregate and sort data", store.getProperties().getThreadsAvailable());
+        LOGGER.debug("Created thread pool of size {} to aggregate and sort data", store.getProperties().getThreadsAvailable());
         try {
             final List<Future<OperationException>> results = pool.invokeAll(tasks);
             for (int i = 0; i < tasks.size(); i++) {

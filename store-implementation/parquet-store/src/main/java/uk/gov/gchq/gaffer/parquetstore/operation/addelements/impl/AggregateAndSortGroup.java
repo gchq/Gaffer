@@ -37,8 +37,8 @@ import scala.collection.Seq$;
 import scala.collection.mutable.Builder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.parquetstore.ParquetProperties;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.utils.AggregateGafferRowsFunction;
 import uk.gov.gchq.gaffer.parquetstore.utils.ExtractKeyFromRow;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
@@ -46,11 +46,9 @@ import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -83,7 +81,7 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
 
     public AggregateAndSortGroup(final String group,
                                  final String column,
-                                 final ParquetStoreProperties parquetStoreProperties,
+                                 final ParquetProperties parquetStoreProperties,
                                  final String currentGraphDir,
                                  final SchemaUtils schemaUtils,
                                  final SparkSession spark) throws SerialisationException {
@@ -134,7 +132,7 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
                         paths.add(currentGraphDir);
                     }
                 }
-                LOGGER.info("Aggregating and sorting the data for group {} stored in directories {}",
+                LOGGER.debug("Aggregating and sorting the data for group {} stored in directories {}",
                         group, StringUtils.join(paths, ','));
                 final Dataset<Row> data = spark.read().parquet(JavaConversions.asScalaBuffer(paths));
 
@@ -145,7 +143,7 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
                         .mapToPair(row -> Tuple2$.MODULE$.apply(keyExtractor.call(row), (GenericRowWithSchema) row));
                 final List<Tuple2<Seq<Object>, GenericRowWithSchema>> kvList = groupedData.take(1);
                 if (0 == kvList.size()) {
-                    LOGGER.info("No data was returned in AggregateAndSortGroup for group = {}", group);
+                    LOGGER.debug("No data was returned in AggregateAndSortGroup for group = {}", group);
                     return null;
                 }
                 final Tuple2<Seq<Object>, GenericRowWithSchema> kv = kvList.get(0);
@@ -210,8 +208,7 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
                         .option("compression", "gzip")
                         .parquet(outputDir);
             } else {
-                LOGGER.debug("Skipping the sorting and aggregation of group:" + group +
-                        ", due to no data existing in the temporary files directory: " + tempFileDir);
+                LOGGER.debug("Skipping the sorting and aggregation of group: {}, due to no data existing in the temporary files directory: {}", group, tempFileDir);
             }
         } catch (final IOException e) {
             return new OperationException("IOException occurred during aggregation and sorting of data", e);

@@ -23,13 +23,13 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class ParquetStorePropertiesTest {
-    private ParquetStoreProperties props;
+public class ParquetPropertiesTest {
+    private ParquetProperties props;
 
     @Before
     public void setUp() throws Exception {
         Logger.getRootLogger().setLevel(Level.WARN);
-        props = new ParquetStoreProperties();
+        props = new ParquetProperties();
     }
 
     @Test

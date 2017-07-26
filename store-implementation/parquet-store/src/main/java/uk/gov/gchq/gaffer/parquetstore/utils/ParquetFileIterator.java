@@ -21,7 +21,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -39,7 +38,7 @@ public class ParquetFileIterator implements Iterator<Path> {
         this.files = new ArrayList<>();
         getFiles(rootDir);
         this.fileIndex = -1;
-        LOGGER.debug("Generated a ParquetFileIterator with " + this.files.size() + " files");
+        LOGGER.debug("Generated a ParquetFileIterator with {} files", this.files.size());
     }
 
     private void getFiles(final Path path) throws IOException {
@@ -48,7 +47,7 @@ public class ParquetFileIterator implements Iterator<Path> {
                 files.add(path);
             }
         } else {
-            for (final FileStatus file: fs.listStatus(path)) {
+            for (final FileStatus file : fs.listStatus(path)) {
                 getFiles(file.getPath());
             }
         }
