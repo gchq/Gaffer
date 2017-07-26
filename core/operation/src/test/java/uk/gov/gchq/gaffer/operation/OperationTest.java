@@ -18,10 +18,12 @@ package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.ValidationResult;
-import java.util.Collections;
+import java.lang.reflect.Field;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -32,7 +34,18 @@ public abstract class OperationTest {
     protected abstract Class<? extends Operation> getOperationClass();
 
     protected Set<String> getRequiredFields() {
-        return Collections.emptySet();
+        final Set<String> requiredFields = new HashSet<>(0);
+
+        final Field[] fields = getOperationClass().getFields();
+
+        for (final Field field :
+                fields) {
+            final Required[] reqAnnotations = field.getAnnotationsByType(Required.class);
+            if (reqAnnotations != null && reqAnnotations.length > 0) {
+                requiredFields.add(field.getName());
+            }
+        }
+        return requiredFields;
     }
 
     @Test
