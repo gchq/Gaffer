@@ -54,7 +54,7 @@ The `ParquetStore` could be used as part of a hybrid system where you use a Gaff
 
 ## Properties file
 
-The `ParquetProperties` class contains all properties relating to the configuration of the `ParquetStore`. It can be created from a properties file. It has sensible defaults for all parameters but users may want to tune these properties to suit their data. The following properties can be set:
+The `ParquetStoreProperties` class contains all properties relating to the configuration of the `ParquetStore`. It can be created from a properties file. It has sensible defaults for all parameters but users may want to tune these properties to suit their data. The following properties can be set:
 
 - `spark.master`: The string that sets what mode to run Spark in. By default, if Spark is installed on the machine it will use Spark's defaults, otherwise it will run in local mode using all available threads;
 - `parquet.data.dir`: The file path to save the graph files under, by default this will be a relative path \<current path\>/parquet_data;
@@ -70,7 +70,7 @@ A complete Gaffer properties file using a `ParquetStore` will look like:
 
 ```
 gaffer.store.class=uk.gov.gchq.gaffer.parquetstore.ParquetStore
-gaffer.store.properties.class=uk.gov.gchq.gaffer.parquetstore.ParquetProperties
+gaffer.store.properties.class=uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties
 spark.master=yarn
 parquet.data.dir=/User/me/my_gaffer_parquet_store
 parquet.temp_data_dir=/tmp/my_gaffer_parquet_store_tmp
@@ -371,18 +371,19 @@ would look like:
 
 ```
 parquet_data
-`-- <A long representing the time at which the data was written (as the number of milliseconds since epoch)>
-    |-- graph
-    |   |-- GROUP=BasicEdge
-    |   |   |-- _index
-    |   |   `-- part-00000.gz.parquet
-    |   `-- GROUP=BasicEntity
-    |       |-- _index
-    |       `-- part-00000.gz.parquet
-    `-- sortedBy=DESTINATION
-        `-- GROUP=BasicEdge
-            |-- _index
-            `-- part-00000.gz.parquet
+`-- graphId
+    `|-- <A long representing the time at which the data was written (as the number of milliseconds since epoch)>
+        |-- graph
+        |   |-- GROUP=BasicEdge
+        |   |   |-- _index
+        |   |   `-- part-00000.gz.parquet
+        |   `-- GROUP=BasicEntity
+        |       |-- _index
+        |       `-- part-00000.gz.parquet
+        `-- sortedBy=DESTINATION
+            `-- GROUP=BasicEdge
+                |-- _index
+                `-- part-00000.gz.parquet
 ```
 
 The root directory has two folders, one for the main graph which is what is returned when a `GetAllElements` operation is 
