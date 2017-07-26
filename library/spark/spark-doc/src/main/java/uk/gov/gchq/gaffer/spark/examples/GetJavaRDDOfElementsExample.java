@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.doc.operation.OperationExample;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
+import uk.gov.gchq.gaffer.spark.SparkConstants;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfElements;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.List;
@@ -52,9 +53,9 @@ public class GetJavaRDDOfElementsExample extends OperationExample {
         final SparkConf sparkConf = new SparkConf()
                 .setMaster("local")
                 .setAppName("GetJavaRDDOfElementsExample")
-                .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-                .set("spark.kryo.registrator", "uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator")
-                .set("spark.driver.allowMultipleContexts", "true");
+                .set(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
+                .set(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
+                .set(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true");
         final JavaSparkContext sc = new JavaSparkContext(sparkConf);
         sc.setLogLevel("OFF");
         final Graph graph = getGraph();

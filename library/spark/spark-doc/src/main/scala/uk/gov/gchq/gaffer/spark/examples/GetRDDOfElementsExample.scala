@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.doc.operation.OperationExample
 import uk.gov.gchq.gaffer.graph.Graph
 import uk.gov.gchq.gaffer.operation.OperationException
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed
+import uk.gov.gchq.gaffer.spark.SparkConstants
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfElements
 import uk.gov.gchq.gaffer.user.User
 
@@ -38,9 +39,9 @@ class GetRDDOfElementsExample() extends OperationExample(classOf[GetRDDOfElement
     val sparkConf = new SparkConf()
       .setMaster("local")
       .setAppName("getDataFrameOfElementsWithEntityGroup")
-      .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-      .set("spark.kryo.registrator", "uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator")
-      .set("spark.driver.allowMultipleContexts", "true")
+      .set(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
+      .set(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
+      .set(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true")
     val sc = new SparkContext(sparkConf)
     sc.setLogLevel("OFF")
     val graph = getGraph

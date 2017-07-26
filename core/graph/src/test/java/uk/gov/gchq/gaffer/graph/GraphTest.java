@@ -57,7 +57,6 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawDoubleSerialiser;
-import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
@@ -784,13 +783,7 @@ public class GraphTest {
         }
 
         @Override
-        public boolean isValidationRequired() {
-            return false;
-        }
-
-        @Override
         protected void addAdditionalOperationHandlers() {
-
         }
 
         @Override
@@ -810,11 +803,6 @@ public class GraphTest {
 
         @Override
         protected OperationHandler<? extends AddElements> getAddElementsHandler() {
-            return null;
-        }
-
-        @Override
-        protected Object doUnhandledOperation(final Operation operation, final Context context) {
             return null;
         }
 

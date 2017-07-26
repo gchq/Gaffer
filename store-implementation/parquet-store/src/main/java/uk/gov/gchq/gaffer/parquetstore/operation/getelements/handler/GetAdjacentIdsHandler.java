@@ -31,6 +31,6 @@ public class GetAdjacentIdsHandler
     public CloseableIterable<EntitySeed> doOperation(final GetAdjacentIds operation,
                                                      final Context context,
                                                      final Store store) throws OperationException {
-        throw new UnsupportedOperationException("The ParquetStore does not implement GetAdjacentEntitySeeds yet.");
+        throw new UnsupportedOperationException("The ParquetStore does not implement " + operation.getClass().getSimpleName() + " yet.");
     }
 }

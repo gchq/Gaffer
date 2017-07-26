@@ -36,7 +36,7 @@ public final class SparkParquetUtils {
             shufflePartitions = SQLConf.SHUFFLE_PARTITIONS().defaultValueString();
         }
         if (numberOfOutputFiles > Integer.parseInt(shufflePartitions)) {
-            LOGGER.info("Setting the number of Spark shuffle partitions to " + numberOfOutputFiles);
+            LOGGER.debug("Setting the number of Spark shuffle partitions to {}", numberOfOutputFiles);
             spark.conf().set("spark.sql.shuffle.partitions", numberOfOutputFiles);
         }
         final Configuration hadoopConf = spark.sparkContext().hadoopConfiguration();
@@ -44,9 +44,9 @@ public final class SparkParquetUtils {
     }
 
     public static void configureSparkConfForAddElements(final Configuration hadoopConf, final ParquetStoreProperties props) {
-        LOGGER.info("Setting the parquet file properties");
-        LOGGER.info("Row group size: {}", props.getRowGroupSize());
-        LOGGER.info("Page size: {}", props.getPageSize());
+        LOGGER.debug("Setting the parquet file properties");
+        LOGGER.debug("Row group size: {}", props.getRowGroupSize());
+        LOGGER.debug("Page size: {}", props.getPageSize());
         hadoopConf.setInt("parquet.block.size", props.getRowGroupSize());
         hadoopConf.setInt("parquet.page.size", props.getPageSize());
         hadoopConf.setInt("parquet.dictionary.page.size", props.getPageSize());
