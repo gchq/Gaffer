@@ -577,7 +577,6 @@ public class StoreTest {
         private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
         private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
         private int createOperationHandlersCallCount;
-        private boolean validationRequired;
 
         @Override
         protected OperationChainValidator createOperationChainValidator() {
@@ -636,15 +635,6 @@ public class StoreTest {
 
         public ArrayList<Operation> getDoUnhandledOperationCalls() {
             return doUnhandledOperationCalls;
-        }
-
-        @Override
-        public boolean isValidationRequired() {
-            return validationRequired;
-        }
-
-        public void setValidationRequired(final boolean validationRequired) {
-            this.validationRequired = validationRequired;
         }
 
         @Override

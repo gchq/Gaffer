@@ -1,0 +1,17 @@
+{
+  "edges": {
+    "RoadUse": {
+      "validateFunctions": [
+        {
+          "selection": [
+            "startDate",
+            "endDate"
+          ],
+          "predicate": {
+            "class": "uk.gov.gchq.koryphe.impl.predicate.IsXLessThanY"
+          }
+        }
+      ]
+    }
+  }
+}

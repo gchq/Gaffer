@@ -141,11 +141,11 @@ public final class Graph {
      */
     public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
         try {
-            updateOperationChainView(operationChain);
-
             for (final GraphHook graphHook : graphHooks) {
                 graphHook.preExecute(operationChain, user);
             }
+
+            updateOperationChainView(operationChain);
 
             JobDetail result = store.executeJob(operationChain, user);
 
@@ -175,11 +175,11 @@ public final class Graph {
     public <O> O execute(final OperationChain<O> operationChain, final User user) throws OperationException {
         O result = null;
         try {
-            updateOperationChainView(operationChain);
-
             for (final GraphHook graphHook : graphHooks) {
                 graphHook.preExecute(operationChain, user);
             }
+
+            updateOperationChainView(operationChain);
 
             result = store.execute(operationChain, user);
 
@@ -505,14 +505,24 @@ public final class Graph {
                 graphId = store.getGraphId();
             }
 
-            if (null == graphId) {
-                throw new IllegalArgumentException("graphId is required");
+            final Pair<Schema, StoreProperties> parentGraph;
+            if (null != graphId) {
+                parentGraph = library.get(graphId);
+            } else {
+                parentGraph = new Pair<>();
             }
 
-            final Pair<Schema, StoreProperties> parentGraph = library.get(graphId);
             updateSchema(parentGraph);
             updateStore(parentGraph);
             updateView();
+
+            if (null == graphId) {
+                graphId = store.getGraphId();
+            }
+
+            if (null == graphId) {
+                throw new IllegalArgumentException("graphId is required");
+            }
 
             library.add(graphId, schema, store.getProperties());
 
