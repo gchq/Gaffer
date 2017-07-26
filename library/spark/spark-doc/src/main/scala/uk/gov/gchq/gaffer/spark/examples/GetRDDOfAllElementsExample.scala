@@ -20,6 +20,7 @@ import org.apache.spark.{SparkConf, SparkContext}
 import uk.gov.gchq.gaffer.doc.operation.OperationExample
 import uk.gov.gchq.gaffer.graph.Graph
 import uk.gov.gchq.gaffer.operation.OperationException
+import uk.gov.gchq.gaffer.spark.SparkConstants
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements
 import uk.gov.gchq.gaffer.user.User
 
@@ -36,9 +37,9 @@ class GetRDDOfAllElementsExample extends OperationExample(classOf[GetRDDOfAllEle
     val sparkConf = new SparkConf()
       .setMaster("local")
       .setAppName("GetRDDOfAllElementsExample")
-      .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-      .set("spark.kryo.registrator", "uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator")
-      .set("spark.driver.allowMultipleContexts", "true")
+      .set(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
+      .set(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
+      .set(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true")
     val sc = new SparkContext(sparkConf)
     sc.setLogLevel("OFF")
     try {
@@ -66,11 +67,12 @@ class GetRDDOfAllElementsExample extends OperationExample(classOf[GetRDDOfAllEle
     val rdd = graph.execute(operation, new User("user01"))
     val elements = rdd.collect
     ROOT_LOGGER.setLevel(Level.INFO)
-    printScala("""val operation = new GetRDDOfAllElements.Builder()
-                 |    .sparkContext(sc)
-                 |    .build()
-                 |val rdd = graph.execute(operation, new User(\"user01\"))
-                 |val elements = rdd.collect())""".stripMargin)
+    printScala(
+      """val operation = new GetRDDOfAllElements.Builder()
+        |    .sparkContext(sc)
+        |    .build()
+        |val rdd = graph.execute(operation, new User(\"user01\"))
+        |val elements = rdd.collect())""".stripMargin)
     log("The results are:\n")
     log("```")
     for (e <- elements) {

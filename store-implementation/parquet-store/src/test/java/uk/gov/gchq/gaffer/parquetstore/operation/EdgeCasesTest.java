@@ -92,10 +92,10 @@ public class EdgeCasesTest {
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
-        final ParquetStoreProperties parquetProperties = getParquetStoreProperties();
+        final ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
         Graph graph = new Graph.Builder()
                 .addSchemas(gafferSchema)
-                .storeProperties(parquetProperties)
+                .storeProperties(parquetStoreProperties)
                 .graphId("test")
                 .build();
         final FreqMap f2 = new FreqMap();
@@ -126,12 +126,12 @@ public class EdgeCasesTest {
                     EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
                     EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
                     EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
-            ParquetStoreProperties parquetProperties = getParquetStoreProperties();
-            parquetProperties.setDataDir("readElementsWithZeroElementFiles");
-            parquetProperties.setAddElementsOutputFilesPerGroup(3);
+            ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
+            parquetStoreProperties.setDataDir("readElementsWithZeroElementFiles");
+            parquetStoreProperties.setAddElementsOutputFilesPerGroup(3);
             final Graph graph = new Graph.Builder()
                     .addSchema(gafferSchema)
-                    .storeProperties(parquetProperties)
+                    .storeProperties(parquetStoreProperties)
                     .graphId("test")
                     .build();
             graph.execute(new AddElements.Builder().input(elements).build(), USER);
@@ -156,11 +156,11 @@ public class EdgeCasesTest {
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
-        final ParquetStoreProperties parquetProperties = getParquetStoreProperties();
-        parquetProperties.setAddElementsOutputFilesPerGroup(1);
+        final ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
+        parquetStoreProperties.setAddElementsOutputFilesPerGroup(1);
         final Graph graph = new Graph.Builder()
                 .addSchemas(gafferSchema)
-                .storeProperties(parquetProperties)
+                .storeProperties(parquetStoreProperties)
                 .graphId("test")
                 .build();
 
@@ -193,11 +193,11 @@ public class EdgeCasesTest {
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
-        ParquetStoreProperties parquetProperties = getParquetStoreProperties();
-        parquetProperties.setAddElementsOutputFilesPerGroup(1);
+        ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
+        parquetStoreProperties.setAddElementsOutputFilesPerGroup(1);
         Graph graph = new Graph.Builder()
                 .addSchemas(gafferSchema)
-                .storeProperties(parquetProperties)
+                .storeProperties(parquetStoreProperties)
                 .graphId("test")
                 .build();
 

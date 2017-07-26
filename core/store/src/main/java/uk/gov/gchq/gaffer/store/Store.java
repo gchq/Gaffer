@@ -180,6 +180,7 @@ public abstract class Store {
     }
 
     public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
+        LOGGER.info("Initialising {}", getClass().getSimpleName());
         if (null == graphId) {
             throw new IllegalArgumentException("graphId is required");
         }
@@ -215,11 +216,6 @@ public abstract class Store {
      * @return the {@link uk.gov.gchq.gaffer.store.StoreTrait}s for this store.
      */
     public abstract Set<StoreTrait> getTraits();
-
-    /**
-     * @return true if the store requires validation, so it requires Validatable operations to have a validation step.
-     */
-    public abstract boolean isValidationRequired();
 
     /**
      * Executes a given operation and returns the result.
@@ -553,13 +549,15 @@ public abstract class Store {
     protected abstract Class<? extends Serialiser> getRequiredParentSerialiserClass();
 
     /**
-     * Should deal with any unhandled operations, could simply throw an {@link UnsupportedOperationException}.
+     * Should deal with any unhandled operations, simply throws an {@link UnsupportedOperationException}.
      *
      * @param operation the operation that does not have a registered handler.
      * @param context   operation execution context
      * @return the result of the operation.
      */
-    protected abstract Object doUnhandledOperation(final Operation operation, final Context context);
+    protected Object doUnhandledOperation(final Operation operation, final Context context) {
+        throw new UnsupportedOperationException("Operation " + operation.getClass() + " is not supported by the ParquetStore.");
+    }
 
     protected final void addOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {
         if (null == handler) {
