@@ -470,7 +470,7 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         setupSchema(elementDef);
 
         // When
-        final ElementAggregator aggregator = elementDef.getQueryAggregator(Sets.newHashSet("property1"));
+        final ElementAggregator aggregator = elementDef.getQueryAggregator(Sets.newHashSet("property1"), null);
 
         // Then
         assertEquals(4, aggregator.getComponents().size());
@@ -494,9 +494,9 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
             assertNotNull(e);
         }
         // check the aggregator is cached
-        assertSame(aggregator, elementDef.getQueryAggregator(Sets.newHashSet("property1")));
+        assertSame(aggregator, elementDef.getQueryAggregator(Sets.newHashSet("property1"), null));
         // check a different aggregator is returned for different groupBys
-        assertNotSame(aggregator, elementDef.getQueryAggregator(Sets.newHashSet()));
+        assertNotSame(aggregator, elementDef.getQueryAggregator(Sets.newHashSet(), null));
     }
 
     @Test
@@ -522,7 +522,7 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         setupSchema(elementDef);
 
         // When
-        final ElementAggregator aggregator = elementDef.getQueryAggregator(Sets.newHashSet());
+        final ElementAggregator aggregator = elementDef.getQueryAggregator(Sets.newHashSet(), null);
 
         // Then
         assertEquals(5, aggregator.getComponents().size());
@@ -552,7 +552,7 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
             assertNotNull(e);
         }
         // check the aggregator is cached
-        assertSame(aggregator, elementDef.getQueryAggregator(Sets.newHashSet()));
+        assertSame(aggregator, elementDef.getQueryAggregator(Sets.newHashSet(), null));
     }
 
     @Test
@@ -578,7 +578,7 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         setupSchema(elementDef);
 
         // When
-        final ElementAggregator aggregator = elementDef.getQueryAggregator(Sets.newHashSet());
+        final ElementAggregator aggregator = elementDef.getQueryAggregator(Sets.newHashSet(), null);
 
         // Then
         // As the groupBy property - property1 is aggregated alongside property2, this is still required in the aggregator function.
@@ -609,7 +609,7 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
             assertNotNull(e);
         }
         // check the aggregator is cached
-        assertSame(aggregator, elementDef.getQueryAggregator(Sets.newHashSet()));
+        assertSame(aggregator, elementDef.getQueryAggregator(Sets.newHashSet(), null));
     }
 
     @Test
