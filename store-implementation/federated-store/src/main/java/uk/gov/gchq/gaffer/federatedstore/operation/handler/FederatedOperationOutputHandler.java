@@ -35,7 +35,7 @@ public abstract class FederatedOperationOutputHandler<OP extends Output<O>, O> i
         final Collection<Graph> graphs = ((FederatedStore) store).getGraphs();
         final List<O> results = new ArrayList<>(graphs.size());
         for (final Graph graph : graphs) {
-            final OP updatedOp = ((FederatedStore) store).updateOperationForGraph(operation, graph);
+            final OP updatedOp = FederatedStore.updateOperationForGraph(operation, graph);
             if (null != updatedOp) {
                 O execute = null;
                 try {

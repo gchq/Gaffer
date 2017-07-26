@@ -120,7 +120,7 @@ public class FederatedStore extends Store {
         updateMergedGraphConfig();
     }
 
-    public <OP extends Operation> OP updateOperationForGraph(final OP operation, final Graph graph) {
+    public static <OP extends Operation> OP updateOperationForGraph(final OP operation, final Graph graph) {
         OP resultOp = operation;
 
         if (operation instanceof OperationView) {
@@ -141,7 +141,7 @@ public class FederatedStore extends Store {
         return resultOp;
     }
 
-    private <OP extends Operation> OP cloneOP(final OP operation) {
+    private static <OP extends Operation> OP cloneOP(final OP operation) {
         final OP resultOp;
         try {
             //TODO: implement this in a better way
@@ -152,7 +152,7 @@ public class FederatedStore extends Store {
         return resultOp;
     }
 
-    public View createValidView(final View view, final Schema delegateGraphSchema) {
+    public static View createValidView(final View view, final Schema delegateGraphSchema) {
         View newView;
         if (view.hasGroups()) {
             final View.Builder viewBuilder = new View.Builder().merge(view);

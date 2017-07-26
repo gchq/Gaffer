@@ -30,7 +30,7 @@ public class FederatedOperationHandler implements OperationHandler<Operation> {
     public Object doOperation(final Operation operation, final Context context, final Store store) throws OperationException {
         final Collection<Graph> graphs = ((FederatedStore) store).getGraphs();
         for (final Graph graph : graphs) {
-            final Operation updatedOp = ((FederatedStore) store).updateOperationForGraph(operation, graph);
+            final Operation updatedOp = FederatedStore.updateOperationForGraph(operation, graph);
             if (null != updatedOp) {
                 try {
                     graph.execute(updatedOp, context.getUser());
