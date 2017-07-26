@@ -12,7 +12,6 @@ matrix:
 
 env:
   matrix:
-  - MODULES=""
   - MODULES=:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type,:integration-test
   - MODULES=:accumulo-store,:spark-accumulo-library,:accumulo-rest,:core-rest
   - MODULES=:hbase-store,:hbase-rest,:core-rest
