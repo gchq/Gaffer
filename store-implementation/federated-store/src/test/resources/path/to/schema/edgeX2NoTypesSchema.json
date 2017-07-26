@@ -1,6 +1,6 @@
 {
   "edges": {
-    "BasicEdge": {
+    "edgeA": {
       "source": "vertex.string",
       "destination": "vertex.string",
       "directed": "directed.either",
@@ -22,7 +22,7 @@
         "columnQualifier4"
       ]
     },
-    "BasicEdge2": {
+    "edgeA": {
       "source": "vertex.string",
       "destination": "vertex.string",
       "directed": "directed.either",

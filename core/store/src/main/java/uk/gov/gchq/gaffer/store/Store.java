@@ -159,7 +159,7 @@ public abstract class Store {
 
         final String storeClass = storeProperties.getStoreClass();
         if (null == storeClass) {
-            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS);
+            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS + ", GraphId: " + graphId);
         }
 
         final Store newStore;
@@ -445,12 +445,12 @@ public abstract class Store {
             validateSchema(validationResult, getSchema().getVertexSerialiser());
 
             getSchema().getTypes().entrySet().forEach(entrySet ->
-                    validateSchema(validationResult, entrySet.getValue().getSerialiser()));
+                                                              validateSchema(validationResult, entrySet.getValue().getSerialiser()));
         }
 
         if (!validationResult.isValid()) {
             throw new SchemaException("Schema is not valid. "
-                    + validationResult.getErrorString());
+                                              + validationResult.getErrorString());
         }
     }
 
@@ -458,8 +458,8 @@ public abstract class Store {
         if ((serialiser != null) && !requiredParentSerialiserClass.isInstance(serialiser)) {
             validationResult.addError(
                     String.format("Schema serialiser (%s) is not instance of %s",
-                            serialiser.getClass().getSimpleName(),
-                            requiredParentSerialiserClass.getSimpleName()));
+                                  serialiser.getClass().getSimpleName(),
+                                  requiredParentSerialiserClass.getSimpleName()));
         }
     }
 
@@ -621,9 +621,9 @@ public abstract class Store {
                 ((Input) op).setInput(result);
             } catch (final ClassCastException e) {
                 throw new UnsupportedOperationException("Operation chain is not compatible. "
-                        + op.getClass().getName()
-                        + " cannot take " + result.getClass().getName()
-                        + " as an input", e);
+                                                                + op.getClass().getName()
+                                                                + " cannot take " + result.getClass().getName()
+                                                                + " as an input", e);
             }
         }
     }

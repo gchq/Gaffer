@@ -78,8 +78,8 @@ public class FederatedStore extends Store {
     public static final String SCHEMA = "schema";
     public static final String SCHEMA_DEL_REGEX = Pattern.quote(",");
     public static final String KEY_DEL_REGEX = Pattern.quote(".");
-    public static final String USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S = "User is attempting to overwrite a graph within FederatedStore. GraphId:%s";
-    public static final String GRAPH_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_USER_SUPPLIED_PROPERTIES = "Graph was not able to be created with the user supplied properties";
+    public static final String USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S = "User is attempting to overwrite a graph within FederatedStore. GraphId: %s";
+    public static final String GRAPH_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_USER_SUPPLIED_PROPERTIES_GRAPH_ID_S = "Graph was not able to be created with the user supplied properties. GraphId: %s";
     private final Map<String, Graph> graphs = Maps.newHashMap();
     private Schema schema = new Schema();
     private Set<StoreTrait> traits = new HashSet<>();
@@ -204,7 +204,7 @@ public class FederatedStore extends Store {
             try {
                 graphs.add(builder.build());
             } catch (final Exception e) {
-                throw new IllegalArgumentException(GRAPH_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_USER_SUPPLIED_PROPERTIES, e);
+                throw new IllegalArgumentException(String.format(GRAPH_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_USER_SUPPLIED_PROPERTIES_GRAPH_ID_S, builder.getGraphId()), e);
             }
         }
 
@@ -249,9 +249,9 @@ public class FederatedStore extends Store {
         schemas.remove(null);
         for (final String schema : schemas) {
             try {
-                graphBuilder.addSchema(StreamUtil.openStream(this.getClass(), schema));
+                graphBuilder.addSchema(StreamUtil.openStream(FederatedStore.class, schema));
             } catch (final Exception e) {
-                throw new IllegalArgumentException(GRAPH_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_USER_SUPPLIED_PROPERTIES, e);
+                throw new IllegalArgumentException(String.format(GRAPH_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_USER_SUPPLIED_PROPERTIES_GRAPH_ID_S, graphId), e);
             }
         }
 
@@ -266,8 +266,11 @@ public class FederatedStore extends Store {
         if (graphBuilder == null) {
             graphBuilder = new Graph.Builder().graphId(graphId);
         }
-        graphBuilder.storeProperties(value);
-
+        try {
+            graphBuilder.storeProperties(value);
+        } catch (final Exception e) {
+            throw new IllegalArgumentException(String.format(GRAPH_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_USER_SUPPLIED_PROPERTIES_GRAPH_ID_S, graphId), e);
+        }
         graphIdData.put(graphId, graphBuilder);
     }
 
