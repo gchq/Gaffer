@@ -24,8 +24,6 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.junit.AfterClass;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -33,6 +31,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
+import uk.gov.gchq.gaffer.spark.SparkConstants;
 import uk.gov.gchq.gaffer.spark.SparkUser;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -40,7 +39,6 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
-
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
@@ -50,12 +48,11 @@ public abstract class AbstractSparkOperationsTest {
 
     abstract void checkGetDataFrameOfElements(Dataset<Row> data);
 
-    private static Logger LOGGER = LoggerFactory.getLogger(AbstractSparkOperationsTest.class);
     static SparkSession spark = SparkSession.builder()
             .appName("Parquet Gaffer Store tests")
             .master(getParquetStoreProperties().getSparkMaster())
-            .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-            .config("spark.kryo.registrator", "uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator")
+            .config(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
+            .config(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
             .getOrCreate();
     static User USER = new SparkUser(new User(), spark);
     Graph graph;

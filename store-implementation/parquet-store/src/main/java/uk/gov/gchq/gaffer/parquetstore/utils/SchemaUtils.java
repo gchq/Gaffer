@@ -31,7 +31,6 @@ import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
-
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -52,8 +51,8 @@ public class SchemaUtils {
     private final Map<String, MessageType> groupToParquetSchema = new HashMap<>();
 
     public SchemaUtils(final Schema gafferSchema) {
-        LOGGER.info("Instantiating the SchemaUtils class");
-        LOGGER.info("The Gaffer schema is:" + gafferSchema);
+        LOGGER.debug("Instantiating the SchemaUtils class");
+        LOGGER.debug("The Gaffer schema is: {}", gafferSchema);
         this.gafferSchema = gafferSchema;
         try {
             buildParquetSchema();
@@ -128,8 +127,8 @@ public class SchemaUtils {
         for (final String group : gafferSchema.getGroups()) {
             groupToSparkSchema.put(group, buildSparkSchema(group));
         }
-        LOGGER.info("Created Spark schema from Gaffer schema");
-        LOGGER.info("Spark schema is: {}", groupToSparkSchema);
+        LOGGER.debug("Created Spark schema from Gaffer schema");
+        LOGGER.debug("Spark schema is: {}", groupToSparkSchema);
     }
 
     public StructType buildSparkSchema(final String group) throws SerialisationException {
@@ -187,8 +186,8 @@ public class SchemaUtils {
         schemaString.append("}");
         String parquetSchemaString = schemaString.toString();
         final MessageType parquetSchema = MessageTypeParser.parseMessageType(parquetSchemaString);
-        LOGGER.info("Generated Parquet schema:");
-        LOGGER.info(parquetSchemaString);
+        LOGGER.debug("Generated Parquet schema:");
+        LOGGER.debug(parquetSchemaString);
         return parquetSchema;
     }
 
@@ -208,7 +207,7 @@ public class SchemaUtils {
         } else {
             serialiserNameToSerialiser.put(serialiserClassName, serialiser);
         }
-        LOGGER.debug("Added group:" + group + ",column:" + column + ",serialiserClassName:" + serialiserClassName + " to groupColumnToSerialiserName and serialiserNameToSerialiser");
+        LOGGER.debug("Added group:{}, column:{}, serialiserClassName:{} to groupColumnToSerialiserName and serialiserNameToSerialiser", group, column, serialiserClassName);
     }
 
     private void addGroupColumnToSerialiser(final String group, final String column, final String serialiserClassName) throws SerialisationException {
@@ -220,14 +219,14 @@ public class SchemaUtils {
             columnToSerialiser.put(column, serialiserClassName);
             groupColumnToSerialiserName.put(group, columnToSerialiser);
         }
-        LOGGER.debug("Added group:" + group + ",column:" + column + ",serialiserClassName:" + serialiserClassName + " to groupColumnToSerialiserName and serialiserNameToSerialiser");
+        LOGGER.debug("Added group:{}, column:{}, serialiserClassName:{} to groupColumnToSerialiserName and serialiserNameToSerialiser", group, column, serialiserClassName);
     }
 
     private String convertColumnSerialiserToParquetColumns(final Serialiser serialiser, final String column) {
         if (serialiser instanceof ParquetSerialiser) {
             return ((ParquetSerialiser) serialiser).getParquetSchema(column);
         } else {
-            LOGGER.warn(serialiser.getClass().getCanonicalName() + " does not extend ParquetSerialiser.");
+            LOGGER.warn("{} does not extend ParquetSerialiser.", serialiser.getClass().getCanonicalName());
             LOGGER.warn("To get the best performance out of the ParquetStore you need to be using ParquetSerialiser classes!");
             return "optional binary " + column + ";";
         }

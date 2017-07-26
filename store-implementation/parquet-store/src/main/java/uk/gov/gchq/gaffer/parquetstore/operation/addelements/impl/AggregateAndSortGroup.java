@@ -38,15 +38,12 @@ import scala.collection.mutable.Builder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.utils.AggregateGafferRowsFunction;
 import uk.gov.gchq.gaffer.parquetstore.utils.ExtractKeyFromRow;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
-import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -82,23 +79,22 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
 
     public AggregateAndSortGroup(final String group,
                                  final String column,
-                                 final ParquetStoreProperties parquetStoreProperties,
+                                 final ParquetStore store,
                                  final String currentGraphDir,
-                                 final SchemaUtils schemaUtils,
                                  final SparkSession spark) throws SerialisationException {
         this.group = group;
         this.column = column;
-        this.tempFileDir = parquetStoreProperties.getTempFilesDir();
-        final SchemaElementDefinition gafferSchema = schemaUtils.getGafferSchema().getElement(group);
+        this.tempFileDir = store.getTempFilesDir();
+        final SchemaElementDefinition gafferSchema = store.getSchemaUtils().getGafferSchema().getElement(group);
         this.isEntity = gafferSchema instanceof SchemaEntityDefinition;
         this.propertyToAggregatorMap = buildColumnToAggregatorMap(gafferSchema);
         this.groupByColumns = new HashSet<>(gafferSchema.getGroupBy());
         this.gafferProperties = new String[gafferSchema.getProperties().size()];
         gafferSchema.getProperties().toArray(this.gafferProperties);
         this.spark = spark;
-        this.columnToPaths = schemaUtils.getColumnToPaths(group);
-        this.sparkSchema = schemaUtils.getSparkSchema(group);
-        this.gafferGroupObjectConverter = schemaUtils.getConverter(group);
+        this.columnToPaths = store.getSchemaUtils().getColumnToPaths(group);
+        this.sparkSchema = store.getSchemaUtils().getSparkSchema(group);
+        this.gafferGroupObjectConverter = store.getSchemaUtils().getConverter(group);
         this.currentGraphDir = currentGraphDir;
         if (isEntity) {
             this.inputDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.VERTEX, this.tempFileDir);
@@ -107,7 +103,7 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
             this.inputDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.SOURCE, this.tempFileDir);
             this.outputDir = ParquetStore.getGroupDirectory(group, column, this.tempFileDir + SORTED);
         }
-        this.filesPerGroup = parquetStoreProperties.getAddElementsOutputFilesPerGroup();
+        this.filesPerGroup = store.getProperties().getAddElementsOutputFilesPerGroup();
     }
 
     private HashMap<String, String> buildColumnToAggregatorMap(final SchemaElementDefinition gafferSchema) {
@@ -133,7 +129,7 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
                         paths.add(currentGraphDir);
                     }
                 }
-                LOGGER.info("Aggregating and sorting the data for group {} stored in directories {}",
+                LOGGER.debug("Aggregating and sorting the data for group {} stored in directories {}",
                         group, StringUtils.join(paths, ','));
                 final Dataset<Row> data = spark.read().parquet(JavaConversions.asScalaBuffer(paths));
 
@@ -144,7 +140,7 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
                         .mapToPair(row -> Tuple2$.MODULE$.apply(keyExtractor.call(row), (GenericRowWithSchema) row));
                 final List<Tuple2<Seq<Object>, GenericRowWithSchema>> kvList = groupedData.take(1);
                 if (0 == kvList.size()) {
-                    LOGGER.info("No data was returned in AggregateAndSortGroup for group = {}", group);
+                    LOGGER.debug("No data was returned in AggregateAndSortGroup for group = {}", group);
                     return null;
                 }
                 final Tuple2<Seq<Object>, GenericRowWithSchema> kv = kvList.get(0);
@@ -209,8 +205,7 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
                         .option("compression", "gzip")
                         .parquet(outputDir);
             } else {
-                LOGGER.debug("Skipping the sorting and aggregation of group:" + group +
-                        ", due to no data existing in the temporary files directory: " + tempFileDir);
+                LOGGER.debug("Skipping the sorting and aggregation of group: {}, due to no data existing in the temporary files directory: {}", group, tempFileDir);
             }
         } catch (final IOException e) {
             return new OperationException("IOException occurred during aggregation and sorting of data", e);
