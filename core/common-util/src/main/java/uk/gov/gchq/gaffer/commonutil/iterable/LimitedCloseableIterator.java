@@ -64,18 +64,19 @@ public class LimitedCloseableIterator<T> implements CloseableIterator<T> {
 
     @Override
     public boolean hasNext() {
-        boolean withinLimit = (null == end || index < end);
-        boolean iteratorHasNext = (withinLimit && !truncate) || iterator.hasNext();
+        final boolean withinLimit = (null == end || index < end);
 
-        if (!withinLimit && iteratorHasNext && !truncate) {
-            throw new LimitExceededException("Limit of " + end + " exceeded - not all data could be shown");
+        if (!withinLimit && !truncate && iterator.hasNext()) {
+            // Throw an exception if we are - not within the limit, we don't want to truncate and there are items remaining.
+            throw new LimitExceededException("Limit of " + end + " exceeded.");
         }
 
-        if (!withinLimit || !iteratorHasNext) {
+        final boolean hasNext = withinLimit && iterator.hasNext();
+        if (!hasNext) {
             close();
         }
 
-        return withinLimit && iteratorHasNext;
+        return hasNext;
     }
 
     @Override

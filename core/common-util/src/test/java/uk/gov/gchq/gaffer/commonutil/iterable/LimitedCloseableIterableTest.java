@@ -119,7 +119,7 @@ public class LimitedCloseableIterableTest {
             }
             fail("Exception expected");
         } catch (final LimitExceededException e) {
-            assertEquals("Limit of " + end + " exceeded - not all data could be shown", e
+            assertEquals("Limit of " + end + " exceeded.", e
                     .getMessage());
         }
     }
