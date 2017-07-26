@@ -590,10 +590,10 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
 
         @JsonSetter("aggregateFunctions")
         public CHILD_CLASS aggregateFunctions(final List<TupleAdaptedBinaryOperator<String, Tuple<String>>> aggregateFunctions) {
-            if (null == getElementDef().aggregator) {
-                getElementDef().aggregator = new ElementAggregator();
+            if (null == elDef.aggregator) {
+                elDef.aggregator = new ElementAggregator();
             }
-            getElementDef().aggregator.getComponents().addAll(aggregateFunctions);
+            elDef.aggregator.getComponents().addAll(aggregateFunctions);
             return self();
         }
 
@@ -604,19 +604,19 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
 
         @JsonSetter("validateFunctions")
         public CHILD_CLASS validateFunctions(final List<TupleAdaptedPredicate<String, Tuple<String>>> predicates) {
-            if (null == getElementDef().validator) {
-                getElementDef().validator = new ElementFilter();
+            if (null == elDef.validator) {
+                elDef.validator = new ElementFilter();
             }
-            getElementDef().validator.getComponents().addAll(predicates);
+            elDef.validator.getComponents().addAll(predicates);
             return self();
         }
 
         @SafeVarargs
         public final CHILD_CLASS validateFunctions(final TupleAdaptedPredicate<String, Tuple<String>>... predicates) {
-            if (null == getElementDef().validator) {
-                getElementDef().validator = new ElementFilter();
+            if (null == elDef.validator) {
+                elDef.validator = new ElementFilter();
             }
-            Collections.addAll(getElementDef().validator.getComponents(), predicates);
+            Collections.addAll(elDef.validator.getComponents(), predicates);
             return self();
         }
 
@@ -651,57 +651,57 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         }
 
         public CHILD_CLASS merge(final ELEMENT_DEF elementDef) {
-            if (getElementDef().properties.isEmpty()) {
-                getElementDef().properties.putAll(elementDef.getPropertyMap());
+            if (elDef.properties.isEmpty()) {
+                elDef.properties.putAll(elementDef.getPropertyMap());
             } else {
                 for (final Entry<String, String> entry : elementDef.getPropertyMap().entrySet()) {
-                    final String typeName = getElementDef().getPropertyTypeName(entry.getKey());
+                    final String typeName = elDef.getPropertyTypeName(entry.getKey());
                     if (null == typeName) {
-                        getElementDef().properties.put(entry.getKey(), entry.getValue());
+                        elDef.properties.put(entry.getKey(), entry.getValue());
                     } else if (!typeName.equals(entry.getValue())) {
                         throw new SchemaException("Unable to merge element definitions because the property " + entry.getKey() + " exists in both definitions with different types: " + typeName + " and " + entry.getValue());
                     }
                 }
             }
 
-            if (getElementDef().identifiers.isEmpty()) {
-                getElementDef().identifiers.putAll(elementDef.getIdentifierMap());
+            if (elDef.identifiers.isEmpty()) {
+                elDef.identifiers.putAll(elementDef.getIdentifierMap());
             } else {
                 for (final Entry<IdentifierType, String> entry : elementDef.getIdentifierMap().entrySet()) {
-                    getElementDef().identifiers.put(entry.getKey(), entry.getValue());
+                    elDef.identifiers.put(entry.getKey(), entry.getValue());
                 }
             }
 
-            if (null == getElementDef().validator) {
-                getElementDef().validator = elementDef.validator;
+            if (null == elDef.validator) {
+                elDef.validator = elementDef.validator;
             } else if (null != elementDef.getOriginalValidateFunctions()) {
                 final ElementFilter combinedFilter = new ElementFilter();
-                combinedFilter.getComponents().addAll(getElementDef().validator.getComponents());
+                combinedFilter.getComponents().addAll(elDef.validator.getComponents());
                 combinedFilter.getComponents().addAll(elementDef.validator.getComponents());
                 combinedFilter.lock();
-                getElementDef().validator = combinedFilter;
+                elDef.validator = combinedFilter;
             }
-            getElementDef().fullValidatorCache = null;
-            getElementDef().fullValidatorWithIsACache = null;
+            elDef.fullValidatorCache = null;
+            elDef.fullValidatorWithIsACache = null;
 
-            if (null == getElementDef().aggregator) {
-                getElementDef().aggregator = elementDef.aggregator;
+            if (null == elDef.aggregator) {
+                elDef.aggregator = elementDef.aggregator;
             } else if (null != elementDef.getOriginalAggregateFunctions()) {
                 final ElementAggregator combinedAggregator = new ElementAggregator();
-                combinedAggregator.getComponents().addAll(getElementDef().aggregator.getComponents());
+                combinedAggregator.getComponents().addAll(elDef.aggregator.getComponents());
                 combinedAggregator.getComponents().addAll(elementDef.aggregator.getComponents());
                 combinedAggregator.lock();
-                getElementDef().aggregator = combinedAggregator;
+                elDef.aggregator = combinedAggregator;
             }
-            getElementDef().propertiesInAggregatorCache = null;
-            getElementDef().fullAggregatorCache = null;
-            getElementDef().ingestAggregatorCache = null;
-            getElementDef().queryAggregatorCacheMap.clear();
+            elDef.propertiesInAggregatorCache = null;
+            elDef.fullAggregatorCache = null;
+            elDef.ingestAggregatorCache = null;
+            elDef.queryAggregatorCacheMap.clear();
 
-            getElementDef().groupBy = new LinkedHashSet<>(elementDef.groupBy);
-            getElementDef().parents = null != elementDef.parents ? new LinkedHashSet<>(elementDef.parents) : null;
-            getElementDef().description = elementDef.description;
-            getElementDef().aggregate = getElementDef().aggregate && elementDef.aggregate;
+            elDef.groupBy = new LinkedHashSet<>(elementDef.groupBy);
+            elDef.parents = null != elementDef.parents ? new LinkedHashSet<>(elementDef.parents) : null;
+            elDef.description = elementDef.description;
+            elDef.aggregate = elDef.aggregate && elementDef.aggregate;
 
             return self();
         }
