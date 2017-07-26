@@ -1,0 +1,78 @@
+{
+  "start": [
+    {
+      "class": "uk.gov.gchq.gaffer.operation.impl.DiscardOutput"
+    },
+    {
+      "class": "uk.gov.gchq.gaffer.operation.impl.SplitStore"
+    }
+  ],
+  "end": [
+    {
+      "class": "uk.gov.gchq.gaffer.operation.impl.Count"
+    }
+  ],
+  "before": {
+    "uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds": [
+      {
+        "class": "uk.gov.gchq.gaffer.operation.impl.Validate"
+      }
+    ],
+    "uk.gov.gchq.gaffer.operation.impl.get.GetElements": [
+      {
+        "class": "uk.gov.gchq.gaffer.operation.impl.CountGroups"
+      }
+    ]
+  },
+  "after": {
+    "uk.gov.gchq.gaffer.operation.impl.get.GetAllElements": [
+      {
+        "class": "uk.gov.gchq.gaffer.operation.impl.Limit"
+      },
+      {
+        "class": "uk.gov.gchq.gaffer.operation.impl.Validate"
+      }
+    ],
+    "uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds": [
+      {
+        "class": "uk.gov.gchq.gaffer.operation.impl.Count"
+      },
+      {
+        "class": "uk.gov.gchq.gaffer.operation.impl.DiscardOutput"
+      }
+    ]
+  },
+  "authorisedOps": {
+    "auth1": {
+      "start": [
+        {
+          "class": "uk.gov.gchq.gaffer.operation.impl.DiscardOutput"
+        }
+      ],
+      "end": [
+        {
+          "class": "uk.gov.gchq.gaffer.operation.impl.SplitStore"
+        }
+      ]
+    },
+    "auth2": {
+      "before": {
+        "uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds": [
+          {
+            "class": "uk.gov.gchq.gaffer.operation.impl.Validate"
+          }
+        ],
+        "uk.gov.gchq.gaffer.operation.impl.get.GetElements": [
+          {
+            "class": "uk.gov.gchq.gaffer.operation.impl.CountGroups"
+          }
+        ]
+      },
+      "end": [
+        {
+          "class": "uk.gov.gchq.gaffer.operation.impl.SplitStore"
+        }
+      ]
+    }
+  }
+}
