@@ -67,6 +67,7 @@ import static org.apache.parquet.filter2.predicate.FilterApi.longColumn;
 import static org.apache.parquet.filter2.predicate.FilterApi.lt;
 import static org.apache.parquet.filter2.predicate.FilterApi.ltEq;
 import static org.apache.parquet.filter2.predicate.FilterApi.not;
+import static org.apache.parquet.filter2.predicate.FilterApi.notEq;
 import static org.apache.parquet.filter2.predicate.FilterApi.or;
 
 public final class ParquetFilterUtils {
@@ -85,7 +86,7 @@ public final class ParquetFilterUtils {
             final String dataDir,
             final GraphIndex graphIndex)
             throws SerialisationException, OperationException {
-        if (view == null) {
+        if (view == null || view.equals(schemaUtils.getEmptyView())) {
             return noViewPathToFilter(includeIncomingOutgoingType, seedMatchingType, seeds, schemaUtils, graphIndex, dataDir);
         } else {
             final Set<String> viewEdgeGroups = view.getEdgeGroups();
@@ -301,38 +302,44 @@ public final class ParquetFilterUtils {
             MinMaxPath indexEntry = indexIter.next();
             while (sortedSeedsIter.hasNext()) {
                 currentSeed = sortedSeedsIter.next();
-                boolean nextSeed = false;
-                while (!nextSeed && indexEntry != null) {
-                    final Object min = indexEntry.getMin();
-                    final Object max = indexEntry.getMax();
-                    final String file = indexEntry.getPath();
-                    LOGGER.debug("Current file: {}", file);
-                    // If min <= seed && max >= seed
-                    final int min2seed = comparator.compare(min, currentSeed);
-                    LOGGER.debug("min2seed comparator: {}", min2seed);
-                    final int max2seed = comparator.compare(max, currentSeed);
-                    LOGGER.debug("max2seed comparator: {}", max2seed);
-                    if (min2seed < 1 && max2seed >= 0) {
-                        final String fullFilePath = ParquetStore.getGroupDirectory(group, identifier, rootDir) + "/" + file;
-                        newPathToFilter = addPathToSeedFilter(includeIncomingOutgoingType, seedMatchingType,
-                                new Path(fullFilePath), currentSeed, identifier, schemaUtils, group,
-                                seed2Parts.get(currentSeed), newPathToFilter, isEntityGroup);
-                        if (max2seed == 0) {
+                if (currentSeed.length > 1) {
+                    newPathToFilter = addPathToSeedFilter(includeIncomingOutgoingType, seedMatchingType,
+                            new Path(ParquetStore.getGroupDirectory(group, identifier, rootDir)), currentSeed, identifier, schemaUtils, group,
+                            seed2Parts.get(currentSeed), newPathToFilter, isEntityGroup);
+                } else {
+                    boolean nextSeed = false;
+                    while (!nextSeed && indexEntry != null) {
+                        final Object min = indexEntry.getMin();
+                        final Object max = indexEntry.getMax();
+                        final String file = indexEntry.getPath();
+                        LOGGER.debug("Current file: {}", file);
+                        // If min <= seed && max >= seed
+                        final int min2seed = comparator.compare(min, currentSeed);
+                        LOGGER.debug("min2seed comparator: {}", min2seed);
+                        final int max2seed = comparator.compare(max, currentSeed);
+                        LOGGER.debug("max2seed comparator: {}", max2seed);
+                        if (min2seed < 1 && max2seed >= 0) {
+                            final String fullFilePath = ParquetStore.getGroupDirectory(group, identifier, rootDir) + "/" + file;
+                            newPathToFilter = addPathToSeedFilter(includeIncomingOutgoingType, seedMatchingType,
+                                    new Path(fullFilePath), currentSeed, identifier, schemaUtils, group,
+                                    seed2Parts.get(currentSeed), newPathToFilter, isEntityGroup);
+                            if (max2seed == 0) {
+                                if (indexIter.hasNext()) {
+                                    indexEntry = indexIter.next();
+                                } else {
+                                    indexEntry = null;
+                                }
+                            } else {
+                                nextSeed = true;
+                            }
+                        } else if (min2seed > 0) {
+                            nextSeed = true;
+                        } else {
                             if (indexIter.hasNext()) {
                                 indexEntry = indexIter.next();
                             } else {
                                 indexEntry = null;
                             }
-                        } else {
-                            nextSeed = true;
-                        }
-                    } else if (min2seed > 0) {
-                        nextSeed = true;
-                    } else {
-                        if (indexIter.hasNext()) {
-                            indexEntry = indexIter.next();
-                        } else {
-                            indexEntry = null;
                         }
                     }
                 }
@@ -379,9 +386,7 @@ public final class ParquetFilterUtils {
             }
         }
         final ArrayList<Object[]> sortedSeeds = new ArrayList<>();
-        for (final Object key : seed2parts.keySet()) {
-            sortedSeeds.add((Object[]) key);
-        }
+        sortedSeeds.addAll(seed2parts.keySet());
         sortedSeeds.sort(comparator);
         return new Tuple2<>(sortedSeeds, seed2parts);
     }
@@ -402,11 +407,11 @@ public final class ParquetFilterUtils {
         if (isEntityGroup) {
             // Is it an entityId?
             if (parts == null) {
-                filter = createSeedFilter(currentSeed, ParquetStoreConstants.VERTEX, schemaUtils.getColumnToPaths(group));
+                filter = createSeedFilter(currentSeed, ParquetStoreConstants.VERTEX, schemaUtils.getColumnToPaths(group), false);
             } else {
                 // Does the seed type need to match the group type?
                 if (seedMatchingType != SeedMatching.SeedMatchingType.EQUAL) {
-                    filter = createSeedFilter(currentSeed, ParquetStoreConstants.VERTEX, schemaUtils.getColumnToPaths(group));
+                    filter = createSeedFilter(currentSeed, ParquetStoreConstants.VERTEX, schemaUtils.getColumnToPaths(group), false);
                     filter = orFilter(filter, addIsEqualFilter(ParquetStoreConstants.VERTEX, parts.get0(), schemaUtils, group));
                 }
             }
@@ -418,31 +423,31 @@ public final class ParquetFilterUtils {
                     if (includeIncomingOutgoingType == SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING) {
                         if (ParquetStoreConstants.DESTINATION.equals(identifier)) {
                             // Add filter dir == false
-                            filter = createSeedFilter(currentSeed, ParquetStoreConstants.DESTINATION, schemaUtils.getColumnToPaths(group));
-                            filter = andFilter(filter, not(createSeedFilter(currentSeed, ParquetStoreConstants.SOURCE, schemaUtils.getColumnToPaths(group))));
+                            filter = createSeedFilter(currentSeed, ParquetStoreConstants.DESTINATION, schemaUtils.getColumnToPaths(group), false);
+                            filter = andFilter(filter, createSeedFilter(currentSeed, ParquetStoreConstants.SOURCE, schemaUtils.getColumnToPaths(group), true));
                         } else {
-                            filter = createSeedFilter(currentSeed, ParquetStoreConstants.SOURCE, schemaUtils.getColumnToPaths(group));
+                            filter = createSeedFilter(currentSeed, ParquetStoreConstants.SOURCE, schemaUtils.getColumnToPaths(group), false);
                             filter = andFilter(filter, addIsEqualFilter(ParquetStoreConstants.DIRECTED, false, schemaUtils, group));
                         }
                     } else if (includeIncomingOutgoingType == SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING) {
                         if (ParquetStoreConstants.SOURCE.equals(identifier)) {
                             // Add filter dir == true
-                            filter = createSeedFilter(currentSeed, ParquetStoreConstants.SOURCE, schemaUtils.getColumnToPaths(group));
+                            filter = createSeedFilter(currentSeed, ParquetStoreConstants.SOURCE, schemaUtils.getColumnToPaths(group), false);
                         } else {
-                            filter = createSeedFilter(currentSeed, ParquetStoreConstants.DESTINATION, schemaUtils.getColumnToPaths(group));
+                            filter = createSeedFilter(currentSeed, ParquetStoreConstants.DESTINATION, schemaUtils.getColumnToPaths(group), false);
                             filter = andFilter(filter, addIsEqualFilter(ParquetStoreConstants.DIRECTED, false, schemaUtils, group));
-                            filter = andFilter(filter, not(createSeedFilter(currentSeed, ParquetStoreConstants.SOURCE, schemaUtils.getColumnToPaths(group))));
+                            filter = andFilter(filter, createSeedFilter(currentSeed, ParquetStoreConstants.SOURCE, schemaUtils.getColumnToPaths(group), true));
                         }
                     } else {
-                        filter = createSeedFilter(currentSeed, identifier, schemaUtils.getColumnToPaths(group));
+                        filter = createSeedFilter(currentSeed, identifier, schemaUtils.getColumnToPaths(group), false);
                         if (ParquetStoreConstants.DESTINATION.equals(identifier)) {
-                            filter = andFilter(filter, not(createSeedFilter(currentSeed, ParquetStoreConstants.SOURCE, schemaUtils.getColumnToPaths(group))));
+                            filter = andFilter(filter, createSeedFilter(currentSeed, ParquetStoreConstants.SOURCE, schemaUtils.getColumnToPaths(group), true));
                         }
                     }
                 }
             } else {
                 if (ParquetStoreConstants.SOURCE.equals(identifier)) {
-                    filter = createSeedFilter(currentSeed, ParquetStoreConstants.SOURCE, schemaUtils.getColumnToPaths(group));
+                    filter = createSeedFilter(currentSeed, ParquetStoreConstants.SOURCE, schemaUtils.getColumnToPaths(group), false);
                     filter = andFilter(filter, addIsEqualFilter(ParquetStoreConstants.DESTINATION, parts.get0(), schemaUtils, group));
                     final DirectedType directedType = parts.get1();
                     if (directedType == DirectedType.DIRECTED) {
@@ -568,7 +573,7 @@ public final class ParquetFilterUtils {
     }
 
     private static FilterPredicate createSeedFilter(final Object[] seed, final String colName,
-                                             final Map<String, String[]> colToPaths) throws OperationException {
+                                             final Map<String, String[]> colToPaths, final boolean notEqual) throws OperationException {
         String[] columns = colToPaths.get(colName);
         if (columns == null) {
             columns = new String[1];
@@ -581,19 +586,47 @@ public final class ParquetFilterUtils {
             final String type = currentSeed.getClass().getCanonicalName();
             FilterPredicate filter;
             if (currentSeed instanceof byte[]) {
-                filter = eq(binaryColumn(col), Binary.fromReusedByteArray((byte[]) currentSeed));
+                if (notEqual) {
+                    filter = notEq(binaryColumn(col), Binary.fromReusedByteArray((byte[]) currentSeed));
+                } else {
+                    filter = eq(binaryColumn(col), Binary.fromReusedByteArray((byte[]) currentSeed));
+                }
             } else if (currentSeed instanceof Long) {
-                filter = eq(longColumn(col), (Long) currentSeed);
+                if (notEqual) {
+                    filter = notEq(longColumn(col), (Long) currentSeed);
+                } else {
+                    filter = eq(longColumn(col), (Long) currentSeed);
+                }
             } else if (currentSeed instanceof Integer) {
-                filter = eq(intColumn(col), (Integer) currentSeed);
+                if (notEqual) {
+                    filter = notEq(intColumn(col), (Integer) currentSeed);
+                } else {
+                    filter = eq(intColumn(col), (Integer) currentSeed);
+                }
             } else if (currentSeed instanceof Double) {
-                filter = eq(doubleColumn(col), (Double) currentSeed);
+                if (notEqual) {
+                    filter = notEq(doubleColumn(col), (Double) currentSeed);
+                } else {
+                    filter = eq(doubleColumn(col), (Double) currentSeed);
+                }
             } else if (currentSeed instanceof Float) {
-                filter = eq(floatColumn(col), (Float) currentSeed);
+                if (notEqual) {
+                    filter = notEq(floatColumn(col), (Float) currentSeed);
+                } else {
+                    filter = eq(floatColumn(col), (Float) currentSeed);
+                }
             } else if (currentSeed instanceof Boolean) {
-                filter = eq(booleanColumn(col), (Boolean) currentSeed);
+                if (notEqual) {
+                    filter = notEq(booleanColumn(col), (Boolean) currentSeed);
+                } else {
+                    filter = eq(booleanColumn(col), (Boolean) currentSeed);
+                }
             } else if (currentSeed instanceof String) {
-                filter = eq(binaryColumn(col), Binary.fromString((String) currentSeed));
+                if (notEqual) {
+                    filter = notEq(binaryColumn(col), Binary.fromString((String) currentSeed));
+                } else {
+                    filter = eq(binaryColumn(col), Binary.fromString((String) currentSeed));
+                }
             } else {
                 throw new OperationException("Vertex type " + type + " is not supported yet");
             }

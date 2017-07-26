@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BinaryOperator;
