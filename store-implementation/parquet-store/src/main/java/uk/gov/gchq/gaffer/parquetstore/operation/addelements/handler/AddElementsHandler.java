@@ -66,9 +66,8 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             throws OperationException {
         try {
             final FileSystem fs = store.getFS();
-            final ParquetStoreProperties parquetStoreProperties = store.getProperties();
-            final String rootDataDirString = parquetStoreProperties.getDataDir();
-            final String tempDirString = parquetStoreProperties.getTempFilesDir();
+            final String rootDataDirString = store.getDataDir();
+            final String tempDirString = store.getTempFilesDir();
             final Path tempDir = new Path(tempDirString);
             if (fs.exists(tempDir)) {
                 fs.delete(tempDir, true);
@@ -78,7 +77,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             LOGGER.debug("Starting to write the unsorted Parquet data to {} split by group", tempDirString);
             final Iterable<? extends Element> input = addElementsOperation.getInput();
             final Iterator<? extends Element> inputIter = input.iterator();
-            new WriteUnsortedData(parquetStoreProperties, store.getSchemaUtils()).writeElements(inputIter);
+            new WriteUnsortedData(store).writeElements(inputIter);
             if (inputIter instanceof CloseableIterator) {
                 ((CloseableIterator) inputIter).close();
             }

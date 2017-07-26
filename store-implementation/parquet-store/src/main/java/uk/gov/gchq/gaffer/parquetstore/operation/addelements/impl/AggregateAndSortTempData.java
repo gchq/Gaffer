@@ -44,7 +44,7 @@ public class AggregateAndSortTempData {
         final GraphIndex index = store.getGraphIndex();
         final String currentDataDir;
         if (index != null) {
-            currentDataDir = parquetStoreProperties.getDataDir()
+            currentDataDir = store.getDataDir()
                     + "/" + index.getSnapshotTimestamp();
         } else {
             currentDataDir = null;
@@ -56,8 +56,8 @@ public class AggregateAndSortTempData {
             } else {
                 currentDataInThisGroupDir = null;
             }
-            tasks.add(new AggregateAndSortGroup(group, ParquetStoreConstants.SOURCE, parquetStoreProperties, currentDataInThisGroupDir, schemaUtils, spark));
-            tasks.add(new AggregateAndSortGroup(group, ParquetStoreConstants.DESTINATION, parquetStoreProperties, currentDataInThisGroupDir, schemaUtils, spark));
+            tasks.add(new AggregateAndSortGroup(group, ParquetStoreConstants.SOURCE, store, currentDataInThisGroupDir, spark));
+            tasks.add(new AggregateAndSortGroup(group, ParquetStoreConstants.DESTINATION, store, currentDataInThisGroupDir, spark));
         }
         for (final String group : schemaUtils.getEntityGroups()) {
             final String currentDataInThisGroupDir;
@@ -66,7 +66,7 @@ public class AggregateAndSortTempData {
             } else {
                 currentDataInThisGroupDir = null;
             }
-            tasks.add(new AggregateAndSortGroup(group, ParquetStoreConstants.VERTEX, parquetStoreProperties, currentDataInThisGroupDir, schemaUtils, spark));
+            tasks.add(new AggregateAndSortGroup(group, ParquetStoreConstants.VERTEX, store, currentDataInThisGroupDir, spark));
         }
         final ExecutorService pool = Executors.newFixedThreadPool(store.getProperties().getThreadsAvailable());
         LOGGER.debug("Created thread pool of size {} to aggregate and sort data", store.getProperties().getThreadsAvailable());
