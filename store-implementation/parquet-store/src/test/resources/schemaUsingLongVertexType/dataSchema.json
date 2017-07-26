@@ -1,0 +1,72 @@
+{
+  "entities": {
+    "BasicEntity": {
+      "vertex": "vertex.long",
+      "properties": {
+        "byte": "simpleByteProperty",
+        "double": "simpleDoubleProperty",
+        "float": "simpleFloatProperty",
+        "treeSet": "treeSet",
+        "long": "simpleLongProperty",
+        "short": "simpleShortProperty",
+        "date": "simpleDateProperty",
+        "freqMap": "freqMap",
+        "count": "simpleIntProperty"
+      },
+      "groupBy": [
+        "date"
+      ]
+    },
+    "BasicEntity2": {
+      "vertex": "vertex.long",
+      "properties": {
+        "byte": "simpleByteProperty",
+        "double": "simpleDoubleProperty",
+        "float": "simpleFloatProperty",
+        "treeSet": "treeSet",
+        "long": "simpleLongProperty",
+        "short": "simpleShortProperty",
+        "date": "simpleDateProperty",
+        "freqMap": "freqMap",
+        "count": "simpleIntProperty"
+      }
+    }
+  },
+  "edges": {
+    "BasicEdge": {
+      "source": "vertex.long",
+      "destination": "vertex.long",
+      "directed": "directed.either",
+      "properties": {
+        "byte": "simpleByteProperty",
+        "double": "simpleDoubleProperty",
+        "float": "simpleFloatProperty",
+        "treeSet": "treeSet",
+        "long": "simpleLongProperty",
+        "short": "simpleShortProperty",
+        "date": "simpleDateProperty",
+        "freqMap": "freqMap",
+        "count": "simpleIntProperty"
+      },
+      "groupBy": [
+        "date"
+      ]
+    },
+    "BasicEdge2": {
+      "source": "vertex.long",
+      "destination": "vertex.long",
+      "directed": "directed.either",
+      "properties": {
+        "byte": "simpleByteProperty",
+        "double": "simpleDoubleProperty",
+        "float": "simpleFloatProperty",
+        "treeSet": "treeSet",
+        "long": "simpleLongProperty",
+        "short": "simpleShortProperty",
+        "date": "simpleDateProperty",
+        "freqMap": "freqMap",
+        "count": "simpleIntProperty"
+      }
+    }
+  }
+}
