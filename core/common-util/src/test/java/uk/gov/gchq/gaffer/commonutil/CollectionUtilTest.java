@@ -18,10 +18,10 @@ package uk.gov.gchq.gaffer.commonutil;
 
 import com.google.common.collect.Sets;
 import org.junit.Test;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Collection;
 import java.util.TreeSet;
 
 import static org.junit.Assert.assertEquals;
@@ -162,9 +162,10 @@ public class CollectionUtilTest {
         expectedResult.put(Double.class, "double");
         expectedResult.put(Long.class, "long");
         assertEquals(expectedResult, result);
+    }
 
-   @Test
-   public void shouldReturnTrueWhenCollectionContainsAProvidedValue() {
+    @Test
+    public void shouldReturnTrueWhenCollectionContainsAProvidedValue() {
         // Given
         final Collection collection = Sets.newHashSet(10, 20, 2, 30);
         final Object[] values = new Object[]{1, 2, 3};

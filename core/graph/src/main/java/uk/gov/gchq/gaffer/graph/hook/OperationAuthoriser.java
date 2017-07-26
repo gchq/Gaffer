@@ -84,9 +84,12 @@ public class OperationAuthoriser implements GraphHook {
 
     public void setAuths(final Map<Class<?>, Set<String>> auths) {
         this.auths.clear();
-        this.auths.putAll(auths);
-        for (final Set<String> authsSet : auths.values()) {
-            allAuths.addAll(authsSet);
+        this.allAuths.clear();
+        if (null != auths) {
+            this.auths.putAll(auths);
+            for (final Set<String> authsSet : auths.values()) {
+                allAuths.addAll(authsSet);
+            }
         }
     }
 
