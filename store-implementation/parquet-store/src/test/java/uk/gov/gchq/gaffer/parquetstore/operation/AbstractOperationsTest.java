@@ -36,7 +36,6 @@ import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
-
 import java.io.IOException;
 import java.util.List;
 
@@ -51,10 +50,15 @@ public abstract class AbstractOperationsTest {
     View view;
 
     abstract void setupSeeds();
+
     abstract void setupView();
+
     abstract void checkData(CloseableIterable<? extends Element> data);
+
     abstract void checkGetSeededElementsData(CloseableIterable<? extends Element> data);
+
     abstract void checkGetFilteredElementsData(CloseableIterable<? extends Element> data);
+
     abstract void checkGetSeededAndFilteredElementsData(CloseableIterable<? extends Element> data);
 
     @AfterClass
