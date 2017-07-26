@@ -37,8 +37,8 @@ import scala.collection.Seq$;
 import scala.collection.mutable.Builder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.parquetstore.ParquetProperties;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.utils.AggregateGafferRowsFunction;
 import uk.gov.gchq.gaffer.parquetstore.utils.ExtractKeyFromRow;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
@@ -81,7 +81,7 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
 
     public AggregateAndSortGroup(final String group,
                                  final String column,
-                                 final ParquetProperties parquetStoreProperties,
+                                 final ParquetStoreProperties parquetStoreProperties,
                                  final String currentGraphDir,
                                  final SchemaUtils schemaUtils,
                                  final SparkSession spark) throws SerialisationException {

@@ -40,9 +40,9 @@ public class SingleUseParquetStore extends ParquetStore {
         String dataDir = "";
         try {
             final FileSystem fs = FileSystem.get(new Configuration());
-            ParquetProperties props = getProperties();
+            ParquetStoreProperties props = getProperties();
             if (props == null) {
-                props = new ParquetProperties();
+                props = new ParquetStoreProperties();
             }
             dataDir = props.getDataDir();
             deleteFolder(dataDir, fs);

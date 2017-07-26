@@ -23,7 +23,7 @@ import scala.runtime.AbstractFunction1;
 import scala.runtime.BoxedUnit;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.parquetstore.ParquetProperties;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.WriteUnsortedData;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
@@ -38,7 +38,7 @@ public class WriteUnsortedDataFunction extends AbstractFunction1<Iterator<Elemen
     private final Properties props;
 
 
-    public WriteUnsortedDataFunction(final SchemaUtils schemaUtils, final ParquetProperties props) {
+    public WriteUnsortedDataFunction(final SchemaUtils schemaUtils, final ParquetStoreProperties props) {
         this.gafferSchema = schemaUtils.getGafferSchema().toCompactJson();
         this.props = props.getProperties();
     }
@@ -46,7 +46,7 @@ public class WriteUnsortedDataFunction extends AbstractFunction1<Iterator<Elemen
     @Override
     public BoxedUnit apply(final Iterator<Element> elements) {
         SchemaUtils utils = new SchemaUtils(Schema.fromJson(gafferSchema));
-        ParquetProperties pp = new ParquetProperties();
+        ParquetStoreProperties pp = new ParquetStoreProperties();
         pp.setProperties(props);
         final WriteUnsortedData writer = new WriteUnsortedData(pp, utils);
         try {

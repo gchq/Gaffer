@@ -22,8 +22,8 @@ import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.parquetstore.ParquetProperties;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.AggregateAndSortTempData;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.GenerateIndices;
@@ -52,7 +52,7 @@ public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfE
             throws OperationException {
         try {
             final FileSystem fs = store.getFS();
-            final ParquetProperties parquetStoreProperties = store.getProperties();
+            final ParquetStoreProperties parquetStoreProperties = store.getProperties();
             final String tempDataDirString = parquetStoreProperties.getTempFilesDir();
             final Path tempDir = new Path(tempDataDirString);
             final String rootDataDirString = parquetStoreProperties.getDataDir();

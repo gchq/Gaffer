@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.parquetstore.ParquetProperties;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
@@ -64,7 +64,7 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
     }
 
     private static Graph getGraph() {
-        final ParquetProperties pp = (ParquetProperties) StoreProperties.loadStoreProperties(
+        final ParquetStoreProperties pp = (ParquetStoreProperties) StoreProperties.loadStoreProperties(
                 AbstractOperationsTest.class.getResourceAsStream("/multiUseStore.properties"));
         return new Graph.Builder()
                 .addSchema(getSchema())

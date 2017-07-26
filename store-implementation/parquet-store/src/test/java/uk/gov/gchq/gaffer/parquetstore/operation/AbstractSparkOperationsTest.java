@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.parquetstore.ParquetProperties;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.spark.SparkConstants;
 import uk.gov.gchq.gaffer.spark.SparkUser;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
@@ -57,12 +57,12 @@ public abstract class AbstractSparkOperationsTest {
     static User USER = new SparkUser(new User(), spark);
     Graph graph;
 
-    static ParquetProperties getParquetStoreProperties() {
-        return (ParquetProperties) StoreProperties.loadStoreProperties(
+    static ParquetStoreProperties getParquetStoreProperties() {
+        return (ParquetStoreProperties) StoreProperties.loadStoreProperties(
                 AbstractSparkOperationsTest.class.getResourceAsStream("/multiUseStore.properties"));
     }
 
-    static Graph getGraph(final Schema schema, final ParquetProperties properties) throws StoreException {
+    static Graph getGraph(final Schema schema, final ParquetStoreProperties properties) throws StoreException {
         return new Graph.Builder()
                 .addSchema(schema)
                 .storeProperties(properties)
@@ -73,7 +73,7 @@ public abstract class AbstractSparkOperationsTest {
     @AfterClass
     public static void cleanUpData() throws IOException {
         try (final FileSystem fs = FileSystem.get(new Configuration())) {
-            final ParquetProperties props = (ParquetProperties) StoreProperties.loadStoreProperties(
+            final ParquetStoreProperties props = (ParquetStoreProperties) StoreProperties.loadStoreProperties(
                     StreamUtil.storeProps(AbstractSparkOperationsTest.class));
             deleteFolder(props.getDataDir(), fs);
         }

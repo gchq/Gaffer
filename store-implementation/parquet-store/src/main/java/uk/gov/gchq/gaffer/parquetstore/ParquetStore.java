@@ -87,7 +87,7 @@ public class ParquetStore extends Store {
             throw new StoreException("Could not connect to the file system", e);
         }
         schemaUtils = new SchemaUtils(getSchema());
-        loadIndex((ParquetProperties) properties);
+        loadIndex((ParquetStoreProperties) properties);
     }
 
     public FileSystem getFS() {
@@ -118,10 +118,10 @@ public class ParquetStore extends Store {
         }
     }
 
-    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be ParquetProperties")
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be ParquetStoreProperties")
     @Override
-    public ParquetProperties getProperties() {
-        return (ParquetProperties) super.getProperties();
+    public ParquetStoreProperties getProperties() {
+        return (ParquetStoreProperties) super.getProperties();
     }
 
     @Override
@@ -181,7 +181,7 @@ public class ParquetStore extends Store {
         return new SchemaOptimiser(new SerialisationFactory(ParquetStoreConstants.SERIALISERS));
     }
 
-    private void loadIndex(final ParquetProperties properties) throws StoreException {
+    private void loadIndex(final ParquetStoreProperties properties) throws StoreException {
         final String rootDir = properties.getDataDir();
         try {
             if (fs.exists(new Path(rootDir))) {

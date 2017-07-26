@@ -23,9 +23,9 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import java.io.Serializable;
 import java.nio.file.Path;
 
-public class ParquetProperties extends StoreProperties implements Serializable {
+public class ParquetStoreProperties extends StoreProperties implements Serializable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ParquetProperties.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ParquetStoreProperties.class);
 
     public static final String DATA_DIR = "parquet.data.dir";
     public static final String TEMP_FILES_DIR = "parquet.temp_data.dir";
@@ -45,13 +45,13 @@ public class ParquetProperties extends StoreProperties implements Serializable {
     private static final String SPARK_MASTER_DEFAULT = "local[*]";
     private static final long serialVersionUID = 7695540336792378185L;
 
-    public ParquetProperties() {
+    public ParquetStoreProperties() {
         super();
         this.setStoreClass(ParquetStore.class);
         this.setStorePropertiesClass(getClass());
     }
 
-    public ParquetProperties(final Path propFileLocation) {
+    public ParquetStoreProperties(final Path propFileLocation) {
         super(propFileLocation);
     }
 
@@ -110,7 +110,7 @@ public class ParquetProperties extends StoreProperties implements Serializable {
      * @return The Spark master to be used.
      */
     public String getSparkMaster() {
-        LOGGER.debug("ParquetProperties has Spark master set as: {}", get(SPARK_MASTER, "Is not set"));
+        LOGGER.debug("ParquetStoreProperties has Spark master set as: {}", get(SPARK_MASTER, "Is not set"));
         LOGGER.debug("Spark config has Spark master set as: {}", new SparkConf().get("spark.master", "Is not set"));
         final String sparkMaster = get(SPARK_MASTER, new SparkConf().get("spark.master", SPARK_MASTER_DEFAULT));
         LOGGER.info("Spark master is set to {}", sparkMaster);

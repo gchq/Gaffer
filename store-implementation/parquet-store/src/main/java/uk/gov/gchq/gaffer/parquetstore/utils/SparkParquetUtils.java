@@ -21,7 +21,7 @@ import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.internal.SQLConf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.gchq.gaffer.parquetstore.ParquetProperties;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 
 public final class SparkParquetUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(SparkParquetUtils.class);
@@ -29,7 +29,7 @@ public final class SparkParquetUtils {
     private SparkParquetUtils() {
     }
 
-    public static void configureSparkForAddElements(final SparkSession spark, final ParquetProperties props) {
+    public static void configureSparkForAddElements(final SparkSession spark, final ParquetStoreProperties props) {
         final Integer numberOfOutputFiles = props.getAddElementsOutputFilesPerGroup();
         String shufflePartitions = spark.conf().getOption("spark.sql.shuffle.partitions").get();
         if (shufflePartitions == null) {
@@ -43,7 +43,7 @@ public final class SparkParquetUtils {
         configureSparkConfForAddElements(hadoopConf, props);
     }
 
-    public static void configureSparkConfForAddElements(final Configuration hadoopConf, final ParquetProperties props) {
+    public static void configureSparkConfForAddElements(final Configuration hadoopConf, final ParquetStoreProperties props) {
         LOGGER.debug("Setting the parquet file properties");
         LOGGER.debug("Row group size: {}", props.getRowGroupSize());
         LOGGER.debug("Page size: {}", props.getPageSize());

@@ -25,8 +25,8 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.parquetstore.ParquetProperties;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.AggregateAndSortTempData;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.GenerateIndices;
@@ -66,7 +66,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             throws OperationException {
         try {
             final FileSystem fs = store.getFS();
-            final ParquetProperties parquetStoreProperties = store.getProperties();
+            final ParquetStoreProperties parquetStoreProperties = store.getProperties();
             final String rootDataDirString = parquetStoreProperties.getDataDir();
             final String tempDirString = parquetStoreProperties.getTempFilesDir();
             final Path tempDir = new Path(tempDirString);

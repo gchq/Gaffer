@@ -24,7 +24,7 @@ import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.parquetstore.ParquetProperties;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 
 import java.io.IOException;
 
@@ -38,7 +38,7 @@ public class ParquetFileIteratorTest {
     @Before
     public void setUp() throws IOException {
         Logger.getRootLogger().setLevel(Level.WARN);
-        final ParquetProperties pp = new ParquetProperties();
+        final ParquetStoreProperties pp = new ParquetStoreProperties();
         rootDir = pp.getTempFilesDir();
         fs = FileSystem.get(new Configuration());
         fs.delete(new Path(rootDir), true);

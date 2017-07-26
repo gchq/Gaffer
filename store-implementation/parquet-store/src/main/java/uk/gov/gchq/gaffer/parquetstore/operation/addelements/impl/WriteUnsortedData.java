@@ -24,8 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.parquetstore.ParquetProperties;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.io.writer.ParquetElementWriter;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
@@ -36,12 +36,12 @@ import java.util.Map;
 
 public class WriteUnsortedData {
     private static final Logger LOGGER = LoggerFactory.getLogger(WriteUnsortedData.class);
-    private final ParquetProperties props;
+    private final ParquetStoreProperties props;
     private final Map<String, ParquetWriter<Element>> groupToWriter;
     private final Map<String, Integer> groupToFileNumber;
     private final SchemaUtils schemaUtils;
 
-    public WriteUnsortedData(final ParquetProperties parquetStoreProperties, final SchemaUtils schemaUtils) {
+    public WriteUnsortedData(final ParquetStoreProperties parquetStoreProperties, final SchemaUtils schemaUtils) {
         this.props = parquetStoreProperties;
         this.groupToWriter = new HashMap<>();
         this.groupToFileNumber = new HashMap<>();

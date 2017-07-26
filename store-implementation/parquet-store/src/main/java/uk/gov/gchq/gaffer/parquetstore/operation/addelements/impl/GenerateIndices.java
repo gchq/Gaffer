@@ -21,8 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.parquetstore.ParquetProperties;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.index.ColumnIndex;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.index.GroupIndex;
@@ -45,7 +45,7 @@ public class GenerateIndices {
 
     public GenerateIndices(final ParquetStore store) throws OperationException, SerialisationException, StoreException {
         graphIndex = new GraphIndex();
-        final ParquetProperties parquetStoreProperties = store.getProperties();
+        final ParquetStoreProperties parquetStoreProperties = store.getProperties();
         final ExecutorService pool = Executors.newFixedThreadPool(parquetStoreProperties.getThreadsAvailable());
         final String tempFileDir = parquetStoreProperties.getTempFilesDir();
         final SchemaUtils schemaUtils = store.getSchemaUtils();

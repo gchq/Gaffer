@@ -21,8 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.parquetstore.ParquetProperties;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
@@ -40,7 +40,7 @@ public class AggregateAndSortTempData {
     public AggregateAndSortTempData(final ParquetStore store, final SparkSession spark) throws OperationException, SerialisationException {
         final List<Callable<OperationException>> tasks = new ArrayList<>();
         final SchemaUtils schemaUtils = store.getSchemaUtils();
-        final ParquetProperties parquetStoreProperties = store.getProperties();
+        final ParquetStoreProperties parquetStoreProperties = store.getProperties();
         final GraphIndex index = store.getGraphIndex();
         final String currentDataDir;
         if (index != null) {
