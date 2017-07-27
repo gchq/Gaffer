@@ -48,12 +48,12 @@ public class StatusService implements IStatusService {
     public SystemStatus status() {
         try {
             if (null != graphFactory.getGraph()) {
-                return new SystemStatus("The system is working normally.");
+                return SystemStatus.UP;
             }
         } catch (final Exception e) {
             throw new GafferRuntimeException("Unable to create graph.", e, Status.INTERNAL_SERVER_ERROR);
         }
 
-        return new SystemStatus("Unable to create graph.");
+        return SystemStatus.DOWN;
     }
 }

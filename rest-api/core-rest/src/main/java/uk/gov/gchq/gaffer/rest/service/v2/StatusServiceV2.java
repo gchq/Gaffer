@@ -52,7 +52,7 @@ public class StatusServiceV2 implements IStatusServiceV2 {
     public Response status() {
         try {
             if (null != graphFactory.getGraph()) {
-                return Response.ok(new SystemStatus("The system is working normally."))
+                return Response.ok(SystemStatus.UP)
                                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                                .build();
             }
@@ -61,7 +61,7 @@ public class StatusServiceV2 implements IStatusServiceV2 {
         }
 
         return Response.status(503)
-                       .entity(new SystemStatus("Unable to create graph."))
+                       .entity(SystemStatus.DOWN)
                        .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                        .build();
     }

@@ -153,6 +153,7 @@ public abstract class RestApiTestClient {
 
         // When
         final String statusMsg = response.readEntity(SystemStatus.class)
+                                         .getStatus()
                                          .getDescription();
 
         // Then

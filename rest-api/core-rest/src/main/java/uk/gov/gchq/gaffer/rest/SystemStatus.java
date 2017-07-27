@@ -16,25 +16,47 @@
 
 package uk.gov.gchq.gaffer.rest;
 
-
 import io.swagger.annotations.ApiModelProperty;
 
 public class SystemStatus {
-    @ApiModelProperty
-    private String description;
 
-    public SystemStatus() {
+    public static SystemStatus UP = new SystemStatus(Status.UP);
+    public static SystemStatus DOWN = new SystemStatus(Status.DOWN);
+    public static SystemStatus UNKNOWN = new SystemStatus(Status.UNKNOWN);
+    public static SystemStatus OUT_OF_SERVICE = new SystemStatus(Status.OUT_OF_SERVICE);
+
+    private final Status status;
+
+    public SystemStatus(final Status status) {
+        this.status = status;
     }
 
-    public SystemStatus(final String description) {
-        this.description = description;
+    public Status getStatus() {
+        return status;
     }
 
-    public String getDescription() {
-        return description;
-    }
+    public enum Status {
 
-    public void setDescription(final String description) {
-        this.description = description;
+        UP("UP", "The system is working normally."),
+        DOWN("DOWN", "The system is unavailable."),
+        UNKNOWN("UNKNOWN", "The system status is unknown."),
+        OUT_OF_SERVICE("OUT_OF_SERVICE", "The system is out of service.");
+
+        private String description;
+
+        private String code;
+
+        private Status(final String code, final String description) {
+            this.code = code;
+            this.description = description;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public String getDescription() {
+            return description;
+        }
     }
 }
