@@ -73,17 +73,7 @@ public class AddElementsFromHdfsIT {
     }
 
     @Test
-    public void shouldAddElementsFromHdfsWhenOutputDirectoryAlreadyExists() throws Exception {
-        final FileSystem fs = FileSystem.getLocal(createLocalConf());
-        fs.mkdirs(new Path(outputDir));
-        addElementsFromHdfs();
-    }
-
-    @Test
-    public void shouldAddElementsFromHdfsWhenFailureDirectoryAlreadyExists() throws Exception {
-        final FileSystem fs = FileSystem.getLocal(createLocalConf());
-        fs.mkdirs(new Path(failureDir));
-
+    public void shouldAddElementsFromHdfs() throws Exception {
         addElementsFromHdfs();
     }
 

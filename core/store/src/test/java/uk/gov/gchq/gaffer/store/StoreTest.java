@@ -52,6 +52,7 @@ import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.tostring.StringToStringSerialiser;
+import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -523,6 +524,20 @@ public class StoreTest {
 
         // Then
         assertSame(jobTracker, resultJobTracker);
+    }
+
+    @Test
+    public void shouldSetAndGetGraphLibrary() {
+        // Given
+        final Store store = new StoreImpl();
+        final GraphLibrary graphLibrary = mock(GraphLibrary.class);
+
+        // When
+        store.setGraphLibrary(graphLibrary);
+        final GraphLibrary result = store.getGraphLibrary();
+
+        // Then
+        assertSame(graphLibrary, result);
     }
 
     private Schema createSchemaMock() {

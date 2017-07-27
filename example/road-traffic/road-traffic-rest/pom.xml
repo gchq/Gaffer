@@ -57,6 +57,13 @@
             <classifier>classes</classifier>
             <version>${project.parent.version}</version>
         </dependency>
+        <!-- This dependency allows exporting to different Gaffer REST APIs -->
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>proxy-store</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
