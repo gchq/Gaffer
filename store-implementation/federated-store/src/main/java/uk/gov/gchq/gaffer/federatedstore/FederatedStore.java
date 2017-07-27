@@ -287,11 +287,6 @@ public class FederatedStore extends Store {
         return traits;
     }
 
-    @Override
-    public boolean isValidationRequired() {
-        return false;
-    }
-
     public Collection<Graph> getGraphs() {
         return graphs.values();
     }

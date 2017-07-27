@@ -16,6 +16,14 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStore.GRAPH_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_USER_SUPPLIED_PROPERTIES_GRAPH_ID_S;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStore.USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Assert;
@@ -41,29 +49,20 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStore.GRAPH_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_USER_SUPPLIED_PROPERTIES_GRAPH_ID_S;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStore.USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S;
-
 public class FederatedStoreTest {
-    public static final String PATH_FEDERATED_STORE_PROPERTIES = "/path/to/properties/federatedStoreTest.properties";
+    public static final String PATH_FEDERATED_STORE_PROPERTIES = "/properties/federatedStoreTest.properties";
     public static final String FEDERATED_STORE_ID = "testFederatedStoreId";
     public static final String ACC_ID_1 = "mockAccGraphId1";
     public static final String MAP_ID_1 = "mockMapGraphId1";
-    public static final String PATH_ACC_STORE_PROPERTIES = "path/to/properties/singleUseMockAccStore.properties";
-    public static final String PATH_MAP_STORE_PROPERTIES = "path/to/properties/singleUseMockMapStore.properties";
-    public static final String PATH_BASIC_ENTITY_SCHEMA_JSON = "path/to/schema/basicEntitySchema.json";
-    public static final String PATH_BASIC_EDGE_SCHEMA_JSON = "path/to/schema/basicEdgeSchema.json";
+    public static final String PATH_ACC_STORE_PROPERTIES = "properties/singleUseMockAccStore.properties";
+    public static final String PATH_MAP_STORE_PROPERTIES = "properties/singleUseMockMapStore.properties";
+    public static final String PATH_BASIC_ENTITY_SCHEMA_JSON = "schema/basicEntitySchema.json";
+    public static final String PATH_BASIC_EDGE_SCHEMA_JSON = "schema/basicEdgeSchema.json";
     public static final String KEY_ACC_ID1_PROPERTIES = "gaffer.federatedstore.mockAccGraphId1.properties";
     public static final String KEY_MAP_ID1_PROPERTIES = "gaffer.federatedstore.mockMapGraphId1.properties";
     public static final String KEY_ACC_ID1_SCHEMA = "gaffer.federatedstore.mockAccGraphId1.schema";
     public static final String KEY_MAP_ID1_SCHEMA = "gaffer.federatedstore.mockMapGraphId1.schema";
-    public static final String PATH_INVALID = "path/to/nothing.json";
+    public static final String PATH_INVALID = "nothing.json";
     public static final String EXCEPTION_NOT_THROWN = "exception not thrown";
     public static final User TEST_USER = new User("testUser");
     FederatedStore store;
@@ -178,11 +177,6 @@ public class FederatedStoreTest {
         store.doUnhandledOperation(null, null);
     }
 
-    @Test()
-    public void shouldIsValidationRequired() throws Exception {
-        assertFalse(store.isValidationRequired());
-    }
-
     @Test
     public void shouldUpdateTraitsWhenNewGraphIsAdded() throws Exception {
         federatedProperties.set(KEY_MAP_ID1_PROPERTIES, PATH_ACC_STORE_PROPERTIES);
@@ -215,7 +209,7 @@ public class FederatedStoreTest {
         Schema before = store.getSchema();
 
         store.add(new Graph.Builder()
-                .graphId("testGraphAlt")
+                .graphId(MAP_ID_1)
                 .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_MAP_STORE_PROPERTIES))
                 .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_EDGE_SCHEMA_JSON))
                 .build());
@@ -228,7 +222,7 @@ public class FederatedStoreTest {
     public void shouldFailWithIncompleteSchema() throws Exception {
         //Given
         federatedProperties.set(KEY_ACC_ID1_PROPERTIES, PATH_ACC_STORE_PROPERTIES);
-        federatedProperties.set(KEY_ACC_ID1_SCHEMA, "/path/to/schema/edgeX2NoTypesSchema.json");
+        federatedProperties.set(KEY_ACC_ID1_SCHEMA, "/schema/edgeX2NoTypesSchema.json");
 
 
         try {
@@ -244,7 +238,7 @@ public class FederatedStoreTest {
     public void shouldTakeCompleteSchemaFromTwoFiles() throws Exception {
         //Given
         federatedProperties.set(KEY_ACC_ID1_PROPERTIES, PATH_ACC_STORE_PROPERTIES);
-        federatedProperties.set(KEY_ACC_ID1_SCHEMA, "/path/to/schema/edgeX2NoTypesSchema.json" + ", /path/to/schema/edgeTypeSchema.json");
+        federatedProperties.set(KEY_ACC_ID1_SCHEMA, "/schema/edgeX2NoTypesSchema.json" + ", /schema/edgeTypeSchema.json");
 
 
         int before = store.getGraphs().size();
