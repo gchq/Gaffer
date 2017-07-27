@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.AddElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetElementsHandler;
@@ -131,6 +132,23 @@ public class HBaseStoreTest {
 
         // Then
         assertEquals("tableName", store.getGraphId());
+        assertEquals("tableName", store.getTableName().getNameAsString());
+    }
+
+    @Test
+    public void shouldBuildGraphAndGetGraphIdFromTableName() throws Exception {
+        // Given
+        final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreTest.class));
+        properties.setTable("tableName");
+
+        // When
+        final Graph graph = new Graph.Builder()
+                .addSchemas(StreamUtil.schemas(getClass()))
+                .storeProperties(properties)
+                .build();
+
+        // Then
+        assertEquals("tableName", graph.getGraphId());
     }
 
     @Test
@@ -179,21 +197,6 @@ public class HBaseStoreTest {
     @Test
     public void shouldBeAnOrderedStore() {
         assertTrue(store.hasTrait(StoreTrait.ORDERED));
-    }
-
-    @Test
-    public void validationShouldNotBeRequired() {
-        assertFalse(store.isValidationRequired());
-    }
-
-    @Test
-    public void shouldThrowExceptionForUnhandledOperation() {
-        try {
-            store.doUnhandledOperation(new AddElements(), null);
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e.getMessage());
-        }
     }
 
     @Test

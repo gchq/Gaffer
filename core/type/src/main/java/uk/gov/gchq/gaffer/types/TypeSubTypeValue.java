@@ -15,7 +15,14 @@
  */
 package uk.gov.gchq.gaffer.types;
 
-public class TypeSubTypeValue {
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+
+import java.util.Comparator;
+
+public class TypeSubTypeValue implements Comparable<TypeSubTypeValue> {
+
+    private static Comparator<String> stringComparator = Comparator
+            .nullsFirst(String::compareTo);
 
     private static final int PRIME = 31;
     private String type;
@@ -97,5 +104,30 @@ public class TypeSubTypeValue {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("type", type)
+                .append("subType", subType)
+                .append("value", value)
+                .toString();
+    }
+
+    @Override
+    public int compareTo(final TypeSubTypeValue typeSubTypeValue) {
+        if (typeSubTypeValue == null) {
+            return 1;
+        }
+        int i = stringComparator.compare(type, typeSubTypeValue.getType());
+        if (i != 0) {
+            return i;
+        }
+        i = stringComparator.compare(subType, typeSubTypeValue.getSubType());
+        if (i != 0) {
+            return i;
+        }
+        return stringComparator.compare(value, typeSubTypeValue.getValue());
     }
 }

@@ -17,10 +17,13 @@
 package uk.gov.gchq.gaffer.rest.factory;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain;
 import uk.gov.gchq.gaffer.graph.hook.OperationAuthoriser;
+import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -74,6 +77,33 @@ public class GraphFactoryTest {
 
         // Then
         assertNull(opAuthoriser);
+    }
+
+    @Test
+    public void shouldReturnNullWhenCreateAddOperationsToChainWithNoSystemPropertyPath() {
+        // Given
+        System.clearProperty(SystemProperty.ADD_OPERATIONS_TO_CHAIN_PATH);
+        final GraphFactory factory = new DefaultGraphFactory();
+
+        // When
+        final AddOperationsToChain addOperationsToChain = factory.createAddOperationsToChain();
+
+        // Then
+        assertNull(addOperationsToChain);
+    }
+
+    @Test
+    public void shouldReturnCreateAddOperationsToChainFromSystemPropertyPath() {
+        // Given
+        System.setProperty(SystemProperty.ADD_OPERATIONS_TO_CHAIN_PATH, "addOperationsToChain.json");
+        final GraphFactory factory = new DefaultGraphFactory();
+
+        // When
+        final AddOperationsToChain addOperationsToChain = factory.createAddOperationsToChain();
+
+        // Then
+        assertNotNull(addOperationsToChain);
+        assertEquals(Count.class, addOperationsToChain.getEnd().get(0).getClass());
     }
 
     @Test

@@ -61,7 +61,7 @@ public class JobService implements IJobService {
             LOGGER.info("Job started = {}", jobDetail);
             return jobDetail;
         } catch (final OperationException e) {
-            throw new RuntimeException("Error executing opChain", e);
+            throw new RuntimeException("Error executing opChain: " + e.getMessage(), e);
         } finally {
             postOperationHook(opChain, user);
         }

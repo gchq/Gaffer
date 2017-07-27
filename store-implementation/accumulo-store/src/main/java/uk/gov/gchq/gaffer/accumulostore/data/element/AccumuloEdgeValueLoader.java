@@ -19,41 +19,29 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
+import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.IdentifierType;
-import uk.gov.gchq.gaffer.data.element.LazyEdge;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import java.util.Collections;
 
 public class AccumuloEdgeValueLoader extends AccumuloElementValueLoader {
     private static final long serialVersionUID = 6857884477152298375L;
+    private final boolean includeMatchedVertex;
 
     public AccumuloEdgeValueLoader(final String group,
                                    final Key key,
                                    final Value value,
                                    final AccumuloElementConverter elementConverter,
-                                   final Schema schema) {
+                                   final Schema schema,
+                                   final boolean includeMatchedVertex) {
         super(group, key, value, elementConverter, schema);
+        this.includeMatchedVertex = includeMatchedVertex;
     }
 
-    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "Lazy element should always be a LazyEdge")
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "element provided should always be an Edge")
     @Override
-    public Object getIdentifier(final IdentifierType idType, final Element lazyElement) {
-        final EdgeId edgeId = (EdgeId) elementConverter.getElementId(key, Collections.emptyMap());
-        ((LazyEdge) lazyElement).setSource(edgeId.getSource());
-        ((LazyEdge) lazyElement).setDestination(edgeId.getDestination());
-        ((LazyEdge) lazyElement).setDirected(edgeId.isDirected());
-
-        switch (idType) {
-            case SOURCE:
-                return edgeId.getSource();
-            case DESTINATION:
-                return edgeId.getDestination();
-            case DIRECTED:
-                return edgeId.isDirected();
-            default:
-                return null;
-        }
+    public void loadIdentifiers(final Element edge) {
+        final EdgeId edgeId = (EdgeId) elementConverter.getElementId(key, includeMatchedVertex);
+        ((Edge) edge).setIdentifiers(edgeId.getSource(), edgeId.getDestination(), edgeId.isDirected());
     }
 }

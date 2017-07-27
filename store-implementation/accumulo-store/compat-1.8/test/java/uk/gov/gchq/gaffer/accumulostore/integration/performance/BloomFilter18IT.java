@@ -129,8 +129,11 @@ public class BloomFilter18IT {
                     .build();
             final Entity destinationEntity = new Entity(destination.getGroup());
             destinationEntity.setVertex(destination.getVertex());
-            final Edge edge = new Edge(TestGroups.EDGE, source.getVertex(), destination
-                    .getVertex(), true);
+            final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
+                    .source(source.getVertex())
+                    .dest(destination.getVertex())
+                    .directed(true)
+                    .build();
             keysSet.add(elementConverter.getKeyFromEntity(sourceEntity));
             keysSet.add(elementConverter.getKeyFromEntity(destinationEntity));
             final Pair<Key, Key> edgeKeys = elementConverter.getKeysFromEdge(edge);
@@ -177,7 +180,7 @@ public class BloomFilter18IT {
             // Write data to file
             writer.startDefaultLocalityGroup();
             for (final Key key : keys) {
-                if (elementConverter.getElementFromKey(key)
+                if (elementConverter.getElementFromKey(key, false, null)
                         .getGroup()
                         .equals(TestGroups.ENTITY)) {
                     writer.append(key, value);

@@ -38,9 +38,11 @@ import java.nio.file.StandardOpenOption;
 import java.util.Properties;
 
 /**
- * A <code>StoreProperties</code> contains specific configuration information
- * for the store, such as database connection strings.
- * It wraps {@link Properties}.
+ * A <code>StoreProperties</code> contains specific configuration information for the store, such as database
+ * connection strings. It wraps {@link Properties} and lazy loads the all properties from a file when first used.
+ * <p>
+ * All StoreProperties classes must be JSON serialisable.
+ * </p>
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "storePropertiesClassName")
 public class StoreProperties implements Cloneable {

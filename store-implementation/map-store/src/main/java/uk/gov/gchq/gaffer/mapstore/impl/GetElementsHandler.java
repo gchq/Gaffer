@@ -72,8 +72,7 @@ public class GetElementsHandler
         @Override
         public CloseableIterator<Element> iterator() {
             Stream<Element> elements = Streams.toStream(getElements.getInput())
-                    .flatMap(elementId -> GetElementsUtil.getRelevantElements(mapImpl, elementId, getElements.getView(), getElements.getIncludeIncomingOutGoing(), getElements.getSeedMatching()).stream());
-            elements = GetElementsUtil.applyDirectedTypeFilter(elements, getElements.getView().hasEdges(), getElements.getDirectedType());
+                    .flatMap(elementId -> GetElementsUtil.getRelevantElements(mapImpl, elementId, getElements.getView(), getElements.getDirectedType(), getElements.getIncludeIncomingOutGoing(), getElements.getSeedMatching()).stream());
             elements = elements.flatMap(e -> Streams.toStream(mapImpl.getElements(e)));
             elements = GetElementsUtil.applyView(elements, schema, getElements.getView());
             elements = elements.map(element -> mapImpl.cloneElement(element, schema));

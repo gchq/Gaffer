@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.serialisation;
 
 import com.google.common.collect.Ordering;
-import com.yahoo.memory.NativeMemory;
+import com.yahoo.memory.WritableMemory;
 import com.yahoo.sketches.ArrayOfStringsSerDe;
 import com.yahoo.sketches.quantiles.ItemsUnion;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -45,7 +45,7 @@ public class StringsUnionSerialiser implements ToBytesSerialiser<ItemsUnion<Stri
 
     @Override
     public ItemsUnion<String> deserialise(final byte[] bytes) throws SerialisationException {
-       return ItemsUnion.getInstance(new NativeMemory(bytes), Ordering.<String>natural(), SERIALISER);
+       return ItemsUnion.getInstance(WritableMemory.wrap(bytes), Ordering.<String>natural(), SERIALISER);
     }
 
     @Override

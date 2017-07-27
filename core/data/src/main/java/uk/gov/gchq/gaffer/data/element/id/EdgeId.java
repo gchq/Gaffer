@@ -22,19 +22,24 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 public interface EdgeId extends ElementId {
+    enum MatchedVertex {
+        SOURCE,
+        DESTINATION;
+
+        public static boolean isEqual(final MatchedVertex matchedVertex1, final MatchedVertex matchedVertex2) {
+            return matchedVertex1 == matchedVertex2
+                    || (null == matchedVertex1 && SOURCE == matchedVertex2)
+                    || (null == matchedVertex2 && SOURCE == matchedVertex1);
+        }
+    }
+
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
     Object getSource();
-
-    void setSource(final Object source);
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
     Object getDestination();
 
-    void setDestination(final Object destination);
-
     DirectedType getDirectedType();
-
-    void setDirectedType(final DirectedType directed);
 
     /**
      * @return true if directed is DIRECTED, EITHER or null. Otherwise false.
@@ -52,31 +57,32 @@ public interface EdgeId extends ElementId {
         return DirectedType.DIRECTED != getDirectedType();
     }
 
-    default void setDirected(final boolean directed) {
-        if (directed) {
-            setDirectedType(DirectedType.DIRECTED);
-        } else {
-            setDirectedType(DirectedType.UNDIRECTED);
-        }
+    default void setIdentifiers(final Object source, final Object destination, final DirectedType directed) {
+        setIdentifiers(source, destination, directed, getMatchedVertex());
     }
+
+    void setIdentifiers(final Object source, final Object destination, final DirectedType directedType, final MatchedVertex matchedVertex);
+
+    MatchedVertex getMatchedVertex();
 
     @Override
     default boolean isEqual(final ElementId that) {
         return that instanceof EdgeId && isEqual((EdgeId) that);
     }
 
+    /**
+     * Note this does not include the matchedVertex field.
+     *
+     * @param that the reference EdgeId with which to compare.
+     * @return {@code true} if this object is the same as the edge
+     * argument; {@code false} otherwise.
+     */
     default boolean isEqual(final EdgeId that) {
         return null != that
                 && (new EqualsBuilder()
                 .append(getDirectedType(), that.getDirectedType())
                 .append(getSource(), that.getSource())
                 .append(getDestination(), that.getDestination())
-                .isEquals()
-                || new EqualsBuilder()
-                .append(isUndirected(), true)
-                .append(getDirectedType(), that.getDirectedType())
-                .append(getSource(), that.getDestination())
-                .append(getDestination(), that.getSource())
                 .isEquals());
     }
 

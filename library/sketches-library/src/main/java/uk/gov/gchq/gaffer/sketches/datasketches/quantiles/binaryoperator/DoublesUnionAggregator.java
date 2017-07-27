@@ -24,6 +24,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * and merges that using {@link DoublesUnion#update(com.yahoo.sketches.quantiles.DoublesSketch)}.
  */
 public class DoublesUnionAggregator extends KorypheBinaryOperator<DoublesUnion> {
+
     @Override
     protected DoublesUnion _apply(final DoublesUnion a, final DoublesUnion b) {
         a.update(b.getResult());

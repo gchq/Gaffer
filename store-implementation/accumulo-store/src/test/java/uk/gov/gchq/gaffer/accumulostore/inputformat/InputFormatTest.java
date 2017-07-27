@@ -78,23 +78,23 @@ public class InputFormatTest {
     static {
         for (int i = 0; i < NUM_ENTRIES; i++) {
             final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
-                                                      .vertex("" + i)
-                                                      .property("property1", 1)
-                                                      .build();
+                    .vertex("" + i)
+                    .property("property1", 1)
+                    .build();
 
             final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
-                                                .source("" + i)
-                                                .dest("B")
-                                                .directed(true)
-                                                .property("property1", 2)
-                                                .build();
+                    .source("" + i)
+                    .dest("B")
+                    .directed(true)
+                    .property("property1", 2)
+                    .build();
 
             final Edge edge2 = new Edge.Builder().group(TestGroups.EDGE)
-                                                 .source("" + i)
-                                                 .dest("C")
-                                                 .directed(true)
-                                                 .property("property2", 3)
-                                                 .build();
+                    .source("" + i)
+                    .dest("C")
+                    .directed(true)
+                    .property("property2", 3)
+                    .build();
 
             DATA.add(edge);
             DATA.add(edge2);
@@ -102,26 +102,26 @@ public class InputFormatTest {
         }
         for (int i = 0; i < NUM_ENTRIES; i++) {
             final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
-                                                      .vertex("" + i)
-                                                      .property("property1", 1)
-                                                      .property("visibility", "public")
-                                                      .build();
+                    .vertex("" + i)
+                    .property("property1", 1)
+                    .property("visibility", "public")
+                    .build();
 
             final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
-                                                .source("" + i)
-                                                .dest("B")
-                                                .directed(true)
-                                                .property("property1", 2)
-                                                .property("visibility", "private")
-                                                .build();
+                    .source("" + i)
+                    .dest("B")
+                    .directed(true)
+                    .property("property1", 2)
+                    .property("visibility", "private")
+                    .build();
 
             final Edge edge2 = new Edge.Builder().group(TestGroups.EDGE)
-                                                 .source("" + i)
-                                                 .dest("C")
-                                                 .directed(true)
-                                                 .property("property2", 3)
-                                                 .property("visibility", "public")
-                                                 .build();
+                    .source("" + i)
+                    .dest("C")
+                    .directed(true)
+                    .property("property2", 3)
+                    .property("visibility", "public")
+                    .build();
 
             DATA_WITH_VISIBILITIES.add(edge);
             DATA_WITH_VISIBILITIES.add(edge2);
@@ -313,12 +313,7 @@ public class InputFormatTest {
     }
 
     private Schema getSchemaWithVisibilities() {
-        final Schema schema = Schema.fromJson(
-                this.getClass().getResourceAsStream("/schemaWithVisibilities/dataSchemaWithVisibilities.json"),
-                this.getClass().getResourceAsStream("/schemaWithVisibilities/dataTypes.json"),
-                this.getClass().getResourceAsStream("/schemaWithVisibilities/storeSchema.json"),
-                this.getClass().getResourceAsStream("/schemaWithVisibilities/storeTypes.json"));
-        return schema;
+        return Schema.fromJson(StreamUtil.openStreams(getClass(), "schemaWithVisibilities"));
     }
 
     private class Driver extends Configured implements Tool {

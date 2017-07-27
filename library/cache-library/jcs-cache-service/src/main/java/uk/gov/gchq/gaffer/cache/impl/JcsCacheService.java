@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.ICacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -64,11 +63,10 @@ public class JcsCacheService implements ICacheService {
         }
     }
 
-
     @Override
     public void shutdown() {
         if (manager.isInitialized()) {
-            LOGGER.info("Shutting down JCS cache service...");
+            LOGGER.debug("Shutting down JCS cache service...");
             manager.shutDown();
         }
     }

@@ -32,13 +32,13 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
-import uk.gov.gchq.gaffer.graph.library.FileGraphLibrary;
-import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
-import uk.gov.gchq.gaffer.graph.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.GafferCoprocessor;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.library.FileGraphLibrary;
+import uk.gov.gchq.gaffer.store.library.GraphLibrary;
+import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.ValidationResult;
 import java.io.IOException;
@@ -64,6 +64,7 @@ public final class TableUtils {
 
     /**
      * Utility for creating and updating an HBase table.
+     * See the HBase Store README for more information on what changes to your schema you are allowed to make.
      * HBase tables are automatically created when the Gaffer HBase store is initialised when an instance of Graph is created.
      * <p>
      * Running this with an existing table will remove the existing Gaffer Coprocessor and recreate it.
