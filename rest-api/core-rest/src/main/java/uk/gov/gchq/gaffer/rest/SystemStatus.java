@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.rest;
 
-import io.swagger.annotations.ApiModelProperty;
-
 public class SystemStatus {
 
     public static SystemStatus UP = new SystemStatus(Status.UP);
