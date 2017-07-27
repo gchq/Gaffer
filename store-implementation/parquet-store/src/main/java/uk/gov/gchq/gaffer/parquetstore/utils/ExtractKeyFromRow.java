@@ -21,7 +21,6 @@ import org.apache.spark.sql.Row;
 import scala.collection.Seq;
 import scala.collection.Seq$;
 import scala.collection.mutable.Builder;
-
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,7 +33,7 @@ public class ExtractKeyFromRow implements Function<Row, Seq<Object>>, Serializab
     private static final long serialVersionUID = -5811180619204002981L;
     private final Set<String> groupByColumns;
 
-    public ExtractKeyFromRow(final Set<String> groupByColumns, final Map<String, String[]> columnToPaths, final boolean isEntity, final Map<String, String> propertyToAggregatorMap) {
+    public ExtractKeyFromRow(final Set<String> groupByColumns, final Map<String, String[]> columnToPaths, final boolean isEntity) {
         this.groupByColumns = new HashSet<>();
         if (isEntity) {
             addGroupByColumns(columnToPaths, ParquetStoreConstants.VERTEX);
@@ -43,14 +42,8 @@ public class ExtractKeyFromRow implements Function<Row, Seq<Object>>, Serializab
             addGroupByColumns(columnToPaths, ParquetStoreConstants.DESTINATION);
             this.groupByColumns.add(ParquetStoreConstants.DIRECTED);
         }
-        final Set<String> propertiesWithAggregators = propertyToAggregatorMap.keySet();
         for (final String col : columnToPaths.keySet()) {
-            if (groupByColumns.contains(col)
-                    || !propertiesWithAggregators.contains(col)
-                    && !ParquetStoreConstants.VERTEX.equals(col)
-                    && !ParquetStoreConstants.SOURCE.equals(col)
-                    && !ParquetStoreConstants.DESTINATION.equals(col)
-                    && !ParquetStoreConstants.DIRECTED.equals(col)) {
+            if (groupByColumns.contains(col)) {
                 addGroupByColumns(columnToPaths, col);
             }
         }
