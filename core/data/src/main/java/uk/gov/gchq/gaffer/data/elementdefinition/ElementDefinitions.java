@@ -209,8 +209,6 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
             this.elementDefs = elementDefs;
         }
 
-        protected abstract CHILD_CLASS edge(final String group);
-
         /**
          * Adds an edge definition for a given edge type.
          *
@@ -230,16 +228,6 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
             return self();
         }
 
-        public CHILD_CLASS edges(final Collection<String> groups) {
-            for (final String group : groups) {
-                edge(group);
-            }
-
-            return self();
-        }
-
-        protected abstract CHILD_CLASS entity(final String group);
-
 
         /**
          * Adds an entity definition for a given entity type.
@@ -257,15 +245,6 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
         public CHILD_CLASS entities(final Map<String, ENTITY_DEF> entities) {
             elementDefs.getEntities().clear();
             elementDefs.getEntities().putAll(entities);
-            return self();
-        }
-
-        @JsonIgnore
-        public CHILD_CLASS entities(final Collection<String> groups) {
-            for (final String group : groups) {
-                entity(group);
-            }
-
             return self();
         }
 

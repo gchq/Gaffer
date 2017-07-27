@@ -72,7 +72,8 @@ public class SchemaTest {
     public static final String DATE_TYPE_DESCRIPTION = "Date type description";
     public static final String MAP_TYPE_DESCRIPTION = "Map type description";
 
-    private Schema schema = new Schema.Builder().json(StreamUtil.schemas(getClass())).build();
+    private Schema schema = new Schema.Builder().json(StreamUtil.schemas(getClass()))
+                                                .build();
 
     @Test
     public void shouldCloneSchema() throws SerialisationException {
@@ -216,7 +217,8 @@ public class SchemaTest {
 
 
         final ElementAggregator aggregator = edgeDefinition.getFullAggregator();
-        final List<TupleAdaptedBinaryOperator<String, ?>> aggContexts = aggregator.getComponents();
+        final List<TupleAdaptedBinaryOperator<String, ?>> aggContexts = aggregator
+                .getComponents();
         assertEquals(3, aggContexts.size());
 
         TupleAdaptedBinaryOperator<String, ?> aggContext = aggContexts.get(0);
@@ -235,8 +237,10 @@ public class SchemaTest {
         Serialiser serialiser = mapTypeDef.getSerialiser();
         assertEquals(MapSerialiser.class, serialiser.getClass());
         MapSerialiser mapSerialiser = (MapSerialiser) serialiser;
-        assertEquals(StringSerialiser.class, mapSerialiser.getKeySerialiser().getClass());
-        assertEquals(RawLongSerialiser.class, mapSerialiser.getValueSerialiser().getClass());
+        assertEquals(StringSerialiser.class, mapSerialiser.getKeySerialiser()
+                                                          .getClass());
+        assertEquals(RawLongSerialiser.class, mapSerialiser.getValueSerialiser()
+                                                           .getClass());
         assertNull(mapSerialiser.getMapClass());
     }
 
@@ -301,10 +305,10 @@ public class SchemaTest {
                         .description(STRING_TYPE_DESCRIPTION)
                         .build())
                 .type(TestTypes.PROP_MAP, new TypeDefinition.Builder()
-                                .description(MAP_TYPE_DESCRIPTION)
-                                .clazz(LinkedHashMap.class)
-                                .serialiser(mapSerialiser)
-                                .build()
+                        .description(MAP_TYPE_DESCRIPTION)
+                        .clazz(LinkedHashMap.class)
+                        .serialiser(mapSerialiser)
+                        .build()
                 )
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
@@ -411,9 +415,9 @@ public class SchemaTest {
 
         assertEquals(JavaSerialiser.class,
                 store.getElement(TestGroups.EDGE)
-                        .getPropertyTypeDef(TestPropertyNames.PROP_1)
-                        .getSerialiser()
-                        .getClass());
+                     .getPropertyTypeDef(TestPropertyNames.PROP_1)
+                     .getSerialiser()
+                     .getClass());
     }
 
     @Test
@@ -439,9 +443,11 @@ public class SchemaTest {
 
     @Test
     public void testSchemaConstructedFromInputStream() throws IOException {
-        final InputStream resourceAsStream = this.getClass().getResourceAsStream(StreamUtil.DATA_SCHEMA);
+        final InputStream resourceAsStream = this.getClass()
+                                                 .getResourceAsStream(StreamUtil.DATA_SCHEMA);
         assertNotNull(resourceAsStream);
-        final Schema deserialisedSchema = new Schema.Builder().json(resourceAsStream).build();
+        final Schema deserialisedSchema = new Schema.Builder().json(resourceAsStream)
+                                                              .build();
         assertNotNull(deserialisedSchema);
 
         final Map<String, SchemaEdgeDefinition> edges = deserialisedSchema.getEdges();
@@ -467,10 +473,10 @@ public class SchemaTest {
 
         // When
         final Schema schema = new Schema.Builder()
-                .edge(TestGroups.EDGE)
-                .entity(TestGroups.ENTITY)
-                .entity(TestGroups.ENTITY_2)
-                .edge(TestGroups.EDGE_2)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition())
+                .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition())
+                .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition())
                 .vertexSerialiser(vertexSerialiser)
                 .type(TestTypes.PROP_STRING, String.class)
                 .visibilityProperty(TestPropertyNames.VISIBILITY)
@@ -485,7 +491,8 @@ public class SchemaTest {
         assertNotNull(schema.getEntity(TestGroups.ENTITY));
         assertNotNull(schema.getEntity(TestGroups.ENTITY_2));
 
-        assertEquals(String.class, schema.getType(TestTypes.PROP_STRING).getClazz());
+        assertEquals(String.class, schema.getType(TestTypes.PROP_STRING)
+                                         .getClazz());
         assertSame(vertexSerialiser, schema.getVertexSerialiser());
 
         assertEquals(TestPropertyNames.VISIBILITY, schema.getVisibilityProperty());
@@ -498,16 +505,16 @@ public class SchemaTest {
         final String type2 = "type2";
         final Serialiser vertexSerialiser = mock(Serialiser.class);
         final Schema schema1 = new Schema.Builder()
-                .edge(TestGroups.EDGE)
-                .entity(TestGroups.ENTITY)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition())
                 .vertexSerialiser(vertexSerialiser)
                 .type(type1, Integer.class)
                 .visibilityProperty(TestPropertyNames.VISIBILITY)
                 .build();
 
         final Schema schema2 = new Schema.Builder()
-                .entity(TestGroups.ENTITY_2)
-                .edge(TestGroups.EDGE_2)
+                .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition())
+                .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition())
                 .type(type2, String.class)
                 .build();
 
@@ -539,16 +546,16 @@ public class SchemaTest {
         final String type2 = "type2";
         final Serialiser vertexSerialiser = mock(Serialiser.class);
         final Schema schema1 = new Schema.Builder()
-                .edge(TestGroups.EDGE)
-                .entity(TestGroups.ENTITY)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition())
                 .vertexSerialiser(vertexSerialiser)
                 .type(type1, Integer.class)
                 .visibilityProperty(TestPropertyNames.VISIBILITY)
                 .build();
 
         final Schema schema2 = new Schema.Builder()
-                .entity(TestGroups.ENTITY_2)
-                .edge(TestGroups.EDGE_2)
+                .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition())
+                .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition())
                 .type(type2, String.class)
                 .build();
 
@@ -577,10 +584,10 @@ public class SchemaTest {
     public void shouldThrowExceptionWhenMergeSchemasWithASharedEdgeGroup() {
         // Given
         final Schema schema1 = new Schema.Builder()
-                .edge(TestGroups.EDGE)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
                 .build();
         final Schema schema2 = new Schema.Builder()
-                .edge(TestGroups.EDGE)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
                 .build();
 
         // When / Then
@@ -590,7 +597,8 @@ public class SchemaTest {
                     .merge(schema2);
             fail("Exception expected");
         } catch (final SchemaException e) {
-            assertTrue(e.getMessage().contains("Element groups cannot be shared"));
+            assertTrue(e.getMessage()
+                        .contains("Element groups cannot be shared"));
         }
     }
 
@@ -598,10 +606,10 @@ public class SchemaTest {
     public void shouldThrowExceptionWhenMergeSchemasWithASharedEntityGroup() {
         // Given
         final Schema schema1 = new Schema.Builder()
-                .entity(TestGroups.ENTITY)
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition())
                 .build();
         final Schema schema2 = new Schema.Builder()
-                .entity(TestGroups.ENTITY)
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition())
                 .build();
 
         // When / Then
@@ -611,7 +619,8 @@ public class SchemaTest {
                     .merge(schema2);
             fail("Exception expected");
         } catch (final SchemaException e) {
-            assertTrue(e.getMessage().contains("Element groups cannot be shared"));
+            assertTrue(e.getMessage()
+                        .contains("Element groups cannot be shared"));
         }
     }
 
@@ -671,7 +680,9 @@ public class SchemaTest {
                 .build();
 
         // Then
-        assertArrayEquals(new String[]{TestGroups.EDGE}, schema.getEdge(TestGroups.EDGE_2).getParents().toArray());
+        assertArrayEquals(new String[]{TestGroups.EDGE}, schema.getEdge(TestGroups.EDGE_2)
+                                                               .getParents()
+                                                               .toArray());
     }
 
     @Test
@@ -737,10 +748,17 @@ public class SchemaTest {
                         TestPropertyNames.PROP_5},
                 schema.getEdge(TestGroups.EDGE_5).getProperties().toArray());
 
-        assertEquals("A parent edge with a single property", schema.getEdge(TestGroups.EDGE).getDescription());
-        assertEquals("An edge that should have properties: 1, 2, 3, 4 and 5", schema.getEdge(TestGroups.EDGE_5).getDescription());
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_1}, schema.getEdge(TestGroups.EDGE).getGroupBy().toArray());
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_4}, schema.getEdge(TestGroups.EDGE_5).getGroupBy().toArray());
+        assertEquals("A parent edge with a single property", schema.getEdge(TestGroups.EDGE)
+                                                                   .getDescription());
+        assertEquals("An edge that should have properties: 1, 2, 3, 4 and 5", schema
+                .getEdge(TestGroups.EDGE_5)
+                .getDescription());
+        assertArrayEquals(new String[]{TestPropertyNames.PROP_1}, schema.getEdge(TestGroups.EDGE)
+                                                                        .getGroupBy()
+                                                                        .toArray());
+        assertArrayEquals(new String[]{TestPropertyNames.PROP_4}, schema.getEdge(TestGroups.EDGE_5)
+                                                                        .getGroupBy()
+                                                                        .toArray());
 
         // Check entities
         assertArrayEquals(new String[]{
@@ -748,7 +766,9 @@ public class SchemaTest {
                         TestPropertyNames.PROP_2,
                         TestPropertyNames.PROP_3,
                         TestPropertyNames.PROP_4},
-                schema.getEntity(TestGroups.ENTITY_4).getProperties().toArray());
+                schema.getEntity(TestGroups.ENTITY_4)
+                      .getProperties()
+                      .toArray());
 
         // Check order of properties and overrides is from order of parents
         assertArrayEquals(new String[]{
@@ -757,12 +777,21 @@ public class SchemaTest {
                         TestPropertyNames.PROP_3,
                         TestPropertyNames.PROP_4,
                         TestPropertyNames.PROP_5},
-                schema.getEntity(TestGroups.ENTITY_5).getProperties().toArray());
+                schema.getEntity(TestGroups.ENTITY_5)
+                      .getProperties()
+                      .toArray());
 
-        assertEquals("A parent entity with a single property", schema.getEntity(TestGroups.ENTITY).getDescription());
-        assertEquals("An entity that should have properties: 1, 2, 3, 4 and 5", schema.getEntity(TestGroups.ENTITY_5).getDescription());
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_1}, schema.getEntity(TestGroups.ENTITY).getGroupBy().toArray());
-        assertArrayEquals(new String[]{TestPropertyNames.PROP_4}, schema.getEntity(TestGroups.ENTITY_5).getGroupBy().toArray());
+        assertEquals("A parent entity with a single property", schema.getEntity(TestGroups.ENTITY)
+                                                                     .getDescription());
+        assertEquals("An entity that should have properties: 1, 2, 3, 4 and 5", schema
+                .getEntity(TestGroups.ENTITY_5)
+                .getDescription());
+        assertArrayEquals(new String[]{TestPropertyNames.PROP_1}, schema.getEntity(TestGroups.ENTITY)
+                                                                        .getGroupBy()
+                                                                        .toArray());
+        assertArrayEquals(new String[]{TestPropertyNames.PROP_4}, schema.getEntity(TestGroups.ENTITY_5)
+                                                                        .getGroupBy()
+                                                                        .toArray());
     }
 
     @Test
@@ -923,7 +952,7 @@ public class SchemaTest {
                                 .execute(new Exists())
                                 .build())
                         .build())
-                .edge(TestGroups.EDGE)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
                 .build();
 
         // When
@@ -943,7 +972,7 @@ public class SchemaTest {
                 .type("str", new TypeDefinition.Builder()
                         .validateFunctions(new Exists())
                         .build())
-                .edge(TestGroups.EDGE)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
                 .build();
 
         // When
@@ -963,7 +992,7 @@ public class SchemaTest {
                 .type("str", new TypeDefinition.Builder()
                         .validateFunctions(new Exists())
                         .build())
-                .edge(TestGroups.EDGE)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
                 .build();
 
         // When
@@ -983,7 +1012,7 @@ public class SchemaTest {
                                 .execute(new Exists())
                                 .build())
                         .build())
-                .edge(TestGroups.ENTITY)
+                .edge(TestGroups.ENTITY, new SchemaEdgeDefinition())
                 .build();
 
         // When
@@ -1003,7 +1032,7 @@ public class SchemaTest {
                 .type("str", new TypeDefinition.Builder()
                         .validateFunctions(new Exists())
                         .build())
-                .edge(TestGroups.ENTITY)
+                .edge(TestGroups.ENTITY, new SchemaEdgeDefinition())
                 .build();
 
         // When
@@ -1019,11 +1048,15 @@ public class SchemaTest {
         final Schema schema = new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source("str")
+                        .destination("dest")
                         .build())
                 .type("str", new TypeDefinition.Builder()
                         .validateFunctions(new Exists())
                         .build())
-                .edge(TestGroups.ENTITY)
+                .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
+                        .source("src")
+                        .destination("dest")
+                        .build())
                 .build();
 
         // When
@@ -1064,34 +1097,6 @@ public class SchemaTest {
 
         // Then
         assertFalse(result);
-    }
-
-    @Test
-    public void shouldThrowExceptionWithEdgeWhenSerialiserNotDefined() throws SerialisationException {
-        final Schema schema = new Schema.Builder()
-                .edge(TestGroups.EDGE)
-                .build();
-
-        try {
-            schema.getVertexSerialiser().serialise(schema.getEdge(TestGroups.EDGE));
-            fail("Exception expected");
-        } catch (NullPointerException e) {
-            //assertNotNull(e.getMessage());
-        }
-    }
-
-    @Test
-    public void shouldThrowExceptionWithEntityWhenSerialiserNotDefined() throws SerialisationException {
-        final Schema schema = new Schema.Builder()
-                .edge(TestGroups.ENTITY)
-                .build();
-
-        try {
-            schema.getVertexSerialiser().serialise(schema.getEdge(TestGroups.ENTITY));
-            fail("Exception expected");
-        } catch (NullPointerException e) {
-            //assertNotNull(e.getMessage());
-        }
     }
 
 

@@ -57,6 +57,25 @@ public class SchemaElementDefinitionValidator {
         result.add(validateComponentTypes(elementDef));
         result.add(validateFunctionArgumentTypes(validator, elementDef));
         result.add(validateFunctionArgumentTypes(aggregator, elementDef));
+        result.add(validateRequiredParameters(elementDef));
+
+        return result;
+    }
+
+    protected ValidationResult validateRequiredParameters(final SchemaElementDefinition elementDef) {
+        final ValidationResult result = new ValidationResult();
+
+        if (elementDef instanceof SchemaEntityDefinition &&
+                (null == ((SchemaEntityDefinition) elementDef).getVertex())) {
+            result.addError("Vertex field of the entity is not defined.");
+        } else if (elementDef instanceof SchemaEdgeDefinition) {
+            if (null == ((SchemaEdgeDefinition) elementDef).getSource()) {
+                result.addError("Source field of edge is not defined.");
+            }
+            if (null == ((SchemaEdgeDefinition) elementDef).getDestination()) {
+                result.addError("Destination field of edge is not defined.");
+            }
+        }
 
         return result;
     }

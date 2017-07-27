@@ -17,9 +17,13 @@
 package uk.gov.gchq.gaffer.store.schema;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition.Builder;
+import uk.gov.gchq.koryphe.ValidationResult;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class SchemaEdgeDefinitionTest extends SchemaElementDefinitionTest<SchemaEdgeDefinition> {
     @Override
@@ -88,5 +92,52 @@ public class SchemaEdgeDefinitionTest extends SchemaElementDefinitionTest<Schema
 
         // Then
         assertEquals("destination.string", mergedDef.getDestination());
+    }
+
+    @Test
+    public void shouldPassValidationWhenEdgeSourceAndDestinationDefined() {
+        // Given
+        final SchemaEdgeDefinition elementDef = new SchemaEdgeDefinition.Builder()
+                .source("src")
+                .destination("dest")
+                .build();
+
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.EDGE, elementDef)
+                .type("src", String.class)
+                .type("dest", String.class)
+                .build();
+
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+
+        // When
+        final ValidationResult result = validator.validate(elementDef);
+
+        // Then
+        assertTrue(result.isValid());
+    }
+
+    @Test
+    public void shouldFailValidationWhenEdgeSourceOrDestinationNull() {
+        // Given
+        final SchemaEdgeDefinition elementDef = new SchemaEdgeDefinition.Builder()
+                .source(null)
+                .destination("dest")
+                .build();
+
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.EDGE, elementDef)
+                .type("src", String.class)
+                .type("dest", String.class)
+                .build();
+
+        final SchemaElementDefinitionValidator validator =
+                new SchemaElementDefinitionValidator();
+
+        // When
+        final ValidationResult result = validator.validate(elementDef);
+
+        // Then
+        assertFalse(result.isValid());
     }
 }
