@@ -15,7 +15,6 @@ do
     allModules="$allModules $currentModule"
 done
 
-echo "All modules: $allModules"
 for module in $allModules
 do
     if ! grep -q :$module .travis.yml
