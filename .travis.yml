@@ -30,7 +30,7 @@ env:
     - MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
 
 install: travis_wait 45 ./cd/install.sh
-after_install:
+before_script:
   - allModules=`mvn -am dependency:tree | grep maven-dependency-plugin | awk '{ print $(NF-1) }'`
   - for module in $allModules; do if ! grep -q :$module .travis.yml; then echo ".travis.yml is missing module $module"; exit 1; fi; done
 script: true
