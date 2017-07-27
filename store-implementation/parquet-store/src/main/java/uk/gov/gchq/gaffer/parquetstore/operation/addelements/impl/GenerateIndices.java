@@ -30,7 +30,6 @@ import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.koryphe.tuple.n.Tuple4;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -48,24 +47,24 @@ public class GenerateIndices {
         graphIndex = new GraphIndex();
         final ParquetStoreProperties parquetStoreProperties = store.getProperties();
         final ExecutorService pool = Executors.newFixedThreadPool(parquetStoreProperties.getThreadsAvailable());
-        final String tempFileDir = parquetStoreProperties.getTempFilesDir();
+        final String tempFileDir = store.getTempFilesDir();
         final SchemaUtils schemaUtils = store.getSchemaUtils();
         final String rootDir = tempFileDir + "/" + ParquetStoreConstants.SORTED;
         final List<Callable<Tuple4<String, String, ColumnIndex, OperationException>>> tasks = new ArrayList<>();
         for (final String group : schemaUtils.getEntityGroups()) {
             final String directory = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.VERTEX, rootDir);
             tasks.add(new GenerateIndexForColumnGroup(directory, schemaUtils.getPaths(group, ParquetStoreConstants.VERTEX), group, ParquetStoreConstants.VERTEX));
-            LOGGER.info("Created a task to create the graphIndex for group {} from directory {} and paths {}",
+            LOGGER.debug("Created a task to create the graphIndex for group {} from directory {} and paths {}",
                     group, directory, schemaUtils.getPaths(group, ParquetStoreConstants.VERTEX));
         }
         for (final String group : store.getSchemaUtils().getEdgeGroups()) {
             final Map<String, String[]> columnToPaths = schemaUtils.getColumnToPaths(group);
             final String directorySource = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.SOURCE, rootDir);
-            LOGGER.info("Creating a task to create the graphIndex for group {} from directory {} and paths {}",
+            LOGGER.debug("Creating a task to create the graphIndex for group {} from directory {} and paths {}",
                     group, directorySource, StringUtils.join(columnToPaths.get(ParquetStoreConstants.SOURCE)));
             tasks.add(new GenerateIndexForColumnGroup(directorySource, columnToPaths.get(ParquetStoreConstants.SOURCE), group, ParquetStoreConstants.SOURCE));
             final String directoryDestination = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.DESTINATION, rootDir);
-            LOGGER.info("Creating a task to create the graphIndex for group {} from directory {} and paths {}",
+            LOGGER.debug("Creating a task to create the graphIndex for group {} from directory {} and paths {}",
                     group, directorySource, StringUtils.join(columnToPaths.get(ParquetStoreConstants.DESTINATION)));
             tasks.add(new GenerateIndexForColumnGroup(directoryDestination, columnToPaths.get(ParquetStoreConstants.DESTINATION), group, ParquetStoreConstants.DESTINATION));
         }

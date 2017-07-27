@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
@@ -46,15 +47,19 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
+ * <p>
  * Contains the full list of {@link uk.gov.gchq.gaffer.data.element.Element} types to be stored in the graph.
+ * </p>
  * <p>
  * Each type of element should have the identifier type(s) listed and a map of property names and their corresponding types.
  * Each type can either be a full java class name or a custom type. Using custom types then allows you to specify
  * validation and aggregation for the element components.
+ * </p>
  * <p>
  * This class must be JSON serialisable.
  * A schema should normally be written in JSON and then it will be automatically deserialised at runtime.
  * An example of a JSON schemas can be found in the Example module.
+ * </p>
  *
  * @see Schema.Builder
  * @see ElementDefinitions
@@ -218,11 +223,14 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     }
 
     /**
+     * <p>
      * Returns the vertex serialiser for this schema.
+     * </p>
      * <p>
      * There can be only one vertex serialiser for all elements because in order for searches to work correctly,
      * the byte representation of the search term's (seeds) must match the byte representation stored,
      * i.e you need to know how your results have been serialised which effectively means all vertices must be serialised the same way within a table.
+     * </p>
      *
      * @return An implementation of {@link Serialiser} that will be used to serialise all vertices.
      */
@@ -364,8 +372,11 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             validateSharedGroups(getThisSchema().getEntities(), schema.getEntities());
             validateSharedGroups(getThisSchema().getEdges(), schema.getEdges());
 
-            if (null != schema.getId()) {
+            if (null == getThisSchema().getId()) {
                 getThisSchema().setId(schema.getId());
+            } else if (!StringUtils.isEmpty(schema.getId()) && !getThisSchema().getId().equals(schema.getId())) {
+                // Both schemas have an id, as we are creating a new schema we need to create a new schema ID.
+                getThisSchema().setId(getThisSchema().getId() + "," + schema.getId());
             }
 
             if (getThisSchema().getEntities().isEmpty()) {

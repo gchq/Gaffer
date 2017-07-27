@@ -37,7 +37,6 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.user.User;
-
 import java.io.IOException;
 
 public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfElements> {
@@ -54,31 +53,31 @@ public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfE
         try {
             final FileSystem fs = store.getFS();
             final ParquetStoreProperties parquetStoreProperties = store.getProperties();
-            final String tempDataDirString = parquetStoreProperties.getTempFilesDir();
+            final String tempDataDirString = store.getTempFilesDir();
             final Path tempDir = new Path(tempDataDirString);
-            final String rootDataDirString = parquetStoreProperties.getDataDir();
+            final String rootDataDirString = store.getDataDir();
             if (fs.exists(tempDir)) {
                 fs.delete(tempDir, true);
-                LOGGER.warn("Temp data directory '" + tempDataDirString + "' has been deleted.");
+                LOGGER.warn("Temp data directory '{}' has been deleted.", tempDataDirString);
             }
             final User user = context.getUser();
             if (user instanceof SparkUser) {
                 final SparkSession spark = ((SparkUser) user).getSparkSession();
                 SparkParquetUtils.configureSparkForAddElements(spark, parquetStoreProperties);
                 // Write the data out
-                LOGGER.info("Starting to write the unsorted Parquet data to " + tempDataDirString + " split by group");
+                LOGGER.debug("Starting to write the unsorted Parquet data to {} split by group", tempDataDirString);
                 final WriteUnsortedDataFunction writeUnsortedDataFunction =
-                        new WriteUnsortedDataFunction(store.getSchemaUtils(), parquetStoreProperties);
+                        new WriteUnsortedDataFunction(store.getTempFilesDir(), store.getSchemaUtils());
                 operation.getInput().foreachPartition(writeUnsortedDataFunction);
-                LOGGER.info("Finished writing the unsorted Parquet data to " + tempDataDirString);
+                LOGGER.debug("Finished writing the unsorted Parquet data to {}", tempDataDirString);
                 // Spark read in the data, aggregate and sort the data
-                LOGGER.info("Starting to write the sorted and aggregated Parquet data to " + tempDataDirString + " split by group");
+                LOGGER.debug("Starting to write the sorted and aggregated Parquet data to {} split by group", tempDataDirString);
                 new AggregateAndSortTempData(store, spark);
-                LOGGER.info("Finished writing the sorted and aggregated Parquet data to " + tempDataDirString);
+                LOGGER.debug("Finished writing the sorted and aggregated Parquet data to {}", tempDataDirString);
                 // Generate the file based index
-                LOGGER.info("Starting to write the indexes");
+                LOGGER.debug("Starting to write the indexes");
                 final GraphIndex newGraphIndex = new GenerateIndices(store).getGraphIndex();
-                LOGGER.info("Finished writing the indexes");
+                LOGGER.debug("Finished writing the indexes");
                 try {
                     moveDataToDataDir(store, fs, rootDataDirString, tempDataDirString, newGraphIndex);
                     tidyUp(fs, tempDataDirString);
@@ -116,10 +115,10 @@ public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfE
     private void tidyUp(final FileSystem fs, final String tempDataDirString) throws IOException {
         Path tempDir = new Path(tempDataDirString);
         fs.delete(tempDir, true);
-        LOGGER.info("Temp data directory '" + tempDataDirString + "' has been deleted.");
+        LOGGER.debug("Temp data directory '{}' has been deleted.", tempDataDirString);
         while (fs.listStatus(tempDir.getParent()).length == 0) {
             tempDir = tempDir.getParent();
-            LOGGER.info("Empty directory '" + tempDataDirString + "' has been deleted.");
+            LOGGER.debug("Empty directory '{}' has been deleted.", tempDataDirString);
             fs.delete(tempDir, true);
         }
     }
