@@ -16,28 +16,20 @@
 
 package uk.gov.gchq.gaffer.serialisation.implementation.ordered;
 
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.DelegateSerialiser;
 
-public class OrderedDoubleSerialiser implements ToBytesSerialiser<Double> {
+public class OrderedDoubleSerialiser extends DelegateSerialiser<Double, Long> {
 
     private static final long serialVersionUID = -4750738170126596560L;
     private static final OrderedLongSerialiser LONG_SERIALISER = new OrderedLongSerialiser();
 
-    @Override
-    public byte[] serialise(final Double object) {
-        long l = Double.doubleToRawLongBits(object);
-        if (l < 0) {
-            l = ~l;
-        } else {
-            l = l ^ 0x8000000000000000L;
-        }
-        return LONG_SERIALISER.serialise(l);
+    public OrderedDoubleSerialiser() {
+        super(LONG_SERIALISER);
     }
 
     @Override
-    public Double deserialise(final byte[] bytes) throws SerialisationException {
-        long l = LONG_SERIALISER.deserialise(bytes);
+    public Double fromDelegateType(final Long object) {
+        long l = object;
         if (l < 0) {
             l = l ^ 0x8000000000000000L;
         } else {
@@ -47,13 +39,14 @@ public class OrderedDoubleSerialiser implements ToBytesSerialiser<Double> {
     }
 
     @Override
-    public Double deserialiseEmpty() {
-        return null;
-    }
-
-    @Override
-    public boolean preservesObjectOrdering() {
-        return true;
+    public Long toDelegateType(final Double object) {
+        long l = Double.doubleToRawLongBits(object);
+        if (l < 0) {
+            l = ~l;
+        } else {
+            l = l ^ 0x8000000000000000L;
+        }
+        return l;
     }
 
     @Override

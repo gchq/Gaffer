@@ -30,6 +30,9 @@ import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedDoubleSeri
 import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedFloatSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedLongSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.datetime.OrderedLocalDateSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.datetime.OrderedLocalDateTimeSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.datetime.OrderedLocalTimeSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
 import java.util.List;
@@ -48,6 +51,9 @@ public class SerialisationFactory {
             new OrderedIntegerSerialiser(),
             new OrderedDoubleSerialiser(),
             new OrderedFloatSerialiser(),
+            new OrderedLocalDateTimeSerialiser(),
+            new OrderedLocalDateSerialiser(),
+            new OrderedLocalTimeSerialiser(),
             new StringSerialiser(),
             new BytesSerialiser(),
             new CompactRawIntegerSerialiser(),

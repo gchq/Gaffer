@@ -14,32 +14,33 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.serialisation.implementation.ordered;
+package uk.gov.gchq.gaffer.serialisation.implementation.ordered.datetime;
 
 import uk.gov.gchq.gaffer.serialisation.DelegateSerialiser;
-import java.util.Date;
+import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
+import java.time.LocalTime;
 
-public class OrderedDateSerialiser extends DelegateSerialiser<Date, Long> {
+public class OrderedLocalTimeSerialiser extends DelegateSerialiser<LocalTime, Integer> {
 
     private static final long serialVersionUID = 6636121009320739764L;
-    private static final OrderedLongSerialiser LONG_SERIALISER = new OrderedLongSerialiser();
+    private static final CompactRawIntegerSerialiser INT_SERIALISER = new CompactRawIntegerSerialiser();
 
-    public OrderedDateSerialiser() {
-        super(LONG_SERIALISER);
+    public OrderedLocalTimeSerialiser() {
+        super(INT_SERIALISER);
     }
 
     @Override
-    public Date fromDelegateType(final Long object) {
-        return new Date(object);
+    public LocalTime fromDelegateType(final Integer object) {
+        return LocalTime.ofSecondOfDay(object);
     }
 
     @Override
-    public Long toDelegateType(final Date object) {
-        return object.getTime();
+    public Integer toDelegateType(final LocalTime object) {
+        return object.toSecondOfDay();
     }
 
     @Override
     public boolean canHandle(final Class clazz) {
-        return Date.class.equals(clazz);
+        return LocalTime.class.equals(clazz);
     }
 }
