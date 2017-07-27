@@ -141,7 +141,7 @@ public class FederatedStore extends Store {
         return resultOp;
     }
 
-    private static <OP extends Operation> OP cloneOP(final OP operation) {
+    public static <OP extends Operation> OP cloneOP(final OP operation) {
         final OP resultOp;
         try {
             //TODO: implement this in a better way
@@ -181,14 +181,14 @@ public class FederatedStore extends Store {
 
     private void updateMergedGraphConfig() {
         Schema.Builder schemaBuilder = new Schema.Builder();
-        final Set<StoreTrait> retainTraits = Sets.newHashSet();
+        final Set<StoreTrait> newTraits = Sets.newHashSet(StoreTrait.values());
         for (final Graph graph : graphs.values()) {
             schemaBuilder = schemaBuilder.merge(graph.getSchema());
-            retainTraits.addAll(graph.getStoreTraits());
+            newTraits.retainAll(graph.getStoreTraits());
         }
 
         schema = schemaBuilder.build();
-        traits = Collections.unmodifiableSet(retainTraits);
+        traits = Collections.unmodifiableSet(newTraits);
     }
 
     private void loadGraphs() {
@@ -301,7 +301,7 @@ public class FederatedStore extends Store {
         // Override the Operations that don't have an output
         getSupportedOperations()
                 .stream()
-                .filter(op -> !Output.class.isAssignableFrom(op))
+                .filter(op -> !Output.class.isAssignableFrom(op) && !AddElements.class.equals(op))
                 .forEach(op -> addOperationHandler(op, new FederatedOperationHandler()));
 
         // Override the Output operations

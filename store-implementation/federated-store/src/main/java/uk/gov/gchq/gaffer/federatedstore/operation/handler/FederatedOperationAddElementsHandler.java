@@ -31,21 +31,25 @@ import java.util.Set;
 
 public class FederatedOperationAddElementsHandler implements OperationHandler<AddElements> {
     public Object doOperation(final AddElements addElements, final Context context, final Store store) throws OperationException {
+        final Set<String> allGroups = store.getSchema().getGroups();
         final Collection<Graph> graphs = ((FederatedStore) store).getGraphs();
         for (final Graph graph : graphs) {
             final Set<String> graphGroups = graph.getSchema().getGroups();
-            final Set<String> allGroups = store.getSchema().getGroups();
-            final Iterable<? extends Element> retain
-                    = Iterables.filter(addElements.getInput(),
-                                       forUnknownGroupSkipForGraphButThrowForWholeStore(graphGroups,
-                                                                                        allGroups,
-                                                                                        addElements.isSkipInvalidElements()));
-            addElements.setInput(retain);
+            final Iterable<? extends Element> retain = Iterables.filter(
+                    addElements.getInput(),
+                    forUnknownGroupSkipForGraphButThrowForWholeStore(
+                            graphGroups,
+                            allGroups,
+                            addElements.isSkipInvalidElements()
+                    )
+            );
+            final AddElements addElementsClone = FederatedStore.cloneOP(addElements);
+            addElementsClone.setInput(retain);
             try {
-                graph.execute(addElements, context.getUser());
+                graph.execute(addElementsClone, context.getUser());
             } catch (final Exception e) {
-                if (!Boolean.valueOf(addElements.getOption(SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
-                    throw new OperationException("Graph failed to execute operation. Graph: " + graph.getGraphId() + " Operation: " + addElements.getClass().getSimpleName(), e);
+                if (!Boolean.valueOf(addElementsClone.getOption(SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
+                    throw new OperationException("Graph failed to execute operation. Graph: " + graph.getGraphId() + " Operation: " + addElementsClone.getClass().getSimpleName(), e);
                 }
             }
         }
@@ -54,12 +58,12 @@ public class FederatedOperationAddElementsHandler implements OperationHandler<Ad
 
     private Predicate<Element> forUnknownGroupSkipForGraphButThrowForWholeStore(final Set<String> graphGroups, final Set<String> allGroups, final boolean skipInvalidElements) {
         return element -> {
-            String elementGroup = element.getGroup();
+            String elementGroup = null != element ? element.getGroup() : null;
             boolean graphContainsGroup = graphGroups.contains(elementGroup);
             if (!graphContainsGroup
                     && !allGroups.contains(elementGroup)
                     && !skipInvalidElements) {
-                throw new UnsupportedOperationException("Element's group is unknown within the FederatedStore. Element: " + element);
+                throw new IllegalArgumentException("Element has an unknown group: " + element);
             }
             return graphContainsGroup;
         };

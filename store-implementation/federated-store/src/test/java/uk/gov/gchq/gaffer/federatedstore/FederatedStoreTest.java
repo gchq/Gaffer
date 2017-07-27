@@ -16,15 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStore.GRAPH_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_USER_SUPPLIED_PROPERTIES_GRAPH_ID_S;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStore.USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Assert;
@@ -49,6 +40,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStore.GRAPH_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_USER_SUPPLIED_PROPERTIES_GRAPH_ID_S;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStore.USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S;
 
 public class FederatedStoreTest {
     public static final String PATH_FEDERATED_STORE_PROPERTIES = "/path/to/properties/federatedStoreTest.properties";
@@ -162,10 +162,10 @@ public class FederatedStoreTest {
 
         try {
             store.add(new Graph.Builder()
-                              .graphId(ACC_ID_1)
-                              .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_ACC_STORE_PROPERTIES))
-                              .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_EDGE_SCHEMA_JSON))
-                              .build());
+                    .graphId(ACC_ID_1)
+                    .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_ACC_STORE_PROPERTIES))
+                    .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_EDGE_SCHEMA_JSON))
+                    .build());
         } catch (final Exception e) {
             assertEquals(String.format(USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S, ACC_ID_1), e.getMessage());
             return;
@@ -185,7 +185,7 @@ public class FederatedStoreTest {
 
     @Test
     public void shouldUpdateTraitsWhenNewGraphIsAdded() throws Exception {
-        federatedProperties.set(KEY_MAP_ID1_PROPERTIES, PATH_MAP_STORE_PROPERTIES);
+        federatedProperties.set(KEY_MAP_ID1_PROPERTIES, PATH_ACC_STORE_PROPERTIES);
         federatedProperties.set(KEY_MAP_ID1_SCHEMA, PATH_BASIC_EDGE_SCHEMA_JSON);
 
         store.initialise(FEDERATED_STORE_ID, mockSchema, federatedProperties);
@@ -194,15 +194,15 @@ public class FederatedStoreTest {
         Set<StoreTrait> before = store.getTraits();
 
         store.add(new Graph.Builder()
-                          .graphId(ACC_ID_1)
-                          .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_ACC_STORE_PROPERTIES))
-                          .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_ENTITY_SCHEMA_JSON))
-                          .build());
+                .graphId(ACC_ID_1)
+                .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_MAP_STORE_PROPERTIES))
+                .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_ENTITY_SCHEMA_JSON))
+                .build());
 
         //includes same as before but with more Traits
         Set<StoreTrait> after = store.getTraits();
         assertNotEquals(before, after);
-        assertTrue(before.size() < after.size());
+        assertTrue(before.size() > after.size());
     }
 
     @Test
@@ -215,11 +215,10 @@ public class FederatedStoreTest {
         Schema before = store.getSchema();
 
         store.add(new Graph.Builder()
-                          .graphId("testGraphAlt")
-                          .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, "testGraphId1.properties"))
-                          .addSchema(StreamUtil.openStream(FederatedStoreTest.class, "/path/to/schema2.json"))
-                          .addSchema(StreamUtil.openStream(FederatedStoreTest.class, "/path/to/schema2b.json"))
-                          .build());
+                .graphId("testGraphAlt")
+                .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_MAP_STORE_PROPERTIES))
+                .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_EDGE_SCHEMA_JSON))
+                .build());
 
         Schema after = store.getSchema();
         assertNotEquals(before, after);
@@ -275,18 +274,16 @@ public class FederatedStoreTest {
         //Given
         HashSet<StoreTrait> traits = new HashSet<>();
         traits.addAll(SingleUseAccumuloStore.TRAITS);
-        traits.addAll(MapStore.TRAITS);
-        int expectedSize = traits.size();
+        traits.retainAll(MapStore.TRAITS);
 
         //When
         int sizeBefore = store.getTraits().size();
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
-        int sizeAfter = store.getTraits().size();
 
         //Then
         assertEquals(0, sizeBefore);
         assertNotEquals(SingleUseAccumuloStore.TRAITS, MapStore.TRAITS);
-        assertEquals(expectedSize, sizeAfter);
+        assertEquals(traits, store.getTraits());
     }
 
     @Test
@@ -304,11 +301,11 @@ public class FederatedStoreTest {
 
         AddElements op = new AddElements.Builder()
                 .input(new Edge.Builder()
-                               .group("BasicEdge")
-                               .source("testSource")
-                               .dest("testDest")
-                               .property("property1", 12)
-                               .build())
+                        .group("BasicEdge")
+                        .source("testSource")
+                        .dest("testDest")
+                        .property("property1", 12)
+                        .build())
                 .build();
 
         store.execute(op, TEST_USER);
@@ -319,11 +316,11 @@ public class FederatedStoreTest {
     private Set<Element> getElements() throws uk.gov.gchq.gaffer.operation.OperationException {
         CloseableIterable<? extends Element> elements = store
                 .execute(new GetAllElements.Builder()
-                                 .view(new View.Builder()
-                                               .edges(store.getSchema().getEdgeGroups())
-                                               .entities(store.getSchema().getEntityGroups())
-                                               .build())
-                                 .build(), TEST_USER);
+                        .view(new View.Builder()
+                                .edges(store.getSchema().getEdgeGroups())
+                                .entities(store.getSchema().getEntityGroups())
+                                .build())
+                        .build(), TEST_USER);
 
         return Sets.newHashSet(elements);
     }

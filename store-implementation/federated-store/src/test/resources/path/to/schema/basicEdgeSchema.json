@@ -1,6 +1,6 @@
 {
   "edges": {
-    "basicEdge": {
+    "BasicEdge": {
       "source": "vertex.string",
       "destination": "vertex.string",
       "directed": "directed.either",
