@@ -8,6 +8,8 @@ set -e
 # require external dependencies that weren't available on travis.
 allModules=""
 pomPaths=`find . -name "pom.xml"`
+echo "Pom paths = $pomPaths"
+
 for pomPath in $pomPaths
 do
     currentModule=`cat $pomPath | grep '<artifactId>' | sort -r | head -1 | cut -d '>' -f 2 | cut -d '<' -f 1`

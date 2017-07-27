@@ -108,7 +108,7 @@ public class ProxyStoreBasicIT {
 
     @Before
     public void before() throws IOException {
-        RestApiTestUtil.reinitialiseGraph(testFolder, StreamUtil.SCHEMA, "accumulo-store.properties");
+        RestApiTestUtil.reinitialiseGraph(testFolder, StreamUtil.SCHEMA, "map-store.properties");
 
         // setup ProxyStore
         graph = new Graph.Builder()
