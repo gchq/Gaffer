@@ -44,8 +44,10 @@ public final class ParquetStoreConstants {
     public static final String DESTINATION = IdentifierType.DESTINATION.name();
     public static final String DIRECTED = IdentifierType.DIRECTED.name();
 
+    public static final String SPARK_SESSION_NAME = "Gaffer Parquet Store";
+
     @SuppressFBWarnings("MS_MUTABLE_ARRAY")
-    public static final Serialiser[] SERIALISERS = new Serialiser[] {
+    public static final Serialiser[] SERIALISERS = new Serialiser[]{
             new StringParquetSerialiser(),
             new ByteParquetSerialiser(),
             new IntegerParquetSerialiser(),

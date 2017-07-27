@@ -29,7 +29,6 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -92,10 +91,10 @@ public class GafferGroupObjectConverter implements Serializable {
      * Extracts an object corresponding to column <code>gafferColumn</code> from the provided {@link GenericRowWithSchema}.
      *
      * @param gafferColumn the column to extract
-     * @param row the row to extract from
+     * @param row          the row to extract from
      * @return the extracted {@link Object}
      * @throws SerialisationException if the conversion from Parquet objects to the original object throws a
-     * {@link SerialisationException}
+     *                                {@link SerialisationException}
      */
     public Object sparkRowToGafferObject(final String gafferColumn, final GenericRowWithSchema row) throws SerialisationException {
         final ArrayList<Object> objectsList = new ArrayList<>();
@@ -125,7 +124,7 @@ public class GafferGroupObjectConverter implements Serializable {
         if (paths[0].endsWith("key_value.key")) {
             objects = new Object[1];
         } else {
-           objects = new Object[paths.length];
+            objects = new Object[paths.length];
         }
         objectsList.toArray(objects);
         final Object gafferObject = parquetObjectsToGafferObject(gafferColumn, objects);
@@ -149,10 +148,10 @@ public class GafferGroupObjectConverter implements Serializable {
     /**
      * Converts the provided <code>object</code> into objects as specified by the <code>sparkSchema</code>.
      *
-     * @param column the column that the object has come from
-     * @param object the object to be converted
+     * @param column        the column that the object has come from
+     * @param object        the object to be converted
      * @param recordBuilder the {@link ArrayList} to add the objects resulting from the conversion to
-     * @param sparkSchema the {@link StructType} that defines the Spark schema
+     * @param sparkSchema   the {@link StructType} that defines the Spark schema
      * @throws SerialisationException if the object cannot be serialised
      */
     public void addGafferObjectToSparkRow(final String column,
@@ -210,7 +209,7 @@ public class GafferGroupObjectConverter implements Serializable {
      *
      * @param parquetColumnToObject is a map from parquet column path to a list of the objects stored on that path which
      *                              only contains more then 1 if the column is storing an array or part of a map
-     * @param isEntity is it an Entity that needs building
+     * @param isEntity              is it an Entity that needs building
      * @return an Element containing the objects from the parquetColumnToObject
      * @throws SerialisationException if the parquet objects can not be de-serialised
      */

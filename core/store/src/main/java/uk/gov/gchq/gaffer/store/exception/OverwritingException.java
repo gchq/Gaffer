@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.graph.exception;
+package uk.gov.gchq.gaffer.store.exception;
 
 public class OverwritingException extends IllegalArgumentException {
     private static final long serialVersionUID = -4189349368741071943L;
