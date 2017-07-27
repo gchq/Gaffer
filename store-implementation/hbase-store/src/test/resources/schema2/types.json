@@ -1,0 +1,16 @@
+{
+  "types": {
+    "vertex.string": {
+      "class": "java.lang.String"
+    },
+    "directed.either": {
+      "class": "java.lang.Boolean"
+    },
+    "simpleProperty": {
+      "class": "java.lang.Integer",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+      }
+    }
+  }
+}

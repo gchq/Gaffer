@@ -19,16 +19,13 @@ These properties have been added to the groupBy field.
 Properties in the groupBy will be used to determine whether elements should be aggregated together at ingest. 
 Property values in the groupBy are required to be identical for Gaffer to aggregate them at ingest.
 
-##### Data schema
-${DATA_SCHEMA_JSON}
+##### Elements schema
+${ELEMENTS_JSON}
 
-##### Data types
-${DATA_TYPES_JSON}
+##### Types schema
+${TYPES_JSON}
 
-##### Store types
-${STORE_TYPES_JSON}
-
-Once we have loaded the data into Gaffer, we can fetch all the edges using a GetAllElements operation. 
+Once we have loaded the data into Gaffer, we can fetch all the edges using a GetAllElements operation.
 Note this operation is not recommended for large Graphs as it will do a full scan of your database and could take a while to finish.
 ${GET_SNIPPET}
 

@@ -39,7 +39,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
-import uk.gov.gchq.gaffer.graph.library.HashMapGraphLibrary;
+import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.integration.store.TestStore;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -52,7 +52,6 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawDoubleSerialiser;
-import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
@@ -88,7 +87,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -183,7 +181,7 @@ public class GraphTest {
     public void shouldConstructGraphFromSchemaFolderPath() throws IOException {
         // Given
         final Schema expectedSchema = new Schema.Builder()
-                .json(StreamUtil.dataSchema(getClass()), StreamUtil.dataTypes(getClass()))
+                .json(StreamUtil.elementsSchema(getClass()), StreamUtil.typesSchema(getClass()))
                 .build();
 
         Graph graph = null;
@@ -210,11 +208,11 @@ public class GraphTest {
     @Test
     public void shouldConstructGraphFromSchemaURI() throws IOException, URISyntaxException {
         // Given
-        final URI typeInputUri = getResourceUri(StreamUtil.DATA_TYPES);
-        final URI schemaInputUri = getResourceUri(StreamUtil.DATA_SCHEMA);
+        final URI typeInputUri = getResourceUri(StreamUtil.TYPES_SCHEMA);
+        final URI schemaInputUri = getResourceUri(StreamUtil.ELEMENTS_SCHEMA);
         final URI storeInputUri = getResourceUri(StreamUtil.STORE_PROPERTIES);
         final Schema expectedSchema = new Schema.Builder()
-                .json(StreamUtil.dataSchema(getClass()), StreamUtil.dataTypes(getClass()))
+                .json(StreamUtil.elementsSchema(getClass()), StreamUtil.typesSchema(getClass()))
                 .build();
         Graph graph = null;
         File schemaDir = null;
@@ -301,9 +299,9 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldCallAllGraphHooksBeforeOperationExecuted() throws OperationException {
+    public void shouldCallAllGraphHooksBeforeOperationChainExecuted() throws OperationException {
         // Given
-        final Operation operation = mock(Operation.class);
+        final GetElements operation = mock(GetElements.class);
         final OperationChain opChain = mock(OperationChain.class);
         given(opChain.getOperations()).willReturn(Collections.singletonList(operation));
 
@@ -324,9 +322,10 @@ public class GraphTest {
         // Then
         final ArgumentCaptor<OperationChain> captor1 = ArgumentCaptor.forClass(OperationChain.class);
         final ArgumentCaptor<OperationChain> captor2 = ArgumentCaptor.forClass(OperationChain.class);
-        final InOrder inOrder = inOrder(hook1, hook2);
+        final InOrder inOrder = inOrder(hook1, hook2, operation);
         inOrder.verify(hook1).preExecute(captor1.capture(), Mockito.eq(user));
         inOrder.verify(hook2).preExecute(captor2.capture(), Mockito.eq(user));
+        inOrder.verify(operation).setView(Mockito.any(View.class));
         assertSame(captor1.getValue(), captor2.getValue());
         final List<Operation> ops = captor1.getValue().getOperations();
         assertEquals(1, ops.size());
@@ -334,36 +333,11 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldCallAllGraphHooksBeforeOperationChainExecuted() throws OperationException {
-        // Given
-        final OperationChain opChain = mock(OperationChain.class);
-        given(opChain.getOperations()).willReturn(Collections.singletonList(mock(Operation.class)));
-
-        final User user = mock(User.class);
-        final GraphHook hook1 = mock(GraphHook.class);
-        final GraphHook hook2 = mock(GraphHook.class);
-        final Graph graph = new Graph.Builder()
-                .graphId(GRAPH_ID)
-                .storeProperties(StreamUtil.storeProps(getClass()))
-                .addSchema(new Schema.Builder().build())
-                .addHook(hook1)
-                .addHook(hook2)
-                .build();
-
-        // When
-        graph.execute(opChain, user);
-
-        // Then
-        final InOrder inOrder = inOrder(hook1, hook2);
-        inOrder.verify(hook1).preExecute(opChain, user);
-        inOrder.verify(hook2).preExecute(opChain, user);
-    }
-
-    @Test
     public void shouldCallAllGraphHooksBeforeJobExecuted() throws OperationException {
         // Given
+        final GetElements operation = mock(GetElements.class);
         final OperationChain opChain = mock(OperationChain.class);
-        given(opChain.getOperations()).willReturn(Collections.singletonList(mock(Operation.class)));
+        given(opChain.getOperations()).willReturn(Collections.singletonList(operation));
 
         final User user = mock(User.class);
         final GraphHook hook1 = mock(GraphHook.class);
@@ -380,9 +354,16 @@ public class GraphTest {
         graph.executeJob(opChain, user);
 
         // Then
-        final InOrder inOrder = inOrder(hook1, hook2);
-        inOrder.verify(hook1).preExecute(opChain, user);
-        inOrder.verify(hook2).preExecute(opChain, user);
+        final ArgumentCaptor<OperationChain> captor1 = ArgumentCaptor.forClass(OperationChain.class);
+        final ArgumentCaptor<OperationChain> captor2 = ArgumentCaptor.forClass(OperationChain.class);
+        final InOrder inOrder = inOrder(hook1, hook2, operation);
+        inOrder.verify(hook1).preExecute(captor1.capture(), Mockito.eq(user));
+        inOrder.verify(hook2).preExecute(captor2.capture(), Mockito.eq(user));
+        inOrder.verify(operation).setView(Mockito.any(View.class));
+        assertSame(captor1.getValue(), captor2.getValue());
+        final List<Operation> ops = captor1.getValue().getOperations();
+        assertEquals(1, ops.size());
+        assertSame(operation, ops.get(0));
     }
 
     @Test
@@ -685,7 +666,7 @@ public class GraphTest {
                             .type("int", new TypeDefinition.Builder()
                                     .clazz(Integer.class)
                                     .aggregateFunction(new Sum())
-                                            // invalid serialiser
+                                    // invalid serialiser
                                     .serialiser(new RawDoubleSerialiser())
                                     .build())
                             .type("string", new TypeDefinition.Builder()
@@ -815,13 +796,7 @@ public class GraphTest {
         }
 
         @Override
-        public boolean isValidationRequired() {
-            return false;
-        }
-
-        @Override
         protected void addAdditionalOperationHandlers() {
-
         }
 
         @Override
@@ -845,22 +820,15 @@ public class GraphTest {
         }
 
         @Override
-        protected Object doUnhandledOperation(final Operation operation, final Context context) {
-            return null;
-        }
-
-        @Override
         protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
             return ToBytesSerialiser.class;
         }
     }
 
     private File createSchemaDirectory() throws IOException {
-        final File tmpDir;
-        tmpDir = new File("tmpSchemaDir");
-        assumeTrue("Failed to create tmp directory, skipping as this test as it is a permissions issue.", tmpDir.mkdir());
-        writeToFile("dataSchema.json", tmpDir);
-        writeToFile("dataTypes.json", tmpDir);
+        final File tmpDir = tempFolder.newFolder("tmpSchemaDir");
+        writeToFile("elements.json", tmpDir);
+        writeToFile("types.json", tmpDir);
         return tmpDir;
     }
 

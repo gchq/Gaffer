@@ -32,19 +32,18 @@ So the Graph will look something like this (sorry it is not particularly excitin
 27  <-1--  28
 ```
 
-The Schema file can be broken down into small parts, we encourage at least 3 files:
+The Schema file can be broken down into small parts, we encourage at least 2 files:
 
-- ${DATA_SCHEMA_LINK}
-- ${DATA_TYPES_LINK}
-- ${STORE_TYPES_LINK}
+- ${ELEMENTS_SCHEMA_LINK}
+- ${TYPES_SCHEMA_LINK}
 
-Splitting the schema up into these 3 files helps to illustrate the different roles that the schemas fulfil.
+Splitting the schema up into these 2 files helps to illustrate the different roles that the schemas fulfil.
 
-##### The DataSchema
+##### The Elements Schema
 
-The DataSchema is a JSON document that describes the Elements (Edges and Entities) in the Graph. We will start by using this very basic schema:
+The Elements Schema is a JSON document that describes the Elements (Edges and Entities) in the Graph. We will start by using this very basic schema:
 
-${DATA_SCHEMA_JSON}
+${ELEMENTS_JSON}
 
 We have one Edge Group, `"RoadUse"`. The Group simply labels a particular type of Edge defined by its vertex types, directed flag and set of properties.
 
@@ -53,26 +52,19 @@ This edge is a directed edge representing vehicles moving from junction A to jun
 You can see the `“RoadUse”` Edge has a source and a destination vertex of type `"junction"` and a single property called `"count"` of type `"count.long"`. 
 These types are defined in the DataType file.
 
-##### The DataTypes
+##### The Types Schema
 
-The DataTypes is a JSON document that describes the types of objects used by Elements
+The Types Schema is a JSON document that describes the types of objects used by Elements
 
-${DATA_TYPES_JSON}
+${TYPES_JSON}
 
-First we'll look at `"junction"`, a road junction represented by a String. You can see it just has 2 fields, a description and the java class of the type.
+First we'll look at `"junction"`, a road junction represented by a String.
 
-The property `"count"` on the `"RoadUse"` Edges is of type `"count.long"`. The definition here says that any object of type `"count.long"` is a an long that must be greater than or equal to 0. This time we have added a validator that mandates that the count object's value must be greater than or equal to 0. If we have a `"RoadUse"` Edge with a count that's not a Long or is an Long but has a value less than 0 it will fail validation and won't be added to the Graph. 
+The property `"count"` on the `"RoadUse"` Edges is of type `"count.long"`. The definition here says that any object of type `"count.long"` is a an long that must be greater than or equal to 0.
+We have added a validator that mandates that the count object's value must be greater than or equal to 0. If we have a `"RoadUse"` Edge with a count that's not a Long or is an Long but has a value less than 0 it will fail validation and won't be added to the Graph.
 Gaffer validation is done using [Java Predicates](https://docs.oracle.com/javase/8/docs/api/java/util/function/Predicate.html)
 
-##### The StoreTypes
-
-The next file used to instantiate our Graph is StoreTypes. For this example it is quite simple:
-${STORE_TYPES_JSON}
-
-The StoreTypes file is specific to a particular Store. In our example we are using an in-memory 'Mock' Accumulo Store. In simple terms, data in Accumulo is stored in rows as keys and values where the key has multiple parts.
-It describes how the data types are mapped into the database that backs the Gaffer Store you've chosen.
-
-In our StoreTypes file we supply an ${SUM_JAVADOC} [BinaryOperator](https://docs.oracle.com/javase/8/docs/api/java/util/function/BinaryOperator.html) to aggregate the count.long type. 
+We also supply an ${SUM_JAVADOC} [BinaryOperator](https://docs.oracle.com/javase/8/docs/api/java/util/function/BinaryOperator.html) to aggregate the count.long type.
 Gaffer allows Edges of the same Group to be aggregated together. This means that when different vehicles travel from junction 10 to junction 11 the edges will be aggregated together and the count property will represent the total number of vehicles that have travelled between the 2 junctions. 
 
 
@@ -141,7 +133,7 @@ ${GET_SNIPPET}
 
 In this example we've taken some simple pairs of integers in a file and, using a ElementGenerator, converted them into Gaffer Graph Edges with a `”count”` property.
 
-Then we loaded the Edges into a Gaffer Graph backed by a MockAccumuloStore and returned only the Edges containing the Vertex `”10”`. In our DataSchema we specified that we should sum the "count" property on Edges of the same Group between the same pair of Vertices. We get the following Edges returned, with their "counts" summed:
+Then we loaded the Edges into a Gaffer Graph backed by a MockAccumuloStore and returned only the Edges containing the Vertex `”10”`. In our Schema we specified that we should sum the "count" property on Edges of the same Group between the same pair of Vertices. We get the following Edges returned, with their "counts" summed:
 
 ```
 ${GET_ELEMENTS_RESULT}
