@@ -59,7 +59,7 @@ import java.util.Set;
  */
 public class MapStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(MapStore.class);
-    private static final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(
+    public static final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(
             StoreTrait.INGEST_AGGREGATION,
             StoreTrait.PRE_AGGREGATION_FILTERING,
             StoreTrait.POST_AGGREGATION_FILTERING,
