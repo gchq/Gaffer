@@ -371,18 +371,19 @@ would look like:
 
 ```
 parquet_data
-`-- <A long representing the time at which the data was written (as the number of milliseconds since epoch)>
-    |-- graph
-    |   |-- GROUP=BasicEdge
-    |   |   |-- _index
-    |   |   `-- part-00000.gz.parquet
-    |   `-- GROUP=BasicEntity
-    |       |-- _index
-    |       `-- part-00000.gz.parquet
-    `-- sortedBy=DESTINATION
-        `-- GROUP=BasicEdge
-            |-- _index
-            `-- part-00000.gz.parquet
+`-- graphId
+    `|-- <A long representing the time at which the data was written (as the number of milliseconds since epoch)>
+        |-- graph
+        |   |-- GROUP=BasicEdge
+        |   |   |-- _index
+        |   |   `-- part-00000.gz.parquet
+        |   `-- GROUP=BasicEntity
+        |       |-- _index
+        |       `-- part-00000.gz.parquet
+        `-- sortedBy=DESTINATION
+            `-- GROUP=BasicEdge
+                |-- _index
+                `-- part-00000.gz.parquet
 ```
 
 The root directory has two folders, one for the main graph which is what is returned when a `GetAllElements` operation is 

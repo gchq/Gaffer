@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -75,7 +74,7 @@ public class GafferElementConverter extends GroupConverter {
         try {
             currentRecord = gafferGroupObjectConverter.buildElementFromParquetObjects(parquetColumnToObject, isEntity);
         } catch (final SerialisationException e) {
-            LOGGER.warn("Failed to build the Element, skipping this Element", parquetColumnToObject);
+            LOGGER.warn("Failed to build the Element, skipping this Element {}", parquetColumnToObject);
         }
     }
 

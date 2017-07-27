@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map;
