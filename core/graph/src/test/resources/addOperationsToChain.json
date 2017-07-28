@@ -1,4 +1,5 @@
 {
+  "class": "uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain",
   "start": [
     {
       "class": "uk.gov.gchq.gaffer.operation.impl.DiscardOutput"

@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.rest;
 
 import uk.gov.gchq.gaffer.commonutil.DebugUtil;
-import uk.gov.gchq.gaffer.graph.hook.OperationChainLimiter;
 import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UnknownUserFactory;
 
@@ -35,12 +34,8 @@ public abstract class SystemProperty {
     public static final String USER_FACTORY_CLASS = "gaffer.user.factory.class";
     public static final String SERVICES_PACKAGE_PREFIX = "gaffer.rest-api.resourcePackage";
     public static final String PACKAGE_PREFIXES = "gaffer.package.prefixes";
-    public static final String OP_AUTHS_PATH = "gaffer.operation.auths.path";
-    public static final String ADD_OPERATIONS_TO_CHAIN_PATH = "gaffer.graph.hook.add.operations.path";
-    public static final String OPERATION_SCORES_FILE = OperationChainLimiter.OPERATION_SCORES_FILE_KEY;
-    public static final String AUTH_SCORES_FILE = OperationChainLimiter.AUTH_SCORES_FILE_KEY;
-    public static final String ENABLE_CHAIN_LIMITER = "gaffer.chain.limiter.enable";
     public static final String REST_DEBUG = DebugUtil.DEBUG;
+    public static final String GRAPH_HOOKS_PATH = "gaffer.graph.hooks.path";
 
     // DEFAULTS
     /**
