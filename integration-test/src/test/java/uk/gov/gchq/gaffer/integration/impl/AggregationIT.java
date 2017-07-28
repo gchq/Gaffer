@@ -45,6 +45,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static uk.gov.gchq.gaffer.commonutil.TestGroups.ENTITY_2;
 
 public class AggregationIT extends AbstractStoreIT {
     private final String AGGREGATED_SOURCE = SOURCE + 6;
@@ -53,6 +54,7 @@ public class AggregationIT extends AbstractStoreIT {
     private final int NON_AGGREGATED_ID = 8;
     private final String NON_AGGREGATED_SOURCE = SOURCE + NON_AGGREGATED_ID;
     private final String NON_AGGREGATED_DEST = DEST + NON_AGGREGATED_ID;
+    private final long timestamp = System.currentTimeMillis();
 
     @Override
     @Before
@@ -67,6 +69,43 @@ public class AggregationIT extends AbstractStoreIT {
 
         graph.execute(new AddElements.Builder()
                 .input(getEdge(AGGREGATED_SOURCE, AGGREGATED_DEST, false))
+                .build(), getUser());
+
+
+        graph.execute(new AddElements.Builder()
+                .input(new Entity.Builder()
+                                .group(ENTITY_2)
+                                .vertex(AGGREGATED_SOURCE)
+                                .property(TestPropertyNames.INT, 1)
+                                .property(TestPropertyNames.TIMESTAMP, timestamp)
+                                .build(),
+                        new Entity.Builder()
+                                .group(ENTITY_2)
+                                .vertex(AGGREGATED_SOURCE)
+                                .property(TestPropertyNames.INT, 2)
+                                .property(TestPropertyNames.TIMESTAMP, timestamp)
+                                .build())
+                .build(), getUser());
+
+        graph.execute(new AddElements.Builder()
+                .input(new Entity.Builder()
+                                .group(ENTITY_2)
+                                .vertex(AGGREGATED_SOURCE)
+                                .property(TestPropertyNames.INT, 2)
+                                .property(TestPropertyNames.TIMESTAMP, timestamp)
+                                .build(),
+                        new Entity.Builder()
+                                .group(ENTITY_2)
+                                .vertex(AGGREGATED_SOURCE)
+                                .property(TestPropertyNames.INT, 3)
+                                .property(TestPropertyNames.TIMESTAMP, timestamp)
+                                .build(),
+                        new Entity.Builder()
+                                .group(ENTITY_2)
+                                .vertex(AGGREGATED_SOURCE)
+                                .property(TestPropertyNames.INT, 9)
+                                .property(TestPropertyNames.TIMESTAMP, timestamp)
+                                .build())
                 .build(), getUser());
 
         // Edge with existing ids but directed
@@ -92,10 +131,17 @@ public class AggregationIT extends AbstractStoreIT {
 
         // Then
         assertNotNull(results);
-        assertEquals(2, results.size());
+        assertEquals(3, results.size());
 
         final Entity expectedEntity = new Entity(TestGroups.ENTITY, AGGREGATED_SOURCE);
         expectedEntity.putProperty(TestPropertyNames.STRING, "3,3,3");
+
+        final Entity expectedEntity2 = new Entity.Builder()
+                .group(ENTITY_2)
+                .vertex(AGGREGATED_SOURCE)
+                .property(TestPropertyNames.INT, 9)
+                .property(TestPropertyNames.TIMESTAMP, timestamp)
+                .build();
 
         final Edge expectedEdge = new Edge.Builder()
                 .group(TestGroups.EDGE)
@@ -108,16 +154,8 @@ public class AggregationIT extends AbstractStoreIT {
 
         assertThat(results, IsCollectionContaining.hasItems(
                 expectedEdge,
-                expectedEntity));
-
-        for (final Element result : results) {
-            if (result instanceof Entity) {
-                assertEquals("3,3,3", result.getProperty(TestPropertyNames.STRING));
-            } else {
-                assertEquals(1, result.getProperty(TestPropertyNames.INT));
-                assertEquals(2L, result.getProperty(TestPropertyNames.COUNT));
-            }
-        }
+                expectedEntity,
+                expectedEntity2));
     }
 
     @Test
