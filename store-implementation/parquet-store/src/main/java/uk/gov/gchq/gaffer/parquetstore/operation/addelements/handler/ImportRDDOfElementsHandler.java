@@ -105,7 +105,7 @@ public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfE
         // Move data from temp to data
         final long snapshot = System.currentTimeMillis();
         final String destPath = rootDataDirString + "/" + snapshot;
-        fs.mkdirs(new Path(destPath));
+        fs.mkdirs(new Path(destPath).getParent());
         fs.rename(new Path(tempDataDirString + "/" + ParquetStoreConstants.SORTED), new Path(destPath));
         // Reload indices
         newGraphIndex.setSnapshotTimestamp(snapshot);
