@@ -23,6 +23,10 @@ import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 
 import java.io.IOException;
 
+/**
+ * This is the Parquet reader that can read the Parquet files directly to Elements provided the files are written the
+ * same way that the {@link uk.gov.gchq.gaffer.parquetstore.io.writer.ParquetElementWriter} does.
+ */
 public class ParquetElementReader extends ParquetReader<Element> {
 
     public static ParquetElementReader.Builder builder(final Path file) {

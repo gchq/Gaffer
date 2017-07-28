@@ -39,6 +39,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+/**
+ * Generates and processes the tasks ({@link GenerateIndexForColumnGroup}) that will generate the index for each sorted
+ * directories data.
+ */
 public class GenerateIndices {
     private static final Logger LOGGER = LoggerFactory.getLogger(GenerateIndices.class);
     private final GraphIndex graphIndex;

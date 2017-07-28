@@ -1052,10 +1052,6 @@
         </profile>
         <profile>
             <id>travis</id>
-            <properties>
-                <!-- The flink integration tests don't run on Travis CI -->
-                <exclude.tests>**/flink/**/*IT.java</exclude.tests>
-            </properties>
             <build>
                 <plugins>
                     <plugin>
