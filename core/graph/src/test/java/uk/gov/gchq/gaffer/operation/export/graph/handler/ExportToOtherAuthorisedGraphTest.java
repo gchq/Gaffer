@@ -17,10 +17,12 @@
 package uk.gov.gchq.gaffer.operation.export.graph.handler;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherAuthorisedGraph;
 import uk.gov.gchq.gaffer.store.Context;
@@ -32,7 +34,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,24 +50,25 @@ public class ExportToOtherAuthorisedGraphTest {
     private static final String GRAPH_ID = "graphId";
     private static final String STORE_PROPS_ID = "storePropsId";
     private static final String SCHEMA_ID = "schemaId";
-    private static final String TEST_FILE_PATH = "src/test/resources/exportToOtherPredefinedGraphLibrary";
-    private static final String ID = "gaffer.store.id";
-    private final GraphLibrary graphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
     private final Store store = mock(Store.class);
     private final User user = new User.Builder().opAuths("auth1", "auth2").build();
     private final Context context = new Context(user);
+    private GraphLibrary graphLibrary;
     private Schema schema = new Schema.Builder().id(SCHEMA_ID).build();
     private StoreProperties storeProperties;
     private Map<String, List<String>> idAuths = new HashMap<>();
 
+    @Rule
+    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
     @Before
-    @After
-    public void cleanUp() throws IOException {
-        if (new File(TEST_FILE_PATH).exists()) {
-            FileUtils.forceDelete(new File(TEST_FILE_PATH));
-        }
-        storeProperties = new StoreProperties(Paths.get("src/test/resources/store.properties"));
+    public void setUp() throws IOException {
+        storeProperties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
         storeProperties.setId(STORE_PROPS_ID);
+
+        final File graphLibraryFolder = testFolder.newFolder("graphLibraryTest");
+        graphLibrary = new FileGraphLibrary(graphLibraryFolder.getPath());
+
     }
 
     @Test
@@ -84,7 +86,7 @@ public class ExportToOtherAuthorisedGraphTest {
             handler.createGraph(export, context, store);
             fail("Exception expected");
         } catch (IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("same graph"));
+            assertTrue(e.getMessage().contains("same Graph"));
         }
     }
 
@@ -165,7 +167,7 @@ public class ExportToOtherAuthorisedGraphTest {
             handler.createGraph(export, context, store);
             fail("Exception expected");
         } catch (IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("User is not authorised to export using graph id"));
+            assertTrue(e.getMessage().contains("User is not authorised to export using graphId"));
         }
     }
 
