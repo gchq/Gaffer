@@ -161,10 +161,12 @@ public class DefaultExamplesFactory implements ExamplesFactory {
         final String group = getAnEdgeGroup();
         final SchemaElementDefinition edgeDef = getSchema().getEdge(group);
 
-        final Edge edge = new Edge(group);
-        edge.setSource(getExampleVertex(edgeDef.getIdentifierClass(IdentifierType.SOURCE), uniqueId1));
-        edge.setDestination(getExampleVertex(edgeDef.getIdentifierClass(IdentifierType.DESTINATION), uniqueId2));
-        edge.setDirected(isAnEdgeDirected());
+        final Edge edge = new Edge.Builder()
+                .group(group)
+                .source(getExampleVertex(edgeDef.getIdentifierClass(IdentifierType.SOURCE), uniqueId1))
+                .dest(getExampleVertex(edgeDef.getIdentifierClass(IdentifierType.DESTINATION), uniqueId2))
+                .directed(isAnEdgeDirected())
+                .build();
 
         populateProperties(edge, edgeDef, uniqueId1);
 
@@ -174,23 +176,23 @@ public class DefaultExamplesFactory implements ExamplesFactory {
     protected EntityId getEntityId(final int uniqueId) {
         return new EntitySeed(
                 getExampleVertex(getSchema().getEntity(getAnEntityGroup())
-                                            .getIdentifierClass(IdentifierType.VERTEX), uniqueId));
+                        .getIdentifierClass(IdentifierType.VERTEX), uniqueId));
     }
 
     protected EdgeId getEdgeId(final int uniqueId1, final int uniqueId2) {
         return new EdgeSeed(
                 getExampleVertex(getSchema().getEdge(getAnEdgeGroup())
-                                            .getIdentifierClass(IdentifierType.SOURCE), uniqueId1),
+                        .getIdentifierClass(IdentifierType.SOURCE), uniqueId1),
                 getExampleVertex(getSchema().getEdge(getAnEdgeGroup())
-                                            .getIdentifierClass(IdentifierType.DESTINATION), uniqueId2),
+                        .getIdentifierClass(IdentifierType.DESTINATION), uniqueId2),
                 isAnEdgeDirected());
     }
 
     protected boolean isAnEdgeDirected() {
         return !getSchema().getEdge(getAnEdgeGroup())
-                           .getDirected()
-                           .toLowerCase(Locale.getDefault())
-                           .contains("false");
+                .getDirected()
+                .toLowerCase(Locale.getDefault())
+                .contains("false");
     }
 
     protected String getAnEntityPropertyName() {
@@ -210,9 +212,9 @@ public class DefaultExamplesFactory implements ExamplesFactory {
                     .entrySet()) {
                 // Try and find an entity that has properties
                 if (null != entry.getValue()
-                                 .getProperties() && !entry.getValue()
-                                                           .getProperties()
-                                                           .isEmpty()) {
+                        .getProperties() && !entry.getValue()
+                        .getProperties()
+                        .isEmpty()) {
                     return entry.getKey();
                 }
             }
@@ -238,12 +240,12 @@ public class DefaultExamplesFactory implements ExamplesFactory {
     protected String getAnEdgeGroup() {
         if (!getSchema().getEdgeGroups().isEmpty()) {
             for (final Entry<String, SchemaEdgeDefinition> entry : getSchema().getEdges()
-                                                                              .entrySet()) {
+                    .entrySet()) {
                 // Try and find an edge that has properties
                 if (null != entry.getValue()
-                                 .getProperties() && !entry.getValue()
-                                                           .getProperties()
-                                                           .isEmpty()) {
+                        .getProperties() && !entry.getValue()
+                        .getProperties()
+                        .isEmpty()) {
                     return entry.getKey();
                 }
             }
