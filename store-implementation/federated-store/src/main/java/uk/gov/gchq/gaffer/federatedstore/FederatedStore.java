@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationAddElementsHandler;
@@ -126,7 +125,7 @@ public class FederatedStore extends Store {
         if (operation instanceof OperationView) {
             final View view = ((OperationView) operation).getView();
             if (null != view && view.hasGroups()) {
-                resultOp = cloneOP(operation);
+                resultOp = (OP) operation.shallowClone();
                 final View validView = createValidView(view, graph.getSchema());
                 if (validView.hasGroups()) {
                     ((OperationView) resultOp).setView(validView);
@@ -135,20 +134,9 @@ public class FederatedStore extends Store {
                 }
             }
         } else if (operation instanceof AddElements) {
-            resultOp = cloneOP(operation);
+            resultOp = (OP) operation.shallowClone();
         }
 
-        return resultOp;
-    }
-
-    public static <OP extends Operation> OP cloneOP(final OP operation) {
-        final OP resultOp;
-        try {
-            //TODO: implement this in a better way
-            resultOp = JSON_SERIALISER.deserialise(JSON_SERIALISER.serialise(operation), (Class<OP>) operation.getClass());
-        } catch (SerialisationException e) {
-            throw new RuntimeException("Unable to clone operation", e);
-        }
         return resultOp;
     }
 

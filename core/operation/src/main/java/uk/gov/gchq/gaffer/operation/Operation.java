@@ -17,7 +17,10 @@
 package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.apache.commons.lang3.exception.CloneFailedException;
 import uk.gov.gchq.gaffer.commonutil.Required;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.ValidationResult;
 import java.io.Closeable;
 import java.io.IOException;
@@ -75,7 +78,16 @@ import java.security.PrivilegedAction;
  * </pre>
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-public interface Operation extends Closeable {
+public interface Operation extends Closeable, Cloneable {
+    JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
+
+    default Operation shallowClone() throws CloneFailedException {
+        try {
+            return JSON_SERIALISER.deserialise(JSON_SERIALISER.serialise(this), this.getClass());
+        } catch (SerialisationException e) {
+            throw new CloneFailedException("Could not clone operation: " + this.getClass().getSimpleName(), e);
+        }
+    }
 
     /**
      * Operation implementations should ensure that all closeable fields are closed in this method.

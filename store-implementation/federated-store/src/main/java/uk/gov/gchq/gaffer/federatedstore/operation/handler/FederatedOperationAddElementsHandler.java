@@ -43,13 +43,13 @@ public class FederatedOperationAddElementsHandler implements OperationHandler<Ad
                             addElements.isSkipInvalidElements()
                     )
             );
-            final AddElements addElementsClone = FederatedStore.cloneOP(addElements);
-            addElementsClone.setInput(retain);
             try {
+                final AddElements addElementsClone = (AddElements) addElements.shallowClone();
+                addElementsClone.setInput(retain);
                 graph.execute(addElementsClone, context.getUser());
             } catch (final Exception e) {
-                if (!Boolean.valueOf(addElementsClone.getOption(SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
-                    throw new OperationException("Graph failed to execute operation. Graph: " + graph.getGraphId() + " Operation: " + addElementsClone.getClass().getSimpleName(), e);
+                if (!Boolean.valueOf(addElements.getOption(SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
+                    throw new OperationException("Graph failed to execute operation. Graph: " + graph.getGraphId() + " Operation: " + addElements.getClass().getSimpleName(), e);
                 }
             }
         }

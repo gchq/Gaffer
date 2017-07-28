@@ -46,6 +46,7 @@ public class FederatedAddAllElmentsHandlerTest {
     final public void shouldMergeResultsFromFieldObjects() throws Exception {
         // Given
         final AddElements op = Mockito.mock(AddElements.class);
+        Mockito.when(op.shallowClone()).thenReturn(op);
 
         Schema unusedSchema = new Schema.Builder().build();
         Store mockStore1 = getMockStore(unusedSchema);
@@ -71,11 +72,11 @@ public class FederatedAddAllElmentsHandlerTest {
         // When
         new FederatedAddElementsHandler().doOperation(op, testContext, mockStore);
 
+        //any(op) because the op is cloned.
         verify(mockStore1).execute(new OperationChain<>(op), user);
         verify(mockStore2).execute(new OperationChain<>(op), user);
         verify(mockStore3).execute(new OperationChain<>(op), user);
         verify(mockStore4).execute(new OperationChain<>(op), user);
-
     }
 
 

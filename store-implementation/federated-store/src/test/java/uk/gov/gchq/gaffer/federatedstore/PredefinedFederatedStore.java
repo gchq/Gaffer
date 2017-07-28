@@ -36,7 +36,7 @@ public class PredefinedFederatedStore extends FederatedStore {
                         .merge(schema)
                         .entities(Collections.emptyMap())
                         .build())
-                .storeProperties(StreamUtil.openStream(getClass(), "accumuloStore.properties"))
+                .storeProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties"))
                 .build());
 
         // Map store just contains entities
@@ -46,7 +46,7 @@ public class PredefinedFederatedStore extends FederatedStore {
                         .merge(schema)
                         .edges(Collections.emptyMap())
                         .build())
-                .storeProperties(StreamUtil.openStream(getClass(), "mapStore.properties"))
+                .storeProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockMapStore.properties"))
                 .build());
     }
 }
