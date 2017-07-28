@@ -15,19 +15,20 @@
  */
 package uk.gov.gchq.gaffer.graph.hook;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.store.operation.handler.ScoreOperationChainHandler;
 import uk.gov.gchq.gaffer.user.User;
-import java.io.InputStream;
-import java.nio.file.Path;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 /*
  * An <code>OperationChainLimiter</code> is a {@link GraphHook} that checks a
  * user is authorised to execute an operation chain based on that user's maximum chain score and the configured score value for each operation in the chain.
- * This class requires a map of operation scores, these can be added using setOpScores(Map<Class,Integer>) or
- * addOpScore(Class, Integer...). Alternatively a properties file can be provided.
+ * This class requires a map of operation scores.
  * When using a properties file the last entry in the file that an operation can be assigned to will be the score that is used for that operation.
  * containing the operations and the score.
  * E.g if you put gaffer.operation.impl.add.AddElements = 8
@@ -37,58 +38,13 @@ import java.util.LinkedHashMap;
  *
  * This class also requires a map of authorisation scores,
  * this is the score value someone with that auth can have, the maximum score value of a users auths is used.
- * These can be added using setAuthScores(Map<String, Integer>) or
- * addAuthScore(String, Integer). Alternatively a properties file can be provided
- * containing the authorisations and the score.
+ *
+ * The class delegates the logic to {@link ScoreOperationChainHandler}. If you
+ * wish to use the {@link ScoreOperationChain} operation and this graph hook,
+ * then both need to have the same score configuration.
  */
 public class OperationChainLimiter implements GraphHook {
-    public static final String OPERATION_SCORES_FILE_KEY = ScoreOperationChainHandler.OPERATION_SCORES_FILE_KEY;
-    public static final String AUTH_SCORES_FILE_KEY = ScoreOperationChainHandler.AUTH_SCORES_FILE_KEY;
-
-    private ScoreOperationChainHandler scorer;
-
-    /**
-     * Default constructor.
-     * Use setOpScores or addOpScore to add operation scores.
-     * And Use setAuthScores or
-     * addAuthScore to add Authorisation scores.
-     */
-    public OperationChainLimiter() {
-    }
-
-    /**
-     * Constructs an {@link OperationAuthoriser} with the authorisations
-     * defined in the property file from the {@link Path} provided.
-     *
-     * @param operationScorePropertiesFileLocation         path to operation scores property file
-     * @param operationAuthorisationScoreLimitFileLocation path to authorisation scores property file
-     */
-    public OperationChainLimiter(final Path operationScorePropertiesFileLocation, final Path operationAuthorisationScoreLimitFileLocation) {
-        scorer = new ScoreOperationChainHandler(operationScorePropertiesFileLocation, operationAuthorisationScoreLimitFileLocation);
-    }
-
-    /**
-     * Constructs an {@link OperationAuthoriser} with the authorisations
-     * defined in the property file from the {@link InputStream} provided.
-     *
-     * @param operationScorePropertiesStream         input stream of operation scores property file
-     * @param operationAuthorisationScoreLimitStream input stream of authorisation scores property file
-     */
-    public OperationChainLimiter(final InputStream operationScorePropertiesStream, final InputStream operationAuthorisationScoreLimitStream) {
-        scorer = new ScoreOperationChainHandler(operationScorePropertiesStream, operationAuthorisationScoreLimitStream);
-    }
-
-    /**
-     * Constructs an {@link OperationAuthoriser} with the authorisations
-     * defined in the provided authorisations property file.
-     *
-     * @param operationScoreEntries                   operation scores entries
-     * @param operationAuthorisationScoreLimitEntries authorisation scores entries
-     */
-    public OperationChainLimiter(final LinkedHashMap<String, String> operationScoreEntries,
-                                 final LinkedHashMap<String, String> operationAuthorisationScoreLimitEntries) {
-        scorer = new ScoreOperationChainHandler(operationScoreEntries, operationAuthorisationScoreLimitEntries);
-    }
+    private ScoreOperationChainHandler scorer = new ScoreOperationChainHandler();
 
     /**
      * Checks the {@link OperationChain}
@@ -117,5 +73,31 @@ public class OperationChainLimiter implements GraphHook {
     public <T> T postExecute(final T result, final OperationChain<?> opChain, final User user) {
         // This method can be overridden to add additional authorisation checks on the results.
         return result;
+    }
+
+    public Map<Class<? extends Operation>, Integer> getOpScores() {
+        return scorer.getOpScores();
+    }
+
+    public void setOpScores(final LinkedHashMap<Class<? extends Operation>, Integer> opScores) {
+        scorer.setOpScores(opScores);
+    }
+
+    @JsonGetter("opScores")
+    public Map<String, Integer> getOpScoresAsStrings() {
+        return scorer.getOpScoresAsStrings();
+    }
+
+    @JsonSetter("opScores")
+    public void setOpScoresFromStrings(final LinkedHashMap<String, Integer> opScores) throws ClassNotFoundException {
+        scorer.setOpScoresFromStrings(opScores);
+    }
+
+    public Map<String, Integer> getAuthScores() {
+        return scorer.getAuthScores();
+    }
+
+    public void setAuthScores(final Map<String, Integer> authScores) {
+        scorer.setAuthScores(authScores);
     }
 }
