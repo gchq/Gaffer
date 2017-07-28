@@ -28,6 +28,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * This class is used to extract the key from each {@link Row} using the set of groupBy column names.
+ */
 public class ExtractKeyFromRow implements Function<Row, Seq<Object>>, Serializable {
 
     private static final long serialVersionUID = -5811180619204002981L;

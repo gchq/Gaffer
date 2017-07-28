@@ -55,6 +55,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
+/**
+ * Aggregates and sorts a directory of parquet files that represents a single group so each group can be processed in parallel.
+ */
 public class AggregateAndSortGroup implements Callable<OperationException>, Serializable {
     private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
     private static final Logger LOGGER = LoggerFactory.getLogger(AggregateAndSortGroup.class);
