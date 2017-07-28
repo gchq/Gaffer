@@ -94,7 +94,7 @@ public class ParquetStore extends Store {
             throw new StoreException("Could not connect to the file system", e);
         }
         schemaUtils = new SchemaUtils(getSchema());
-        loadIndex((ParquetStoreProperties) properties);
+        loadIndex();
     }
 
     public FileSystem getFS() {
@@ -196,7 +196,7 @@ public class ParquetStore extends Store {
         return new SchemaOptimiser(new SerialisationFactory(ParquetStoreConstants.SERIALISERS));
     }
 
-    private void loadIndex(final ParquetStoreProperties properties) throws StoreException {
+    private void loadIndex() throws StoreException {
         final String rootDir = getDataDir();
         try {
             if (fs.exists(new Path(rootDir))) {

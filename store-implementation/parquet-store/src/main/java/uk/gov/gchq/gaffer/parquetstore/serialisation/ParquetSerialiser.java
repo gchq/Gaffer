@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.serialisation.Serialiser;
 /**
  *  Allows for a custom Parquet schema to be passed to the Parquet store so it can store data in Parquet native types
  *  rather then having everything stored as a {@link byte[]}.
- * 
+ *
  * @param <INPUT> the de-serialised object
  */
 public interface ParquetSerialiser<INPUT> extends Serialiser<INPUT, Object[]> {

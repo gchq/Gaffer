@@ -58,7 +58,7 @@ public class GafferGroupObjectConverter implements Serializable {
      */
     public GafferGroupObjectConverter(final String group, final Map<String, String> columnToSerialiserName,
                                       final Map<String, Serialiser> serialiserNameToSerialiser,
-                                      final Map<String, String[]> columnToPaths){
+                                      final Map<String, String[]> columnToPaths) {
         this.group = group;
         // TODO move this logic building the direct column to serialiser to the SchemaUtils class
         this.columnToSerialiser = new HashMap<>();
