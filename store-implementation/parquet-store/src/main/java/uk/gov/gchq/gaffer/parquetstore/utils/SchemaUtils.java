@@ -81,9 +81,8 @@ public class SchemaUtils {
      *
      * @param group the group
      * @return a map from column to full paths for the given group
-     * @throws SerialisationException if an exception occurs
      */
-    public Map<String, String[]> getColumnToPaths(final String group) throws SerialisationException {
+    public Map<String, String[]> getColumnToPaths(final String group) {
         return groupColumnToPaths.get(group);
     }
 
@@ -252,7 +251,7 @@ public class SchemaUtils {
         return serialiserNameToSerialiser;
     }
 
-    public Map<String, String> getColumnToSerialiser(final String group) throws SerialisationException {
+    public Map<String, String> getColumnToSerialiser(final String group) {
         return groupColumnToSerialiserName.get(group);
     }
 
@@ -276,7 +275,7 @@ public class SchemaUtils {
         return groupToObjectConverter.get(group);
     }
 
-    private void buildConverters() throws SerialisationException {
+    private void buildConverters() {
         for (final String group : gafferSchema.getGroups()) {
             final GafferGroupObjectConverter converter = new GafferGroupObjectConverter(group, getColumnToSerialiser(group),
                     getSerialisers(), getColumnToPaths(group));
