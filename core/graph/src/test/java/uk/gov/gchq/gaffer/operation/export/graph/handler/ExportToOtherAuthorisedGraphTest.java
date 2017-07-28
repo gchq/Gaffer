@@ -228,6 +228,61 @@ public class ExportToOtherAuthorisedGraphTest {
     }
 
     @Test
+    public void shouldThrowExceptionWithParentSchemaIdWithNoParentStorePropertiesIdAndAuths() {
+        // Given
+        Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
+        graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
+        graphLibrary.addSchema(SCHEMA_ID + 1, schema1);
+        given(store.getGraphId()).willReturn(GRAPH_ID);
+        given(store.getGraphLibrary()).willReturn(graphLibrary);
+        List<String> opAuths = Lists.newArrayList("auth1");
+        idAuths.put(GRAPH_ID + 2, opAuths);
+        idAuths.put(SCHEMA_ID + 1, opAuths);
+        final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder<>()
+                .graphId(GRAPH_ID + 2)
+                .parentSchemaIds(SCHEMA_ID + 1)
+                .build();
+        final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
+        handler.setIdAuths(idAuths);
+
+        // When / Then
+        try {
+            handler.createGraph(export, context, store);
+            fail("Exception expected");
+        } catch (IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("parentStorePropertiesId must be specified with parentSchemaId"));
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionWithParentStorePropertiesIdWithNoParentSchemaIdAndAuths() {
+        // Given
+        Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
+        graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
+        graphLibrary.addSchema(SCHEMA_ID + 1, schema1);
+        given(store.getGraphId()).willReturn(GRAPH_ID);
+        given(store.getGraphLibrary()).willReturn(graphLibrary);
+        List<String> opAuths = Lists.newArrayList("auth1");
+        idAuths.put(GRAPH_ID + 2, opAuths);
+        idAuths.put(SCHEMA_ID + 1, opAuths);
+        final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder<>()
+                .graphId(GRAPH_ID + 2)
+                .parentStorePropertiesId(STORE_PROPS_ID)
+                .build();
+        final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
+        handler.setIdAuths(idAuths);
+
+        // When / Then
+        try {
+            handler.createGraph(export, context, store);
+            fail("Exception expected");
+        } catch (IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("parentSchemaId must be specified with parentStorePropertiesId"));
+        }
+    }
+
+
+    @Test
     public void shouldThrowExceptionWhenGraphIdCannotBeFound() {
         // Given
         schema = new Schema.Builder().id(SCHEMA_ID).build();
