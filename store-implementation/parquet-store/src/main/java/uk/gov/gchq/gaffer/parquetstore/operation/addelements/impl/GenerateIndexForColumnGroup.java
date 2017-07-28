@@ -42,6 +42,9 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+/**
+ * Generates the index for a single group directory.
+ */
 public class GenerateIndexForColumnGroup implements Callable<Tuple4<String, String, ColumnIndex, OperationException>>, Serializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(GenerateIndexForColumnGroup.class);
     private static final long serialVersionUID = 2287226248631201061L;

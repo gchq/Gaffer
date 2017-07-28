@@ -34,6 +34,9 @@ import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.TypeValueParquetSerial
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 
+/**
+ * A class to store all the constants regularly used throughout the Parquet store code.
+ */
 public final class ParquetStoreConstants {
     public static final String GRAPH = "graph";
     public static final String GROUP = "GROUP";
