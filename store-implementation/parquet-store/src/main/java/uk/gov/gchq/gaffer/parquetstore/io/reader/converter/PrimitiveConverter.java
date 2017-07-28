@@ -22,6 +22,10 @@ import org.apache.parquet.schema.OriginalType;
 import java.lang.reflect.Array;
 import java.util.Map;
 
+/**
+ * This class is used to add values from a single Parquet column to the 'parquetColumnToObject' variable which can then
+ * be used by the {@link GafferElementConverter} to materialise the {@link uk.gov.gchq.gaffer.data.element.Element}.
+ */
 public class PrimitiveConverter extends org.apache.parquet.io.api.PrimitiveConverter {
     private final Map<String, Object[]> parquetColumnToObject;
     private final String column;
