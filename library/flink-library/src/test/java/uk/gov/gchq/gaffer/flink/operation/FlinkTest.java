@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.flink.operation;
 
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
-import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -101,8 +100,8 @@ public abstract class FlinkTest {
                 .build();
     }
 
-    public static AccumuloStore createStore() {
-        return (AccumuloStore) Store.createStore("graphId", SCHEMA, StoreProperties.loadStoreProperties("store.properties"));
+    public static Store createStore() {
+        return Store.createStore("graphId", SCHEMA, StoreProperties.loadStoreProperties("store.properties"));
     }
 
     public static void verifyElements(final Graph graph) throws OperationException, InterruptedException {
