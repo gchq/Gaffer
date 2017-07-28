@@ -1,0 +1,37 @@
+{
+  "types": {
+    "vertex.string": {
+      "class": "java.lang.String"
+    },
+    "directed.either": {
+      "class": "java.lang.Boolean"
+    },
+    "simpleProperty": {
+      "class": "java.lang.Integer",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+      },
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser"
+      }
+    },
+    "colQualProperty": {
+      "class": "java.lang.Integer",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+      },
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.serialisation.implementation.raw.RawIntegerSerialiser"
+      }
+    },
+    "timestamp": {
+      "class": "java.lang.Integer"
+    },
+    "visibility.string": {
+      "class": "java.lang.String",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat"
+      }
+    }
+  }
+}

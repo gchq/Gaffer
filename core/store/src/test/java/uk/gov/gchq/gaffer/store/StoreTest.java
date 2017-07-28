@@ -52,6 +52,7 @@ import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.tostring.StringToStringSerialiser;
+import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -525,6 +526,20 @@ public class StoreTest {
         assertSame(jobTracker, resultJobTracker);
     }
 
+    @Test
+    public void shouldSetAndGetGraphLibrary() {
+        // Given
+        final Store store = new StoreImpl();
+        final GraphLibrary graphLibrary = mock(GraphLibrary.class);
+
+        // When
+        store.setGraphLibrary(graphLibrary);
+        final GraphLibrary result = store.getGraphLibrary();
+
+        // Then
+        assertSame(graphLibrary, result);
+    }
+
     private Schema createSchemaMock() {
         final Schema schema = mock(Schema.class);
         given(schema.validate()).willReturn(new ValidationResult());
@@ -577,7 +592,6 @@ public class StoreTest {
         private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
         private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
         private int createOperationHandlersCallCount;
-        private boolean validationRequired;
 
         @Override
         protected OperationChainValidator createOperationChainValidator() {
@@ -636,15 +650,6 @@ public class StoreTest {
 
         public ArrayList<Operation> getDoUnhandledOperationCalls() {
             return doUnhandledOperationCalls;
-        }
-
-        @Override
-        public boolean isValidationRequired() {
-            return validationRequired;
-        }
-
-        public void setValidationRequired(final boolean validationRequired) {
-            this.validationRequired = validationRequired;
         }
 
         @Override

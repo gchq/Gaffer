@@ -543,7 +543,7 @@ public class AggregatorUtilTest {
     @Test
     public void shouldCreateIngestElementKeyUsingVertex() {
         // given
-        final Schema schema = Schema.fromJson(StreamUtil.openStream(getClass(), "/schema/dataSchema.json"));
+        final Schema schema = Schema.fromJson(StreamUtil.openStream(getClass(), "/schema/elements.json"));
         final List<Element> input = Arrays.asList(
                 new Entity.Builder()
                         .group(TestGroups.ENTITY)

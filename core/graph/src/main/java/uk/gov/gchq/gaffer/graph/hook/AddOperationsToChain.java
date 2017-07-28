@@ -185,7 +185,6 @@ public class AddOperationsToChain implements GraphHook {
         this.defaultOperations.setEnd(addOperations.defaultOperations.getEnd());
         this.defaultOperations.setBefore(addOperations.defaultOperations.getBefore());
         this.defaultOperations.setAfter(addOperations.defaultOperations.getAfter());
-
     }
 
     private List<Operation> addOperationsToChain(final OperationChain<?> opChain, final AdditionalOperations additionalOperations) {

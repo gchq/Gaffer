@@ -9,8 +9,6 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
-import uk.gov.gchq.gaffer.cache.impl.HazelcastCacheService;
-import uk.gov.gchq.gaffer.cache.impl.JcsCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -75,19 +73,7 @@ public class NamedOperationCacheIT
         runTests();
     }
 
-    @Test
-    public void shouldWorkUsingJCSWithNoConfig() throws OperationException, CacheOperationException {
-        reInitialiseCacheService(JcsCacheService.class);
-        runTests();
-    }
-
-    @Test
-    public void shouldWorkUsingHazelcastWithNoConfig() throws OperationException, CacheOperationException {
-        reInitialiseCacheService(HazelcastCacheService.class);
-        runTests();
-    }
-
-    private void reInitialiseCacheService(Class clazz) {
+    private void reInitialiseCacheService(final Class clazz) {
         cacheProps.setProperty(CacheProperties.CACHE_SERVICE_CLASS, clazz.getCanonicalName());
         CacheServiceLoader.initialise(cacheProps);
     }

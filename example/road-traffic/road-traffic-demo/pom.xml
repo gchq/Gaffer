@@ -11,6 +11,7 @@
     <packaging>war</packaging>
 
     <properties>
+        <store.type>accumulo</store.type>
         <standalone-path>rest</standalone-path>
         <standalone-port>8080</standalone-port>
     </properties>
@@ -76,14 +77,14 @@
                                     ${project.parent.basedir}/road-traffic-model/src/main/resources/schema
                                 </gaffer.schemas>
                                 <gaffer.storeProperties>
-                                    ${project.build.outputDirectory}/mockaccumulo.properties
+                                    ${project.build.outputDirectory}/${store.type}/store.properties
                                 </gaffer.storeProperties>
                                 <roadTraffic.dataLoader.dataPath>
                                     ${project.build.outputDirectory}/roadTrafficSampleData.csv
                                 </roadTraffic.dataLoader.dataPath>
-                                <!--<gaffer.graph.hook.add.operations.path>-->
-                                <!--${project.build.outputDirectory}/addOperationsToChain.json-->
-                                <!--</gaffer.graph.hook.add.operations.path>-->
+                                <gaffer.graph.hook.add.operations.path>
+                                    ${project.build.outputDirectory}/addOperationsToChain.json
+                                </gaffer.graph.hook.add.operations.path>
                                 <gaffer.error-mode.debug>
                                     false
                                 </gaffer.error-mode.debug>

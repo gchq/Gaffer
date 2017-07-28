@@ -43,6 +43,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -368,8 +369,8 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         @Override
         @JsonIgnore
         public CHILD_CLASS merge(final Schema schema) {
-            validateSharedGroups(getThisSchema().getEntityGroups(), schema.getEntityGroups());
-            validateSharedGroups(getThisSchema().getEdgeGroups(), schema.getEdgeGroups());
+            validateSharedGroups(getThisSchema().getEntities(), schema.getEntities());
+            validateSharedGroups(getThisSchema().getEdges(), schema.getEdges());
 
             if (null == getThisSchema().getId()) {
                 getThisSchema().setId(schema.getId());
@@ -487,11 +488,34 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             return getElementDefs();
         }
 
-        private void validateSharedGroups(final Set<String> groupsA, final Set<String> groupsB) {
-            final Set<String> sharedGroups = new HashSet<>(groupsA);
-            sharedGroups.retainAll(groupsB);
+        private void validateSharedGroups(final Map<String, ? extends SchemaElementDefinition> elements1, final Map<String, ? extends SchemaElementDefinition> elements2) {
+            final Set<String> sharedGroups = new HashSet<>(elements1.keySet());
+            sharedGroups.retainAll(elements2.keySet());
             if (!sharedGroups.isEmpty()) {
-                throw new SchemaException("Element groups cannot be shared across different schema files/parts. Each group must be fully defined in a single schema. Please fix these groups: " + sharedGroups);
+                // Groups are shared. Check they are compatible.
+                for (final String sharedGroup : sharedGroups) {
+
+                    // Check if just one group has the properties and groupBy fields set.
+                    final SchemaElementDefinition elementDef1 = elements1.get(sharedGroup);
+                    if ((null == elementDef1.properties || elementDef1.properties.isEmpty())
+                            && elementDef1.groupBy.isEmpty()) {
+                        continue;
+                    }
+                    final SchemaElementDefinition elementDef2 = elements2.get(sharedGroup);
+                    if ((null == elementDef2.properties || elementDef2.properties.isEmpty())
+                            && elementDef2.groupBy.isEmpty()) {
+                        continue;
+                    }
+
+                    // Check to see if the properties are the same.
+                    if (Objects.equals(elementDef1.properties, elementDef2.properties)
+                            && Objects.equals(elementDef1.groupBy, elementDef2.groupBy)) {
+                        continue;
+                    }
+
+                    throw new SchemaException("Element group properties cannot be defined in different schema parts, they must all be defined in a single schema part. "
+                            + "Please fix this group: " + sharedGroup);
+                }
             }
         }
 

@@ -25,12 +25,14 @@ import org.apache.spark.sql.sources.GreaterThan;
 import org.apache.spark.sql.sources.LessThan;
 import org.apache.spark.sql.sources.Or;
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.spark.SparkConstants;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStructTypeConverter;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfElements;
@@ -452,10 +454,7 @@ public class FilterToOperationConverterTest {
     }
 
     private Schema getSchema() {
-        return Schema.fromJson(
-                getClass().getResourceAsStream("/schema-DataFrame/dataSchema.json"),
-                getClass().getResourceAsStream("/schema-DataFrame/dataTypes.json"),
-                getClass().getResourceAsStream("/schema-DataFrame/storeTypes.json"));
+        return Schema.fromJson(StreamUtil.schemas(getClass()));
     }
 
     private View getViewFromSchema(final Schema schema) {
@@ -469,9 +468,9 @@ public class FilterToOperationConverterTest {
         final SparkConf sparkConf = new SparkConf()
                 .setMaster("local")
                 .setAppName(appName)
-                .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-                .set("spark.kryo.registrator", "uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator")
-                .set("spark.driver.allowMultipleContexts", "true");
+                .set(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
+                .set(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
+                .set(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true");
         return new SQLContext(new SparkContext(sparkConf));
     }
 }

@@ -19,7 +19,6 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -67,11 +66,6 @@ public class TestStore extends Store {
     }
 
     @Override
-    public boolean isValidationRequired() {
-        return mockStore.isValidationRequired();
-    }
-
-    @Override
     protected void addAdditionalOperationHandlers() {
     }
 
@@ -92,11 +86,6 @@ public class TestStore extends Store {
 
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
-        return null;
-    }
-
-    @Override
-    protected Object doUnhandledOperation(final Operation operation, final Context context) {
         return null;
     }
 }

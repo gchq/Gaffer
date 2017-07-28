@@ -22,8 +22,10 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import uk.gov.gchq.gaffer.commonutil.Required;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.ExportTo;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -31,13 +33,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
-public class ExportToOtherGraph<T> implements
+public class ExportToOtherGraph implements
         Operation,
-        ExportTo<T> {
+        MultiInput<Element>,
+        ExportTo<Iterable<? extends Element>> {
     @Required
     private String graphId;
 
-    private T input;
+    private Iterable<? extends Element> input;
 
     private List<String> parentSchemaIds;
     private Schema schema;
@@ -56,12 +59,12 @@ public class ExportToOtherGraph<T> implements
     }
 
     @Override
-    public T getInput() {
+    public Iterable<? extends Element> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final T input) {
+    public void setInput(final Iterable<? extends Element> input) {
         this.input = input;
     }
 
@@ -122,32 +125,32 @@ public class ExportToOtherGraph<T> implements
     }
 
     @Override
-    public TypeReference<T> getOutputTypeReference() {
-        return (TypeReference) new TypeReferenceImpl.Object();
+    public TypeReference<Iterable<? extends Element>> getOutputTypeReference() {
+        return new TypeReferenceImpl.IterableElement();
     }
 
-    public static final class Builder<T> extends BaseBuilder<ExportToOtherGraph<T>, Builder<T>>
-            implements ExportTo.Builder<ExportToOtherGraph<T>, T, Builder<T>> {
+    public static final class Builder extends BaseBuilder<ExportToOtherGraph, Builder>
+            implements ExportTo.Builder<ExportToOtherGraph, Iterable<? extends Element>, Builder> {
         public Builder() {
-            super(new ExportToOtherGraph<>());
+            super(new ExportToOtherGraph());
         }
 
-        public Builder<T> graphId(final String graphId) {
+        public Builder graphId(final String graphId) {
             _getOp().setGraphId(graphId);
             return _self();
         }
 
-        public Builder<T> parentStorePropertiesId(final String parentStorePropertiesId) {
+        public Builder parentStorePropertiesId(final String parentStorePropertiesId) {
             _getOp().setParentStorePropertiesId(parentStorePropertiesId);
             return _self();
         }
 
-        public Builder<T> storeProperties(final StoreProperties storeProperties) {
+        public Builder storeProperties(final StoreProperties storeProperties) {
             _getOp().setStoreProperties(storeProperties);
             return _self();
         }
 
-        public Builder<T> parentSchemaIds(final String... parentSchemaIds) {
+        public Builder parentSchemaIds(final String... parentSchemaIds) {
             if (null == _getOp().getParentSchemaIds()) {
                 _getOp().setParentSchemaIds(Lists.newArrayList(parentSchemaIds));
             } else {
@@ -156,7 +159,7 @@ public class ExportToOtherGraph<T> implements
             return _self();
         }
 
-        public Builder<T> schema(final Schema schema) {
+        public Builder schema(final Schema schema) {
             _getOp().setSchema(schema);
             return _self();
         }

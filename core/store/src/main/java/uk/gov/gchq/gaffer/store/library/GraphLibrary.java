@@ -56,7 +56,6 @@ public abstract class GraphLibrary {
         }
 
         if (null != properties) {
-
             _addProperties(propertiesId, properties);
         }
     }
