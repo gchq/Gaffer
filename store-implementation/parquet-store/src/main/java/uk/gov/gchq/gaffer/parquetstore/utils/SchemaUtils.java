@@ -38,7 +38,8 @@ import java.util.Set;
 
 /**
  * This class is responsible for converting a Gaffer {@link Schema} to an Parquet {@link MessageType} per group
- * and to a Spark schema (a {@link StructType} per group).
+ * and to a Spark schema (a {@link StructType} per group). It also provides a central place to get all the mappings from
+ * Gaffer Properties to columns, aggregator's to columns, serialiser's to columns, etc.
  */
 public class SchemaUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(SchemaUtils.class);

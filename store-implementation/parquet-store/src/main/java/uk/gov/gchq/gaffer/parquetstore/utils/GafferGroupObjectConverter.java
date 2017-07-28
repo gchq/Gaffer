@@ -37,6 +37,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class contains the logic for converting objects between the Gaffer, Parquet and Spark types.
+ */
 public class GafferGroupObjectConverter implements Serializable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferGroupObjectConverter.class);

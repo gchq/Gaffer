@@ -39,6 +39,9 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 
+/**
+ * An {@link OperationHandler} for the {@link ImportRDDOfElements} operation on the {@link ParquetStore}.
+ */
 public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfElements> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImportRDDOfElementsHandler.class);
 

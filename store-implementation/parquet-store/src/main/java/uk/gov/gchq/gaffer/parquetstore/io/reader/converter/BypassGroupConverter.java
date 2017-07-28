@@ -23,6 +23,10 @@ import org.apache.parquet.schema.Type;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This class is required by the Parquet reader to represent nested groups in the parquet schema. It does not do much
+ * other than act as a proxy to the leaf nodes of the parquet schema which should be primitive types.
+ */
 public class BypassGroupConverter extends GroupConverter {
 
     private final String[] columnPath;
