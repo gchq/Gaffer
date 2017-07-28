@@ -54,7 +54,6 @@ public class AggregationIT extends AbstractStoreIT {
     private final int NON_AGGREGATED_ID = 8;
     private final String NON_AGGREGATED_SOURCE = SOURCE + NON_AGGREGATED_ID;
     private final String NON_AGGREGATED_DEST = DEST + NON_AGGREGATED_ID;
-    private final long timestamp = System.currentTimeMillis();
 
     @Override
     @Before
@@ -69,43 +68,6 @@ public class AggregationIT extends AbstractStoreIT {
 
         graph.execute(new AddElements.Builder()
                 .input(getEdge(AGGREGATED_SOURCE, AGGREGATED_DEST, false))
-                .build(), getUser());
-
-
-        graph.execute(new AddElements.Builder()
-                .input(new Entity.Builder()
-                                .group(ENTITY_2)
-                                .vertex(AGGREGATED_SOURCE)
-                                .property(TestPropertyNames.INT, 1)
-                                .property(TestPropertyNames.TIMESTAMP, timestamp)
-                                .build(),
-                        new Entity.Builder()
-                                .group(ENTITY_2)
-                                .vertex(AGGREGATED_SOURCE)
-                                .property(TestPropertyNames.INT, 2)
-                                .property(TestPropertyNames.TIMESTAMP, timestamp)
-                                .build())
-                .build(), getUser());
-
-        graph.execute(new AddElements.Builder()
-                .input(new Entity.Builder()
-                                .group(ENTITY_2)
-                                .vertex(AGGREGATED_SOURCE)
-                                .property(TestPropertyNames.INT, 2)
-                                .property(TestPropertyNames.TIMESTAMP, timestamp)
-                                .build(),
-                        new Entity.Builder()
-                                .group(ENTITY_2)
-                                .vertex(AGGREGATED_SOURCE)
-                                .property(TestPropertyNames.INT, 3)
-                                .property(TestPropertyNames.TIMESTAMP, timestamp)
-                                .build(),
-                        new Entity.Builder()
-                                .group(ENTITY_2)
-                                .vertex(AGGREGATED_SOURCE)
-                                .property(TestPropertyNames.INT, 9)
-                                .property(TestPropertyNames.TIMESTAMP, timestamp)
-                                .build())
                 .build(), getUser());
 
         // Edge with existing ids but directed
@@ -131,17 +93,10 @@ public class AggregationIT extends AbstractStoreIT {
 
         // Then
         assertNotNull(results);
-        assertEquals(3, results.size());
+        assertEquals(2, results.size());
 
         final Entity expectedEntity = new Entity(TestGroups.ENTITY, AGGREGATED_SOURCE);
         expectedEntity.putProperty(TestPropertyNames.STRING, "3,3,3");
-
-        final Entity expectedEntity2 = new Entity.Builder()
-                .group(ENTITY_2)
-                .vertex(AGGREGATED_SOURCE)
-                .property(TestPropertyNames.INT, 9)
-                .property(TestPropertyNames.TIMESTAMP, timestamp)
-                .build();
 
         final Edge expectedEdge = new Edge.Builder()
                 .group(TestGroups.EDGE)
@@ -154,8 +109,71 @@ public class AggregationIT extends AbstractStoreIT {
 
         assertThat(results, IsCollectionContaining.hasItems(
                 expectedEdge,
-                expectedEntity,
-                expectedEntity2));
+                expectedEntity));
+    }
+
+    @Test
+    @TraitRequirement(StoreTrait.INGEST_AGGREGATION)
+    public void shouldAggregateElementsWithNoGroupBy() throws OperationException, UnsupportedEncodingException {
+        // Given
+        final String vertex = "testVertex1";
+        final long timestamp = System.currentTimeMillis();
+
+        graph.execute(new AddElements.Builder()
+                .input(new Entity.Builder()
+                                .group(ENTITY_2)
+                                .vertex(vertex)
+                                .property(TestPropertyNames.INT, 1)
+                                .property(TestPropertyNames.TIMESTAMP, timestamp)
+                                .build(),
+                        new Entity.Builder()
+                                .group(ENTITY_2)
+                                .vertex(vertex)
+                                .property(TestPropertyNames.INT, 2)
+                                .property(TestPropertyNames.TIMESTAMP, timestamp)
+                                .build())
+                .build(), getUser());
+
+        graph.execute(new AddElements.Builder()
+                .input(new Entity.Builder()
+                                .group(ENTITY_2)
+                                .vertex(vertex)
+                                .property(TestPropertyNames.INT, 2)
+                                .property(TestPropertyNames.TIMESTAMP, timestamp)
+                                .build(),
+                        new Entity.Builder()
+                                .group(ENTITY_2)
+                                .vertex(vertex)
+                                .property(TestPropertyNames.INT, 3)
+                                .property(TestPropertyNames.TIMESTAMP, timestamp)
+                                .build(),
+                        new Entity.Builder()
+                                .group(ENTITY_2)
+                                .vertex(vertex)
+                                .property(TestPropertyNames.INT, 9)
+                                .property(TestPropertyNames.TIMESTAMP, timestamp)
+                                .build())
+                .build(), getUser());
+
+        final GetElements getElements = new GetElements.Builder()
+                .input(new EntitySeed(vertex))
+                .build();
+
+        // When
+        final List<Element> results = Lists.newArrayList(graph.execute(getElements, getUser()));
+
+        // Then
+        assertNotNull(results);
+        assertEquals(1, results.size());
+
+        final Entity expectedEntity2 = new Entity.Builder()
+                .group(ENTITY_2)
+                .vertex(vertex)
+                .property(TestPropertyNames.INT, 9)
+                .property(TestPropertyNames.TIMESTAMP, timestamp)
+                .build();
+
+        assertThat(results, IsCollectionContaining.hasItems(expectedEntity2));
     }
 
     @Test
