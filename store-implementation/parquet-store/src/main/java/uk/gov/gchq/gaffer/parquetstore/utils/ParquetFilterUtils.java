@@ -70,6 +70,10 @@ import static org.apache.parquet.filter2.predicate.FilterApi.not;
 import static org.apache.parquet.filter2.predicate.FilterApi.notEq;
 import static org.apache.parquet.filter2.predicate.FilterApi.or;
 
+/**
+ * This class converts all the inputs to a get elements operation and turns them into a file/directory path to Parquet
+ * filter mapping which can be iterated through to retrieve the filtered elements.
+ */
 public final class ParquetFilterUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetFilterUtils.class);
 
