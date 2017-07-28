@@ -19,6 +19,9 @@ package uk.gov.gchq.gaffer.commonutil;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.TreeSet;
 
 import static org.junit.Assert.assertEquals;
@@ -78,6 +81,87 @@ public class CollectionUtilTest {
 
         // Then
         assertEquals(0, treeSet.size());
+    }
+
+    @Test
+    public void shouldConvertMapToStringKeys() {
+        // Given
+        final Map<Class<? extends Number>, String> map = new HashMap<>();
+        map.put(Integer.class, "integer");
+        map.put(Double.class, "double");
+        map.put(Long.class, "long");
+
+        // When
+        final Map<String, String> result = CollectionUtil.toMapWithStringKeys(map);
+
+        // Then
+        final Map<String, String> expectedResult = new HashMap<>();
+        expectedResult.put(Integer.class.getName(), "integer");
+        expectedResult.put(Double.class.getName(), "double");
+        expectedResult.put(Long.class.getName(), "long");
+        assertEquals(expectedResult, result);
+    }
+
+    @Test
+    public void shouldConvertMapToStringKeysWithProvidedMap() {
+        // Given
+        final Map<Class<? extends Number>, String> map = new HashMap<>();
+        map.put(Integer.class, "integer");
+        map.put(Double.class, "double");
+        map.put(Long.class, "long");
+
+        final Map<String, String> result = new LinkedHashMap<>();
+
+        // When
+        CollectionUtil.toMapWithStringKeys(map, result);
+
+        // Then
+        final Map<String, String> expectedResult = new LinkedHashMap<>();
+        expectedResult.put(Integer.class.getName(), "integer");
+        expectedResult.put(Double.class.getName(), "double");
+        expectedResult.put(Long.class.getName(), "long");
+        assertEquals(expectedResult, result);
+    }
+
+    @Test
+    public void shouldConvertMapToClassKeys() throws ClassNotFoundException {
+        // Given
+        final Map<String, String> map = new HashMap<>();
+        map.put(Integer.class.getName(), "integer");
+        map.put(Double.class.getName(), "double");
+        map.put(Long.class.getName(), "long");
+
+        // When
+        final Map<Class<? extends Number>, String> result = CollectionUtil.toMapWithClassKeys(map);
+
+        // Then
+        final Map<Class<? extends Number>, String> expectedResult = new HashMap<>();
+        expectedResult.put(Integer.class, "integer");
+        expectedResult.put(Double.class, "double");
+        expectedResult.put(Long.class, "long");
+        assertEquals(expectedResult, result);
+    }
+
+    @Test
+    public void shouldConvertMapToClassKeysWithProvidedMap() throws ClassNotFoundException {
+        // Given
+        final Map<String, String> map = new HashMap<>();
+        map.put(Integer.class.getName(), "integer");
+        map.put(Double.class.getName(), "double");
+        map.put(Long.class.getName(), "long");
+
+        final Map<Class<? extends Number>, String> result = new LinkedHashMap<>();
+
+
+        // When
+        CollectionUtil.toMapWithClassKeys(map, result);
+
+        // Then
+        final Map<Class<? extends Number>, String> expectedResult = new LinkedHashMap<>();
+        expectedResult.put(Integer.class, "integer");
+        expectedResult.put(Double.class, "double");
+        expectedResult.put(Long.class, "long");
+        assertEquals(expectedResult, result);
     }
 
     @Test

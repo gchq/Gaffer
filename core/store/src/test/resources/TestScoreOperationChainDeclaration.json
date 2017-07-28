@@ -4,8 +4,14 @@
       "operation": "uk.gov.gchq.gaffer.operation.impl.ScoreOperationChain",
       "handler": {
         "class": "uk.gov.gchq.gaffer.store.operation.handler.ScoreOperationChainHandler",
-        "authScoresFileName": "src/test/resources/authScores.properties",
-        "operationScoresFileName": "src/test/resources/opScores.properties"
+        "opScores": {
+          "uk.gov.gchq.gaffer.operation.Operation": 1,
+          "uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects": 0
+        },
+        "authScores": {
+          "TEST_USER": 4,
+          "TEST_USER_ENHANCED": 10
+        }
       }
     }
   ]

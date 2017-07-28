@@ -37,9 +37,6 @@ public abstract class StreamUtil {
     public static final String ELEMENTS_SCHEMA = SCHEMA_FOLDER + "elements.json";
     public static final String TYPES_SCHEMA = SCHEMA_FOLDER + "types.json";
     public static final String STORE_PROPERTIES = "/store.properties";
-    public static final String OP_AUTHS = "/opAuths.properties";
-    public static final String OP_SCORES = "/opScores.properties";
-    public static final String AUTH_SCORES = "/authScores.properties";
     public static final String FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH = "Failed to create input stream for path: ";
     public static final String LOG_FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH = FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH + "{}";
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamUtil.class);
@@ -70,18 +67,6 @@ public abstract class StreamUtil {
 
     public static InputStream storeProps(final Class clazz) {
         return openStream(clazz, STORE_PROPERTIES);
-    }
-
-    public static InputStream opAuths(final Class clazz) {
-        return openStream(clazz, OP_AUTHS);
-    }
-
-    public static InputStream opScores(final Class clazz) {
-        return openStream(clazz, OP_SCORES);
-    }
-
-    public static InputStream authScores(final Class clazz) {
-        return openStream(clazz, AUTH_SCORES);
     }
 
     public static InputStream[] openStreams(final Class clazz, final String folderPath) {
