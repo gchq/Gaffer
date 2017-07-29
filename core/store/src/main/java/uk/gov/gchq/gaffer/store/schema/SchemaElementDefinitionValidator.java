@@ -68,13 +68,13 @@ public class SchemaElementDefinitionValidator {
 
         if (elementDef instanceof SchemaEntityDefinition &&
                 (null == ((SchemaEntityDefinition) elementDef).getVertex())) {
-            result.addError("Vertex field of the entity is not defined.");
+            result.addError("Entity vertex type is not defined.");
         } else if (elementDef instanceof SchemaEdgeDefinition) {
             if (null == ((SchemaEdgeDefinition) elementDef).getSource()) {
-                result.addError("Source field of edge is not defined.");
+                result.addError("Edge source type is not defined.");
             }
             if (null == ((SchemaEdgeDefinition) elementDef).getDestination()) {
-                result.addError("Destination field of edge is not defined.");
+                result.addError("Edge destination type is not defined.");
             }
         }
 
