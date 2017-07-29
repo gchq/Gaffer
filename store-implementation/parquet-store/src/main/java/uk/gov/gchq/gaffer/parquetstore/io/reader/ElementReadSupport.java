@@ -25,6 +25,10 @@ import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 
 import java.util.Map;
 
+/**
+ * This class provides the {@link ReadSupport} required by the {@link ParquetElementReader} making use of the
+ * {@link ElementRecordMaterialiser} to directly build the Gaffer Elements from the parquet types.
+ */
 public class ElementReadSupport extends ReadSupport<Element> {
     private final boolean isEntity;
     private final GafferGroupObjectConverter converter;

@@ -31,6 +31,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BinaryOperator;
 
+/**
+ * This is used by the Spark reduceByKey method to aggregate two {@link GenericRowWithSchema}'s using the Gaffer aggregator's.
+ */
 public class AggregateGafferRowsFunction implements Function2<GenericRowWithSchema, GenericRowWithSchema, GenericRowWithSchema>, Serializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(AggregateGafferRowsFunction.class);
     private static final long serialVersionUID = -8353767193380574516L;

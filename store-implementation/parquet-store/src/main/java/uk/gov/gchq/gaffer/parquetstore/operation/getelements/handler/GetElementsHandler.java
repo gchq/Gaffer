@@ -32,6 +32,10 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import java.util.Iterator;
 
+/**
+ * An {@link uk.gov.gchq.gaffer.store.operation.handler.OperationHandler} for the {@link GetElements} operation on the
+ * {@link ParquetStore}.
+ */
 public class GetElementsHandler implements OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> {
 
     @Override

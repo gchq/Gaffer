@@ -41,6 +41,9 @@ import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 import java.util.Iterator;
 
+/**
+ * An {@link OperationHandler} for the {@link AddElements} operation on the {@link ParquetStore}.
+ */
 public class AddElementsHandler implements OperationHandler<AddElements> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsHandler.class);
 

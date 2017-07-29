@@ -19,6 +19,10 @@ package uk.gov.gchq.gaffer.parquetstore.serialisation.impl;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
 
+/**
+ * This class is used to serialise and de-serialise a {@link Double} value for use by the
+ * {@link uk.gov.gchq.gaffer.parquetstore.ParquetStore}.
+ */
 public class DoubleParquetSerialiser implements ParquetSerialiser<Double> {
     private static final long serialVersionUID = 1832911259645511610L;
 
