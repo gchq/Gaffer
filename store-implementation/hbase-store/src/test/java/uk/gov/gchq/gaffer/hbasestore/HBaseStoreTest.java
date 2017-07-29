@@ -200,21 +200,6 @@ public class HBaseStoreTest {
     }
 
     @Test
-    public void validationShouldNotBeRequired() {
-        assertFalse(store.isValidationRequired());
-    }
-
-    @Test
-    public void shouldThrowExceptionForUnhandledOperation() {
-        try {
-            store.doUnhandledOperation(new AddElements(), null);
-            fail("Exception expected");
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e.getMessage());
-        }
-    }
-
-    @Test
     public void testStoreReturnsHandlersForRegisteredOperations() throws StoreException {
         // Then
         assertNotNull(store.getOperationHandlerExposed(Validate.class));

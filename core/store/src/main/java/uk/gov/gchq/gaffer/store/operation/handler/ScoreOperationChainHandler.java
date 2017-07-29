@@ -118,7 +118,9 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
 
     public void setOpScores(final LinkedHashMap<Class<? extends Operation>, Integer> opScores) {
         this.opScores.clear();
-        this.opScores.putAll(opScores);
+        if (null != opScores) {
+            this.opScores.putAll(opScores);
+        }
     }
 
     @JsonGetter("opScores")
@@ -141,7 +143,9 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
 
     public void setAuthScores(final Map<String, Integer> authScores) {
         this.authScores.clear();
-        this.authScores.putAll(authScores);
+        if (null != authScores) {
+            this.authScores.putAll(authScores);
+        }
         validateOpScores();
     }
 

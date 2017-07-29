@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.graph;
 
 
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -25,8 +27,6 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
-import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
-import uk.gov.gchq.gaffer.graph.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
@@ -39,6 +39,8 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.library.GraphLibrary;
+import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
@@ -53,23 +55,27 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
+ * <p>
  * The Graph separates the user from the {@link Store}. It holds an instance of the {@link Store} and
  * acts as a proxy for the store, delegating {@link Operation}s to the store.
+ * </p>
  * <p>
  * The Graph provides users with a single point of entry for executing operations on a store.
  * This allows the underlying store to be swapped and the same operations can still be applied.
+ * </p>
  * <p>
  * Graphs also provides a view of the data with a instance of {@link View}. The view filters out unwanted information
  * and can transform {@link uk.gov.gchq.gaffer.data.element.Properties} into transient properties such as averages.
+ * </p>
  * <p>
  * When executing operations on a graph, an operation view would override the graph view.
+ * </p>
  *
  * @see uk.gov.gchq.gaffer.graph.Graph.Builder
  */
 public final class Graph {
     private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
-
-    private final GraphLibrary library;
+    private static final Logger LOGGER = LoggerFactory.getLogger(Graph.class);
 
     /**
      * The instance of the store.
@@ -95,14 +101,12 @@ public final class Graph {
      * Constructs a <code>Graph</code> with the given {@link uk.gov.gchq.gaffer.store.Store} and
      * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.
      *
-     * @param library    a {@link GraphLibrary} to store the graph configuration in.
-     * @param store      a {@link Store} used to store the elements and handle operations.
      * @param schema     a {@link Schema} that defines the graph. Should be the copy of the schema that the store is initialised with.
+     * @param store      a {@link Store} used to store the elements and handle operations.
      * @param view       a {@link View} defining the view of the data for the graph.
      * @param graphHooks a list of {@link GraphHook}s
      */
-    private Graph(final GraphLibrary library, final Schema schema, final Store store, final View view, final List<GraphHook> graphHooks) {
-        this.library = library;
+    private Graph(final Schema schema, final Store store, final View view, final List<GraphHook> graphHooks) {
         this.schema = schema;
         this.store = store;
         this.view = view;
@@ -291,8 +295,11 @@ public final class Graph {
         return store.getGraphId();
     }
 
-    public GraphLibrary getLibrary() {
-        return library;
+    /**
+     * @return the StoreProperties for this Graph.
+     */
+    public StoreProperties getStoreProperties() {
+        return store.getProperties();
     }
 
     public List<Class<? extends GraphHook>> getGraphHooks() {
@@ -553,15 +560,26 @@ public final class Graph {
                 graphId = store.getGraphId();
             }
 
-            final Pair<Schema, StoreProperties> parentGraph;
             if (null != graphId) {
-                parentGraph = library.get(graphId);
-            } else {
-                parentGraph = new Pair<>();
+                Pair<Schema, StoreProperties> parentGraph = library.get(graphId);
+
+                if (null != parentGraph) {
+                    if (null == parentGraph.getSecond()) {
+                        throw new IllegalArgumentException("GraphId " + graphId + " found in GraphLibrary, but no store properties are associated with it.");
+                    }
+                    schema = parentGraph.getFirst();
+                    properties = parentGraph.getSecond();
+
+                    LOGGER.debug("Graph ID " + graphId + " found in graph library. Ignoring any other additional schema/properties");
+                    parentSchemaIds = null;
+                    schemaBytesList.clear();
+                    parentStorePropertiesId = null;
+                    store = null;
+                }
             }
 
-            updateSchema(parentGraph);
-            updateStore(parentGraph);
+            updateSchema();
+            updateStore();
             updateView();
 
             if (null == graphId) {
@@ -573,9 +591,8 @@ public final class Graph {
             }
 
             library.add(graphId, schema, store.getProperties());
-
             updateGraphHooks();
-            return new Graph(library, schema, store, view, graphHooks);
+            return new Graph(schema, store, view, graphHooks);
         }
 
         private void updateGraphHooks() {
@@ -593,12 +610,8 @@ public final class Graph {
             }
         }
 
-        private void updateSchema(final Pair<Schema, StoreProperties> parentGraph) {
+        private void updateSchema() {
             Schema mergedParentSchema = null;
-
-            if (null != parentGraph) {
-                mergedParentSchema = parentGraph.getFirst();
-            }
 
             if (null != parentSchemaIds) {
                 for (final String parentSchemaId : parentSchemaIds) {
@@ -640,19 +653,10 @@ public final class Graph {
             }
         }
 
-        private void updateStore(final Pair<Schema, StoreProperties> parentGraph) {
+        private void updateStore() {
             StoreProperties mergedStoreProperties = null;
-            if (null != parentGraph) {
-                mergedStoreProperties = parentGraph.getSecond();
-            }
-
             if (null != parentStorePropertiesId) {
-                final StoreProperties parentProperties = library.getProperties(parentStorePropertiesId);
-                if (null == mergedStoreProperties) {
-                    mergedStoreProperties = parentProperties;
-                } else {
-                    mergedStoreProperties.getProperties().putAll(parentProperties.getProperties());
-                }
+                mergedStoreProperties = library.getProperties(parentStorePropertiesId);
             }
 
             if (null != properties) {
@@ -685,6 +689,8 @@ public final class Graph {
                     throw new IllegalArgumentException("Unable to initialise the store with the given graphId, schema and properties", e);
                 }
             }
+
+            store.setGraphLibrary(library);
 
             if (null == schema) {
                 schema = store.getSchema();

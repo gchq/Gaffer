@@ -4,14 +4,11 @@ package uk.gov.gchq.gaffer.integration.operation.named.cache;
 import com.google.common.collect.Lists;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.DeleteNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
@@ -19,20 +16,20 @@ import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.DeleteNamedOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.GetAllNamedOperationsHandler;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
-public class NamedOperationCacheIT
-{
-    private static Graph graph;
+public class NamedOperationCacheIT {
     private static final String CACHE_NAME = "NamedOperation";
     private Properties cacheProps = new Properties();
 
@@ -43,22 +40,18 @@ public class NamedOperationCacheIT
                     .first(new GetAllElements.Builder()
                             .build())
                     .build())
+            .overwrite()
             .build();
 
     private User user = new User("user01");
-
-    @BeforeClass
-    public static void setUp() throws ClassNotFoundException, StoreException, IllegalAccessException, InstantiationException {
-        final StoreProperties storeProps = StoreProperties.loadStoreProperties(StreamUtil.storeProps(NamedOperationCacheIT.class));
-        Store store = Class.forName(storeProps.getStoreClass()).asSubclass(Store.class).newInstance();
-        store.initialise("graphId", new Schema(), storeProps);
-        graph = new Graph.Builder()
-                .store(store)
-                .build();
-    }
+    private Context context = new Context(user);
+    private GetAllNamedOperationsHandler getAllNamedOperationsHandler = new GetAllNamedOperationsHandler();
+    private AddNamedOperationHandler addNamedOperationHandler = new AddNamedOperationHandler();
+    private GetAllNamedOperationsHandler getAllNamedOperationsHandler1 = new GetAllNamedOperationsHandler();
+    private DeleteNamedOperationHandler deleteNamedOperationHandler = new DeleteNamedOperationHandler();
 
     @Before
-    public void before() {
+    public void before() throws CacheOperationException {
         cacheProps.clear();
     }
 
@@ -73,9 +66,10 @@ public class NamedOperationCacheIT
         runTests();
     }
 
-    private void reInitialiseCacheService(Class clazz) {
+    private void reInitialiseCacheService(final Class clazz) throws CacheOperationException {
         cacheProps.setProperty(CacheProperties.CACHE_SERVICE_CLASS, clazz.getCanonicalName());
         CacheServiceLoader.initialise(cacheProps);
+        CacheServiceLoader.getService().clearCache(CACHE_NAME);
     }
 
     private void runTests() throws OperationException, CacheOperationException {
@@ -88,12 +82,12 @@ public class NamedOperationCacheIT
 
 
     private void shouldBeAbleToAddNamedOperationToCache() throws OperationException {
-
         // given
         GetAllNamedOperations get = new GetAllNamedOperations.Builder().build();
+        final Store store = mock(Store.class);
 
         // when
-        graph.execute(add, user);
+        addNamedOperationHandler.doOperation(add, context, store);
 
         NamedOperationDetail expectedNamedOp = new NamedOperationDetail.Builder()
                 .operationName(add.getOperationName())
@@ -105,7 +99,7 @@ public class NamedOperationCacheIT
                 .build();
 
         List<NamedOperationDetail> expected = Lists.newArrayList(expectedNamedOp);
-        List<NamedOperationDetail> results = Lists.newArrayList(graph.execute(get, user));
+        List<NamedOperationDetail> results = Lists.newArrayList(new GetAllNamedOperationsHandler().doOperation(get, context, store));
 
         // then
         assertEquals(1, results.size());
@@ -115,7 +109,8 @@ public class NamedOperationCacheIT
 
     private void shouldBeAbleToDeleteNamedOperationFromCache() throws OperationException {
         // given
-        graph.execute(add, user);
+        final Store store = mock(Store.class);
+        new AddNamedOperationHandler().doOperation(add, context, store);
 
         DeleteNamedOperation del = new DeleteNamedOperation.Builder()
                 .name("op")
@@ -124,9 +119,9 @@ public class NamedOperationCacheIT
         GetAllNamedOperations get = new GetAllNamedOperations();
 
         // when
-        graph.execute(del, user);
+        deleteNamedOperationHandler.doOperation(del, context, store);
 
-        List<NamedOperationDetail> results = Lists.newArrayList(graph.execute(get, user));
+        List<NamedOperationDetail> results = Lists.newArrayList(getAllNamedOperationsHandler1.doOperation(get, context, store));
 
         // then
         assertEquals(0, results.size());
@@ -136,7 +131,8 @@ public class NamedOperationCacheIT
 
     private void shouldAllowUpdatingOfNamedOperations() throws OperationException {
         // given
-        graph.execute(add, user);
+        final Store store = mock(Store.class);
+        new AddNamedOperationHandler().doOperation(add, context, store);
 
         AddNamedOperation update = new AddNamedOperation.Builder()
                 .name(add.getOperationName())
@@ -148,9 +144,9 @@ public class NamedOperationCacheIT
         GetAllNamedOperations get = new GetAllNamedOperations();
 
         // when
-        graph.execute(update, user);
+        new AddNamedOperationHandler().doOperation(add, context, store);
 
-        List<NamedOperationDetail> results = Lists.newArrayList(graph.execute(get, user));
+        List<NamedOperationDetail> results = Lists.newArrayList(getAllNamedOperationsHandler.doOperation(get, context, store));
 
         NamedOperationDetail expectedNamedOp = new NamedOperationDetail.Builder()
                 .operationName(update.getOperationName())

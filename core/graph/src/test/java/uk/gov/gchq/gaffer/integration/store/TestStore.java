@@ -67,11 +67,6 @@ public class TestStore extends Store {
     }
 
     @Override
-    public boolean isValidationRequired() {
-        return mockStore.isValidationRequired();
-    }
-
-    @Override
     protected void addAdditionalOperationHandlers() {
     }
 
@@ -92,11 +87,6 @@ public class TestStore extends Store {
 
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
-        return null;
-    }
-
-    @Override
-    protected Object doUnhandledOperation(final Operation operation, final Context context) {
         return null;
     }
 

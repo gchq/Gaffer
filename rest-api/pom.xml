@@ -29,6 +29,7 @@
         <module>core-rest</module>
         <module>accumulo-rest</module>
         <module>hbase-rest</module>
+        <module>parquet-rest</module>
         <module>map-rest</module>
     </modules>
 </project>

@@ -46,7 +46,7 @@ import uk.gov.gchq.gaffer.graph.hook.Log4jLogger;
 import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
 import uk.gov.gchq.gaffer.graph.hook.OperationAuthoriser;
 import uk.gov.gchq.gaffer.graph.hook.OperationChainLimiter;
-import uk.gov.gchq.gaffer.graph.library.HashMapGraphLibrary;
+import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.integration.store.TestStore;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
@@ -60,7 +60,6 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawDoubleSerialiser;
-import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
@@ -172,7 +171,7 @@ public class GraphTest {
     public void shouldConstructGraphFromSchemaFolderPath() throws IOException {
         // Given
         final Schema expectedSchema = new Schema.Builder()
-                .json(StreamUtil.dataSchema(getClass()), StreamUtil.dataTypes(getClass()))
+                .json(StreamUtil.elementsSchema(getClass()), StreamUtil.typesSchema(getClass()))
                 .build();
 
         Graph graph = null;
@@ -199,11 +198,11 @@ public class GraphTest {
     @Test
     public void shouldConstructGraphFromSchemaURI() throws IOException, URISyntaxException {
         // Given
-        final URI typeInputUri = getResourceUri(StreamUtil.DATA_TYPES);
-        final URI schemaInputUri = getResourceUri(StreamUtil.DATA_SCHEMA);
+        final URI typeInputUri = getResourceUri(StreamUtil.TYPES_SCHEMA);
+        final URI schemaInputUri = getResourceUri(StreamUtil.ELEMENTS_SCHEMA);
         final URI storeInputUri = getResourceUri(StreamUtil.STORE_PROPERTIES);
         final Schema expectedSchema = new Schema.Builder()
-                .json(StreamUtil.dataSchema(getClass()), StreamUtil.dataTypes(getClass()))
+                .json(StreamUtil.elementsSchema(getClass()), StreamUtil.typesSchema(getClass()))
                 .build();
         Graph graph = null;
         File schemaDir = null;
@@ -787,13 +786,7 @@ public class GraphTest {
         }
 
         @Override
-        public boolean isValidationRequired() {
-            return false;
-        }
-
-        @Override
         protected void addAdditionalOperationHandlers() {
-
         }
 
         @Override
@@ -817,11 +810,6 @@ public class GraphTest {
         }
 
         @Override
-        protected Object doUnhandledOperation(final Operation operation, final Context context) {
-            return null;
-        }
-
-        @Override
         protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
             return ToBytesSerialiser.class;
         }
@@ -829,8 +817,8 @@ public class GraphTest {
 
     private File createSchemaDirectory() throws IOException {
         final File tmpDir = tempFolder.newFolder("tmpSchemaDir");
-        writeToFile("dataSchema.json", tmpDir);
-        writeToFile("dataTypes.json", tmpDir);
+        writeToFile("elements.json", tmpDir);
+        writeToFile("types.json", tmpDir);
         return tmpDir;
     }
 
