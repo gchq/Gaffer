@@ -26,6 +26,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Will iterate through all the Parquet files contained inside a given path. This is used by the
+ * {@link uk.gov.gchq.gaffer.parquetstore.operation.getelements.impl.ParquetElementRetriever}.
+ */
 public class ParquetFileIterator implements Iterator<Path> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetFileIterator.class);
