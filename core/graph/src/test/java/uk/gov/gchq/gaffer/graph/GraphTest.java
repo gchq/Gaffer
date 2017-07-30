@@ -121,9 +121,14 @@ public class GraphTest {
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
                         .build())
+                .type("vertex", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
                         .aggregate(false)
+                        .source("vertex")
+                        .destination("vertex")
                         .build())
                 .build();
 
@@ -131,9 +136,14 @@ public class GraphTest {
                 .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
                         .clazz(Integer.class)
                         .build())
+                .type("vertex2", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
                 .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
                         .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER)
                         .aggregate(false)
+                        .source("vertex2")
+                        .destination("vertex2")
                         .build())
                 .build();
 
@@ -141,6 +151,10 @@ public class GraphTest {
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
                         .aggregate(false)
+                        .vertex("vertex3")
+                        .build())
+                .type("vertex3", new TypeDefinition.Builder()
+                        .clazz(String.class)
                         .build())
                 .build();
 
@@ -148,6 +162,10 @@ public class GraphTest {
                 .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
                         .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER)
                         .aggregate(false)
+                        .vertex("vertex4")
+                        .build())
+                .type("vertex4", new TypeDefinition.Builder()
+                        .clazz(String.class)
                         .build())
                 .build();
 
@@ -752,8 +770,8 @@ public class GraphTest {
             new Graph.Builder()
                     .graphId(GRAPH_ID)
                     .addSchema(new Schema.Builder()
-                            .edge("group")
-                            .entity("group")
+                            .edge("group", new SchemaEdgeDefinition())
+                            .entity("group", new SchemaEntityDefinition())
                             .build())
                     .storeProperties(storeProperties)
                     .build();
@@ -865,9 +883,14 @@ public class GraphTest {
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
                         .build())
+                .type("vertex", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
                         .aggregate(false)
+                        .source("vertex")
+                        .destination("vertex")
                         .build())
                 .build();
 
@@ -875,9 +898,14 @@ public class GraphTest {
                 .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
                         .clazz(Integer.class)
                         .build())
+                .type("vertex2", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
                 .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
                         .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER)
                         .aggregate(false)
+                        .source("vertex2")
+                        .destination("vertex2")
                         .build())
                 .build();
 
@@ -885,6 +913,10 @@ public class GraphTest {
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
                         .aggregate(false)
+                        .vertex("vertex3")
+                        .build())
+                .type("vertex3", new TypeDefinition.Builder()
+                        .clazz(String.class)
                         .build())
                 .build();
 
@@ -892,6 +924,10 @@ public class GraphTest {
                 .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
                         .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER)
                         .aggregate(false)
+                        .vertex("vertex4")
+                        .build())
+                .type("vertex4", new TypeDefinition.Builder()
+                        .clazz(String.class)
                         .build())
                 .build();
 
