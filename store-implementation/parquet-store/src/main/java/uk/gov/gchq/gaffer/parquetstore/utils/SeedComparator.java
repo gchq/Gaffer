@@ -22,6 +22,10 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 import java.util.Comparator;
 
+/**
+ * This class is used to sort the seeds to optimise the way the {@link uk.gov.gchq.gaffer.parquetstore.ParquetStore}
+ * maps a seed to a specific file which allows the seed filter to only be applied to the relevant files.
+ */
 public class SeedComparator implements Comparator<Object>, Serializable {
 
     private static final long serialVersionUID = 8415485366776438127L;

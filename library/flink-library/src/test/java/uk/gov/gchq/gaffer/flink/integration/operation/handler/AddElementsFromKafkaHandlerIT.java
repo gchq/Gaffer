@@ -21,7 +21,6 @@ import kafka.server.KafkaServer;
 import kafka.utils.MockTime;
 import kafka.utils.TestUtils;
 import org.apache.curator.test.TestingServer;
-import org.apache.flink.testutils.junit.RetryOnFailure;
 import org.apache.flink.testutils.junit.RetryRule;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -34,6 +33,7 @@ import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
 import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromKafka;
 import uk.gov.gchq.gaffer.user.User;
@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 public class AddElementsFromKafkaHandlerIT extends FlinkTest {
     private static final String TOPIC = UUID.randomUUID().toString();
@@ -64,6 +65,8 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
 
         // Create kafka server
         kafkaServer = TestUtils.createServer(new KafkaConfig(serverProperties()), new MockTime());
+
+        MapStore.resetStaticMap();
     }
 
     @After
@@ -81,9 +84,6 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
         }
     }
 
-    // For some unknown reason flink fails to connect to this test kafka instance
-    // on the first attempt. It does work properly with a real kafka instance.
-    @RetryOnFailure(times = 1)
     @Test
     public void shouldAddElements() throws Exception {
         // Given
@@ -110,14 +110,27 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
             }
         }).start();
 
-        // Create kafka producer and add some data
-        producer = new KafkaProducer<>(producerProps());
-        for (final String dataValue : DATA_VALUES) {
-            producer.send(new ProducerRecord<>(TOPIC, dataValue)).get();
-        }
+        Thread.sleep(20000);
+
+        new Thread(() -> {
+            // Create kafka producer and add some data
+            producer = new KafkaProducer<>(producerProps());
+            for (final String dataValue : DATA_VALUES) {
+                try {
+                    producer.send(new ProducerRecord<>(TOPIC, dataValue)).get();
+                } catch (InterruptedException | ExecutionException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).start();
 
         // Then
-        verifyElements(graph);
+        try {
+            verifyElements(graph);
+        } catch (final AssertionError e) {
+            Thread.sleep(10000);
+            verifyElements(graph);
+        }
     }
 
     private File createZookeeperTmpDir() throws IOException {
