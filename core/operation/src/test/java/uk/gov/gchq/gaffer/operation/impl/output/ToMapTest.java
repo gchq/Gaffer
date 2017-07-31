@@ -35,31 +35,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 
-public class ToMapTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return ToMap.class;
-    }
+public class ToMapTest extends OperationTest<ToMap> {
 
     @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet("elementGenerator");
-    }
-
-    @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
-        // Given
-        final GetAllElements op = new GetAllElements();
-
-        // When
-        byte[] json = serialiser.serialise(op, true);
-        final GetAllElements deserialisedOp = serialiser.deserialise(json, GetAllElements.class);
-
-        // Then
-        assertNotNull(deserialisedOp);
     }
 
     @Test
@@ -75,5 +55,10 @@ public class ToMapTest extends OperationTest {
         assertThat(toMap.getInput(), is(notNullValue()));
         assertThat(toMap.getInput(), iterableWithSize(2));
         assertThat(toMap.getElementGenerator(), is(notNullValue()));
+    }
+
+    @Override
+    protected ToMap getTestObject() {
+        return new ToMap();
     }
 }

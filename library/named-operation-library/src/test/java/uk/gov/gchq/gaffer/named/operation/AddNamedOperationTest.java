@@ -31,21 +31,15 @@ import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
-public class AddNamedOperationTest extends OperationTest {
+public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
 
     private static final JSONSerialiser serialiser = new JSONSerialiser();
     private static final OperationChain OPERATION_CHAIN = new OperationChain.Builder().first(new GetAdjacentIds.Builder().input(new EntitySeed("seed")).build()).build();
 
     public static final String USER = "User";
 
-    @Override
-    protected Class<? extends Operation> getOperationClass() {
-        return AddNamedOperation.class;
-    }
-
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException, JsonProcessingException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException, JsonProcessingException {
         final AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
                 .operationChain(OPERATION_CHAIN)
                 .description("Test Named Operation")
@@ -92,5 +86,12 @@ public class AddNamedOperationTest extends OperationTest {
         assertEquals("Test Named Operation", addNamedOperation.getDescription());
         assertEquals(Arrays.asList(USER), addNamedOperation.getReadAccessRoles());
         assertEquals(Arrays.asList(USER), addNamedOperation.getWriteAccessRoles());
+    }
+
+    @Override
+    protected AddNamedOperation getTestObject() {
+        return new AddNamedOperation.Builder()
+                .operationChain(OPERATION_CHAIN)
+                .build();
     }
 }

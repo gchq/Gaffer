@@ -37,31 +37,11 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-public class MaxTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return Max.class;
-    }
+public class MaxTest extends OperationTest<Max> {
 
     @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet("comparators");
-    }
-
-    @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException, JsonProcessingException {
-        // Given
-        final Max op = new Max();
-
-        // When
-        byte[] json = serialiser.serialise(op, true);
-        final Max deserialisedOp = serialiser.deserialise(json, Max.class);
-
-        // Then
-        assertNotNull(deserialisedOp);
     }
 
     @Test
@@ -87,5 +67,10 @@ public class MaxTest extends OperationTest {
         assertThat(Streams.toStream(max.getInput())
                 .map(e -> e.getProperty("property"))
                 .collect(toList()), containsInAnyOrder(1, 2));
+    }
+
+    @Override
+    protected Max getTestObject() {
+        return new Max();
     }
 }
