@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import java.util.Arrays;
 import java.util.Set;
 
@@ -36,7 +37,7 @@ public class ExportToOtherGraphTest extends OperationTest<ExportToOtherGraph> {
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException, JsonProcessingException {
         // Given
         final Schema schema = new Schema.Builder()
-                .entity(TestGroups.ENTITY)
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition())
                 .build();
         final StoreProperties storeProperties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
         final ExportToOtherGraph op = new ExportToOtherGraph.Builder()
@@ -63,7 +64,7 @@ public class ExportToOtherGraphTest extends OperationTest<ExportToOtherGraph> {
     public void builderShouldCreatePopulatedOperation() {
         // Given
         final Schema schema = new Schema.Builder()
-                .entity(TestGroups.ENTITY)
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition())
                 .build();
         final StoreProperties storeProperties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
 

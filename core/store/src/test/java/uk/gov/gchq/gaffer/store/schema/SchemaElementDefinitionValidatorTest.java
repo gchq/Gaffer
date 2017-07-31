@@ -250,6 +250,7 @@ public class SchemaElementDefinitionValidatorTest {
         final BinaryOperator function2 = mock(BinaryOperator.class);
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex("int1")
                         .property(TestPropertyNames.PROP_1, "int1")
                         .property(TestPropertyNames.PROP_2, "int2")
                         .build())
