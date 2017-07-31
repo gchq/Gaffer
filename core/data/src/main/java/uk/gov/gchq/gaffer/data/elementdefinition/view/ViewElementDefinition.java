@@ -24,6 +24,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinition;
@@ -49,10 +50,11 @@ import java.util.Set;
 @JsonDeserialize(builder = ViewElementDefinition.Builder.class)
 public class ViewElementDefinition implements ElementDefinition, Cloneable {
     private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
-    protected ElementTransformer transformer;
     protected ElementFilter preAggregationFilter;
     protected ElementFilter postAggregationFilter;
+    protected ElementAggregator aggregator;
     protected ElementFilter postTransformFilter;
+    protected ElementTransformer transformer;
 
     /**
      * This field overrides the group by properties in the schema.
@@ -136,6 +138,14 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
 
     public boolean hasPreAggregationFilters() {
         return null != preAggregationFilter && !preAggregationFilter.getComponents().isEmpty();
+    }
+
+    public ElementAggregator getAggregator() {
+        return aggregator;
+    }
+
+    public void setAggregator(final ElementAggregator aggregator) {
+        this.aggregator = aggregator;
     }
 
     @JsonIgnore
@@ -284,6 +294,11 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
         public CHILD_CLASS preAggregationFilterFunctions(final List<TupleAdaptedPredicate<String, ?>> filterFunctions) {
             getElementDef().preAggregationFilter = new ElementFilter();
             getElementDef().preAggregationFilter.getComponents().addAll(filterFunctions);
+            return self();
+        }
+
+        public CHILD_CLASS aggregator(final ElementAggregator aggregator) {
+            getElementDef().aggregator = aggregator;
             return self();
         }
 
