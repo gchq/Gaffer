@@ -13,6 +13,11 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.SeedMatching;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
+import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.store.SerialisationFactory;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -21,6 +26,7 @@ import uk.gov.gchq.gaffer.types.TypeValue;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import static org.apache.parquet.filter2.predicate.FilterApi.and;
 import static org.apache.parquet.filter2.predicate.FilterApi.binaryColumn;
@@ -29,7 +35,7 @@ import static org.apache.parquet.filter2.predicate.FilterApi.eq;
 import static org.junit.Assert.assertEquals;
 
 public class ConvertViewToFilterTest {
-    private SchemaUtils schemaUtils;
+    private ParquetFilterUtils filterUtils;
 
     @Before
     public void setUp() throws StoreException {
@@ -39,13 +45,14 @@ public class ConvertViewToFilterTest {
                 getClass().getResourceAsStream("/schemaUsingTypeValueVertexType/dataTypes.json"),
                 getClass().getResourceAsStream("/schemaUsingTypeValueVertexType/storeSchema.json"),
                 getClass().getResourceAsStream("/schemaUsingTypeValueVertexType/storeTypes.json"));
-        final SchemaOptimiser optimiser = new SchemaOptimiser(new SerialisationFactory(ParquetStoreConstants.SERIALISERS));
-        schemaUtils = new SchemaUtils(optimiser.optimise(schema, true));
+        final ParquetStore store = new ParquetStore();
+        store.initialise("ConvertViewToFilterTest", schema, new ParquetStoreProperties());
+        filterUtils = new ParquetFilterUtils(store);
     }
 
     @After
     public void cleanUp() {
-        schemaUtils = null;
+        filterUtils = null;
     }
 
     @Test
@@ -59,7 +66,8 @@ public class ConvertViewToFilterTest {
                                 .build())
                         .build())
                 .build();
-        final FilterPredicate filter = ParquetFilterUtils.buildGroupFilter(view, schemaUtils, "BasicEntity", DirectedType.EITHER, true).get0();
+        filterUtils.buildPathToFilterMap(view, DirectedType.EITHER, SeededGraphFilters.IncludeIncomingOutgoingType.EITHER, SeedMatching.SeedMatchingType.EQUAL, new ArrayList<>(), new GraphIndex());
+        final FilterPredicate filter = filterUtils.buildGroupFilter("BasicEntity", true);
         final FilterPredicate expected = eq(doubleColumn("double"), 2.0);
         assertEquals(expected, filter);
     }
@@ -75,7 +83,8 @@ public class ConvertViewToFilterTest {
                                 .build())
                         .build())
                 .build();
-        final FilterPredicate filter = ParquetFilterUtils.buildGroupFilter(view, schemaUtils, "BasicEntity", DirectedType.EITHER, true).get0();
+        filterUtils.buildPathToFilterMap(view, DirectedType.EITHER, SeededGraphFilters.IncludeIncomingOutgoingType.EITHER, SeedMatching.SeedMatchingType.EQUAL, new ArrayList<>(), new GraphIndex());
+        final FilterPredicate filter = filterUtils.buildGroupFilter("BasicEntity", true);
         final FilterPredicate expected = and(eq(binaryColumn("VERTEX_type"), Binary.fromString("type")), eq(binaryColumn("VERTEX_value"), Binary.fromString("value")));
         assertEquals(expected, filter);
     }
@@ -91,7 +100,8 @@ public class ConvertViewToFilterTest {
                                 .build())
                         .build())
                 .build();
-        final FilterPredicate filter = ParquetFilterUtils.buildGroupFilter(view, schemaUtils, "BasicEntity", DirectedType.EITHER, true).get0();
+        filterUtils.buildPathToFilterMap(view, DirectedType.EITHER, SeededGraphFilters.IncludeIncomingOutgoingType.EITHER, SeedMatching.SeedMatchingType.EQUAL, new ArrayList<>(), new GraphIndex());
+        final FilterPredicate filter = filterUtils.buildGroupFilter("BasicEntity", true);
         final FilterPredicate expected = eq(binaryColumn("freqMap.type_value.key"), Binary.fromString("test"));
         assertEquals(expected, filter);
     }
