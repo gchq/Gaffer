@@ -37,6 +37,7 @@ public class ExportToOtherAuthorisedGraphExample extends OperationExample {
     @Override
     public void runExamples() {
         simpleExport();
+        simpleExportUsingParentIds();
     }
 
     public void simpleExport() {
@@ -58,6 +59,29 @@ public class ExportToOtherAuthorisedGraphExample extends OperationExample {
         showExample(opChain, "This example will export all Edges with group 'edge' to another Gaffer graph with new ID 'newGraphId'. " +
                 "The new graph will have the same schema and same store properties as the current graph. " +
                 "In this case it will just create another table in accumulo called 'newGraphId'. " +
+                "It will also compare the running users Operation authorisations to the authorisations supplied to the exporter.");
+    }
+
+    public void simpleExportUsingParentIds() {
+
+        // ---------------------------------------------------------
+        final OperationChain<Iterable<? extends Element>> opChain =
+                new OperationChain.Builder()
+                        .first(new GetAllElements.Builder()
+                                .view(new View.Builder()
+                                        .edge("edge")
+                                        .build())
+                                .build())
+                        .then(new ExportToOtherAuthorisedGraph.Builder()
+                                .graphId("newGraphId")
+                                .parentStorePropertiesId("storePropsId1")
+                                .parentSchemaId("schemaId1")
+                                .build())
+                        .build();
+        // ---------------------------------------------------------
+
+        showExample(opChain, "This example will export all Edges with group 'edge' to another Gaffer graph with new ID 'newGraphId'. " +
+                "The new graph will have a parent Schema and Store Properties within the graph library specifed by the ID's. " +
                 "It will also compare the running users Operation authorisations to the authorisations supplied to the exporter.");
     }
 }
