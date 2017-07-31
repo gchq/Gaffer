@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.doc.user.walkthrough;
 
 import org.apache.commons.io.IOUtils;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
@@ -25,6 +26,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.doc.user.generator.RoadAndRoadUseWithTimesElementGenerator;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -168,6 +170,8 @@ public class Aggregation extends UserWalkthrough {
                                 .build())
                         .build())
                 .build();
+
+        log("GET_ALL_EDGES_SUMMARISED_IN_TIME_WINDOW_RESULT_WITH_MIN_COUNT_JSON", StringUtil.toString(new JSONSerialiser().serialise(edgesSummarisedInTimeWindowWithMinCountOperation, true)));
 
         final CloseableIterable<? extends Element> edgesSummarisedInTimeWindowWithMinCount = graph.execute(edgesSummarisedInTimeWindowWithMinCountOperation, user);
         // ---------------------------------------------------------

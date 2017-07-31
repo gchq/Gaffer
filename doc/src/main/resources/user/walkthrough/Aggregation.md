@@ -70,13 +70,20 @@ When executing a query you can override the logic for how Gaffer aggregates prop
 So by default the count property is aggregated with Sum. 
 At query time we could change that, to force the count property is aggregated with the Min aggregator, therefore finding the minimum daily count.
 This feature doesn't affect any of the persisted values and any store aggregation that has already occurred will not be modified.
-So in this example the Edges has been summarised into daily time buckets and the counts have been aggregated with Sum.
+So in this example the Edges have been summarised into daily time buckets and the counts have been aggregated with Sum.
 Now at query time we are able to ask: What is the minimum daily count?
 
 Here is the java code:
 ${GET_ALL_EDGES_SUMMARISED_IN_TIME_WINDOW_WITH_MIN_COUNT_SNIPPET}
 
-we have increased the time window to 3 days just so there are multiple edges to demonstrate the query time aggregation.
+So, you can see we have just added an extra 'aggregator' block to the Operation view.
+This can be written in json like this:
+
+```json
+${GET_ALL_EDGES_SUMMARISED_IN_TIME_WINDOW_RESULT_WITH_MIN_COUNT_JSON}
+```
+ 
+We have increased the time window to 3 days just so there are multiple edges to demonstrate the query time aggregation.
 The result is:
 
 ```
