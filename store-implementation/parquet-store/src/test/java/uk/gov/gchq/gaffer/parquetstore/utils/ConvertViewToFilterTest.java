@@ -7,6 +7,8 @@ import org.apache.parquet.io.api.Binary;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -18,10 +20,8 @@ import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
-import uk.gov.gchq.gaffer.store.SerialisationFactory;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.types.TypeValue;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 
@@ -40,11 +40,7 @@ public class ConvertViewToFilterTest {
     @Before
     public void setUp() throws StoreException {
         Logger.getRootLogger().setLevel(Level.WARN);
-        final Schema schema = Schema.fromJson(
-                getClass().getResourceAsStream("/schemaUsingTypeValueVertexType/dataSchema.json"),
-                getClass().getResourceAsStream("/schemaUsingTypeValueVertexType/dataTypes.json"),
-                getClass().getResourceAsStream("/schemaUsingTypeValueVertexType/storeSchema.json"),
-                getClass().getResourceAsStream("/schemaUsingTypeValueVertexType/storeTypes.json"));
+        final Schema schema = Schema.fromJson(StreamUtil.openStreams(ConvertViewToFilterTest.class, "schemaUsingTypeValueVertexType"));
         final ParquetStore store = new ParquetStore();
         store.initialise("ConvertViewToFilterTest", schema, new ParquetStoreProperties());
         filterUtils = new ParquetFilterUtils(store);
@@ -57,7 +53,7 @@ public class ConvertViewToFilterTest {
 
     @Test
     public void getBasicGroupFilterTest() throws OperationException, SerialisationException {
-        final View view = new View.Builder().entity("BasicEntity",
+        final View view = new View.Builder().entity(TestGroups.ENTITY,
                 new ViewElementDefinition.Builder().preAggregationFilter(
                         new ElementFilter.Builder()
                                 .select("double")
@@ -67,14 +63,14 @@ public class ConvertViewToFilterTest {
                         .build())
                 .build();
         filterUtils.buildPathToFilterMap(view, DirectedType.EITHER, SeededGraphFilters.IncludeIncomingOutgoingType.EITHER, SeedMatching.SeedMatchingType.EQUAL, new ArrayList<>(), new GraphIndex());
-        final FilterPredicate filter = filterUtils.buildGroupFilter("BasicEntity", true);
+        final FilterPredicate filter = filterUtils.buildGroupFilter(TestGroups.ENTITY, true);
         final FilterPredicate expected = eq(doubleColumn("double"), 2.0);
         assertEquals(expected, filter);
     }
 
     @Test
     public void getMultiColumnGroupFilterTest() throws OperationException, IOException {
-        final View view = new View.Builder().entity("BasicEntity",
+        final View view = new View.Builder().entity(TestGroups.ENTITY,
                 new ViewElementDefinition.Builder().preAggregationFilter(
                         new ElementFilter.Builder()
                                 .select(ParquetStoreConstants.VERTEX)
@@ -84,14 +80,14 @@ public class ConvertViewToFilterTest {
                         .build())
                 .build();
         filterUtils.buildPathToFilterMap(view, DirectedType.EITHER, SeededGraphFilters.IncludeIncomingOutgoingType.EITHER, SeedMatching.SeedMatchingType.EQUAL, new ArrayList<>(), new GraphIndex());
-        final FilterPredicate filter = filterUtils.buildGroupFilter("BasicEntity", true);
+        final FilterPredicate filter = filterUtils.buildGroupFilter(TestGroups.ENTITY, true);
         final FilterPredicate expected = and(eq(binaryColumn("VERTEX_type"), Binary.fromString("type")), eq(binaryColumn("VERTEX_value"), Binary.fromString("value")));
         assertEquals(expected, filter);
     }
 
     @Test
     public void getNestedGroupFilterTest() throws OperationException, IOException {
-        final View view = new View.Builder().entity("BasicEntity",
+        final View view = new View.Builder().entity(TestGroups.ENTITY,
                 new ViewElementDefinition.Builder().preAggregationFilter(
                         new ElementFilter.Builder()
                                 .select("freqMap.type_value.key")
@@ -101,7 +97,7 @@ public class ConvertViewToFilterTest {
                         .build())
                 .build();
         filterUtils.buildPathToFilterMap(view, DirectedType.EITHER, SeededGraphFilters.IncludeIncomingOutgoingType.EITHER, SeedMatching.SeedMatchingType.EQUAL, new ArrayList<>(), new GraphIndex());
-        final FilterPredicate filter = filterUtils.buildGroupFilter("BasicEntity", true);
+        final FilterPredicate filter = filterUtils.buildGroupFilter(TestGroups.ENTITY, true);
         final FilterPredicate expected = eq(binaryColumn("freqMap.type_value.key"), Binary.fromString("test"));
         assertEquals(expected, filter);
     }

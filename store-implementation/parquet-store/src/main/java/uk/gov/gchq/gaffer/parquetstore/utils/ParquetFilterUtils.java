@@ -21,6 +21,7 @@ import org.apache.parquet.filter2.predicate.FilterPredicate;
 import org.apache.parquet.io.api.Binary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -43,7 +44,6 @@ import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.impl.predicate.IsTrue;
 import uk.gov.gchq.koryphe.impl.predicate.Not;
 import uk.gov.gchq.koryphe.impl.predicate.Or;
-import uk.gov.gchq.koryphe.tuple.n.Tuple2;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 
 import java.util.ArrayList;
@@ -76,7 +76,9 @@ import static org.apache.parquet.filter2.predicate.FilterApi.or;
  * filter mapping which can be iterated through to retrieve the filtered elements.
  */
 public final class ParquetFilterUtils {
+    private static final SeedComparator COMPARATOR = new SeedComparator();
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetFilterUtils.class);
+
     private final String rootDir;
     private final SchemaUtils schemaUtils;
     private String dataDir;
@@ -88,7 +90,6 @@ public final class ParquetFilterUtils {
     private GraphIndex graphIndex;
     private final Map<Path, FilterPredicate> pathToFilterMap;
     private boolean requiresValidation;
-    private static final SeedComparator COMPARATOR = new SeedComparator();
 
     /**
      * The constructor which sets up this object so it is ready to convert the inputs for get elements operations and
@@ -196,9 +197,9 @@ public final class ParquetFilterUtils {
                 } else {
                     identifier = ParquetStoreConstants.SOURCE;
                 }
-                final Tuple2<List<Object[]>, Map<Object[], Tuple2<Object[], DirectedType>>> prepSeedsResult = prepSeeds(identifier, group);
-                final List<Object[]> sortedSeeds = prepSeedsResult.get0();
-                final Map<Object[], Tuple2<Object[], DirectedType>> seed2Parts = prepSeedsResult.get1();
+                final Pair<List<Object[]>, Map<Object[], Pair<Object[], DirectedType>>> prepSeedsResult = prepSeeds(identifier, group);
+                final List<Object[]> sortedSeeds = prepSeedsResult.getFirst();
+                final Map<Object[], Pair<Object[], DirectedType>> seed2Parts = prepSeedsResult.getSecond();
                 // Build graph path to filter
                 buildSeedFilterForIndex(sortedSeeds, identifier, group, isEntityGroup, seed2Parts);
                 if (!isEntityGroup) {
@@ -223,10 +224,10 @@ public final class ParquetFilterUtils {
      * directed type if the seed is an {@link EdgeSeed}.
      * @throws SerialisationException if the conversion from the seed to corresponding Parquet objects fails
      */
-    private Tuple2<List<Object[]>, Map<Object[], Tuple2<Object[], DirectedType>>> prepSeeds(final String identifier,
-                                                                                            final String group)
+    private Pair<List<Object[]>, Map<Object[], Pair<Object[], DirectedType>>> prepSeeds(final String identifier,
+                                                                                          final String group)
             throws SerialisationException {
-        final HashMap<Object[], Tuple2<Object[], DirectedType>> seed2parts = new HashMap<>();
+        final HashMap<Object[], Pair<Object[], DirectedType>> seed2parts = new HashMap<>();
         final GafferGroupObjectConverter converter = schemaUtils.getConverter(group);
         final List<Object[]> sortedSeeds = new ArrayList<>();
         for (final ElementId elementSeed : seeds) {
@@ -237,15 +238,15 @@ public final class ParquetFilterUtils {
                 final EdgeSeed edgeSeed = (EdgeSeed) elementSeed;
                 final Object[] serialisedSeed = converter.gafferObjectToParquetObjects(identifier, edgeSeed.getSource());
                 sortedSeeds.add(serialisedSeed);
-                seed2parts.put(serialisedSeed, new Tuple2<>(converter.gafferObjectToParquetObjects(identifier, edgeSeed.getDestination()), edgeSeed.getDirectedType()));
+                seed2parts.put(serialisedSeed, new Pair<>(converter.gafferObjectToParquetObjects(identifier, edgeSeed.getDestination()), edgeSeed.getDirectedType()));
             }
         }
         sortedSeeds.sort(COMPARATOR);
-        return new Tuple2<>(sortedSeeds, seed2parts);
+        return new Pair<>(sortedSeeds, seed2parts);
     }
 
     /**
-     * This method this method adds to the pathToFilterMap all the relevant mappings for the given group and indexedColumn
+     * This method adds to the pathToFilterMap all the relevant mappings for the given group and indexedColumn
      * based on the seeds
      *
      * @param sortedSeeds   a {@link Set} of Parquet Objects representing the seeds sorted using the {@link SeedComparator}
@@ -258,7 +259,7 @@ public final class ParquetFilterUtils {
      * @throws OperationException   If a serialiser is used which serialises objects to a type not supported
      */
     private void buildSeedFilterForIndex(final List<Object[]> sortedSeeds, final String indexedColumn, final String group,
-                                         final boolean isEntityGroup, final Map<Object[], Tuple2<Object[], DirectedType>> seed2Parts)
+                                         final boolean isEntityGroup, final Map<Object[], Pair<Object[], DirectedType>> seed2Parts)
             throws OperationException, SerialisationException {
         final Map<Object[], Set<Path>> seedsToPaths = getIndexedPathsForSeeds(sortedSeeds, indexedColumn, group);
         for (final Map.Entry<Object[], Set<Path>> entry : seedsToPaths.entrySet()) {
@@ -287,7 +288,7 @@ public final class ParquetFilterUtils {
             final Object[] currentSeed,
             final String indexedColumn,
             final String group,
-            final Tuple2<Object[], DirectedType> parts,
+            final Pair<Object[], DirectedType> parts,
             final Boolean isEntityGroup) throws OperationException, SerialisationException {
         FilterPredicate filter = null;
         // Is it an entity group?
@@ -300,7 +301,7 @@ public final class ParquetFilterUtils {
                 if (seedMatchingType != SeedMatching.SeedMatchingType.EQUAL) {
                     // Vertex = source of edge seed or Vertex = destination of edge seed
                     filter = addIsEqualFilter(ParquetStoreConstants.VERTEX, currentSeed, group);
-                    filter = orFilter(filter, addIsEqualFilter(ParquetStoreConstants.VERTEX, parts.get0(), group));
+                    filter = orFilter(filter, addIsEqualFilter(ParquetStoreConstants.VERTEX, parts.getFirst(), group));
                 }
             }
         } else {
@@ -341,8 +342,8 @@ public final class ParquetFilterUtils {
                 if (ParquetStoreConstants.SOURCE.equals(indexedColumn)) {
                     // Source = source of edge seed and destination = destination of edge seed
                     filter = addIsEqualFilter(ParquetStoreConstants.SOURCE, currentSeed, group);
-                    filter = andFilter(filter, addIsEqualFilter(ParquetStoreConstants.DESTINATION, parts.get0(), group));
-                    final DirectedType directedType = parts.get1();
+                    filter = andFilter(filter, addIsEqualFilter(ParquetStoreConstants.DESTINATION, parts.getFirst(), group));
+                    final DirectedType directedType = parts.getSecond();
                     // add directed flag filter where applicable
                     if (directedType == DirectedType.DIRECTED) {
                         filter = andFilter(filter, addIsEqualFilter(ParquetStoreConstants.DIRECTED, new Object[]{true}, group));
