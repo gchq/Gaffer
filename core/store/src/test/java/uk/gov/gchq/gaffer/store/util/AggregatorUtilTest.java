@@ -12,6 +12,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
@@ -21,6 +22,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaTest;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+import uk.gov.gchq.koryphe.impl.binaryoperator.Product;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -466,6 +468,125 @@ public class AggregatorUtilTest {
                         .group(TestGroups.ENTITY)
                         .vertex("vertex1")
                         .property("count", 15)
+                        .property("property2", "value1")
+                        .property("visibility", "vis1")
+                        .build(),
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex("vertex2")
+                        .property("count", 20)
+                        .property("property2", "value10")
+                        .property("visibility", "vis1")
+                        .build(),
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("vertex2")
+                        .dest("vertex1")
+                        .property("count", 3300)
+                        .property("property2", "value1")
+                        .property("visibility", "vis1")
+                        .build()
+        );
+
+        // when
+        final CloseableIterable<Element> aggregatedElements = AggregatorUtil.queryAggregate(elements, schema, view);
+
+        // then
+        assertElementEquals(expected, aggregatedElements);
+    }
+
+    @Test
+    public void shouldQueryAggregateElementsWithGroupByAndViewAggregator() {
+        // given
+        final Schema schema = Schema.fromJson(StreamUtil.openStreams(getClass(), "schema-groupby"));
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .aggregator(new ElementAggregator.Builder()
+                                .select("count")
+                                .execute(new Product())
+                                .build())
+                        .build())
+                .entity(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .build();
+
+        final List<Element> elements = Arrays.asList(
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex("vertex1")
+                        .property("count", 1)
+                        .property("property2", "value1")
+                        .property("visibility", "vis1")
+                        .build(),
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex("vertex1")
+                        .property("count", 2)
+                        .property("property2", "value1")
+                        .property("visibility", "vis2")
+                        .build(),
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex("vertex1")
+                        .property("count", 2)
+                        .property("property2", "value2")
+                        .property("visibility", "vis1")
+                        .build(),
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex("vertex1")
+                        .property("count", 10)
+                        .property("property2", "value2")
+                        .property("visibility", "vis2")
+                        .build(),
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex("vertex2")
+                        .property("count", 20)
+                        .property("property2", "value10")
+                        .property("visibility", "vis1")
+                        .build(),
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("vertex2")
+                        .dest("vertex1")
+                        .property("count", 100)
+                        .property("property2", "value1")
+                        .property("visibility", "vis1")
+                        .build(),
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("vertex2")
+                        .dest("vertex1")
+                        .property("count", 200)
+                        .property("property2", "value1")
+                        .property("visibility", "vis2")
+                        .build(),
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("vertex2")
+                        .dest("vertex1")
+                        .property("count", 1000)
+                        .property("property2", "value2")
+                        .property("visibility", "vis1")
+                        .build(),
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("vertex2")
+                        .dest("vertex1")
+                        .property("count", 2000)
+                        .property("property2", "value2")
+                        .property("visibility", "vis2")
+                        .build()
+        );
+
+        final Set<Element> expected = Sets.newHashSet(
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex("vertex1")
+                        .property("count", 40)
                         .property("property2", "value1")
                         .property("visibility", "vis1")
                         .build(),

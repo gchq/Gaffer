@@ -240,7 +240,8 @@ public final class AggregatorUtil {
             if (null == view) {
                 return schema.getElement(group).getIngestAggregator().apply(a, b);
             }
-            return schema.getElement(group).getQueryAggregator(view.getElement(group).getGroupBy()).apply(a, b);
+            final ViewElementDefinition elementDef = view.getElement(group);
+            return schema.getElement(group).getQueryAggregator(elementDef.getGroupBy(), elementDef.getAggregator()).apply(a, b);
         }
     }
 
@@ -269,7 +270,8 @@ public final class AggregatorUtil {
             if (null == view) {
                 schema.getElement(a.getGroup()).getIngestAggregator().apply(a, b);
             } else {
-                schema.getElement(group).getQueryAggregator(view.getElement(group).getGroupBy()).apply(a, b);
+                final ViewElementDefinition elementDef = view.getElement(group);
+                schema.getElement(group).getQueryAggregator(elementDef.getGroupBy(), elementDef.getAggregator()).apply(a, b);
             }
 
             // The aggregator will always return a so this is safe
