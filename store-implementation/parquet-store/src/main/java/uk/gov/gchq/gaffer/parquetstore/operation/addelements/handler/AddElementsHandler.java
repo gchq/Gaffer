@@ -41,6 +41,9 @@ import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 import java.util.Iterator;
 
+/**
+ * An {@link OperationHandler} for the {@link AddElements} operation on the {@link ParquetStore}.
+ */
 public class AddElementsHandler implements OperationHandler<AddElements> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsHandler.class);
 
@@ -111,7 +114,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         final long snapshot = System.currentTimeMillis();
         final String destPath = dataDirString + "/" + snapshot;
         LOGGER.debug("Creating directory {}", destPath);
-        fs.mkdirs(new Path(destPath));
+        fs.mkdirs(new Path(destPath).getParent());
         final String tempPath = tempDataDirString + "/" + ParquetStoreConstants.SORTED;
         LOGGER.debug("Renaming {} to {}", tempPath, destPath);
         fs.rename(new Path(tempPath), new Path(destPath));

@@ -45,6 +45,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static uk.gov.gchq.gaffer.commonutil.TestGroups.ENTITY_2;
 
 public class AggregationIT extends AbstractStoreIT {
     private final String AGGREGATED_SOURCE = SOURCE + 6;
@@ -109,15 +110,70 @@ public class AggregationIT extends AbstractStoreIT {
         assertThat(results, IsCollectionContaining.hasItems(
                 expectedEdge,
                 expectedEntity));
+    }
 
-        for (final Element result : results) {
-            if (result instanceof Entity) {
-                assertEquals("3,3,3", result.getProperty(TestPropertyNames.STRING));
-            } else {
-                assertEquals(1, result.getProperty(TestPropertyNames.INT));
-                assertEquals(2L, result.getProperty(TestPropertyNames.COUNT));
-            }
-        }
+    @Test
+    @TraitRequirement(StoreTrait.INGEST_AGGREGATION)
+    public void shouldAggregateElementsWithNoGroupBy() throws OperationException, UnsupportedEncodingException {
+        // Given
+        final String vertex = "testVertex1";
+        final long timestamp = System.currentTimeMillis();
+
+        graph.execute(new AddElements.Builder()
+                .input(new Entity.Builder()
+                                .group(ENTITY_2)
+                                .vertex(vertex)
+                                .property(TestPropertyNames.INT, 1)
+                                .property(TestPropertyNames.TIMESTAMP, timestamp)
+                                .build(),
+                        new Entity.Builder()
+                                .group(ENTITY_2)
+                                .vertex(vertex)
+                                .property(TestPropertyNames.INT, 2)
+                                .property(TestPropertyNames.TIMESTAMP, timestamp)
+                                .build())
+                .build(), getUser());
+
+        graph.execute(new AddElements.Builder()
+                .input(new Entity.Builder()
+                                .group(ENTITY_2)
+                                .vertex(vertex)
+                                .property(TestPropertyNames.INT, 2)
+                                .property(TestPropertyNames.TIMESTAMP, timestamp)
+                                .build(),
+                        new Entity.Builder()
+                                .group(ENTITY_2)
+                                .vertex(vertex)
+                                .property(TestPropertyNames.INT, 3)
+                                .property(TestPropertyNames.TIMESTAMP, timestamp)
+                                .build(),
+                        new Entity.Builder()
+                                .group(ENTITY_2)
+                                .vertex(vertex)
+                                .property(TestPropertyNames.INT, 9)
+                                .property(TestPropertyNames.TIMESTAMP, timestamp)
+                                .build())
+                .build(), getUser());
+
+        final GetElements getElements = new GetElements.Builder()
+                .input(new EntitySeed(vertex))
+                .build();
+
+        // When
+        final List<Element> results = Lists.newArrayList(graph.execute(getElements, getUser()));
+
+        // Then
+        assertNotNull(results);
+        assertEquals(1, results.size());
+
+        final Entity expectedEntity2 = new Entity.Builder()
+                .group(ENTITY_2)
+                .vertex(vertex)
+                .property(TestPropertyNames.INT, 9)
+                .property(TestPropertyNames.TIMESTAMP, timestamp)
+                .build();
+
+        assertThat(results, IsCollectionContaining.hasItems(expectedEntity2));
     }
 
     @Test

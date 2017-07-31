@@ -24,7 +24,7 @@ import org.junit.rules.TemporaryFolder;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.impl.SplitStore;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromFile;
 import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
 import java.io.File;
 import java.io.IOException;
@@ -33,16 +33,16 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 
-public class DisableOperationsTest {
+public abstract class DisableOperationsTest {
     @Rule
     public final TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-    private final Class<? extends Operation>[] disabledOperations;
-    private File storePropsPath;
-    private File schemaPath;
-    private static final String GRAPH_ID = "graphId";
+    protected final Class<? extends Operation>[] disabledOperations;
+    protected File storePropsPath;
+    protected File schemaPath;
+    protected static final String GRAPH_ID = "graphId";
 
     public DisableOperationsTest() throws IOException {
-        this(SplitStore.class);
+        this(AddElementsFromFile.class);
     }
 
     @SafeVarargs

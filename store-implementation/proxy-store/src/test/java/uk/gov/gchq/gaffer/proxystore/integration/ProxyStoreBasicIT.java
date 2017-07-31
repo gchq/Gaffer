@@ -23,7 +23,6 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -36,6 +35,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobStatus;
+import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -108,7 +108,7 @@ public class ProxyStoreBasicIT {
 
     @Before
     public void before() throws IOException {
-        RestApiTestUtil.reinitialiseGraph(testFolder, StreamUtil.SCHEMA, "accumulo-store.properties");
+        RestApiTestUtil.reinitialiseGraph(testFolder, StreamUtil.SCHEMA, "map-store.properties");
 
         // setup ProxyStore
         graph = new Graph.Builder()
@@ -189,7 +189,7 @@ public class ProxyStoreBasicIT {
     @Test
     public void shouldHaveAllOfDelegateStoreTraitsApartFromVisibility() {
         // Given
-        final Set<StoreTrait> expectedTraits = new HashSet<>(AccumuloStore.TRAITS);
+        final Set<StoreTrait> expectedTraits = new HashSet<>(MapStore.TRAITS);
         expectedTraits.remove(StoreTrait.VISIBILITY);
 
         // When

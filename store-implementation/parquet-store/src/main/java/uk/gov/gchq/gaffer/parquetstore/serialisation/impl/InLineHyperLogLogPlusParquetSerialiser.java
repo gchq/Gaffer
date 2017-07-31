@@ -22,6 +22,11 @@ import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
 
 import java.io.IOException;
 
+/**
+ * This class is used to serialise and de-serialise a {@link HyperLogLogPlus} value for use by the
+ * {@link uk.gov.gchq.gaffer.parquetstore.ParquetStore}, storing the sketch as a {@link byte[]} and the cardinality as a
+ * {@link long} in two columns.
+ */
 public class InLineHyperLogLogPlusParquetSerialiser implements ParquetSerialiser<HyperLogLogPlus> {
     private static final long serialVersionUID = -898356489062346070L;
 
