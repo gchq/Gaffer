@@ -24,12 +24,15 @@ import org.junit.rules.TemporaryFolder;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherAuthorisedGraph;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.FileGraphLibrary;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclaration;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -308,10 +311,13 @@ public class ExportToOtherAuthorisedGraphTest {
     }
 
     @Test
-    public void shouldAddAuthsToHandlerFromJson() {
-        // When
-        OperationDeclarations opDeclarations = OperationDeclarations.fromPaths("ExportAuthorisedGraphOperations.json");
+    public void shouldGetHandlerFromJson() throws OperationException {
+        // Given
+        OperationDeclarations opDeclarations = OperationDeclarations.fromPaths("ExportToOtherAuthorisedGraphOperationDeclarations.json");
+        OperationDeclaration opDeclaration = opDeclarations.getOperations().get(0);
+        OperationHandler handler = opDeclaration.getHandler();
 
-
+        // When / Then
+        assertTrue(handler.getClass().getName().contains("AuthorisedGraph"));
     }
 }

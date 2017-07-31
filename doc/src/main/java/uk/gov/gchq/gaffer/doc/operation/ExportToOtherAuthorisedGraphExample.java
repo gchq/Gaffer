@@ -57,6 +57,7 @@ public class ExportToOtherAuthorisedGraphExample extends OperationExample {
 
         showExample(opChain, "This example will export all Edges with group 'edge' to another Gaffer graph with new ID 'newGraphId'. " +
                 "The new graph will have the same schema and same store properties as the current graph. " +
-                "In this case it will just create another table in accumulo called 'newGraphId'.");
+                "In this case it will just create another table in accumulo called 'newGraphId'. " +
+                "It will also compare the running users Operation authorisations to the authorisations supplied to the exporter.");
     }
 }
