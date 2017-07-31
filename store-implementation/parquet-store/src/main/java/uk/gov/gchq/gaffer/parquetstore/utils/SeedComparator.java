@@ -19,10 +19,13 @@ package uk.gov.gchq.gaffer.parquetstore.utils;
 import com.google.common.primitives.UnsignedBytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.Serializable;
 import java.util.Comparator;
 
+/**
+ * This class is used to sort the seeds to optimise the way the {@link uk.gov.gchq.gaffer.parquetstore.ParquetStore}
+ * maps a seed to a specific file which allows the seed filter to only be applied to the relevant files.
+ */
 public class SeedComparator implements Comparator<Object>, Serializable {
 
     private static final long serialVersionUID = 8415485366776438127L;
@@ -41,7 +44,7 @@ public class SeedComparator implements Comparator<Object>, Serializable {
                 Object innerObject1 = o1[i];
                 Object innerObject2 = o2[i];
                 if (innerObject1 instanceof Comparable && innerObject2.getClass().equals(innerObject1.getClass())) {
-                    int result = ((Comparable) innerObject1).compareTo((Comparable) innerObject2);
+                    int result = ((Comparable) innerObject1).compareTo(innerObject2);
                     if (!(result == 0)) {
                         return result;
                     }
@@ -51,14 +54,15 @@ public class SeedComparator implements Comparator<Object>, Serializable {
                         return result;
                     }
                 } else {
-                    LOGGER.error("Trying to compare objects of type " + o1.getClass() + " and " + o2.getClass() +
-                            ". You need to be comparing objects of the same type, check that the seeds are of the same type as the vertices.");
+                    LOGGER.error("Trying to compare objects of type {} and {}. You need to be comparing objects of the same type, check that the seeds are of the same type as the vertices.",
+                            o1.getClass(), o2.getClass());
                     return Integer.MAX_VALUE;
                 }
             }
             return 0;
         }
-        LOGGER.error("Expected to get Object[]'s but found: " + obj1.getClass() + " and " + obj2.getClass());
+        LOGGER.error("Expected to get Object[]'s but found: {} and {}",
+                obj1.getClass(), obj2.getClass());
         return Integer.MAX_VALUE;
     }
 }

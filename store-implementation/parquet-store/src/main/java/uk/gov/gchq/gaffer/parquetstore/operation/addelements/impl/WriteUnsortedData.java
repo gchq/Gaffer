@@ -25,28 +25,33 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.io.writer.ParquetElementWriter;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+/**
+ * Takes an {@link Iterator} of {@link Element}'s and writes the elements out into Parquet files split into directories for each group.
+ */
 public class WriteUnsortedData {
     private static final Logger LOGGER = LoggerFactory.getLogger(WriteUnsortedData.class);
-    private final ParquetStoreProperties props;
+    private String tempFilesDir;
+    private final SchemaUtils schemaUtils;
     private final Map<String, ParquetWriter<Element>> groupToWriter;
     private final Map<String, Integer> groupToFileNumber;
-    private final SchemaUtils schemaUtils;
 
-    public WriteUnsortedData(final ParquetStoreProperties parquetStoreProperties, final SchemaUtils schemaUtils) {
-        this.props = parquetStoreProperties;
+    public WriteUnsortedData(final ParquetStore store) {
+        this(store.getTempFilesDir(), store.getSchemaUtils());
+    }
+
+    public WriteUnsortedData(final String tempFilesDir, final SchemaUtils schemaUtils) {
+        this.tempFilesDir = tempFilesDir;
+        this.schemaUtils = schemaUtils;
         this.groupToWriter = new HashMap<>();
         this.groupToFileNumber = new HashMap<>();
-        this.schemaUtils = schemaUtils;
     }
 
     public void writeElements(final Iterator<? extends Element> elements) throws OperationException {
@@ -65,7 +70,7 @@ public class WriteUnsortedData {
                 writer.close();
             }
         } catch (final IOException | OperationException e) {
-            throw new OperationException("Exception writing elements to " + props.getTempFilesDir(), e);
+            throw new OperationException("Exception writing elements to temporary directory: " + tempFilesDir, e);
         }
     }
 
@@ -90,7 +95,7 @@ public class WriteUnsortedData {
         }
         LOGGER.debug("Creating a new writer for group: {}", group + " with file number " + fileNumber);
         final Path filePath = new Path(ParquetStore.getGroupDirectory(group, column,
-                props.getTempFilesDir()) + "/part-" + TaskContext.getPartitionId() + "-" + fileNumber + ".parquet");
+                tempFilesDir) + "/part-" + TaskContext.getPartitionId() + "-" + fileNumber + ".parquet");
 
         return new ParquetElementWriter.Builder(filePath)
                 .isEntity(isEntity)

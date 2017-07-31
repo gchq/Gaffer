@@ -25,6 +25,9 @@ limitations under the License.
    - [Graph folder structure](./README.md#graph-folder-structure)
    - [High level operations process](./README.md#high-level-operations-process)
 
+## Notice
+This store is experimental, the API is unstable and may require breaking changes.
+
 ## Introduction
 
 Gaffer contains a store implemented using [Apache Parquet](https://parquet.apache.org/) version 1.8.1. Graph elements are stored in Parquet files (typically in HDFS). This offers the following functionality:
@@ -371,18 +374,19 @@ would look like:
 
 ```
 parquet_data
-`-- <A long representing the time at which the data was written (as the number of milliseconds since epoch)>
-    |-- graph
-    |   |-- GROUP=BasicEdge
-    |   |   |-- _index
-    |   |   `-- part-00000.gz.parquet
-    |   `-- GROUP=BasicEntity
-    |       |-- _index
-    |       `-- part-00000.gz.parquet
-    `-- sortedBy=DESTINATION
-        `-- GROUP=BasicEdge
-            |-- _index
-            `-- part-00000.gz.parquet
+`-- graphId
+    `|-- <A long representing the time at which the data was written (as the number of milliseconds since epoch)>
+        |-- graph
+        |   |-- GROUP=BasicEdge
+        |   |   |-- _index
+        |   |   `-- part-00000.gz.parquet
+        |   `-- GROUP=BasicEntity
+        |       |-- _index
+        |       `-- part-00000.gz.parquet
+        `-- sortedBy=DESTINATION
+            `-- GROUP=BasicEdge
+                |-- _index
+                `-- part-00000.gz.parquet
 ```
 
 The root directory has two folders, one for the main graph which is what is returned when a `GetAllElements` operation is 

@@ -43,12 +43,15 @@ import uk.gov.gchq.gaffer.parquetstore.utils.ParquetFilterUtils;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.koryphe.tuple.n.Tuple2;
-
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+/**
+ * Converts the inputs for get element operations and converts them to a mapping of files to Parquet filters which is
+ * then looped over to retrieve the filtered Elements.
+ */
 public class ParquetElementRetriever implements CloseableIterable<Element> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetElementRetriever.class);
 
@@ -75,7 +78,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
         this.seedMatchingType = seedMatchingType;
         this.seeds = seeds;
         this.graphIndex = store.getGraphIndex();
-        this.dataDir = store.getProperties().getDataDir() + "/" + store.getGraphIndex().getSnapshotTimestamp();
+        this.dataDir = store.getDataDir() + "/" + store.getGraphIndex().getSnapshotTimestamp();
         this.fs = store.getFS();
     }
 
@@ -130,7 +133,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                         LOGGER.error("Path does not exist");
                     }
                 } else {
-                    LOGGER.info("There are no results for this query");
+                    LOGGER.debug("There are no results for this query");
                 }
             } catch (final OperationException | SerialisationException e) {
                 LOGGER.error("Exception while creating the mapping of file paths to Parquet filters: {}", e.getMessage());

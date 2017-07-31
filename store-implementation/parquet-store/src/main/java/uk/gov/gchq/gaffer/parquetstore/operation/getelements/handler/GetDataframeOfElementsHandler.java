@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.spark.SparkUser;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
@@ -32,6 +31,10 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
+/**
+ * An {@link uk.gov.gchq.gaffer.store.operation.handler.OperationHandler} for the {@link GetDataFrameOfElements}
+ * operation on the {@link ParquetStore}.
+ */
 public class GetDataframeOfElementsHandler implements OutputOperationHandler<GetDataFrameOfElements, Dataset<Row>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GetDataframeOfElementsHandler.class);
 
@@ -54,14 +57,13 @@ public class GetDataframeOfElementsHandler implements OutputOperationHandler<Get
                                      final ParquetStore store,
                                      final SparkSession spark) throws OperationException {
         if (operation.getView().equals(store.getSchemaUtils().getEmptyView())) {
-            LOGGER.info("Retrieving elements as a dataframe");
-            final ParquetStoreProperties props = store.getProperties();
-            final String rootDir = props.getDataDir() + "/" + store.getGraphIndex().getSnapshotTimestamp() + "/";
+            LOGGER.debug("Retrieving elements as a dataframe");
+            final String rootDir = store.getDataDir() + "/" + store.getGraphIndex().getSnapshotTimestamp() + "/";
             final Dataset<Row> dataset = spark
                     .read()
                     .option("mergeSchema", true)
                     .parquet(rootDir + ParquetStoreConstants.GRAPH);
-            LOGGER.info("The merged schema that the data is being loaded using is: {}", dataset.schema().treeString());
+            LOGGER.debug("The merged schema that the data is being loaded using is: {}", dataset.schema().treeString());
             return dataset;
         } else {
             throw new OperationException("Views are not supported by this operation yet");

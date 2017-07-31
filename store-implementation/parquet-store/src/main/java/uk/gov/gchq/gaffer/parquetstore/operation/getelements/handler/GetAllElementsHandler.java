@@ -27,6 +27,10 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
+/**
+ * An {@link uk.gov.gchq.gaffer.store.operation.handler.OperationHandler} for the {@link GetAllElements} operation on
+ * the {@link ParquetStore}.
+ */
 public class GetAllElementsHandler implements OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> {
 
     @Override

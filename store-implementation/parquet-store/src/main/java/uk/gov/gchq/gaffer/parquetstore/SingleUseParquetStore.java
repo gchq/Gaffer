@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.parquetstore;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
@@ -23,15 +22,20 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-
 import java.io.IOException;
 
+/**
+ * A single use implementation of the {@link ParquetStore} that will delete the data directory upon initialisation of
+ * the store. This is mainly used for testing purposes.
+ */
 public class SingleUseParquetStore extends ParquetStore {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SingleUseParquetStore.class);
 
     @Override
     public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
+        // Initialise has to be called first to ensure the properties are set.
+        super.initialise(graphId, schema, properties);
         cleanUp();
         super.initialise(graphId, schema, properties);
     }
@@ -39,20 +43,15 @@ public class SingleUseParquetStore extends ParquetStore {
     private void cleanUp() throws StoreException {
         String dataDir = "";
         try {
-            final FileSystem fs = FileSystem.get(new Configuration());
-            ParquetStoreProperties props = getProperties();
-            if (props == null) {
-                props = new ParquetStoreProperties();
-            }
-            dataDir = props.getDataDir();
-            deleteFolder(dataDir, fs);
+            dataDir = getDataDir();
+            deleteFolder(dataDir, getFS());
         } catch (final IOException e) {
-            throw new StoreException("Exception deleting folder" + dataDir, e);
+            throw new StoreException("Exception deleting folder: " + dataDir, e);
         }
     }
 
     private void deleteFolder(final String path, final FileSystem fs) throws IOException {
-        LOGGER.info("Deleting folder {}", path);
+        LOGGER.debug("Deleting folder {}", path);
         Path dataDir = new Path(path);
         if (fs.exists(dataDir)) {
             fs.delete(dataDir, true);

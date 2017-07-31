@@ -20,7 +20,7 @@ import org.junit.AfterClass;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.integration.impl.GeneratorsIT;
-import uk.gov.gchq.gaffer.proxystore.SingleUseMockAccumuloProxyStore;
+import uk.gov.gchq.gaffer.proxystore.SingleUseMapProxyStore;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
 public class ProxyStoreITs extends AbstractStoreITs {
@@ -33,6 +33,6 @@ public class ProxyStoreITs extends AbstractStoreITs {
 
     @AfterClass
     public static void afterClass() {
-        SingleUseMockAccumuloProxyStore.cleanUp();
+        SingleUseMapProxyStore.cleanUp();
     }
 }

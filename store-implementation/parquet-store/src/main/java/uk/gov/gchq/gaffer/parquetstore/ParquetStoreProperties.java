@@ -20,10 +20,12 @@ import org.apache.spark.SparkConf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-
 import java.io.Serializable;
 import java.nio.file.Path;
 
+/**
+ * Stores all the user customisable properties required by the {@link ParquetStore}.
+ */
 public class ParquetStoreProperties extends StoreProperties implements Serializable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetStoreProperties.class);
@@ -114,7 +116,7 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
         LOGGER.debug("ParquetStoreProperties has Spark master set as: {}", get(SPARK_MASTER, "Is not set"));
         LOGGER.debug("Spark config has Spark master set as: {}", new SparkConf().get("spark.master", "Is not set"));
         final String sparkMaster = get(SPARK_MASTER, new SparkConf().get("spark.master", SPARK_MASTER_DEFAULT));
-        LOGGER.info("Spark master is set to " + sparkMaster);
+        LOGGER.info("Spark master is set to {}", sparkMaster);
         return sparkMaster;
     }
 
