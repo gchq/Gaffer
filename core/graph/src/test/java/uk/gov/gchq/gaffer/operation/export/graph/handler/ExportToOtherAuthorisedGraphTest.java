@@ -76,7 +76,7 @@ public class ExportToOtherAuthorisedGraphTest {
         // Given
         given(store.getGraphId()).willReturn(GRAPH_ID);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
-        final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder<>()
+        final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID)
                 .build();
         final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
@@ -99,7 +99,7 @@ public class ExportToOtherAuthorisedGraphTest {
         List<String> graphID1OpAuths = new ArrayList<>();
         graphID1OpAuths.add("auth1");
         idAuths.put(GRAPH_ID + 1, graphID1OpAuths);
-        final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder<>()
+        final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .build();
         final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
@@ -126,7 +126,7 @@ public class ExportToOtherAuthorisedGraphTest {
         idAuths.put(GRAPH_ID + 2, opAuths);
         idAuths.put(SCHEMA_ID + 1, opAuths);
         idAuths.put(STORE_PROPS_ID, opAuths);
-        final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder<>()
+        final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID + 2)
                 .parentSchemaIds(SCHEMA_ID + 1)
                 .parentStorePropertiesId(STORE_PROPS_ID)
@@ -154,7 +154,7 @@ public class ExportToOtherAuthorisedGraphTest {
         List<String> opAuths = Lists.newArrayList("auth1");
         idAuths.put(SCHEMA_ID + 1, opAuths);
         idAuths.put(STORE_PROPS_ID, opAuths);
-        final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder<>()
+        final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID + 2)
                 .parentSchemaIds(SCHEMA_ID + 1)
                 .parentStorePropertiesId(STORE_PROPS_ID)
@@ -182,7 +182,7 @@ public class ExportToOtherAuthorisedGraphTest {
         List<String> opAuths = Lists.newArrayList("auth1");
         idAuths.put(GRAPH_ID + 2, opAuths);
         idAuths.put(STORE_PROPS_ID, opAuths);
-        final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder<>()
+        final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID + 2)
                 .parentSchemaIds(SCHEMA_ID + 1)
                 .parentStorePropertiesId(STORE_PROPS_ID)
@@ -210,7 +210,7 @@ public class ExportToOtherAuthorisedGraphTest {
         List<String> opAuths = Lists.newArrayList("auth1");
         idAuths.put(GRAPH_ID + 2, opAuths);
         idAuths.put(SCHEMA_ID + 1, opAuths);
-        final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder<>()
+        final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID + 2)
                 .parentSchemaIds(SCHEMA_ID + 1)
                 .parentStorePropertiesId(STORE_PROPS_ID)
@@ -238,7 +238,7 @@ public class ExportToOtherAuthorisedGraphTest {
         List<String> opAuths = Lists.newArrayList("auth1");
         idAuths.put(GRAPH_ID + 2, opAuths);
         idAuths.put(SCHEMA_ID + 1, opAuths);
-        final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder<>()
+        final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID + 2)
                 .parentSchemaIds(SCHEMA_ID + 1)
                 .build();
@@ -265,7 +265,7 @@ public class ExportToOtherAuthorisedGraphTest {
         List<String> opAuths = Lists.newArrayList("auth1");
         idAuths.put(GRAPH_ID + 2, opAuths);
         idAuths.put(SCHEMA_ID + 1, opAuths);
-        final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder<>()
+        final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID + 2)
                 .parentStorePropertiesId(STORE_PROPS_ID)
                 .build();
@@ -291,7 +291,7 @@ public class ExportToOtherAuthorisedGraphTest {
         List<String> graphID1OpAuths = new ArrayList<>();
         graphID1OpAuths.add("auth1");
         idAuths.put(GRAPH_ID + 1, graphID1OpAuths);
-        final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder<>()
+        final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .build();
         final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();

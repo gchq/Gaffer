@@ -18,16 +18,21 @@ package uk.gov.gchq.gaffer.operation.export.graph;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.Required;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.ExportTo;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
-public class ExportToOtherAuthorisedGraph<T> implements Operation, ExportTo<T> {
+public class ExportToOtherAuthorisedGraph implements
+        Operation,
+        MultiInput<Element>,
+        ExportTo<Iterable<? extends Element>> {
 
     @Required
     private String graphId;
 
-    private T input;
+    private Iterable<? extends Element> input;
 
     private String parentSchemaId;
 
@@ -42,12 +47,12 @@ public class ExportToOtherAuthorisedGraph<T> implements Operation, ExportTo<T> {
     }
 
     @Override
-    public T getInput() {
+    public Iterable<? extends Element> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final T input) {
+    public void setInput(final Iterable<? extends Element> input) {
         this.input = input;
     }
 
@@ -78,27 +83,27 @@ public class ExportToOtherAuthorisedGraph<T> implements Operation, ExportTo<T> {
     }
 
     @Override
-    public TypeReference<T> getOutputTypeReference() {
+    public TypeReference<Iterable<? extends Element>> getOutputTypeReference() {
         return (TypeReference) new TypeReferenceImpl.Object();
     }
 
-    public static final class Builder<T> extends BaseBuilder<ExportToOtherAuthorisedGraph<T>, Builder<T>>
-            implements ExportTo.Builder<ExportToOtherAuthorisedGraph<T>, T, Builder<T>> {
+    public static final class Builder extends BaseBuilder<ExportToOtherAuthorisedGraph, Builder>
+            implements ExportTo.Builder<ExportToOtherAuthorisedGraph, Iterable<? extends Element>, Builder> {
         public Builder() {
-            super(new ExportToOtherAuthorisedGraph<>());
+            super(new ExportToOtherAuthorisedGraph());
         }
 
-        public Builder<T> graphId(final String graphId) {
+        public Builder graphId(final String graphId) {
             _getOp().setGraphId(graphId);
             return _self();
         }
 
-        public Builder<T> parentStorePropertiesId(final String parentStorePropertiesId) {
+        public Builder parentStorePropertiesId(final String parentStorePropertiesId) {
             _getOp().setParentStorePropertiesId(parentStorePropertiesId);
             return _self();
         }
 
-        public Builder<T> parentSchemaIds(final String parentSchemaId) {
+        public Builder parentSchemaIds(final String parentSchemaId) {
             _getOp().setParentSchemaId(parentSchemaId);
             return _self();
         }
