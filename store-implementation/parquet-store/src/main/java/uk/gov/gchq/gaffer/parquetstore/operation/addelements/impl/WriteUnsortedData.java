@@ -33,6 +33,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+/**
+ * Takes an {@link Iterator} of {@link Element}'s and writes the elements out into Parquet files split into directories for each group.
+ */
 public class WriteUnsortedData {
     private static final Logger LOGGER = LoggerFactory.getLogger(WriteUnsortedData.class);
     private String tempFilesDir;

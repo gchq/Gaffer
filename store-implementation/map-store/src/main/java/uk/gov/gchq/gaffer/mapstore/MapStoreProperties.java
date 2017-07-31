@@ -31,6 +31,9 @@ public class MapStoreProperties extends StoreProperties {
     public static final String MAP_FACTORY_CONFIG = "gaffer.store.mapstore.map.factory.config";
     public static final String MAP_FACTORY_CONFIG_DEFAULT = null;
 
+    public static final String STATIC_MAP = "gaffer.store.mapstore.static";
+    public static final String STATIC_MAP_DEFAULT = "false";
+
     /**
      * Property name for the ingest buffer size. If the value is set to less than 1 then
      * no buffer is used and elements are added directly to the underlying maps.
@@ -95,5 +98,13 @@ public class MapStoreProperties extends StoreProperties {
 
     public void setIngestBufferSize(final int ingestBufferSize) {
         set(INGEST_BUFFER_SIZE, String.valueOf(ingestBufferSize));
+    }
+
+    public boolean isStaticMap() {
+        return Boolean.parseBoolean(get(STATIC_MAP, STATIC_MAP_DEFAULT));
+    }
+
+    public void setStaticMap(final boolean staticMap) {
+        set(STATIC_MAP, Boolean.toString(staticMap));
     }
 }
