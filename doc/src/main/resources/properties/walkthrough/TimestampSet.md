@@ -4,7 +4,7 @@ ${CODE_LINK}
 
 This example demonstrates how the TimestampSet property can be used to maintain a set of the timestamps at which an element was seen active. In this example we record the timestamps to minute level accuracy, i.e. the seconds are ignored.
 
-Property class: ${PROPERTY_CLASS}
+${PROPERTY_CLASS}
 ${VALIDATORS}
 ${AGGREGATORS}
 ${SERIALISERS}

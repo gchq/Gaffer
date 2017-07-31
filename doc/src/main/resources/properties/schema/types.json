@@ -1,21 +1,2 @@
 {
-  "types": {
-    "string": {
-      "class": "java.lang.String",
-      "aggregateFunction": {
-        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat"
-      }
-    },
-    "vertex": {
-      "class": "java.lang.String"
-    },
-    "false": {
-      "class": "java.lang.Boolean",
-      "validateFunctions": [
-        {
-          "class": "uk.gov.gchq.koryphe.impl.predicate.IsFalse"
-        }
-      ]
-    }
-  }
 }

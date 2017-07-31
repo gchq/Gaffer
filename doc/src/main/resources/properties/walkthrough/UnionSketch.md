@@ -4,7 +4,7 @@ ${CODE_LINK}
 
 This example demonstrates how the Union sketch from the Data Sketches library can be used to maintain estimates of the cardinalities of sets. The Union sketch is similar to a HyperLogLogPlusPlus, but it can also be used to create the intersections of sets. We give an example of how this can be used to monitor the changes to the number of edges in the graph over time.
 
-Property class: ${PROPERTY_CLASS}
+${PROPERTY_CLASS}
 ${VALIDATORS}
 ${AGGREGATORS}
 ${SERIALISERS}

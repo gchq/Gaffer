@@ -4,7 +4,7 @@ ${CODE_LINK}
 
 This example demonstrates how the BoundedTimestampSet property can be used to maintain a set of the timestamps at which an element was seen active. If this set becomes larger than a size specified by the user then a uniform random sample of the timestamps is maintained. In this example we record the timestamps to minute level accuracy, i.e. the seconds are ignored, and specify that at most 25 timestamps should be retained.
 
-Property class: ${PROPERTY_CLASS}
+${PROPERTY_CLASS}
 ${VALIDATORS}
 ${AGGREGATORS}
 ${SERIALISERS}

@@ -102,7 +102,7 @@ public abstract class PropertiesWalkthrough extends AbstractWalkthrough {
     public String walkthrough() throws OperationException {
         if (null != propertyType) {
             cacheLogs = true;
-            log("PROPERTY_CLASS", propertyType.getName());
+            log("PROPERTY_CLASS", "Properties class: " + propertyType.getName());
             listValidators(propertyType);
             listAggregators(propertyType);
             listSerialisers(propertyType);

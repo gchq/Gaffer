@@ -4,7 +4,7 @@ ${CODE_LINK}
 
 This example demonstrates how the DoublesUnion sketch from the Data Sketches library can be used to maintain estimates of the quantiles of a distribution of doubles. Suppose that every time an edge is observed, there is a double value associated with it, for example a value between 0 and 1 giving the score of the edge. Instead of storing a property that contains all the doubles observed, we can store a DoublesUnion which will allow us to estimate the median double, the 99th percentile, etc.
 
-Property class: ${PROPERTY_CLASS}
+${PROPERTY_CLASS}
 ${VALIDATORS}
 ${AGGREGATORS}
 ${SERIALISERS}
