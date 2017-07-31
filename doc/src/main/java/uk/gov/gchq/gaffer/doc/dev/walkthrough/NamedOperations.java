@@ -191,6 +191,6 @@ public class NamedOperations extends DevWalkthrough {
 
     public static void main(final String[] args) throws OperationException, IOException {
         final NamedOperations walkthrough = new NamedOperations();
-        System.out.println(walkthrough.walkthrough());
+        walkthrough.run();
     }
 }

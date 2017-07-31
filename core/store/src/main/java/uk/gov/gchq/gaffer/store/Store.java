@@ -188,7 +188,7 @@ public abstract class Store {
     }
 
     public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
-        LOGGER.info("Initialising {}", getClass().getSimpleName());
+        LOGGER.debug("Initialising {}", getClass().getSimpleName());
         if (null == graphId) {
             throw new IllegalArgumentException("graphId is required");
         }

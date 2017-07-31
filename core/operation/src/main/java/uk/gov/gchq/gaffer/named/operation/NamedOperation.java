@@ -24,6 +24,22 @@ import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Map;
 
+/**
+ * Named operations enable encapsulation of an OperationChain into a new single <code>NamedOperation</code>.
+ * The <code>NamedOperation</code> can be added to OperationChains and executed, just like any other Operation.
+ * When run it executes the encapsulated OperationChain.
+ * There are various possible uses for NamedOperations, including:
+ * <ul>
+ * <li>making it simpler to run frequently used OperationChains</li>
+ * <li>in a controlled way, allowing specific OperationChains to be run by a user that would not normally have permission to run them</li>
+ * </ul>
+ * <p>
+ * Named operations must take an iterable as an input but can produce any type
+ * of output.
+ *
+ * @param <I_ITEM> the input iterable item type
+ * @param <O>      the output type
+ */
 public class NamedOperation<I_ITEM, O> implements
         InputOutput<Iterable<? extends I_ITEM>, O>,
         MultiInput<I_ITEM> {
