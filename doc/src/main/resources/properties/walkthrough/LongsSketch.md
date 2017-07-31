@@ -4,6 +4,11 @@ ${CODE_LINK}
 
 This example demonstrates how the LongsSketch sketch from the Data Sketches library can be used to maintain estimates of the frequencies of longs stored on on vertices and edges. For example suppose every time an edge is observed there is a long value associated with it which specifies the size of the interaction. Storing all the different longs on the edge could be expensive in storage. Instead we can use a LongsSketch which will give us approximate counts of the number of times a particular long was observed.
 
+Property class: ${PROPERTY_CLASS}
+${VALIDATORS}
+${AGGREGATORS}
+${SERIALISERS}
+
 ##### Elements schema
 This is our new elements schema. The edge has a property called 'longsSketch'. This will store the LongsSketch object.
 
