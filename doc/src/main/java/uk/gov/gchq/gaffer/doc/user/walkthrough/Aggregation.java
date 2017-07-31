@@ -19,6 +19,7 @@ import org.apache.commons.io.IOUtils;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
@@ -30,6 +31,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.binaryoperator.Min;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import java.io.IOException;
@@ -40,6 +42,7 @@ import java.util.Date;
 public class Aggregation extends UserWalkthrough {
     public static final Date MAY_01_2000 = getDate("2000-05-01");
     public static final Date MAY_02_2000 = getDate("2000-05-02");
+    public static final Date MAY_03_2000 = getDate("2000-05-03");
 
     public Aggregation() {
         super("Aggregation", "RoadAndRoadUseWithTimes", RoadAndRoadUseWithTimesElementGenerator.class);
@@ -141,7 +144,39 @@ public class Aggregation extends UserWalkthrough {
             log("GET_ALL_EDGES_SUMMARISED_IN_TIME_WINDOW_RESULT", edge.toString());
         }
 
-        return edgesSummarisedInTimeWindow;
+        // [get all edges summarised in time window with min count] Now a bit more advanced.
+        // At query time you can actually override the logic for how Gaffer
+        // aggregates properties together. So by default the count property
+        // is aggregated with Sum. At query time we could change that, so the
+        // count property was aggregated with Max.
+        // ---------------------------------------------------------
+        final GetAllElements edgesSummarisedInTimeWindowWithMinCountOperation = new GetAllElements.Builder()
+                .view(new View.Builder()
+                        .edge("RoadUse", new ViewElementDefinition.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
+                                        .select("startDate")
+                                        .execute(new IsMoreThan(MAY_01_2000, true))
+                                        .select("endDate")
+                                        .execute(new IsLessThan(MAY_03_2000, false))
+                                        .build()
+                                )
+                                .groupBy() // set the group by properties to 'none'
+                                .aggregator(new ElementAggregator.Builder()
+                                        .select("count")
+                                        .execute(new Min())
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+
+        final CloseableIterable<? extends Element> edgesSummarisedInTimeWindowWithMinCount = graph.execute(edgesSummarisedInTimeWindowWithMinCountOperation, user);
+        // ---------------------------------------------------------
+        log("\nEdges in 3 day time window with min count:");
+        for (final Element edge : edgesSummarisedInTimeWindowWithMinCount) {
+            log("GET_ALL_EDGES_SUMMARISED_IN_TIME_WINDOW_RESULT_WITH_MIN_COUNT", edge.toString());
+        }
+
+        return edgesSummarisedInTimeWindowWithMinCount;
     }
 
     public static void main(final String[] args) throws OperationException, IOException {
