@@ -34,7 +34,7 @@ public class GetSetExport implements
         Output<Iterable<?>> {
     private String jobId;
     private String key;
-    private Integer start = 0;
+    private int start = 0;
     private Integer end = null;
 
     public Integer getStart() {

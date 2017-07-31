@@ -150,8 +150,10 @@ public class DefaultExamplesFactory implements ExamplesFactory {
         final String group = getAnEntityGroup();
         final SchemaElementDefinition entityDef = getSchema().getEntity(group);
 
-        final Entity entity = new Entity(group);
-        entity.setVertex(getExampleVertex(entityDef.getIdentifierClass(IdentifierType.VERTEX), uniqueId));
+        final Entity entity = new Entity.Builder()
+                .group(group)
+                .vertex(getExampleVertex(entityDef.getIdentifierClass(IdentifierType.VERTEX), uniqueId))
+                .build();
         populateProperties(entity, entityDef, uniqueId);
 
         return entity;
