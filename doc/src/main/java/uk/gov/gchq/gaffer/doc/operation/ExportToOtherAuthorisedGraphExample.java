@@ -18,12 +18,9 @@ package uk.gov.gchq.gaffer.doc.operation;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherAuthorisedGraph;
-import uk.gov.gchq.gaffer.operation.export.graph.handler.ExportToOtherAuthorisedGraphHandler;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 
 public class ExportToOtherAuthorisedGraphExample extends OperationExample {
@@ -43,17 +40,6 @@ public class ExportToOtherAuthorisedGraphExample extends OperationExample {
     }
 
     public void simpleExport() {
-
-        JSONSerialiser serialiser = new JSONSerialiser();
-        ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
-        byte[] json;
-        try {
-            json = serialiser.serialise(handler);
-            ExportToOtherAuthorisedGraphHandler deseraialised = serialiser.deserialise(json, ExportToOtherAuthorisedGraphHandler.class);
-            System.out.println(deseraialised.getIdAuths());
-        } catch (SerialisationException e) {
-            e.printStackTrace();
-        }
 
         // ---------------------------------------------------------
         final OperationChain<Iterable<? extends Element>> opChain =

@@ -103,7 +103,7 @@ public class ExportToOtherAuthorisedGraph implements
             return _self();
         }
 
-        public Builder parentSchemaIds(final String parentSchemaId) {
+        public Builder parentSchemaId(final String parentSchemaId) {
             _getOp().setParentSchemaId(parentSchemaId);
             return _self();
         }

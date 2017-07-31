@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.FileGraphLibrary;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
+import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.File;
@@ -128,7 +129,7 @@ public class ExportToOtherAuthorisedGraphTest {
         idAuths.put(STORE_PROPS_ID, opAuths);
         final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID + 2)
-                .parentSchemaIds(SCHEMA_ID + 1)
+                .parentSchemaId(SCHEMA_ID + 1)
                 .parentStorePropertiesId(STORE_PROPS_ID)
                 .build();
         final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
@@ -156,7 +157,7 @@ public class ExportToOtherAuthorisedGraphTest {
         idAuths.put(STORE_PROPS_ID, opAuths);
         final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID + 2)
-                .parentSchemaIds(SCHEMA_ID + 1)
+                .parentSchemaId(SCHEMA_ID + 1)
                 .parentStorePropertiesId(STORE_PROPS_ID)
                 .build();
         final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
@@ -184,7 +185,7 @@ public class ExportToOtherAuthorisedGraphTest {
         idAuths.put(STORE_PROPS_ID, opAuths);
         final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID + 2)
-                .parentSchemaIds(SCHEMA_ID + 1)
+                .parentSchemaId(SCHEMA_ID + 1)
                 .parentStorePropertiesId(STORE_PROPS_ID)
                 .build();
         final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
@@ -212,7 +213,7 @@ public class ExportToOtherAuthorisedGraphTest {
         idAuths.put(SCHEMA_ID + 1, opAuths);
         final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID + 2)
-                .parentSchemaIds(SCHEMA_ID + 1)
+                .parentSchemaId(SCHEMA_ID + 1)
                 .parentStorePropertiesId(STORE_PROPS_ID)
                 .build();
         final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
@@ -240,7 +241,7 @@ public class ExportToOtherAuthorisedGraphTest {
         idAuths.put(SCHEMA_ID + 1, opAuths);
         final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID + 2)
-                .parentSchemaIds(SCHEMA_ID + 1)
+                .parentSchemaId(SCHEMA_ID + 1)
                 .build();
         final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
         handler.setIdAuths(idAuths);
@@ -304,6 +305,13 @@ public class ExportToOtherAuthorisedGraphTest {
         } catch (IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("GraphLibrary cannot be found with graphId"));
         }
+    }
+
+    @Test
+    public void shouldAddAuthsToHandlerFromJson() {
+        // When
+        OperationDeclarations opDeclarations = OperationDeclarations.fromPaths("ExportAuthorisedGraphOperations.json");
+
 
     }
 }
