@@ -214,4 +214,25 @@ public class OperationChainTest {
             verify(operation).close();
         }
     }
+
+
+    @Test
+    public void shouldFlattenNestedOperationChain() {
+        // Given
+        final AddElements addElements = mock(AddElements.class);
+        final GetElements getElements = mock(GetElements.class);
+        final Limit<Element> limit = mock(Limit.class);
+
+        final OperationChain opChain1 = new OperationChain.Builder().first(addElements)
+                                                                    .then(getElements)
+                                                                    .build();
+
+        final OperationChain<?> opChain2 = new OperationChain.Builder().first(opChain1)
+                                                                       .then(limit).build();
+        // When
+        final OperationChain operations = OperationChain.flatten(opChain2);
+
+        // Then
+        System.out.println(operations);
+    }
 }

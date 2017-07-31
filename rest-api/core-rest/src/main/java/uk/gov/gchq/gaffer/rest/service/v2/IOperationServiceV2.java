@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.rest.service.v2;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -23,6 +24,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.glassfish.jersey.server.ChunkedOutput;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -66,6 +68,9 @@ public interface IOperationServiceV2 {
             @ApiResponse(code = 500, message = "Something went wrong in the server"),
             @ApiResponse(code = 501, message = "The requested operation is not supported by the target store")})
     ChunkedOutput<String> executeChunked(final Operation operation);
+
+    @SuppressFBWarnings
+    ChunkedOutput<String> executeChunkedChain(final OperationChain opChain);
 
     @GET
     @Path("/{className}")

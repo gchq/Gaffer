@@ -35,6 +35,12 @@ public class AddOperationsToChain implements GraphHook {
     private final AdditionalOperations defaultOperations = new AdditionalOperations();
     private final LinkedHashMap<String, AdditionalOperations> authorisedOps = new LinkedHashMap<>();
 
+    @Override
+    public <T> T postExecute(final T result,
+                             final OperationChain<?> opChain, final User user) {
+        return result;
+    }
+
     /**
      * Adds in the additional Operations specified.  The original opChain will
      * be updated.
@@ -62,12 +68,6 @@ public class AddOperationsToChain implements GraphHook {
         }
         opChain.getOperations().clear();
         opChain.getOperations().addAll(newOpList);
-    }
-
-    @Override
-    public <T> T postExecute(final T result,
-                             final OperationChain<?> opChain, final User user) {
-        return result;
     }
 
     public void setStart(final List<Operation> start) {

@@ -35,6 +35,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 public abstract class OperationServiceIT extends AbstractRestApiIT {
     @Test
@@ -165,6 +166,13 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
     }
 
     private <T> List<T> readChunkedResults(final Response response, final GenericType<ChunkedInput<T>> genericType) {
+        try {
+            // Sleep for a short amount of time to ensure that all results are collected
+            Thread.sleep(500);
+        } catch (final InterruptedException e) {
+            fail("Issue while waiting for chunked response.");
+        }
+
         final ChunkedInput<T> input = response.readEntity(genericType);
 
         final List<T> results = new ArrayList<>();
@@ -176,7 +184,7 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
 
     private void verifyGroupCounts(final GroupCounts groupCounts) {
         assertEquals(2, (int) groupCounts.getEntityGroups()
-                .get(TestGroups.ENTITY));
+                                         .get(TestGroups.ENTITY));
         assertEquals(1, (int) groupCounts.getEdgeGroups().get(TestGroups.EDGE));
         assertFalse(groupCounts.isLimitHit());
     }

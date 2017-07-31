@@ -20,7 +20,7 @@ import org.junit.rules.TemporaryFolder;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
-import uk.gov.gchq.gaffer.rest.service.v1.RestApiV1TestClient;
+import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -39,7 +39,7 @@ import java.io.IOException;
  */
 public class SingleUseMapProxyStore extends ProxyStore {
     public static final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-    private static final RestApiTestClient client = new RestApiV1TestClient();
+    private static final RestApiTestClient client = new RestApiV2TestClient();
 
     @Override
     public void initialise(final String graphId, final Schema accumuloSchema, final StoreProperties proxyProps) throws StoreException {

@@ -35,7 +35,7 @@ public class ProxyProperties extends StoreProperties {
     public static final String JSON_SERIALISER_CLASS = "gaffer.jsonserialiser.class";
 
     public static final String DEFAULT_GAFFER_HOST = "localhost";
-    public static final String DEFAULT_GAFFER_CONTEXT_ROOT = "/rest/v1";
+    public static final String DEFAULT_GAFFER_CONTEXT_ROOT = "/rest/v2";
     public static final int DEFAULT_GAFFER_PORT = 8080;
     public static final int DEFAULT_CONNECT_TIMEOUT = 10000;
     public static final int DEFAULT_READ_TIMEOUT = 10000;

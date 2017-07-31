@@ -51,11 +51,6 @@ public class TestStore extends Store {
     }
 
     @Override
-    public <O> O _execute(final OperationChain<O> operationChain, final Context context) throws OperationException {
-        return mockStore._execute(operationChain, context);
-    }
-
-    @Override
     protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
         return ToBytesSerialiser.class;
     }

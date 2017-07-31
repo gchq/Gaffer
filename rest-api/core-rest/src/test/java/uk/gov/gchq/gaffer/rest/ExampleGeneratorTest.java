@@ -16,6 +16,8 @@
 package uk.gov.gchq.gaffer.rest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -56,7 +58,10 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToMap;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
 import uk.gov.gchq.gaffer.operation.impl.output.ToStream;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
+import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.service.v2.example.DefaultExamplesFactory;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -67,6 +72,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class ExampleGeneratorTest {
 
     private final DefaultExamplesFactory generator = new DefaultExamplesFactory();
+    private final GraphFactory graphFactory = new DefaultGraphFactory();
     private final Class<? extends Operation> opClass;
 
     public ExampleGeneratorTest(final Class<? extends Operation> opClass) {
@@ -112,6 +118,22 @@ public class ExampleGeneratorTest {
                 new Object[]{SplitStore.class},
                 new Object[]{Validate.class}
         );
+    }
+
+    @BeforeClass
+    public static void beforeClass() {
+        System.getProperties().put("gaffer.storeProperties", "/home/user/projects/gaffer/rest-api/core-rest/src/test/resources/store.properties");
+        System.getProperties().put("gaffer.graph.id", "graphId");
+        System.getProperties().put("gaffer.schemas", "/home/user/projects/gaffer/rest-api/core-rest/src/test/resources/schema");
+    }
+
+    @Before
+    public void before() throws IllegalAccessException, NoSuchFieldException {
+        // Manually inject GraphFactory
+        final Field field = generator.getClass().getDeclaredField("graphFactory");
+
+        field.setAccessible(true);
+        field.set(generator, graphFactory);
     }
 
     @Test

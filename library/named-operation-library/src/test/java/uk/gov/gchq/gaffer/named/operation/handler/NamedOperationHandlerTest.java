@@ -108,7 +108,7 @@ public class NamedOperationHandlerTest {
         given(context.getUser()).willReturn(user);
         given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
         given(extendedNamedOperation.getOperationChain(params)).willReturn(opChain);
-        given(store._execute(opChainCaptor.capture(), eq(context))).willReturn(expectedResult);
+        given(store.execute(opChainCaptor.capture(), eq(context))).willReturn(expectedResult);
 
         // When
         final Object result = operationHandler.doOperation(
@@ -165,7 +165,7 @@ public class NamedOperationHandlerTest {
         given(context.getUser()).willReturn(user);
         given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
         given(extendedNamedOperation.getOperationChain(params)).willReturn(opChain);
-        given(store._execute(opChainCaptor.capture(), eq(context))).willReturn(expectedResult);
+        given(store.execute(opChainCaptor.capture(), eq(context))).willReturn(expectedResult);
 
         // When
         final Object result = operationHandler.doOperation(
@@ -228,7 +228,7 @@ public class NamedOperationHandlerTest {
         given(view.clone()).willReturn(clonedView);
         given(context.getUser()).willReturn(user);
         given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
-        given(store._execute(opChainCaptor.capture(), eq(context))).willReturn(expectedResult);
+        given(store.execute(opChainCaptor.capture(), eq(context))).willReturn(expectedResult);
 
         // When
         final Object result = operationHandler.doOperation(
@@ -290,7 +290,7 @@ public class NamedOperationHandlerTest {
         given(view.clone()).willReturn(clonedView);
         given(context.getUser()).willReturn(user);
         given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
-        given(store._execute(opChainCaptor.capture(), eq(context))).willReturn(expectedResult);
+        given(store.execute(opChainCaptor.capture(), eq(context))).willReturn(expectedResult);
 
         // When
         exception.expect(IllegalArgumentException.class);
@@ -342,7 +342,7 @@ public class NamedOperationHandlerTest {
         given(view.clone()).willReturn(clonedView);
         given(context.getUser()).willReturn(user);
         given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
-        given(store._execute(opChainCaptor.capture(), eq(context))).willReturn(expectedResult);
+        given(store.execute(opChainCaptor.capture(), eq(context))).willReturn(expectedResult);
 
         // When
         exception.expect(IllegalArgumentException.class);
@@ -393,7 +393,7 @@ public class NamedOperationHandlerTest {
         given(view.clone()).willReturn(clonedView);
         given(context.getUser()).willReturn(user);
         given(cache.getNamedOperation(opName, user)).willReturn(extendedNamedOperation);
-        given(store._execute(opChainCaptor.capture(), eq(context))).willReturn(expectedResult);
+        given(store.execute(opChainCaptor.capture(), eq(context))).willReturn(expectedResult);
 
         // When
         exception.expect(IllegalArgumentException.class);

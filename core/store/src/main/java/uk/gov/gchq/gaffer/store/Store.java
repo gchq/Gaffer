@@ -71,6 +71,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DiscardOutputHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.LimitHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OperationChainHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ValidateHandler;
@@ -126,18 +127,15 @@ public abstract class Store {
     private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new LinkedHashMap<>();
     private final List<OperationChainOptimiser> opChainOptimisers = new ArrayList<>();
     private final OperationChainValidator opChainValidator;
-
+    private final SchemaOptimiser schemaOptimiser;
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to aggregate the elements.
      */
     private Schema schema;
-
     /**
      * The store properties - contains specific configuration information for the store - such as database connection strings.
      */
     private StoreProperties properties;
-
-    private final SchemaOptimiser schemaOptimiser;
     private GraphLibrary library;
 
     private JobTracker jobTracker;
@@ -166,7 +164,9 @@ public abstract class Store {
 
         final Store newStore;
         try {
-            newStore = Class.forName(storeClass).asSubclass(Store.class).newInstance();
+            newStore = Class.forName(storeClass)
+                            .asSubclass(Store.class)
+                            .newInstance();
         } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
         }
@@ -229,6 +229,17 @@ public abstract class Store {
     }
 
     /**
+     * Executes a given operation and returns the result.
+     *
+     * @param operation the operation to execute.
+     * @param context   the context associated with the operation
+     * @throws OperationException thrown by the operation handler if the operation fails.
+     */
+    public void execute(final Operation operation, final Context context) throws OperationException {
+        execute(new OperationChain<>(operation), context);
+    }
+
+    /**
      * Executes a given output operation and returns the result.
      *
      * @param operation the output operation to execute.
@@ -251,10 +262,23 @@ public abstract class Store {
      * @throws OperationException thrown by an operation handler if an operation fails
      */
     public <O> O execute(final OperationChain<O> operationChain, final User user) throws OperationException {
-        final Context context = createContext(user);
+        return execute(operationChain, createContext(user));
+    }
+
+    /**
+     * Execute a given operation and returns the result.
+     * @param operation     the operation to execute
+     * @param context       the context associated with the operation
+     * @param <O>           the output type of the operation
+     * @return the result of executing the operation
+     * @throws OperationException thrown by the operation handler if the operation fails.
+     */
+    public <O> O execute(final Output<O> operation, final Context context) throws OperationException {
+        final OperationChain<O> operationChain = asOperationChain(operation);
+
         addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
         try {
-            final O result = _execute(operationChain, context);
+            final O result = (O) handleOperation(operation, context);
             addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
             return result;
         } catch (final Throwable t) {
@@ -288,37 +312,28 @@ public abstract class Store {
             }
             if (!hasExport) {
                 operationChain.getOperations()
-                        .add(new ExportToGafferResultCache());
+                              .add(new ExportToGafferResultCache());
             }
         }
 
         final JobDetail initialJobDetail = addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
 
-        final Runnable runnable = new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    _execute(operationChain, context);
-                    addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
-                } catch (final Error e) {
-                    addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
-                    throw e;
-                } catch (final Exception e) {
-                    LOGGER.warn("Operation chain job failed to execute", e);
-                    addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
-                }
+        final Runnable runnable = () -> {
+            try {
+                handleOperation(operationChain, context);
+                addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
+            } catch (final Error e) {
+                addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
+                throw e;
+            } catch (final Exception e) {
+                LOGGER.warn("Operation chain job failed to execute", e);
+                addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
             }
         };
 
         executorService.execute(runnable);
 
         return initialJobDetail;
-    }
-
-    public <O> O _execute(final OperationChain<O> operationChain, final Context context) throws OperationException {
-        final OperationChain<O> optimisedOperationChain = prepareOperationChain(operationChain, context);
-        return handleOperationChain(optimisedOperationChain, context);
     }
 
     public void runAsync(final Runnable runnable) {
@@ -356,7 +371,8 @@ public abstract class Store {
             for (final Class<? extends Operation> nextOp : getSupportedOperations()) {
                 if (Input.class.isAssignableFrom(nextOp)) {
                     final Class<?> inputType = OperationUtil.getInputType((Class) nextOp);
-                    if (OperationUtil.isValid(outputType, inputType).isValid()) {
+                    if (OperationUtil.isValid(outputType, inputType)
+                                     .isValid()) {
                         ops.add(nextOp);
                     }
                 }
@@ -414,12 +430,12 @@ public abstract class Store {
         return properties;
     }
 
-    public void setGraphLibrary(final GraphLibrary library) {
-        this.library = library;
-    }
-
     public GraphLibrary getGraphLibrary() {
         return library;
+    }
+
+    public void setGraphLibrary(final GraphLibrary library) {
+        this.library = library;
     }
 
     public void optimiseSchema() {
@@ -433,25 +449,36 @@ public abstract class Store {
         } else {
             validationResult.add(schema.validate());
 
-            getSchemaElements().entrySet().forEach(schemaElementDefinitionEntry -> schemaElementDefinitionEntry.getValue().getProperties().forEach(propertyName -> {
-                final Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
-                final Serialiser serialisation = schemaElementDefinitionEntry
-                        .getValue()
-                        .getPropertyTypeDef(propertyName)
-                        .getSerialiser();
+            getSchemaElements().entrySet()
+                               .forEach(schemaElementDefinitionEntry -> schemaElementDefinitionEntry
+                                       .getValue()
+                                       .getProperties()
+                                       .forEach(propertyName -> {
+                                           final Class propertyClass = schemaElementDefinitionEntry
+                                                   .getValue()
+                                                   .getPropertyClass(propertyName);
+                                           final Serialiser serialisation = schemaElementDefinitionEntry
+                                                   .getValue()
+                                                   .getPropertyTypeDef(propertyName)
+                                                   .getSerialiser();
 
-                if (null == serialisation) {
-                    validationResult.addError(
-                            String.format("Could not find a serialiser for property '%s' in the group '%s'.", propertyName, schemaElementDefinitionEntry.getKey()));
-                } else if (!serialisation.canHandle(propertyClass)) {
-                    validationResult.addError(String.format("Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema", serialisation.getClass().getName(), propertyName, schemaElementDefinitionEntry.getKey()));
-                }
-            }));
+                                           if (null == serialisation) {
+                                               validationResult.addError(
+                                                       String.format("Could not find a serialiser for property '%s' in the group '%s'.", propertyName, schemaElementDefinitionEntry
+                                                               .getKey()));
+                                           } else if (!serialisation.canHandle(propertyClass)) {
+                                               validationResult.addError(String.format("Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema", serialisation
+                                                       .getClass()
+                                                       .getName(), propertyName, schemaElementDefinitionEntry
+                                                       .getKey()));
+                                           }
+                                       }));
 
             validateSchema(validationResult, getSchema().getVertexSerialiser());
 
             getSchema().getTypes().entrySet().forEach(entrySet ->
-                    validateSchema(validationResult, entrySet.getValue().getSerialiser()));
+                    validateSchema(validationResult, entrySet.getValue()
+                                                             .getSerialiser()));
         }
 
         if (!validationResult.isValid()) {
@@ -470,9 +497,11 @@ public abstract class Store {
     }
 
     protected <O> OperationChain<O> prepareOperationChain(final OperationChain<O> operationChain, final Context context) {
-        final ValidationResult validationResult = opChainValidator.validate(operationChain, context.getUser(), this);
+        final ValidationResult validationResult = opChainValidator.validate(operationChain, context
+                .getUser(), this);
         if (!validationResult.isValid()) {
-            throw new IllegalArgumentException("Operation chain is invalid. " + validationResult.getErrorString());
+            throw new IllegalArgumentException("Operation chain is invalid. " + validationResult
+                    .getErrorString());
         }
 
         OperationChain<O> optimisedOperationChain = operationChain;
@@ -556,7 +585,8 @@ public abstract class Store {
      * @return the result of the operation.
      */
     protected Object doUnhandledOperation(final Operation operation, final Context context) {
-        throw new UnsupportedOperationException("Operation " + operation.getClass() + " is not supported by the ParquetStore.");
+        throw new UnsupportedOperationException("Operation " + operation.getClass() + " is not supported by the " + getClass()
+                .getSimpleName() + '.');
     }
 
     protected final void addOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {
@@ -575,32 +605,24 @@ public abstract class Store {
         return operationHandlers.get(opClass);
     }
 
-    protected <O> O handleOperationChain(
-            final OperationChain<O> operationChain, final Context context) throws
-            OperationException {
-        Object result = null;
-        for (final Operation op : operationChain.getOperations()) {
-            updateOperationInput(op, result);
-            result = handleOperation(op, context);
-        }
-
-        return (O) result;
-    }
-
     private JobDetail addOrUpdateJobDetail(final OperationChain<?> operationChain, final Context context, final String msg, final JobStatus jobStatus) {
-        final JobDetail newJobDetail = new JobDetail(context.getJobId(), context.getUser().getUserId(), operationChain, jobStatus, msg);
+        final JobDetail newJobDetail = new JobDetail(context.getJobId(), context
+                .getUser()
+                .getUserId(), operationChain, jobStatus, msg);
         if (null != jobTracker) {
-            final JobDetail oldJobDetail = jobTracker.getJob(newJobDetail.getJobId(), context.getUser());
+            final JobDetail oldJobDetail = jobTracker.getJob(newJobDetail.getJobId(), context
+                    .getUser());
             if (null == oldJobDetail) {
                 jobTracker.addOrUpdateJob(newJobDetail, context.getUser());
             } else {
-                jobTracker.addOrUpdateJob(new JobDetail(oldJobDetail, newJobDetail), context.getUser());
+                jobTracker.addOrUpdateJob(new JobDetail(oldJobDetail, newJobDetail), context
+                        .getUser());
             }
         }
         return newJobDetail;
     }
 
-    protected Object handleOperation(final Operation operation, final Context context) throws
+    public Object handleOperation(final Operation operation, final Context context) throws
             OperationException {
         final OperationHandler<Operation> handler = getOperationHandler(
                 operation.getClass());
@@ -621,19 +643,6 @@ public abstract class Store {
         }
 
         return result;
-    }
-
-    protected void updateOperationInput(final Operation op, final Object result) {
-        if (null != result && op instanceof Input && null == ((Input) op).getInput()) {
-            try {
-                ((Input) op).setInput(result);
-            } catch (final ClassCastException e) {
-                throw new UnsupportedOperationException("Operation chain is not compatible. "
-                        + op.getClass().getName()
-                        + " cannot take " + result.getClass().getName()
-                        + " as an input", e);
-            }
-        }
     }
 
     private void addExecutorService() {
@@ -690,6 +699,9 @@ public abstract class Store {
         addOperationHandler(Min.class, new MinHandler());
         addOperationHandler(Sort.class, new SortHandler());
 
+        // OperationChain
+        addOperationHandler(OperationChain.class, new OperationChainHandler<>(opChainValidator, opChainOptimisers));
+
         // Other
         addOperationHandler(GenerateElements.class, new GenerateElementsHandler<>());
         addOperationHandler(GenerateObjects.class, new GenerateObjectsHandler<>());
@@ -712,4 +724,13 @@ public abstract class Store {
     private void startCacheServiceLoader(final StoreProperties properties) {
         CacheServiceLoader.initialise(properties.getProperties());
     }
+
+    private <O> OperationChain<O> asOperationChain(final Operation operation) {
+        if (operation instanceof OperationChain<?>) {
+            return (OperationChain<O>) operation;
+        } else {
+            return new OperationChain<>(operation);
+        }
+    }
+
 }

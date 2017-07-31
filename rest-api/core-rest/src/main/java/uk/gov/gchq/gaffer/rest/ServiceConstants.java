@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.rest;
 
-public class ServiceConstants {
+public final class ServiceConstants {
 
     // REST Headers
     public static final String GAFFER_MEDIA_TYPE_HEADER = "X-Gaffer-Media-Type";

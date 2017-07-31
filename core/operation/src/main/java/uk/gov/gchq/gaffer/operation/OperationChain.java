@@ -66,7 +66,15 @@ public class OperationChain<OUT> implements Operation, Output<OUT> {
     }
 
     public OperationChain(final List<Operation> operations) {
+        this(operations, false);
+    }
+
+    public OperationChain(final List<Operation> operations, final boolean flatten) {
         this.operations = new ArrayList<>(operations);
+
+        if (flatten) {
+            this.operations = flatten(this).getOperations();
+        }
     }
 
     @JsonIgnore
@@ -113,6 +121,20 @@ public class OperationChain<OUT> implements Operation, Output<OUT> {
                 CloseableUtil.close(operation);
             }
         }
+    }
+
+    public static OperationChain<?> flatten(final OperationChain<?> operationChain) {
+        final List<Operation> tmp = new ArrayList<>(1);
+
+        for (final Operation operation: operationChain.getOperations()) {
+            if (operation instanceof OperationChain) {
+                tmp.addAll(flatten((OperationChain) operation).getOperations());
+            } else {
+                tmp.add(operation);
+            }
+        }
+
+        return new OperationChain<>(tmp);
     }
 
     /**

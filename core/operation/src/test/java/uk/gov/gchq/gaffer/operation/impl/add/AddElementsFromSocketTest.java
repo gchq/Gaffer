@@ -113,7 +113,6 @@ public class AddElementsFromSocketTest extends OperationTest {
 
     @Override
     protected Set<String> getRequiredFields() {
-        // port is required but as it is an int it cannot be null
-        return Sets.newHashSet("hostname", "elementGenerator");
+        return Sets.newHashSet("hostname", "port", "elementGenerator");
     }
 }

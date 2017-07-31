@@ -110,13 +110,13 @@ public class DefaultExamplesFactory implements ExamplesFactory {
             value = null;
         } else if (String.class.equals(clazz) || Object.class.equals(clazz)) {
             value = String.valueOf(uniqueId);
-        } else if (Integer.class.equals(clazz)) {
+        } else if (Integer.class.equals(clazz) || int.class.equals(clazz)) {
             value = uniqueId;
-        } else if (Double.class.equals(clazz)) {
+        } else if (Double.class.equals(clazz) || double.class.equals(clazz)) {
             value = (double) uniqueId + 0.1;
-        } else if (Long.class.equals(clazz)) {
+        } else if (Long.class.equals(clazz) || long.class.equals(clazz)) {
             value = (long) uniqueId;
-        } else if (Float.class.equals(clazz)) {
+        } else if (Float.class.equals(clazz) || float.class.equals(clazz)) {
             value = (float) uniqueId;
         } else if (Date.class.equals(clazz)) {
             value = new Date(System.currentTimeMillis() - 10000 + uniqueId);
