@@ -95,5 +95,10 @@ public class Limit<T> implements
             _getOp().setResultLimit(resultLimit);
             return _self();
         }
+
+        public Builder<T> truncate(final Boolean truncate) {
+            _getOp().setTruncate(truncate);
+            return _self();
+        }
     }
 }

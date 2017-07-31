@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.doc.operation;
 
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
@@ -33,6 +34,8 @@ public class LimitExample extends OperationExample {
     @Override
     public void runExamples() {
         limitElementsTo3();
+        limitElementsTo3WithoutTruncation();
+        limitElementsTo3WithBuilder();
     }
 
     public Iterable<? extends Element> limitElementsTo3() {
@@ -44,5 +47,34 @@ public class LimitExample extends OperationExample {
         // ---------------------------------------------------------
 
         return runExample(opChain, null);
+    }
+
+    public void limitElementsTo3WithoutTruncation() {
+        // ---------------------------------------------------------
+        final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
+                .first(new GetAllElements())
+                .then(new Limit<>(3, false))
+                .build();
+        // ---------------------------------------------------------
+
+        showExample(opChain, "Setting this flag to false will" +
+                " throw an error if there are more than 3 elements, ie if the" +
+                " iterable would be truncated and data would be lost.");
+    }
+
+    public Iterable<? extends Element> limitElementsTo3WithBuilder() {
+        // ---------------------------------------------------------
+        final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
+                .first(new GetAllElements())
+                .then(new Limit.Builder<Element>()
+                        .resultLimit(3)
+                        .truncate(true)
+                        .build())
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(opChain, "A builder can also be used to create the limit -" +
+                " note that truncate is set to true by default, so in this case it" +
+                " is redundant, but simply shown for demonstration.");
     }
 }
