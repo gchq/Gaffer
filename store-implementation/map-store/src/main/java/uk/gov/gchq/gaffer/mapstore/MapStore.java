@@ -59,13 +59,18 @@ import java.util.Set;
  */
 public class MapStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(MapStore.class);
-    private static final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(
+    public static final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(
             StoreTrait.INGEST_AGGREGATION,
             StoreTrait.PRE_AGGREGATION_FILTERING,
             StoreTrait.POST_AGGREGATION_FILTERING,
             StoreTrait.TRANSFORMATION,
             StoreTrait.POST_TRANSFORMATION_FILTERING));
+    private static MapImpl staticMapImpl;
     private MapImpl mapImpl;
+
+    public static void resetStaticMap() {
+        staticMapImpl = null;
+    }
 
     @Override
     public void initialise(final String graphId, final Schema schema, final StoreProperties storeProperties) throws StoreException {
@@ -77,7 +82,7 @@ public class MapStore extends Store {
         super.initialise(graphId, schema, mapStoreProperties);
 
         // Initialise maps
-        mapImpl = new MapImpl(getSchema(), getProperties());
+        mapImpl = createMapImpl();
         LOGGER.debug("Initialised MapStore");
     }
 
@@ -94,6 +99,18 @@ public class MapStore extends Store {
     @Override
     public MapStoreProperties getProperties() {
         return (MapStoreProperties) super.getProperties();
+    }
+
+    protected MapImpl createMapImpl() {
+        if (getProperties().isStaticMap()) {
+            if (null == staticMapImpl) {
+                staticMapImpl = new MapImpl(getSchema(), getProperties());
+            }
+
+            return staticMapImpl;
+        }
+
+        return new MapImpl(getSchema(), getProperties());
     }
 
     @Override

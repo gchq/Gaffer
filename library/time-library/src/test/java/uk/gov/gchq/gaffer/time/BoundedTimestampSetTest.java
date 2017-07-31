@@ -72,8 +72,6 @@ public class BoundedTimestampSetTest {
                         assertEquals(BoundedTimestampSet.State.SAMPLE, boundedTimestampSet.getState());
                     }
                 });
-
-        System.out.println(new String(new JSONSerialiser().serialise(boundedTimestampSet)));
     }
 
     @Test

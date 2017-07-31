@@ -23,6 +23,9 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import java.io.Serializable;
 import java.nio.file.Path;
 
+/**
+ * Stores all the user customisable properties required by the {@link ParquetStore}.
+ */
 public class ParquetStoreProperties extends StoreProperties implements Serializable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetStoreProperties.class);
