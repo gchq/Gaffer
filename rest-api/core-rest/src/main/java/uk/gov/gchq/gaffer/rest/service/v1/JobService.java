@@ -57,7 +57,7 @@ public class JobService implements IJobService {
         preOperationHook(opChain, user);
 
         try {
-            final JobDetail jobDetail = graphFactory.getGraph().executeJob(opChain, user);
+            final JobDetail jobDetail = graphFactory.getGraph().submitJob(opChain, user);
             LOGGER.info("Job started = {}", jobDetail);
             return jobDetail;
         } catch (final OperationException e) {

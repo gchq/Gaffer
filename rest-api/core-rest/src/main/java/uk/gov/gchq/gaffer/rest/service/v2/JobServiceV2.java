@@ -67,14 +67,14 @@ public class JobServiceV2 implements IJobServiceV2 {
 
         try {
             final JobDetail jobDetail = graphFactory.getGraph()
-                                                    .executeJob(opChain, user);
+                                                    .submitJob(opChain, user);
             LOGGER.info("Job started = {}", jobDetail);
 
             final URI location = context.getAbsolutePathBuilder()
                                         .path(jobDetail.getJobId())
                                         .build();
 
-            return Response.created(location)
+            return Response.created(location).entity(jobDetail)
                            .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                            .build();
         } finally {

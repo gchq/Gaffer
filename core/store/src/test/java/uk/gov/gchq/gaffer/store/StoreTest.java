@@ -392,7 +392,7 @@ public class StoreTest {
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
-        final int expectedNumberOfOperations = 33;
+        final int expectedNumberOfOperations = 34;
         store.initialise("graphId", schema, properties);
 
         // When

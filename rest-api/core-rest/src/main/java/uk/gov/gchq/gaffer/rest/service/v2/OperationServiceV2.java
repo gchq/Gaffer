@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.rest.service.v2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.glassfish.jersey.server.ChunkedOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +73,33 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
     @Override
     public ChunkedOutput<String> executeChunked(final Operation operation) {
+        if (operation instanceof OperationChain) {
+            return executeChunkedChain((OperationChain) operation);
+        }
         return executeChunked(new OperationChain(operation));
+    }
+
+    @SuppressFBWarnings
+    @Override
+    public ChunkedOutput<String> executeChunkedChain(final OperationChain opChain) {
+        // Create chunked output instance
+        final ChunkedOutput<String> output = new ChunkedOutput<>(String.class, "\r\n");
+
+        // write chunks to the chunked output object
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    final Object result = _execute(opChain);
+                    chunkResult(result, output);
+                } finally {
+                    CloseableUtil.close(output);
+                    CloseableUtil.close(opChain);
+                }
+            }
+        }.start();
+
+        return output;
     }
 
     @Override
@@ -145,6 +172,9 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     }
 
     private Response _executeRest(final Operation operation) {
+        if (operation instanceof OperationChain) {
+            return _executeRest((OperationChain<?>) operation);
+        }
         return _executeRest(new OperationChain(operation));
     }
 
@@ -155,6 +185,9 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     }
 
     protected <O> O _execute(final Operation operation) {
+        if (operation instanceof OperationChain) {
+            return _execute((OperationChain<O>) operation);
+        }
         return _execute(new OperationChain<>(operation));
     }
 
@@ -226,7 +259,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         private final String name;
         private final boolean required;
 
-        public OperationField(final String name, final boolean required) {
+        OperationField(final String name, final boolean required) {
             this.name = name;
             this.required = required;
         }
@@ -250,7 +283,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         private final Set<Class<? extends Operation>> next;
         private final Operation exampleJson;
 
-        public OperationDetail(final Class<? extends Operation> opClass) {
+        OperationDetail(final Class<? extends Operation> opClass) {
             this.name = opClass.getName();
             this.fields = getOperationFields(opClass);
             this.next = getNextOperations(opClass);

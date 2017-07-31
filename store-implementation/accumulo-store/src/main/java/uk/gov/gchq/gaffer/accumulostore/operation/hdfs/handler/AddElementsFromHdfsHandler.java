@@ -147,7 +147,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
 
         final String tmpSplitsOutputPath = tmpJobWorkingPath + "/sampleSplitsOutput";
         try {
-            store._execute(new OperationChain.Builder()
+            store.execute(new OperationChain.Builder()
                     .first(new SampleDataForSplitPoints.Builder()
                             .addInputPaths(operation.getInputPaths())
                             .jobInitialiser(operation.getJobInitialiser())

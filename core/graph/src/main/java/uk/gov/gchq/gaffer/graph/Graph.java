@@ -149,7 +149,7 @@ public final class Graph {
      * @return the job details
      * @throws OperationException thrown if the job fails to run.
      */
-    public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
+    public JobDetail submitJob(final OperationChain<?> operationChain, final User user) throws OperationException {
         try {
             for (final GraphHook graphHook : graphHooks) {
                 graphHook.preExecute(operationChain, user);
