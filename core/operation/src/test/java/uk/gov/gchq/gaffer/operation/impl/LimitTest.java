@@ -32,31 +32,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 
-public class LimitTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return Limit.class;
-    }
+public class LimitTest extends OperationTest<Limit> {
 
     @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet("resultLimit");
-    }
-
-    @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
-        // Given
-        final Limit op = new Limit();
-
-        // When
-        byte[] json = serialiser.serialise(op, true);
-        final Limit deserialisedOp = serialiser.deserialise(json, Limit.class);
-
-        // Then
-        assertNotNull(deserialisedOp);
     }
 
     @Test
@@ -70,5 +50,10 @@ public class LimitTest extends OperationTest {
         assertThat(limit.getInput(), iterableWithSize(2));
         assertThat(limit.getResultLimit(), is(1));
         assertThat(limit.getInput(), containsInAnyOrder("1", "2"));
+    }
+
+    @Override
+    protected Limit getTestObject() {
+        return new Limit();
     }
 }

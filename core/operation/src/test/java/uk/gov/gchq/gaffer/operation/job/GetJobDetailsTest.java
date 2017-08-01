@@ -26,17 +26,11 @@ import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import static org.junit.Assert.assertEquals;
 
 
-public class GetJobDetailsTest extends OperationTest {
+public class GetJobDetailsTest extends OperationTest<GetJobDetails> {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return GetJobDetails.class;
-    }
-
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final GetJobDetails operation = new GetJobDetails.Builder()
                 .jobId("jobId")
@@ -60,5 +54,10 @@ public class GetJobDetailsTest extends OperationTest {
 
         // Then
         assertEquals("jobId", op.getJobId());
+    }
+
+    @Override
+    protected GetJobDetails getTestObject() {
+        return new GetJobDetails();
     }
 }

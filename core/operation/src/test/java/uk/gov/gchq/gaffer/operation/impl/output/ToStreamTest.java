@@ -30,27 +30,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 
-public class ToStreamTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return ToStream.class;
-    }
-
-    @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
-        // Given
-        final ToStream op = new ToStream();
-
-        // When
-        byte[] json = serialiser.serialise(op, true);
-        final ToStream deserialisedOp = serialiser.deserialise(json, ToStream.class);
-
-        // Then
-        assertNotNull(deserialisedOp);
-    }
+public class ToStreamTest extends OperationTest<ToStream> {
 
     @Test
     @Override
@@ -62,5 +42,10 @@ public class ToStreamTest extends OperationTest {
         assertThat(toStream.getInput(), is(notNullValue()));
         assertThat(toStream.getInput(), iterableWithSize(2));
         assertThat(toStream.getInput(), containsInAnyOrder("1", "2"));
+    }
+
+    @Override
+    protected ToStream getTestObject() {
+        return new ToStream();
     }
 }
