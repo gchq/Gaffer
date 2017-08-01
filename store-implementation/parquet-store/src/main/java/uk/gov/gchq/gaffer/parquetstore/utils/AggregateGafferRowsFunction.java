@@ -24,29 +24,34 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.BinaryOperator;
 
+/**
+ * This is used by the Spark reduceByKey method to aggregate two {@link GenericRowWithSchema}'s using the Gaffer aggregator's.
+ */
 public class AggregateGafferRowsFunction implements Function2<GenericRowWithSchema, GenericRowWithSchema, GenericRowWithSchema>, Serializable {
+    private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
     private static final Logger LOGGER = LoggerFactory.getLogger(AggregateGafferRowsFunction.class);
     private static final long serialVersionUID = -8353767193380574516L;
     private final Boolean isEntity;
-    private final Map<String, String> propertyToAggregatorMap;
+    private final byte[] aggregatorJson;
     private final Set<String> groupByColumns;
     private final GafferGroupObjectConverter objectConverter;
     private final Map<String, String[]> columnToPaths;
     private final String[] gafferProperties;
+    private transient ElementAggregator aggregator;
 
     @SuppressFBWarnings("EI_EXPOSE_REP2")
     public AggregateGafferRowsFunction(final String[] gafferProperties,
                                        final boolean isEntity,
                                        final Set<String> groupByColumns,
                                        final Map<String, String[]> columnToPaths,
-                                       final Map<String, String> propertyToAggregatorMap,
+                                       final byte[] aggregatorJson,
                                        final GafferGroupObjectConverter gafferGroupObjectConverter)
             throws SerialisationException {
         LOGGER.debug("Generating a new AggregateGafferRowsFunction");
@@ -56,8 +61,7 @@ public class AggregateGafferRowsFunction implements Function2<GenericRowWithSche
         this.isEntity = isEntity;
         this.groupByColumns = groupByColumns;
         LOGGER.debug("GroupByColumns: {}", this.groupByColumns);
-        this.propertyToAggregatorMap = propertyToAggregatorMap;
-        LOGGER.debug("PropertyToAggregatorMap: {}", this.propertyToAggregatorMap);
+        this.aggregatorJson = aggregatorJson;
     }
 
     @Override
@@ -94,8 +98,10 @@ public class AggregateGafferRowsFunction implements Function2<GenericRowWithSche
         LOGGER.trace("First properties object to be aggregated: {}", prop1);
         LOGGER.trace("Second properties object to be aggregated: {}", prop2);
         // merge properties
-        ElementAggregator aggregateClass = getElementAggregator();
-        Properties mergedProperties = aggregateClass.apply(prop1, prop2);
+        if (null == aggregator) {
+            aggregator = JSON_SERIALISER.deserialise(aggregatorJson, ElementAggregator.class);
+        }
+        Properties mergedProperties = aggregator.apply(prop1, prop2);
         LOGGER.trace("Merged properties object after aggregation: {}", mergedProperties);
 
         //add properties to the row maintaining the order
@@ -116,18 +122,5 @@ public class AggregateGafferRowsFunction implements Function2<GenericRowWithSche
         final GenericRowWithSchema mergedRow = new GenericRowWithSchema(outputRow.toArray(), v1.schema());
         LOGGER.trace("Merged row: {}", mergedRow);
         return mergedRow;
-    }
-
-    private ElementAggregator getElementAggregator() throws OperationException {
-
-        final ElementAggregator.Builder aggregator = new ElementAggregator.Builder();
-        for (final Map.Entry<String, String> entry : propertyToAggregatorMap.entrySet()) {
-            try {
-                aggregator.select(entry.getKey()).execute((BinaryOperator) Class.forName(entry.getValue()).newInstance());
-            } catch (final IllegalAccessException | InstantiationException | ClassNotFoundException e) {
-                throw new OperationException(e.getMessage(), e);
-            }
-        }
-        return aggregator.build();
     }
 }

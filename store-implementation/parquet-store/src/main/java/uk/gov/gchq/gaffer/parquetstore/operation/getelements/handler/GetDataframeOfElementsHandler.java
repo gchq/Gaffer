@@ -31,6 +31,10 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
+/**
+ * An {@link uk.gov.gchq.gaffer.store.operation.handler.OperationHandler} for the {@link GetDataFrameOfElements}
+ * operation on the {@link ParquetStore}.
+ */
 public class GetDataframeOfElementsHandler implements OutputOperationHandler<GetDataFrameOfElements, Dataset<Row>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GetDataframeOfElementsHandler.class);
 

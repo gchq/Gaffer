@@ -39,6 +39,9 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 
+/**
+ * An {@link OperationHandler} for the {@link ImportRDDOfElements} operation on the {@link ParquetStore}.
+ */
 public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfElements> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImportRDDOfElementsHandler.class);
 
@@ -105,7 +108,7 @@ public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfE
         // Move data from temp to data
         final long snapshot = System.currentTimeMillis();
         final String destPath = rootDataDirString + "/" + snapshot;
-        fs.mkdirs(new Path(destPath));
+        fs.mkdirs(new Path(destPath).getParent());
         fs.rename(new Path(tempDataDirString + "/" + ParquetStoreConstants.SORTED), new Path(destPath));
         // Reload indices
         newGraphIndex.setSnapshotTimestamp(snapshot);

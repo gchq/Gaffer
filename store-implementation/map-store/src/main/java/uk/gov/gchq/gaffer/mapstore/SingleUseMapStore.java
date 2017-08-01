@@ -24,6 +24,8 @@ public class SingleUseMapStore extends MapStore {
     @SuppressFBWarnings(value = "DE_MIGHT_IGNORE", justification = "Exception ignored while clearing previous maps before reinitialising.")
     @Override
     public void initialise(final String graphId, final Schema schema, final StoreProperties storeProperties) throws StoreException {
+        MapStore.resetStaticMap();
+
         try {
             super.initialise(graphId, schema, storeProperties);
         } catch (final Exception e) {
