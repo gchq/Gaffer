@@ -32,27 +32,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 
-public class GetAllElementsTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return GetAllElements.class;
-    }
-
-    @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
-        // Given
-        final GetAllElements op = new GetAllElements();
-
-        // When
-        byte[] json = serialiser.serialise(op, true);
-        final GetAllElements deserialisedOp = serialiser.deserialise(json, GetAllElements.class);
-
-        // Then
-        assertNotNull(deserialisedOp);
-    }
+public class GetAllElementsTest extends OperationTest<GetAllElements> {
 
     @Test
     public void shouldSetDirectedTypeToBoth() {
@@ -87,5 +67,10 @@ public class GetAllElementsTest extends OperationTest {
                 .build();
 
         assertNotNull(getAllElements.getView().getEdge(TestGroups.EDGE));
+    }
+
+    @Override
+    protected GetAllElements getTestObject() {
+        return new GetAllElements();
     }
 }

@@ -30,17 +30,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 
-public class GetJobResultsTest extends OperationTest {
+public class GetJobResultsTest extends OperationTest<GetJobResults> {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return GetJobResults.class;
-    }
-
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final GetJobResults operation = new GetJobResults.Builder()
                 .jobId("jobId")
@@ -76,5 +70,10 @@ public class GetJobResultsTest extends OperationTest {
 
         // Then
         assertEquals("jobId", op.getJobId());
+    }
+
+    @Override
+    protected GetJobResults getTestObject() {
+        return new GetJobResults();
     }
 }
