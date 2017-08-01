@@ -30,27 +30,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 
-public class ToSetTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return ToSet.class;
-    }
-
-    @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
-        // Given
-        final ToSet op = new ToSet();
-
-        // When
-        byte[] json = serialiser.serialise(op, true);
-        final ToSet deserialisedOp = serialiser.deserialise(json, ToSet.class);
-
-        // Then
-        assertNotNull(deserialisedOp);
-    }
+public class ToSetTest extends OperationTest<ToSet> {
 
     @Test
     @Override
@@ -62,5 +42,10 @@ public class ToSetTest extends OperationTest {
         assertThat(toSet.getInput(), is(notNullValue()));
         assertThat(toSet.getInput(), iterableWithSize(2));
         assertThat(toSet.getInput(), containsInAnyOrder("1", "2"));
+    }
+
+    @Override
+    protected ToSet getTestObject() {
+        return new ToSet();
     }
 }
