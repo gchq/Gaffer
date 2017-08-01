@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.doc.operation;
 
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
@@ -57,9 +56,10 @@ public class LimitExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        showExample(opChain, "Setting this flag to false will" +
-                " throw an error if there are more than 3 elements, ie if the" +
-                " iterable would be truncated and data would be lost.");
+        showExample(opChain, "Setting this flag to false will " +
+                "throw an error instead of truncating the iterable. " +
+                "In this case there are more than 3 elements, so " +
+                "when executed a LimitExceededException would be thrown.");
     }
 
     public Iterable<? extends Element> limitElementsTo3WithBuilder() {
