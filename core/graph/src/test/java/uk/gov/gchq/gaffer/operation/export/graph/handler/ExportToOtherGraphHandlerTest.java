@@ -39,6 +39,8 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.FileGraphLibrary;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.File;
 import java.io.IOException;
@@ -240,11 +242,18 @@ public class ExportToOtherGraphHandlerTest {
 
         Schema schema1 = new Schema.Builder()
                 .id(SCHEMA_ID + 1)
-                .entity("entity")
+                .entity("entity", new SchemaEntityDefinition.Builder()
+                        .vertex("vertex")
+                        .build())
+                .type("vertex", String.class)
                 .build();
         Schema schema2 = new Schema.Builder()
                 .id(SCHEMA_ID + 2)
-                .edge("edge")
+                .edge("edge", new SchemaEdgeDefinition.Builder()
+                        .source("vertex")
+                        .destination("vertex")
+                        .build())
+                .type("vertex", String.class)
                 .build();
 
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
@@ -267,8 +276,14 @@ public class ExportToOtherGraphHandlerTest {
         assertEquals(GRAPH_ID + 2, graph.getGraphId());
         JsonAssert.assertEquals(new Schema.Builder()
                         .id(SCHEMA_ID)
-                        .entity("entity")
-                        .edge("edge")
+                        .entity("entity", new SchemaEntityDefinition.Builder()
+                                .vertex("vertex")
+                                .build())
+                        .edge("edge", new SchemaEdgeDefinition.Builder()
+                                .source("vertex")
+                                .destination("vertex")
+                                .build())
+                        .type("vertex", String.class)
                         .build().toJson(false),
                 graph.getSchema().toJson(false));
         assertEquals(storeProperties, graph.getStoreProperties());

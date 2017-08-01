@@ -410,9 +410,9 @@ public class SchemaTest {
 
         assertEquals(JavaSerialiser.class,
                 store.getElement(TestGroups.EDGE)
-                        .getPropertyTypeDef(TestPropertyNames.PROP_1)
-                        .getSerialiser()
-                        .getClass());
+                     .getPropertyTypeDef(TestPropertyNames.PROP_1)
+                     .getSerialiser()
+                     .getClass());
     }
 
     @Test
@@ -466,10 +466,10 @@ public class SchemaTest {
 
         // When
         final Schema schema = new Schema.Builder()
-                .edge(TestGroups.EDGE)
-                .entity(TestGroups.ENTITY)
-                .entity(TestGroups.ENTITY_2)
-                .edge(TestGroups.EDGE_2)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition())
+                .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition())
+                .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition())
                 .vertexSerialiser(vertexSerialiser)
                 .type(TestTypes.PROP_STRING, String.class)
                 .visibilityProperty(TestPropertyNames.VISIBILITY)
@@ -719,7 +719,9 @@ public class SchemaTest {
                 .build();
 
         // Then
-        assertArrayEquals(new String[]{TestGroups.EDGE}, schema.getEdge(TestGroups.EDGE_2).getParents().toArray());
+        assertArrayEquals(new String[]{TestGroups.EDGE}, schema.getEdge(TestGroups.EDGE_2)
+                                                               .getParents()
+                                                               .toArray());
     }
 
     @Test
@@ -796,7 +798,9 @@ public class SchemaTest {
                         TestPropertyNames.PROP_2,
                         TestPropertyNames.PROP_3,
                         TestPropertyNames.PROP_4},
-                schema.getEntity(TestGroups.ENTITY_4).getProperties().toArray());
+                schema.getEntity(TestGroups.ENTITY_4)
+                      .getProperties()
+                      .toArray());
 
         // Check order of properties and overrides is from order of parents
         assertArrayEquals(new String[]{
@@ -805,7 +809,9 @@ public class SchemaTest {
                         TestPropertyNames.PROP_3,
                         TestPropertyNames.PROP_4,
                         TestPropertyNames.PROP_5},
-                schema.getEntity(TestGroups.ENTITY_5).getProperties().toArray());
+                schema.getEntity(TestGroups.ENTITY_5)
+                      .getProperties()
+                      .toArray());
 
         assertEquals("A parent entity with a single property", schema.getEntity(TestGroups.ENTITY).getDescription());
         assertEquals("An entity that should have properties: 1, 2, 3, 4 and 5", schema.getEntity(TestGroups.ENTITY_5).getDescription());
@@ -971,7 +977,7 @@ public class SchemaTest {
                                 .execute(new Exists())
                                 .build())
                         .build())
-                .edge(TestGroups.EDGE)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
                 .build();
 
         // When
@@ -991,7 +997,7 @@ public class SchemaTest {
                 .type("str", new TypeDefinition.Builder()
                         .validateFunctions(new Exists())
                         .build())
-                .edge(TestGroups.EDGE)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
                 .build();
 
         // When
@@ -1011,7 +1017,7 @@ public class SchemaTest {
                 .type("str", new TypeDefinition.Builder()
                         .validateFunctions(new Exists())
                         .build())
-                .edge(TestGroups.EDGE)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
                 .build();
 
         // When
@@ -1031,7 +1037,7 @@ public class SchemaTest {
                                 .execute(new Exists())
                                 .build())
                         .build())
-                .edge(TestGroups.ENTITY)
+                .edge(TestGroups.ENTITY, new SchemaEdgeDefinition())
                 .build();
 
         // When
@@ -1051,7 +1057,7 @@ public class SchemaTest {
                 .type("str", new TypeDefinition.Builder()
                         .validateFunctions(new Exists())
                         .build())
-                .edge(TestGroups.ENTITY)
+                .edge(TestGroups.ENTITY, new SchemaEdgeDefinition())
                 .build();
 
         // When
@@ -1067,11 +1073,15 @@ public class SchemaTest {
         final Schema schema = new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source("str")
+                        .destination("dest")
                         .build())
                 .type("str", new TypeDefinition.Builder()
                         .validateFunctions(new Exists())
                         .build())
-                .edge(TestGroups.ENTITY)
+                .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
+                        .source("src")
+                        .destination("dest")
+                        .build())
                 .build();
 
         // When

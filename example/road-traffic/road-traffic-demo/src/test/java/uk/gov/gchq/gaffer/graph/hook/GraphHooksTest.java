@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
@@ -29,16 +31,18 @@ import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 
-public class AddOperationsToChainTest {
-    private static final String ADD_OPERATIONS_TO_CHAIN_PATH = "addOperationsToChain.json";
+public class GraphHooksTest {
+    private static final String graphHooksPath = "graphHooks.json";
     private static final int RESULT_LIMIT = 100000;
 
     @Test
     public void shouldDeserialisationJson() throws IOException {
         // Given
-        final AddOperationsToChain addOperationsToChain = new AddOperationsToChain(ADD_OPERATIONS_TO_CHAIN_PATH);
+        final GraphHook[] graphHooks = new JSONSerialiser().deserialise(StreamUtil.openStream(getClass(), graphHooksPath), GraphHook[].class);
 
         // Then
+        assertEquals(1, graphHooks.length);
+        final AddOperationsToChain addOperationsToChain = (AddOperationsToChain) graphHooks[0];
         for (final Class op : new Class[]{ToSet.class, ToArray.class, ToList.class, ExportToSet.class}) {
             assertEquals(RESULT_LIMIT, (int) ((Limit) addOperationsToChain.getBefore().get(op.getName()).get(0)).getResultLimit());
         }

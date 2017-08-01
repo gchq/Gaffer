@@ -30,6 +30,8 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
@@ -49,8 +51,8 @@ public class ByteEntityBloomElementFunctorTest {
     public void setup() {
         schema = new Schema.Builder()
                 .vertexSerialiser(new JavaSerialiser())
-                .edge(TestGroups.EDGE)
-                .entity(TestGroups.ENTITY)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition())
                 .build();
         elementConverter = new ByteEntityAccumuloElementConverter(schema);
 
