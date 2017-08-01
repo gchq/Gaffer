@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.spark.operation.dataframe;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.SQLContext;
+import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.sources.And;
 import org.apache.spark.sql.sources.EqualNullSafe;
 import org.apache.spark.sql.sources.EqualTo;
@@ -73,11 +74,11 @@ public class FiltersToOperationConverter {
     private final Schema schema;
     private final Filter[] filters;
 
-    public FiltersToOperationConverter(final SQLContext sqlContext,
+    public FiltersToOperationConverter(final SparkSession sparkSession,
                                        final View view,
                                        final Schema schema,
                                        final Filter[] filters) {
-        this.sqlContext = sqlContext;
+        this.sqlContext = sparkSession.sqlContext();
         this.view = view;
         this.schema = schema;
         this.filters = Arrays.copyOf(filters, filters.length);

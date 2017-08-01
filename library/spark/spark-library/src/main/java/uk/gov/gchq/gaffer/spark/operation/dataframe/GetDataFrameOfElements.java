@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
+import org.apache.spark.sql.SparkSession;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -61,10 +62,10 @@ public class GetDataFrameOfElements implements
     public GetDataFrameOfElements() {
     }
 
-    public GetDataFrameOfElements(final SQLContext sqlContext,
+    public GetDataFrameOfElements(final SparkSession sparkSession,
                                   final List<Converter> converters) {
         this();
-        this.sqlContext = sqlContext;
+        this.sqlContext = sparkSession.sqlContext();
         this.converters = converters;
     }
 
