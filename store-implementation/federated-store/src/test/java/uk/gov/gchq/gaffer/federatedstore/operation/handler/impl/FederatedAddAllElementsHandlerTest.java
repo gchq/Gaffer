@@ -16,9 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-
 import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +30,10 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.LinkedHashSet;
 
-public class FederatedAddAllElmentsHandlerTest {
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
+
+public class FederatedAddAllElementsHandlerTest {
     public static final String TEST_USER = "testUser";
     protected User user;
 
@@ -72,7 +72,6 @@ public class FederatedAddAllElmentsHandlerTest {
         // When
         new FederatedAddElementsHandler().doOperation(op, testContext, mockStore);
 
-        //any(op) because the op is cloned.
         verify(mockStore1).execute(new OperationChain<>(op), user);
         verify(mockStore2).execute(new OperationChain<>(op), user);
         verify(mockStore3).execute(new OperationChain<>(op), user);
