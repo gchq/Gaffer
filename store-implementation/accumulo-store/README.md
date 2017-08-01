@@ -344,17 +344,14 @@ The `ClassicKeyPackage` constructs the following Accumulo key-value pair for an 
     <th>Value</th>
 </tr>
 <tr>
-    <td>(serialised_vertex)01</td>
+    <td>(serialised_vertex)</td>
     <td>group</td>
     <td>group by properties</td>
     <td>visibility property</td>
     <td>timestamp</td>
     <td>all other properties</td>
-
 </tr>
 </table>
-
-In the row ID the 0 is a delimiter to split the serialised vertex from the 1. The 1 indicates that this is an `Entity`. By having this flag at the end of the row id it is easy to determine if the key relates to an `Entity` or an `Edge`.
 
 The following Accumulo key-value pairs are created for an `Edge`:
 
