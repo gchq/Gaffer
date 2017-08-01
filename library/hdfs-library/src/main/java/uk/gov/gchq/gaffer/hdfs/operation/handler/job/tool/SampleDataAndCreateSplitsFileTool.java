@@ -99,11 +99,15 @@ public class SampleDataAndCreateSplitsFileTool extends Configured implements Too
             throw new OperationException("Failed to get counter: " + Task.Counter.REDUCE_OUTPUT_RECORDS, e);
         }
 
-        final long outputEveryNthRecord;
+        long outputEveryNthRecord;
         if (counter.getValue() < 2 || expectedNumberOfSplits < 1) {
             outputEveryNthRecord = 1;
         } else {
             outputEveryNthRecord = counter.getValue() / expectedNumberOfSplits;
+        }
+
+        if (outputEveryNthRecord < 1) {
+            outputEveryNthRecord = 1;
         }
 
         final Path resultsFile = new Path(operation.getOutputPath(), "part-r-00000");

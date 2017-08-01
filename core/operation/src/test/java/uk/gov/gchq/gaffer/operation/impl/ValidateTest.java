@@ -33,17 +33,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 
-public class ValidateTest extends OperationTest {
+public class ValidateTest extends OperationTest<Validate> {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return Validate.class;
-    }
-
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final List<Element> elements = Arrays.asList(
                 new Entity.Builder()
@@ -101,5 +95,10 @@ public class ValidateTest extends OperationTest {
                 .build();
         assertTrue(validate.isSkipInvalidElements());
         assertEquals(edge, validate.getInput().iterator().next());
+    }
+
+    @Override
+    protected Validate getTestObject() {
+        return new Validate();
     }
 }

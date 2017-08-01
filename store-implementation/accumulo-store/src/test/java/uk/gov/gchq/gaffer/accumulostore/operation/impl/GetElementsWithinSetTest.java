@@ -15,17 +15,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
-public class GetElementsWithinSetTest extends OperationTest {
+public class GetElementsWithinSetTest extends OperationTest<GetElementsWithinSet> {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
-    @Override
-    protected Class<? extends Operation> getOperationClass() {
-        return GetElementsWithinSet.class;
-    }
-
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final GetElementsWithinSet op = new GetElementsWithinSet.Builder()
                 .input(AccumuloTestData.SEED_SOURCE_1,
@@ -63,5 +57,10 @@ public class GetElementsWithinSetTest extends OperationTest {
         assertEquals(DirectedType.DIRECTED, getElementsWithinSet.getDirectedType());
         assertEquals(AccumuloTestData.SEED_A, getElementsWithinSet.getInput().iterator().next());
         assertNotNull(getElementsWithinSet.getView());
+    }
+
+    @Override
+    protected GetElementsWithinSet getTestObject() {
+        return new GetElementsWithinSet();
     }
 }
