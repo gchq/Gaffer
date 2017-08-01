@@ -38,7 +38,7 @@ import java.util.Set;
 
 public class UnionSketch extends PropertiesWalkthrough {
     public UnionSketch() {
-        super("Using Union to estimate the size of the graph", "properties/unionSketch", UnionElementGenerator.class);
+        super(Union.class, "properties/unionSketch", UnionElementGenerator.class);
     }
 
     public static void main(final String[] args) throws OperationException {
