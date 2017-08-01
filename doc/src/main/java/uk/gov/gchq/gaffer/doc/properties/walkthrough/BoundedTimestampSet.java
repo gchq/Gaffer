@@ -31,7 +31,7 @@ import java.util.Set;
 
 public class BoundedTimestampSet extends PropertiesWalkthrough {
     public BoundedTimestampSet() {
-        super("Using a BoundedTimestampSet to record a sample of the set of timestamps an element was active", "properties/boundedTimestampSet",
+        super(uk.gov.gchq.gaffer.time.BoundedTimestampSet.class, "properties/boundedTimestampSet",
                 BoundedTimestampSetElementGenerator.class);
     }
 
