@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public class SortHandler implements OutputOperationHandler<Sort, Iterable<? extends Element>> {
@@ -38,19 +39,12 @@ public class SortHandler implements OutputOperationHandler<Sort, Iterable<? exte
 
         try (Stream<? extends Element> stream =
                      Streams.toStream(operation.getInput())
-                             .filter(e -> null != e)) {
-            if (null == operation.getResultLimit()) {
-                return stream.collect(
-                        GafferCollectors.toSortedSet(
-                                operation.getCombinedComparator()
-                        )
-                );
-            }
-
+                             .filter(Objects::nonNull)) {
             return stream.collect(
-                    GafferCollectors.toLimitedSortedSet(
+                    GafferCollectors.toLimitedSortedList(
                             operation.getCombinedComparator(),
-                            operation.getResultLimit()
+                            operation.getResultLimit(),
+                            operation.isDeduplicate()
                     )
             );
         } finally {

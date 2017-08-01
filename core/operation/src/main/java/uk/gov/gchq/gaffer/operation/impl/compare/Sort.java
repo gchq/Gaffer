@@ -55,6 +55,7 @@ public class Sort implements
     @Required
     private List<Comparator<Element>> comparators;
     private Integer resultLimit = null;
+    private boolean deduplicate = true;
 
     @Override
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
@@ -84,6 +85,14 @@ public class Sort implements
         this.resultLimit = resultLimit;
     }
 
+    public boolean isDeduplicate() {
+        return deduplicate;
+    }
+
+    public void setDeduplicate(final boolean deduplicate) {
+        this.deduplicate = deduplicate;
+    }
+
     @Override
     public TypeReference<Iterable<? extends Element>> getOutputTypeReference() {
         return new TypeReferenceImpl.IterableElement();
@@ -105,6 +114,11 @@ public class Sort implements
 
         public Builder resultLimit(final Integer resultLimit) {
             _getOp().setResultLimit(resultLimit);
+            return this;
+        }
+
+        public Builder deduplicate(final boolean deduplicate) {
+            _getOp().setDeduplicate(deduplicate);
             return this;
         }
     }
