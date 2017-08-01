@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.spark.operation.dataframe;
 import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
 import org.apache.spark.sql.SQLContext;
-import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.sources.And;
 import org.apache.spark.sql.sources.EqualTo;
 import org.apache.spark.sql.sources.Filter;
@@ -53,26 +52,22 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
 public class FilterToOperationConverterTest {
     private static final String ENTITY_GROUP = "BasicEntity";
     private static final String EDGE_GROUP = "BasicEdge";
     private static final String EDGE_GROUP2 = "BasicEdge2";
     private static final Set<String> EDGE_GROUPS = new HashSet<>(Arrays.asList(EDGE_GROUP, EDGE_GROUP2));
-    private final SparkSession sparkSession = mock(SparkSession.class);
 
     @Test
     public void testIncompatibleGroups() throws OperationException {
         final Schema schema = getSchema();
         final SQLContext sqlContext = getSqlContext("testIncompatibleGroups");
-        given(sparkSession.sqlContext()).willReturn(sqlContext);
 
         final Filter[] filters = new Filter[2];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.GROUP, "A");
         filters[1] = new EqualTo(SchemaToStructTypeConverter.GROUP, "B");
-        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession,
+        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext,
                 getViewFromSchema(schema), schema, filters);
 
         final Operation operation = converter.getOperation();
@@ -85,12 +80,11 @@ public class FilterToOperationConverterTest {
     public void testSingleGroup() throws OperationException {
         final Schema schema = getSchema();
         final SQLContext sqlContext = getSqlContext("testSingleGroup");
-        given(sparkSession.sqlContext()).willReturn(sqlContext);
 
         final Filter[] filters = new Filter[1];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.GROUP, ENTITY_GROUP);
 
-        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession,
+        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext,
                 getViewFromSchema(schema), schema, filters);
 
         final Operation operation = converter.getOperation();
@@ -105,11 +99,10 @@ public class FilterToOperationConverterTest {
     public void testSingleGroupNotInSchema() throws OperationException {
         final Schema schema = getSchema();
         final SQLContext sqlContext = getSqlContext("testSingleGroupNotInSchema");
-        given(sparkSession.sqlContext()).willReturn(sqlContext);
 
         final Filter[] filters = new Filter[1];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.GROUP, "random");
-        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession,
+        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext,
                 getViewFromSchema(schema), schema, filters);
 
         final Operation operation = converter.getOperation();
@@ -122,13 +115,12 @@ public class FilterToOperationConverterTest {
     public void testTwoGroups() throws OperationException {
         final Schema schema = getSchema();
         final SQLContext sqlContext = getSqlContext("testTwoGroups");
-        given(sparkSession.sqlContext()).willReturn(sqlContext);
 
         final Filter[] filters = new Filter[1];
         final Filter left = new EqualTo(SchemaToStructTypeConverter.GROUP, ENTITY_GROUP);
         final Filter right = new EqualTo(SchemaToStructTypeConverter.GROUP, EDGE_GROUP2);
         filters[0] = new Or(left, right);
-        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession,
+        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext,
                 getViewFromSchema(schema), schema, filters);
 
         final Operation operation = converter.getOperation();
@@ -143,11 +135,10 @@ public class FilterToOperationConverterTest {
     public void testSpecifyVertex() throws OperationException {
         final Schema schema = getSchema();
         final SQLContext sqlContext = getSqlContext("testSpecifyVertex");
-        given(sparkSession.sqlContext()).willReturn(sqlContext);
 
         final Filter[] filters = new Filter[1];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.VERTEX_COL_NAME, "0");
-        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession,
+        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext,
                 getViewFromSchema(schema), schema, filters);
 
         final Operation operation = converter.getOperation();
@@ -167,11 +158,10 @@ public class FilterToOperationConverterTest {
     public void testSpecifySource() throws OperationException {
         final Schema schema = getSchema();
         final SQLContext sqlContext = getSqlContext("testSpecifySource");
-        given(sparkSession.sqlContext()).willReturn(sqlContext);
 
         final Filter[] filters = new Filter[1];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.SRC_COL_NAME, "0");
-        FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession, getViewFromSchema(schema),
+        FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, getViewFromSchema(schema),
                 schema, filters);
 
         Operation operation = converter.getOperation();
@@ -191,11 +181,10 @@ public class FilterToOperationConverterTest {
     public void testSpecifyDestination() throws OperationException {
         final Schema schema = getSchema();
         final SQLContext sqlContext = getSqlContext("testSpecifyDestination");
-        given(sparkSession.sqlContext()).willReturn(sqlContext);
 
         final Filter[] filters = new Filter[1];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.DST_COL_NAME, "0");
-        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession,
+        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext,
                 getViewFromSchema(schema), schema, filters);
 
         final Operation operation = converter.getOperation();
@@ -215,12 +204,11 @@ public class FilterToOperationConverterTest {
     public void testSpecifyPropertyFilters() throws OperationException {
         final Schema schema = getSchema();
         final SQLContext sqlContext = getSqlContext("testSpecifyPropertyFilters");
-        given(sparkSession.sqlContext()).willReturn(sqlContext);
         final Filter[] filters = new Filter[1];
 
         // GreaterThan
         filters[0] = new GreaterThan("property1", 5);
-        FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession, getViewFromSchema(schema),
+        FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, getViewFromSchema(schema),
                 schema, filters);
         Operation operation = converter.getOperation();
 
@@ -241,7 +229,7 @@ public class FilterToOperationConverterTest {
 
         // LessThan
         filters[0] = new LessThan("property4", 8L);
-        converter = new FiltersToOperationConverter(sparkSession, getViewFromSchema(schema), schema, filters);
+        converter = new FiltersToOperationConverter(sqlContext, getViewFromSchema(schema), schema, filters);
         operation = converter.getOperation();
 
         assertTrue(operation instanceof GetRDDOfAllElements);
@@ -262,7 +250,7 @@ public class FilterToOperationConverterTest {
         final Filter left = new GreaterThan("property1", 5);
         final Filter right = new GreaterThan("property4", 8L);
         filters[0] = new And(left, right);
-        converter = new FiltersToOperationConverter(sparkSession, getViewFromSchema(schema), schema, filters);
+        converter = new FiltersToOperationConverter(sqlContext, getViewFromSchema(schema), schema, filters);
         operation = converter.getOperation();
 
         assertTrue(operation instanceof GetRDDOfAllElements);
@@ -296,12 +284,11 @@ public class FilterToOperationConverterTest {
     public void testSpecifyMultiplePropertyFilters() throws OperationException {
         final Schema schema = getSchema();
         final SQLContext sqlContext = getSqlContext("testSpecifyMultiplePropertyFilters");
-        given(sparkSession.sqlContext()).willReturn(sqlContext);
 
         final Filter[] filters = new Filter[2];
         filters[0] = new GreaterThan("property1", 5);
         filters[1] = new LessThan("property4", 8L);
-        FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession, getViewFromSchema(schema),
+        FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, getViewFromSchema(schema),
                 schema, filters);
         Operation operation = converter.getOperation();
 
@@ -338,13 +325,12 @@ public class FilterToOperationConverterTest {
     public void testSpecifyVertexAndPropertyFilter() throws OperationException {
         final Schema schema = getSchema();
         final SQLContext sqlContext = getSqlContext("testSpecifyVertexAndPropertyFilter");
-        given(sparkSession.sqlContext()).willReturn(sqlContext);
 
         // Specify vertex and a filter on property1
         Filter[] filters = new Filter[2];
         filters[0] = new GreaterThan("property1", 5);
         filters[1] = new EqualTo(SchemaToStructTypeConverter.VERTEX_COL_NAME, "0");
-        FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession, getViewFromSchema(schema),
+        FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, getViewFromSchema(schema),
                 schema, filters);
         Operation operation = converter.getOperation();
 
@@ -373,7 +359,7 @@ public class FilterToOperationConverterTest {
         filters[0] = new GreaterThan("property1", 5);
         filters[1] = new EqualTo(SchemaToStructTypeConverter.VERTEX_COL_NAME, "0");
         filters[2] = new LessThan("property4", 8);
-        converter = new FiltersToOperationConverter(sparkSession, getViewFromSchema(schema), schema, filters);
+        converter = new FiltersToOperationConverter(sqlContext, getViewFromSchema(schema), schema, filters);
         operation = converter.getOperation();
         assertTrue(operation instanceof GetRDDOfElements);
         assertEquals(1, ((GraphFilters) operation).getView().getEntityGroups().size());
@@ -408,13 +394,12 @@ public class FilterToOperationConverterTest {
     public void testSpecifySourceOrDestinationAndPropertyFilter() throws OperationException {
         final Schema schema = getSchema();
         final SQLContext sqlContext = getSqlContext("testSpecifyVertexAndPropertyFilter");
-        given(sparkSession.sqlContext()).willReturn(sqlContext);
 
         // Specify src and a filter on property1
         Filter[] filters = new Filter[2];
         filters[0] = new GreaterThan("property1", 5);
         filters[1] = new EqualTo(SchemaToStructTypeConverter.SRC_COL_NAME, "0");
-        FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession, getViewFromSchema(schema),
+        FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, getViewFromSchema(schema),
                 schema, filters);
         Operation operation = converter.getOperation();
 
@@ -440,7 +425,7 @@ public class FilterToOperationConverterTest {
         filters[0] = new GreaterThan("property1", 5);
         filters[1] = new EqualTo(SchemaToStructTypeConverter.SRC_COL_NAME, "0");
         filters[2] = new LessThan("property4", 8);
-        converter = new FiltersToOperationConverter(sparkSession, getViewFromSchema(schema), schema, filters);
+        converter = new FiltersToOperationConverter(sqlContext, getViewFromSchema(schema), schema, filters);
         operation = converter.getOperation();
 
         assertTrue(operation instanceof GetRDDOfElements);
