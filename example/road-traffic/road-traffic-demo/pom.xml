@@ -68,8 +68,12 @@
                                 </webapp>
                             </webapps>
                             <systemProperties>
-                                <gaffer.rest-api.basePath>${standalone-path}/v1
+                                <gaffer.rest-api.basePath>
+                                    ${standalone-path}/v1
                                 </gaffer.rest-api.basePath>
+                                <gaffer.graph.library.path>
+                                    ${project.parent.basedir}/road-traffic-demo/src/main/resources/graphLibrary
+                                </gaffer.graph.library.path>
                                 <gaffer.graph.id>
                                     roadTraffic
                                 </gaffer.graph.id>

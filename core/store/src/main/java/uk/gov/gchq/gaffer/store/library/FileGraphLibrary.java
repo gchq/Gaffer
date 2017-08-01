@@ -31,15 +31,19 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class FileGraphLibrary extends GraphLibrary {
-    private static final Pattern PATH_ALLOWED_CHARACTERS = Pattern.compile("[a-zA-Z0-9_/\\\\]*");
+    private static final Pattern PATH_ALLOWED_CHARACTERS = Pattern.compile("[a-zA-Z0-9_/\\\\\\-]*");
 
     private final String path;
 
     public FileGraphLibrary(final String path) {
-        if (!PATH_ALLOWED_CHARACTERS.matcher(path).matches()) {
-            throw new IllegalArgumentException("path is invalid: " + path + " it must match the regex: " + PATH_ALLOWED_CHARACTERS);
+        if (null != path) {
+            if (!PATH_ALLOWED_CHARACTERS.matcher(path).matches()) {
+                throw new IllegalArgumentException("path is invalid: " + path + " it must match the regex: " + PATH_ALLOWED_CHARACTERS);
+            }
+            this.path = path;
+        } else {
+            throw new IllegalArgumentException("FileGraphLibrary path is null");
         }
-        this.path = path;
     }
 
     @Override
