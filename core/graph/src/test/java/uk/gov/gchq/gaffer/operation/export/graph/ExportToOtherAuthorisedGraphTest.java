@@ -26,16 +26,16 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 
 public class ExportToOtherAuthorisedGraphTest extends OperationTest {
+
+    private ExportToOtherAuthorisedGraph op = new ExportToOtherAuthorisedGraph.Builder()
+            .graphId("graphId")
+            .parentSchemaId("schema1")
+            .parentStorePropertiesId("props1")
+            .build();
+    
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException, JsonProcessingException {
-        // Given
-        final ExportToOtherAuthorisedGraph op = new ExportToOtherAuthorisedGraph.Builder()
-                .graphId("graphId")
-                .parentSchemaId("schema1")
-                .parentStorePropertiesId("props1")
-                .build();
-
-        // When
+        // Given / When
         final byte[] json = JSON_SERIALISER.serialise(op);
         final ExportToOtherAuthorisedGraph deserialisedOp = JSON_SERIALISER.deserialise(json, op.getClass());
 
@@ -47,15 +47,7 @@ public class ExportToOtherAuthorisedGraphTest extends OperationTest {
 
     @Override
     public void builderShouldCreatePopulatedOperation() {
-
-        // Given / When
-        final ExportToOtherAuthorisedGraph op = new ExportToOtherAuthorisedGraph.Builder()
-                .graphId("graphId")
-                .parentSchemaId("schema1")
-                .parentStorePropertiesId("props1")
-                .build();
-
-        // Then
+        // Given / When / Then
         assertEquals("graphId", op.getGraphId());
         assertEquals("schema1", op.getParentSchemaId());
         assertEquals("props1", op.getParentStorePropertiesId());

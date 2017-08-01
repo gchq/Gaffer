@@ -31,11 +31,8 @@ public class ExportToOtherAuthorisedGraph implements
 
     @Required
     private String graphId;
-
     private Iterable<? extends Element> input;
-
     private String parentSchemaId;
-
     private String parentStorePropertiesId;
 
     public String getGraphId() {
@@ -74,6 +71,7 @@ public class ExportToOtherAuthorisedGraph implements
 
     @Override
     public String getKey() {
+        // Key not used
         return null;
     }
 

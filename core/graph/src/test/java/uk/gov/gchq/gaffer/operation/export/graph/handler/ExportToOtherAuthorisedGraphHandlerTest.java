@@ -49,7 +49,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class ExportToOtherAuthorisedGraphTest {
+public class ExportToOtherAuthorisedGraphHandlerTest {
 
     private static final String GRAPH_ID = "graphId";
     private static final String STORE_PROPS_ID = "storePropsId";
@@ -69,6 +69,7 @@ public class ExportToOtherAuthorisedGraphTest {
     public void setUp() throws IOException {
         storeProperties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
         storeProperties.setId(STORE_PROPS_ID);
+        given(store.getGraphId()).willReturn(GRAPH_ID);
 
         final File graphLibraryFolder = testFolder.newFolder("graphLibraryTest");
         graphLibrary = new FileGraphLibrary(graphLibraryFolder.getPath());
@@ -78,7 +79,6 @@ public class ExportToOtherAuthorisedGraphTest {
     @Test
     public void shouldThrowExceptionWhenExportingToSameGraph() {
         // Given
-        given(store.getGraphId()).willReturn(GRAPH_ID);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
         final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID)
@@ -98,7 +98,6 @@ public class ExportToOtherAuthorisedGraphTest {
     public void shouldCreateGraphWithGraphIdInLibraryAndAuths() {
         // Given
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
-        given(store.getGraphId()).willReturn(GRAPH_ID);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
         List<String> graphID1OpAuths = new ArrayList<>();
         graphID1OpAuths.add("auth1");
@@ -124,7 +123,6 @@ public class ExportToOtherAuthorisedGraphTest {
         Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
         graphLibrary.addSchema(SCHEMA_ID + 1, schema1);
-        given(store.getGraphId()).willReturn(GRAPH_ID);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
         List<String> opAuths = Lists.newArrayList("auth1");
         idAuths.put(GRAPH_ID + 2, opAuths);
@@ -153,7 +151,6 @@ public class ExportToOtherAuthorisedGraphTest {
         Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
         graphLibrary.addSchema(SCHEMA_ID + 1, schema1);
-        given(store.getGraphId()).willReturn(GRAPH_ID);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
         List<String> opAuths = Lists.newArrayList("auth1");
         idAuths.put(SCHEMA_ID + 1, opAuths);
@@ -181,7 +178,6 @@ public class ExportToOtherAuthorisedGraphTest {
         Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
         graphLibrary.addSchema(SCHEMA_ID + 1, schema1);
-        given(store.getGraphId()).willReturn(GRAPH_ID);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
         List<String> opAuths = Lists.newArrayList("auth1");
         idAuths.put(GRAPH_ID + 2, opAuths);
@@ -209,7 +205,6 @@ public class ExportToOtherAuthorisedGraphTest {
         Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
         graphLibrary.addSchema(SCHEMA_ID + 1, schema1);
-        given(store.getGraphId()).willReturn(GRAPH_ID);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
         List<String> opAuths = Lists.newArrayList("auth1");
         idAuths.put(GRAPH_ID + 2, opAuths);
@@ -237,7 +232,6 @@ public class ExportToOtherAuthorisedGraphTest {
         Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
         graphLibrary.addSchema(SCHEMA_ID + 1, schema1);
-        given(store.getGraphId()).willReturn(GRAPH_ID);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
         List<String> opAuths = Lists.newArrayList("auth1");
         idAuths.put(GRAPH_ID + 2, opAuths);
@@ -264,7 +258,6 @@ public class ExportToOtherAuthorisedGraphTest {
         Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
         graphLibrary.addSchema(SCHEMA_ID + 1, schema1);
-        given(store.getGraphId()).willReturn(GRAPH_ID);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
         List<String> opAuths = Lists.newArrayList("auth1");
         idAuths.put(GRAPH_ID + 2, opAuths);
@@ -290,7 +283,6 @@ public class ExportToOtherAuthorisedGraphTest {
     public void shouldThrowExceptionWhenGraphIdCannotBeFound() {
         // Given
         schema = new Schema.Builder().id(SCHEMA_ID).build();
-        given(store.getGraphId()).willReturn(GRAPH_ID);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
         List<String> graphID1OpAuths = new ArrayList<>();
         graphID1OpAuths.add("auth1");
