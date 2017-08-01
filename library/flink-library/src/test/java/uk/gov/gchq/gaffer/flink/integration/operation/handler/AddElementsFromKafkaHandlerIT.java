@@ -110,7 +110,7 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
             }
         }).start();
 
-        Thread.sleep(2000);
+        Thread.sleep(20000);
 
         new Thread(() -> {
             // Create kafka producer and add some data
@@ -125,8 +125,12 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
         }).start();
 
         // Then
-        Thread.sleep(2000);
-        verifyElements(graph);
+        try {
+            verifyElements(graph);
+        } catch (final AssertionError e) {
+            Thread.sleep(10000);
+            verifyElements(graph);
+        }
     }
 
     private File createZookeeperTmpDir() throws IOException {
