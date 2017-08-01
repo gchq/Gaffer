@@ -36,7 +36,7 @@ public class PropertiesWalkthroughRunner extends AbstractWalkthroughRunner {
             Integer.class,
             Double.class,
             Float.class,
-            byte[].class,
+            Byte[].class,
             Boolean.class,
             Date.class,
             TypeValue.class,
