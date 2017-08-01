@@ -128,7 +128,7 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
         try {
             verifyElements(graph);
         } catch (final AssertionError e) {
-            Thread.sleep(10000);
+            Thread.sleep(20000);
             verifyElements(graph);
         }
     }
