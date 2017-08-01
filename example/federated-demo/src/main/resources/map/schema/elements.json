@@ -1,0 +1,12 @@
+{
+  "edges": {
+    "BasicEdge": {
+      "source": "vertex",
+      "destination": "vertex",
+      "directed": "true",
+      "properties": {
+        "count": "count"
+      }
+    }
+  }
+}

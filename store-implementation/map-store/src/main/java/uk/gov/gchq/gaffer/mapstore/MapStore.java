@@ -83,7 +83,6 @@ public class MapStore extends Store {
 
         // Initialise maps
         mapImpl = createMapImpl();
-        LOGGER.debug("Initialised MapStore");
     }
 
     public MapImpl getMapImpl() {
@@ -103,6 +102,7 @@ public class MapStore extends Store {
 
     protected MapImpl createMapImpl() {
         if (getProperties().isStaticMap()) {
+            LOGGER.debug("Using static map");
             if (null == staticMapImpl) {
                 staticMapImpl = new MapImpl(getSchema(), getProperties());
             }

@@ -37,7 +37,7 @@ public class FederatedOperationHandler implements OperationHandler<Operation> {
                 } catch (final Exception e) {
                     if (!(updatedOp instanceof Options)
                             || !Boolean.valueOf(((Options) updatedOp).getOption(SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
-                        throw new OperationException("Graph failed to execute operation on graph " + graph.getGraphId() + ". Operation: " + operation.getClass().getSimpleName(), e);
+                        throw new OperationException("Failed to execute " + operation.getClass().getSimpleName() + " on graph " + graph.getGraphId(), e);
                     }
                 }
             }

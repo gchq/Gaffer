@@ -81,11 +81,21 @@ import java.security.PrivilegedAction;
 public interface Operation extends Closeable, Cloneable {
     JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
 
+    /**
+     * Performs a shallow clone of the Operation. This does not need to clone
+     * all of the fields. It should simply create a new operation instance
+     * and set the original fields on the new operation instance.
+     * This default is very inefficient and should really be overridden by any
+     * implementations of this class.
+     *
+     * @return a shallow clone of the Operation.
+     * @throws CloneFailedException if the shallow clone fails.
+     */
     default Operation shallowClone() throws CloneFailedException {
         try {
             return JSON_SERIALISER.deserialise(JSON_SERIALISER.serialise(this), this.getClass());
-        } catch (SerialisationException e) {
-            throw new CloneFailedException("Could not clone operation: " + this.getClass().getSimpleName(), e);
+        } catch (final SerialisationException e) {
+            throw new CloneFailedException("Could perform a shallow clone of operation: " + this.getClass().getSimpleName(), e);
         }
     }
 
