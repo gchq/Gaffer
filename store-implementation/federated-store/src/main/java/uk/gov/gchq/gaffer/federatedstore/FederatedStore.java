@@ -33,19 +33,13 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGrap
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllElementsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetElementsHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedMaxHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedMinHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedSortHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.Graph.Builder;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.compare.Max;
-import uk.gov.gchq.gaffer.operation.impl.compare.Min;
-import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -59,6 +53,8 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -235,9 +231,13 @@ public class FederatedStore extends Store {
         List<String> schemas = Lists.newArrayList(Arrays.asList(StringUtils.stripAll(value.split(SCHEMA_DEL_REGEX))));
         schemas.remove("");
         schemas.remove(null);
-        for (final String schema : schemas) {
+        for (final String schemaPath : schemas) {
             try {
-                graphBuilder.addSchema(StreamUtil.openStream(FederatedStore.class, schema));
+                if (new File(schemaPath).exists()) {
+                    graphBuilder.addSchema(Paths.get(schemaPath));
+                } else {
+                    graphBuilder.addSchema(StreamUtil.openStream(FederatedStore.class, schemaPath));
+                }
             } catch (final Exception e) {
                 throw new IllegalArgumentException(String.format(GRAPH_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_USER_SUPPLIED_PROPERTIES_GRAPH_ID_S, graphId), e);
             }
@@ -288,9 +288,10 @@ public class FederatedStore extends Store {
                 .forEach(op -> addOperationHandler(op, new FederatedOperationHandler()));
 
         // Override the Output operations
-        addOperationHandler(Min.class, new FederatedMinHandler());
-        addOperationHandler(Max.class, new FederatedMaxHandler());
-        addOperationHandler(Sort.class, new FederatedSortHandler());
+//        addOperationHandler(Min.class, new FederatedMinHandler());
+//        addOperationHandler(Max.class, new FederatedMaxHandler());
+//        addOperationHandler(Sort.class, new FederatedSortHandler());
+
         addOperationHandler(AddGraph.class, new FederatedAddGraphHandler());
         addOperationHandler(RemoveGraph.class, new FederatedRemoveGraphHandler());
     }

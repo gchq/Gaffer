@@ -29,6 +29,7 @@
     <modules>
         <module>road-traffic</module>
         <module>basic</module>
+        <module>federated-demo</module>
     </modules>
 
     <build>
