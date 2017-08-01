@@ -556,7 +556,7 @@ public abstract class Store {
      * @return the result of the operation.
      */
     protected Object doUnhandledOperation(final Operation operation, final Context context) {
-        throw new UnsupportedOperationException("Operation " + operation.getClass() + " is not supported by the ParquetStore.");
+        throw new UnsupportedOperationException("Operation " + operation.getClass() + " is not supported by the " + getClass().getSimpleName() + ".");
     }
 
     protected final void addOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {
