@@ -37,7 +37,7 @@ import java.util.Set;
 
 public class ReservoirItemsUnion extends PropertiesWalkthrough {
     public ReservoirItemsUnion() {
-        super("Using ReservoirItemsUnion to store a random sample of strings seen on an Element", "properties/reservoirItemsUnion", ReservoirItemsUnionElementGenerator.class);
+        super(com.yahoo.sketches.sampling.ReservoirItemsUnion.class, "properties/reservoirItemsUnion", ReservoirItemsUnionElementGenerator.class);
     }
 
     public static void main(final String[] args) throws OperationException {

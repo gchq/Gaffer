@@ -221,10 +221,6 @@ When defining filters in your View try and use the preAggregationFilter for all 
 this will be run before aggregation and will mean less work has to be done to aggregate
 properties that you will later just discard. On Accumulo and HBase, postTransformFilters 
 are not distributed, the are computed on a single node so they can be slow.
-
-Also, when defining the order of Predicates in a Filter, the order is important.
- It will run the predicates in the order your provide so order them so that the first
- ones are the more efficient and will filter out the most data.
  
 Some stores (like Accumulo) store the properties in different columns and lazily
 deserialise a column as properties in that column are requested. So if you limit
@@ -236,6 +232,14 @@ property or the special timestampProperty then depending on the store you are
 running against this may be optimised. On Accumulo this will be fast as it 
 doesn't need to deserialise the entire Value, just the column qualifier or timestamp column
 containing your timestamp property.
+
+Also, when defining the order of Predicates in a Filter, the order is important.
+It will run the predicates in the order your provide so order them so that the first
+ones are the more efficient and will filter out the most data. It is generally
+more efficient to load/deserialise the groupBy properties than the non-groupBy
+properties, as there are normally less of them. So if your filter applies to 2 
+properties, a groupBy and a non-groupBy property, then we recommend putting the 
+groupBy property filter first as that will normally be more efficient.
 
 When doing queries, if you don't specify Pre or Post Aggregation filters then this
 means the entire filter can be skipped. When running on stores like Accumulo this
