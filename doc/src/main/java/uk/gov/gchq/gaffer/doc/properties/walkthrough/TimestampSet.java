@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
 import uk.gov.gchq.gaffer.user.User;
 import java.time.Instant;
 import java.util.Collections;
@@ -35,7 +36,7 @@ import java.util.Set;
 
 public class TimestampSet extends PropertiesWalkthrough {
     public TimestampSet() {
-        super("Using a TimestampSet to record the set of timestamps an element was active", "properties/timestampSet",
+        super(RBMBackedTimestampSet.class, "properties/timestampSet",
                 TimestampSetElementGenerator.class);
     }
 

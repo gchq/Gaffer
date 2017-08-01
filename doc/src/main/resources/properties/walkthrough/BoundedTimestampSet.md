@@ -4,6 +4,11 @@ ${CODE_LINK}
 
 This example demonstrates how the BoundedTimestampSet property can be used to maintain a set of the timestamps at which an element was seen active. If this set becomes larger than a size specified by the user then a uniform random sample of the timestamps is maintained. In this example we record the timestamps to minute level accuracy, i.e. the seconds are ignored, and specify that at most 25 timestamps should be retained.
 
+${PROPERTY_CLASS}
+${PREDICATES}
+${AGGREGATORS}
+${SERIALISERS}
+
 ##### Elements schema
 This is our new schema. The edge has a property called 'boundedTimestampSet'. This will store the BoundedTimestampSet object, which is actually a 'BoundedTimestampSet'.
 ${ELEMENTS_JSON}

@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.user.User;
@@ -25,16 +26,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
 
-
-public class Log4jLoggerTest extends GraphHookTest<Log4jLogger> {
-    public Log4jLoggerTest() {
-        super(Log4jLogger.class);
-    }
+public class Log4jLoggerTest extends JSONSerialisationTest<Log4jLogger> {
 
     @Test
     public void shouldReturnResultWithoutModification() {
         // Given
-        final Log4jLogger hook = new Log4jLogger();
+        final Log4jLogger hook = getTestObject();
         final Object result = mock(Object.class);
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GenerateObjects<>())
@@ -50,16 +47,7 @@ public class Log4jLoggerTest extends GraphHookTest<Log4jLogger> {
         assertSame(result, returnedResult);
     }
 
-    @Override
-    public void shouldJsonSerialiseAndDeserialise() {
-        // Given
-        final Log4jLogger hook = new Log4jLogger();
-
-        // When
-        final byte[] json = toJson(hook);
-        final Log4jLogger deserialisedHook = fromJson(json);
-
-        // Then
-        assertNotNull(deserialisedHook);
+    public Log4jLogger getTestObject() {
+        return new Log4jLogger();
     }
 }

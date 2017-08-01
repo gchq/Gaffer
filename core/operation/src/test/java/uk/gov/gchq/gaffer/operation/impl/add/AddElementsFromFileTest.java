@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.impl.add;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Sets;
+import org.junit.Test;
 import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -27,14 +28,10 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
-public class AddElementsFromFileTest extends OperationTest {
-    @Override
-    protected Class<? extends Operation> getOperationClass() {
-        return AddElementsFromFile.class;
-    }
+public class AddElementsFromFileTest extends OperationTest<AddElementsFromFile> {
 
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException, JsonProcessingException {
+    @Test
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException, JsonProcessingException {
         // Given
         final boolean validate = true;
         final boolean skipInvalid = false;
@@ -99,5 +96,10 @@ public class AddElementsFromFileTest extends OperationTest {
     @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet("filename", "elementGenerator");
+    }
+
+    @Override
+    protected AddElementsFromFile getTestObject() {
+        return new AddElementsFromFile();
     }
 }
