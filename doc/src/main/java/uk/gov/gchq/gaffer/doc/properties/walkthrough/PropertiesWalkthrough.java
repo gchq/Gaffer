@@ -72,7 +72,7 @@ public abstract class PropertiesWalkthrough extends AbstractWalkthrough {
     protected static final List<ToBytesSerialiser> TO_BYTES_SERIALISERS = Collections.unmodifiableList(getSubClassInstances(ToBytesSerialiser.class));
     protected static final List<Serialiser> SERIALISERS = Collections.unmodifiableList(getSerialisers());
     protected static final String AGGREGATORS_KEY = "AGGREGATORS";
-    protected static final String VALIDATORS_KEY = "VALIDATORS";
+    protected static final String PREDICATES_KEY = "PREDICATES";
     protected static final String SERIALISERS_KEY = "SERIALISERS";
 
     private static List<Serialiser> getSerialisers() {
@@ -103,14 +103,14 @@ public abstract class PropertiesWalkthrough extends AbstractWalkthrough {
         if (null != propertyType) {
             cacheLogs = true;
             log("PROPERTY_CLASS", "Properties class: " + propertyType.getName());
-            listValidators(propertyType);
+            listPredicates(propertyType);
             listAggregators(propertyType);
             listSerialisers(propertyType);
         }
         return super.walkthrough();
     }
 
-    protected boolean listValidators(final Class<?> clazz) {
+    protected boolean listPredicates(final Class<?> clazz) {
         final List<String> validateClasses = new ArrayList<>();
         for (final Predicate function : PREDICATES) {
             try {
@@ -124,8 +124,8 @@ public abstract class PropertiesWalkthrough extends AbstractWalkthrough {
             }
         }
         if (!validateClasses.isEmpty()) {
-            log(VALIDATORS_KEY, "\nValidators:");
-            log(VALIDATORS_KEY, "\n- " + StringUtils.join(validateClasses, "\n- "));
+            log(PREDICATES_KEY, "\nPredicates:");
+            log(PREDICATES_KEY, "\n- " + StringUtils.join(validateClasses, "\n- "));
         }
         return !validateClasses.isEmpty();
     }

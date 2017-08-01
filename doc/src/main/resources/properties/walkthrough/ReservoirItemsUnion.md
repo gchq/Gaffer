@@ -5,7 +5,7 @@ ${CODE_LINK}
 This example demonstrates how the ReservoirItemsUnion<String> sketch from the Data Sketches library can be used to maintain estimates of properties on vertices and edges. The ReservoirItemsUnion<String> sketch allows a sample of a set of strings to be maintained. We give two examples of this. The first is if when an edge is observed there is a string property associated to it, and there are a lot of different values of that string. We may not want to store all the different values of the string, but we may want to see a random sample of them. The second example is to store on an Entity a sketch which gives a sample of the vertices that are connected to the vertex. Even if we are storing all the edges then producing a random sample of the vertices attached to a vertex may not be quick (for example if a vertex has degree 10,000 then producing a sample of a random 10 neighbours would require scanning all the edges - storing the sketch on the Entity means that the sample will be precomputed and can be returned without scanning the edges).
 
 ${PROPERTY_CLASS}
-${VALIDATORS}
+${PREDICATES}
 ${AGGREGATORS}
 ${SERIALISERS}
 
