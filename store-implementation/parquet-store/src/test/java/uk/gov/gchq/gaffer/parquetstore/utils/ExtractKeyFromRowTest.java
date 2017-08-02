@@ -25,6 +25,8 @@ import org.junit.Before;
 import org.junit.Test;
 import scala.collection.Seq;
 import scala.collection.mutable.WrappedArray$;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.store.SerialisationFactory;
@@ -71,10 +73,7 @@ public class ExtractKeyFromRowTest {
         columnsToPaths.put(ParquetStoreConstants.VERTEX, vertPaths);
         columnsToPaths.put(ParquetStoreConstants.SOURCE, srcPaths);
         columnsToPaths.put(ParquetStoreConstants.DESTINATION, dstPaths);
-        final Schema schema = Schema.fromJson(getClass().getResourceAsStream("/schemaUsingStringVertexType/dataSchema.json"),
-                getClass().getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
-                getClass().getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
-                getClass().getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
+        final Schema schema = Schema.fromJson(StreamUtil.openStreams(ExtractKeyFromRowTest.class, "schemaUsingStringVertexType"));
         final SchemaOptimiser optimiser = new SchemaOptimiser(new SerialisationFactory(ParquetStoreConstants.SERIALISERS));
         utils = new SchemaUtils(optimiser.optimise(schema, true));
     }
@@ -87,7 +86,7 @@ public class ExtractKeyFromRowTest {
     @Test
     public void testExtractKeyFromRowForEntity() throws Exception {
         final ExtractKeyFromRow entityConverter = new ExtractKeyFromRow(groupByColumns, columnsToPaths, true);
-        final Row row = DataGen.generateEntityRow(utils, "BasicEntity", "vertex", (byte) 'a', 0.2, 3f, TestUtils.TREESET1, 5L, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1);
+        final Row row = DataGen.generateEntityRow(utils, TestGroups.ENTITY,"vertex", (byte) 'a', 0.2, 3f, TestUtils.TREESET1, 5L, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1);
         final Seq<Object> results = entityConverter.call(row);
         final List<Object> actual = new ArrayList<>(4);
         for (int i = 0; i < results.length(); i++) {
@@ -104,7 +103,7 @@ public class ExtractKeyFromRowTest {
     @Test
     public void testExtractKeyFromRowForEdge() throws Exception {
         final ExtractKeyFromRow edgeConverter = new ExtractKeyFromRow(groupByColumns, columnsToPaths, false);
-        final Row row = DataGen.generateEdgeRow(utils, "BasicEdge", "src", "dst", true, (byte) 'a', 0.2, 3f, TestUtils.TREESET1, 5L, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1);
+        final Row row = DataGen.generateEdgeRow(utils, TestGroups.EDGE,"src", "dst", true, (byte) 'a', 0.2, 3f, TestUtils.TREESET1, 5L, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1);
         final Seq<Object> results = edgeConverter.call(row);
         final List<Object> actual = new ArrayList<>(6);
         for (int i = 0; i < results.length(); i++) {
