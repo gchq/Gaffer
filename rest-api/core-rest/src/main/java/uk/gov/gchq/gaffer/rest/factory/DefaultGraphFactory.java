@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.graph.hook.OperationAuthoriser;
 import uk.gov.gchq.gaffer.graph.hook.OperationChainLimiter;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.library.FileGraphLibrary;
+import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -135,8 +135,15 @@ public class DefaultGraphFactory implements GraphFactory {
         builder.storeProperties(storeProperties);
         builder.graphId(getGraphId());
 
-        if (System.getProperty(SystemProperty.GRAPH_LIBRARY) != null) {
-            builder.library(new FileGraphLibrary(System.getProperty(SystemProperty.GRAPH_LIBRARY)));
+        String graphLibraryClassName = System.getProperty(SystemProperty.GRAPH_LIBRARY_CLASS);
+        if (null != graphLibraryClassName) {
+            GraphLibrary library;
+            try {
+                library = (GraphLibrary) Class.forName(graphLibraryClassName).newInstance();
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+                throw new RuntimeException("Error creating GraphLibrary class: + " + e);
+            }
+            library.initialise(System.getProperty(SystemProperty.GRAPH_LIBRARY_CONFIG));
         }
 
         for (final Path path : getSchemaPaths()) {

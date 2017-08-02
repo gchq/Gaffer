@@ -21,6 +21,7 @@ import com.google.common.collect.Sets;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
+import java.util.Arrays;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -29,10 +30,10 @@ public class ExportToOtherAuthorisedGraphTest extends OperationTest {
 
     private ExportToOtherAuthorisedGraph op = new ExportToOtherAuthorisedGraph.Builder()
             .graphId("graphId")
-            .parentSchemaId("schema1")
+            .parentSchemaIds("schema1")
             .parentStorePropertiesId("props1")
             .build();
-    
+
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException, JsonProcessingException {
         // Given / When
@@ -41,7 +42,7 @@ public class ExportToOtherAuthorisedGraphTest extends OperationTest {
 
         // Then
         assertEquals("graphId", deserialisedOp.getGraphId());
-        assertEquals("schema1", deserialisedOp.getParentSchemaId());
+        assertEquals(Arrays.asList("schema1"), deserialisedOp.getParentSchemaIds());
         assertEquals("props1", deserialisedOp.getParentStorePropertiesId());
     }
 
@@ -49,7 +50,7 @@ public class ExportToOtherAuthorisedGraphTest extends OperationTest {
     public void builderShouldCreatePopulatedOperation() {
         // Given / When / Then
         assertEquals("graphId", op.getGraphId());
-        assertEquals("schema1", op.getParentSchemaId());
+        assertEquals(Arrays.asList("schema1"), op.getParentSchemaIds());
         assertEquals("props1", op.getParentStorePropertiesId());
     }
 

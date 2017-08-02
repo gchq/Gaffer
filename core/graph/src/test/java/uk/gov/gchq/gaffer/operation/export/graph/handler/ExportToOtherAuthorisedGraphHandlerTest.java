@@ -80,10 +80,14 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
     public void shouldThrowExceptionWhenExportingToSameGraph() {
         // Given
         given(store.getGraphLibrary()).willReturn(graphLibrary);
+        List<String> graphID1OpAuths = new ArrayList<>();
+        graphID1OpAuths.add("auth1");
+        idAuths.put(GRAPH_ID, graphID1OpAuths);
         final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID)
                 .build();
         final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
+        handler.setIdAuths(idAuths);
 
         // When / Then
         try {
@@ -130,7 +134,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
         idAuths.put(STORE_PROPS_ID, opAuths);
         final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID + 2)
-                .parentSchemaId(SCHEMA_ID + 1)
+                .parentSchemaIds(SCHEMA_ID + 1)
                 .parentStorePropertiesId(STORE_PROPS_ID)
                 .build();
         final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
@@ -157,7 +161,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
         idAuths.put(STORE_PROPS_ID, opAuths);
         final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID + 2)
-                .parentSchemaId(SCHEMA_ID + 1)
+                .parentSchemaIds(SCHEMA_ID + 1)
                 .parentStorePropertiesId(STORE_PROPS_ID)
                 .build();
         final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
@@ -184,7 +188,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
         idAuths.put(STORE_PROPS_ID, opAuths);
         final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID + 2)
-                .parentSchemaId(SCHEMA_ID + 1)
+                .parentSchemaIds(SCHEMA_ID + 1)
                 .parentStorePropertiesId(STORE_PROPS_ID)
                 .build();
         final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
@@ -195,7 +199,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
             handler.createGraph(export, context, store);
             fail("Exception expected");
         } catch (IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("User is not authorised to export using parentSchemaId"));
+            assertTrue(e.getMessage().contains("User is not authorised to export using schemaId"));
         }
     }
 
@@ -211,7 +215,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
         idAuths.put(SCHEMA_ID + 1, opAuths);
         final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID + 2)
-                .parentSchemaId(SCHEMA_ID + 1)
+                .parentSchemaIds(SCHEMA_ID + 1)
                 .parentStorePropertiesId(STORE_PROPS_ID)
                 .build();
         final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
@@ -222,7 +226,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
             handler.createGraph(export, context, store);
             fail("Exception expected");
         } catch (IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("User is not authorised to export using parentStorePropertiesId"));
+            assertTrue(e.getMessage().contains("User is not authorised to export using storePropertiesId"));
         }
     }
 
@@ -238,7 +242,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
         idAuths.put(SCHEMA_ID + 1, opAuths);
         final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID + 2)
-                .parentSchemaId(SCHEMA_ID + 1)
+                .parentSchemaIds(SCHEMA_ID + 1)
                 .build();
         final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
         handler.setIdAuths(idAuths);
@@ -262,6 +266,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
         List<String> opAuths = Lists.newArrayList("auth1");
         idAuths.put(GRAPH_ID + 2, opAuths);
         idAuths.put(SCHEMA_ID + 1, opAuths);
+        idAuths.put(STORE_PROPS_ID, opAuths);
         final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID + 2)
                 .parentStorePropertiesId(STORE_PROPS_ID)
@@ -305,7 +310,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
     @Test
     public void shouldGetHandlerFromJson() throws OperationException {
         // Given
-        OperationDeclarations opDeclarations = OperationDeclarations.fromPaths("ExportToOtherAuthorisedGraphOperationDeclarations.json");
+        OperationDeclarations opDeclarations = OperationDeclarations.fromPaths("src/test/resources/ExportToOtherAuthorisedGraphOperationDeclarations.json");
         OperationDeclaration opDeclaration = opDeclarations.getOperations().get(0);
         OperationHandler handler = opDeclaration.getHandler();
 

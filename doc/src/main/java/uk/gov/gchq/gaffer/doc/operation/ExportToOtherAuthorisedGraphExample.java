@@ -30,8 +30,8 @@ public class ExportToOtherAuthorisedGraphExample extends OperationExample {
 
     public ExportToOtherAuthorisedGraphExample() {
         super(ExportToOtherAuthorisedGraph.class, "These export examples export all edges in the example graph to another Gaffer instance using Operation Auths against the user. \n\n" +
-                "To add this operation to your Gaffer graph you will need to include the ExportToOtherAuthorisedGraphOperationDeclarations.json in your store properties, i.e. set this property: " +
-                "gaffer.store.operation.declarations=ExportToOtherAuthorisedGraphOperationDeclarations.json\n");
+                "To add this operation to your Gaffer graph you will need to write a new version of ExportToOtherAuthorisedGraphOperationDeclarations.json containing the user auths" +
+                ", and then set this property: gaffer.store.operation.declarations=ExportToOtherAuthorisedGraphOperationDeclarations.json\n");
     }
 
     @Override
@@ -76,7 +76,7 @@ public class ExportToOtherAuthorisedGraphExample extends OperationExample {
                         .then(new ExportToOtherAuthorisedGraph.Builder()
                                 .graphId("newGraphId")
                                 .parentStorePropertiesId("storePropsId1")
-                                .parentSchemaId("schemaId1")
+                                .parentSchemaIds("schemaId1")
                                 .build())
                         .build();
         // ---------------------------------------------------------
