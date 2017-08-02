@@ -93,7 +93,7 @@ public abstract class AbstractSparkOperationsTest {
     @Test
     public void getDataFrameOfElementsTest() throws OperationException {
         final Dataset<Row> data = graph.execute(new GetDataFrameOfElements.Builder()
-                .sqlContext(spark.sqlContext())
+                .sparkSession(spark)
                 .build(), USER);
         checkGetDataFrameOfElements(data);
     }
@@ -108,7 +108,7 @@ public abstract class AbstractSparkOperationsTest {
                 .build();
         try {
             graph.execute(new GetDataFrameOfElements.Builder()
-                    .sqlContext(spark.sqlContext())
+                    .sparkSession(spark)
                     .view(view).build(), USER);
             fail();
         } catch (final OperationException e) {

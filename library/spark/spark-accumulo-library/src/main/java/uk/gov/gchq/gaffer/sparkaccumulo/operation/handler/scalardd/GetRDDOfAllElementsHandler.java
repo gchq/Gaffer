@@ -44,7 +44,7 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
                                      final Context context,
                                      final AccumuloStore accumuloStore)
             throws OperationException {
-        final SparkContext sparkContext = operation.getSparkContext();
+        final SparkContext sparkContext = operation.getSparkSession().sparkContext();
         final Configuration conf = getConfiguration(operation);
         addIterators(accumuloStore, conf, context.getUser(), operation);
         final RDD<Tuple2<Element, NullWritable>> pairRDD = sparkContext.newAPIHadoopRDD(conf,

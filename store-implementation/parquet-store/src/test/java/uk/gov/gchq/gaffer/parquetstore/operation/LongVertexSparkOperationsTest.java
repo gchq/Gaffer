@@ -32,7 +32,6 @@ import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +46,7 @@ public class LongVertexSparkOperationsTest extends AbstractSparkOperationsTest {
         getGraph(getSchema(), getParquetStoreProperties())
                 .execute(new ImportRDDOfElements.Builder()
                         .input(getElements(spark))
-                        .sparkContext(spark.sparkContext())
+                        .sparkSession(spark)
                         .build(), USER);
     }
 
@@ -93,7 +92,7 @@ public class LongVertexSparkOperationsTest extends AbstractSparkOperationsTest {
         //check returned elements are correct
         final List<Element> expected = new ArrayList<>(175);
         final List<Element> actual = TestUtils.convertLongRowsToElements(data);
-        for (long x = 0 ; x < 25; x++) {
+        for (long x = 0; x < 25; x++) {
             expected.add(DataGen.getEdge("BasicEdge", x, x + 1, true, (byte) 'b', (0.2 * x) + 0.3, 6f, TestUtils.MERGED_TREESET, (6L * x) + 5L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
             expected.add(DataGen.getEdge("BasicEdge", x, x + 1, false, (byte) 'a', 0.2 * x, 2f, TestUtils.TREESET1, 5L, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1, 1));
             expected.add(DataGen.getEdge("BasicEdge", x, x + 1, false, (byte) 'b', 0.3, 4f, TestUtils.TREESET2, 6L * x, (short) 7, TestUtils.DATE1, TestUtils.FREQMAP2, 1));
