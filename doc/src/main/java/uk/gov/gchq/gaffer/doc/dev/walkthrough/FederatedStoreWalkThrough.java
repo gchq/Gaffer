@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.doc.user.generator.RoadAndRoadUseWithTimesAndCardinalitiesElementGenerator;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
+import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphID;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -64,6 +65,11 @@ public class FederatedStoreWalkThrough extends DevWalkthrough {
                 .setGraphId("AnotherGraph")
                 .build();
         federatedStore.execute(removeGraph, user);
+        // ---------------------------------------------------------
+
+        // [getallgraphid] Get a list of all the graphID within the FederatedStore.
+        // ---------------------------------------------------------
+        Iterable<? extends String> graphIds = federatedStore.execute(new GetAllGraphID(), user);
         // ---------------------------------------------------------
 
         // [add elements] Create a data generator and add the edges to the federated graphs using an operation chain consisting of:

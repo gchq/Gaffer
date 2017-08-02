@@ -73,6 +73,18 @@ or through the rest service with json.
 }
 ```
 
+#### Getting all the GraphID's
+
+To get a list of all the sub-graphs within the FederatedStore you can perform the following GetAllGraphID operation.
+
+${GETALLGRAPHID_SNIPPET}
+
+or through the rest service with json.
+
+```
+{"class":"uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphID"}
+```
+
 #### Performing Operations
 
 Running operations against the FederatedStore is exactly same as running operations against any other store.

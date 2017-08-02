@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -26,7 +27,6 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStore.USER_IS_ATTEMPTIN
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
@@ -97,7 +97,7 @@ public class FederatedStoreTest {
         assertEquals(2, after);
         ArrayList<String> graphNames = Lists.newArrayList(ACC_ID_1, MAP_ID_1);
         for (Graph graph : graphs) {
-            Assert.assertTrue(graphNames.contains(graph.getGraphId()));
+            assertTrue(graphNames.contains(graph.getGraphId()));
         }
     }
 
@@ -353,13 +353,66 @@ public class FederatedStoreTest {
         assertEquals(1, getElements().size());
     }
 
+    @Test
+    public void shouldReturnGraphIds() throws Exception {
+        //Given
+        federatedProperties.set(KEY_ACC_ID1_PROPERTIES, PATH_ACC_STORE_PROPERTIES);
+        federatedProperties.set(KEY_ACC_ID1_SCHEMA, PATH_BASIC_ENTITY_SCHEMA_JSON);
+        federatedProperties.set(KEY_MAP_ID1_PROPERTIES, PATH_MAP_STORE_PROPERTIES);
+        federatedProperties.set(KEY_MAP_ID1_SCHEMA, PATH_BASIC_EDGE_SCHEMA_JSON);
+        store.initialise(FEDERATED_STORE_ID, federatedProperties);
+
+        Set<String> allGraphIds = store.getAllGraphIds();
+
+        assertEquals(2, allGraphIds.size());
+        assertTrue(allGraphIds.contains(ACC_ID_1));
+        assertTrue(allGraphIds.contains(MAP_ID_1));
+
+    }
+
+    @Test
+    public void shouldUpdateGraphIds() throws Exception {
+        //Given
+        federatedProperties.set(KEY_ACC_ID1_PROPERTIES, PATH_ACC_STORE_PROPERTIES);
+        federatedProperties.set(KEY_ACC_ID1_SCHEMA, PATH_BASIC_ENTITY_SCHEMA_JSON);
+        store.initialise(FEDERATED_STORE_ID, federatedProperties);
+
+        Set<String> allGraphId = store.getAllGraphIds();
+
+        assertEquals(1, allGraphId.size());
+        assertTrue(allGraphId.contains(ACC_ID_1));
+        assertFalse(allGraphId.contains(MAP_ID_1));
+
+        store.add(new Graph.Builder()
+                          .graphId(MAP_ID_1)
+                          .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_MAP_STORE_PROPERTIES))
+                          .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_ENTITY_SCHEMA_JSON))
+                          .build());
+
+
+        Set<String> allGraphId2 = store.getAllGraphIds();
+
+        assertEquals(2, allGraphId2.size());
+        assertTrue(allGraphId2.contains(ACC_ID_1));
+        assertTrue(allGraphId2.contains(MAP_ID_1));
+
+        store.remove(ACC_ID_1);
+
+        Set<String> allGraphId3 = store.getAllGraphIds();
+
+        assertEquals(1, allGraphId3.size());
+        assertFalse(allGraphId3.contains(ACC_ID_1));
+        assertTrue(allGraphId3.contains(MAP_ID_1));
+
+    }
+
     private Set<Element> getElements() throws uk.gov.gchq.gaffer.operation.OperationException {
         CloseableIterable<? extends Element> elements = store
                 .execute(new GetAllElements.Builder()
                         .view(new View.Builder()
-                                .edges(store.getSchema().getEdgeGroups())
-                                .entities(store.getSchema().getEntityGroups())
-                                .build())
+                                      .edges(store.getSchema().getEdgeGroups())
+                                      .entities(store.getSchema().getEntityGroups())
+                                      .build())
                         .build(), TEST_USER);
 
         return Sets.newHashSet(elements);
