@@ -22,6 +22,7 @@ import org.apache.hadoop.fs.Path;
 import org.junit.AfterClass;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -122,7 +123,7 @@ public abstract class AbstractOperationsTest {
 
     @Test
     public void getElementsWithPostAggregationFilterTest() throws OperationException {
-        final View view = new View.Builder().edge("BasicEdge",
+        final View view = new View.Builder().edge(TestGroups.EDGE,
                 new ViewElementDefinition.Builder()
                         .postAggregationFilter(
                                 new ElementFilter.Builder()
@@ -144,7 +145,7 @@ public abstract class AbstractOperationsTest {
 
     @Test
     public void getElementsWithPostTransformFilterTest() throws OperationException {
-        final View view = new View.Builder().edge("BasicEdge",
+        final View view = new View.Builder().edge(TestGroups.EDGE,
                 new ViewElementDefinition.Builder()
                         .postTransformFilter(
                                 new ElementFilter.Builder()

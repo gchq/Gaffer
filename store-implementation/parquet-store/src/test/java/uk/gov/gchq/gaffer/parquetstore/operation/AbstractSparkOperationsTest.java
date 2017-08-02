@@ -25,6 +25,7 @@ import org.apache.spark.sql.SparkSession;
 import org.junit.AfterClass;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
@@ -101,7 +102,7 @@ public abstract class AbstractSparkOperationsTest {
     @Test
     public void getDataFrameOfElementsWithViewTest() throws OperationException {
         final View view = new View.Builder()
-                .entity("BasicEntity",
+                .entity(TestGroups.ENTITY,
                         new ViewElementDefinition.Builder().preAggregationFilter(
                                 new ElementFilter.Builder().select("double").execute(new IsEqual(0.2)).build()
                         ).build())
