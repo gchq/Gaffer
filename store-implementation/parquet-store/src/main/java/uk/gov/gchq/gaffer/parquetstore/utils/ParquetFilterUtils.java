@@ -21,6 +21,7 @@ import org.apache.parquet.filter2.predicate.FilterPredicate;
 import org.apache.parquet.io.api.Binary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -43,7 +44,6 @@ import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.impl.predicate.IsTrue;
 import uk.gov.gchq.koryphe.impl.predicate.Not;
 import uk.gov.gchq.koryphe.impl.predicate.Or;
-import uk.gov.gchq.koryphe.tuple.n.Tuple2;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 
 import java.util.ArrayList;
@@ -76,7 +76,7 @@ public final class ParquetFilterUtils {
     private ParquetFilterUtils() {
     }
 
-    public static Tuple2<Map<Path, FilterPredicate>, Boolean> buildPathToFilterMap(
+    public static Pair<Map<Path, FilterPredicate>, Boolean> buildPathToFilterMap(
             final SchemaUtils schemaUtils,
             final View view,
             final DirectedType directedType,
@@ -95,29 +95,29 @@ public final class ParquetFilterUtils {
             if (viewEdgeGroups != null || viewEntityGroups != null) {
                 HashMap<Path, FilterPredicate> pathToFilter = new HashMap<>();
                 if (viewEdgeGroups != null) {
-                    final Tuple2<Map<Path, FilterPredicate>, Boolean> results = edgeViewPathToFilter(
+                    final Pair<Map<Path, FilterPredicate>, Boolean> results = edgeViewPathToFilter(
                             includeIncomingOutgoingType, seedMatchingType, directedType, seeds, schemaUtils, graphIndex, view, dataDir);
-                    if (results.get1()) {
+                    if (results.getSecond()) {
                         needsValidation = true;
                     }
-                    pathToFilter.putAll(results.get0());
+                    pathToFilter.putAll(results.getFirst());
                 }
                 if (viewEntityGroups != null) {
-                    final Tuple2<Map<Path, FilterPredicate>, Boolean> results = entityViewPathToFilter(
+                    final Pair<Map<Path, FilterPredicate>, Boolean> results = entityViewPathToFilter(
                             includeIncomingOutgoingType, seedMatchingType, directedType, seeds, schemaUtils, graphIndex, view, dataDir);
-                    if (results.get1()) {
+                    if (results.getSecond()) {
                         needsValidation = true;
                     }
-                    pathToFilter.putAll(results.get0());
+                    pathToFilter.putAll(results.getFirst());
                 }
-                return new Tuple2<>(pathToFilter, needsValidation);
+                return new Pair<>(pathToFilter, needsValidation);
             } else {
                 return noViewPathToFilter(includeIncomingOutgoingType, seedMatchingType, seeds, schemaUtils, graphIndex, dataDir);
             }
         }
     }
 
-    private static Tuple2<Map<Path, FilterPredicate>, Boolean> noViewPathToFilter(
+    private static Pair<Map<Path, FilterPredicate>, Boolean> noViewPathToFilter(
             final SeededGraphFilters.IncludeIncomingOutgoingType includeIncomingOutgoingType,
             final SeedMatching.SeedMatchingType seedMatchingType,
             final Iterable<? extends ElementId> seeds,
@@ -137,15 +137,15 @@ public final class ParquetFilterUtils {
             }
         }
         if (seeds != null && pathToFilter.isEmpty()) {
-            return new Tuple2<>(new HashMap<>(), false);
+            return new Pair<>(new HashMap<>(), false);
         }
         if (pathToFilter.isEmpty()) {
             pathToFilter.put(new Path(dataDir + "/" + ParquetStoreConstants.GRAPH), null);
         }
-        return new Tuple2<>(pathToFilter, false);
+        return new Pair<>(pathToFilter, false);
     }
 
-    private static Tuple2<Map<Path, FilterPredicate>, Boolean> edgeViewPathToFilter(
+    private static Pair<Map<Path, FilterPredicate>, Boolean> edgeViewPathToFilter(
             final SeededGraphFilters.IncludeIncomingOutgoingType includeIncomingOutgoingType,
             final SeedMatching.SeedMatchingType seedMatchingType,
             final DirectedType directedType,
@@ -160,28 +160,28 @@ public final class ParquetFilterUtils {
         for (final String edgeGroup : view.getEdgeGroups()) {
             if (indexKeys.contains(edgeGroup)) {
                 // Build group filter
-                final Tuple2<FilterPredicate, Boolean> groupFilter = buildGroupFilter(view, schemaUtils, edgeGroup, directedType, false);
-                if (groupFilter != null && groupFilter.get1()) {
+                final Pair<FilterPredicate, Boolean> groupFilter = buildGroupFilter(view, schemaUtils, edgeGroup, directedType, false);
+                if (groupFilter != null && groupFilter.getSecond()) {
                     needValidation = true;
                 }
                 // Build seed filter
                 final Map<Path, FilterPredicate> tempPathToFilter = buildSeedFilter(
                         includeIncomingOutgoingType, seedMatchingType, seeds, schemaUtils, edgeGroup, false, graphIndex, dataDir);
                 if (seeds != null && tempPathToFilter.isEmpty()) {
-                    return new Tuple2<>(new HashMap<>(), false);
+                    return new Pair<>(new HashMap<>(), false);
                 }
                 // Add filter to map
                 if (tempPathToFilter.isEmpty()) {
                     if (groupFilter != null) {
                         pathToFilter.put(new Path(ParquetStore.getGroupDirectory(edgeGroup, ParquetStoreConstants.SOURCE, dataDir)),
-                                groupFilter.get0());
+                                groupFilter.getFirst());
                     } else {
                         pathToFilter.put(new Path(ParquetStore.getGroupDirectory(edgeGroup, ParquetStoreConstants.SOURCE, dataDir)), null);
                     }
                 } else {
-                    if (groupFilter != null && groupFilter.get0() != null) {
+                    if (groupFilter != null && groupFilter.getFirst() != null) {
                         for (final Map.Entry<Path, FilterPredicate> entry : tempPathToFilter.entrySet()) {
-                            pathToFilter.put(entry.getKey(), andFilter(entry.getValue(), groupFilter.get0()));
+                            pathToFilter.put(entry.getKey(), andFilter(entry.getValue(), groupFilter.getFirst()));
                         }
                     } else {
                         pathToFilter.putAll(tempPathToFilter);
@@ -189,10 +189,10 @@ public final class ParquetFilterUtils {
                 }
             }
         }
-        return new Tuple2<>(pathToFilter, needValidation);
+        return new Pair<>(pathToFilter, needValidation);
     }
 
-    private static Tuple2<Map<Path, FilterPredicate>, Boolean> entityViewPathToFilter(
+    private static Pair<Map<Path, FilterPredicate>, Boolean> entityViewPathToFilter(
             final SeededGraphFilters.IncludeIncomingOutgoingType includeIncomingOutgoingType,
             final SeedMatching.SeedMatchingType seedMatchingType,
             final DirectedType directedType,
@@ -207,28 +207,28 @@ public final class ParquetFilterUtils {
         for (final String entityGroup : view.getEntityGroups()) {
             if (indexKeys.contains(entityGroup)) {
                 // Build group filter
-                final Tuple2<FilterPredicate, Boolean> groupFilter = buildGroupFilter(view, schemaUtils, entityGroup, directedType, true);
-                if (groupFilter != null && groupFilter.get1()) {
+                final Pair<FilterPredicate, Boolean> groupFilter = buildGroupFilter(view, schemaUtils, entityGroup, directedType, true);
+                if (groupFilter != null && groupFilter.getSecond()) {
                     needValidation = true;
                 }
                 // Build seed filter
                 final Map<Path, FilterPredicate> tempPathToFilter = buildSeedFilter(
                         includeIncomingOutgoingType, seedMatchingType, seeds, schemaUtils, entityGroup, true, graphIndex, dataDir);
                 if (seeds != null && tempPathToFilter.isEmpty()) {
-                    return new Tuple2<>(new HashMap<>(), false);
+                    return new Pair<>(new HashMap<>(), false);
                 }
                 // Add filter to map
                 if (tempPathToFilter.isEmpty()) {
                     if (groupFilter != null) {
                         pathToFilter.put(new Path(ParquetStore.getGroupDirectory(entityGroup, ParquetStoreConstants.VERTEX, dataDir)),
-                                groupFilter.get0());
+                                groupFilter.getFirst());
                     } else {
                         pathToFilter.put(new Path(ParquetStore.getGroupDirectory(entityGroup, ParquetStoreConstants.VERTEX, dataDir)), null);
                     }
                 } else {
-                    if (groupFilter != null && groupFilter.get0() != null) {
+                    if (groupFilter != null && groupFilter.getFirst() != null) {
                         for (final Map.Entry<Path, FilterPredicate> entry : tempPathToFilter.entrySet()) {
-                            pathToFilter.put(entry.getKey(), andFilter(entry.getValue(), groupFilter.get0()));
+                            pathToFilter.put(entry.getKey(), andFilter(entry.getValue(), groupFilter.getFirst()));
                         }
                     } else {
                         pathToFilter.putAll(tempPathToFilter);
@@ -236,7 +236,7 @@ public final class ParquetFilterUtils {
                 }
             }
         }
-        return new Tuple2<>(pathToFilter, needValidation);
+        return new Pair<>(pathToFilter, needValidation);
     }
 
     private static Map<Path, FilterPredicate> buildSeedFilter(
@@ -260,10 +260,10 @@ public final class ParquetFilterUtils {
                 } else {
                     identifier = ParquetStoreConstants.SOURCE;
                 }
-                final Tuple2<ArrayList<Object[]>, HashMap<Object[], Tuple2<Object, DirectedType>>> prepSeedsResult =
+                final Pair<ArrayList<Object[]>, HashMap<Object[], Pair<Object, DirectedType>>> prepSeedsResult =
                         prepSeeds(seeds, identifier, schemaUtils, group, comparator);
-                final ArrayList<Object[]> sortedSeeds = prepSeedsResult.get0();
-                final HashMap<Object[], Tuple2<Object, DirectedType>> seed2Parts = prepSeedsResult.get1();
+                final ArrayList<Object[]> sortedSeeds = prepSeedsResult.getFirst();
+                final HashMap<Object[], Pair<Object, DirectedType>> seed2Parts = prepSeedsResult.getSecond();
                 // Build graph path to filter
                 pathToFilter.putAll(buildSeedFilterForIndex(includeIncomingOutgoingType,
                         seedMatchingType, sortedSeeds, identifier, graphIndex.getGroup(group), schemaUtils, group,
@@ -291,7 +291,7 @@ public final class ParquetFilterUtils {
             final SchemaUtils schemaUtils,
             final String group,
             final boolean isEntityGroup,
-            final Map<Object[], Tuple2<Object, DirectedType>> seed2Parts,
+            final Map<Object[], Pair<Object, DirectedType>> seed2Parts,
             final SeedComparator comparator,
             final String rootDir) throws OperationException, SerialisationException {
         Map<Path, FilterPredicate> newPathToFilter = new HashMap<>();
@@ -349,8 +349,8 @@ public final class ParquetFilterUtils {
     }
 
     /**
-     * Returns a {@link Tuple2} in which the first entry is a sorted {@link List} of the seeds converted to the form in
-     * which they appear in the Parquet files, and the second entry is a {@link Map} from the seeds to a {@link Tuple2}
+     * Returns a {@link Pair} in which the first entry is a sorted {@link List} of the seeds converted to the form in
+     * which they appear in the Parquet files, and the second entry is a {@link Map} from the seeds to a {@link Pair}
      * which is <code>null</code> if the seed is an {@link EntitySeed} and consists of the destination vertex and
      * directed type if the seed is an {@link EdgeSeed}.
      *
@@ -360,19 +360,19 @@ public final class ParquetFilterUtils {
      *                    their equivalent Parquet versions
      * @param group the group that is currently being queried
      * @param comparator the {@link SeedComparator} used to order the seeds
-     * @return a {@link Tuple2} in which the first entry is a sorted {@link List} of the seeds converted to the form in
-     * which they appear in the Parquet files, and the second entry is a {@link Map} from the seeds to a {@link Tuple2}
+     * @return a {@link Pair} in which the first entry is a sorted {@link List} of the seeds converted to the form in
+     * which they appear in the Parquet files, and the second entry is a {@link Map} from the seeds to a {@link Pair}
      * which is <code>null</code> if the seed is an {@link EntitySeed} and consists of the destination vertex and
      * directed type if the seed is an {@link EdgeSeed}.
      * @throws SerialisationException if the conversion from the seed to corresponding Parquet objects fails
      */
-    private static Tuple2<ArrayList<Object[]>, HashMap<Object[], Tuple2<Object, DirectedType>>> prepSeeds(
+    private static Pair<ArrayList<Object[]>, HashMap<Object[], Pair<Object, DirectedType>>> prepSeeds(
             final Iterable<? extends ElementId> seeds,
             final String identifier,
             final SchemaUtils schemaUtils,
             final String group,
             final SeedComparator comparator) throws SerialisationException {
-        final HashMap<Object[], Tuple2<Object, DirectedType>> seed2parts = new HashMap<>();
+        final HashMap<Object[], Pair<Object, DirectedType>> seed2parts = new HashMap<>();
         final GafferGroupObjectConverter converter = schemaUtils.getConverter(group);
         for (final ElementId elementSeed : seeds) {
             if (elementSeed instanceof EntitySeed) {
@@ -382,13 +382,13 @@ public final class ParquetFilterUtils {
             } else {
                 final EdgeSeed edgeSeed = (EdgeSeed) elementSeed;
                 final Object[] serialisedSeed = converter.gafferObjectToParquetObjects(identifier, edgeSeed.getSource());
-                seed2parts.put(serialisedSeed, new Tuple2<>(edgeSeed.getDestination(), edgeSeed.getDirectedType()));
+                seed2parts.put(serialisedSeed, new Pair<>(edgeSeed.getDestination(), edgeSeed.getDirectedType()));
             }
         }
         final ArrayList<Object[]> sortedSeeds = new ArrayList<>();
         sortedSeeds.addAll(seed2parts.keySet());
         sortedSeeds.sort(comparator);
-        return new Tuple2<>(sortedSeeds, seed2parts);
+        return new Pair<>(sortedSeeds, seed2parts);
     }
 
     private static Map<Path, FilterPredicate> addPathToSeedFilter(
@@ -399,7 +399,7 @@ public final class ParquetFilterUtils {
             final String identifier,
             final SchemaUtils schemaUtils,
             final String group,
-            final Tuple2<Object, DirectedType> parts,
+            final Pair<Object, DirectedType> parts,
             final Map<Path, FilterPredicate> newPathToFilter,
             final Boolean isEntityGroup) throws OperationException, SerialisationException {
         FilterPredicate filter = null;
@@ -412,7 +412,7 @@ public final class ParquetFilterUtils {
                 // Does the seed type need to match the group type?
                 if (seedMatchingType != SeedMatching.SeedMatchingType.EQUAL) {
                     filter = createSeedFilter(currentSeed, ParquetStoreConstants.VERTEX, schemaUtils.getColumnToPaths(group), false);
-                    filter = orFilter(filter, addIsEqualFilter(ParquetStoreConstants.VERTEX, parts.get0(), schemaUtils, group));
+                    filter = orFilter(filter, addIsEqualFilter(ParquetStoreConstants.VERTEX, parts.getFirst(), schemaUtils, group));
                 }
             }
         } else {
@@ -448,8 +448,8 @@ public final class ParquetFilterUtils {
             } else {
                 if (ParquetStoreConstants.SOURCE.equals(identifier)) {
                     filter = createSeedFilter(currentSeed, ParquetStoreConstants.SOURCE, schemaUtils.getColumnToPaths(group), false);
-                    filter = andFilter(filter, addIsEqualFilter(ParquetStoreConstants.DESTINATION, parts.get0(), schemaUtils, group));
-                    final DirectedType directedType = parts.get1();
+                    filter = andFilter(filter, addIsEqualFilter(ParquetStoreConstants.DESTINATION, parts.getFirst(), schemaUtils, group));
+                    final DirectedType directedType = parts.getSecond();
                     if (directedType == DirectedType.DIRECTED) {
                         filter = andFilter(filter, addIsEqualFilter(ParquetStoreConstants.DIRECTED, true, schemaUtils, group));
                     } else if (directedType == DirectedType.UNDIRECTED) {
@@ -488,39 +488,39 @@ public final class ParquetFilterUtils {
         }
     }
 
-    private static Tuple2<FilterPredicate, Boolean> andFilter(final Tuple2<FilterPredicate, Boolean> filter, final Tuple2<FilterPredicate, Boolean> newFilter) {
-        final Tuple2<FilterPredicate, Boolean> outputFilter;
+    private static Pair<FilterPredicate, Boolean> andFilter(final Pair<FilterPredicate, Boolean> filter, final Pair<FilterPredicate, Boolean> newFilter) {
+        final Pair<FilterPredicate, Boolean> outputFilter;
         if (filter != null) {
-            if (filter.get1()) {
-                if (filter.get0() != null && newFilter.get0() != null) {
-                    outputFilter = new Tuple2<>(and(filter.get0(), newFilter.get0()), true);
-                } else if (filter.get0() != null) {
-                    outputFilter = new Tuple2<>(filter.get0(), true);
-                } else if (newFilter.get0() != null) {
-                    outputFilter = new Tuple2<>(newFilter.get0(), true);
+            if (filter.getSecond()) {
+                if (filter.getFirst() != null && newFilter.getFirst() != null) {
+                    outputFilter = new Pair<>(and(filter.getFirst(), newFilter.getFirst()), true);
+                } else if (filter.getFirst() != null) {
+                    outputFilter = new Pair<>(filter.getFirst(), true);
+                } else if (newFilter.getFirst() != null) {
+                    outputFilter = new Pair<>(newFilter.getFirst(), true);
                 } else {
-                    outputFilter = new Tuple2<>(null, true);
+                    outputFilter = new Pair<>(null, true);
                 }
             } else {
-                if (newFilter.get1()) {
-                    if (filter.get0() != null && newFilter.get0() != null) {
-                        outputFilter = new Tuple2<>(and(filter.get0(), newFilter.get0()), true);
-                    } else if (filter.get0() != null) {
-                        outputFilter = new Tuple2<>(filter.get0(), true);
-                    } else if (newFilter.get0() != null) {
-                        outputFilter = new Tuple2<>(newFilter.get0(), true);
+                if (newFilter.getSecond()) {
+                    if (filter.getFirst() != null && newFilter.getFirst() != null) {
+                        outputFilter = new Pair<>(and(filter.getFirst(), newFilter.getFirst()), true);
+                    } else if (filter.getFirst() != null) {
+                        outputFilter = new Pair<>(filter.getFirst(), true);
+                    } else if (newFilter.getFirst() != null) {
+                        outputFilter = new Pair<>(newFilter.getFirst(), true);
                     } else {
-                        outputFilter = new Tuple2<>(null, true);
+                        outputFilter = new Pair<>(null, true);
                     }
                 } else {
-                    if (filter.get0() != null && newFilter.get0() != null) {
-                        outputFilter = new Tuple2<>(and(filter.get0(), newFilter.get0()), false);
-                    } else if (filter.get0() != null) {
-                        outputFilter = new Tuple2<>(filter.get0(), false);
-                    } else if (newFilter.get0() != null) {
-                        outputFilter = new Tuple2<>(newFilter.get0(), false);
+                    if (filter.getFirst() != null && newFilter.getFirst() != null) {
+                        outputFilter = new Pair<>(and(filter.getFirst(), newFilter.getFirst()), false);
+                    } else if (filter.getFirst() != null) {
+                        outputFilter = new Pair<>(filter.getFirst(), false);
+                    } else if (newFilter.getFirst() != null) {
+                        outputFilter = new Pair<>(newFilter.getFirst(), false);
                     } else {
-                        outputFilter = new Tuple2<>(null, false);
+                        outputFilter = new Pair<>(null, false);
                     }
                 }
             }
@@ -530,39 +530,39 @@ public final class ParquetFilterUtils {
         return outputFilter;
     }
 
-    private static Tuple2<FilterPredicate, Boolean> orFilter(final Tuple2<FilterPredicate, Boolean> filter, final Tuple2<FilterPredicate, Boolean> newFilter) {
-        final Tuple2<FilterPredicate, Boolean> outputFilter;
+    private static Pair<FilterPredicate, Boolean> orFilter(final Pair<FilterPredicate, Boolean> filter, final Pair<FilterPredicate, Boolean> newFilter) {
+        final Pair<FilterPredicate, Boolean> outputFilter;
         if (filter != null) {
-            if (filter.get1()) {
-                if (filter.get0() != null && newFilter.get0() != null) {
-                    outputFilter = new Tuple2<>(or(filter.get0(), newFilter.get0()), true);
-                } else if (filter.get0() != null) {
-                    outputFilter = new Tuple2<>(filter.get0(), true);
-                } else if (newFilter.get0() != null) {
-                    outputFilter = new Tuple2<>(newFilter.get0(), true);
+            if (filter.getSecond()) {
+                if (filter.getFirst() != null && newFilter.getFirst() != null) {
+                    outputFilter = new Pair<>(or(filter.getFirst(), newFilter.getFirst()), true);
+                } else if (filter.getFirst() != null) {
+                    outputFilter = new Pair<>(filter.getFirst(), true);
+                } else if (newFilter.getFirst() != null) {
+                    outputFilter = new Pair<>(newFilter.getFirst(), true);
                 } else {
-                    outputFilter = new Tuple2<>(null, true);
+                    outputFilter = new Pair<>(null, true);
                 }
             } else {
-                if (newFilter.get1()) {
-                    if (filter.get0() != null && newFilter.get0() != null) {
-                        outputFilter = new Tuple2<>(or(filter.get0(), newFilter.get0()), true);
-                    } else if (filter.get0() != null) {
-                        outputFilter = new Tuple2<>(filter.get0(), true);
-                    } else if (newFilter.get0() != null) {
-                        outputFilter = new Tuple2<>(newFilter.get0(), true);
+                if (newFilter.getSecond()) {
+                    if (filter.getFirst() != null && newFilter.getFirst() != null) {
+                        outputFilter = new Pair<>(or(filter.getFirst(), newFilter.getFirst()), true);
+                    } else if (filter.getFirst() != null) {
+                        outputFilter = new Pair<>(filter.getFirst(), true);
+                    } else if (newFilter.getFirst() != null) {
+                        outputFilter = new Pair<>(newFilter.getFirst(), true);
                     } else {
-                        outputFilter = new Tuple2<>(null, true);
+                        outputFilter = new Pair<>(null, true);
                     }
                 } else {
-                    if (filter.get0() != null && newFilter.get0() != null) {
-                        outputFilter = new Tuple2<>(or(filter.get0(), newFilter.get0()), true);
-                    } else if (filter.get0() != null) {
-                        outputFilter = new Tuple2<>(filter.get0(), true);
-                    } else if (newFilter.get0() != null) {
-                        outputFilter = new Tuple2<>(newFilter.get0(), true);
+                    if (filter.getFirst() != null && newFilter.getFirst() != null) {
+                        outputFilter = new Pair<>(or(filter.getFirst(), newFilter.getFirst()), true);
+                    } else if (filter.getFirst() != null) {
+                        outputFilter = new Pair<>(filter.getFirst(), true);
+                    } else if (newFilter.getFirst() != null) {
+                        outputFilter = new Pair<>(newFilter.getFirst(), true);
                     } else {
-                        outputFilter = new Tuple2<>(null, true);
+                        outputFilter = new Pair<>(null, true);
                     }
                 }
             }
@@ -639,18 +639,18 @@ public final class ParquetFilterUtils {
         return seedFilter;
     }
 
-    protected static Tuple2<FilterPredicate, Boolean> buildGroupFilter(final View view,
+    protected static Pair<FilterPredicate, Boolean> buildGroupFilter(final View view,
                                                                        final SchemaUtils schemaUtils,
                                                                        final String group,
                                                                        final DirectedType directedType,
                                                                        final boolean isEntity) throws SerialisationException {
-        Tuple2<FilterPredicate, Boolean> groupFilter = null;
+        Pair<FilterPredicate, Boolean> groupFilter = null;
         final ViewElementDefinition groupView = view.getElement(group);
         if (groupView != null) {
             List<TupleAdaptedPredicate<String, ?>> preAggFilterFunctions = groupView.getPreAggregationFilterFunctions();
             if (preAggFilterFunctions != null) {
                 for (final TupleAdaptedPredicate<String, ?> filterFunctionContext : preAggFilterFunctions) {
-                    final Tuple2<FilterPredicate, Boolean> filter = buildFilter(filterFunctionContext.getPredicate(), filterFunctionContext.getSelection(), schemaUtils, group);
+                    final Pair<FilterPredicate, Boolean> filter = buildFilter(filterFunctionContext.getPredicate(), filterFunctionContext.getSelection(), schemaUtils, group);
                     groupFilter = andFilter(groupFilter, filter);
                 }
             }
@@ -665,36 +665,36 @@ public final class ParquetFilterUtils {
                 directedFilter = null;
             }
             if (groupFilter != null || directedFilter != null) {
-                groupFilter = andFilter(groupFilter, new Tuple2<>(directedFilter, false));
+                groupFilter = andFilter(groupFilter, new Pair<>(directedFilter, false));
             }
         }
         return groupFilter;
     }
 
-    private static Tuple2<FilterPredicate, Boolean> buildFilter(final Predicate filterFunction, final String[] selection, final SchemaUtils schemaUtils, final String group) throws SerialisationException {
+    private static Pair<FilterPredicate, Boolean> buildFilter(final Predicate filterFunction, final String[] selection, final SchemaUtils schemaUtils, final String group) throws SerialisationException {
         if (filterFunction instanceof And) {
             return addAndFilter(((And) filterFunction).getComponents(), selection, schemaUtils, group);
         } else if (filterFunction instanceof Or) {
             return addOrFilter(((Or) filterFunction).getComponents(), selection, schemaUtils, group);
         } else if (filterFunction instanceof Not) {
-            Tuple2<FilterPredicate, Boolean> filter = buildFilter(((Not) filterFunction).getPredicate(), selection, schemaUtils, group);
-            if (filter.get0() != null) {
-                return new Tuple2<>(not(filter.get0()), filter.get1());
+            Pair<FilterPredicate, Boolean> filter = buildFilter(((Not) filterFunction).getPredicate(), selection, schemaUtils, group);
+            if (filter.getFirst() != null) {
+                return new Pair<>(not(filter.getFirst()), filter.getSecond());
             } else {
-                return new Tuple2<>(null, true);
+                return new Pair<>(null, true);
             }
         } else {
             final FilterPredicate newFilter = addPrimitiveFilter(filterFunction, selection[0], schemaUtils, group);
-            return new Tuple2<>(newFilter, newFilter == null);
+            return new Pair<>(newFilter, newFilter == null);
         }
     }
 
-    private static Tuple2<FilterPredicate, Boolean> addOrFilter(final List<Predicate> predicateList,
+    private static Pair<FilterPredicate, Boolean> addOrFilter(final List<Predicate> predicateList,
                                                                 final String[] selection,
                                                                 final SchemaUtils schemaUtils,
                                                                 final String group) throws SerialisationException {
 
-        Tuple2<FilterPredicate, Boolean> filter = null;
+        Pair<FilterPredicate, Boolean> filter = null;
         for (final Predicate functionContext : predicateList) {
             final Predicate filterFunction;
             final String[] newSelections;
@@ -715,11 +715,11 @@ public final class ParquetFilterUtils {
         return filter;
     }
 
-    private static Tuple2<FilterPredicate, Boolean> addAndFilter(final List<Predicate> predicateList,
+    private static Pair<FilterPredicate, Boolean> addAndFilter(final List<Predicate> predicateList,
                                                                  final String[] selection,
                                                                  final SchemaUtils schemaUtils,
                                                                  final String group) throws SerialisationException {
-        Tuple2<FilterPredicate, Boolean> filter = null;
+        Pair<FilterPredicate, Boolean> filter = null;
         for (final Predicate functionContext : predicateList) {
             final Predicate filterFunction;
             final String[] newSelections;

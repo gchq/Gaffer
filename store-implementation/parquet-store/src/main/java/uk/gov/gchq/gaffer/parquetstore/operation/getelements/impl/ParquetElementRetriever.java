@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
@@ -42,7 +43,7 @@ import uk.gov.gchq.gaffer.parquetstore.utils.ParquetFileIterator;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetFilterUtils;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.koryphe.tuple.n.Tuple2;
+
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
@@ -110,11 +111,11 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                                   final GraphIndex graphIndex,
                                   final FileSystem fs) {
             try {
-                Tuple2<Map<Path, FilterPredicate>, Boolean> results = ParquetFilterUtils
+                Pair<Map<Path, FilterPredicate>, Boolean> results = ParquetFilterUtils
                         .buildPathToFilterMap(schemaUtils,
                                 view, directedType, includeIncomingOutgoingType, seedMatchingType, seeds, dataDir, graphIndex);
-                this.pathToFilterMap = results.get0();
-                this.needsValidation = results.get1();
+                this.pathToFilterMap = results.getFirst();
+                this.needsValidation = results.getSecond();
                 LOGGER.debug("pathToFilterMap: {}", pathToFilterMap);
                 if (!pathToFilterMap.isEmpty()) {
                     this.fs = fs;

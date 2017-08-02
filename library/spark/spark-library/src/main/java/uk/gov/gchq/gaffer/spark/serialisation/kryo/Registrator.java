@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.spark.serialisation.kryo;
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.esotericsoftware.kryo.Kryo;
 import org.apache.spark.serializer.KryoRegistrator;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
@@ -37,6 +38,7 @@ public class Registrator implements KryoRegistrator {
         kryo.register(Entity.class, new EntityKryoSerializer());
         kryo.register(Edge.class, new EdgeKryoSerializer());
         kryo.register(Properties.class);
+        kryo.register(Pair.class);
         kryo.register(FreqMap.class);
         kryo.register(HyperLogLogPlus.class, new HyperLogLogPlusKryoSerializer());
     }

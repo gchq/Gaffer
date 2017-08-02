@@ -59,7 +59,7 @@ public class ConvertViewToFilterTest {
                                 .build())
                         .build())
                 .build();
-        final FilterPredicate filter = ParquetFilterUtils.buildGroupFilter(view, schemaUtils, "BasicEntity", DirectedType.EITHER, true).get0();
+        final FilterPredicate filter = ParquetFilterUtils.buildGroupFilter(view, schemaUtils, "BasicEntity", DirectedType.EITHER, true).getFirst();
         final FilterPredicate expected = eq(doubleColumn("double"), 2.0);
         assertEquals(expected, filter);
     }
@@ -75,7 +75,7 @@ public class ConvertViewToFilterTest {
                                 .build())
                         .build())
                 .build();
-        final FilterPredicate filter = ParquetFilterUtils.buildGroupFilter(view, schemaUtils, "BasicEntity", DirectedType.EITHER, true).get0();
+        final FilterPredicate filter = ParquetFilterUtils.buildGroupFilter(view, schemaUtils, "BasicEntity", DirectedType.EITHER, true).getFirst();
         final FilterPredicate expected = and(eq(binaryColumn("VERTEX_type"), Binary.fromString("type")), eq(binaryColumn("VERTEX_value"), Binary.fromString("value")));
         assertEquals(expected, filter);
     }
@@ -91,7 +91,7 @@ public class ConvertViewToFilterTest {
                                 .build())
                         .build())
                 .build();
-        final FilterPredicate filter = ParquetFilterUtils.buildGroupFilter(view, schemaUtils, "BasicEntity", DirectedType.EITHER, true).get0();
+        final FilterPredicate filter = ParquetFilterUtils.buildGroupFilter(view, schemaUtils, "BasicEntity", DirectedType.EITHER, true).getFirst();
         final FilterPredicate expected = eq(binaryColumn("freqMap.type_value.key"), Binary.fromString("test"));
         assertEquals(expected, filter);
     }

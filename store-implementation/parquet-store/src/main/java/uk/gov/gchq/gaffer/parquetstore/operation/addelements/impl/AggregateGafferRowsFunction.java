@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.parquetstore.utils;
+package uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.spark.api.java.function.Function2;
+import org.apache.spark.sql.Row;
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,43 +26,53 @@ import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
+import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
+import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.BinaryOperator;
 
-public class AggregateGafferRowsFunction implements Function2<GenericRowWithSchema, GenericRowWithSchema, GenericRowWithSchema>, Serializable {
+public class AggregateGafferRowsFunction implements Function2<Row, Row, Row>, Serializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(AggregateGafferRowsFunction.class);
     private static final long serialVersionUID = -8353767193380574516L;
     private final Boolean isEntity;
-    private final Map<String, String> propertyToAggregatorMap;
+    private final byte[] jsonGafferSchema;
+    private final String group;
     private final Set<String> groupByColumns;
     private final GafferGroupObjectConverter objectConverter;
     private final Map<String, String[]> columnToPaths;
     private final String[] gafferProperties;
 
     @SuppressFBWarnings("EI_EXPOSE_REP2")
-    public AggregateGafferRowsFunction(final String[] gafferProperties,
-                                       final boolean isEntity,
-                                       final Set<String> groupByColumns,
+    public AggregateGafferRowsFunction(final byte[] jsonGafferSchema,
+                                       final String group,
                                        final Map<String, String[]> columnToPaths,
-                                       final Map<String, String> propertyToAggregatorMap,
                                        final GafferGroupObjectConverter gafferGroupObjectConverter)
             throws SerialisationException {
         LOGGER.debug("Generating a new AggregateGafferRowsFunction");
-        this.gafferProperties = gafferProperties;
+        final Schema gafferSchema = Schema.fromJson(jsonGafferSchema);
+        this.jsonGafferSchema = jsonGafferSchema;
+        this.group = group;
+        final SchemaElementDefinition groupGafferSchema = gafferSchema.getElement(group);
+        final Set<String> gafferGroupProperties = groupGafferSchema.getProperties();
+        this.gafferProperties = new String[gafferGroupProperties.size()];
+        gafferGroupProperties.toArray(this.gafferProperties);
         this.columnToPaths = columnToPaths;
         this.objectConverter = gafferGroupObjectConverter;
-        this.isEntity = isEntity;
-        this.groupByColumns = groupByColumns;
+        this.isEntity = groupGafferSchema instanceof SchemaEntityDefinition;
+        this.groupByColumns = new HashSet<>();
+        groupByColumns.addAll(groupGafferSchema.getGroupBy());
         LOGGER.debug("GroupByColumns: {}", this.groupByColumns);
-        this.propertyToAggregatorMap = propertyToAggregatorMap;
-        LOGGER.debug("PropertyToAggregatorMap: {}", this.propertyToAggregatorMap);
     }
 
     @Override
-    public GenericRowWithSchema call(final GenericRowWithSchema v1, final GenericRowWithSchema v2)
+    public Row call(final Row v1, final Row v2)
             throws OperationException, SerialisationException {
         LOGGER.trace("First Row object to be aggregated: {}", v1);
         LOGGER.trace("Second Row object to be aggregated: {}", v2);
@@ -119,15 +130,6 @@ public class AggregateGafferRowsFunction implements Function2<GenericRowWithSche
     }
 
     private ElementAggregator getElementAggregator() throws OperationException {
-
-        final ElementAggregator.Builder aggregator = new ElementAggregator.Builder();
-        for (final Map.Entry<String, String> entry : propertyToAggregatorMap.entrySet()) {
-            try {
-                aggregator.select(entry.getKey()).execute((BinaryOperator) Class.forName(entry.getValue()).newInstance());
-            } catch (final IllegalAccessException | InstantiationException | ClassNotFoundException e) {
-                throw new OperationException(e.getMessage(), e);
-            }
-        }
-        return aggregator.build();
+        return Schema.fromJson(jsonGafferSchema).getElement(group).getIngestAggregator();
     }
 }

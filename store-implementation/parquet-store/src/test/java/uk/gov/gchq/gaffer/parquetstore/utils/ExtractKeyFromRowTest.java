@@ -23,13 +23,9 @@ import org.apache.spark.sql.Row$;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import scala.collection.JavaConversions;
 import scala.collection.Seq;
-import scala.collection.mutable.WrappedArray;
 import scala.collection.mutable.WrappedArray$;
-import scala.collection.mutable.WrappedArrayBuilder;
-import scala.reflect.ClassTag;
-import scala.reflect.ClassTag$;
+import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.ExtractKeyFromRow;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.store.SerialisationFactory;
@@ -106,7 +102,7 @@ public class ExtractKeyFromRowTest {
     @Test
     public void testExtractKeyFromRowForEntity() throws Exception {
         final ExtractKeyFromRow entityConverter = new ExtractKeyFromRow(groupByColumns, columnsToPaths, true, buildcolumnToAggregatorMap(utils.getGafferSchema().getElement("BasicEntity")));
-        final Row row = DataGen.generateEntityRow(utils, "BasicEntity","vertex", (byte) 'a', 0.2, 3f, TestUtils.TREESET1, 5L, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1);
+        final Row row = DataGen.generateEntityRow(utils, "BasicEntity","vertex", (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1());
         final Seq<Object> results = entityConverter.call(row);
         final List<Object> actual = new ArrayList<>(4);
         for (int i = 0; i < results.length(); i++) {
@@ -116,21 +112,21 @@ public class ExtractKeyFromRowTest {
         expected.add(0.2);
         expected.add("vertex");
         expected.add(TestUtils.DATE.getTime());
-        expected.add(WrappedArray$.MODULE$.make(TestUtils.TREESET1.toArray()));
+        expected.add(WrappedArray$.MODULE$.make(TestUtils.getTreeSet1().toArray()));
         assertThat(expected, containsInAnyOrder(actual.toArray()));
     }
 
     @Test
     public void testExtractKeyFromRowForEdge() throws Exception {
         final ExtractKeyFromRow edgeConverter = new ExtractKeyFromRow(groupByColumns, columnsToPaths, false, buildcolumnToAggregatorMap(utils.getGafferSchema().getElement("BasicEdge")));
-        final Row row = DataGen.generateEdgeRow(utils, "BasicEdge","src", "dst", true, (byte) 'a', 0.2, 3f, TestUtils.TREESET1, 5L, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1);
+        final Row row = DataGen.generateEdgeRow(utils, "BasicEdge","src", "dst", true, (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1());
         final Seq<Object> results = edgeConverter.call(row);
         final List<Object> actual = new ArrayList<>(6);
         for (int i = 0; i < results.length(); i++) {
             actual.add(results.apply(i));
         }
         final List<Object> expected = new ArrayList<>(6);
-        expected.add(WrappedArray$.MODULE$.make(TestUtils.TREESET1.toArray()));
+        expected.add(WrappedArray$.MODULE$.make(TestUtils.getTreeSet1().toArray()));
         expected.add(0.2);
         expected.add("dst");
         expected.add("src");
