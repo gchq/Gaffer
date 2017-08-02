@@ -16,6 +16,8 @@
 package uk.gov.gchq.gaffer.user;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import java.util.Collection;
 import java.util.Collections;
@@ -69,19 +71,21 @@ public class User {
         }
 
         final User user = (User) o;
-        if (!userId.equals(user.userId)) {
-            return false;
-        }
 
-        return dataAuths.equals(user.dataAuths) && opAuths.equals(user.opAuths);
+        return new EqualsBuilder()
+                .append(userId, user.userId)
+                .append(dataAuths, user.dataAuths)
+                .append(opAuths, user.opAuths)
+                .isEquals();
     }
 
     @Override
     public int hashCode() {
-        int result = userId.hashCode();
-        result = 31 * result + dataAuths.hashCode();
-        result = 31 * result + opAuths.hashCode();
-        return result;
+        return new HashCodeBuilder(17, 37)
+                .append(userId)
+                .append(dataAuths)
+                .append(opAuths)
+                .toHashCode();
     }
 
     @Override
@@ -90,7 +94,7 @@ public class User {
                 .append("userId", userId)
                 .append("dataAuths", dataAuths)
                 .append("opAuths", opAuths)
-                .build();
+                .toString();
     }
 
     public static class Builder {

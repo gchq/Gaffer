@@ -158,15 +158,19 @@ public class RBMBackedTimestampSet implements TimestampSet {
 
     @Override
     public boolean equals(final Object obj) {
-        return null != obj
-                && (obj instanceof RBMBackedTimestampSet)
-                && equals((RBMBackedTimestampSet) obj);
-    }
+        if (this == obj) {
+            return true;
+        }
 
-    private boolean equals(final RBMBackedTimestampSet other) {
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final RBMBackedTimestampSet rbmBackedTimestampSet = (RBMBackedTimestampSet) obj;
+
         return new EqualsBuilder()
-                .append(timeBucket, other.timeBucket)
-                .append(rbm, other.rbm)
+                .append(timeBucket, rbmBackedTimestampSet.timeBucket)
+                .append(rbm, rbmBackedTimestampSet.rbm)
                 .isEquals();
     }
 

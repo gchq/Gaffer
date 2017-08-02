@@ -22,6 +22,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import java.util.ArrayList;
@@ -593,7 +594,11 @@ public class EdgeTest extends ElementTest {
 
         @Override
         public String toString() {
-            return "Vertex[property=" + property + "]";
+            return new ToStringBuilder(this)
+                    .append("Vertex[property=")
+                    .append("property", property)
+                    .append("]")
+                    .toString();
         }
     }
 

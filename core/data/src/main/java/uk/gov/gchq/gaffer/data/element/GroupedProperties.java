@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.data.element;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 
 /**
  * GroupedProperties are just {@link Properties} with the Element group attached.
@@ -67,5 +68,12 @@ public class GroupedProperties extends Properties {
                 .append(group)
                 .appendSuper(super.hashCode())
                 .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("group", group)
+                .toString();
     }
 }

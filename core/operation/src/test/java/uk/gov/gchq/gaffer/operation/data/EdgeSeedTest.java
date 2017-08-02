@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.operation.data;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
@@ -431,7 +432,11 @@ public class EdgeSeedTest {
 
         @Override
         public String toString() {
-            return "Vertex[property=" + property + "]";
+            return new ToStringBuilder(this)
+                    .append("Vertex[property=")
+                    .append("property", property)
+                    .append("]")
+                    .toString();
         }
     }
 

@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.flink.operation.handler;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import javax.annotation.Nonnull;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -80,7 +81,7 @@ public class GafferQueue<T> implements Iterable<T> {
     }
 
     /**
-     * Warning - this will convert the entire queue to an array to get a hashcode
+     * Warning - this will convert the entire queue to an array to get a hashcode,
      * so use it with caution.
      */
     @Override
@@ -89,5 +90,17 @@ public class GafferQueue<T> implements Iterable<T> {
                 .append(queue.toArray())
                 .append(iteratorAvailable)
                 .toHashCode();
+    }
+
+    /**
+     * Warning - this will convert the entire queue to an array to get a string,
+     * so use with caution.
+     */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("queue", queue.toArray())
+                .append("iteratorAvailable", iteratorAvailable)
+                .toString();
     }
 }

@@ -16,12 +16,14 @@
 
 package uk.gov.gchq.gaffer.operation.data;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 
 /**
  * An <code>EntitySeed</code> contains a single vertex for an {@link uk.gov.gchq.gaffer.data.element.Entity}.
- * It is used as a mainly used as a seed for queries.
+ * It is mainly used as a seed for queries.
  */
 public class EntitySeed extends ElementSeed implements EntityId {
     private static final long serialVersionUID = -1668220155074029644L;
@@ -49,23 +51,28 @@ public class EntitySeed extends ElementSeed implements EntityId {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof EntitySeed)) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
 
         final EntitySeed that = (EntitySeed) o;
-        return !(vertex != null ? !vertex.equals(that.getVertex()) : that.getVertex() != null);
+
+        return new EqualsBuilder()
+                .append(vertex, that.vertex)
+                .isEquals();
     }
 
     @Override
     public int hashCode() {
-        return vertex != null ? vertex.hashCode() : 0;
+        return new HashCodeBuilder(17, 37)
+                .append(vertex)
+                .toHashCode();
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .append("vertex", vertex)
-                .build();
+                .toString();
     }
 }

@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.store.element;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -98,18 +99,30 @@ public interface ElementKey {
 
         @Override
         public boolean equals(final Object obj) {
-            return null != obj
-                    && (obj instanceof EntityKey)
-                    && equals((EntityKey) obj);
-        }
+            if (this == obj) {
+                return true;
+            }
 
-        public boolean equals(final EntityKey entityKey) {
-            return null != entityKey
-                    && new EqualsBuilder()
+            if (obj == null || getClass() != obj.getClass()) {
+                return false;
+            }
+
+            final EntityKey entityKey = (EntityKey) obj;
+
+            return new EqualsBuilder()
                     .append(entity.getGroup(), entityKey.entity.getGroup())
                     .append(entity.getVertex(), entityKey.entity.getVertex())
                     .append(groupByProperties, entityKey.groupByProperties)
                     .isEquals();
+        }
+
+        @Override
+        public String toString() {
+            return new ToStringBuilder(this)
+                    .append(entity.getGroup())
+                    .append(entity.getVertex())
+                    .append(groupByProperties)
+                    .toString();
         }
     }
 
