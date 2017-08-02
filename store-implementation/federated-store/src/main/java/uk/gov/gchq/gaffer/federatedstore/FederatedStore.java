@@ -86,6 +86,10 @@ public class FederatedStore extends Store {
         loadGraphs();
     }
 
+    public void initialise(final String graphId, final StoreProperties properties) throws StoreException {
+        this.initialise(graphId, null, properties);
+    }
+
     @Override
     public Schema getSchema() {
         return schema;
