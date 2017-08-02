@@ -18,6 +18,8 @@ To load a graph into the FederatedStore you need to provide three things.
     * Graph Schema
     * Graph Properties file
 
+You can't add a graph using a graphID already in use (That's not adding that's replacing) you will need to remove the old GraphId first.
+
 Either through the FederatedStore properties file...
 ```
 gaffer.store.class=uk.gov.gchq.gaffer.federatedstore.FederatedStore
@@ -53,6 +55,21 @@ or through the rest service with json.
       ...
     }
   }
+}
+```
+
+#### Removing Graphs
+
+To remove a graph from the FederatedStore (Does not delete the graph, just removes it from the scope) it is even easier you only need to know the graphID.
+
+${REMOVE_GRAPH_SNIPPET}
+
+or through the rest service with json.
+
+```
+{
+  "class":"uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph",
+  "graphId":"AnotherGraph"
 }
 ```
 
