@@ -24,6 +24,8 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
@@ -58,11 +60,7 @@ public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsT
     }
 
     protected static Schema getSchema() {
-        return Schema.fromJson(
-                TypeValueVertexSparkOperationsTest.class.getResourceAsStream("/schemaUsingTypeValueVertexType/dataSchema.json"),
-                TypeValueVertexSparkOperationsTest.class.getResourceAsStream("/schemaUsingTypeValueVertexType/dataTypes.json"),
-                TypeValueVertexSparkOperationsTest.class.getResourceAsStream("/schemaUsingTypeValueVertexType/storeSchema.json"),
-                TypeValueVertexSparkOperationsTest.class.getResourceAsStream("/schemaUsingTypeValueVertexType/storeTypes.json"));
+        return Schema.fromJson(StreamUtil.openStreams(TypeValueVertexSparkOperationsTest.class, "schemaUsingTypeValueVertexType"));
     }
 
     private static JavaRDD<Element> getElements(final JavaSparkContext spark) {
@@ -102,15 +100,15 @@ public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsT
             final TypeValue src = new TypeValue(type, "src" + x);
             final TypeValue dst = new TypeValue(type, "dst" + (x + 1));
             final TypeValue vrt = new TypeValue(type, "vrt" + x);
-            expected.add(DataGen.getEdge("BasicEdge", src, dst, true, (byte) 'b', (0.2 * x) + 0.3, 6f, TestUtils.MERGED_TREESET, (6L * x) + 5L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
-            expected.add(DataGen.getEdge("BasicEdge", src, dst, false, (byte) 'a', 0.2 * x, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1));
-            expected.add(DataGen.getEdge("BasicEdge", src, dst, false, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * x, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1));
+            expected.add(DataGen.getEdge(TestGroups.EDGE, src, dst, true, (byte) 'b', (0.2 * x) + 0.3, 6f, TestUtils.MERGED_TREESET, (6L * x) + 5L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
+            expected.add(DataGen.getEdge(TestGroups.EDGE, src, dst, false, (byte) 'a', 0.2 * x, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1));
+            expected.add(DataGen.getEdge(TestGroups.EDGE, src, dst, false, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * x, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1));
 
-            expected.add(DataGen.getEdge("BasicEdge2", src, dst, true, (byte) 'b', (0.2 * x) + 0.3, 6f, TestUtils.MERGED_TREESET, (6L * x) + 5L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
-            expected.add(DataGen.getEdge("BasicEdge2", src, dst, false, (byte) 'b', (0.2 * x) + 0.3, 6f, TestUtils.MERGED_TREESET, (6L * x) + 5L, (short) 13, TestUtils.DATE1, TestUtils.MERGED_FREQMAP, 2));
+            expected.add(DataGen.getEdge(TestGroups.EDGE_2, src, dst, true, (byte) 'b', (0.2 * x) + 0.3, 6f, TestUtils.MERGED_TREESET, (6L * x) + 5L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
+            expected.add(DataGen.getEdge(TestGroups.EDGE_2, src, dst, false, (byte) 'b', (0.2 * x) + 0.3, 6f, TestUtils.MERGED_TREESET, (6L * x) + 5L, (short) 13, TestUtils.DATE1, TestUtils.MERGED_FREQMAP, 2));
 
-            expected.add(DataGen.getEntity("BasicEntity", vrt, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, (5L * x) + (6L * x), (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
-            expected.add(DataGen.getEntity("BasicEntity2", vrt, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, (5L * x) + (6L * x), (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
+            expected.add(DataGen.getEntity(TestGroups.ENTITY, vrt, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, (5L * x) + (6L * x), (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
+            expected.add(DataGen.getEntity(TestGroups.ENTITY_2, vrt, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, (5L * x) + (6L * x), (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
         }
         assertThat(expected, containsInAnyOrder(actual.toArray()));
     }

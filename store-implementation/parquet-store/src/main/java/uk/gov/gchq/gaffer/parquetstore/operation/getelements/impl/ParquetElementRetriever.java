@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
-import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
@@ -62,7 +61,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
     private final SeededGraphFilters.IncludeIncomingOutgoingType includeIncomingOutgoingType;
     private final SeedMatching.SeedMatchingType seedMatchingType;
     private final Iterable<? extends ElementId> seeds;
-    private final String dataDir;
+    private final ParquetFilterUtils parquetFilterUtils;
     private GraphIndex graphIndex;
     private FileSystem fs;
 
@@ -79,7 +78,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
         this.seedMatchingType = seedMatchingType;
         this.seeds = seeds;
         this.graphIndex = store.getGraphIndex();
-        this.dataDir = store.getDataDir() + "/" + store.getGraphIndex().getSnapshotTimestamp();
+        this.parquetFilterUtils = new ParquetFilterUtils(store);
         this.fs = store.getFS();
     }
 
@@ -90,7 +89,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
     @Override
     public CloseableIterator<Element> iterator() {
         return new ParquetIterator(schemaUtils, view, directedType, includeIncomingOutgoingType,
-                seedMatchingType, seeds, dataDir, graphIndex, fs);
+                seedMatchingType, seeds, parquetFilterUtils, graphIndex, fs);
     }
 
     protected static class ParquetIterator implements CloseableIterator<Element> {
@@ -111,15 +110,13 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                                   final SeededGraphFilters.IncludeIncomingOutgoingType includeIncomingOutgoingType,
                                   final SeedMatching.SeedMatchingType seedMatchingType,
                                   final Iterable<? extends ElementId> seeds,
-                                  final String dataDir,
+                                  final ParquetFilterUtils parquetFilterUtils,
                                   final GraphIndex graphIndex,
                                   final FileSystem fs) {
             try {
-                Pair<Map<Path, FilterPredicate>, Boolean> results = ParquetFilterUtils
-                        .buildPathToFilterMap(schemaUtils,
-                                view, directedType, includeIncomingOutgoingType, seedMatchingType, seeds, dataDir, graphIndex);
-                this.pathToFilterMap = results.getFirst();
-                this.needsValidation = results.getSecond();
+                parquetFilterUtils.buildPathToFilterMap(view, directedType, includeIncomingOutgoingType, seedMatchingType, seeds, graphIndex);
+                this.pathToFilterMap = parquetFilterUtils.getPathToFilterMap();
+                this.needsValidation = parquetFilterUtils.requiresValidation();
                 LOGGER.debug("pathToFilterMap: {}", pathToFilterMap);
                 if (!pathToFilterMap.isEmpty()) {
                     this.fs = fs;
