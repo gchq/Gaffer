@@ -24,12 +24,12 @@ import java.util.List;
  * This runner will run all developer walkthroughs.
  */
 public class DevWalkthroughRunner extends AbstractWalkthroughRunner {
-    private static final List<Class<? extends AbstractWalkthrough>> EXAMPLES = Arrays.asList(
-            Visibilities.class,
-            Schemas.class,
-            Jobs.class,
-            NamedOperations.class,
-            FederatedStoreWalkThrough.class
+    private static final List<AbstractWalkthrough> EXAMPLES = Arrays.asList(
+            new Visibilities(),
+            new Schemas(),
+            new Jobs(),
+            new NamedOperations(),
+            new FederatedStoreWalkThrough()
     );
 
     public DevWalkthroughRunner() {

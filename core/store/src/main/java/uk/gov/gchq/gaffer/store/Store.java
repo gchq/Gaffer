@@ -180,7 +180,7 @@ public abstract class Store {
     }
 
     public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
-        LOGGER.info("Initialising {}", getClass().getSimpleName());
+        LOGGER.debug("Initialising {}", getClass().getSimpleName());
         if (null == graphId) {
             throw new IllegalArgumentException("graphId is required");
         }
@@ -556,7 +556,7 @@ public abstract class Store {
      * @return the result of the operation.
      */
     protected Object doUnhandledOperation(final Operation operation, final Context context) {
-        throw new UnsupportedOperationException("Operation " + operation.getClass() + " is not supported by the ParquetStore.");
+        throw new UnsupportedOperationException("Operation " + operation.getClass() + " is not supported by the " + getClass().getSimpleName() + ".");
     }
 
     protected final void addOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {

@@ -38,7 +38,7 @@ public abstract class AbstractWalkthrough {
     private final String header;
     private final String resourcePrefix;
 
-    private boolean cacheLogs;
+    protected boolean cacheLogs;
 
     public AbstractWalkthrough(final String header,
                                final String dataPath,
