@@ -30,7 +30,7 @@ public class NoGraphLibrary extends GraphLibrary {
     }
 
     public void initialise(final String path) {
-        // Do nothing, only used with FileGraphLibrary
+        // Do nothing.
     }
 
     @Override

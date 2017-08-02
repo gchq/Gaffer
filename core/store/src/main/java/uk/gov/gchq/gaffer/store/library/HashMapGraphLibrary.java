@@ -32,7 +32,7 @@ public class HashMapGraphLibrary extends GraphLibrary {
     }
 
     public void initialise(final String file) {
-        // Do nothing, only used with FileGraphLibrary
+        // Do nothing.
     }
 
     public static void clear() {

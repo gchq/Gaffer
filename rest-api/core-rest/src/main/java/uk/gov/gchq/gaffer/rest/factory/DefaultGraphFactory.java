@@ -139,7 +139,7 @@ public class DefaultGraphFactory implements GraphFactory {
         if (null != graphLibraryClassName) {
             GraphLibrary library;
             try {
-                library = (GraphLibrary) Class.forName(graphLibraryClassName).newInstance();
+                library = Class.forName(graphLibraryClassName).asSubclass(GraphLibrary.class).newInstance();
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
                 throw new RuntimeException("Error creating GraphLibrary class: + " + e);
             }

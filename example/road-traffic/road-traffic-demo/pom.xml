@@ -71,9 +71,12 @@
                                 <gaffer.rest-api.basePath>
                                     ${standalone-path}/v1
                                 </gaffer.rest-api.basePath>
-                                <gaffer.graph.library.path>
+                                <gaffer.graph.library.class>
+                                    uk.gov.gchq.gaffer.store.library.FileGraphLibrary
+                                </gaffer.graph.library.class>
+                                <gaffer.graph.library.config>
                                     ${project.build.outputDirectory}/graphLibrary
-                                </gaffer.graph.library.path>
+                                </gaffer.graph.library.config>
                                 <gaffer.graph.id>
                                     roadTraffic
                                 </gaffer.graph.id>
