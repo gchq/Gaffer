@@ -31,14 +31,11 @@ import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.store.SerialisationFactory;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.function.BinaryOperator;
 
 import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
@@ -88,20 +85,9 @@ public class ExtractKeyFromRowTest {
         groupByColumns = null;
     }
 
-    private HashMap<String, String> buildcolumnToAggregatorMap(final SchemaElementDefinition gafferSchema) {
-        HashMap<String, String> columnToAggregatorMap = new HashMap<>();
-        for (final String column : gafferSchema.getProperties()) {
-            final BinaryOperator aggregateFunction = gafferSchema.getPropertyTypeDef(column).getAggregateFunction();
-            if (aggregateFunction != null) {
-                columnToAggregatorMap.put(column, aggregateFunction.getClass().getCanonicalName());
-            }
-        }
-        return columnToAggregatorMap;
-    }
-
     @Test
     public void testExtractKeyFromRowForEntity() throws Exception {
-        final ExtractKeyFromRow entityConverter = new ExtractKeyFromRow(groupByColumns, columnsToPaths, true, buildcolumnToAggregatorMap(utils.getGafferSchema().getElement("BasicEntity")));
+        final ExtractKeyFromRow entityConverter = new ExtractKeyFromRow(groupByColumns, columnsToPaths, true);
         final Row row = DataGen.generateEntityRow(utils, "BasicEntity","vertex", (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1());
         final Seq<Object> results = entityConverter.call(row);
         final List<Object> actual = new ArrayList<>(4);
@@ -118,7 +104,7 @@ public class ExtractKeyFromRowTest {
 
     @Test
     public void testExtractKeyFromRowForEdge() throws Exception {
-        final ExtractKeyFromRow edgeConverter = new ExtractKeyFromRow(groupByColumns, columnsToPaths, false, buildcolumnToAggregatorMap(utils.getGafferSchema().getElement("BasicEdge")));
+        final ExtractKeyFromRow edgeConverter = new ExtractKeyFromRow(groupByColumns, columnsToPaths, false);
         final Row row = DataGen.generateEdgeRow(utils, "BasicEdge","src", "dst", true, (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1());
         final Seq<Object> results = edgeConverter.call(row);
         final List<Object> actual = new ArrayList<>(6);
@@ -137,7 +123,7 @@ public class ExtractKeyFromRowTest {
 
     @Test
     public void testExtractKeyFromEmptyRow() {
-        final ExtractKeyFromRow edgeConverter = new ExtractKeyFromRow(groupByColumns, columnsToPaths, false, buildcolumnToAggregatorMap(utils.getGafferSchema().getElement("BasicEntity")));
+        final ExtractKeyFromRow edgeConverter = new ExtractKeyFromRow(groupByColumns, columnsToPaths, false);
         try {
             edgeConverter.call(Row$.MODULE$.empty());
             fail();

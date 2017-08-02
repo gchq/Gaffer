@@ -28,6 +28,9 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.Serializable;
 import java.util.Iterator;
 
+/**
+ * This is a function used by Spark to write out a Spark RDD's partition of data to file.
+ */
 public class WriteUnsortedDataFunction implements Serializable, VoidFunction<Iterator<Element>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WriteUnsortedDataFunction.class);

@@ -49,6 +49,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+/**
+ * Converts the inputs for get element operations and converts them to a mapping of files to Parquet filters which is
+ * then looped over to retrieve the filtered Elements.
+ */
 public class ParquetElementRetriever implements CloseableIterable<Element> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetElementRetriever.class);
 

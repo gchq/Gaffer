@@ -66,6 +66,13 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
 
+/**
+ * An implementation of {@link Store} that uses Parquet files to store the {@link Element}s.
+ * <p>
+ * It is designed to make the most of the Parquet file types by serialising the {@link Element}s using
+ * {@link uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser}'s which also allows for Gaffer objects to be
+ * stored as multiple or nested columns of primitive types.
+ */
 public class ParquetStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetStore.class);
     private static final Set<StoreTrait> TRAITS =
@@ -88,7 +95,7 @@ public class ParquetStore extends Store {
             throw new StoreException("Could not connect to the file system", e);
         }
         schemaUtils = new SchemaUtils(getSchema());
-        loadIndex((ParquetStoreProperties) properties);
+        loadIndex();
     }
 
     public FileSystem getFS() {
@@ -146,6 +153,7 @@ public class ParquetStore extends Store {
             final SparkSession spark = SparkSession.builder()
                     .appName(SPARK_SESSION_NAME)
                     .master(getProperties().getSparkMaster())
+                    .config(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true")
                     .config(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
                     .config(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
                     .getOrCreate();
@@ -190,7 +198,7 @@ public class ParquetStore extends Store {
         return new SchemaOptimiser(new SerialisationFactory(ParquetStoreConstants.SERIALISERS));
     }
 
-    private void loadIndex(final ParquetStoreProperties properties) throws StoreException {
+    private void loadIndex() throws StoreException {
         final String rootDir = getDataDir();
         try {
             if (fs.exists(new Path(rootDir))) {

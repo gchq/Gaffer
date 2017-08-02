@@ -23,6 +23,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 
+/**
+ * This is where all the Spark configure required to write out the data is set.
+ */
 public final class SparkParquetUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(SparkParquetUtils.class);
 
@@ -43,7 +46,7 @@ public final class SparkParquetUtils {
         configureSparkConfForAddElements(hadoopConf, props);
     }
 
-    public static void configureSparkConfForAddElements(final Configuration hadoopConf, final ParquetStoreProperties props) {
+    private static void configureSparkConfForAddElements(final Configuration hadoopConf, final ParquetStoreProperties props) {
         LOGGER.debug("Setting the parquet file properties");
         LOGGER.debug("Row group size: {}", props.getRowGroupSize());
         LOGGER.debug("Page size: {}", props.getPageSize());
@@ -51,6 +54,6 @@ public final class SparkParquetUtils {
         hadoopConf.setInt("parquet.page.size", props.getPageSize());
         hadoopConf.setInt("parquet.dictionary.page.size", props.getPageSize());
         hadoopConf.set("mapreduce.fileoutputcommitter.marksuccessfuljobs", "false");
-        hadoopConf.set("parquet.enable.summary-metadata", "true");
+        hadoopConf.set("parquet.enable.summary-metadata", "false");
     }
 }

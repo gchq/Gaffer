@@ -43,6 +43,9 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
 
+/**
+ * An {@link OperationHandler} for the {@link ImportJavaRDDOfElements} operation on the {@link ParquetStore}.
+ */
 public class ImportJavaRDDOfElementsHandler implements OperationHandler<ImportJavaRDDOfElements> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImportJavaRDDOfElementsHandler.class);
 
@@ -72,15 +75,26 @@ public class ImportJavaRDDOfElementsHandler implements OperationHandler<ImportJa
                 // aggregate new data and write out as unsorted data
                 LOGGER.debug("Starting to write the new unsorted Parquet data after aggregation to {} split by group", tempDataDirString);
                 final Schema gafferSchema = store.getSchema();
-                final ExtractKeyFromElements extractKeyFromElements = new ExtractKeyFromElements(gafferSchema);
-                final AggregateGafferElements aggregateGafferProperties = new AggregateGafferElements(gafferSchema);
+                boolean aggregate = true;
+                for (final String group : gafferSchema.getGroups()) {
+                    if (!gafferSchema.getElement(group).isAggregate()) {
+                        aggregate = false;
+                    }
+                }
                 final WriteUnsortedDataFunction writeUnsortedDataFunction =
                         new WriteUnsortedDataFunction(store.getTempFilesDir(), store.getSchemaUtils());
-                operation.getInput()
-                        .mapToPair(extractKeyFromElements)
-                        .reduceByKey(aggregateGafferProperties)
-                        .values()
-                        .foreachPartition(writeUnsortedDataFunction);
+                if (aggregate) {
+                    final ExtractKeyFromElements extractKeyFromElements = new ExtractKeyFromElements(gafferSchema);
+                    final AggregateGafferElements aggregateGafferProperties = new AggregateGafferElements(gafferSchema);
+                    operation.getInput()
+                            .mapToPair(extractKeyFromElements)
+                            .reduceByKey(aggregateGafferProperties)
+                            .values()
+                            .foreachPartition(writeUnsortedDataFunction);
+                } else {
+                    operation.getInput()
+                            .foreachPartition(writeUnsortedDataFunction);
+                }
                 LOGGER.debug("Finished writing the unsorted Parquet data to {}", tempDataDirString);
 
                 // Aggregate and sort data
@@ -119,7 +133,7 @@ public class ImportJavaRDDOfElementsHandler implements OperationHandler<ImportJa
         // Move data from temp to data
         final long snapshot = System.currentTimeMillis();
         final String destPath = rootDataDirString + "/" + snapshot;
-        fs.mkdirs(new Path(destPath));
+        fs.mkdirs(new Path(destPath).getParent());
         fs.rename(new Path(tempDataDirString + "/" + ParquetStoreConstants.SORTED), new Path(destPath));
         // Reload indices
         newGraphIndex.setSnapshotTimestamp(snapshot);

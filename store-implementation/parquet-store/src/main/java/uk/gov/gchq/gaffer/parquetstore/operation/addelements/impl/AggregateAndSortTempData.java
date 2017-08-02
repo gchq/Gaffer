@@ -34,6 +34,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+/**
+ * Creates parallel tasks aggregate and sort the unsorted data for a given group and indexed column. For example if you
+ * had a single edge group then it will generate two tasks:
+ * The first would aggregate the group's unsorted data and then sort it by the SOURCE columns.
+ * The second would again aggregate the same groups data and then sort it by the DESTINATION column.
+ */
 public class AggregateAndSortTempData {
     private static final Logger LOGGER = LoggerFactory.getLogger(AggregateAndSortTempData.class);
 

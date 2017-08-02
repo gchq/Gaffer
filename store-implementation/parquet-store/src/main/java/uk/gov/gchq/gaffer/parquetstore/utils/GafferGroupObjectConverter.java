@@ -38,6 +38,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class contains the logic for converting objects between the Gaffer, Parquet and Spark types for a single Gaffer group.
+ */
 public class GafferGroupObjectConverter implements Serializable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferGroupObjectConverter.class);
@@ -46,11 +49,19 @@ public class GafferGroupObjectConverter implements Serializable {
     private final Map<String, String[]> columnToPaths;
     private final String group;
 
-
+    /**
+     * Constructor to set up the converter ready to convert between the Gaffer, Spark and Parquet types.
+     *
+     * @param group                         The Gaffer Group name
+     * @param columnToSerialiserName        A mapping from Gaffer column to serialiser name
+     * @param serialiserNameToSerialiser    A mapping from serialiser name to serialiser object
+     * @param columnToPaths                 A mapping from Gaffer column to the Parquet columns derived from that Gaffer column
+     */
     public GafferGroupObjectConverter(final String group, final Map<String, String> columnToSerialiserName,
                                       final Map<String, Serialiser> serialiserNameToSerialiser,
-                                      final Map<String, String[]> columnToPaths) throws SerialisationException {
+                                      final Map<String, String[]> columnToPaths) {
         this.group = group;
+        // TODO move this logic building the direct column to serialiser to the SchemaUtils class
         this.columnToSerialiser = new HashMap<>();
         for (final Map.Entry<String, String> entry : columnToSerialiserName.entrySet()) {
             this.columnToSerialiser.put(entry.getKey(), serialiserNameToSerialiser.get(entry.getValue()));
@@ -58,32 +69,49 @@ public class GafferGroupObjectConverter implements Serializable {
         this.columnToPaths = columnToPaths;
     }
 
-    public Object[] gafferObjectToParquetObjects(final String gafferColumn, final Object value) throws SerialisationException {
+    /**
+     * Converts a Gaffer object from a single Gaffer column to the representative Parquet objects, using the relevant serialiser.
+     *
+     * @param gafferColumn  The name of the Gaffer column
+     * @param gafferObject  The Gaffer object to be converted
+     * @return an {@link Object[]} of the Parquet objects, one for each derived Parquet column
+     * @throws SerialisationException   If the serialiser throws a {@link SerialisationException} when serialising
+     */
+    public Object[] gafferObjectToParquetObjects(final String gafferColumn, final Object gafferObject) throws SerialisationException {
         final Serialiser serialiser = columnToSerialiser.get(gafferColumn);
-        if (value != null) {
+        if (gafferObject != null) {
             if (serialiser instanceof ParquetSerialiser) {
-                return (Object[]) serialiser.serialise(value);
+                return (Object[]) serialiser.serialise(gafferObject);
             } else if (serialiser != null) {
-                return new Object[]{serialiser.serialise(value)};
+                return new Object[]{serialiser.serialise(gafferObject)};
             } else {
-                return new Object[]{value};
+                return new Object[]{gafferObject};
             }
         } else {
             return new Object[]{null};
         }
     }
 
-    public Object parquetObjectsToGafferObject(final String gafferColumn, final Object[] value) throws SerialisationException {
+    /**
+     * Generates the Gaffer object from the Parquet objects using the relevant serialiser's de-serialise method.
+     *
+     * @param gafferColumn      The name of the Gaffer column
+     * @param parquetObjects    The {@link Object[]} of the Parquet objects, one for each Parquet column that
+     *                          was derived from this Gaffer column
+     * @return The Gaffer object
+     * @throws SerialisationException   If the serialiser throws a {@link SerialisationException} when de-serialising
+     */
+    public Object parquetObjectsToGafferObject(final String gafferColumn, final Object[] parquetObjects) throws SerialisationException {
         final Serialiser serialiser = columnToSerialiser.get(gafferColumn);
         if (serialiser instanceof ParquetSerialiser) {
-            return ((ParquetSerialiser) serialiser).deserialise(value);
+            return ((ParquetSerialiser) serialiser).deserialise(parquetObjects);
         } else {
-            if (value[0] == null) {
+            if (parquetObjects[0] == null) {
                 return null;
-            } else if (value[0] instanceof byte[]) {
-                return serialiser.deserialise(value[0]);
+            } else if (parquetObjects[0] instanceof byte[]) {
+                return serialiser.deserialise(parquetObjects[0]);
             } else {
-                throw new SerialisationException("Cannot deserialise object");
+                throw new SerialisationException("Cannot de-serialise object");
             }
         }
     }
@@ -147,22 +175,22 @@ public class GafferGroupObjectConverter implements Serializable {
     }
 
     /**
-     * Converts the provided <code>object</code> into objects as specified by the <code>sparkSchema</code>.
+     * Converts the provided <code>gafferObject</code> into objects as specified by the <code>sparkSchema</code>.
      *
-     * @param column        the column that the object has come from
-     * @param object        the object to be converted
+     * @param column        the column that the gafferObject has come from
+     * @param gafferObject  the gafferObject to be converted
      * @param recordBuilder the {@link ArrayList} to add the objects resulting from the conversion to
      * @param sparkSchema   the {@link StructType} that defines the Spark schema
-     * @throws SerialisationException if the object cannot be serialised
+     * @throws SerialisationException if the gafferObject cannot be serialised
      */
     public void addGafferObjectToSparkRow(final String column,
-                                          final Object object,
+                                          final Object gafferObject,
                                           final ArrayList<Object> recordBuilder,
                                           final StructType sparkSchema) throws SerialisationException {
         final String[] paths = columnToPaths.get(column);
-        if (object != null) {
+        if (gafferObject != null) {
             final Iterator<Object> parquetObjects;
-            parquetObjects = Arrays.asList(gafferObjectToParquetObjects(column, object)).iterator();
+            parquetObjects = Arrays.asList(gafferObjectToParquetObjects(column, gafferObject)).iterator();
             final ArrayList<Object> records = new ArrayList<>();
             if (paths[0].contains(".")) { // it is a nested structure
                 recusivelyGenerateSparkObjects(parquetObjects, sparkSchema.apply(column).dataType(), records);

@@ -27,25 +27,25 @@ import java.io.IOException;
 
 /**
  * An extension of {@link ProxyStore} that starts a REST API backed by a
- * {@link SingleUseMockAccumuloProxyStore} with the provided schema. This store
+ * {@link SingleUseMapProxyStore} with the provided schema. This store
  * is useful for testing when there is no actual REST API to connect a ProxyStore to.
  * Each time this store is initialised it will reset the underlying graph, delete
  * any elements that had been added and initialise it with the new schema. The
  * server will not be restarted every time.
  * <p>
  * After using this store you must remember to call
- * SingleUseMockAccumuloProxyStore.cleanUp to stop the server and delete the temporary folder.
+ * SingleUseMapProxyStore.cleanUp to stop the server and delete the temporary folder.
  */
-public class SingleUseMockAccumuloProxyStore extends ProxyStore {
+public class SingleUseMapProxyStore extends ProxyStore {
     public static final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     @Override
     public void initialise(final String graphId, final Schema accumuloSchema, final StoreProperties proxyProps) throws StoreException {
-        startMockAccumuloRestApi(accumuloSchema);
+        startMapStoreRestApi(accumuloSchema);
         super.initialise(graphId, new Schema(), proxyProps);
     }
 
-    protected void startMockAccumuloRestApi(final Schema accumuloSchema) throws StoreException {
+    protected void startMapStoreRestApi(final Schema accumuloSchema) throws StoreException {
         try {
             testFolder.delete();
             testFolder.create();
@@ -54,7 +54,7 @@ public class SingleUseMockAccumuloProxyStore extends ProxyStore {
         }
 
         final StoreProperties accumuloStoreProperties = StoreProperties.loadStoreProperties(
-                StreamUtil.openStream(getClass(), "accumulo-store.properties"));
+                StreamUtil.openStream(getClass(), "map-store.properties"));
         try {
             RestApiTestUtil.reinitialiseGraph(testFolder, accumuloSchema, accumuloStoreProperties);
         } catch (final IOException e) {

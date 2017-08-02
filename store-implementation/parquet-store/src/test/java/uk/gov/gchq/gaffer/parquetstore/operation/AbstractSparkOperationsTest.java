@@ -52,6 +52,7 @@ public abstract class AbstractSparkOperationsTest {
     static SparkSession spark = SparkSession.builder()
             .appName("Parquet Gaffer Store tests")
             .master(getParquetStoreProperties().getSparkMaster())
+            .config(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true")
             .config(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
             .config(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
             .getOrCreate();

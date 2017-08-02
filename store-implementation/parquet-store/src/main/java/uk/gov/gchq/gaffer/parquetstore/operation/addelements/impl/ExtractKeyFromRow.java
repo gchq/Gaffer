@@ -30,12 +30,15 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * This class is used to extract the key from each {@link Row} using the set of groupBy column names.
+ */
 public class ExtractKeyFromRow implements Function<Row, Seq<Object>>, Serializable {
 
     private static final long serialVersionUID = -5811180619204002981L;
     private final Set<String> groupByColumns;
 
-    public ExtractKeyFromRow(final Set<String> groupByColumns, final Map<String, String[]> columnToPaths, final boolean isEntity, final Map<String, String> propertyToAggregatorMap) {
+    public ExtractKeyFromRow(final Set<String> groupByColumns, final Map<String, String[]> columnToPaths, final boolean isEntity) {
         this.groupByColumns = new HashSet<>();
         if (isEntity) {
             addGroupByColumns(columnToPaths, ParquetStoreConstants.VERTEX);
@@ -44,14 +47,8 @@ public class ExtractKeyFromRow implements Function<Row, Seq<Object>>, Serializab
             addGroupByColumns(columnToPaths, ParquetStoreConstants.DESTINATION);
             this.groupByColumns.add(ParquetStoreConstants.DIRECTED);
         }
-        final Set<String> propertiesWithAggregators = propertyToAggregatorMap.keySet();
         for (final String col : columnToPaths.keySet()) {
-            if (groupByColumns.contains(col)
-                    || !propertiesWithAggregators.contains(col)
-                    && !ParquetStoreConstants.VERTEX.equals(col)
-                    && !ParquetStoreConstants.SOURCE.equals(col)
-                    && !ParquetStoreConstants.DESTINATION.equals(col)
-                    && !ParquetStoreConstants.DIRECTED.equals(col)) {
+            if (groupByColumns.contains(col)) {
                 addGroupByColumns(columnToPaths, col);
             }
         }
