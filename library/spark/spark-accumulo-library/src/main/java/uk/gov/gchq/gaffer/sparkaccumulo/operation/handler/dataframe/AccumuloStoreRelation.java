@@ -75,7 +75,6 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStoreRelation.class);
 
-    private final SQLContext sqlContext;
     private final SparkSession sparkSession;
     private final LinkedHashSet<String> groups;
     private final View view;
@@ -92,8 +91,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
                                  final View view,
                                  final AccumuloStore store,
                                  final User user) {
-        this.sqlContext = sparkSession.sqlContext();
-        this.sparkSession = SparkSession.builder().sparkContext(sqlContext.sparkContext()).getOrCreate();
+        this.sparkSession = sparkSession;
         this.view = view;
         this.store = store;
         this.user = user;
@@ -107,7 +105,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
 
     @Override
     public SQLContext sqlContext() {
-        return sqlContext;
+        return sparkSession.sqlContext();
     }
 
     @Override
@@ -187,7 +185,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
         if (operation == null) {
             // Null indicates that the filters resulted in no data (e.g. if group = X and group = Y, or if group = X
             // and there is no group X in the schema).
-            return sqlContext.emptyDataFrame().rdd();
+            return sparkSession.sqlContext().emptyDataFrame().rdd();
         }
         try {
             final RDD<Element> rdd = store.execute(operation, user);

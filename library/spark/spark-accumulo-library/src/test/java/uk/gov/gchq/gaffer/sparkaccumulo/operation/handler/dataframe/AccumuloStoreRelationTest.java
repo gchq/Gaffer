@@ -16,10 +16,8 @@
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe;
 
 import org.apache.spark.SparkConf;
-import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.Row;
-import org.apache.spark.sql.SQLContext;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.sources.Filter;
 import org.apache.spark.sql.sources.GreaterThan;
@@ -97,7 +95,7 @@ public class AccumuloStoreRelationTest {
     private void testBuildScanWithView(final String name, final View view, final Predicate<Element> returnElement)
             throws OperationException, StoreException {
         // Given
-        final SparkSession sparkSession = SparkSession.builder().sparkContext(getSqlContext(name).sparkContext()).getOrCreate();
+        final SparkSession sparkSession = SparkSession.builder().config(getSparkConf(name)).getOrCreate();
         final Schema schema = getSchema();
         final AccumuloProperties properties = AccumuloProperties
                 .loadStoreProperties(AccumuloStoreRelationTest.class.getResourceAsStream("/store.properties"));
@@ -145,7 +143,7 @@ public class AccumuloStoreRelationTest {
                                                      final Predicate<Element> returnElement)
             throws OperationException, StoreException {
         // Given
-        final SparkSession sparkSession = SparkSession.builder().sparkContext(getSqlContext(name).sparkContext()).getOrCreate();
+        final SparkSession sparkSession = SparkSession.builder().config(getSparkConf(name)).getOrCreate();
         final Schema schema = getSchema();
         final AccumuloProperties properties = AccumuloProperties
                 .loadStoreProperties(getClass().getResourceAsStream("/store.properties"));
@@ -199,7 +197,7 @@ public class AccumuloStoreRelationTest {
                                                                final Predicate<Element> returnElement)
             throws OperationException, StoreException {
         // Given
-        final SparkSession sparkSession = SparkSession.builder().sparkContext(getSqlContext(name).sparkContext()).getOrCreate();
+        final SparkSession sparkSession = SparkSession.builder().config(getSparkConf(name)).getOrCreate();
         final Schema schema = getSchema();
         final AccumuloProperties properties = AccumuloProperties
                 .loadStoreProperties(getClass().getResourceAsStream("/store.properties"));
@@ -252,14 +250,13 @@ public class AccumuloStoreRelationTest {
         store.execute(new AddElements.Builder().input(getElements()).build(), new User());
     }
 
-    private SQLContext getSqlContext(final String appName) {
-        final SparkConf sparkConf = new SparkConf()
+    private SparkConf getSparkConf(final String appName) {
+        return new SparkConf()
                 .setMaster("local")
                 .setAppName(appName)
                 .set(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
                 .set(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
                 .set(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true");
-        return new SQLContext(new SparkContext(sparkConf));
     }
 
     private static List<Element> getElements() {

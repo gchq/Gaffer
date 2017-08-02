@@ -518,13 +518,12 @@ public class GetDataFrameOfElementsHandlerTest {
     }
 
     private SparkConf getSparkConf(final String appName) {
-        final SparkConf sparkConf = new SparkConf()
+        return new SparkConf()
                 .setMaster("local")
                 .setAppName(appName)
                 .set(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
                 .set(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
                 .set(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true");
-        return sparkConf;
     }
 
     static List<Element> getElements() {
