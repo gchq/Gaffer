@@ -16,21 +16,43 @@
 
 package uk.gov.gchq.gaffer.rest.factory;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain;
 import uk.gov.gchq.gaffer.graph.hook.OperationAuthoriser;
-import uk.gov.gchq.gaffer.operation.impl.Count;
+import uk.gov.gchq.gaffer.graph.hook.OperationChainLimiter;
 import uk.gov.gchq.gaffer.rest.GraphFactoryForTest;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 
 public class GraphFactoryTest {
+    @Rule
+    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
+    @Before
+    @After
+    public void cleanUp() {
+        System.clearProperty(SystemProperty.GRAPH_ID);
+        System.clearProperty(SystemProperty.SCHEMA_PATHS);
+        System.clearProperty(SystemProperty.STORE_PROPERTIES_PATH);
+        System.clearProperty(SystemProperty.GRAPH_HOOKS_PATH);
+    }
+
     @Test
     public void shouldCreateDefaultGraphFactoryWhenNoSystemProperty() {
         // Given
@@ -68,43 +90,54 @@ public class GraphFactoryTest {
     }
 
     @Test
-    public void shouldReturnNullWhenCreateOpAuthoriserWithNoSystemPropertyPath() {
+    public void shouldNotAddGraphHooksWhenSystemPropertyNotSet() throws IOException {
         // Given
-        System.clearProperty(SystemProperty.OP_AUTHS_PATH);
+        System.setProperty(SystemProperty.GRAPH_ID, "graphId");
+        System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, "store.properties");
+
+        final File schemaFile = testFolder.newFile("schema.json");
+        FileUtils.writeLines(schemaFile, IOUtils.readLines(StreamUtil.openStream(getClass(), "/schema/schema.json")));
+        System.setProperty(SystemProperty.SCHEMA_PATHS, schemaFile.getAbsolutePath());
+
+        System.clearProperty(SystemProperty.GRAPH_HOOKS_PATH);
         final GraphFactory factory = new DefaultGraphFactory();
 
         // When
-        final OperationAuthoriser opAuthoriser = factory.createOpAuthoriser();
+        final Graph graph = factory.createGraph();
 
         // Then
-        assertNull(opAuthoriser);
+        assertEquals(0, graph.getGraphHooks().size());
     }
 
     @Test
-    public void shouldReturnNullWhenCreateAddOperationsToChainWithNoSystemPropertyPath() {
+    public void shouldAddGraphHooksWhenSystemPropertySet() throws IOException {
         // Given
-        System.clearProperty(SystemProperty.ADD_OPERATIONS_TO_CHAIN_PATH);
+        final File storePropertiesFile = testFolder.newFile("store.properties");
+        FileUtils.writeLines(storePropertiesFile, IOUtils.readLines(StreamUtil.openStream(getClass(), "store.properties")));
+        System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, storePropertiesFile.getAbsolutePath());
+
+        final File schemaFile = testFolder.newFile("schema.json");
+        FileUtils.writeLines(schemaFile, IOUtils.readLines(StreamUtil.openStream(getClass(), "/schema/schema.json")));
+        System.setProperty(SystemProperty.SCHEMA_PATHS, schemaFile.getAbsolutePath());
+
+        System.setProperty(SystemProperty.GRAPH_ID, "graphId");
+
+        final File graphHooksFile = testFolder.newFile("graphHooks.json");
+        FileUtils.writeLines(graphHooksFile, IOUtils.readLines(StreamUtil.openStream(getClass(), "graphHooks.json")));
+        System.setProperty(SystemProperty.GRAPH_HOOKS_PATH, graphHooksFile.getAbsolutePath());
+
         final GraphFactory factory = new DefaultGraphFactory();
 
         // When
-        final AddOperationsToChain addOperationsToChain = factory.createAddOperationsToChain();
+        final Graph graph = factory.createGraph();
 
         // Then
-        assertNull(addOperationsToChain);
-    }
+        assertEquals(Arrays.asList(
+                OperationChainLimiter.class,
+                AddOperationsToChain.class,
+                OperationAuthoriser.class
+        ), graph.getGraphHooks());
 
-    @Test
-    public void shouldReturnCreateAddOperationsToChainFromSystemPropertyPath() {
-        // Given
-        System.setProperty(SystemProperty.ADD_OPERATIONS_TO_CHAIN_PATH, "addOperationsToChain.json");
-        final GraphFactory factory = new DefaultGraphFactory();
-
-        // When
-        final AddOperationsToChain addOperationsToChain = factory.createAddOperationsToChain();
-
-        // Then
-        assertNotNull(addOperationsToChain);
-        assertEquals(Count.class, addOperationsToChain.getEnd().get(0).getClass());
     }
 
     @Test

@@ -34,17 +34,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 
-public class ToVerticesTest extends OperationTest {
+public class ToVerticesTest extends OperationTest<ToVertices> {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return ToVertices.class;
-    }
-
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException, JsonProcessingException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException, JsonProcessingException {
         // Given
         final ToVertices op = new ToVertices.Builder()
                 .input(new EntitySeed("2"))
@@ -88,5 +82,10 @@ public class ToVerticesTest extends OperationTest {
         assertThat(toVertices.getInput(), is(notNullValue()));
         assertThat(toVertices.getInput(), iterableWithSize(2));
         assertThat(toVertices.getEdgeVertices(), is(EdgeVertices.BOTH));
+    }
+
+    @Override
+    protected ToVertices getTestObject() {
+        return new ToVertices();
     }
 }

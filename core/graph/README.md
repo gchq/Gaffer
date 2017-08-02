@@ -55,3 +55,5 @@ to be run before and after an operation chain is executed.
 You can use hooks to do things like custom logging or special operation
 chain authorisation. To implement your own hook, just implement the `GraphHook`
 interface and register it with the graph when you build a `Graph` instance.
+GraphHooks should be json serialiseable and each hook should have a unit test 
+that extends GraphHookTest.

@@ -225,6 +225,7 @@ public abstract class AbstractStoreIT {
                         .groupBy(TestPropertyNames.INT)
                         .build())
                 .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
+                        .vertex(TestTypes.ID_STRING)
                         .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP_2)
                         .property(TestPropertyNames.INT, TestTypes.PROP_INTEGER_2)
                         .build())

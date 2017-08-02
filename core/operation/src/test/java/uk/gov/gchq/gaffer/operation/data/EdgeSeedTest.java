@@ -20,6 +20,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
@@ -39,7 +40,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class EdgeSeedTest {
+public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
     @Test
     public void shouldBeRelatedToEntityIdWhenSourceEqualsVertex() {
         // Given
@@ -393,6 +394,11 @@ public class EdgeSeedTest {
 
         // Then
         assertThat(edgeSeed1, equalTo(edgeSeed2));
+    }
+
+    @Override
+    protected EdgeSeed getTestObject() {
+        return new EdgeSeed();
     }
 
     private class Vertex {

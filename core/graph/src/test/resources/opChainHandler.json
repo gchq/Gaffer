@@ -1,0 +1,12 @@
+{
+  "opScores": {
+    "uk.gov.gchq.gaffer.operation.Operation": 1,
+    "uk.gov.gchq.gaffer.operation.impl.add.AddElements": 2,
+    "uk.gov.gchq.gaffer.operation.impl.get.GetAllElements": 5,
+    "uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects": 0
+  },
+  "authScores": {
+    "User": 2,
+    "SuperUser": 5
+  }
+}
