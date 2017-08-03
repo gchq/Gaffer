@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.data;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -30,7 +31,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class EntitySeedTest {
+public class EntitySeedTest extends JSONSerialisationTest<EntitySeed>{
     @Test
     public void shouldBeRelatedToEdgeIdWhenSourceEqualsVertex() {
         // Given
@@ -205,5 +206,10 @@ public class EntitySeedTest {
         assertTrue(seedDeserialised.getVertex() instanceof CustomVertex);
         assertEquals("type", ((CustomVertex) seedDeserialised.getVertex()).getType());
         assertEquals("value", ((CustomVertex) seedDeserialised.getVertex()).getValue());
+    }
+
+    @Override
+    protected EntitySeed getTestObject() {
+        return new EntitySeed();
     }
 }

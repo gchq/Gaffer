@@ -264,7 +264,7 @@ In Gaffer's `AccumuloStore` a key-package contains all the logic for:
 
 A key-package is an implementation of the `AccumuloKeyPackage` interface. Gaffer provides two implementations: `ByteEntityKeyPackage` and `ClassicKeyPackage`. These names are essentially meaningless. The "classic" in `ClassicKeyPackage` refers to the fact that it is similar to the implementation in the first version of Gaffer (known as "Gaffer1").
 
-Both key-packages should provide good performance for most use-cases. There will be slight differences in performance between the two for different types of query. The `ByteEntityKeyPackage` will be slightly faster if the query specifies that only out-going or in-coming edges are required. The `ClassicKeyPackage` will be faster when querying for all edges involving a pair of vertices. See the [Key-packages](Implementation-details#Key-packages) part of the [Implementation details](Implementation-details) section of this guide for more information about these key-packages.
+Both key-packages should provide good performance for most use-cases. There will be slight differences in performance between the two for different types of query. The `ByteEntityKeyPackage` will be slightly faster if the query specifies that only out-going or in-coming edges are required. The `ClassicKeyPackage` will be faster when querying for all edges involving a pair of vertices. See the Key-Packages part of the [Implementation details](#implementation-details) section of this guide for more information about these key-packages.
 
 Advanced properties
 -----------------------------------------------
@@ -314,7 +314,7 @@ This section contains brief details on the implementation of the `AccumuloStore`
 
 **Key-packages**
 
-As noted in the [Key-packages](Key-packages) section above, key-packages are responsible for converting `Element`s to and from key-value pairs, for creating ranges of keys containing all data relevant to a particular query, and for configuring the iterators. Gaffer provides two key-packages: `ByteEntityKeyPackage` and `ClassicKeyPackage`. Advanced users are able to create their own key-packages if they wish --- see [Options for future key-packages](Options for future key-packages) for some ideas.
+As noted in the [Key-packages](#key-packages) section above, key-packages are responsible for converting `Element`s to and from key-value pairs, for creating ranges of keys containing all data relevant to a particular query, and for configuring the iterators. Gaffer provides two key-packages: `ByteEntityKeyPackage` and `ClassicKeyPackage`. Advanced users are able to create their own key-packages if they wish --- see [Options for future key-packages](Options for future key-packages) for some ideas.
 
 Before these key-packages are described, we review the main design goals:
 
@@ -344,15 +344,14 @@ The `ClassicKeyPackage` constructs the following Accumulo key-value pair for an 
     <th>Value</th>
 </tr>
 <tr>
-    <td>(serialised_vertex)01</td>
+    <td>(serialised_vertex)</td>
     <td>group</td>
     <td>group by properties</td>
     <td>visibility property</td>
+    <td>timestamp</td>
     <td>all other properties</td>
 </tr>
 </table>
-
-In the row ID the 0 is a delimiter to split the serialised vertex from the 1. The 1 indicates that this is an `Entity`. By having this flag at the end of the row id it is easy to determine if the key relates to an `Entity` or an `Edge`.
 
 The following Accumulo key-value pairs are created for an `Edge`:
 
