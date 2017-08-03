@@ -23,6 +23,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import scala.collection.JavaConversions$;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -47,11 +49,7 @@ public class AggregateGafferRowsFunctionTest {
     @Before
     public void setUp() throws StoreException {
         Logger.getRootLogger().setLevel(Level.WARN);
-        final Schema schema = Schema.fromJson(
-                getClass().getResourceAsStream("/schemaUsingStringVertexType/dataSchema.json"),
-                getClass().getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
-                getClass().getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
-                getClass().getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
+        final Schema schema = Schema.fromJson(StreamUtil.openStreams(AggregateGafferRowsFunctionTest.class, "schemaUsingStringVertexType"));
         final SchemaOptimiser optimiser = new SchemaOptimiser(new SerialisationFactory(ParquetStoreConstants.SERIALISERS));
         utils = new SchemaUtils(optimiser.optimise(schema, true));
     }
@@ -63,7 +61,7 @@ public class AggregateGafferRowsFunctionTest {
 
     @Test
     public void mergeEntityRowsTest() throws OperationException, IOException {
-        final String group = "BasicEntity";
+        final String group = TestGroups.ENTITY;
         final SchemaElementDefinition elementSchema = utils.getGafferSchema().getElement(group);
         final GafferGroupObjectConverter converter = utils.getConverter(group);
         final String[] gafferProperties = new String[elementSchema.getProperties().size()];
@@ -94,7 +92,7 @@ public class AggregateGafferRowsFunctionTest {
 
     @Test
     public void mergeEdgeRowsTest() throws OperationException, SerialisationException {
-        final String group = "BasicEdge";
+        final String group = TestGroups.EDGE;
         final SchemaElementDefinition elementSchema = utils.getGafferSchema().getElement(group);
         final byte[] aggregatorJson = JSON_SERIALISER.serialise(elementSchema.getIngestAggregator());
         final GafferGroupObjectConverter converter = utils.getConverter(group);

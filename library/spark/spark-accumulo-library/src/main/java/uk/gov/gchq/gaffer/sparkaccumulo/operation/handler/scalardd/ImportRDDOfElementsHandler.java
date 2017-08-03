@@ -52,7 +52,7 @@ public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfE
         if (null == failurePath || failurePath.isEmpty()) {
             throw new OperationException("Option failurePath must be set for this option to be run against the accumulostore");
         }
-        final ElementConverterFunction func = new ElementConverterFunction(operation.getSparkContext().broadcast(store.getKeyPackage().getKeyConverter(), ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG));
+        final ElementConverterFunction func = new ElementConverterFunction(operation.getSparkSession().sparkContext().broadcast(store.getKeyPackage().getKeyConverter(), ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG));
         final RDD<Tuple2<Key, Value>> rdd = operation.getInput().flatMap(func, TUPLE2_CLASS_TAG);
         final ImportKeyValuePairRDDToAccumulo op =
                 new ImportKeyValuePairRDDToAccumulo.Builder()

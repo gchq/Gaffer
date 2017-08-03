@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.spark.operation.javardd;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.sql.SparkSession;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
@@ -50,8 +51,8 @@ public class GetJavaRDDOfElements implements
     public GetJavaRDDOfElements() {
     }
 
-    public GetJavaRDDOfElements(final JavaSparkContext sparkContext) {
-        setJavaSparkContext(sparkContext);
+    public GetJavaRDDOfElements(final SparkSession sparkSession) {
+        setJavaSparkContext(JavaSparkContext.fromSparkContext(sparkSession.sparkContext()));
     }
 
     @Override

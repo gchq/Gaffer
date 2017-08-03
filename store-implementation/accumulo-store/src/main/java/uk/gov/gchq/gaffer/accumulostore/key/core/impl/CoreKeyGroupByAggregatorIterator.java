@@ -25,7 +25,7 @@ import java.util.Set;
 public class CoreKeyGroupByAggregatorIterator extends CoreKeyGroupByCombiner {
 
     @Override
-    public Properties reduce(final String group, final Key key, final Iterator<Properties> iter, final Set<String> groupBy) {
+    public Properties reduce(final String group, final Key key, final Iterator<Properties> iter, final Set<String> groupBy, final ElementAggregator viewAggregator) {
         if (!iter.hasNext()) {
             return new Properties();
         }
@@ -35,7 +35,7 @@ public class CoreKeyGroupByAggregatorIterator extends CoreKeyGroupByCombiner {
             return properties;
         }
 
-        final ElementAggregator aggregator = schema.getElement(group).getQueryAggregator(groupBy);
+        final ElementAggregator aggregator = schema.getElement(group).getQueryAggregator(groupBy, viewAggregator);
         Properties aggregatedProps = properties;
         while (iter.hasNext()) {
             aggregatedProps = aggregator.apply(aggregatedProps, iter.next());
