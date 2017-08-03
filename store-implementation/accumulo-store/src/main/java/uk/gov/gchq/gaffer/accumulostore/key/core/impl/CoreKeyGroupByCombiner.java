@@ -35,8 +35,10 @@ import uk.gov.gchq.gaffer.accumulostore.utils.BytesAndRange;
 import uk.gov.gchq.gaffer.accumulostore.utils.IteratorOptionsBuilder;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.element.Properties;
+import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -265,14 +267,15 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
                 throw new RuntimeException(e);
             }
 
-            Set<String> groupBy = view.getElementGroupBy(group);
+            final ViewElementDefinition elementDef = view.getElement(group);
+            Set<String> groupBy = elementDef.getGroupBy();
             if (null == groupBy) {
                 groupBy = schema.getElement(group).getGroupBy();
             }
 
             final Iterator<Properties> iter = new KeyValueIterator(
                     getSource(), group, elementConverter, schema, groupBy);
-            final Properties aggregatedProperties = reduce(group, workKey, iter, groupBy);
+            final Properties aggregatedProperties = reduce(group, workKey, iter, groupBy, elementDef.getAggregator());
 
             try {
                 final Properties properties = elementConverter.getPropertiesFromColumnQualifier(group, workKey.getColumnQualifierData().getBackingArray());
@@ -320,13 +323,14 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
     /**
      * Reduces an iterator of {@link Properties} into a single Properties object.
      *
-     * @param group   the schema group taken from the key
-     * @param key     The most recent version of the Key being reduced.
-     * @param iter    An iterator over all {@link Properties} for different versions of the key.
-     * @param groupBy the groupBy properties
+     * @param group          the schema group taken from the key
+     * @param key            The most recent version of the Key being reduced.
+     * @param iter           An iterator over all {@link Properties} for different versions of the key.
+     * @param groupBy        the groupBy properties
+     * @param viewAggregator an optional view aggregator
      * @return The combined {@link Properties}.
      */
-    public abstract Properties reduce(final String group, final Key key, final Iterator<Properties> iter, final Set<String> groupBy);
+    public abstract Properties reduce(final String group, final Key key, final Iterator<Properties> iter, final Set<String> groupBy, final ElementAggregator viewAggregator);
 
     @Override
     public SortedKeyValueIterator<Key, Value> deepCopy(final IteratorEnvironment env) {
