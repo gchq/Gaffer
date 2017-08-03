@@ -144,6 +144,7 @@ public class DefaultGraphFactory implements GraphFactory {
                 throw new RuntimeException("Error creating GraphLibrary class: + " + e);
             }
             library.initialise(System.getProperty(SystemProperty.GRAPH_LIBRARY_CONFIG));
+            builder.library(library);
         }
 
         for (final Path path : getSchemaPaths()) {

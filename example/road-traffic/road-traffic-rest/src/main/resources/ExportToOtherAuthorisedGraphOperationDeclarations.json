@@ -5,17 +5,11 @@
       "handler": {
         "class": "uk.gov.gchq.gaffer.operation.export.graph.handler.ExportToOtherAuthorisedGraphHandler",
         "idAuths": {
-          "graphId1": [
-            "auth1",
-            "auth2"
+          "roadTraffic": [
+            "auth1"
           ],
-          "schemaId1": [
-            "auth1",
-            "auth2"
-          ],
-          "storePropertiesId1": [
-            "auth1",
-            "auth2"
+          "roadTraffic1": [
+            "auth1"
           ]
         }
       }
