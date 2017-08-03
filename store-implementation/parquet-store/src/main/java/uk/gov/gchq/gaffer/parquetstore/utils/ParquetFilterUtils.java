@@ -211,15 +211,15 @@ public final class ParquetFilterUtils {
     }
 
     /**
-     * Returns a {@link Tuple2} in which the first entry is a sorted {@link Set} of the seeds converted to the form in
-     * which they appear in the Parquet files, and the second entry is a {@link Map} from the seeds to a {@link Tuple2}
+     * Returns a {@link Pair} in which the first entry is a sorted {@link Set} of the seeds converted to the form in
+     * which they appear in the Parquet files, and the second entry is a {@link Map} from the seeds to a {@link Pair}
      * which is <code>null</code> if the seed is an {@link EntitySeed} and consists of the destination vertex and
      * directed type if the seed is an {@link EdgeSeed}.
      *
      * @param identifier the column that the seed relates to
      * @param group the group that is currently being queried
-     * @return a {@link Tuple2} in which the first entry is a sorted {@link Set} of the seeds converted to the form in
-     * which they appear in the Parquet files, and the second entry is a {@link Map} from the seeds to a {@link Tuple2}
+     * @return a {@link Pair} in which the first entry is a sorted {@link Set} of the seeds converted to the form in
+     * which they appear in the Parquet files, and the second entry is a {@link Map} from the seeds to a {@link Pair}
      * which is <code>null</code> if the seed is an {@link EntitySeed} and consists of the destination vertex and
      * directed type if the seed is an {@link EdgeSeed}.
      * @throws SerialisationException if the conversion from the seed to corresponding Parquet objects fails
@@ -378,44 +378,38 @@ public final class ParquetFilterUtils {
                 MinMaxPath indexEntry = indexIter.next();
                 while (sortedSeedsIter.hasNext()) {
                     currentSeed = sortedSeedsIter.next();
-                    if (currentSeed.length > 1) {
-                        final Set<Path> paths = new HashSet<>();
-                        paths.add(new Path(ParquetStore.getGroupDirectory(group, indexedColumn, dataDir)));
-                        seedsToPaths.put(currentSeed, paths);
-                    } else {
-                        boolean nextSeed = false;
-                        while (!nextSeed && indexEntry != null) {
-                            final Object min = indexEntry.getMin();
-                            final Object max = indexEntry.getMax();
-                            final String file = indexEntry.getPath();
-                            LOGGER.debug("Current file: {}", file);
-                            // If min <= seed && max >= seed
-                            final int min2seed = COMPARATOR.compare(min, currentSeed);
-                            LOGGER.debug("min2seed comparator: {}", min2seed);
-                            final int max2seed = COMPARATOR.compare(max, currentSeed);
-                            LOGGER.debug("max2seed comparator: {}", max2seed);
-                            if (min2seed < 1 && max2seed >= 0) {
-                                final Path fullFilePath = new Path(ParquetStore.getGroupDirectory(group, indexedColumn, dataDir) + "/" + file);
-                                final Set<Path> paths = seedsToPaths.getOrDefault(currentSeed, new HashSet<>());
-                                paths.add(fullFilePath);
-                                seedsToPaths.put(currentSeed, paths);
-                                if (max2seed == 0) {
-                                    if (indexIter.hasNext()) {
-                                        indexEntry = indexIter.next();
-                                    } else {
-                                        indexEntry = null;
-                                    }
-                                } else {
-                                    nextSeed = true;
-                                }
-                            } else if (min2seed > 0) {
-                                nextSeed = true;
-                            } else {
+                    boolean nextSeed = false;
+                    while (!nextSeed && indexEntry != null) {
+                        final Object min = indexEntry.getMin();
+                        final Object max = indexEntry.getMax();
+                        final String file = indexEntry.getPath();
+                        LOGGER.debug("Current file: {}", file);
+                        // If min <= seed && max >= seed
+                        final int min2seed = COMPARATOR.compare(min, currentSeed);
+                        LOGGER.debug("min2seed comparator: {}", min2seed);
+                        final int max2seed = COMPARATOR.compare(max, currentSeed);
+                        LOGGER.debug("max2seed comparator: {}", max2seed);
+                        if (min2seed < 1 && max2seed >= 0) {
+                            final Path fullFilePath = new Path(ParquetStore.getGroupDirectory(group, indexedColumn, dataDir) + "/" + file);
+                            final Set<Path> paths = seedsToPaths.getOrDefault(currentSeed, new HashSet<>());
+                            paths.add(fullFilePath);
+                            seedsToPaths.put(currentSeed, paths);
+                            if (max2seed == 0) {
                                 if (indexIter.hasNext()) {
                                     indexEntry = indexIter.next();
                                 } else {
                                     indexEntry = null;
                                 }
+                            } else {
+                                nextSeed = true;
+                            }
+                        } else if (min2seed > 0) {
+                            nextSeed = true;
+                        } else {
+                            if (indexIter.hasNext()) {
+                                indexEntry = indexIter.next();
+                            } else {
+                                indexEntry = null;
                             }
                         }
                     }

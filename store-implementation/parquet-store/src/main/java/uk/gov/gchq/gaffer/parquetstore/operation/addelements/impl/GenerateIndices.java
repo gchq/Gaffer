@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -47,7 +48,7 @@ public class GenerateIndices {
     private static final Logger LOGGER = LoggerFactory.getLogger(GenerateIndices.class);
     private final GraphIndex graphIndex;
 
-    public GenerateIndices(final ParquetStore store) throws OperationException, SerialisationException, StoreException {
+    public GenerateIndices(final ParquetStore store, final SparkSession spark) throws OperationException, SerialisationException, StoreException {
         graphIndex = new GraphIndex();
         final ParquetStoreProperties parquetStoreProperties = store.getProperties();
         final ExecutorService pool = Executors.newFixedThreadPool(parquetStoreProperties.getThreadsAvailable());
@@ -57,7 +58,7 @@ public class GenerateIndices {
         final List<Callable<Tuple4<String, String, ColumnIndex, OperationException>>> tasks = new ArrayList<>();
         for (final String group : schemaUtils.getEntityGroups()) {
             final String directory = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.VERTEX, rootDir);
-            tasks.add(new GenerateIndexForColumnGroup(directory, schemaUtils.getPaths(group, ParquetStoreConstants.VERTEX), group, ParquetStoreConstants.VERTEX));
+            tasks.add(new GenerateIndexForColumnGroup(directory, schemaUtils.getPaths(group, ParquetStoreConstants.VERTEX), group, ParquetStoreConstants.VERTEX, spark));
             LOGGER.debug("Created a task to create the graphIndex for group {} from directory {} and paths {}",
                     group, directory, schemaUtils.getPaths(group, ParquetStoreConstants.VERTEX));
         }
@@ -66,11 +67,11 @@ public class GenerateIndices {
             final String directorySource = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.SOURCE, rootDir);
             LOGGER.debug("Creating a task to create the graphIndex for group {} from directory {} and paths {}",
                     group, directorySource, StringUtils.join(columnToPaths.get(ParquetStoreConstants.SOURCE)));
-            tasks.add(new GenerateIndexForColumnGroup(directorySource, columnToPaths.get(ParquetStoreConstants.SOURCE), group, ParquetStoreConstants.SOURCE));
+            tasks.add(new GenerateIndexForColumnGroup(directorySource, columnToPaths.get(ParquetStoreConstants.SOURCE), group, ParquetStoreConstants.SOURCE, spark));
             final String directoryDestination = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.DESTINATION, rootDir);
             LOGGER.debug("Creating a task to create the graphIndex for group {} from directory {} and paths {}",
                     group, directorySource, StringUtils.join(columnToPaths.get(ParquetStoreConstants.DESTINATION)));
-            tasks.add(new GenerateIndexForColumnGroup(directoryDestination, columnToPaths.get(ParquetStoreConstants.DESTINATION), group, ParquetStoreConstants.DESTINATION));
+            tasks.add(new GenerateIndexForColumnGroup(directoryDestination, columnToPaths.get(ParquetStoreConstants.DESTINATION), group, ParquetStoreConstants.DESTINATION, spark));
         }
 
         try {

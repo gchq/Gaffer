@@ -79,7 +79,7 @@ public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfE
                 LOGGER.debug("Finished writing the sorted and aggregated Parquet data to {}", tempDataDirString);
                 // Generate the file based index
                 LOGGER.debug("Starting to write the indexes");
-                final GraphIndex newGraphIndex = new GenerateIndices(store).getGraphIndex();
+                final GraphIndex newGraphIndex = new GenerateIndices(store, spark).getGraphIndex();
                 LOGGER.debug("Finished writing the indexes");
                 try {
                     moveDataToDataDir(store, fs, rootDataDirString, tempDataDirString, newGraphIndex);
