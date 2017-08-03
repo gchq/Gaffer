@@ -98,16 +98,16 @@ public class LazyElementCell {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (null == o || !getClass().equals(o.getClass())) {
+        if (null == obj || !getClass().equals(obj.getClass())) {
             return false;
         }
 
-        final LazyElementCell otherCell = (LazyElementCell) o;
+        final LazyElementCell otherCell = (LazyElementCell) obj;
         return new EqualsBuilder()
                 .append(group, otherCell.group)
                 .append(cell, otherCell.cell)

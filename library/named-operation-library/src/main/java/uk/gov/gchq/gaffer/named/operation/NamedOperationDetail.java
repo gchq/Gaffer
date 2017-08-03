@@ -185,16 +185,16 @@ public class NamedOperationDetail implements Serializable {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
 
-        final NamedOperationDetail op = (NamedOperationDetail) o;
+        final NamedOperationDetail op = (NamedOperationDetail) obj;
 
         return new EqualsBuilder()
                 .append(operationName, op.operationName)

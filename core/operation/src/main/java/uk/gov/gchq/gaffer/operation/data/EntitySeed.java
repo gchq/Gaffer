@@ -47,22 +47,25 @@ public class EntitySeed extends ElementSeed implements EntityId {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
 
-        final EntitySeed that = (EntitySeed) o;
+        final EntitySeed that = (EntitySeed) obj;
 
         return new EqualsBuilder()
                 .append(vertex, that.vertex)
                 .isEquals();
     }
 
-    // Important not to alter hashcode implementation for.. some reason
+    /*
+    Important not to alter hashcode implementation - adopting the ACL3 style
+    does not work for a large selection of prime numbers as arguments.
+    */
     @Override
     public int hashCode() {
         return Objects.hashCode(vertex);

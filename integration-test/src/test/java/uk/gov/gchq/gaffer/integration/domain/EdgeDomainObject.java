@@ -93,11 +93,11 @@ public class EdgeDomainObject extends DomainObject {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    public boolean equals(final Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
 
-        final EdgeDomainObject that = (EdgeDomainObject) o;
+        final EdgeDomainObject that = (EdgeDomainObject) obj;
 
         if (!source.equals(that.source)) return false;
         if (!destination.equals(that.destination)) return false;

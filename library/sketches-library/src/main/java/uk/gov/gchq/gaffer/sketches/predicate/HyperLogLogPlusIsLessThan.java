@@ -79,16 +79,16 @@ public class HyperLogLogPlusIsLessThan extends KoryphePredicate<HyperLogLogPlus>
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
 
-        final HyperLogLogPlusIsLessThan that = (HyperLogLogPlusIsLessThan) o;
+        final HyperLogLogPlusIsLessThan that = (HyperLogLogPlusIsLessThan) obj;
 
         return new EqualsBuilder()
                 .append(controlValue, that.controlValue)

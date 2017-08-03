@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.data.element;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import java.util.Collection;
 import java.util.HashSet;
@@ -155,21 +156,19 @@ public class LazyProperties extends Properties {
 
     @Override
     public boolean equals(final Object obj) {
-        return properties.equals(obj);
+        if (this == obj) {
+            return true;
+        }
 
-//        if (this == obj) {
-//            return true;
-//        }
-//
-//        if (obj == null || getClass() != obj.getClass()) {
-//            return false;
-//        }
-//
-//        final LazyProperties lazy = (LazyProperties) obj;
-//
-//        return new EqualsBuilder()
-//                .append(properties, lazy.properties)
-//                .isEquals();
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final LazyProperties lazy = (LazyProperties) obj;
+
+        return new EqualsBuilder()
+                .append(properties, lazy.properties)
+                .isEquals();
     }
 
     @Override

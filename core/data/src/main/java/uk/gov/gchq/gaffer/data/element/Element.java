@@ -125,13 +125,6 @@ public abstract class Element implements ElementId {
                 .isEquals();
     }
 
-    public boolean equals(final Element element) {
-        return null != element
-                && new EqualsBuilder()
-                .append(group, element.getGroup())
-                .isEquals() && getProperties().equals(element.getProperties());
-    }
-
     @Override
     public String toString() {
         return new ToStringBuilder(this)

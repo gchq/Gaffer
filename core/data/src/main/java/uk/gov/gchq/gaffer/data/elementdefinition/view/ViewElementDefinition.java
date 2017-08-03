@@ -196,16 +196,16 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
 
-        final ViewElementDefinition that = (ViewElementDefinition) o;
+        final ViewElementDefinition that = (ViewElementDefinition) obj;
 
         return new EqualsBuilder()
                 .append(transformer, that.transformer)

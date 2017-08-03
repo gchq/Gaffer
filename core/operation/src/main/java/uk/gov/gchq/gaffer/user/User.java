@@ -62,15 +62,15 @@ public class User {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
 
-        final User user = (User) o;
+        final User user = (User) obj;
 
         return new EqualsBuilder()
                 .append(userId, user.userId)
