@@ -22,8 +22,10 @@ import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.store.StoreException;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * This class is used to store a file-based index for a single group, i.e. for each group it stores a set of
@@ -40,6 +42,10 @@ public class GroupIndex {
 
     public ColumnIndex getColumn(final String column) {
         return columnToIndex.get(column);
+    }
+
+    public Set<String> columnsIndexed() {
+        return Collections.unmodifiableSet(columnToIndex.keySet());
     }
 
     public void add(final String column, final ColumnIndex columnIndex) {
