@@ -17,9 +17,9 @@
 package uk.gov.gchq.gaffer.operation.data;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import java.util.Objects;
 
 /**
  * An <code>EntitySeed</code> contains a single vertex for an {@link uk.gov.gchq.gaffer.data.element.Entity}.
@@ -62,11 +62,10 @@ public class EntitySeed extends ElementSeed implements EntityId {
                 .isEquals();
     }
 
+    // Important not to alter hashcode implementation for.. some reason
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(23, 59)
-                .append(vertex)
-                .toHashCode();
+        return Objects.hashCode(vertex);
     }
 
     @Override
