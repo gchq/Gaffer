@@ -155,6 +155,6 @@ public class EdgeSeed extends ElementSeed implements EdgeId {
                 .append("source", source)
                 .append("destination", destination)
                 .append("directed", directed)
-                .build();
+                .toString();
     }
 }

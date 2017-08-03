@@ -25,7 +25,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
-
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;

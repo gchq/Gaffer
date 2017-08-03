@@ -60,8 +60,8 @@ public class AccumuloKeyRangePartitioner extends Partitioner {
     }
 
     @Override
-    public int getPartition(final Object o) {
-        return findPartition(((Key) o).getRow(), getNumSubBins());
+    public int getPartition(final Object obj) {
+        return findPartition(((Key) obj).getRow(), getNumSubBins());
     }
 
     private int findPartition(final Text key, final int numSubBins) {

@@ -43,7 +43,6 @@ import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.impl.predicate.Not;
 import uk.gov.gchq.koryphe.impl.predicate.Or;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

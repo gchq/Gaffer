@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.parquetstore.index;
 
 import org.apache.hadoop.fs.FileSystem;
 import uk.gov.gchq.gaffer.store.StoreException;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
