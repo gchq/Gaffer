@@ -175,7 +175,7 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(31, 5)
                 .append(edges)
                 .append(entities)
                 .toHashCode();

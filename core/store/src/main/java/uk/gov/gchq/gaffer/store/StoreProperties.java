@@ -26,7 +26,6 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -324,16 +323,9 @@ public class StoreProperties implements Cloneable {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(5, 7)
                 .append(props)
                 .toHashCode();
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append(props)
-                .toString();
     }
 
     public static StoreProperties loadStoreProperties(final Properties props) {

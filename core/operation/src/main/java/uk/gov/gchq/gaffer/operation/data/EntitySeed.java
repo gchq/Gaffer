@@ -64,7 +64,7 @@ public class EntitySeed extends ElementSeed implements EntityId {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(23, 59)
                 .append(vertex)
                 .toHashCode();
     }

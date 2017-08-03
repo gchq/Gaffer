@@ -142,7 +142,7 @@ public class EdgeSeed extends ElementSeed implements EdgeId {
      */
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(21, 3)
+        return new HashCodeBuilder(21, 73)
                 .append(source)
                 .append(destination)
                 .append(directed)

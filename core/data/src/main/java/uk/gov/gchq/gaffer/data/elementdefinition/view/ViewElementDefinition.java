@@ -219,7 +219,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(7, 23)
                 .append(transformer)
                 .append(preAggregationFilter)
                 .append(postAggregationFilter)

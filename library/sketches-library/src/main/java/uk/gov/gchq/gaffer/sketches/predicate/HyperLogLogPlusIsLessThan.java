@@ -98,7 +98,7 @@ public class HyperLogLogPlusIsLessThan extends KoryphePredicate<HyperLogLogPlus>
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(79, 23)
                 .append(controlValue)
                 .append(orEqualTo)
                 .toHashCode();

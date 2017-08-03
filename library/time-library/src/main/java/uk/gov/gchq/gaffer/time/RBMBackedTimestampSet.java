@@ -176,7 +176,7 @@ public class RBMBackedTimestampSet implements TimestampSet {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(21, 3)
+        return new HashCodeBuilder(21, 83)
                 .append(timeBucket)
                 .append(rbm)
                 .toHashCode();

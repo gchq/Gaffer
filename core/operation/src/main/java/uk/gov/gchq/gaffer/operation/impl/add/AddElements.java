@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.operation.impl.add;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
@@ -114,7 +114,7 @@ public class AddElements implements
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(67, 23)
                 .append(options)
                 .append(validate)
                 .append(skipInvalidElements)

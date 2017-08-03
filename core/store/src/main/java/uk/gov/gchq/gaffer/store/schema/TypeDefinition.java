@@ -210,7 +210,7 @@ public class TypeDefinition {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(17, 83)
                 .append(clazz)
                 .append(validateFunctions)
                 .append(serialiser)

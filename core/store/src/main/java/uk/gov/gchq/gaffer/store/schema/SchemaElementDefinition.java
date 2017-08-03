@@ -486,7 +486,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(73, 41)
                 .append(elementDefValidator)
                 .append(properties)
                 .append(identifiers)

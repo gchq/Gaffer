@@ -81,7 +81,7 @@ public class User {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(71, 31)
                 .append(userId)
                 .append(dataAuths)
                 .append(opAuths)

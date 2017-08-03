@@ -208,7 +208,7 @@ public class NamedOperationDetail implements Serializable {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(71, 3)
                 .append(operationName)
                 .append(creatorId)
                 .append(operations)

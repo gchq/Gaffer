@@ -98,7 +98,7 @@ public class ParameterDetail implements Serializable {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(71, 5)
                 .append(defaultValue)
                 .append(required)
                 .append(description)

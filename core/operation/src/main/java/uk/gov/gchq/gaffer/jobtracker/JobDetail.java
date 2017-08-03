@@ -137,7 +137,7 @@ public class JobDetail implements Serializable {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(23, 5)
+        return new HashCodeBuilder(23, 53)
                 .append(jobId)
                 .append(userId)
                 .append(opChain)

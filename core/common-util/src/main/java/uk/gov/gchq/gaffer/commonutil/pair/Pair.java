@@ -82,7 +82,7 @@ public class Pair<F, S> {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(17, 29)
                 .append(first)
                 .append(second)
                 .toHashCode();

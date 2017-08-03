@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.data.element.function;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.ElementTuple;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
@@ -54,7 +54,7 @@ public class ElementTransformer extends TupleAdaptedFunctionComposite<String> {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(47, 17)
                 .appendSuper(super.hashCode())
                 .append(elementTuple)
                 .toHashCode();

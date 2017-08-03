@@ -69,7 +69,7 @@ public class ElementFilter extends TupleAdaptedPredicateComposite<String> {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(19, 53)
                 .appendSuper(super.hashCode())
                 .append(elementTuple)
                 .toHashCode();
@@ -81,6 +81,7 @@ public class ElementFilter extends TupleAdaptedPredicateComposite<String> {
                 .append("elementTuple", elementTuple)
                 .toString();
     }
+
     public static class Builder {
         private final ElementFilter filter;
 

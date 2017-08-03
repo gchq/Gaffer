@@ -66,7 +66,7 @@ public class TypeSubTypeValue implements Comparable<TypeSubTypeValue> {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(13, 89)
                 .append(type)
                 .append(subType)
                 .append(value)

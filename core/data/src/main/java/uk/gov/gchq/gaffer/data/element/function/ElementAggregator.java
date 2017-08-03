@@ -94,7 +94,7 @@ public class ElementAggregator extends TupleAdaptedBinaryOperatorComposite<Strin
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(59, 13)
                 .appendSuper(super.hashCode())
                 .append(stateTuple)
                 .append(propertiesTuple)

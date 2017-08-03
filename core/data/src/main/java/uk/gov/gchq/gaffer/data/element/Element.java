@@ -89,7 +89,7 @@ public abstract class Element implements ElementId {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(13, 17)
+        return new HashCodeBuilder(53, 17)
                 .append(group)
                 .append(properties)
                 .toHashCode();

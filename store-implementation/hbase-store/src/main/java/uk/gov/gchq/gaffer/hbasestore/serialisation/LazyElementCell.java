@@ -17,9 +17,9 @@ package uk.gov.gchq.gaffer.hbasestore.serialisation;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
@@ -117,7 +117,7 @@ public class LazyElementCell {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(17, 67)
                 .append(group)
                 .append(cell)
                 .append(element)

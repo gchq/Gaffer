@@ -153,7 +153,7 @@ public class LimitedSortedSet<E> implements SortedSet<E> {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(17, 41)
                 .append(limit)
                 .append(backingSet)
                 .toHashCode();

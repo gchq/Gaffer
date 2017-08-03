@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.flink.operation.handler;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import javax.annotation.Nonnull;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -86,7 +86,7 @@ public class GafferQueue<T> implements Iterable<T> {
      */
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(13, 37)
+        return new HashCodeBuilder(13, 47)
                 .append(queue.toArray())
                 .append(iteratorAvailable)
                 .toHashCode();

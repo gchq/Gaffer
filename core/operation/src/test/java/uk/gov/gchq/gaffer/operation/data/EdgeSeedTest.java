@@ -431,18 +431,14 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
 
         @Override
         public int hashCode() {
-            return new HashCodeBuilder(17, 37)
+            return new HashCodeBuilder(53, 41)
                     .append(property)
                     .toHashCode();
         }
 
         @Override
         public String toString() {
-            return new ToStringBuilder(this)
-                    .append("Vertex[property=")
-                    .append("property", property)
-                    .append("]")
-                    .toString();
+            return "Vertex[property=" + property + "]";
         }
     }
 
