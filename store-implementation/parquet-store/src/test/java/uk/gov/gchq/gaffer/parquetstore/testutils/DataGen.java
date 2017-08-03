@@ -23,6 +23,7 @@ import scala.collection.JavaConversions;
 import scala.collection.Seq;
 import scala.collection.mutable.WrappedArray$;
 import scala.reflect.ClassTag$;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -43,10 +44,6 @@ import java.util.TreeSet;
 
 
 public class DataGen {
-    private static final String EntityGroup1 = "BasicEntity";
-    private static final String EntityGroup2 = "BasicEntity2";
-    private static final String EdgeGroup1 = "BasicEdge";
-    private static final String EdgeGroup2 = "BasicEdge2";
 
     public static Entity getEntity(final String group, final Object vertex, final Byte aByte, final Double aDouble,
                                    final Float aFloat, final TreeSet<String> treeSet, final Long aLong,
@@ -235,28 +232,28 @@ public class DataGen {
 
     public static List<Element> generate300StringElementsWithNullProperties() {
         final List<Element> elements = new ArrayList<>(300);
-        elements.addAll(generateBasicStringEntitysWithNullProperties(EntityGroup1, 50));
-        elements.addAll(generateBasicStringEdgesWithNullProperties(EdgeGroup1, 100));
-        elements.addAll(generateBasicStringEntitysWithNullProperties(EntityGroup2, 50));
-        elements.addAll(generateBasicStringEdgesWithNullProperties(EdgeGroup2, 100));
+        elements.addAll(generateBasicStringEntitysWithNullProperties(TestGroups.ENTITY, 50));
+        elements.addAll(generateBasicStringEdgesWithNullProperties(TestGroups.EDGE, 100));
+        elements.addAll(generateBasicStringEntitysWithNullProperties(TestGroups.ENTITY_2, 50));
+        elements.addAll(generateBasicStringEdgesWithNullProperties(TestGroups.EDGE_2, 100));
         return elements;
     }
 
     public static List<Element> generate300LongElements() {
         final ArrayList<Element> elements = new ArrayList<>(300);
-        elements.addAll(generateBasicLongEntitys(EntityGroup1, 50));
-        elements.addAll(generateBasicLongEdges(EdgeGroup1, 100));
-        elements.addAll(generateBasicLongEntitys(EntityGroup2, 50));
-        elements.addAll(generateBasicLongEdges(EdgeGroup2, 100));
+        elements.addAll(generateBasicLongEntitys(TestGroups.ENTITY, 50));
+        elements.addAll(generateBasicLongEdges(TestGroups.EDGE, 100));
+        elements.addAll(generateBasicLongEntitys(TestGroups.ENTITY_2, 50));
+        elements.addAll(generateBasicLongEdges(TestGroups.EDGE_2, 100));
         return elements;
     }
 
     public static List<Element> generate300TypeValueElements() {
         final ArrayList<Element> elements = new ArrayList<>(300);
-        elements.addAll(generateBasicTypeValueEntitys(EntityGroup1, 50));
-        elements.addAll(generateBasicTypeValueEdges(EdgeGroup1, 100));
-        elements.addAll(generateBasicTypeValueEntitys(EntityGroup2, 50));
-        elements.addAll(generateBasicTypeValueEdges(EdgeGroup2, 100));
+        elements.addAll(generateBasicTypeValueEntitys(TestGroups.ENTITY, 50));
+        elements.addAll(generateBasicTypeValueEdges(TestGroups.EDGE, 100));
+        elements.addAll(generateBasicTypeValueEntitys(TestGroups.ENTITY_2, 50));
+        elements.addAll(generateBasicTypeValueEdges(TestGroups.EDGE_2, 100));
         return elements;
     }
 

@@ -15,19 +15,19 @@
  */
 package uk.gov.gchq.gaffer.spark.operation.scalardd;
 
-import org.apache.spark.SparkContext;
+import org.apache.spark.sql.SparkSession;
 import uk.gov.gchq.gaffer.operation.Operation;
 
 public interface Rdd {
-    SparkContext getSparkContext();
+    SparkSession getSparkSession();
 
-    void setSparkContext(final SparkContext sparkContext);
+    void setSparkSession(final SparkSession sparkSession);
 
     interface Builder<OP extends Rdd,
             B extends Builder<OP, ?>>
             extends Operation.Builder<OP, B> {
-        default B sparkContext(final SparkContext sparkContext) {
-            _getOp().setSparkContext(sparkContext);
+        default B sparkSession(final SparkSession sparkSession) {
+            _getOp().setSparkSession(sparkSession);
             return _self();
         }
     }

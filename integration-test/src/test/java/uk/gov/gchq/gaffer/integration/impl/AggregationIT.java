@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
@@ -37,6 +38,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.koryphe.impl.binaryoperator.Product;
 import uk.gov.gchq.koryphe.impl.predicate.IsIn;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
@@ -221,10 +223,14 @@ public class AggregationIT extends AbstractStoreIT {
         final GetAllElements op = new GetAllElements.Builder()
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
-                                .groupBy()
                                 .preAggregationFilter(new ElementFilter.Builder()
                                         .select(TestPropertyNames.INT)
-                                        .execute(new IsIn(Arrays.asList((Object) 100, 101)))
+                                        .execute(new IsIn(Arrays.asList(100, 101)))
+                                        .build())
+                                .groupBy()
+                                .aggregator(new ElementAggregator.Builder()
+                                        .select(TestPropertyNames.INT)
+                                        .execute(new Product())
                                         .build())
                                 .build())
                         .build())
@@ -237,7 +243,7 @@ public class AggregationIT extends AbstractStoreIT {
         final List<Element> resultList = Lists.newArrayList(results);
 
         assertEquals(1, resultList.size());
-        // aggregation is 'Max'
-        assertEquals(101, resultList.get(0).getProperty(TestPropertyNames.INT));
+        // aggregation is has been replaced with Product
+        assertEquals(10100, resultList.get(0).getProperty(TestPropertyNames.INT));
     }
 }
