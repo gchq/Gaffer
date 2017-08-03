@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.function.ExampleAggregateFunction;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.function.ExampleTuple2BinaryOperator;
+import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 import uk.gov.gchq.koryphe.impl.predicate.IsA;
 import uk.gov.gchq.koryphe.impl.predicate.IsXMoreThanY;
@@ -470,7 +471,7 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         setupSchema(elementDef);
 
         // When
-        final ElementAggregator aggregator = elementDef.getQueryAggregator(Sets.newHashSet("property1"));
+        final ElementAggregator aggregator = elementDef.getQueryAggregator(Sets.newHashSet("property1"), null);
 
         // Then
         assertEquals(4, aggregator.getComponents().size());
@@ -494,9 +495,9 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
             assertNotNull(e);
         }
         // check the aggregator is cached
-        assertSame(aggregator, elementDef.getQueryAggregator(Sets.newHashSet("property1")));
+        assertSame(aggregator, elementDef.getQueryAggregator(Sets.newHashSet("property1"), null));
         // check a different aggregator is returned for different groupBys
-        assertNotSame(aggregator, elementDef.getQueryAggregator(Sets.newHashSet()));
+        assertNotSame(aggregator, elementDef.getQueryAggregator(Sets.newHashSet(), null));
     }
 
     @Test
@@ -522,7 +523,7 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         setupSchema(elementDef);
 
         // When
-        final ElementAggregator aggregator = elementDef.getQueryAggregator(Sets.newHashSet());
+        final ElementAggregator aggregator = elementDef.getQueryAggregator(Sets.newHashSet(), null);
 
         // Then
         assertEquals(5, aggregator.getComponents().size());
@@ -552,7 +553,143 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
             assertNotNull(e);
         }
         // check the aggregator is cached
-        assertSame(aggregator, elementDef.getQueryAggregator(Sets.newHashSet()));
+        assertSame(aggregator, elementDef.getQueryAggregator(Sets.newHashSet(), null));
+    }
+
+    @Test
+    public void shouldReturnQueryAggregatorWithViewAggregator() {
+        // Given
+        final T elementDef = createBuilder()
+                .property("property1", PROPERTY_STRING_TYPE)
+                .property("property2", PROPERTY_STRING_TYPE)
+                .property("property3", PROPERTY_STRING_TYPE)
+                .property("property4", PROPERTY_STRING_TYPE)
+                .property("property5", PROPERTY_STRING_TYPE)
+                .property("visibility", PROPERTY_STRING_TYPE)
+                .property("timestamp", PROPERTY_STRING_TYPE)
+                .groupBy("property1", "property2")
+                .aggregator(new ElementAggregator.Builder()
+                        .select("property3", "property4")
+                        .execute(new ExampleTuple2BinaryOperator())
+                        .build())
+                .build();
+
+        setupSchema(elementDef);
+
+        final ElementAggregator viewAggregator = new ElementAggregator.Builder()
+                .select("property1")
+                .execute(new StringConcat())
+                .build();
+
+        // When
+        final ElementAggregator aggregator = elementDef.getQueryAggregator(Sets.newHashSet(), viewAggregator);
+
+        // Then
+        int i = 0;
+        assertTrue(aggregator.getComponents().get(i).getBinaryOperator() instanceof StringConcat);
+        assertArrayEquals(new String[]{"property1"},
+                aggregator.getComponents().get(i).getSelection());
+        i++;
+        assertTrue(aggregator.getComponents().get(i).getBinaryOperator() instanceof ExampleTuple2BinaryOperator);
+        assertArrayEquals(new String[]{"property3", "property4"},
+                aggregator.getComponents().get(i).getSelection());
+        i++;
+        assertTrue(aggregator.getComponents().get(i).getBinaryOperator() instanceof ExampleAggregateFunction);
+        assertArrayEquals(new String[]{"property2"},
+                aggregator.getComponents().get(i).getSelection());
+        i++;
+        assertTrue(aggregator.getComponents().get(i).getBinaryOperator() instanceof ExampleAggregateFunction);
+        assertArrayEquals(new String[]{"property5"},
+                aggregator.getComponents().get(i).getSelection());
+        i++;
+        assertTrue(aggregator.getComponents().get(i).getBinaryOperator() instanceof ExampleAggregateFunction);
+        assertArrayEquals(new String[]{"visibility"},
+                aggregator.getComponents().get(i).getSelection());
+        i++;
+        assertTrue(aggregator.getComponents().get(i).getBinaryOperator() instanceof ExampleAggregateFunction);
+        assertArrayEquals(new String[]{"timestamp"},
+                aggregator.getComponents().get(i).getSelection());
+        i++;
+        assertEquals(i, aggregator.getComponents().size());
+
+        // Check the aggregator is locked.
+        try {
+            aggregator.getComponents().add(null);
+            fail("Exception expected");
+        } catch (final UnsupportedOperationException e) {
+            assertNotNull(e);
+        }
+        // check the aggregator is not cached
+        assertNotSame(aggregator, elementDef.getQueryAggregator(Sets.newHashSet(), viewAggregator));
+    }
+
+    @Test
+    public void shouldReturnQueryAggregatorWithViewAggregatorAndMultipleAgg() {
+        // Given
+        final T elementDef = createBuilder()
+                .property("property1", PROPERTY_STRING_TYPE)
+                .property("property2", PROPERTY_STRING_TYPE)
+                .property("property3", PROPERTY_STRING_TYPE)
+                .property("property4", PROPERTY_STRING_TYPE)
+                .property("property5", PROPERTY_STRING_TYPE)
+                .property("visibility", PROPERTY_STRING_TYPE)
+                .property("timestamp", PROPERTY_STRING_TYPE)
+                .groupBy("property1", "property2")
+                .aggregator(new ElementAggregator.Builder()
+                        .select("property1", "property2")
+                        .execute(new ExampleTuple2BinaryOperator())
+                        .select("property3", "property4")
+                        .execute(new ExampleTuple2BinaryOperator())
+                        .build())
+                .build();
+
+        setupSchema(elementDef);
+
+        final ElementAggregator viewAggregator = new ElementAggregator.Builder()
+                .select("property1")
+                .execute(new StringConcat())
+                .build();
+
+        // When
+        final ElementAggregator aggregator = elementDef.getQueryAggregator(Sets.newHashSet(), viewAggregator);
+
+        // Then
+        int i = 0;
+        assertTrue(aggregator.getComponents().get(i).getBinaryOperator() instanceof StringConcat);
+        assertArrayEquals(new String[]{"property1"},
+                aggregator.getComponents().get(i).getSelection());
+        i++;
+        assertTrue(aggregator.getComponents().get(i).getBinaryOperator() instanceof ExampleTuple2BinaryOperator);
+        assertArrayEquals(new String[]{"property1", "property2"},
+                aggregator.getComponents().get(i).getSelection());
+        i++;
+        assertTrue(aggregator.getComponents().get(i).getBinaryOperator() instanceof ExampleTuple2BinaryOperator);
+        assertArrayEquals(new String[]{"property3", "property4"},
+                aggregator.getComponents().get(i).getSelection());
+        i++;
+        assertTrue(aggregator.getComponents().get(i).getBinaryOperator() instanceof ExampleAggregateFunction);
+        assertArrayEquals(new String[]{"property5"},
+                aggregator.getComponents().get(i).getSelection());
+        i++;
+        assertTrue(aggregator.getComponents().get(i).getBinaryOperator() instanceof ExampleAggregateFunction);
+        assertArrayEquals(new String[]{"visibility"},
+                aggregator.getComponents().get(i).getSelection());
+        i++;
+        assertTrue(aggregator.getComponents().get(i).getBinaryOperator() instanceof ExampleAggregateFunction);
+        assertArrayEquals(new String[]{"timestamp"},
+                aggregator.getComponents().get(i).getSelection());
+        i++;
+        assertEquals(i, aggregator.getComponents().size());
+
+        // Check the aggregator is locked.
+        try {
+            aggregator.getComponents().add(null);
+            fail("Exception expected");
+        } catch (final UnsupportedOperationException e) {
+            assertNotNull(e);
+        }
+        // check the aggregator is not cached
+        assertNotSame(aggregator, elementDef.getQueryAggregator(Sets.newHashSet(), viewAggregator));
     }
 
     @Test
@@ -578,7 +715,7 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         setupSchema(elementDef);
 
         // When
-        final ElementAggregator aggregator = elementDef.getQueryAggregator(Sets.newHashSet());
+        final ElementAggregator aggregator = elementDef.getQueryAggregator(Sets.newHashSet(), null);
 
         // Then
         // As the groupBy property - property1 is aggregated alongside property2, this is still required in the aggregator function.
@@ -609,7 +746,7 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
             assertNotNull(e);
         }
         // check the aggregator is cached
-        assertSame(aggregator, elementDef.getQueryAggregator(Sets.newHashSet()));
+        assertSame(aggregator, elementDef.getQueryAggregator(Sets.newHashSet(), null));
     }
 
     @Test
