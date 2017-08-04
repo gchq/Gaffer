@@ -127,6 +127,7 @@ public class NamedOperations extends DevWalkthrough {
         // with parameters
         // ---------------------------------------------------------
         String opChainString = "{" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.operation.OperationChain\"," +
                 "  \"operations\" : [ {" +
                 "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.get.GetElements\"," +
                 "    \"view\" : {" +

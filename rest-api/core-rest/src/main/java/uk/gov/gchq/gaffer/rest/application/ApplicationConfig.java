@@ -42,7 +42,6 @@ public abstract class ApplicationConfig extends ResourceConfig {
         setupBeanConfig();
         registerClasses(resources);
         register(new FactoriesBinder());
-        additionalConfig();
     }
 
     protected void addSystemResources() {
@@ -62,14 +61,5 @@ public abstract class ApplicationConfig extends ResourceConfig {
     protected abstract void addServices();
 
     protected abstract void setupBeanConfig();
-
-    /**
-     * Empty method which can be overridden in order to carry out additional
-     * configuration. These changes will be applied to all versions of the API
-     * which are deployed.
-     */
-    public void additionalConfig() {
-        // Empty by default
-    }
 
 }

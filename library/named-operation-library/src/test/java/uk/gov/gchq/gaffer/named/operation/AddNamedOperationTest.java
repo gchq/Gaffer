@@ -60,7 +60,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 "  \"readAccessRoles\": [\"User\"],%n" +
                 "  \"writeAccessRoles\": [\"User\"],%n" +
                 "  \"overwriteFlag\": true,%n" +
-                "  \"operationChain\": {\"operations\": [{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\", \"input\": [{\"vertex\": \"seed\", \"class\": \"uk.gov.gchq.gaffer.operation.data.EntitySeed\"}]}]}" +
+                "  \"operationChain\": {\"class\" : \"uk.gov.gchq.gaffer.operation.OperationChain\", \"operations\": [{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\", \"input\": [{\"vertex\": \"seed\", \"class\": \"uk.gov.gchq.gaffer.operation.data.EntitySeed\"}]}]}" +
         "}"), json);
     }
 

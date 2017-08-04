@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.rest.serialisation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.rest.SystemProperty;
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 
@@ -40,6 +41,21 @@ public class RestJsonProvider implements ContextResolver<ObjectMapper> {
     }
 
     protected ObjectMapper createMapper() {
-        return JSONSerialiser.createDefaultMapper();
+        return createJsonSerialiser().getMapper();
     }
+
+    public static JSONSerialiser createJsonSerialiser() {
+        final String jsonSerialiserClass = System.getProperty(SystemProperty.JSON_SERIALISER_CLASS,
+                SystemProperty.JSON_SERIALISER_CLASS_DEFAULT);
+
+        try {
+            return Class.forName(jsonSerialiserClass)
+                        .asSubclass(JSONSerialiser.class)
+                        .newInstance();
+        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            throw new IllegalArgumentException("Unable to create JSON serialiser from class: " + jsonSerialiserClass, e);
+        }
+    }
+
+
 }
