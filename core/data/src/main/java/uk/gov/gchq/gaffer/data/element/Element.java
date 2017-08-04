@@ -121,6 +121,7 @@ public abstract class Element implements ElementId {
         final Element element = (Element) obj;
 
         return new EqualsBuilder()
+                .append(group, element.group)
                 .append(properties, element.properties)
                 .isEquals();
     }
