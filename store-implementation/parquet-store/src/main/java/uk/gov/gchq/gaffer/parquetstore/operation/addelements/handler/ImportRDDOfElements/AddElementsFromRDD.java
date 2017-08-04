@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler;
+package uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.ImportRDDOfElements;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
@@ -33,29 +34,20 @@ import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.RDD.WriteUnsor
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SparkParquetUtils;
 import uk.gov.gchq.gaffer.spark.SparkUser;
-import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
 
 /**
- * An {@link OperationHandler} for the {@link ImportJavaRDDOfElements} operation on the {@link ParquetStore}.
+ * Executes the process of importing a {@link JavaRDD} of {@link Element} into the current {@link ParquetStore}
  */
-public class ImportJavaRDDOfElementsHandler implements OperationHandler<ImportJavaRDDOfElements> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ImportJavaRDDOfElementsHandler.class);
+public class AddElementsFromRDD {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsFromRDD.class);
 
-    @Override
-    public Void doOperation(final ImportJavaRDDOfElements operation, final Context context, final Store store)
-            throws OperationException {
-        return addElementsFromRDD(operation, context, (ParquetStore) store);
-    }
-
-    private Void addElementsFromRDD(final ImportJavaRDDOfElements operation, final Context context, final ParquetStore store)
+    protected void addElementsFromRDD(final JavaRDD<Element> input, final Context context, final ParquetStore store)
             throws OperationException {
         try {
             final FileSystem fs = store.getFS();
@@ -86,14 +78,14 @@ public class ImportJavaRDDOfElementsHandler implements OperationHandler<ImportJa
                 if (aggregate) {
                     final ExtractKeyFromElements extractKeyFromElements = new ExtractKeyFromElements(gafferSchema);
                     final AggregateGafferElements aggregateGafferProperties = new AggregateGafferElements(gafferSchema);
-                    operation.getInput()
-                            .mapToPair(extractKeyFromElements)
-                            .reduceByKey(aggregateGafferProperties)
-                            .values()
-                            .foreachPartition(writeUnsortedDataFunction);
+                    input
+                        .mapToPair(extractKeyFromElements)
+                        .reduceByKey(aggregateGafferProperties)
+                        .values()
+                        .foreachPartition(writeUnsortedDataFunction);
                 } else {
-                    operation.getInput()
-                            .foreachPartition(writeUnsortedDataFunction);
+                   input
+                        .foreachPartition(writeUnsortedDataFunction);
                 }
                 LOGGER.debug("Finished writing the unsorted Parquet data to {}", tempDataDirString);
 
@@ -122,7 +114,6 @@ public class ImportJavaRDDOfElementsHandler implements OperationHandler<ImportJa
         } catch (final StoreException e) {
             throw new OperationException(e.getMessage(), e);
         }
-        return null;
     }
 
     private void moveDataToDataDir(final ParquetStore store,

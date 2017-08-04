@@ -32,7 +32,8 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.AddElementsHandler;
-import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.ImportJavaRDDOfElementsHandler;
+import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.ImportRDDOfElements.ImportJavaRDDOfElementsHandler;
+import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.ImportRDDOfElements.ImportRDDOfElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetDataframeOfElementsHandler;
@@ -44,6 +45,7 @@ import uk.gov.gchq.gaffer.spark.SparkConstants;
 import uk.gov.gchq.gaffer.spark.SparkUser;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
+import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.SerialisationFactory;
@@ -186,6 +188,8 @@ public class ParquetStore extends Store {
     protected void addAdditionalOperationHandlers() {
         addOperationHandler(GetDataFrameOfElements.class, new GetDataframeOfElementsHandler());
         addOperationHandler(ImportJavaRDDOfElements.class, new ImportJavaRDDOfElementsHandler());
+        addOperationHandler(ImportRDDOfElements.class, new ImportRDDOfElementsHandler());
+
     }
 
     @Override

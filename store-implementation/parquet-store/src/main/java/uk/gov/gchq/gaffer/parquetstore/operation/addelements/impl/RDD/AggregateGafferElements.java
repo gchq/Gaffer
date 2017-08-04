@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.Serializable;
 
 /**
- *
+ * Used to aggregate Elements. Used by {@link uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.ImportRDDOfElements.AddElementsFromRDD}
  */
 public class AggregateGafferElements implements Function2<Element, Element, Element>, Serializable {
     private static final long serialVersionUID = -256158555820968598L;

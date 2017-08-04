@@ -33,6 +33,7 @@ public class ExtractKeyFromElements implements PairFunction<Element, List<Object
     private static final long serialVersionUID = 6741839811757475786L;
 
     private final byte[] jsonGafferSchema;
+    private transient Schema gafferSchema;
 
     public ExtractKeyFromElements(final Schema gafferSchema) {
         jsonGafferSchema = gafferSchema.toCompactJson();
@@ -40,7 +41,9 @@ public class ExtractKeyFromElements implements PairFunction<Element, List<Object
 
     @Override
     public Tuple2<List<Object>, Element> call(final Element element) throws Exception {
-        final Schema gafferSchema = Schema.fromJson(jsonGafferSchema);
+        if (null == gafferSchema) {
+            gafferSchema = Schema.fromJson(jsonGafferSchema);
+        }
         final String group = element.getGroup();
         final List<Object> list = new ArrayList<>();
         list.add(group);
