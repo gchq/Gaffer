@@ -13,16 +13,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.TreeSet;
 
-/**
- *
- */
 public class TestUtils {
     public static TreeSet<String> MERGED_TREESET = getMergedTreeSet();
-    public static TreeSet<String> TREESET1 = getTreeSet1();
-    public static TreeSet<String> TREESET2 = getTreeSet2();
     public static FreqMap MERGED_FREQMAP = getMergedFreqMap();
-    public static FreqMap FREQMAP1 = getFreqMap1();
-    public static FreqMap FREQMAP2 = getFreqMap2();
     public static Date DATE = new Date();
     public static Date DATE1 = new Date(TestUtils.DATE.getTime() + 1000);
 
@@ -34,14 +27,14 @@ public class TestUtils {
         return t;
     }
 
-    private static TreeSet<String> getTreeSet1() {
+    public static TreeSet<String> getTreeSet1() {
         final TreeSet<String> t = new TreeSet<>();
         t.add("A");
         t.add("B");
         return t;
     }
 
-    private static TreeSet<String> getTreeSet2() {
+    public static TreeSet<String> getTreeSet2() {
         final TreeSet<String> t = new TreeSet<>();
         t.add("A");
         t.add("C");
@@ -56,14 +49,14 @@ public class TestUtils {
         return f;
     }
 
-    private static FreqMap getFreqMap1() {
+    public static FreqMap getFreqMap1() {
         final FreqMap f = new FreqMap();
         f.upsert("A", 1L);
         f.upsert("B", 1L);
         return f;
     }
 
-    private static FreqMap getFreqMap2() {
+    public static FreqMap getFreqMap2() {
         final FreqMap f = new FreqMap();
         f.upsert("A", 1L);
         f.upsert("C", 1L);

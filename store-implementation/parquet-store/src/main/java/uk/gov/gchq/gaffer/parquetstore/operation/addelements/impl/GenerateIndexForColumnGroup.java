@@ -29,12 +29,12 @@ import org.apache.parquet.io.api.Binary;
 import org.apache.parquet.schema.OriginalType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.index.ColumnIndex;
 import uk.gov.gchq.gaffer.parquetstore.index.MinMaxPath;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.koryphe.tuple.n.Tuple2;
 import uk.gov.gchq.koryphe.tuple.n.Tuple4;
 
 import java.io.IOException;
@@ -70,7 +70,7 @@ public class GenerateIndexForColumnGroup implements Callable<Tuple4<String, Stri
             if (fs.exists(new Path(directoryPath))) {
                     final FileStatus[] files = fs.listStatus(new Path(directoryPath),
                             path1 -> path1.getName().endsWith(".parquet"));
-                    Tuple2<int[], String[]> colIndexWithTags = null;
+                    Pair<int[], String[]> colIndexWithTags = null;
                     for (final FileStatus file : files) {
                         final ParquetMetadata parquetMetadata = ParquetFileReader
                                 .readFooter(fs.getConf(), file, ParquetMetadataConverter.NO_FILTER);
@@ -91,7 +91,7 @@ public class GenerateIndexForColumnGroup implements Callable<Tuple4<String, Stri
         return new Tuple4<>(group, column, columnIndex, null);
     }
 
-    private Tuple2<int[], String[]> getColumnIndexesWithTags(final String[] paths, final ParquetMetadata parquetMetadata) {
+    private Pair<int[], String[]> getColumnIndexesWithTags(final String[] paths, final ParquetMetadata parquetMetadata) {
         final List<ColumnChunkMetaData> columnChunks = parquetMetadata.getBlocks().get(0).getColumns();
         final int[] columnindexes = new int[paths.length];
         final String[] tags = new String[paths.length];
@@ -109,13 +109,13 @@ public class GenerateIndexForColumnGroup implements Callable<Tuple4<String, Stri
                 }
             }
         }
-        return new Tuple2<>(columnindexes, tags);
+        return new Pair<>(columnindexes, tags);
     }
 
-    private MinMaxPath generateGafferObjectsIndex(final Tuple2<int[], String[]> colIndexesWithTags,
+    private MinMaxPath generateGafferObjectsIndex(final Pair<int[], String[]> colIndexesWithTags,
                                             final List<BlockMetaData> blocks, final String path) throws StoreException {
-        final int[] colIndexes = colIndexesWithTags.get0();
-        final String[] tags = colIndexesWithTags.get1();
+        final int[] colIndexes = colIndexesWithTags.getFirst();
+        final String[] tags = colIndexesWithTags.getSecond();
         final int numOfCols = colIndexes.length;
         final Object[] min = new Object[numOfCols];
         final Object[] max = new Object[numOfCols];

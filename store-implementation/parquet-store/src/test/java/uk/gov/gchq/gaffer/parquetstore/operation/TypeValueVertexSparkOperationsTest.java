@@ -18,10 +18,10 @@ package uk.gov.gchq.gaffer.parquetstore.operation;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.spark.rdd.RDD;
+import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import org.apache.spark.sql.SparkSession;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -31,7 +31,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
-import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
+import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.types.TypeValue;
@@ -48,9 +48,9 @@ public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsT
     public static void genData() throws OperationException, StoreException {
         Logger.getRootLogger().setLevel(Level.WARN);
         getGraph(getSchema(), getParquetStoreProperties())
-                .execute(new ImportRDDOfElements.Builder()
-                        .input(getElements(spark))
-                        .sparkContext(spark.sparkContext())
+                .execute(new ImportJavaRDDOfElements.Builder()
+                        .input(getElements(javaSparkContext))
+                        .javaSparkContext(javaSparkContext)
                         .build(), USER);
     }
 
@@ -63,7 +63,7 @@ public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsT
         return Schema.fromJson(StreamUtil.openStreams(TypeValueVertexSparkOperationsTest.class, "schemaUsingTypeValueVertexType"));
     }
 
-    private static RDD<Element> getElements(final SparkSession spark) {
+    private static JavaRDD<Element> getElements(final JavaSparkContext spark) {
         return DataGen.generate300TypeValueElementsRDD(spark);
     }
 
@@ -101,8 +101,8 @@ public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsT
             final TypeValue dst = new TypeValue(type, "dst" + (x + 1));
             final TypeValue vrt = new TypeValue(type, "vrt" + x);
             expected.add(DataGen.getEdge(TestGroups.EDGE, src, dst, true, (byte) 'b', (0.2 * x) + 0.3, 6f, TestUtils.MERGED_TREESET, (6L * x) + 5L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
-            expected.add(DataGen.getEdge(TestGroups.EDGE, src, dst, false, (byte) 'a', 0.2 * x, 2f, TestUtils.TREESET1, 5L, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1, 1));
-            expected.add(DataGen.getEdge(TestGroups.EDGE, src, dst, false, (byte) 'b', 0.3, 4f, TestUtils.TREESET2, 6L * x, (short) 7, TestUtils.DATE1, TestUtils.FREQMAP2, 1));
+            expected.add(DataGen.getEdge(TestGroups.EDGE, src, dst, false, (byte) 'a', 0.2 * x, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1));
+            expected.add(DataGen.getEdge(TestGroups.EDGE, src, dst, false, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * x, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1));
 
             expected.add(DataGen.getEdge(TestGroups.EDGE_2, src, dst, true, (byte) 'b', (0.2 * x) + 0.3, 6f, TestUtils.MERGED_TREESET, (6L * x) + 5L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
             expected.add(DataGen.getEdge(TestGroups.EDGE_2, src, dst, false, (byte) 'b', (0.2 * x) + 0.3, 6f, TestUtils.MERGED_TREESET, (6L * x) + 5L, (short) 13, TestUtils.DATE1, TestUtils.MERGED_FREQMAP, 2));
