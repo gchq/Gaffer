@@ -249,40 +249,57 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     }
 
     @JsonIgnore
-    public ElementAggregator getQueryAggregator(final Set<String> viewGroupBy) {
-        ElementAggregator queryAggregatorCache = queryAggregatorCacheMap.get(viewGroupBy);
-        if (null == queryAggregatorCache) {
-            queryAggregatorCache = new ElementAggregator();
+    public ElementAggregator getQueryAggregator(final Set<String> viewGroupBy, final ElementAggregator viewAggregator) {
+        ElementAggregator queryAggregator = null;
+        if (null == viewAggregator) {
+            queryAggregator = queryAggregatorCacheMap.get(viewGroupBy);
+        }
+
+        if (null == queryAggregator) {
+            queryAggregator = new ElementAggregator();
             if (aggregate) {
                 final Set<String> mergedGroupBy = null == viewGroupBy ? groupBy : viewGroupBy;
+                final Set<String> viewAggregatorProps;
+                if (null == viewAggregator) {
+                    viewAggregatorProps = Collections.emptySet();
+                } else {
+                    viewAggregatorProps = new HashSet<>(getPropertyMap().size() - mergedGroupBy.size());
+                    for (final TupleAdaptedBinaryOperator<String, ?> component : viewAggregator.getComponents()) {
+                        Collections.addAll(viewAggregatorProps, component.getSelection());
+                        queryAggregator.getComponents().add(component);
+                    }
+                }
                 if (null == aggregator) {
                     for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
-                        if (!mergedGroupBy.contains(entry.getKey())) {
-                            addTypeAggregateFunction(queryAggregatorCache, entry.getKey(), entry.getValue());
+                        if (!mergedGroupBy.contains(entry.getKey()) && !viewAggregatorProps.contains(entry.getKey())) {
+                            addTypeAggregateFunction(queryAggregator, entry.getKey(), entry.getValue());
                         }
                     }
                 } else {
                     for (final TupleAdaptedBinaryOperator<String, ?> component : aggregator.getComponents()) {
                         final String[] selection = component.getSelection();
-                        if (selection.length == 1 && !mergedGroupBy.contains(selection[0])) {
-                            queryAggregatorCache.getComponents().add(component);
-                        } else if (CollectionUtil.anyMissing(mergedGroupBy, selection)) {
-                            queryAggregatorCache.getComponents().add(component);
+                        if (selection.length == 1 && !mergedGroupBy.contains(selection[0]) && !viewAggregatorProps.contains(selection[0])) {
+                            queryAggregator.getComponents().add(component);
+                        } else if (CollectionUtil.anyMissing(mergedGroupBy, selection) && CollectionUtil.anyMissing(viewAggregatorProps, selection)) {
+                            queryAggregator.getComponents().add(component);
                         }
                     }
                     final Set<String> aggregatorProperties = getAggregatorProperties();
                     for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
-                        if (!mergedGroupBy.contains(entry.getKey()) && !aggregatorProperties.contains(entry.getKey())) {
-                            addTypeAggregateFunction(queryAggregatorCache, entry.getKey(), entry.getValue());
+                        if (!mergedGroupBy.contains(entry.getKey()) && !viewAggregatorProps.contains(entry.getKey()) && !aggregatorProperties.contains(entry.getKey())) {
+                            addTypeAggregateFunction(queryAggregator, entry.getKey(), entry.getValue());
                         }
                     }
                 }
             }
-            queryAggregatorCache.lock();
-            queryAggregatorCacheMap.put(viewGroupBy, queryAggregatorCache);
+            queryAggregator.lock();
+            // Don't cache the aggregator if a view aggregator has been provided
+            if (null == viewAggregator) {
+                queryAggregatorCacheMap.put(viewGroupBy, queryAggregator);
+            }
         }
 
-        return queryAggregatorCache;
+        return queryAggregator;
     }
 
     /**
