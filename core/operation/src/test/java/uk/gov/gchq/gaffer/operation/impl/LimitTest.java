@@ -18,9 +18,6 @@ package uk.gov.gchq.gaffer.operation.impl;
 
 import com.google.common.collect.Sets;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Set;
 
@@ -28,7 +25,6 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 

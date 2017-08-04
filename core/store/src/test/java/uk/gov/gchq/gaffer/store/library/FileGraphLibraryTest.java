@@ -16,12 +16,6 @@
 
 package uk.gov.gchq.gaffer.store.library;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -32,6 +26,12 @@ import uk.gov.gchq.gaffer.store.exception.OverwritingException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.File;
 import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class FileGraphLibraryTest {
 

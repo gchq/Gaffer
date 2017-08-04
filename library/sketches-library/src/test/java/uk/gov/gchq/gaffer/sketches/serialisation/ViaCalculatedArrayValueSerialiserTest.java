@@ -15,12 +15,12 @@
  */
 package uk.gov.gchq.gaffer.sketches.serialisation;
 
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
-import uk.gov.gchq.gaffer.commonutil.pair.Pair;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
 
 public abstract class ViaCalculatedArrayValueSerialiserTest<OUTPUT, VALUE> extends ViaCalculatedValueSerialiserTest<OUTPUT, VALUE[]> {
 

@@ -20,7 +20,6 @@ import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
 import java.util.HashSet;

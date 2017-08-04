@@ -45,7 +45,6 @@ import uk.gov.gchq.koryphe.impl.predicate.IsTrue;
 import uk.gov.gchq.koryphe.impl.predicate.Not;
 import uk.gov.gchq.koryphe.impl.predicate.Or;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;

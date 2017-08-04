@@ -21,8 +21,6 @@ import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.impl.predicate.Not;

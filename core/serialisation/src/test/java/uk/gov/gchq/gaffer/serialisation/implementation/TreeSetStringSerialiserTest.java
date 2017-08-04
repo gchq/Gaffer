@@ -15,12 +15,6 @@
  */
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-
 import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -29,6 +23,12 @@ import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 import java.util.HashSet;
 import java.util.TreeSet;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
 
 public class TreeSetStringSerialiserTest extends ToBytesSerialisationTest<TreeSet<String>> {
 
