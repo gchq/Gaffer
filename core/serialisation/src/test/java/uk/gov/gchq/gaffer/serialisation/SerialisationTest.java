@@ -16,13 +16,13 @@
 
 package uk.gov.gchq.gaffer.serialisation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 
 public abstract class SerialisationTest<INPUT, OUTPUT> {
     protected final Serialiser<INPUT, OUTPUT> serialiser;

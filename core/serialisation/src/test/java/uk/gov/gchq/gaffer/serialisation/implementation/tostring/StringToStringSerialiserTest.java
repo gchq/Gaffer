@@ -15,15 +15,15 @@
  */
 package uk.gov.gchq.gaffer.serialisation.implementation.tostring;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
 import org.junit.Assert;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.SerialisationTest;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class StringToStringSerialiserTest extends SerialisationTest<String, String> {
 
