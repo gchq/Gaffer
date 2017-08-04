@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.rest;
 
 import uk.gov.gchq.gaffer.commonutil.DebugUtil;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UnknownUserFactory;
 
@@ -32,6 +33,7 @@ public abstract class SystemProperty {
     public static final String REST_API_VERSION = "gaffer.rest-api.version";
     public static final String GRAPH_FACTORY_CLASS = "gaffer.graph.factory.class";
     public static final String USER_FACTORY_CLASS = "gaffer.user.factory.class";
+    public static final String JSON_SERIALISER_CLASS = "gaffer.json.serialiser.class";
     public static final String SERVICES_PACKAGE_PREFIX = "gaffer.rest-api.resourcePackage";
     public static final String PACKAGE_PREFIXES = "gaffer.package.prefixes";
     public static final String REST_DEBUG = DebugUtil.DEBUG;
@@ -47,6 +49,7 @@ public abstract class SystemProperty {
     public static final String CORE_VERSION = "2.0.0";
     public static final String GRAPH_FACTORY_CLASS_DEFAULT = DefaultGraphFactory.class.getName();
     public static final String USER_FACTORY_CLASS_DEFAULT = UnknownUserFactory.class.getName();
+    public static final String JSON_SERIALISER_CLASS_DEFAULT = JSONSerialiser.class.getName();
     public static final String REST_DEBUG_DEFAULT = DebugUtil.DEBUG_DEFAULT;
 
     private SystemProperty() {

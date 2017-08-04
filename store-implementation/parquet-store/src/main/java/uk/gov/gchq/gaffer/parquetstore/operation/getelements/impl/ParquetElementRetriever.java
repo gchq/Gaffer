@@ -42,7 +42,6 @@ import uk.gov.gchq.gaffer.parquetstore.utils.ParquetFileIterator;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetFilterUtils;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
-
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;

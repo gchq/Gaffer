@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.types;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
-
 import java.util.Comparator;
 
 public class TypeSubTypeValue implements Comparable<TypeSubTypeValue> {
