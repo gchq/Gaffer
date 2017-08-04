@@ -21,8 +21,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.SparkConf;
-import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
+import org.apache.spark.sql.SparkSession;
 import org.junit.Test;
 import scala.Tuple2;
 import scala.collection.mutable.ArrayBuffer;
@@ -103,7 +103,7 @@ public class ImportKeyValuePairRDDToAccumuloHandlerTest {
                 .set(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
                 .set(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
                 .set(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true");
-        final SparkContext sparkContext = new SparkContext(sparkConf);
+        final SparkSession sparkSession = SparkSession.builder().config(sparkConf).getOrCreate();
 
         // Create Hadoop configuration and serialise to a string
         final Configuration configuration = new Configuration();
@@ -117,8 +117,8 @@ public class ImportKeyValuePairRDDToAccumuloHandlerTest {
             FileUtils.forceDelete(file);
         }
 
-        final ElementConverterFunction func = new ElementConverterFunction(sparkContext.broadcast(new ByteEntityAccumuloElementConverter(graph1.getSchema()), ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG));
-        final RDD<Tuple2<Key, Value>> elementRDD = sparkContext.parallelize(elements, 1, ELEMENT_CLASS_TAG).flatMap(func, TUPLE2_CLASS_TAG);
+        final ElementConverterFunction func = new ElementConverterFunction(sparkSession.sparkContext().broadcast(new ByteEntityAccumuloElementConverter(graph1.getSchema()), ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG));
+        final RDD<Tuple2<Key, Value>> elementRDD = sparkSession.sparkContext().parallelize(elements, 1, ELEMENT_CLASS_TAG).flatMap(func, TUPLE2_CLASS_TAG);
         final ImportKeyValuePairRDDToAccumulo addRdd = new ImportKeyValuePairRDDToAccumulo.Builder()
                 .input(elementRDD)
                 .outputPath(outputPath)
@@ -129,7 +129,7 @@ public class ImportKeyValuePairRDDToAccumuloHandlerTest {
 
         // Check all elements were added
         final GetRDDOfAllElements rddQuery = new GetRDDOfAllElements.Builder()
-                .sparkContext(sparkContext)
+                .sparkSession(sparkSession)
                 .option(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString)
                 .build();
 
@@ -141,6 +141,6 @@ public class ImportKeyValuePairRDDToAccumuloHandlerTest {
         final Element[] returnedElements = (Element[]) rdd.collect();
         Collections.addAll(results, returnedElements);
         assertEquals(elements.size(), results.size());
-        sparkContext.stop();
+        sparkSession.stop();
     }
 }

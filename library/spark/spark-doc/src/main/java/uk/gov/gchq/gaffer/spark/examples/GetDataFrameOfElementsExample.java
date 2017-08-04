@@ -18,10 +18,9 @@ package uk.gov.gchq.gaffer.spark.examples;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
-import org.apache.spark.SparkContext;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import org.apache.spark.sql.SQLContext;
+import org.apache.spark.sql.SparkSession;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.doc.operation.OperationExample;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -55,21 +54,20 @@ public class GetDataFrameOfElementsExample extends OperationExample {
                 .set(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
                 .set(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
                 .set(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true");
-        final SparkContext sc = new SparkContext(sparkConf);
-        sc.setLogLevel("OFF");
-        final SQLContext sqlc = new SQLContext(sc);
+        final SparkSession sparkSession = SparkSession.builder().config(sparkConf).getOrCreate();
+        sparkSession.sparkContext().setLogLevel("OFF");
         final Graph graph = getGraph();
         try {
-            getDataFrameOfElementsWithEntityGroup(sqlc, graph);
-            getDataFrameOfElementsWithEdgeGroup(sqlc, graph);
+            getDataFrameOfElementsWithEntityGroup(sparkSession, graph);
+            getDataFrameOfElementsWithEdgeGroup(sparkSession, graph);
         } catch (final OperationException e) {
             throw new RuntimeException(e);
         }
-        sc.stop();
+        sparkSession.stop();
         ROOT_LOGGER.setLevel(Level.INFO);
     }
 
-    public void getDataFrameOfElementsWithEntityGroup(final SQLContext sqlc, final Graph graph) throws OperationException {
+    public void getDataFrameOfElementsWithEntityGroup(final SparkSession sparkSession, final Graph graph) throws OperationException {
         ROOT_LOGGER.setLevel(Level.INFO);
         log("#### " + getMethodNameAsSentence(0) + "\n");
         printGraph();
@@ -78,7 +76,7 @@ public class GetDataFrameOfElementsExample extends OperationExample {
                 .view(new View.Builder()
                         .entity("entity")
                         .build())
-                .sqlContext(sqlc)
+                .sparkSession(sparkSession)
                 .build();
         final Dataset<Row> df = graph.execute(operation, new User("user01"));
 
@@ -122,7 +120,7 @@ public class GetDataFrameOfElementsExample extends OperationExample {
         ROOT_LOGGER.setLevel(Level.OFF);
     }
 
-    public void getDataFrameOfElementsWithEdgeGroup(final SQLContext sqlc, final Graph graph) throws OperationException {
+    public void getDataFrameOfElementsWithEdgeGroup(final SparkSession sparkSession, final Graph graph) throws OperationException {
         ROOT_LOGGER.setLevel(Level.INFO);
         log("#### " + getMethodNameAsSentence(0) + "\n");
         printGraph();
@@ -131,7 +129,7 @@ public class GetDataFrameOfElementsExample extends OperationExample {
                 .view(new View.Builder()
                         .edge("edge")
                         .build())
-                .sqlContext(sqlc)
+                .sparkSession(sparkSession)
                 .build();
         final Dataset<Row> df = graph.execute(operation, new User("user01"));
 

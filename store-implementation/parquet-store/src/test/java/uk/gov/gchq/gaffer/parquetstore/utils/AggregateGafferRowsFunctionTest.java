@@ -23,7 +23,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import scala.collection.JavaConversions$;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
@@ -32,26 +35,21 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
-
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
 
 public class AggregateGafferRowsFunctionTest {
+    private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
     private SchemaUtils utils;
 
     @Before
     public void setUp() throws StoreException {
         Logger.getRootLogger().setLevel(Level.WARN);
-        final Schema schema = Schema.fromJson(
-                getClass().getResourceAsStream("/schemaUsingStringVertexType/dataSchema.json"),
-                getClass().getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
-                getClass().getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
-                getClass().getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
+        final Schema schema = Schema.fromJson(StreamUtil.openStreams(AggregateGafferRowsFunctionTest.class, "schemaUsingStringVertexType"));
         final SchemaOptimiser optimiser = new SchemaOptimiser(new SerialisationFactory(ParquetStoreConstants.SERIALISERS));
         utils = new SchemaUtils(optimiser.optimise(schema, true));
     }
@@ -61,24 +59,16 @@ public class AggregateGafferRowsFunctionTest {
         utils = null;
     }
 
-    private HashMap<String, String> buildcolumnToAggregatorMap(final SchemaElementDefinition gafferSchema) {
-        HashMap<String, String> columnToAggregatorMap = new HashMap<>();
-        for (final String column : gafferSchema.getProperties()) {
-            columnToAggregatorMap.put(column, gafferSchema.getPropertyTypeDef(column).getAggregateFunction().getClass().getCanonicalName());
-        }
-        return columnToAggregatorMap;
-    }
-
     @Test
     public void mergeEntityRowsTest() throws OperationException, IOException {
-        final String group = "BasicEntity";
+        final String group = TestGroups.ENTITY;
         final SchemaElementDefinition elementSchema = utils.getGafferSchema().getElement(group);
-        final HashMap<String, String> columnToAggregator = buildcolumnToAggregatorMap(elementSchema);
         final GafferGroupObjectConverter converter = utils.getConverter(group);
         final String[] gafferProperties = new String[elementSchema.getProperties().size()];
         elementSchema.getProperties().toArray(gafferProperties);
+        final byte[] aggregatorJson = JSON_SERIALISER.serialise(elementSchema.getIngestAggregator());
         final AggregateGafferRowsFunction aggregator = new AggregateGafferRowsFunction(gafferProperties,
-                true, elementSchema.getGroupBy(), utils.getColumnToPaths(group), columnToAggregator, converter);
+                true, elementSchema.getGroupBy(), utils.getColumnToPaths(group), aggregatorJson, converter);
         final GenericRowWithSchema row1 = DataGen.generateEntityRow(utils, group, "vertex", (byte) 'a', 0.2, 3f, TestUtils.TREESET1, 5L, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1);
         final GenericRowWithSchema row2 = DataGen.generateEntityRow(utils, group, "vertex", (byte) 'c', 0.7, 4f, TestUtils.TREESET2, 7L, (short) 4, TestUtils.DATE, TestUtils.FREQMAP2);
         final GenericRowWithSchema merged = aggregator.call(row1, row2);
@@ -102,14 +92,14 @@ public class AggregateGafferRowsFunctionTest {
 
     @Test
     public void mergeEdgeRowsTest() throws OperationException, SerialisationException {
-        final String group = "BasicEdge";
+        final String group = TestGroups.EDGE;
         final SchemaElementDefinition elementSchema = utils.getGafferSchema().getElement(group);
-        final HashMap<String, String> columnToAggregator = buildcolumnToAggregatorMap(elementSchema);
+        final byte[] aggregatorJson = JSON_SERIALISER.serialise(elementSchema.getIngestAggregator());
         final GafferGroupObjectConverter converter = utils.getConverter(group);
         final String[] gafferProperties = new String[elementSchema.getProperties().size()];
         elementSchema.getProperties().toArray(gafferProperties);
         final AggregateGafferRowsFunction aggregator = new AggregateGafferRowsFunction(gafferProperties,
-                false, elementSchema.getGroupBy(), utils.getColumnToPaths(group), columnToAggregator, converter);
+                false, elementSchema.getGroupBy(), utils.getColumnToPaths(group), aggregatorJson, converter);
         final GenericRowWithSchema row1 = DataGen.generateEdgeRow(utils, group, "src", "dst", true, (byte) 'a', 0.2, 3f, TestUtils.TREESET1, 5L, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1);
         final GenericRowWithSchema row2 = DataGen.generateEdgeRow(utils, group, "src", "dst", true, (byte) 'c', 0.7, 4f, TestUtils.TREESET2, 7L, (short) 4, TestUtils.DATE, TestUtils.FREQMAP2);
         final GenericRowWithSchema merged = aggregator.call(row1, row2);

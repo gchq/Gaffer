@@ -26,17 +26,11 @@ import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 import static org.junit.Assert.assertEquals;
 
 
-public class GetSetExportTest extends OperationTest {
+public class GetSetExportTest extends OperationTest<GetSetExport> {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return GetSetExport.class;
-    }
-
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final GetSetExport operation = new GetSetExport.Builder()
                 .key("key")
@@ -72,5 +66,10 @@ public class GetSetExportTest extends OperationTest {
         assertEquals("jobId", operation.getJobId());
         assertEquals(0, (int) operation.getStart());
         assertEquals(5, (int) operation.getEnd());
+    }
+
+    @Override
+    protected GetSetExport getTestObject() {
+        return new GetSetExport();
     }
 }

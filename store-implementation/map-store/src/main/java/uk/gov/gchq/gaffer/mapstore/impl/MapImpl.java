@@ -258,7 +258,7 @@ public class MapImpl {
     private void addToGroupByMap(final String group) {
         final SchemaElementDefinition sed = schema.getElement(group);
         groupToGroupByProperties.put(group, sed.getGroupBy());
-        if (null == sed.getGroupBy() || sed.getGroupBy().isEmpty() || !aggregatedGroups.contains(group)) {
+        if (!aggregatedGroups.contains(group)) {
             groupsWithNoAggregation.add(group);
         }
         final Set<String> nonGroupByProperties = new HashSet<>(sed.getProperties());

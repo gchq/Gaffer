@@ -22,6 +22,10 @@ import uk.gov.gchq.gaffer.types.FreqMap;
 
 import java.util.Map;
 
+/**
+ * This class is used to serialise and de-serialise a {@link FreqMap} value for use by the
+ * {@link uk.gov.gchq.gaffer.parquetstore.ParquetStore}.
+ */
 public class FreqMapParquetSerialiser implements ParquetSerialiser<FreqMap> {
 
     private static final long serialVersionUID = -8284005451029455563L;

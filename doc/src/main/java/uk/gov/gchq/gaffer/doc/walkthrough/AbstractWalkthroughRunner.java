@@ -28,12 +28,11 @@ import java.util.Locale;
 public class AbstractWalkthroughRunner {
     public static final String EXAMPLE_DIVIDER = "\n\n";
 
-    private final List<Class<? extends AbstractWalkthrough>> examples;
-
+    private final List<AbstractWalkthrough> examples;
     private final String modulePath;
     private final String resourcePrefix;
 
-    public AbstractWalkthroughRunner(final List<Class<? extends AbstractWalkthrough>> examples, final String modulePath, final String resourcePrefix) {
+    public AbstractWalkthroughRunner(final List<AbstractWalkthrough> examples, final String modulePath, final String resourcePrefix) {
         this.examples = examples;
         this.modulePath = modulePath;
         this.resourcePrefix = resourcePrefix;
@@ -44,7 +43,7 @@ public class AbstractWalkthroughRunner {
         printTableOfContents();
         printIntro();
         printWalkthroughTitle();
-        for (final Class<? extends AbstractWalkthrough> aClass : examples) {
+        for (final AbstractWalkthrough example : examples) {
             // Clear the caches so the output is not dependent on what's been run before
             try {
                 if (CacheServiceLoader.getService() != null) {
@@ -55,7 +54,7 @@ public class AbstractWalkthroughRunner {
                 throw new RuntimeException(e);
             }
 
-            System.out.println(aClass.newInstance().walkthrough());
+            System.out.println(example.walkthrough());
             System.out.println(EXAMPLE_DIVIDER);
         }
     }
@@ -96,8 +95,8 @@ public class AbstractWalkthroughRunner {
         System.out.println(index + ". [Walkthroughs](#walkthroughs)");
 
         index = 1;
-        for (final Class<? extends AbstractWalkthrough> aClass : examples) {
-            final String header = aClass.newInstance().getHeader();
+        for (final AbstractWalkthrough example : examples) {
+            final String header = example.getHeader();
             System.out.println("   " + index + ". [" + header + "](#" + header.toLowerCase(Locale.getDefault()).replace(" ", "-") + ")");
             index++;
         }

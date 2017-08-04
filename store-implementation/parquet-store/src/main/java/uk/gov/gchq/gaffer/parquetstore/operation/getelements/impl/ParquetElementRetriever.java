@@ -42,12 +42,16 @@ import uk.gov.gchq.gaffer.parquetstore.utils.ParquetFileIterator;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetFilterUtils;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.koryphe.tuple.n.Tuple2;
+
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+/**
+ * Converts the inputs for get element operations and converts them to a mapping of files to Parquet filters which is
+ * then looped over to retrieve the filtered Elements.
+ */
 public class ParquetElementRetriever implements CloseableIterable<Element> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetElementRetriever.class);
 
@@ -57,7 +61,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
     private final SeededGraphFilters.IncludeIncomingOutgoingType includeIncomingOutgoingType;
     private final SeedMatching.SeedMatchingType seedMatchingType;
     private final Iterable<? extends ElementId> seeds;
-    private final String dataDir;
+    private final ParquetFilterUtils parquetFilterUtils;
     private GraphIndex graphIndex;
     private FileSystem fs;
 
@@ -74,7 +78,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
         this.seedMatchingType = seedMatchingType;
         this.seeds = seeds;
         this.graphIndex = store.getGraphIndex();
-        this.dataDir = store.getDataDir() + "/" + store.getGraphIndex().getSnapshotTimestamp();
+        this.parquetFilterUtils = new ParquetFilterUtils(store);
         this.fs = store.getFS();
     }
 
@@ -85,7 +89,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
     @Override
     public CloseableIterator<Element> iterator() {
         return new ParquetIterator(schemaUtils, view, directedType, includeIncomingOutgoingType,
-                seedMatchingType, seeds, dataDir, graphIndex, fs);
+                seedMatchingType, seeds, parquetFilterUtils, graphIndex, fs);
     }
 
     protected static class ParquetIterator implements CloseableIterator<Element> {
@@ -106,15 +110,13 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                                   final SeededGraphFilters.IncludeIncomingOutgoingType includeIncomingOutgoingType,
                                   final SeedMatching.SeedMatchingType seedMatchingType,
                                   final Iterable<? extends ElementId> seeds,
-                                  final String dataDir,
+                                  final ParquetFilterUtils parquetFilterUtils,
                                   final GraphIndex graphIndex,
                                   final FileSystem fs) {
             try {
-                Tuple2<Map<Path, FilterPredicate>, Boolean> results = ParquetFilterUtils
-                        .buildPathToFilterMap(schemaUtils,
-                                view, directedType, includeIncomingOutgoingType, seedMatchingType, seeds, dataDir, graphIndex);
-                this.pathToFilterMap = results.get0();
-                this.needsValidation = results.get1();
+                parquetFilterUtils.buildPathToFilterMap(view, directedType, includeIncomingOutgoingType, seedMatchingType, seeds, graphIndex);
+                this.pathToFilterMap = parquetFilterUtils.getPathToFilterMap();
+                this.needsValidation = parquetFilterUtils.requiresValidation();
                 LOGGER.debug("pathToFilterMap: {}", pathToFilterMap);
                 if (!pathToFilterMap.isEmpty()) {
                     this.fs = fs;

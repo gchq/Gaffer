@@ -36,27 +36,30 @@ import scala.collection.Seq;
 import scala.collection.Seq$;
 import scala.collection.mutable.Builder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.utils.AggregateGafferRowsFunction;
 import uk.gov.gchq.gaffer.parquetstore.utils.ExtractKeyFromRow;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.store.util.AggregatorUtil;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.function.BinaryOperator;
 
+/**
+ * Aggregates and sorts a directory of parquet files that represents a single group so each group can be processed in parallel.
+ */
 public class AggregateAndSortGroup implements Callable<OperationException>, Serializable {
-
+    private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
     private static final Logger LOGGER = LoggerFactory.getLogger(AggregateAndSortGroup.class);
     private static final long serialVersionUID = -7828247145178905841L;
     private static final String SORTED = "/sorted";
@@ -72,10 +75,10 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
     private final String outputDir;
     private final int filesPerGroup;
     private final Boolean isEntity;
-    private final HashMap<String, String> propertyToAggregatorMap;
     private final Set<String> groupByColumns;
     private final String[] gafferProperties;
-
+    private final byte[] aggregatorJson;
+    private final boolean isAggregationRequired;
 
     public AggregateAndSortGroup(final String group,
                                  final String column,
@@ -85,12 +88,14 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
         this.group = group;
         this.column = column;
         this.tempFileDir = store.getTempFilesDir();
-        final SchemaElementDefinition gafferSchema = store.getSchemaUtils().getGafferSchema().getElement(group);
-        this.isEntity = gafferSchema instanceof SchemaEntityDefinition;
-        this.propertyToAggregatorMap = buildColumnToAggregatorMap(gafferSchema);
-        this.groupByColumns = new HashSet<>(gafferSchema.getGroupBy());
-        this.gafferProperties = new String[gafferSchema.getProperties().size()];
-        gafferSchema.getProperties().toArray(this.gafferProperties);
+        final Schema schema = store.getSchemaUtils().getGafferSchema();
+        final SchemaElementDefinition elementDef = schema.getElement(group);
+        isAggregationRequired = elementDef.isAggregate();
+        this.isEntity = elementDef instanceof SchemaEntityDefinition;
+        this.aggregatorJson = JSON_SERIALISER.serialise(elementDef.getIngestAggregator());
+        this.groupByColumns = AggregatorUtil.getIngestGroupBy(group, schema);
+        this.gafferProperties = new String[elementDef.getProperties().size()];
+        elementDef.getProperties().toArray(this.gafferProperties);
         this.spark = spark;
         this.columnToPaths = store.getSchemaUtils().getColumnToPaths(group);
         this.sparkSchema = store.getSchemaUtils().getSparkSchema(group);
@@ -104,17 +109,6 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
             this.outputDir = ParquetStore.getGroupDirectory(group, column, this.tempFileDir + SORTED);
         }
         this.filesPerGroup = store.getProperties().getAddElementsOutputFilesPerGroup();
-    }
-
-    private HashMap<String, String> buildColumnToAggregatorMap(final SchemaElementDefinition gafferSchema) {
-        final HashMap<String, String> columnToAggregatorMap = new HashMap<>();
-        for (final String column : gafferSchema.getProperties()) {
-            final BinaryOperator aggregateFunction = gafferSchema.getPropertyTypeDef(column).getAggregateFunction();
-            if (aggregateFunction != null) {
-                columnToAggregatorMap.put(column, aggregateFunction.getClass().getCanonicalName());
-            }
-        }
-        return columnToAggregatorMap;
     }
 
     @Override
@@ -134,25 +128,30 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
                 final Dataset<Row> data = spark.read().parquet(JavaConversions.asScalaBuffer(paths));
 
                 // Aggregate data
-                final ExtractKeyFromRow keyExtractor = new ExtractKeyFromRow(groupByColumns, columnToPaths,
-                        isEntity, propertyToAggregatorMap);
-                final JavaPairRDD<Seq<Object>, GenericRowWithSchema> groupedData = data.javaRDD()
-                        .mapToPair(row -> Tuple2$.MODULE$.apply(keyExtractor.call(row), (GenericRowWithSchema) row));
-                final List<Tuple2<Seq<Object>, GenericRowWithSchema>> kvList = groupedData.take(1);
-                if (0 == kvList.size()) {
-                    LOGGER.debug("No data was returned in AggregateAndSortGroup for group = {}", group);
-                    return null;
-                }
-                final Tuple2<Seq<Object>, GenericRowWithSchema> kv = kvList.get(0);
-                final JavaPairRDD<Seq<Object>, GenericRowWithSchema> aggregatedDataKV;
-                if (kv._1().size() == kv._2().size()) {
-                    aggregatedDataKV = groupedData;
+                final JavaRDD<Row> aggregatedData;
+                if (isAggregationRequired) {
+                    final ExtractKeyFromRow keyExtractor = new ExtractKeyFromRow(groupByColumns, columnToPaths,
+                            isEntity);
+                    final JavaPairRDD<Seq<Object>, GenericRowWithSchema> groupedData = data.javaRDD()
+                            .mapToPair(row -> Tuple2$.MODULE$.apply(keyExtractor.call(row), (GenericRowWithSchema) row));
+                    final List<Tuple2<Seq<Object>, GenericRowWithSchema>> kvList = groupedData.take(1);
+                    if (0 == kvList.size()) {
+                        LOGGER.debug("No data was returned in AggregateAndSortGroup for group = {}", group);
+                        return null;
+                    }
+                    final Tuple2<Seq<Object>, GenericRowWithSchema> kv = kvList.get(0);
+                    final JavaPairRDD<Seq<Object>, GenericRowWithSchema> aggregatedDataKV;
+                    if (kv._1().size() == kv._2().size()) {
+                        aggregatedDataKV = groupedData;
+                    } else {
+                        final AggregateGafferRowsFunction aggregator = new AggregateGafferRowsFunction(gafferProperties,
+                                isEntity, groupByColumns, columnToPaths, aggregatorJson, gafferGroupObjectConverter);
+                        aggregatedDataKV = groupedData.reduceByKey(aggregator);
+                    }
+                    aggregatedData = aggregatedDataKV.values().map(genericRow -> (Row) genericRow);
                 } else {
-                    final AggregateGafferRowsFunction aggregator = new AggregateGafferRowsFunction(gafferProperties,
-                            isEntity, groupByColumns, columnToPaths, propertyToAggregatorMap, gafferGroupObjectConverter);
-                    aggregatedDataKV = groupedData.reduceByKey(aggregator);
+                    aggregatedData = data.toJavaRDD();
                 }
-                final JavaRDD<Row> aggregatedData = aggregatedDataKV.values().map(genericRow -> (Row) genericRow);
 
                 // Sort data
                 Dataset<Row> sortedData;

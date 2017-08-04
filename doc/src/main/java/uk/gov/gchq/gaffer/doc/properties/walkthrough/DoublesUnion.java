@@ -35,7 +35,7 @@ import java.util.Set;
 
 public class DoublesUnion extends PropertiesWalkthrough {
     public DoublesUnion() {
-        super("Using DoublesUnion to estimate the quantiles of doubles seen on an Element", "properties/doublesUnion", DoubleUnionElementGenerator.class);
+        super(com.yahoo.sketches.quantiles.DoublesUnion.class, "properties/doublesUnion", DoubleUnionElementGenerator.class);
     }
 
     public static void main(final String[] args) throws OperationException {
