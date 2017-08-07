@@ -156,16 +156,16 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
 
-        final ElementDefinitions<?, ?> that = (ElementDefinitions<?, ?>) o;
+        final ElementDefinitions<?, ?> that = (ElementDefinitions<?, ?>) obj;
 
         return new EqualsBuilder()
                 .append(edges, that.edges)
@@ -175,7 +175,7 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(31, 5)
                 .append(edges)
                 .append(entities)
                 .toHashCode();

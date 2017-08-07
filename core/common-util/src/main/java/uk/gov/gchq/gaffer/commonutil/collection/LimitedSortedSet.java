@@ -70,8 +70,8 @@ public class LimitedSortedSet<E> implements SortedSet<E> {
     }
 
     @Override
-    public boolean contains(final Object o) {
-        return backingSet.contains(o);
+    public boolean contains(final Object obj) {
+        return backingSet.contains(obj);
     }
 
     @Override
@@ -85,8 +85,8 @@ public class LimitedSortedSet<E> implements SortedSet<E> {
     }
 
     @Override
-    public <T> T[] toArray(final T[] a) {
-        return backingSet.toArray(a);
+    public <T> T[] toArray(final T[] arr) {
+        return backingSet.toArray(arr);
     }
 
     @Override
@@ -101,8 +101,8 @@ public class LimitedSortedSet<E> implements SortedSet<E> {
     }
 
     @Override
-    public boolean remove(final Object o) {
-        return backingSet.remove(o);
+    public boolean remove(final Object obj) {
+        return backingSet.remove(obj);
     }
 
     @Override
@@ -153,7 +153,7 @@ public class LimitedSortedSet<E> implements SortedSet<E> {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(17, 41)
                 .append(limit)
                 .append(backingSet)
                 .toHashCode();

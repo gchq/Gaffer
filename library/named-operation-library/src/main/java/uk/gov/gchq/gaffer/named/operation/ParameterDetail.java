@@ -77,16 +77,16 @@ public class ParameterDetail implements Serializable {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
 
-        final ParameterDetail pd = (ParameterDetail) o;
+        final ParameterDetail pd = (ParameterDetail) obj;
 
         return new EqualsBuilder()
                 .append(defaultValue, pd.defaultValue)
@@ -98,7 +98,7 @@ public class ParameterDetail implements Serializable {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(71, 5)
                 .append(defaultValue)
                 .append(required)
                 .append(description)

@@ -117,14 +117,14 @@ public class JobDetail implements Serializable {
 
     @Override
     public boolean equals(final Object obj) {
-        return null != obj
-                && (obj instanceof JobDetail)
-                && equals((JobDetail) obj);
-    }
-
-    public boolean equals(final JobDetail jobDetail) {
-        return null != jobDetail
-                && new EqualsBuilder()
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        final JobDetail jobDetail = (JobDetail) obj;
+        return new EqualsBuilder()
                 .append(jobId, jobDetail.jobId)
                 .append(userId, jobDetail.userId)
                 .append(opChain, jobDetail.opChain)
@@ -135,8 +135,9 @@ public class JobDetail implements Serializable {
                 .isEquals();
     }
 
+    @Override
     public int hashCode() {
-        return new HashCodeBuilder(23, 5)
+        return new HashCodeBuilder(23, 53)
                 .append(jobId)
                 .append(userId)
                 .append(opChain)
@@ -147,6 +148,7 @@ public class JobDetail implements Serializable {
                 .toHashCode();
     }
 
+    @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .append("jobId", jobId)

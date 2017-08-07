@@ -132,8 +132,8 @@ public class InputFormatTest {
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
-    private static String getJsonString(final Object o) throws SerialisationException {
-        return new String(JSON_SERIALISER.serialise(o));
+    private static String getJsonString(final Object obj) throws SerialisationException {
+        return new String(JSON_SERIALISER.serialise(obj));
     }
 
     @Test

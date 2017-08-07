@@ -74,7 +74,7 @@ public class TypeValue implements Comparable<TypeValue> {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(17, 89)
                 .append(type)
                 .append(value)
                 .toHashCode();
