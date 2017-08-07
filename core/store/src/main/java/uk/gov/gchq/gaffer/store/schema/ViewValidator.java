@@ -21,6 +21,7 @@ import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
+import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -29,6 +30,7 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.composite.Composite;
 import uk.gov.gchq.koryphe.signature.Signature;
+import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import java.util.LinkedHashSet;
@@ -78,6 +80,7 @@ public class ViewValidator {
 
                         result.add(validateAgainstStoreTraits(viewElDef, storeTraits));
                         result.add(validateFunctionArgumentTypes(viewElDef.getPreAggregationFilter(), viewElDef, schemaElDef));
+                        result.add(validateFunctionArgumentTypes(viewElDef.getAggregator(), viewElDef, schemaElDef));
                         result.add(validateFunctionArgumentTypes(viewElDef.getPostAggregationFilter(), viewElDef, schemaElDef));
                         result.add(validateFunctionArgumentTypes(viewElDef.getTransformer(), viewElDef, schemaElDef));
                         result.add(validateFunctionArgumentTypes(viewElDef.getPostTransformFilter(), viewElDef, schemaElDef));
@@ -103,6 +106,7 @@ public class ViewValidator {
 
                         result.add(validateAgainstStoreTraits(viewElDef, storeTraits));
                         result.add(validateFunctionArgumentTypes(viewElDef.getPreAggregationFilter(), viewElDef, schemaElDef));
+                        result.add(validateFunctionArgumentTypes(viewElDef.getAggregator(), viewElDef, schemaElDef));
                         result.add(validateFunctionArgumentTypes(viewElDef.getPostAggregationFilter(), viewElDef, schemaElDef));
                         result.add(validateFunctionArgumentTypes(viewElDef.getTransformer(), viewElDef, schemaElDef));
                         result.add(validateFunctionArgumentTypes(viewElDef.getPostTransformFilter(), viewElDef, schemaElDef));
@@ -118,6 +122,9 @@ public class ViewValidator {
     protected ValidationResult validateAgainstStoreTraits(final ViewElementDefinition viewElDef, final Set<StoreTrait> storeTraits) {
         final ValidationResult result = new ValidationResult();
 
+        if (!storeTraits.contains(StoreTrait.QUERY_AGGREGATION) && null != viewElDef.getAggregator()) {
+            result.addError("This store does not currently support " + StoreTrait.QUERY_AGGREGATION.name());
+        }
         validateStoreTrait(viewElDef.getPreAggregationFilter(), StoreTrait.PRE_AGGREGATION_FILTERING, storeTraits, result);
         validateStoreTrait(viewElDef.getPostAggregationFilter(), StoreTrait.POST_AGGREGATION_FILTERING, storeTraits, result);
         validateStoreTrait(viewElDef.getTransformer(), StoreTrait.TRANSFORMATION, storeTraits, result);
@@ -153,6 +160,24 @@ public class ViewValidator {
                 && !functions.getComponents().isEmpty()) {
             result.addError("This store does not currently support " + storeTrait.name());
         }
+    }
+
+    private ValidationResult validateFunctionArgumentTypes(
+            final ElementAggregator aggregator,
+            final ViewElementDefinition viewElDef, final SchemaElementDefinition schemaElDef) {
+        final ValidationResult result = new ValidationResult();
+        if (null != aggregator && null != aggregator.getComponents()) {
+            for (final TupleAdaptedBinaryOperator<String, ?> adaptedFunction : aggregator.getComponents()) {
+                if (null == adaptedFunction.getBinaryOperator()) {
+                    result.addError(aggregator.getClass().getSimpleName() + " contains a null function.");
+                } else {
+                    final Signature inputSig = Signature.getInputSignature(adaptedFunction.getBinaryOperator());
+                    result.add(inputSig.assignable(getTypeClasses(adaptedFunction.getSelection(), viewElDef, schemaElDef)));
+                }
+            }
+        }
+
+        return result;
     }
 
     private ValidationResult validateFunctionArgumentTypes(
@@ -221,16 +246,16 @@ public class ViewValidator {
             if (null != idType) {
                 final String typeName = schemaElDef.getIdentifierTypeName(idType);
                 if (null != typeName) {
-                    LOGGER.error("No class type found for type definition {} used by identifier {}. Please ensure it is defined in the schema.", typeName, idType);
+                    LOGGER.debug("No class type found for type definition {} used by identifier {}. Please ensure it is defined in the schema.", typeName, idType);
                 } else {
-                    LOGGER.error("No type definition defined for identifier {}. Please ensure it is defined in the schema.", idType);
+                    LOGGER.debug("No type definition defined for identifier {}. Please ensure it is defined in the schema.", idType);
                 }
             } else {
                 final String typeName = schemaElDef.getPropertyTypeName(key);
                 if (null != typeName) {
-                    LOGGER.error("No class type found for type definition {} used by property {}. Please ensure it is defined in the schema.", typeName, key);
+                    LOGGER.debug("No class type found for type definition {} used by property {}. Please ensure it is defined in the schema.", typeName, key);
                 } else {
-                    LOGGER.error("No class type found for transient property {}. Please ensure it is defined in the view.", key);
+                    LOGGER.debug("No class type found for transient property {}. Please ensure it is defined in the view.", key);
                 }
             }
         }

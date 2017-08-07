@@ -13,45 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler;
+package uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.ImportRDDOfElements;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.AggregateAndSortTempData;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.GenerateIndices;
+import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.RDD.AggregateGafferElements;
+import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.RDD.ExtractKeyFromElements;
+import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.RDD.WriteUnsortedDataFunction;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SparkParquetUtils;
-import uk.gov.gchq.gaffer.parquetstore.utils.WriteUnsortedDataFunction;
 import uk.gov.gchq.gaffer.spark.SparkUser;
-import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.io.IOException;
 
 /**
- * An {@link OperationHandler} for the {@link ImportRDDOfElements} operation on the {@link ParquetStore}.
+ * Executes the process of importing a {@link JavaRDD} of {@link Element} into the current {@link ParquetStore}
  */
-public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfElements> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ImportRDDOfElementsHandler.class);
+public class AddElementsFromRDD {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsFromRDD.class);
 
-    @Override
-    public Void doOperation(final ImportRDDOfElements operation, final Context context, final Store store)
-            throws OperationException {
-        return addElementsFromRDD(operation, context, (ParquetStore) store);
-    }
-
-    private Void addElementsFromRDD(final ImportRDDOfElements operation, final Context context, final ParquetStore store)
+    protected void addElementsFromRDD(final JavaRDD<Element> input, final Context context, final ParquetStore store)
             throws OperationException {
         try {
             final FileSystem fs = store.getFS();
@@ -67,16 +63,37 @@ public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfE
             if (user instanceof SparkUser) {
                 final SparkSession spark = ((SparkUser) user).getSparkSession();
                 SparkParquetUtils.configureSparkForAddElements(spark, parquetStoreProperties);
-                // Write the data out
-                LOGGER.debug("Starting to write the unsorted Parquet data to {} split by group", tempDataDirString);
+
+                // aggregate new data and write out as unsorted data
+                LOGGER.debug("Starting to write the new unsorted Parquet data after aggregation to {} split by group", tempDataDirString);
+                final Schema gafferSchema = store.getSchema();
+                boolean aggregate = true;
+                for (final String group : gafferSchema.getGroups()) {
+                    if (!gafferSchema.getElement(group).isAggregate()) {
+                        aggregate = false;
+                    }
+                }
                 final WriteUnsortedDataFunction writeUnsortedDataFunction =
                         new WriteUnsortedDataFunction(store.getTempFilesDir(), store.getSchemaUtils());
-                operation.getInput().foreachPartition(writeUnsortedDataFunction);
+                if (aggregate) {
+                    final ExtractKeyFromElements extractKeyFromElements = new ExtractKeyFromElements(gafferSchema);
+                    final AggregateGafferElements aggregateGafferProperties = new AggregateGafferElements(gafferSchema);
+                    input
+                        .mapToPair(extractKeyFromElements)
+                        .reduceByKey(aggregateGafferProperties)
+                        .values()
+                        .foreachPartition(writeUnsortedDataFunction);
+                } else {
+                   input
+                        .foreachPartition(writeUnsortedDataFunction);
+                }
                 LOGGER.debug("Finished writing the unsorted Parquet data to {}", tempDataDirString);
-                // Spark read in the data, aggregate and sort the data
+
+                // Aggregate and sort data
                 LOGGER.debug("Starting to write the sorted and aggregated Parquet data to {} split by group", tempDataDirString);
                 new AggregateAndSortTempData(store, spark);
                 LOGGER.debug("Finished writing the sorted and aggregated Parquet data to {}", tempDataDirString);
+
                 // Generate the file based index
                 LOGGER.debug("Starting to write the indexes");
                 final GraphIndex newGraphIndex = new GenerateIndices(store).getGraphIndex();
@@ -97,7 +114,6 @@ public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfE
         } catch (final StoreException e) {
             throw new OperationException(e.getMessage(), e);
         }
-        return null;
     }
 
     private void moveDataToDataDir(final ParquetStore store,
