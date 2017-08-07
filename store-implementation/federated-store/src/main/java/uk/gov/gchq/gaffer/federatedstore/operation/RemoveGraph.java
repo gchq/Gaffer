@@ -41,7 +41,7 @@ public class RemoveGraph implements Operation {
 
         public Builder setGraphId(final String graphId) {
             _getOp().setGraphId(graphId);
-            return this;
+            return _self();
         }
     }
 }

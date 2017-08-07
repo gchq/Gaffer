@@ -78,7 +78,7 @@ public class AddGraph implements Operation {
 
         public Builder setSchema(final Schema schema) {
             _getOp().setSchema(schema);
-            return this;
+            return _self();
         }
     }
 }
