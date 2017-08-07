@@ -26,6 +26,12 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import java.util.Collection;
 
+/**
+ * A handler for Operations with no output for FederatedStore
+ *
+ * @see OperationHandler
+ * @see FederatedStore
+ */
 public class FederatedOperationHandler implements OperationHandler<Operation> {
     public Object doOperation(final Operation operation, final Context context, final Store store) throws OperationException {
         final Collection<Graph> graphs = ((FederatedStore) store).getGraphs();

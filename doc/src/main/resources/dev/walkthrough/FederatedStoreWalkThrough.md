@@ -3,7 +3,7 @@ ${HEADER}
 ${CODE_LINK}
 
 This example explains how to create a FederatedStore, add additional graphs and call operations against the FederatedStore.
-The FederatedStore encapsulates a collection sub-graphs and executes operations against them and returns a results just like it was a single graph.
+The FederatedStore encapsulates a collection of sub-graphs and executes operations against them and returns a results just like it was a single graph.
 
 #### Configuration
 

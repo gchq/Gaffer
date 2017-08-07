@@ -19,12 +19,21 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandler;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import java.util.List;
 
+/**
+ * A handler for GetElements operation for the FederatedStore.
+ *
+ * @see OperationHandler
+ * @see FederatedStore
+ * @see GetElements
+ */
 public class FederatedGetElementsHandler extends FederatedOperationOutputHandler<GetElements, CloseableIterable<? extends Element>> {
     @Override
     protected CloseableIterable<? extends Element> mergeResults(final List<CloseableIterable<? extends Element>> results, final GetElements operation, final Context context, final Store store) {

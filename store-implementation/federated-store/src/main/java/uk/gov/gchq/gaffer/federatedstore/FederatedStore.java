@@ -27,8 +27,8 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationAddElementsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddElementsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllElementsHandler;
@@ -67,6 +67,27 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+/**
+ * A Store that encapsulates a collection of sub-graphs
+ * and executes operations against them and returns
+ * results just like it was a single graph.
+ * <p>
+ * To create a FederatedStore you need to initialise the store with a graph name and a properties file.
+ * <p>
+ * To load a graph into the FederatedStore you need to provide three things.
+ * <ul>
+ * <li>GraphID
+ * <li>Graph Schema
+ * <li>Graph Properties file
+ * </ul>
+ * <p>
+ * To remove a graph from FederatedStore scope you need the GraphID.
+ *
+ * @see Store
+ * @see Graph
+ * @see StoreProperties
+ * @see Schema
+ */
 public class FederatedStore extends Store {
     public static final String GAFFER_FEDERATEDSTORE = "gaffer.federatedstore.";
     public static final String PROPERTIES = "properties";
@@ -291,11 +312,6 @@ public class FederatedStore extends Store {
                 .filter(op -> !Output.class.isAssignableFrom(op) && !AddElements.class.equals(op))
                 .forEach(op -> addOperationHandler(op, new FederatedOperationHandler()));
 
-        // Override the Output operations
-//        addOperationHandler(Min.class, new FederatedMinHandler());
-//        addOperationHandler(Max.class, new FederatedMaxHandler());
-//        addOperationHandler(Sort.class, new FederatedSortHandler());
-
         addOperationHandler(AddGraph.class, new FederatedAddGraphHandler());
         addOperationHandler(RemoveGraph.class, new FederatedRemoveGraphHandler());
     }
@@ -317,7 +333,7 @@ public class FederatedStore extends Store {
 
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
-        return new FederatedOperationAddElementsHandler();
+        return new FederatedAddElementsHandler();
     }
 
     @Override

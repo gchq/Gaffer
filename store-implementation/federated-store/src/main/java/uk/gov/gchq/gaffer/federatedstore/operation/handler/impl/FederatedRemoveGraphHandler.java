@@ -23,6 +23,15 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
+/**
+ * A handler for RemoveGraph operation for the FederatedStore.
+ * <p>
+ * Does not delete the graph, just removes it from the scope of the FederatedStore.
+ *
+ * @see OperationHandler
+ * @see FederatedStore
+ * @see RemoveGraph
+ */
 public class FederatedRemoveGraphHandler implements OperationHandler<RemoveGraph> {
     @Override
     public Void doOperation(final RemoveGraph operation, final Context context, final Store store) throws OperationException {

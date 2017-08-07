@@ -17,12 +17,28 @@
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
+import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Properties;
 
-
+/**
+ * An Operation used for adding graphs to a FederatedStore.
+ * <p>Requires:
+ * <ul>
+ * <li>graphId
+ * <li>properties
+ * <li>schema
+ * </ul>
+ *
+ * @see FederatedStore
+ * @see Operation
+ * @see Schema
+ * @see Properties
+ * @see Graph
+ */
 public class AddGraph implements Operation {
 
     @Required
@@ -73,7 +89,7 @@ public class AddGraph implements Operation {
         }
 
         public Builder setStoreProperties(final StoreProperties storeProperties) {
-           return setStoreProperties(storeProperties.getProperties());
+            return setStoreProperties(storeProperties.getProperties());
         }
 
         public Builder setSchema(final Schema schema) {

@@ -25,6 +25,19 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
+/**
+ * A handler for AddGraph operation for the FederatedStore.
+ * To load a graph into the FederatedStore you need to provide three things.
+ * <ul>
+ * <li>GraphID
+ * <li>Graph Schema
+ * <li>Graph Properties file
+ * </ul>
+ *
+ * @see OperationHandler
+ * @see FederatedStore
+ * @see AddGraph
+ */
 public class FederatedAddGraphHandler implements OperationHandler<AddGraph> {
     @Override
     public Void doOperation(final AddGraph operation, final Context context, final Store store) throws OperationException {

@@ -23,11 +23,19 @@ import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * A abstract handler for Operations with output for FederatedStore
+ *
+ * @see OperationHandler
+ * @see FederatedStore
+ * @see OutputOperationHandler
+ */
 public abstract class FederatedOperationOutputHandler<OP extends Output<O>, O> implements OutputOperationHandler<OP, O> {
 
     @Override
