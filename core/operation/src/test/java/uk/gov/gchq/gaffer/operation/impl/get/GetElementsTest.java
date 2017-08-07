@@ -124,6 +124,7 @@ public class GetElementsTest extends OperationTest<GetElements> {
         // When
         final GetElements op = new GetElements.Builder()
                 .directedType(DirectedType.EITHER)
+                .input(new EntitySeed())
                 .build();
 
         // Then
@@ -135,11 +136,21 @@ public class GetElementsTest extends OperationTest<GetElements> {
         // When
         final GetElements op = new GetElements.Builder()
                 .option("key", "value")
+                .input(new EntitySeed())
                 .build();
 
         // Then
         assertThat(op.getOptions(), is(notNullValue()));
         assertThat(op.getOptions().get("key"), is("value"));
+    }
+
+    @Test
+    public void shouldFailWhenInputUndefined() {
+        // When
+        final GetElements op = new GetElements();
+
+        // Then
+        assertFalse(op.validate().isValid());
     }
 
     @Test
@@ -151,6 +162,8 @@ public class GetElementsTest extends OperationTest<GetElements> {
 
     @Override
     protected GetElements getTestObject() {
-        return new GetElements();
+        return new GetElements.Builder()
+                .input(new EntitySeed())
+                .build();
     }
 }
