@@ -295,7 +295,7 @@ public class GraphTest {
 
         // When / Then
         try {
-            graph.submitJob(opChain, user);
+            graph.executeJob(opChain, user);
             fail("Exception expected");
         } catch (final Exception e) {
             assertSame(exception, e);
@@ -356,7 +356,7 @@ public class GraphTest {
                 .build();
 
         // When
-        graph.submitJob(opChain, user);
+        graph.executeJob(opChain, user);
 
         // Then
         final ArgumentCaptor<OperationChain> captor1 = ArgumentCaptor.forClass(OperationChain.class);
@@ -485,7 +485,7 @@ public class GraphTest {
         given(store.executeJob(opChain, user)).willReturn(result1);
 
         // When
-        final JobDetail actualResult = graph.submitJob(opChain, user);
+        final JobDetail actualResult = graph.executeJob(opChain, user);
 
         // Then
         final InOrder inOrder = inOrder(hook1, hook2);

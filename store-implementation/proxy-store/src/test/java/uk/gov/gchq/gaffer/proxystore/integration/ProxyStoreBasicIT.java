@@ -162,7 +162,7 @@ public class ProxyStoreBasicIT {
         final AddElements add = new AddElements.Builder()
                 .input(DEFAULT_ELEMENTS)
                 .build();
-        JobDetail jobDetail = graph.submitJob(new OperationChain<>(add), USER);
+        JobDetail jobDetail = graph.executeJob(new OperationChain<>(add), USER);
 
         // Wait until the job status is not RUNNING
         while (JobStatus.RUNNING.equals(jobDetail.getStatus())) {

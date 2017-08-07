@@ -88,7 +88,7 @@ public class Jobs extends DevWalkthrough {
 
         // [execute job] execute the job
         // ---------------------------------------------------------
-        final JobDetail initialJobDetail = graph.submitJob(job, user);
+        final JobDetail initialJobDetail = graph.executeJob(job, user);
         final String jobId = initialJobDetail.getJobId();
         // ---------------------------------------------------------
         log("JOB_DETAIL_START", initialJobDetail.toString());

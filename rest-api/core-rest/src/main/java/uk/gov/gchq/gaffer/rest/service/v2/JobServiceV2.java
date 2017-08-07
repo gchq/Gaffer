@@ -67,7 +67,7 @@ public class JobServiceV2 implements IJobServiceV2 {
 
         try {
             final JobDetail jobDetail = graphFactory.getGraph()
-                                                    .submitJob(opChain, user);
+                                                    .executeJob(opChain, user);
             LOGGER.info("Job started = {}", jobDetail);
 
             final URI location = context.getAbsolutePathBuilder()
