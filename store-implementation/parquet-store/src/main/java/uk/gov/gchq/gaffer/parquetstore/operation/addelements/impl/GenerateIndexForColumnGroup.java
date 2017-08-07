@@ -29,7 +29,7 @@ import scala.collection.mutable.Seq$;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.index.ColumnIndex;
-import uk.gov.gchq.gaffer.parquetstore.index.MinMaxPath;
+import uk.gov.gchq.gaffer.parquetstore.index.MinValuesWithPath;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.koryphe.tuple.n.Tuple4;
 
@@ -73,12 +73,10 @@ public class GenerateIndexForColumnGroup implements Callable<Tuple4<String, Stri
                     for (int i = 1; i < numberOfColumns; i++) {
                         seqBuilder.$plus$eq(paths[i]);
                     }
-                    ReduceRowsToGetLastRow reducer = new ReduceRowsToGetLastRow(paths);
                     final Dataset<Row> fileData = spark.read().parquet(file.getPath().toString()).select(firstColumn, seqBuilder.result());
                     if (fileData.count() > 0) {
                         final Row minRow = fileData.head();
-                        final Row maxRow = fileData.reduce(reducer);
-                        columnIndex.add(generateGafferObjectsIndex(minRow, maxRow, file.getPath().getName()));
+                        columnIndex.add(generateGafferObjectsIndex(minRow, file.getPath().getName()));
                     }
                 }
             }
@@ -90,14 +88,12 @@ public class GenerateIndexForColumnGroup implements Callable<Tuple4<String, Stri
         return new Tuple4<>(group, column, columnIndex, null);
     }
 
-    private MinMaxPath generateGafferObjectsIndex(final Row minRow, final Row maxRow, final String path) throws StoreException {
+    private MinValuesWithPath generateGafferObjectsIndex(final Row minRow, final String path) throws StoreException {
         final int numOfCols = minRow.length();
         final Object[] min = new Object[numOfCols];
-        final Object[] max = new Object[numOfCols];
         for (int i = 0; i < numOfCols; i++) {
             min[i] = minRow.get(i);
-            max[i] = maxRow.get(i);
         }
-        return new MinMaxPath(min, max, path);
+        return new MinValuesWithPath(min, path);
     }
 }

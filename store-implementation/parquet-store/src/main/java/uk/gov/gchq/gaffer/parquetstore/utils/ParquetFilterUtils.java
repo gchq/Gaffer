@@ -35,7 +35,7 @@ import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.index.GroupIndex;
-import uk.gov.gchq.gaffer.parquetstore.index.MinMaxPath;
+import uk.gov.gchq.gaffer.parquetstore.index.MinValuesWithPath;
 import uk.gov.gchq.koryphe.impl.predicate.And;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import uk.gov.gchq.koryphe.impl.predicate.IsFalse;
@@ -372,48 +372,69 @@ public final class ParquetFilterUtils {
         final Iterator<Object[]> sortedSeedsIter = sortedSeeds.iterator();
         final GroupIndex groupIndex = graphIndex.getGroup(group);
         if (groupIndex != null && groupIndex.columnsIndexed().contains(indexedColumn)) {
-            final Iterator<MinMaxPath> indexIter = groupIndex.getColumn(indexedColumn).getIterator();
-            Object[] currentSeed;
+            final Iterator<MinValuesWithPath> indexIter = groupIndex.getColumn(indexedColumn).getIterator();
+            Object[] currentSeed = null;
+            MinValuesWithPath indexEntry;
             if (indexIter.hasNext()) {
-                MinMaxPath indexEntry = indexIter.next();
-                while (sortedSeedsIter.hasNext()) {
-                    currentSeed = sortedSeedsIter.next();
-                    boolean nextSeed = false;
-                    while (!nextSeed && indexEntry != null) {
-                        final Object min = indexEntry.getMin();
-                        final Object max = indexEntry.getMax();
-                        final String file = indexEntry.getPath();
-                        LOGGER.debug("Current file: {}", file);
-                        // If min <= seed && max >= seed
-                        final int min2seed = COMPARATOR.compare(min, currentSeed);
-                        LOGGER.debug("min2seed comparator: {}", min2seed);
-                        final int max2seed = COMPARATOR.compare(max, currentSeed);
-                        LOGGER.debug("max2seed comparator: {}", max2seed);
-                        if (min2seed < 1 && max2seed >= 0) {
-                            final Path fullFilePath = new Path(ParquetStore.getGroupDirectory(group, indexedColumn, dataDir) + "/" + file);
-                            final Set<Path> paths = seedsToPaths.getOrDefault(currentSeed, new HashSet<>());
-                            paths.add(fullFilePath);
-                            seedsToPaths.put(currentSeed, paths);
-                            if (max2seed == 0) {
-                                if (indexIter.hasNext()) {
-                                    indexEntry = indexIter.next();
+                indexEntry = indexIter.next();
+                if (indexIter.hasNext()) {
+                    MinValuesWithPath nextIndexEntry = indexIter.next();
+                    while (sortedSeedsIter.hasNext() && nextIndexEntry != null) {
+                        currentSeed = sortedSeedsIter.next();
+                        boolean nextSeed = false;
+                        while (!nextSeed && nextIndexEntry != null) {
+                            final Object min = indexEntry.getMin();
+                            final Object max = nextIndexEntry.getMin();
+                            final String file = indexEntry.getPath();
+                            LOGGER.debug("Current file: {}", file);
+                            // If min <= seed && max >= seed
+                            final int min2seed = COMPARATOR.compare(min, currentSeed);
+                            LOGGER.debug("min2seed comparator: {}", min2seed);
+                            final int max2seed = COMPARATOR.compare(max, currentSeed);
+                            LOGGER.debug("max2seed comparator: {}", max2seed);
+                            if (min2seed < 1 && max2seed >= 0) {
+                                final Path fullFilePath = new Path(ParquetStore.getGroupDirectory(group, indexedColumn, dataDir) + "/" + file);
+                                final Set<Path> paths = seedsToPaths.getOrDefault(currentSeed, new HashSet<>());
+                                paths.add(fullFilePath);
+                                seedsToPaths.put(currentSeed, paths);
+                                if (max2seed == 0) {
+                                    indexEntry = nextIndexEntry;
+                                    if (indexIter.hasNext()) {
+                                        nextIndexEntry = indexIter.next();
+                                    } else {
+                                        nextIndexEntry = null;
+                                    }
                                 } else {
-                                    indexEntry = null;
+                                    nextSeed = true;
                                 }
-                            } else {
+                            } else if (min2seed > 0) {
                                 nextSeed = true;
-                            }
-                        } else if (min2seed > 0) {
-                            nextSeed = true;
-                        } else {
-                            if (indexIter.hasNext()) {
-                                indexEntry = indexIter.next();
                             } else {
-                                indexEntry = null;
+                                indexEntry = nextIndexEntry;
+                                if (indexIter.hasNext()) {
+                                    nextIndexEntry = indexIter.next();
+                                } else {
+                                    nextIndexEntry = null;
+                                }
                             }
                         }
                     }
                 }
+                if (currentSeed == null && sortedSeedsIter.hasNext()) {
+                    currentSeed = sortedSeedsIter.next();
+                }
+                final String file = indexEntry.getPath();
+                final Path fullFilePath = new Path(ParquetStore.getGroupDirectory(group, indexedColumn, dataDir) + "/" + file);
+                do {
+                    final Set<Path> paths = seedsToPaths.getOrDefault(currentSeed, new HashSet<>());
+                    paths.add(fullFilePath);
+                    seedsToPaths.put(currentSeed, paths);
+                    if (sortedSeedsIter.hasNext()) {
+                        currentSeed = sortedSeedsIter.next();
+                    } else {
+                        currentSeed = null;
+                    }
+                } while (currentSeed != null);
             }
         }
         return seedsToPaths;
