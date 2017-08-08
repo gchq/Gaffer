@@ -19,35 +19,52 @@ package uk.gov.gchq.gaffer.parquetstore.serialisation.impl;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
 import java.util.ArrayList;
+import java.util.Arrays;
 
-public class ArrayListParquetSerialiser implements ParquetSerialiser<ArrayList> {
+/**
+ * This class is used to serialise and de-serialise a {@link ArrayList} value for use by the
+ * {@link uk.gov.gchq.gaffer.parquetstore.ParquetStore}.
+ */
+public class ArrayListStringParquetSerialiser implements ParquetSerialiser<ArrayList<String>> {
     private static final long serialVersionUID = -1415767993602827390L;
 
     @Override
     public String getParquetSchema(final String colName) {
-        return "optional ArrayList " + colName + ";";
+        return "optional group " + colName + " (LIST) {\n" +
+                " repeated group list {\n" +
+                "  optional binary element (UTF8);\n" +
+                " }\n" +
+                "}";
     }
 
     @Override
-    public Object[] serialise(final ArrayList object) throws SerialisationException {
-        return new Object[]{object};
+    public Object[] serialise(final ArrayList<String> object) throws SerialisationException {
+        if (object != null) {
+            final String[] objects = new String[object.size()];
+            object.toArray(objects);
+            return new Object[]{objects};
+        }
+        return new Object[]{null};
     }
 
     @Override
-    public ArrayList deserialise(final Object[] objects) throws SerialisationException {
+    public ArrayList<String> deserialise(final Object[] objects) throws SerialisationException {
+
         if (objects.length == 1) {
-            if (objects[0] instanceof ArrayList) {
-                return (ArrayList) objects[0];
+            if (objects[0] instanceof String[]) {
+                final ArrayList<String> arrayList = new ArrayList<>();
+                arrayList.addAll(Arrays.asList(((String[]) objects[0])));
+                return arrayList;
             } else if (objects[0] == null) {
                 return null;
             }
         }
-        throw new SerialisationException("Could not de-serialise objects to an ArrayList");
+        throw new SerialisationException("Could not de-serialise objects to an ArrayList<String");
     }
 
     @Override
-    public ArrayList deserialiseEmpty() throws SerialisationException {
-        throw new SerialisationException("Could not de-serialise the empty bytes to an ArrayList");
+    public ArrayList<String> deserialiseEmpty() throws SerialisationException {
+        throw new SerialisationException("Could not de-serialise the empty bytes to an ArrayList<String>");
     }
 
     @Override

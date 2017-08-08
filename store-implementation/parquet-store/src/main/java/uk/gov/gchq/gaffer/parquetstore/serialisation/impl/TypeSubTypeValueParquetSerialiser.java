@@ -20,6 +20,10 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
 import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
 
+/**
+ * This class is used to serialise and de-serialise a {@link TypeSubTypeValue} value for use by the
+ * {@link uk.gov.gchq.gaffer.parquetstore.ParquetStore}.
+ */
 public class TypeSubTypeValueParquetSerialiser implements ParquetSerialiser<TypeSubTypeValue> {
     private static final long serialVersionUID = -3115394457831438674L;
 
@@ -28,16 +32,6 @@ public class TypeSubTypeValueParquetSerialiser implements ParquetSerialiser<Type
         return "optional binary " + colName + "_type (UTF8);\n" +
                 "optional binary " + colName + "_subType (UTF8);\n" +
                 "optional binary " + colName + "_value (UTF8);";
-    }
-
-    @Override
-    public Object[] serialiseNull() {
-        return new Object[0];
-    }
-
-    @Override
-    public boolean canHandle(final Class clazz) {
-        return TypeSubTypeValue.class.equals(clazz);
     }
 
     @Override
@@ -70,5 +64,15 @@ public class TypeSubTypeValueParquetSerialiser implements ParquetSerialiser<Type
     @Override
     public boolean preservesObjectOrdering() {
         return true;
+    }
+
+    @Override
+    public Object[] serialiseNull() {
+        return new Object[0];
+    }
+
+    @Override
+    public boolean canHandle(final Class clazz) {
+        return TypeSubTypeValue.class.equals(clazz);
     }
 }
