@@ -19,12 +19,14 @@ package uk.gov.gchq.gaffer.parquetstore.operation;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.junit.AfterClass;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
@@ -51,9 +53,11 @@ public abstract class AbstractSparkOperationsTest {
     static SparkSession spark = SparkSession.builder()
             .appName("Parquet Gaffer Store tests")
             .master(getParquetStoreProperties().getSparkMaster())
+            .config(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true")
             .config(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
             .config(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
             .getOrCreate();
+    static JavaSparkContext javaSparkContext = JavaSparkContext.fromSparkContext(spark.sparkContext());
     static User USER = new SparkUser(new User(), spark);
     Graph graph;
 
@@ -101,7 +105,7 @@ public abstract class AbstractSparkOperationsTest {
     @Test
     public void getDataFrameOfElementsWithViewTest() throws OperationException {
         final View view = new View.Builder()
-                .entity("BasicEntity",
+                .entity(TestGroups.ENTITY,
                         new ViewElementDefinition.Builder().preAggregationFilter(
                                 new ElementFilter.Builder().select("double").execute(new IsEqual(0.2)).build()
                         ).build())
