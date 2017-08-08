@@ -21,7 +21,7 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import java.util.Arrays;
 
 /**
- * This class is used to store a single parquet file's path along with the Min and Max parquet objects that are contained in that file
+ * This class is used to store a single parquet file's path along with the first rows parquet objects that are contained in that file
  * for a specific gaffer column, i.e. if the vertex was a {@link uk.gov.gchq.gaffer.types.TypeValue} object then the Min would consist of two Strings,
  * the first representing the type and the second representing the value.
  */
@@ -49,7 +49,7 @@ public class MinValuesWithPath {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        sb.append("MinMaxPath{ ")
+        sb.append("MinValuesWithPath{ ")
                 .append("Min=").append(Arrays.toString(min))
                 .append(", path=").append(path);
         return sb.toString();
