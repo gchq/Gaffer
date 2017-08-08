@@ -84,7 +84,7 @@ public class LimitedInMemorySortedIterable<E> implements Iterable<E> {
                 final Map.Entry<E, LazyCollection<E>> last = backingMap.lastEntry();
                 if (comparator.compare(last.getKey(), e) > 0) {
                     if (last.getValue().size() > 1) {
-                        last.getValue().removeFirst();
+                        last.getValue().removeAnyItem();
                     } else {
                         backingMap.remove(last.getKey());
                     }

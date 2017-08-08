@@ -46,6 +46,14 @@ public class LazyCollection<T> implements Iterable<T> {
     private Collection<T> collection;
     private T singleItem;
 
+    public LazyCollection() {
+        this(true);
+    }
+
+    public LazyCollection(final boolean deduplicate) {
+        this(deduplicate, null);
+    }
+
     public LazyCollection(final boolean deduplicate, final T item) {
         this.deduplicate = deduplicate;
         this.singleItem = item;
@@ -88,14 +96,14 @@ public class LazyCollection<T> implements Iterable<T> {
         return result;
     }
 
-    public void removeFirst() {
+    public void removeAnyItem() {
         if (null == collection) {
             singleItem = null;
-        } else if (!collection.isEmpty()) {
+        } else {
             if (deduplicate) {
                 collection.remove(collection.iterator().next());
             } else {
-                ((List<T>) collection).remove(0);
+                ((List<T>) collection).remove(collection.size() - 1);
             }
         }
     }
@@ -112,7 +120,11 @@ public class LazyCollection<T> implements Iterable<T> {
     }
 
     public boolean isEmpty() {
-        return null == collection && null == singleItem;
+        if (null == collection) {
+            return null == singleItem;
+        }
+
+        return collection.isEmpty();
     }
 
     public boolean contains(final Object o) {
