@@ -28,6 +28,7 @@ import java.io.Serializable;
 public class AggregateGafferElements implements Function2<Element, Element, Element>, Serializable {
     private static final long serialVersionUID = -256158555820968598L;
     private final byte[] jsonGafferSchema;
+    private transient Schema gafferSchema;
 
     public AggregateGafferElements(final Schema gafferSchema) {
         jsonGafferSchema = gafferSchema.toCompactJson();
@@ -35,7 +36,10 @@ public class AggregateGafferElements implements Function2<Element, Element, Elem
 
     @Override
     public Element call(final Element v1, final Element v2) {
-        final ElementAggregator aggregator = Schema.fromJson(jsonGafferSchema).getElement(v2.getGroup()).getIngestAggregator();
+        if (null == gafferSchema) {
+            gafferSchema = Schema.fromJson(jsonGafferSchema);
+        }
+        final ElementAggregator aggregator = gafferSchema.getElement(v2.getGroup()).getIngestAggregator();
         return aggregator.apply(v1, v2);
     }
 }

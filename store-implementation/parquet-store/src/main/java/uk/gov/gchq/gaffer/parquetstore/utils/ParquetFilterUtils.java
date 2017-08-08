@@ -35,7 +35,7 @@ import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.index.GroupIndex;
-import uk.gov.gchq.gaffer.parquetstore.index.MinMaxPath;
+import uk.gov.gchq.gaffer.parquetstore.index.MinValuesWithPath;
 import uk.gov.gchq.koryphe.impl.predicate.And;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import uk.gov.gchq.koryphe.impl.predicate.IsFalse;
@@ -211,15 +211,15 @@ public final class ParquetFilterUtils {
     }
 
     /**
-     * Returns a {@link Tuple2} in which the first entry is a sorted {@link Set} of the seeds converted to the form in
-     * which they appear in the Parquet files, and the second entry is a {@link Map} from the seeds to a {@link Tuple2}
+     * Returns a {@link Pair} in which the first entry is a sorted {@link Set} of the seeds converted to the form in
+     * which they appear in the Parquet files, and the second entry is a {@link Map} from the seeds to a {@link Pair}
      * which is <code>null</code> if the seed is an {@link EntitySeed} and consists of the destination vertex and
      * directed type if the seed is an {@link EdgeSeed}.
      *
      * @param identifier the column that the seed relates to
      * @param group the group that is currently being queried
-     * @return a {@link Tuple2} in which the first entry is a sorted {@link Set} of the seeds converted to the form in
-     * which they appear in the Parquet files, and the second entry is a {@link Map} from the seeds to a {@link Tuple2}
+     * @return a {@link Pair} in which the first entry is a sorted {@link Set} of the seeds converted to the form in
+     * which they appear in the Parquet files, and the second entry is a {@link Map} from the seeds to a {@link Pair}
      * which is <code>null</code> if the seed is an {@link EntitySeed} and consists of the destination vertex and
      * directed type if the seed is an {@link EdgeSeed}.
      * @throws SerialisationException if the conversion from the seed to corresponding Parquet objects fails
@@ -372,21 +372,19 @@ public final class ParquetFilterUtils {
         final Iterator<Object[]> sortedSeedsIter = sortedSeeds.iterator();
         final GroupIndex groupIndex = graphIndex.getGroup(group);
         if (groupIndex != null && groupIndex.columnsIndexed().contains(indexedColumn)) {
-            final Iterator<MinMaxPath> indexIter = groupIndex.getColumn(indexedColumn).getIterator();
-            Object[] currentSeed;
+            final Iterator<MinValuesWithPath> indexIter = groupIndex.getColumn(indexedColumn).getIterator();
+            Object[] currentSeed = null;
+            MinValuesWithPath indexEntry;
             if (indexIter.hasNext()) {
-                MinMaxPath indexEntry = indexIter.next();
-                while (sortedSeedsIter.hasNext()) {
-                    currentSeed = sortedSeedsIter.next();
-                    if (currentSeed.length > 1) {
-                        final Set<Path> paths = new HashSet<>();
-                        paths.add(new Path(ParquetStore.getGroupDirectory(group, indexedColumn, dataDir)));
-                        seedsToPaths.put(currentSeed, paths);
-                    } else {
+                indexEntry = indexIter.next();
+                if (indexIter.hasNext()) {
+                    MinValuesWithPath nextIndexEntry = indexIter.next();
+                    while (sortedSeedsIter.hasNext() && nextIndexEntry != null) {
+                        currentSeed = sortedSeedsIter.next();
                         boolean nextSeed = false;
-                        while (!nextSeed && indexEntry != null) {
+                        while (!nextSeed && nextIndexEntry != null) {
                             final Object min = indexEntry.getMin();
-                            final Object max = indexEntry.getMax();
+                            final Object max = nextIndexEntry.getMin();
                             final String file = indexEntry.getPath();
                             LOGGER.debug("Current file: {}", file);
                             // If min <= seed && max >= seed
@@ -400,10 +398,11 @@ public final class ParquetFilterUtils {
                                 paths.add(fullFilePath);
                                 seedsToPaths.put(currentSeed, paths);
                                 if (max2seed == 0) {
+                                    indexEntry = nextIndexEntry;
                                     if (indexIter.hasNext()) {
-                                        indexEntry = indexIter.next();
+                                        nextIndexEntry = indexIter.next();
                                     } else {
-                                        indexEntry = null;
+                                        nextIndexEntry = null;
                                     }
                                 } else {
                                     nextSeed = true;
@@ -411,15 +410,31 @@ public final class ParquetFilterUtils {
                             } else if (min2seed > 0) {
                                 nextSeed = true;
                             } else {
+                                indexEntry = nextIndexEntry;
                                 if (indexIter.hasNext()) {
-                                    indexEntry = indexIter.next();
+                                    nextIndexEntry = indexIter.next();
                                 } else {
-                                    indexEntry = null;
+                                    nextIndexEntry = null;
                                 }
                             }
                         }
                     }
                 }
+                if (currentSeed == null && sortedSeedsIter.hasNext()) {
+                    currentSeed = sortedSeedsIter.next();
+                }
+                final String file = indexEntry.getPath();
+                final Path fullFilePath = new Path(ParquetStore.getGroupDirectory(group, indexedColumn, dataDir) + "/" + file);
+                do {
+                    final Set<Path> paths = seedsToPaths.getOrDefault(currentSeed, new HashSet<>());
+                    paths.add(fullFilePath);
+                    seedsToPaths.put(currentSeed, paths);
+                    if (sortedSeedsIter.hasNext()) {
+                        currentSeed = sortedSeedsIter.next();
+                    } else {
+                        currentSeed = null;
+                    }
+                } while (currentSeed != null);
             }
         }
         return seedsToPaths;
