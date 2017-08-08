@@ -19,14 +19,15 @@ package uk.gov.gchq.gaffer.parquetstore.serialisation.impl;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
 import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
-import java.util.ArrayList;
 
 public class TypeSubTypeValueParquetSerialiser implements ParquetSerialiser<TypeSubTypeValue> {
     private static final long serialVersionUID = -3115394457831438674L;
 
     @Override
     public String getParquetSchema(final String colName) {
-        return "optional TypeSubTypeValue " + colName + ";";
+        return "optional binary " + colName + "_type (UTF8);\n" +
+                "optional binary " + colName + "_subType (UTF8);\n" +
+                "optional binary " + colName + "_value (UTF8);";
     }
 
     @Override
@@ -41,14 +42,19 @@ public class TypeSubTypeValueParquetSerialiser implements ParquetSerialiser<Type
 
     @Override
     public Object[] serialise(final TypeSubTypeValue object) throws SerialisationException {
-        return new Object[]{object};
+        if (object != null) {
+            return new Object[]{object.getType(), object.getSubType(), object.getValue()};
+        }
+        return new Object[]{null, null, null};
     }
 
     @Override
     public TypeSubTypeValue deserialise(final Object[] objects) throws SerialisationException {
-        if (objects.length == 1) {
-            if (objects[0] instanceof ArrayList) {
-                return (TypeSubTypeValue) objects[0];
+        if (objects.length == 3) {
+            if (objects[0] instanceof String
+                    && objects[1] instanceof String
+                    && objects[2] instanceof String) {
+                return new TypeSubTypeValue((String) objects[0], (String) objects[1], (String) objects[2]);
             } else if (objects[0] == null) {
                 return null;
             }
