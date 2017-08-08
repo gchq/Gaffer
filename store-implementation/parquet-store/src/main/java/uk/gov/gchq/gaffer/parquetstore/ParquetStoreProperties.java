@@ -34,16 +34,17 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
     public static final String TEMP_FILES_DIR = "parquet.temp_data.dir";
     public static final String PARQUET_ROW_GROUP_SIZE_IN_BYTES = "parquet.add_elements.row_group.size";
     public static final String PARQUET_PAGE_SIZE_IN_BYTES = "parquet.add_elements.page.size";
-    public static final String PARQUET_ADD_ELEMENTS_THREADS_AVAILABLE = "parquet.add_elements.threadsAvailable";
+    public static final String PARQUET_THREADS_AVAILABLE = "parquet.add_elements.threadsAvailable";
     public static final String PARQUET_ADD_ELEMENTS_OUTPUT_FILES_PER_GROUP = "parquet.add_elements.output_files_per_group";
     public static final String SPARK_MASTER = "spark.master";
+
 
     // Default values
     private static final String DATA_DIR_DEFAULT = "parquet_data";
     private static final String TEMP_FILES_DIR_DEFAULT = ".gaffer/temp_parquet_data";
     private static final String PARQUET_ROW_GROUP_SIZE_IN_BYTES_DEFAULT = "4194304"; //4MB
     private static final String PARQUET_PAGE_SIZE_IN_BYTES_DEFAULT = "1048576"; //1MB
-    private static final String PARQUET_ADD_ELEMENTS_THREADS_AVAILABLE_DEFAULT = "3";
+    private static final String PARQUET_THREADS_AVAILABLE_DEFAULT = "3";
     private static final String PARQUET_ADD_ELEMENTS_OUTPUT_FILES_PER_GROUP_DEFAULT = "100";
     private static final String SPARK_MASTER_DEFAULT = "local[*]";
     private static final long serialVersionUID = 7695540336792378185L;
@@ -75,11 +76,11 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
     }
 
     public Integer getThreadsAvailable() {
-        return Integer.parseInt(get(PARQUET_ADD_ELEMENTS_THREADS_AVAILABLE, PARQUET_ADD_ELEMENTS_THREADS_AVAILABLE_DEFAULT));
+        return Integer.parseInt(get(PARQUET_THREADS_AVAILABLE, PARQUET_THREADS_AVAILABLE_DEFAULT));
     }
 
     public void setThreadsAvailable(final Integer threadsAvailable) {
-        set(PARQUET_ADD_ELEMENTS_THREADS_AVAILABLE, threadsAvailable.toString());
+        set(PARQUET_THREADS_AVAILABLE, threadsAvailable.toString());
     }
 
     public Integer getRowGroupSize() {
