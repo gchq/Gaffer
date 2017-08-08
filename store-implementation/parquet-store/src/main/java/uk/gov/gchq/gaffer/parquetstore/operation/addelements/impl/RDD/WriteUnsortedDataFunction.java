@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.parquetstore.utils;
+package uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.RDD;
 
+import org.apache.spark.api.java.function.VoidFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.collection.Iterator;
-import scala.runtime.AbstractFunction1;
-import scala.runtime.BoxedUnit;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.WriteUnsortedData;
+import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
 import java.io.Serializable;
+import java.util.Iterator;
 
 /**
  * This is a function used by Spark to write out a Spark RDD's partition of data to file.
  */
-public class WriteUnsortedDataFunction extends AbstractFunction1<Iterator<Element>, BoxedUnit> implements Serializable {
+public class WriteUnsortedDataFunction implements Serializable, VoidFunction<Iterator<Element>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WriteUnsortedDataFunction.class);
     private static final long serialVersionUID = 1420859039414174311L;
@@ -44,14 +45,13 @@ public class WriteUnsortedDataFunction extends AbstractFunction1<Iterator<Elemen
     }
 
     @Override
-    public BoxedUnit apply(final Iterator<Element> elements) {
+    public void call(final Iterator<Element> elements) throws Exception {
         SchemaUtils utils = new SchemaUtils(Schema.fromJson(gafferSchema));
         final WriteUnsortedData writer = new WriteUnsortedData(tempFilesDir, utils);
         try {
-            writer.writeElements(scala.collection.JavaConversions.asJavaIterator(elements));
+            writer.writeElements(elements);
         } catch (final OperationException e) {
             LOGGER.error("Failed to write partition: {}", e);
         }
-        return null;
     }
 }

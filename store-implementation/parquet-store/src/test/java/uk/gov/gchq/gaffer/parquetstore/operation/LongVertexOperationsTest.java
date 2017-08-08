@@ -145,8 +145,8 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
         }
         for (long x = 0 ; x < 25; x++) {
             expected.add(DataGen.getEdge(TestGroups.EDGE, x, x + 1, true, (byte) 'b', (0.2 * x) + 0.3, 6f, TestUtils.MERGED_TREESET, (6L * x) + 5L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
-            expected.add(DataGen.getEdge(TestGroups.EDGE, x, x + 1, false, (byte) 'a', 0.2 * x, 2f, TestUtils.TREESET1, 5L, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1, 1));
-            expected.add(DataGen.getEdge(TestGroups.EDGE, x, x + 1, false, (byte) 'b', 0.3, 4f, TestUtils.TREESET2, 6L * x, (short) 7, TestUtils.DATE1, TestUtils.FREQMAP2, 1));
+            expected.add(DataGen.getEdge(TestGroups.EDGE, x, x + 1, false, (byte) 'a', 0.2 * x, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1));
+            expected.add(DataGen.getEdge(TestGroups.EDGE, x, x + 1, false, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * x, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1));
 
             expected.add(DataGen.getEdge(TestGroups.EDGE_2, x, x + 1, true, (byte) 'b', (0.2 * x) + 0.3, 6f, TestUtils.MERGED_TREESET, (6L * x) + 5L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
             expected.add(DataGen.getEdge(TestGroups.EDGE_2, x, x + 1, false, (byte) 'b', (0.2 * x) + 0.3, 6f, TestUtils.MERGED_TREESET, (6L * x) + 5L, (short) 13, TestUtils.DATE1, TestUtils.MERGED_FREQMAP, 2));
@@ -167,15 +167,15 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
             actual.add(dataIter.next());
         }
         expected.add(DataGen.getEdge(TestGroups.EDGE, 2L, 3L, true, (byte) 'b', 0.7, 6f, TestUtils.MERGED_TREESET, 17L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, 5L, 6L, false, (byte) 'a', 1.0, 2f, TestUtils.TREESET1, 5L, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1, 1));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, 5L, 6L, false, (byte) 'b', 0.3, 4f, TestUtils.TREESET2, 30L, (short) 7, TestUtils.DATE1, TestUtils.FREQMAP2, 1));
+        expected.add(DataGen.getEdge(TestGroups.EDGE, 5L, 6L, false, (byte) 'a', 1.0, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1));
+        expected.add(DataGen.getEdge(TestGroups.EDGE, 5L, 6L, false, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 30L, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1));
         expected.add(DataGen.getEdge(TestGroups.EDGE, 5L, 6L, true, (byte) 'b', 1.3, 6f, TestUtils.MERGED_TREESET, 35L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, 10L, 11L, false, (byte) 'a', 2.0, 2f, TestUtils.TREESET1, 5L, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1, 1));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, 10L, 11L, false, (byte) 'b', 0.3, 4f, TestUtils.TREESET2, 60L, (short) 7, TestUtils.DATE1, TestUtils.FREQMAP2, 1));
+        expected.add(DataGen.getEdge(TestGroups.EDGE, 10L, 11L, false, (byte) 'a', 2.0, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1));
+        expected.add(DataGen.getEdge(TestGroups.EDGE, 10L, 11L, false, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 60L, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1));
         expected.add(DataGen.getEdge(TestGroups.EDGE, 10L, 11L, true, (byte) 'b', 2.3, 6f, TestUtils.MERGED_TREESET, 65L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
         expected.add(DataGen.getEdge(TestGroups.EDGE, 13L, 14L, true, (byte) 'b', 2.9, 6f, TestUtils.MERGED_TREESET, 83L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, 15L, 16L, false, (byte) 'a', 3.0, 2f, TestUtils.TREESET1, 5L, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1, 1));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, 15L, 16L, false, (byte) 'b', 0.3, 4f, TestUtils.TREESET2, 90L, (short) 7, TestUtils.DATE1, TestUtils.FREQMAP2, 1));
+        expected.add(DataGen.getEdge(TestGroups.EDGE, 15L, 16L, false, (byte) 'a', 3.0, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1));
+        expected.add(DataGen.getEdge(TestGroups.EDGE, 15L, 16L, false, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 90L, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1));
         expected.add(DataGen.getEdge(TestGroups.EDGE, 15L, 16L, true, (byte) 'b', 3.3, 6f, TestUtils.MERGED_TREESET, 95L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
 
         expected.add(DataGen.getEdge(TestGroups.EDGE_2, 2L, 3L, true, (byte) 'b', 0.7, 6f, TestUtils.MERGED_TREESET, 17L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
@@ -203,14 +203,14 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
         expected.add(DataGen.getEntity(TestGroups.ENTITY_2, 14L, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, 154L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
         expected.add(DataGen.getEntity(TestGroups.ENTITY_2, 15L, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, 165L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
 
-        expected.add(DataGen.getEdge(TestGroups.EDGE, 4L, 5L, false, (byte) 'a', 0.8, 2f, TestUtils.TREESET1, 5L, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1, 1));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, 4L, 5L, false, (byte) 'b', 0.3, 4f, TestUtils.TREESET2, 24L, (short) 7, TestUtils.DATE1, TestUtils.FREQMAP2, 1));
+        expected.add(DataGen.getEdge(TestGroups.EDGE, 4L, 5L, false, (byte) 'a', 0.8, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1));
+        expected.add(DataGen.getEdge(TestGroups.EDGE, 4L, 5L, false, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 24L, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1));
         expected.add(DataGen.getEdge(TestGroups.EDGE, 4L, 5L, true, (byte) 'b', 1.1, 6f, TestUtils.MERGED_TREESET, 29L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, 9L, 10L, false, (byte) 'a', 1.8, 2f, TestUtils.TREESET1, 5L, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1, 1));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, 9L, 10L, false, (byte) 'b', 0.3, 4f, TestUtils.TREESET2, 54L, (short) 7, TestUtils.DATE1, TestUtils.FREQMAP2, 1));
+        expected.add(DataGen.getEdge(TestGroups.EDGE, 9L, 10L, false, (byte) 'a', 1.8, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1));
+        expected.add(DataGen.getEdge(TestGroups.EDGE, 9L, 10L, false, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 54L, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1));
         expected.add(DataGen.getEdge(TestGroups.EDGE, 9L, 10L, true, (byte) 'b', 2.1, 6f, TestUtils.MERGED_TREESET, 59L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, 14L, 15L, false, (byte) 'a', 2.8000000000000003, 2f, TestUtils.TREESET1, 5L, (short) 6, TestUtils.DATE, TestUtils.FREQMAP1, 1));
-        expected.add(DataGen.getEdge(TestGroups.EDGE, 14L, 15L, false, (byte) 'b', 0.3, 4f, TestUtils.TREESET2, 84L, (short) 7, TestUtils.DATE1, TestUtils.FREQMAP2, 1));
+        expected.add(DataGen.getEdge(TestGroups.EDGE, 14L, 15L, false, (byte) 'a', 2.8000000000000003, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1));
+        expected.add(DataGen.getEdge(TestGroups.EDGE, 14L, 15L, false, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 84L, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1));
         expected.add(DataGen.getEdge(TestGroups.EDGE, 14L, 15L, true, (byte) 'b', 3.1, 6f, TestUtils.MERGED_TREESET, 89L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
 
         expected.add(DataGen.getEdge(TestGroups.EDGE_2, 4L, 5L, false, (byte) 'b', 1.1, 6f, TestUtils.MERGED_TREESET, 29L, (short) 13, TestUtils.DATE1, TestUtils.MERGED_FREQMAP, 2));
