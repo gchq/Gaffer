@@ -112,6 +112,11 @@ public class Sort implements
             return _self();
         }
 
+        public Builder comparators(final List<Comparator<Element>> comparators) {
+            _getOp().setComparators(comparators);
+            return _self();
+        }
+
         public Builder resultLimit(final Integer resultLimit) {
             _getOp().setResultLimit(resultLimit);
             return this;
