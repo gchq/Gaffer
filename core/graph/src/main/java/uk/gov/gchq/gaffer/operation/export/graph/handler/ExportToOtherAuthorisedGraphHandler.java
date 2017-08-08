@@ -111,23 +111,37 @@ public class ExportToOtherAuthorisedGraphHandler extends ExportToHandler<ExportT
         Schema schema = null;
         if (parentSchemaIds != null) {
             if (parentSchemaIds.size() == 1) {
-                schema = graphLibrary.getSchema(parentSchemaIds.get(0));
+                final String schemaModule = parentSchemaIds.get(0);
+                if (null == schemaModule) {
+                    throw new IllegalArgumentException("schema could not be found in the GraphLibrary with id: " + parentSchemaIds.get(0));
+                }
+                schema = graphLibrary.getSchema(schemaModule);
             } else {
                 final Schema.Builder schemaBuilder = new Schema.Builder();
                 for (final String id : parentSchemaIds) {
-                    schemaBuilder.merge(graphLibrary.getSchema(id));
+                    final Schema schemaModule = graphLibrary.getSchema(id);
+                    if (null == schemaModule) {
+                        throw new IllegalArgumentException("schema could not be found in the GraphLibrary with id: " + id);
+                    }
+                    schemaBuilder.merge(schemaModule);
                 }
                 schema = schemaBuilder.build();
             }
         }
+
         return schema;
     }
 
     private StoreProperties resolveStoreProperties(final GraphLibrary graphLibrary, final String parentStorePropertiesId) {
         StoreProperties storeProperties = null;
-        if (parentStorePropertiesId != null) {
+        if (null != parentStorePropertiesId) {
             storeProperties = graphLibrary.getProperties(parentStorePropertiesId);
         }
+
+        if (null == storeProperties) {
+            throw new IllegalArgumentException("storeProperties could not be found in the GraphLibrary with id: " + parentStorePropertiesId);
+        }
+
         return storeProperties;
     }
 
@@ -161,6 +175,7 @@ public class ExportToOtherAuthorisedGraphHandler extends ExportToHandler<ExportT
         if (store.getGraphId().equals(graphId)) {
             result.addError("Cannot export to the same Graph: " + graphId);
         }
+
         if (null == graphLibrary) {
             // GraphLibrary is required as only a graphId, a parentStorePropertiesId or a parentSchemaId can be given
             result.addError("Store GraphLibrary is null");
@@ -174,21 +189,13 @@ public class ExportToOtherAuthorisedGraphHandler extends ExportToHandler<ExportT
         } else if (!graphLibrary.exists(graphId) && parentSchemaIds == null && parentStorePropertiesId == null) {
             result.addError("GraphLibrary cannot be found with graphId: " + graphId);
         }
+
         if (parentSchemaIds != null && parentStorePropertiesId == null) {
             result.addError("parentStorePropertiesId must be specified with parentSchemaId");
         }
+
         if (parentSchemaIds == null && parentStorePropertiesId != null) {
             result.addError("parentSchemaId must be specified with parentStorePropertiesId");
-        }
-        if (parentSchemaIds != null && parentStorePropertiesId != null) {
-            for (final String parentSchemaId : parentSchemaIds) {
-                if (null == graphLibrary.getSchema(parentSchemaId)) {
-                    result.addError("parentSchema could not be found in the GraphLibrary with id: " + parentSchemaId);
-                }
-            }
-            if (null == graphLibrary.getProperties(parentStorePropertiesId)) {
-                result.addError("parentStoreProperties could not be found in the GraphLibrary with id: " + parentStorePropertiesId);
-            }
         }
 
         if (!result.isValid()) {

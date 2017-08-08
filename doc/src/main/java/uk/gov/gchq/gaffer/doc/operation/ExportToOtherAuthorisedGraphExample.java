@@ -30,17 +30,17 @@ public class ExportToOtherAuthorisedGraphExample extends OperationExample {
 
     public ExportToOtherAuthorisedGraphExample() {
         super(ExportToOtherAuthorisedGraph.class, "These export examples export all edges in the example graph to another Gaffer instance using Operation Auths against the user. \n\n" +
-                "To add this operation to your Gaffer graph you will need to write a new version of ExportToOtherAuthorisedGraphOperationDeclarations.json containing the user auths" +
-                ", and then set this property: gaffer.store.operation.declarations=ExportToOtherAuthorisedGraphOperationDeclarations.json\n");
+                "To add this operation to your Gaffer graph you will need to write your own version of [ExportToOtherAuthorisedGraphOperationDeclarations.json](https://github.com/gchq/Gaffer/blob/master/example/road-traffic/road-traffic-rest/src/main/resources/ExportToOtherAuthorisedGraphOperationDeclarations.json) containing the user auths" +
+                ", and then set this property: gaffer.store.operation.declarations=/path/to/ExportToOtherAuthorisedGraphOperationDeclarations.json\n");
     }
 
     @Override
     public void runExamples() {
-        simpleExport();
-        simpleExportUsingParentIds();
+        exportToPreconfiguredGraph();
+        exportToNewGraphUsingPreconfiguredSchemaAndProperties();
     }
 
-    public void simpleExport() {
+    public void exportToPreconfiguredGraph() {
 
         // ---------------------------------------------------------
         final OperationChain<Iterable<? extends Element>> opChain =
@@ -51,19 +51,17 @@ public class ExportToOtherAuthorisedGraphExample extends OperationExample {
                                         .build())
                                 .build())
                         .then(new ExportToOtherAuthorisedGraph.Builder()
-                                .graphId("newGraphId")
+                                .graphId("graph2")
                                 .build())
                         .build();
         // ---------------------------------------------------------
 
-        showExample(opChain, "This example will export all Edges with group 'edge' to another Gaffer graph with new ID 'newGraphId'. " +
-                "The new graph will have the same schema and same store properties as the current graph. " +
-                "In this case it will just create another table in accumulo called 'newGraphId'. " +
-                "It will also compare the running users Operation authorisations to the authorisations supplied to the exporter. " +
-                "These will be specified in ExportToOtherAuthorisedGraphOperationDeclarations.json.");
+        showExample(opChain, "This example will export all Edges with group 'edge' to another Gaffer graph with ID 'graph2'. " +
+                "The graph will be loaded from the configured GraphLibrary, so it must already exist. " +
+                "In order to export to graph2 the user must have the required user authorisations that were configured for this operation.");
     }
 
-    public void simpleExportUsingParentIds() {
+    public void exportToNewGraphUsingPreconfiguredSchemaAndProperties() {
 
         // ---------------------------------------------------------
         final OperationChain<Iterable<? extends Element>> opChain =
@@ -82,8 +80,7 @@ public class ExportToOtherAuthorisedGraphExample extends OperationExample {
         // ---------------------------------------------------------
 
         showExample(opChain, "This example will export all Edges with group 'edge' to another Gaffer graph with new ID 'newGraphId'. " +
-                "The new graph will have a parent Schema and Store Properties within the graph library specifed by the ID's. " +
-                "It will also compare the running users Operation authorisations to the authorisations supplied to the exporter. " +
-                "These will be specified in ExportToOtherAuthorisedGraphOperationDeclarations.json.");
+                "The new graph will have a parent Schema and Store Properties within the graph library specifed by the ID's schemaId1 and storePropsId1. " +
+                "In order to export to newGraphId with storePropsId1 and schemaId1 the user must have the required user authorisations that were configured for this operation to use each of these 3 ids.");
     }
 }
