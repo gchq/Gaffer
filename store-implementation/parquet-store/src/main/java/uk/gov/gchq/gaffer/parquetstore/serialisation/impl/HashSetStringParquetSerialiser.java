@@ -16,9 +16,9 @@
 
 package uk.gov.gchq.gaffer.parquetstore.serialisation.impl;
 
+import com.google.common.collect.Sets;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
-import java.util.Arrays;
 import java.util.HashSet;
 
 /**
@@ -52,9 +52,7 @@ public class HashSetStringParquetSerialiser implements ParquetSerialiser<HashSet
         if (objects.length == 1) {
             if (objects[0] instanceof String[]) {
                 final String[] objectsToDeserialise = (String[]) objects[0];
-                final HashSet<String> hashSet = new HashSet<>(objectsToDeserialise.length);
-                hashSet.addAll(Arrays.asList(objectsToDeserialise));
-                return hashSet;
+                return Sets.newHashSet(objectsToDeserialise);
             } else if (objects[0] == null) {
                 return null;
             }

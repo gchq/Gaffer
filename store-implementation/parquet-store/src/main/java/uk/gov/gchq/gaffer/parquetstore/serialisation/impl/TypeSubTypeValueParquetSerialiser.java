@@ -44,16 +44,14 @@ public class TypeSubTypeValueParquetSerialiser implements ParquetSerialiser<Type
 
     @Override
     public TypeSubTypeValue deserialise(final Object[] objects) throws SerialisationException {
-        if (objects.length == 3) {
-            if (objects[0] instanceof String
-                    && objects[1] instanceof String
-                    && objects[2] instanceof String) {
-                return new TypeSubTypeValue((String) objects[0], (String) objects[1], (String) objects[2]);
-            } else if (objects[0] == null) {
-                return null;
-            }
+        if (objects[0] == null) {
+            return null;
+        } else if (objects.length == 3) {
+            return new TypeSubTypeValue(objects[0].toString(), objects[1].toString(), objects[2].toString());
+        } else {
+            throw new SerialisationException("Could not de-serialise objects to a TypeSubTypeValue");
         }
-        throw new SerialisationException("Could not de-serialise objects to a TypeSubTypeValue");
+
     }
 
     @Override

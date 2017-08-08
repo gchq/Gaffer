@@ -16,10 +16,10 @@
 
 package uk.gov.gchq.gaffer.parquetstore.serialisation.impl;
 
+import com.google.common.collect.Lists;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * This class is used to serialise and de-serialise a {@link ArrayList} value for use by the
@@ -53,9 +53,7 @@ public class ArrayListStringParquetSerialiser implements ParquetSerialiser<Array
         if (objects.length == 1) {
             if (objects[0] instanceof String[]) {
                 final String[] objectsToDeserialise = (String[]) objects[0];
-                final ArrayList<String> arrayList = new ArrayList<>(objectsToDeserialise.length);
-                arrayList.addAll(Arrays.asList(objectsToDeserialise));
-                return arrayList;
+                return Lists.newArrayList(objectsToDeserialise);
             } else if (objects[0] == null) {
                 return null;
             }
