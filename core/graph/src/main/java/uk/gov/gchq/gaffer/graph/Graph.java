@@ -316,6 +316,10 @@ public final class Graph {
             return this;
         }
 
+        public String getGraphId() {
+            return graphId;
+        }
+
         public Builder library(final GraphLibrary library) {
             this.library = library;
             return this;

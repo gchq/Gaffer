@@ -172,11 +172,10 @@ public abstract class StreamUtil {
         throw new IllegalArgumentException(FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH + path);
     }
 
-    private static String formatPathForOpenStream(final String path) {
+    public static String formatPathForOpenStream(final String path) {
         if (StringUtils.isEmpty(path)) {
             processException(path);
         }
         return path.startsWith("/") ? path : "/" + path;
     }
-
 }

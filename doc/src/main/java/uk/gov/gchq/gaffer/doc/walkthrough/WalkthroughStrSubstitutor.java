@@ -33,7 +33,6 @@ import uk.gov.gchq.gaffer.data.generator.ObjectGenerator;
 import uk.gov.gchq.gaffer.doc.util.JavaSourceUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.generator.EntityIdExtractor;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
@@ -174,7 +173,7 @@ public abstract class WalkthroughStrSubstitutor {
         if (null != example) {
             try {
                 example.run();
-            } catch (final OperationException | IOException e) {
+            } catch (final Exception e) {
                 throw new RuntimeException(e);
             }
 
