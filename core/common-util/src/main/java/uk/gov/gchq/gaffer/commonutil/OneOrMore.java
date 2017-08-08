@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.commonutil.collection;
+package uk.gov.gchq.gaffer.commonutil;
 
 import com.google.common.collect.Iterators;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -28,7 +27,7 @@ import java.util.List;
 import java.util.function.Function;
 
 /**
- * A <code>LazyCollection</code> in an {@link Iterable} that allows items
+ * A <code>OneOrMore</code> in an {@link Iterable} that allows items
  * to be added. It wraps an {@link ArrayList} or {@link HashSet} depending
  * on whether deduplication is enabled.
  * This class is designed to be used in the case when the iterable quite often
@@ -39,22 +38,22 @@ import java.util.function.Function;
  *
  * @param <T> the iterable type.
  */
-public class LazyCollection<T> implements Iterable<T> {
+public class OneOrMore<T> implements Iterable<T> {
     private final Function<T, Collection<T>> newCollection;
     private final boolean deduplicate;
 
     private Collection<T> collection;
     private T singleItem;
 
-    public LazyCollection() {
+    public OneOrMore() {
         this(true);
     }
 
-    public LazyCollection(final boolean deduplicate) {
+    public OneOrMore(final boolean deduplicate) {
         this(deduplicate, null);
     }
 
-    public LazyCollection(final boolean deduplicate, final T item) {
+    public OneOrMore(final boolean deduplicate, final T item) {
         this.deduplicate = deduplicate;
         this.singleItem = item;
         if (deduplicate) {
@@ -157,7 +156,7 @@ public class LazyCollection<T> implements Iterable<T> {
             return false;
         }
 
-        final LazyCollection<?> that = (LazyCollection<?>) obj;
+        final OneOrMore<?> that = (OneOrMore<?>) obj;
 
         return new EqualsBuilder()
                 .append(deduplicate, that.deduplicate)

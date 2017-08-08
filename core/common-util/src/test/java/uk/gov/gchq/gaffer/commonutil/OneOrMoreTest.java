@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.commonutil.collection;
+package uk.gov.gchq.gaffer.commonutil;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -29,12 +29,12 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
-public class LazyCollectionTest {
+public class OneOrMoreTest {
 
     @Test
     public void shouldDeduplicateByDefault() {
         // Given
-        final LazyCollection<Integer> collection = new LazyCollection<>();
+        final OneOrMore<Integer> collection = new OneOrMore<>();
 
         // When
         collection.add(1);
@@ -51,7 +51,7 @@ public class LazyCollectionTest {
         final boolean deduplicate = false;
 
         // When
-        final LazyCollection<Integer> collection = new LazyCollection<>(deduplicate, 1);
+        final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate, 1);
 
         // Then
         assertEquals(1, collection.size());
@@ -62,7 +62,7 @@ public class LazyCollectionTest {
     public void shouldRemoveAnyItem() {
         // Given
         final boolean deduplicate = true;
-        final LazyCollection<Integer> collection = new LazyCollection<>(deduplicate, 1);
+        final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate, 1);
 
         // When
         collection.removeAnyItem();
@@ -76,7 +76,7 @@ public class LazyCollectionTest {
     public void shouldRemoveLastItemInList() {
         // Given
         final boolean deduplicate = false;
-        final LazyCollection<Integer> collection = new LazyCollection<>(deduplicate, 1);
+        final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate, 1);
         collection.add(2);
         collection.add(3);
 
@@ -92,7 +92,7 @@ public class LazyCollectionTest {
     public void shouldAddItemsWithoutDeduplicate() {
         // Given
         final boolean deduplicate = false;
-        final LazyCollection<Integer> collection = new LazyCollection<>(deduplicate);
+        final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate);
 
         final Set<Integer> expectedItems = new HashSet<>();
         IntStream.rangeClosed(1, 200).forEach(expectedItems::add);
@@ -112,7 +112,7 @@ public class LazyCollectionTest {
     public void shouldAddItemsWithDeduplicate() {
         // Given
         final boolean deduplicate = true;
-        final LazyCollection<Integer> collection = new LazyCollection<>(deduplicate);
+        final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate);
         final Set<Integer> expectedItems = new HashSet<>();
         IntStream.rangeClosed(1, 200).forEach(expectedItems::add);
 
@@ -130,7 +130,7 @@ public class LazyCollectionTest {
     public void shouldAddAllItemsWithoutDeduplicate() {
         // Given
         final boolean deduplicate = false;
-        final LazyCollection<Integer> collection = new LazyCollection<>(deduplicate);
+        final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate);
 
         final Set<Integer> expectedItems = new HashSet<>();
         IntStream.rangeClosed(1, 200).forEach(expectedItems::add);
@@ -148,7 +148,7 @@ public class LazyCollectionTest {
     public void shouldAddAllItemsWithDeduplicate() {
         // Given
         final boolean deduplicate = true;
-        final LazyCollection<Integer> collection = new LazyCollection<>(deduplicate);
+        final OneOrMore<Integer> collection = new OneOrMore<>(deduplicate);
 
         final Set<Integer> expectedItems = new HashSet<>();
         IntStream.rangeClosed(1, 200).forEach(expectedItems::add);
@@ -164,7 +164,7 @@ public class LazyCollectionTest {
     @Test
     public void shouldGetEmptyIterator() {
         // Given
-        final LazyCollection<Integer> collection = new LazyCollection<>();
+        final OneOrMore<Integer> collection = new OneOrMore<>();
 
         // When
         final Iterator<Integer> itr = collection.iterator();
@@ -176,7 +176,7 @@ public class LazyCollectionTest {
     @Test
     public void shouldGetSingletonIterator() {
         // Given
-        final LazyCollection<Integer> collection = new LazyCollection<>();
+        final OneOrMore<Integer> collection = new OneOrMore<>();
         collection.add(1);
 
         // When
@@ -191,8 +191,8 @@ public class LazyCollectionTest {
     @Test
     public void shouldBeEqual() {
         // Given
-        final LazyCollection<Integer> collection1 = new LazyCollection<>(false, 1);
-        final LazyCollection<Integer> collection2 = new LazyCollection<>(false, 1);
+        final OneOrMore<Integer> collection1 = new OneOrMore<>(false, 1);
+        final OneOrMore<Integer> collection2 = new OneOrMore<>(false, 1);
 
         assertEquals(collection1, collection2);
         assertEquals(collection1.hashCode(), collection2.hashCode());
@@ -201,8 +201,8 @@ public class LazyCollectionTest {
     @Test
     public void shouldBeEqualWithDeduplicate() {
         // Given
-        final LazyCollection<Integer> collection1 = new LazyCollection<>(true, 1);
-        final LazyCollection<Integer> collection2 = new LazyCollection<>(true, 1);
+        final OneOrMore<Integer> collection1 = new OneOrMore<>(true, 1);
+        final OneOrMore<Integer> collection2 = new OneOrMore<>(true, 1);
 
         assertEquals(collection1, collection2);
         assertEquals(collection1.hashCode(), collection2.hashCode());
@@ -211,9 +211,9 @@ public class LazyCollectionTest {
     @Test
     public void shouldBeEqualWithMultipleValues() {
         // Given
-        final LazyCollection<Integer> collection1 = new LazyCollection<>(false, 1);
+        final OneOrMore<Integer> collection1 = new OneOrMore<>(false, 1);
         collection1.add(2);
-        final LazyCollection<Integer> collection2 = new LazyCollection<>(false, 1);
+        final OneOrMore<Integer> collection2 = new OneOrMore<>(false, 1);
         collection2.add(2);
 
         assertEquals(collection1, collection2);
@@ -223,9 +223,9 @@ public class LazyCollectionTest {
     @Test
     public void shouldBeEqualWithMultipleValuesWithDeduplicate() {
         // Given
-        final LazyCollection<Integer> collection1 = new LazyCollection<>(true, 1);
+        final OneOrMore<Integer> collection1 = new OneOrMore<>(true, 1);
         collection1.add(2);
-        final LazyCollection<Integer> collection2 = new LazyCollection<>(true, 1);
+        final OneOrMore<Integer> collection2 = new OneOrMore<>(true, 1);
         collection2.add(2);
 
         assertEquals(collection1, collection2);
@@ -235,8 +235,8 @@ public class LazyCollectionTest {
     @Test
     public void shouldNotBeEqual() {
         // Given
-        final LazyCollection<Integer> collection1 = new LazyCollection<>(false, 1);
-        final LazyCollection<Integer> collection2 = new LazyCollection<>(false, 2);
+        final OneOrMore<Integer> collection1 = new OneOrMore<>(false, 1);
+        final OneOrMore<Integer> collection2 = new OneOrMore<>(false, 2);
 
         assertNotEquals(collection1, collection2);
         assertNotEquals(collection1.hashCode(), collection2.hashCode());
@@ -245,8 +245,8 @@ public class LazyCollectionTest {
     @Test
     public void shouldNotBeEqualWhenDeduplicateDifferent() {
         // Given
-        final LazyCollection<Integer> collection1 = new LazyCollection<>(false, 1);
-        final LazyCollection<Integer> collection2 = new LazyCollection<>(true, 1);
+        final OneOrMore<Integer> collection1 = new OneOrMore<>(false, 1);
+        final OneOrMore<Integer> collection2 = new OneOrMore<>(true, 1);
 
         assertNotEquals(collection1, collection2);
         assertNotEquals(collection1.hashCode(), collection2.hashCode());
@@ -255,9 +255,9 @@ public class LazyCollectionTest {
     @Test
     public void shouldNotBeEqualWithMultipleValues() {
         // Given
-        final LazyCollection<Integer> collection1 = new LazyCollection<>(false, 1);
+        final OneOrMore<Integer> collection1 = new OneOrMore<>(false, 1);
         collection1.add(2);
-        final LazyCollection<Integer> collection2 = new LazyCollection<>(false, 1);
+        final OneOrMore<Integer> collection2 = new OneOrMore<>(false, 1);
         collection2.add(3);
 
         assertNotEquals(collection1, collection2);

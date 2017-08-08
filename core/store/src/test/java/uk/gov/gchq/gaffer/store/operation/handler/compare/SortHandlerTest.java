@@ -344,9 +344,8 @@ public class SortHandlerTest {
     @Test
     public void shouldSortLargeNumberOfElements() throws OperationException {
         // Given
-        final int streamSize = 5000000;
-        final int resultLimit = 99000;
-
+        final int streamSize = 10000;
+        final int resultLimit = 5000;
         final Stream<Element> stream = new Random()
                 .ints(streamSize * 2) // generate a few extra in case there are duplicates
                 .distinct()

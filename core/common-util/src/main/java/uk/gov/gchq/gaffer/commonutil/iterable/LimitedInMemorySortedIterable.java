@@ -19,8 +19,8 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import uk.gov.gchq.gaffer.commonutil.OneOrMore;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
-import uk.gov.gchq.gaffer.commonutil.collection.LazyCollection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
@@ -46,7 +46,7 @@ public class LimitedInMemorySortedIterable<E> implements Iterable<E> {
     private final Comparator<E> comparator;
     private final boolean deduplicate;
     private final Integer limit;
-    private final TreeMap<E, LazyCollection<E>> backingMap;
+    private final TreeMap<E, OneOrMore<E>> backingMap;
     private int size;
 
     public LimitedInMemorySortedIterable(final Comparator<E> comparator) {
@@ -75,13 +75,13 @@ public class LimitedInMemorySortedIterable<E> implements Iterable<E> {
     public boolean add(final E e) {
         boolean result = false;
 
-        final LazyCollection<E> values = backingMap.get(e);
+        final OneOrMore<E> values = backingMap.get(e);
         // Skip the item if we are deduplicating and the item already exists
         boolean skipItem = (deduplicate && null != values && values.contains(e));
         if (!skipItem) {
             if (null != limit && size >= limit) {
                 // Check the item against the last item.
-                final Map.Entry<E, LazyCollection<E>> last = backingMap.lastEntry();
+                final Map.Entry<E, OneOrMore<E>> last = backingMap.lastEntry();
                 if (comparator.compare(last.getKey(), e) > 0) {
                     if (last.getValue().size() > 1) {
                         last.getValue().removeAnyItem();
@@ -96,7 +96,7 @@ public class LimitedInMemorySortedIterable<E> implements Iterable<E> {
 
             if (!skipItem) {
                 if (null == values) {
-                    backingMap.put(e, new LazyCollection<>(deduplicate, e));
+                    backingMap.put(e, new OneOrMore<>(deduplicate, e));
                     size++;
                     result = true;
                 } else if (values.add(e)) {
