@@ -52,8 +52,9 @@ public class ArrayListStringParquetSerialiser implements ParquetSerialiser<Array
 
         if (objects.length == 1) {
             if (objects[0] instanceof String[]) {
-                final ArrayList<String> arrayList = new ArrayList<>();
-                arrayList.addAll(Arrays.asList(((String[]) objects[0])));
+                final String[] objectsToDeserialise = (String[]) objects[0];
+                final ArrayList<String> arrayList = new ArrayList<>(objectsToDeserialise.length);
+                arrayList.addAll(Arrays.asList(objectsToDeserialise));
                 return arrayList;
             } else if (objects[0] == null) {
                 return null;

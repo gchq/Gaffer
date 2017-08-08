@@ -51,8 +51,9 @@ public class HashSetStringParquetSerialiser implements ParquetSerialiser<HashSet
     public HashSet<String> deserialise(final Object[] objects) throws SerialisationException {
         if (objects.length == 1) {
             if (objects[0] instanceof String[]) {
-                final HashSet<String> hashSet = new HashSet<>();
-                hashSet.addAll(Arrays.asList(((String[]) objects[0])));
+                final String[] objectsToDeserialise = (String[]) objects[0];
+                final HashSet<String> hashSet = new HashSet<>(objectsToDeserialise.length);
+                hashSet.addAll(Arrays.asList(objectsToDeserialise));
                 return hashSet;
             } else if (objects[0] == null) {
                 return null;
