@@ -36,7 +36,6 @@ import uk.gov.gchq.gaffer.parquetstore.index.MinMaxPath;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.koryphe.tuple.n.Tuple2;
 import uk.gov.gchq.koryphe.tuple.n.Tuple4;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;

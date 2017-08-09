@@ -323,7 +323,7 @@ public class StoreProperties implements Cloneable {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(5, 7)
                 .append(props)
                 .toHashCode();
     }

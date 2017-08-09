@@ -71,11 +71,11 @@ public class EntityDomainObject extends DomainObject {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    public boolean equals(final Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
 
-        final EntityDomainObject that = (EntityDomainObject) o;
+        final EntityDomainObject that = (EntityDomainObject) obj;
 
         if (!name.equals(that.name)) return false;
         if (stringproperty != null ? !stringproperty.equals(that.stringproperty) : that.stringproperty != null)

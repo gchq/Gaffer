@@ -19,7 +19,6 @@ import org.apache.parquet.io.api.Converter;
 import org.apache.parquet.io.api.GroupConverter;
 import org.apache.parquet.schema.GroupType;
 import org.apache.parquet.schema.Type;
-
 import java.util.HashMap;
 import java.util.Map;
 

@@ -43,7 +43,6 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.user.User;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;

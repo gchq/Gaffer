@@ -19,6 +19,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
@@ -97,16 +98,16 @@ public class LazyElementCell {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (null == o || !getClass().equals(o.getClass())) {
+        if (null == obj || !getClass().equals(obj.getClass())) {
             return false;
         }
 
-        final LazyElementCell otherCell = (LazyElementCell) o;
+        final LazyElementCell otherCell = (LazyElementCell) obj;
         return new EqualsBuilder()
                 .append(group, otherCell.group)
                 .append(cell, otherCell.cell)
@@ -116,10 +117,19 @@ public class LazyElementCell {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(17, 67)
                 .append(group)
                 .append(cell)
                 .append(element)
                 .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("group", group)
+                .append("cell", cell)
+                .append("element", element)
+                .toString();
     }
 }

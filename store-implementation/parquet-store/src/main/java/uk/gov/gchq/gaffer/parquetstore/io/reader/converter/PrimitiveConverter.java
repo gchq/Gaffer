@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.parquetstore.io.reader.converter;
 import org.apache.parquet.column.Dictionary;
 import org.apache.parquet.io.api.Binary;
 import org.apache.parquet.schema.OriginalType;
-
 import java.lang.reflect.Array;
 import java.util.Map;
 
