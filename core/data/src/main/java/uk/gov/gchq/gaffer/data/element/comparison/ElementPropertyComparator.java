@@ -50,6 +50,7 @@ import java.util.Set;
         justification = "This class should not be serialised")
 public class ElementPropertyComparator implements ElementComparator {
     private Comparator comparator;
+    public static int count = 0;
 
     private String property = null;
     private Set<String> groups = Collections.emptySet();
@@ -57,6 +58,8 @@ public class ElementPropertyComparator implements ElementComparator {
 
     @Override
     public int compare(final Element e1, final Element e2) {
+        count++;
+
         if (e1 == null) {
             if (e2 == null) {
                 return 0;

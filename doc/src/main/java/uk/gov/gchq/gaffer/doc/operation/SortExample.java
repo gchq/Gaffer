@@ -39,6 +39,7 @@ public class SortExample extends OperationExample {
     @Override
     public void runExamples() {
         sortOnCount();
+        sortOnCountWithoutDeduplicating();
         sortOnCountAndTransientProperty();
     }
 
@@ -60,6 +61,27 @@ public class SortExample extends OperationExample {
         // ---------------------------------------------------------
 
         return runExample(opChain, null);
+    }
+
+    public Iterable<? extends Element> sortOnCountWithoutDeduplicating() {
+        // ---------------------------------------------------------
+        final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
+                .first(new GetElements.Builder()
+                        .input(new EntitySeed(1), new EntitySeed(2))
+                        .build())
+                .then(new Sort.Builder()
+                        .comparators(new ElementPropertyComparator.Builder()
+                                .groups("entity", "edge")
+                                .property("count")
+                                .reverse(false)
+                                .build())
+                        .resultLimit(10)
+                        .deduplicate(false)
+                        .build())
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(opChain, "Deduplication is true by default.");
     }
 
     public Iterable<? extends Element> sortOnCountAndTransientProperty() {
