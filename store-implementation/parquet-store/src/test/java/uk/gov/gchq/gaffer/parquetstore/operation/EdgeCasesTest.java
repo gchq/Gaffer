@@ -99,9 +99,9 @@ public class EdgeCasesTest {
         f2.upsert("A", 2L);
         f2.upsert("B", 2L);
         final ArrayList<Element> elements = new ArrayList<>(2);
-        elements.add(DataGen.getEntity(TestGroups.ENTITY, "vertex", (byte) 'a', 0.2, 3f, TestUtils.TREESET1, 5L, (short) 6,
-                TestUtils.DATE , TestUtils.FREQMAP1, 1));
-        final Entity expected = DataGen.getEntity(TestGroups.ENTITY, "vertex", (byte) 'a', 0.4, 6f, TestUtils.TREESET1, 10L, (short) 12,
+        elements.add(DataGen.getEntity(TestGroups.ENTITY, "vertex", (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L, (short) 6,
+                TestUtils.DATE , TestUtils.getFreqMap1(), 1));
+        final Entity expected = DataGen.getEntity(TestGroups.ENTITY, "vertex", (byte) 'a', 0.4, 6f, TestUtils.getTreeSet1(), 10L, (short) 12,
                 TestUtils.DATE, f2, 2);
         graph.execute(new AddElements.Builder().input(elements).build(), USER);
         graph.execute(new AddElements.Builder().input(elements).build(), USER);

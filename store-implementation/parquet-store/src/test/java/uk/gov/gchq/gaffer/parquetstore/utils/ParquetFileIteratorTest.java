@@ -27,25 +27,33 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class ParquetFileIteratorTest {
     private FileSystem fs;
-    private String rootDir;
     private ParquetFileIterator iterator;
+    private static final ParquetStoreProperties pp = new ParquetStoreProperties();
+    private static String rootDir = pp.getTempFilesDir();
+
+    private final Path TEST_1 = new Path(rootDir + "/test.parquet");
+    private final Path TEST_2 = new Path(rootDir + "/test2.parquet");
+    private final Path TEST_3 = new Path(rootDir + "/test.txt");
+
 
     @Before
     public void setUp() throws IOException {
         Logger.getRootLogger().setLevel(Level.WARN);
-        final ParquetStoreProperties pp = new ParquetStoreProperties();
-        rootDir = pp.getTempFilesDir();
         fs = FileSystem.get(new Configuration());
         fs.delete(new Path(rootDir), true);
         fs.mkdirs(new Path(rootDir));
-        fs.create(new Path(rootDir + "/test.parquet"));
-        fs.create(new Path(rootDir + "/test1.txt"));
-        fs.create(new Path(rootDir + "/test2.parquet"));
+        fs.create(TEST_1);
+        fs.create(TEST_2);
+        fs.create(TEST_3);
         iterator = new ParquetFileIterator(new Path(rootDir), fs);
     }
 
@@ -64,18 +72,13 @@ public class ParquetFileIteratorTest {
     }
 
     @Test
-    public void hasNextDoesNotSkipFiles() throws IOException {
-        assertEquals(true, iterator.hasNext());
-        assertEquals(fs.resolvePath(new Path(rootDir + "/test.parquet")), iterator.next());
-        assertEquals(true, iterator.hasNext());
-        assertEquals(fs.resolvePath(new Path(rootDir + "/test2.parquet")), iterator.next());
-        assertEquals(false, iterator.hasNext());
-    }
-
-    @Test
     public void skipsNonParquetFiles() throws IOException {
-        assertEquals(fs.resolvePath(new Path(rootDir + "/test.parquet")), iterator.next());
-        assertEquals(fs.resolvePath(new Path(rootDir + "/test2.parquet")), iterator.next());
-        assertEquals(null, iterator.next());
+        final List<Path> pathList = new ArrayList<>();
+        iterator.forEachRemaining(pathList::add);
+
+        assertFalse(pathList.isEmpty());
+        assertTrue(pathList.contains(fs.resolvePath(TEST_1)));
+        assertTrue(pathList.contains(fs.resolvePath(TEST_2)));
+        assertFalse(pathList.contains(fs.resolvePath(TEST_3)));
     }
 }

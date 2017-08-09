@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.parquetstore.operation;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -52,9 +53,11 @@ public abstract class AbstractSparkOperationsTest {
     static SparkSession spark = SparkSession.builder()
             .appName("Parquet Gaffer Store tests")
             .master(getParquetStoreProperties().getSparkMaster())
+            .config(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true")
             .config(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
             .config(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
             .getOrCreate();
+    static JavaSparkContext javaSparkContext = JavaSparkContext.fromSparkContext(spark.sparkContext());
     static User USER = new SparkUser(new User(), spark);
     Graph graph;
 
