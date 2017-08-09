@@ -34,7 +34,7 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
     public static final String TEMP_FILES_DIR = "parquet.temp_data.dir";
     public static final String PARQUET_ROW_GROUP_SIZE_IN_BYTES = "parquet.add_elements.row_group.size";
     public static final String PARQUET_PAGE_SIZE_IN_BYTES = "parquet.add_elements.page.size";
-    public static final String PARQUET_THREADS_AVAILABLE = "parquet.add_elements.threadsAvailable";
+    public static final String PARQUET_THREADS_AVAILABLE = "parquet.threadsAvailable";
     public static final String PARQUET_ADD_ELEMENTS_OUTPUT_FILES_PER_GROUP = "parquet.add_elements.output_files_per_group";
     public static final String SPARK_MASTER = "spark.master";
 
@@ -109,7 +109,8 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
 
     /**
      * If the Spark master is set in this class then that will be used. Otherwise the Spark default config set on the
-     * local machine will be used. Otherwise a local Spark master will be used.
+     * local machine will be used, if you run your code as a spark-submit command or from the spark-shell.
+     * Otherwise a local Spark master will be used.
      *
      * @return The Spark master to be used.
      */
