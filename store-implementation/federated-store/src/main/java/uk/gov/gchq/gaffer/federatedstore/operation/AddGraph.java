@@ -17,11 +17,10 @@
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
-import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
 import java.util.Properties;
 
 /**
@@ -33,11 +32,11 @@ import java.util.Properties;
  * <li>schema
  * </ul>
  *
- * @see FederatedStore
- * @see Operation
- * @see Schema
- * @see Properties
- * @see Graph
+ * @see uk.gov.gchq.gaffer.federatedstore.FederatedStore
+ * @see uk.gov.gchq.gaffer.operation.Operation
+ * @see uk.gov.gchq.gaffer.store.schema.Schema
+ * @see uk.gov.gchq.gaffer.data.element.Properties
+ * @see uk.gov.gchq.gaffer.graph.Graph
  */
 public class AddGraph implements Operation {
 

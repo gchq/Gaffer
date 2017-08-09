@@ -451,7 +451,7 @@ public abstract class Store {
             validateSchema(validationResult, getSchema().getVertexSerialiser());
 
             getSchema().getTypes().entrySet().forEach(entrySet ->
-                                                              validateSchema(validationResult, entrySet.getValue().getSerialiser()));
+                    validateSchema(validationResult, entrySet.getValue().getSerialiser()));
         }
 
         if (!validationResult.isValid()) {

@@ -17,8 +17,6 @@
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
-import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
 
 /**
@@ -30,8 +28,8 @@ import uk.gov.gchq.gaffer.operation.Operation;
  *
  * Does not delete the graph, just removes it from the scope of the FederatedStore.
  *
- * @see FederatedStore
- * @see Graph
+ * @see uk.gov.gchq.gaffer.federatedstore.FederatedStore
+ * @see uk.gov.gchq.gaffer.graph.Graph
  */
 public class RemoveGraph implements Operation {
 
