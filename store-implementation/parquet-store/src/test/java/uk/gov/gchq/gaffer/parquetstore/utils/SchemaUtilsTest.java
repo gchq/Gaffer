@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.store.SerialisationFactory;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
-
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
