@@ -57,6 +57,10 @@ chain authorisation. To implement your own hook, just implement the `GraphHook`
 interface and register it with the graph when you build a `Graph` instance.
 
 ## FAQs
+Here are some frequently askedd questions
+
+#### How can I export to another graph using User authorisations?
+
 To use an example of the authorised Graph exporter within the road-traffic-demo using the proxy-store, follow these steps.
 
 -Clone Gaffer twice, instance A and instance B.
@@ -64,7 +68,7 @@ To use an example of the authorised Graph exporter within the road-traffic-demo 
 -On A:
 
 1.  Add below to road-traffic-demo/pom.xml:
-```
+```xml
 <dependency>
     <groupId>uk.gov.gchq.gaffer</groupId>
     <artifactId>proxy-store</artifactId>
@@ -77,7 +81,7 @@ To use an example of the authorised Graph exporter within the road-traffic-demo 
 Change new User(); to new User.Builder().opAuths(“auth1”).build();
         
 3.  Update ExportToOtherAuthorisedGraphOperationDeclarations.json to have relevant auths:
-```
+```json
 "idAuths": {
     "roadTraffic": ["auth1"],
     "roadTraffic1": ["auth1"]
@@ -88,7 +92,7 @@ Change new User(); to new User.Builder().opAuths(“auth1”).build();
     `mvn clean install -Pquick -Proad-traffic-demo -pl :road-traffic-demo –am`
     
 5.  Add below to road-traffic-demo/src/main/resources/graphLibrary/roadTraffic1StoreProps.properties:
-```
+```properties
     accumulo.instance=someInstanceName
     gaffer.cache.service.class=uk.gov.gchq.gaffer.cache.impl.JcsCacheService
     accumulo.password=password
@@ -106,14 +110,14 @@ Change new User(); to new User.Builder().opAuths(“auth1”).build();
 -On B:
 
 1.  Remove the following from road-traffic-demo/pom.xml:
-```
+```xml
     <roadTraffic.dataLoader.dataPath>
         ${project.build.outputDirectory}/roadTrafficSampleData.csv
     </roadTraffic.dataLoader.dataPath>
 ```
 
 2.  In the same pom (road-traffic-demo/pom.xml) update the port to 8081:
-```
+```xml
     <standalone-port>8081</standalone-port>
 ```
 
@@ -121,7 +125,7 @@ Change new User(); to new User.Builder().opAuths(“auth1”).build();
     `mvn clean install -Pquick -Proad-traffic-demo -pl :road-traffic-demo –am`
     
 -Navigate to localhost:8080/rest (Graph A) and go to operations -> /graph/doOperation, then insert: 
- ```
+ ```json
  {
     "operations": [
         {
