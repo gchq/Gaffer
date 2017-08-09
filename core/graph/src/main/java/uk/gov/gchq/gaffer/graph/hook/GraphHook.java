@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -32,7 +33,7 @@ public interface GraphHook {
      * @param opChain the {@link OperationChain} being executed.
      * @param user    the {@link User} executing the operation chain
      */
-    void preExecute(final OperationChain<?> opChain, final User user);
+    void preExecute(final Operation op, final User user);
 
     /**
      * Called from {@link uk.gov.gchq.gaffer.graph.Graph} after an {@link OperationChain}
@@ -47,4 +48,9 @@ public interface GraphHook {
     <T> T postExecute(final T result,
                       final OperationChain<?> opChain,
                       final User user);
+
+    default List<Operation> flatternOpCHain() {
+
+    }
+
 }

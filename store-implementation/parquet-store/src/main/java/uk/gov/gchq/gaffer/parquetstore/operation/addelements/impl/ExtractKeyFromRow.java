@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.parquetstore.utils;
+package uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl;
 
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.sql.Row;
 import scala.collection.Seq;
 import scala.collection.Seq$;
 import scala.collection.mutable.Builder;
+import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;

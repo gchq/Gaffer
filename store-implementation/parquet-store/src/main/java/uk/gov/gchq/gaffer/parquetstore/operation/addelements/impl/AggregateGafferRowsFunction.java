@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.parquetstore.utils;
+package uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.spark.api.java.function.Function2;
+import org.apache.spark.sql.Row;
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,9 @@ import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
+import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map;
@@ -34,7 +38,7 @@ import java.util.Set;
 /**
  * This is used by the Spark reduceByKey method to aggregate two {@link GenericRowWithSchema}'s using the Gaffer aggregator's.
  */
-public class AggregateGafferRowsFunction implements Function2<GenericRowWithSchema, GenericRowWithSchema, GenericRowWithSchema>, Serializable {
+public class AggregateGafferRowsFunction implements Function2<Row, Row, Row>, Serializable {
     private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
     private static final Logger LOGGER = LoggerFactory.getLogger(AggregateGafferRowsFunction.class);
     private static final long serialVersionUID = -8353767193380574516L;
@@ -65,7 +69,7 @@ public class AggregateGafferRowsFunction implements Function2<GenericRowWithSche
     }
 
     @Override
-    public GenericRowWithSchema call(final GenericRowWithSchema v1, final GenericRowWithSchema v2)
+    public Row call(final Row v1, final Row v2)
             throws OperationException, SerialisationException {
         LOGGER.trace("First Row object to be aggregated: {}", v1);
         LOGGER.trace("Second Row object to be aggregated: {}", v2);
