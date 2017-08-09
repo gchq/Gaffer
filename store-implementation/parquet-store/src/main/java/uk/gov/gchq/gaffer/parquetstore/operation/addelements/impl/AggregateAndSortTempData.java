@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -61,7 +62,6 @@ public class AggregateAndSortTempData {
                 currentDataInThisGroupDir = null;
             }
             tasks.add(new AggregateAndSortGroup(group, ParquetStoreConstants.SOURCE, store, currentDataInThisGroupDir, spark));
-            tasks.add(new AggregateAndSortGroup(group, ParquetStoreConstants.DESTINATION, store, currentDataInThisGroupDir, spark));
         }
         for (final String group : schemaUtils.getEntityGroups()) {
             final String currentDataInThisGroupDir;
@@ -75,7 +75,19 @@ public class AggregateAndSortTempData {
         final ExecutorService pool = Executors.newFixedThreadPool(store.getProperties().getThreadsAvailable());
         LOGGER.debug("Created thread pool of size {} to aggregate and sort data", store.getProperties().getThreadsAvailable());
         try {
-            final List<Future<OperationException>> results = pool.invokeAll(tasks);
+            List<Future<OperationException>> results = pool.invokeAll(tasks);
+            for (int i = 0; i < tasks.size(); i++) {
+                final OperationException result = results.get(i).get();
+                if (result != null) {
+                    throw result;
+                }
+            }
+            // duplicate edge groups data sorted by the Destination
+            tasks.clear();
+            for (final String group : schemaUtils.getEdgeGroups()) {
+                tasks.add(new GenerateIndexedColumnSortedData(group, store, spark));
+            }
+            results = pool.invokeAll(tasks);
             for (int i = 0; i < tasks.size(); i++) {
                 final OperationException result = results.get(i).get();
                 if (result != null) {

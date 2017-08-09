@@ -336,6 +336,12 @@ public final class Graph {
         private String[] parentSchemaIds;
         private String parentStorePropertiesId;
 
+        /**
+         * @param graphId the graph id to set
+         * @return this Builder
+         * @deprecated use Builder.config instead.
+         */
+        @Deprecated
         public Builder graphId(final String graphId) {
             configBuilder.graphId(graphId);
             return this;

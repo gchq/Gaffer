@@ -1,5 +1,8 @@
 {
   "graphId": "graphId1",
+  "library": {
+    "class": "uk.gov.gchq.gaffer.store.library.FileGraphLibrary"
+  },
   "hooks": [
     {
       "class": "uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain",
