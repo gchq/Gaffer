@@ -16,12 +16,18 @@
 package uk.gov.gchq.gaffer.rest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
@@ -58,9 +64,12 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToMap;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
 import uk.gov.gchq.gaffer.operation.impl.output.ToStream;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl.Stream;
 import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.service.v2.example.DefaultExamplesFactory;
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
@@ -74,6 +83,9 @@ public class ExampleGeneratorTest {
     private final DefaultExamplesFactory generator = new DefaultExamplesFactory();
     private final GraphFactory graphFactory = new DefaultGraphFactory();
     private final Class<? extends Operation> opClass;
+
+    @Rule
+    public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     public ExampleGeneratorTest(final Class<? extends Operation> opClass) {
         this.opClass = opClass;
@@ -120,15 +132,33 @@ public class ExampleGeneratorTest {
         );
     }
 
-    @BeforeClass
-    public static void beforeClass() {
-        System.getProperties().put("gaffer.storeProperties", "/home/user/projects/gaffer/rest-api/core-rest/src/test/resources/store.properties");
-        System.getProperties().put("gaffer.graph.id", "graphId");
-        System.getProperties().put("gaffer.schemas", "/home/user/projects/gaffer/rest-api/core-rest/src/test/resources/schema");
-    }
+//    @BeforeClass
+//    public static void beforeClass() throws IOException {
+//        final File storePropertiesFile = tempFolder.newFile("store.properties");
+//        FileUtils.writeLines(storePropertiesFile, IOUtils.readLines(StreamUtil.openStream(ExampleGeneratorTest.class, "store.properties")));
+//        System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, storePropertiesFile.getAbsolutePath());
+//
+//        final File schemaFile = tempFolder.newFile("schema.json");
+//        FileUtils.writeLines(schemaFile, IOUtils.readLines(StreamUtil.openStream(ExampleGeneratorTest.class, "/schema/schema.json")));
+//        System.setProperty(SystemProperty.SCHEMA_PATHS, schemaFile.getAbsolutePath());
+//
+////        System.getProperties().put("gaffer.storeProperties", StreamUtil.storeProps(ExampleGeneratorTest.class));
+//        System.getProperties().put("gaffer.graph.id", "graphId");
+////        System.getProperties().put("gaffer.schemas", StreamUtil.schema(ExampleGeneratorTest.class));
+//    }
 
     @Before
-    public void before() throws IllegalAccessException, NoSuchFieldException {
+    public void before() throws IllegalAccessException, NoSuchFieldException, IOException {
+        final File storePropertiesFile = tempFolder.newFile("store.properties");
+        FileUtils.writeLines(storePropertiesFile, IOUtils.readLines(StreamUtil.openStream(ExampleGeneratorTest.class, "store.properties")));
+        System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, storePropertiesFile.getAbsolutePath());
+
+        final File schemaFile = tempFolder.newFile("schema.json");
+        FileUtils.writeLines(schemaFile, IOUtils.readLines(StreamUtil.openStream(ExampleGeneratorTest.class, "/schema/schema.json")));
+        System.setProperty(SystemProperty.SCHEMA_PATHS, schemaFile.getAbsolutePath());
+
+        System.setProperty(SystemProperty.GRAPH_ID, "graphId");
+
         // Manually inject GraphFactory
         final Field field = generator.getClass().getDeclaredField("graphFactory");
 
