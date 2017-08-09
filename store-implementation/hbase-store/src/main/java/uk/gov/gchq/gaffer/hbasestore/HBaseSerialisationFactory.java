@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation.Reservoir
 import uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation.ReservoirNumbersUnionSerialiser;
 import uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation.ReservoirStringsUnionSerialiser;
 import uk.gov.gchq.gaffer.sketches.datasketches.theta.serialisation.UnionSerialiser;
-import uk.gov.gchq.gaffer.sketches.clearspring.hyperloglogplus.serialisation.HyperLogLogPlusSerialiser;
+import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.HyperLogLogPlusSerialiser;
 import uk.gov.gchq.gaffer.store.SerialisationFactory;
 
 public class HBaseSerialisationFactory extends SerialisationFactory {

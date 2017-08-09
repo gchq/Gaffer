@@ -19,7 +19,7 @@ import com.yahoo.sketches.sampling.ReservoirLongsUnion;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.sketches.clearspring.hyperloglogplus.serialisation.ViaCalculatedArrayValueSerialiserTest;
+import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.ViaCalculatedArrayValueSerialiserTest;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
