@@ -305,7 +305,7 @@ public final class Graph {
             return Collections.emptyList();
         }
 
-        return graphHooks.stream().map(GraphHook::getClass).collect(Collectors.toList());
+        return (List) graphHooks.stream().map(GraphHook::getClass).collect(Collectors.toList());
     }
 
     /**
@@ -313,51 +313,72 @@ public final class Graph {
      */
     public static class Builder {
         public static final String UNABLE_TO_READ_SCHEMA_FROM_URI = "Unable to read schema from URI";
+        private final GraphConfig.Builder configBuilder = new GraphConfig.Builder();
         private final List<byte[]> schemaBytesList = new ArrayList<>();
         private Store store;
-        private String graphId;
-        private GraphLibrary library;
         private StoreProperties properties;
         private Schema schema;
-        private View view;
-        private List<GraphHook> graphHooks = new ArrayList<>();
         private String[] parentSchemaIds;
         private String parentStorePropertiesId;
 
         public Builder graphId(final String graphId) {
-            this.graphId = graphId;
+            configBuilder.graphId(graphId);
+            return this;
+        }
+
+        public Builder config(final Path path) {
+            configBuilder.json(path);
+            return this;
+        }
+
+        public Builder config(final URI uri) {
+            configBuilder.json(uri);
+            return this;
+        }
+
+        public Builder config(final InputStream stream) {
+            configBuilder.json(stream);
+            return this;
+        }
+
+        public Builder config(final byte[] bytes) {
+            configBuilder.json(bytes);
+            return this;
+        }
+
+        public Builder config(final GraphConfig config) {
+            configBuilder.merge(config);
             return this;
         }
 
         public Builder library(final GraphLibrary library) {
-            this.library = library;
+            configBuilder.library(library);
             return this;
         }
 
         public Builder view(final View view) {
-            this.view = view;
+            configBuilder.view(view);
             return this;
         }
 
         public Builder view(final Path view) {
-            return view(new View.Builder().json(view).build());
+            configBuilder.view(view);
+            return this;
         }
 
         public Builder view(final InputStream view) {
-            return view(new View.Builder().json(view).build());
+            configBuilder.view(view);
+            return this;
         }
 
         public Builder view(final URI view) {
-            try {
-                view(StreamUtil.openStream(view));
-            } catch (final IOException e) {
-                throw new SchemaException("Unable to read view from URI", e);
-            }
+            configBuilder.view(view);
             return this;
         }
 
         public Builder view(final byte[] jsonBytes) {
-            return view(new View.Builder().json(jsonBytes).build());
+            configBuilder.view(jsonBytes);
+            return this;
         }
 
         public Builder parentStorePropertiesId(final String parentStorePropertiesId) {
@@ -386,7 +407,7 @@ public final class Graph {
             try {
                 storeProperties(StreamUtil.openStream(propertiesURI));
             } catch (final IOException e) {
-                throw new SchemaException("Unable to read storeProperties from URI", e);
+                throw new SchemaException("Unable to read storeProperties from URI: " + propertiesURI, e);
             }
 
             return this;
@@ -496,7 +517,7 @@ public final class Graph {
                     addSchema(Files.readAllBytes(schemaPath));
                 }
             } catch (final IOException e) {
-                throw new SchemaException("Unable to read schema from path", e);
+                throw new SchemaException("Unable to read schema from path: " + schemaPath, e);
             }
 
             return this;
@@ -540,35 +561,36 @@ public final class Graph {
         }
 
         public Builder addHook(final GraphHook graphHook) {
-            this.graphHooks.add(graphHook);
+            configBuilder.addHook(graphHook);
             return this;
         }
 
         public Builder addHooks(final GraphHook... graphHooks) {
-            Collections.addAll(this.graphHooks, graphHooks);
+            configBuilder.addHooks(graphHooks);
             return this;
         }
 
         public Graph build() {
-            if (null == library) {
-                library = new NoGraphLibrary();
+            final GraphConfig config = configBuilder.build();
+            if (null == config.getGraphLibrary()) {
+                config.setGraphLibrary(new NoGraphLibrary());
             }
 
-            if (null == graphId && null != store) {
-                graphId = store.getGraphId();
+            if (null == config.getGraphId() && null != store) {
+                config.setGraphId(store.getGraphId());
             }
 
-            if (null != graphId) {
-                Pair<Schema, StoreProperties> parentGraph = library.get(graphId);
+            if (null != config.getGraphId()) {
+                Pair<Schema, StoreProperties> parentGraph = config.getGraphLibrary().get(config.getGraphId());
 
                 if (null != parentGraph) {
                     if (null == parentGraph.getSecond()) {
-                        throw new IllegalArgumentException("GraphId " + graphId + " found in GraphLibrary, but no store properties are associated with it.");
+                        throw new IllegalArgumentException("GraphId " + config.getGraphId() + " found in GraphLibrary, but no store properties are associated with it.");
                     }
                     schema = parentGraph.getFirst();
                     properties = parentGraph.getSecond();
 
-                    LOGGER.debug("Graph ID " + graphId + " found in graph library. Ignoring any other additional schema/properties");
+                    LOGGER.debug("Graph ID " + config.getGraphId() + " found in graph library. Ignoring any other additional schema/properties");
                     parentSchemaIds = null;
                     schemaBytesList.clear();
                     parentStorePropertiesId = null;
@@ -576,28 +598,28 @@ public final class Graph {
                 }
             }
 
-            updateSchema();
-            updateStore();
-            updateView();
+            updateSchema(config);
+            updateStore(config);
+            updateView(config);
 
-            if (null == graphId) {
-                graphId = store.getGraphId();
+            if (null == config.getGraphId()) {
+                config.setGraphId(store.getGraphId());
             }
 
-            if (null == graphId) {
+            if (null == config.getGraphId()) {
                 throw new IllegalArgumentException("graphId is required");
             }
 
-            library.add(graphId, schema, store.getProperties());
-            return new Graph(schema, store, view, graphHooks);
+            config.getGraphLibrary().add(config.getGraphId(), schema, store.getProperties());
+            return new Graph(schema, store, config.getView(), config.getGraphHooks());
         }
 
-        private void updateSchema() {
+        private void updateSchema(final GraphConfig config) {
             Schema mergedParentSchema = null;
 
             if (null != parentSchemaIds) {
                 for (final String parentSchemaId : parentSchemaIds) {
-                    final Schema parentSchema = library.getSchema(parentSchemaId);
+                    final Schema parentSchema = config.getGraphLibrary().getSchema(parentSchemaId);
                     if (null != parentSchema) {
                         if (null == mergedParentSchema) {
                             mergedParentSchema = parentSchema;
@@ -635,10 +657,10 @@ public final class Graph {
             }
         }
 
-        private void updateStore() {
+        private void updateStore(final GraphConfig config) {
             StoreProperties mergedStoreProperties = null;
             if (null != parentStorePropertiesId) {
-                mergedStoreProperties = library.getProperties(parentStorePropertiesId);
+                mergedStoreProperties = config.getGraphLibrary().getProperties(parentStorePropertiesId);
             }
 
             if (null != properties) {
@@ -650,12 +672,12 @@ public final class Graph {
             }
 
             if (null == store) {
-                store = Store.createStore(graphId, cloneSchema(schema), mergedStoreProperties);
-            } else if ((null != graphId && !graphId.equals(store.getGraphId()))
+                store = Store.createStore(config.getGraphId(), cloneSchema(schema), mergedStoreProperties);
+            } else if ((null != config.getGraphId() && !config.getGraphId().equals(store.getGraphId()))
                     || (null != schema)
                     || (null != mergedStoreProperties && !mergedStoreProperties.equals(store.getProperties()))) {
-                if (null == graphId) {
-                    graphId = store.getGraphId();
+                if (null == config.getGraphId()) {
+                    config.setGraphId(store.getGraphId());
                 }
                 if (null == schema) {
                     schema = store.getSchema();
@@ -666,25 +688,25 @@ public final class Graph {
                 }
 
                 try {
-                    store.initialise(graphId, cloneSchema(schema), mergedStoreProperties);
+                    store.initialise(config.getGraphId(), cloneSchema(schema), mergedStoreProperties);
                 } catch (final StoreException e) {
                     throw new IllegalArgumentException("Unable to initialise the store with the given graphId, schema and properties", e);
                 }
             }
 
-            store.setGraphLibrary(library);
+            store.setGraphLibrary(config.getGraphLibrary());
 
             if (null == schema) {
                 schema = store.getSchema();
             }
         }
 
-        private void updateView() {
-            if (null == view) {
-                this.view = new View.Builder()
+        private void updateView(final GraphConfig config) {
+            if (null == config.getView()) {
+                config.setView(new View.Builder()
                         .entities(store.getSchema().getEntityGroups())
                         .edges(store.getSchema().getEdgeGroups())
-                        .build();
+                        .build());
             }
         }
 
