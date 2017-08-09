@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -46,7 +47,9 @@ public class OperationChainTest {
     public void testOperationChain() throws StoreException, OperationException {
         // Given
         final Graph graph = new Graph.Builder()
-                .graphId("graph1")
+                .config(new GraphConfig.Builder()
+                        .graphId("graph1")
+                        .build())
                 .addSchemas(StreamUtil.openStreams(getClass(), "example-schema"))
                 .storeProperties(new MapStoreProperties())
                 .build();

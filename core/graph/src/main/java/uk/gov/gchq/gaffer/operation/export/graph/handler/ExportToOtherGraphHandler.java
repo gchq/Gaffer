@@ -148,7 +148,9 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
         final StoreProperties exportStoreProperties = export.getStoreProperties();
         final StoreProperties properties = (null == exportStoreProperties) ? store.getProperties() : exportStoreProperties;
         return new Builder()
-                .graphId(export.getGraphId())
+                .config(new GraphConfig.Builder()
+                        .graphId(export.getGraphId())
+                        .build())
                 .addSchema(schema)
                 .storeProperties(properties)
                 .build();

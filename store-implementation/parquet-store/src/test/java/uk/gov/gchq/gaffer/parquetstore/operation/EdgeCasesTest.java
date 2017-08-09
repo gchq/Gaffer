@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -90,16 +91,18 @@ public class EdgeCasesTest {
         final Schema gafferSchema = Schema.fromJson(StreamUtil.openStreams(EdgeCasesTest.class, "schemaUsingStringVertexType"));
         final ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
         Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("test")
+                        .build())
                 .addSchemas(gafferSchema)
                 .storeProperties(parquetStoreProperties)
-                .graphId("test")
                 .build();
         final FreqMap f2 = new FreqMap();
         f2.upsert("A", 2L);
         f2.upsert("B", 2L);
         final ArrayList<Element> elements = new ArrayList<>(2);
         elements.add(DataGen.getEntity(TestGroups.ENTITY, "vertex", (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L, (short) 6,
-                TestUtils.DATE , TestUtils.getFreqMap1(), 1));
+                TestUtils.DATE, TestUtils.getFreqMap1(), 1));
         final Entity expected = DataGen.getEntity(TestGroups.ENTITY, "vertex", (byte) 'a', 0.4, 6f, TestUtils.getTreeSet1(), 10L, (short) 12,
                 TestUtils.DATE, f2, 2);
         graph.execute(new AddElements.Builder().input(elements).build(), USER);
@@ -122,9 +125,11 @@ public class EdgeCasesTest {
             parquetStoreProperties.setDataDir("readElementsWithZeroElementFiles");
             parquetStoreProperties.setAddElementsOutputFilesPerGroup(3);
             final Graph graph = new Graph.Builder()
+                    .config(new GraphConfig.Builder()
+                            .graphId("test")
+                            .build())
                     .addSchema(gafferSchema)
                     .storeProperties(parquetStoreProperties)
-                    .graphId("test")
                     .build();
             graph.execute(new AddElements.Builder().input(elements).build(), USER);
             final List<Element> retrievedElements = new ArrayList<>();
@@ -147,9 +152,11 @@ public class EdgeCasesTest {
         final ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
         parquetStoreProperties.setAddElementsOutputFilesPerGroup(1);
         final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("test")
+                        .build())
                 .addSchemas(gafferSchema)
                 .storeProperties(parquetStoreProperties)
-                .graphId("test")
                 .build();
 
         final ArrayList<Element> elements = new ArrayList<>(2);
@@ -180,9 +187,11 @@ public class EdgeCasesTest {
         ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
         parquetStoreProperties.setAddElementsOutputFilesPerGroup(1);
         Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("test")
+                        .build())
                 .addSchemas(gafferSchema)
                 .storeProperties(parquetStoreProperties)
-                .graphId("test")
                 .build();
 
         final ArrayList<Element> elements = new ArrayList<>(2);

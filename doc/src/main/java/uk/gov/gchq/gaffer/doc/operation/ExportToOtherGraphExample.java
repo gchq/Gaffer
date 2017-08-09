@@ -159,7 +159,7 @@ public class ExportToOtherGraphExample extends OperationExample {
 
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
-                        .graphId("graph1")
+                        .config(StreamUtil.graphConfig(getClass()))
                         .library(graphLibrary)
                         .build())
                 .addSchemas(StreamUtil.openStreams(getClass(), "operation/schema"))
@@ -213,7 +213,7 @@ public class ExportToOtherGraphExample extends OperationExample {
 
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
-                        .graphId("graph1")
+                        .config(StreamUtil.graphConfig(getClass()))
                         .library(graphLibrary)
                         .build())
                 .addSchemas(StreamUtil.openStreams(getClass(), "operation/schema"))

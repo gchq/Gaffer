@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.spark.SparkConstants;
@@ -508,7 +509,9 @@ public class GetDataFrameOfElementsHandlerTest {
 
     private Graph getGraph(final String elementsSchema, final List<Element> elements) throws OperationException {
         final Graph graph = new Graph.Builder()
-                .graphId("graphId")
+                .config(new GraphConfig.Builder()
+                        .graphId("graphId")
+                        .build())
                 .addSchema(getClass().getResourceAsStream(elementsSchema))
                 .addSchema(getClass().getResourceAsStream("/schema-DataFrame/types.json"))
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
