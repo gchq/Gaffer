@@ -26,6 +26,8 @@ public class UnknownUserFactory implements UserFactory {
 
     @Override
     public User createUser() {
-        return new User();
+        return new User.Builder()
+                .opAuths("unknownUser")
+                .build();
     }
 }

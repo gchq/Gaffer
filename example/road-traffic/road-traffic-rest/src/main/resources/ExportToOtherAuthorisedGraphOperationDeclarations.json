@@ -6,10 +6,13 @@
         "class": "uk.gov.gchq.gaffer.operation.export.graph.handler.ExportToOtherAuthorisedGraphHandler",
         "idAuths": {
           "roadTraffic": [
-            "auth1"
+            "unknownUser"
           ],
-          "roadTraffic1": [
-            "auth1"
+          "roadTraffic2": [
+            "unknownUser"
+          ],
+          "store2": [
+            "unknownUser"
           ]
         }
       }

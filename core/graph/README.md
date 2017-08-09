@@ -63,53 +63,28 @@ Here are some frequently asked questions.
 
 To use an example of the authorised Graph exporter within the road-traffic-demo using the proxy-store, follow these steps.
 
--Clone Gaffer twice, instance A and instance B.
+-Clone Gaffer twice, instance 1 and instance 2.
 
--On A:
+-On 1:
 
-1.  Add below to road-traffic-demo/pom.xml:
-```xml
-<dependency>
-    <groupId>uk.gov.gchq.gaffer</groupId>
-    <artifactId>proxy-store</artifactId>
-    <version>${project.parent.version}</version>
-</dependency>
-```
-        
-2.  In UnknownUserFactory.java:
-    
-Change new User(); to new User.Builder().opAuths(“auth1”).build();
-        
-3.  Update ExportToOtherAuthorisedGraphOperationDeclarations.json to have relevant auths:
-```json
-"idAuths": {
-    "roadTraffic": ["auth1"],
-    "roadTraffic1": ["auth1"]
-}
-```
-        
-4.  Start A:
-    `mvn clean install -Pquick -Proad-traffic-demo -pl :road-traffic-demo –am`
-    
-5.  Add below to road-traffic-demo/src/main/resources/graphLibrary/roadTraffic1StoreProps.properties:
+6.  Add store2 properties to the GraphLibrary
+Add a file containing the properties below to road-traffic-demo/src/main/resources/graphLibrary/store2StoreProps.properties
+
 ```properties
-    accumulo.instance=someInstanceName
-    gaffer.cache.service.class=uk.gov.gchq.gaffer.cache.impl.JcsCacheService
-    accumulo.password=password
-    accumulo.zookeepers=aZookeeper
+    gaffer.store.properties.class=uk.gov.gchq.gaffer.proxystore.ProxyProperties
     gaffer.store.class=uk.gov.gchq.gaffer.proxystore.ProxyStore
-    gaffer.store.job.tracker.enabled=true
     gaffer.host=localhost
     gaffer.context-root=/rest/v1
-    gaffer.store.properties.class=uk.gov.gchq.gaffer.proxystore.ProxyProperties
-    gaffer.store.operation.declarations=ExportToOtherAuthorisedGraphOperationDeclarations.json,ExportToOtherGraphOperationDeclarations.json,NamedOperationDeclarations.json,accumulo/ResultCacheExportOperations.json,FlinkOperationDeclarations.json,disableOperations.json
     gaffer.port=8081
-    accumulo.user=user01
 ```
 
--On B:
+2.  Start 1:
+    `mvn clean install -Pquick -Proad-traffic-demo -pl :road-traffic-demo –am`
 
-1.  Remove the following from road-traffic-demo/pom.xml:
+
+-On 2:
+
+1.  Remove the following from road-traffic-demo/pom.xml to stop the demo data being added:
 ```xml
     <roadTraffic.dataLoader.dataPath>
         ${project.build.outputDirectory}/roadTrafficSampleData.csv
@@ -121,10 +96,10 @@ Change new User(); to new User.Builder().opAuths(“auth1”).build();
     <standalone-port>8081</standalone-port>
 ```
 
-3.  Start B:
+3.  Start 2:
     `mvn clean install -Pquick -Proad-traffic-demo -pl :road-traffic-demo –am`
     
--Navigate to localhost:8080/rest (Graph A) and go to operations -> /graph/doOperation, then insert: 
+-Navigate to localhost:8080/rest (Graph 1) and go to operations -> /graph/doOperation, then insert:
  ```json
  {
     "operations": [
@@ -142,8 +117,8 @@ Change new User(); to new User.Builder().opAuths(“auth1”).build();
        },
        {
             "class" : "uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherAuthorisedGraph",
-            "graphId" : "roadTraffic1",
-            "parentStorePropertiesId" : "roadTraffic1",
+            "graphId" : "roadTraffic2",
+            "parentStorePropertiesId" : "store2",
             "parentSchemaIds" : ["roadTraffic"]
        }
    ]
