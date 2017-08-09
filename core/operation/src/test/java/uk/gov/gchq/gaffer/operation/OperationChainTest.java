@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.hamcrest.core.IsCollectionContaining;
+import org.hamcrest.core.IsInstanceOf;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -44,7 +46,10 @@ import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsInstanceOf.*;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -72,11 +77,11 @@ public class OperationChainTest extends JSONSerialisationTest<OperationChain> {
         assertNotNull(deserialisedOp);
         assertEquals(2, deserialisedOp.getOperations().size());
         assertEquals(OperationImpl.class, deserialisedOp.getOperations()
-                .get(0)
-                .getClass());
+                                                        .get(0)
+                                                        .getClass());
         assertEquals(OperationImpl.class, deserialisedOp.getOperations()
-                .get(1)
-                .getClass());
+                                                        .get(1)
+                                                        .getClass());
     }
 
     @Test
@@ -216,8 +221,36 @@ public class OperationChainTest extends JSONSerialisationTest<OperationChain> {
         }
     }
 
+    @Test
+    public void shouldFlattenNestedOperationChain() {
+        // Given
+        final AddElements addElements = mock(AddElements.class);
+        final GetElements getElements = mock(GetElements.class);
+        final Limit<Element> limit = mock(Limit.class);
+
+        final OperationChain opChain1 = new OperationChain.Builder().first(addElements)
+                                                                    .then(getElements)
+                                                                    .build();
+
+        final OperationChain<?> opChain2 = new OperationChain.Builder().first(opChain1)
+                                                                       .then(limit)
+                                                                       .build();
+        // When
+        final List<Operation> operations = opChain2.flatten();
+
+        // Then
+        final Operation first = operations.get(0);
+        final Operation second = operations.get(1);
+        final Operation third = operations.get(2);
+
+        assertThat(first, instanceOf(AddElements.class));
+        assertThat(second, instanceOf(GetElements.class));
+        assertThat(third, instanceOf(Limit.class));
+    }
+
     @Override
     protected OperationChain getTestObject() {
         return new OperationChain();
     }
+
 }

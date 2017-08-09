@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * A <code>AddOperationsToChain</code> is a {@link GraphHook} that allows a
@@ -39,7 +40,7 @@ public class AddOperationsToChain implements GraphHook {
      * Adds in the additional Operations specified.  The original opChain will
      * be updated.
      *
-     * @param opChain the {@link OperationChain} being executed.
+     * @param operation the {@link OperationChain} being executed.
      * @param user    the {@link User} executing the operation chain
      */
     @Override
@@ -70,36 +71,40 @@ public class AddOperationsToChain implements GraphHook {
         return result;
     }
 
-    public void setStart(final List<Operation> start) {
-        this.defaultOperations.setStart(start);
-    }
-
     public List<Operation> getStart() {
         return defaultOperations.getStart();
     }
 
-    public void setEnd(final List<Operation> end) {
-        this.defaultOperations.setEnd(end);
+    public void setStart(final List<Operation> start) {
+        this.defaultOperations.setStart(start);
     }
 
     public List<Operation> getEnd() {
         return defaultOperations.getEnd();
     }
 
-    public void setBefore(final Map<String, List<Operation>> before) {
-        this.defaultOperations.setBefore(before);
+    public void setEnd(final List<Operation> end) {
+        this.defaultOperations.setEnd(end);
     }
 
     public Map<String, List<Operation>> getBefore() {
         return defaultOperations.getBefore();
     }
 
-    public void setAfter(final Map<String, List<Operation>> after) {
-        this.defaultOperations.setAfter(after);
+    public void setBefore(final Map<String, List<Operation>> before) {
+        this.defaultOperations.setBefore(before);
     }
 
     public Map<String, List<Operation>> getAfter() {
         return defaultOperations.getAfter();
+    }
+
+    public void setAfter(final Map<String, List<Operation>> after) {
+        this.defaultOperations.setAfter(after);
+    }
+
+    public LinkedHashMap<String, AdditionalOperations> getAuthorisedOps() {
+        return authorisedOps;
     }
 
     public void setAuthorisedOps(final LinkedHashMap<String, AdditionalOperations> authorisedOps) {
@@ -109,25 +114,25 @@ public class AddOperationsToChain implements GraphHook {
         }
     }
 
-    public LinkedHashMap<String, AdditionalOperations> getAuthorisedOps() {
-        return authorisedOps;
-    }
-
-    private List<Operation> addOperationsToChain(final OperationChain<?> opChain, final AdditionalOperations additionalOperations) {
+    private List<Operation> addOperationsToChain(final OperationChain<?> operation, final AdditionalOperations additionalOperations) {
         List<Operation> newOpList = new ArrayList<>();
 
         newOpList.addAll(additionalOperations.getStart());
-        if (opChain != null && !opChain.getOperations().isEmpty()) {
-            for (final Operation originalOp : opChain.getOperations()) {
-                if(originalOp instanceof OperationChain) {
+        if (operation != null && !operation.getOperations().isEmpty()) {
+            for (final Operation originalOp : operation.getOperations()) {
+                if (originalOp instanceof OperationChain) {
                     addOperationsToChain(((OperationChain) originalOp), additionalOperations);
                 }
-                List<Operation> beforeOps = additionalOperations.getBefore().get(originalOp.getClass().getName());
+                List<Operation> beforeOps = additionalOperations.getBefore()
+                                                                .get(originalOp.getClass()
+                                                                               .getName());
                 if (beforeOps != null) {
                     newOpList.addAll(beforeOps);
                 }
                 newOpList.add(originalOp);
-                List<Operation> afterOps = additionalOperations.getAfter().get(originalOp.getClass().getName());
+                List<Operation> afterOps = additionalOperations.getAfter()
+                                                               .get(originalOp.getClass()
+                                                                              .getName());
                 if (afterOps != null) {
                     newOpList.addAll(afterOps);
                 }

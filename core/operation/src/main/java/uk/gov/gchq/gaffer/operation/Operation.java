@@ -132,6 +132,14 @@ public interface Operation extends Closeable {
         return result;
     }
 
+    static <O> OperationChain<O> asOperationChain(final Operation operation) {
+        if (operation instanceof OperationChain<?>) {
+            return (OperationChain<O>) operation;
+        } else {
+            return new OperationChain<>(operation);
+        }
+    }
+
     interface Builder<OP, B extends Builder<OP, ?>> {
         OP _getOp();
 

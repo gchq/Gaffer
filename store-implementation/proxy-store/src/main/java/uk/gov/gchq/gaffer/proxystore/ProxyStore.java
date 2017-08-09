@@ -141,13 +141,6 @@ public class ProxyStore extends Store {
         }
     }
 
-    @Override
-    protected <O> O handleOperationChain(
-            final OperationChain<O> operationChain, final Context context)
-            throws OperationException {
-        return executeOpChainViaUrl(operationChain, context);
-    }
-
     protected <O> O executeOpChainViaUrl(
             final OperationChain<O> operationChain, final Context context)
             throws OperationException {

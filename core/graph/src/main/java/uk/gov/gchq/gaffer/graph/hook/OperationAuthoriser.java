@@ -37,8 +37,8 @@ import java.util.Set;
  * of operation authorisations.
  */
 public class OperationAuthoriser implements GraphHook {
-    private Map<Class<?>, Set<String>> auths = new HashMap<>();
     private final Set<String> allAuths = new HashSet<>();
+    private Map<Class<?>, Set<String>> auths = new HashMap<>();
 
     /**
      * Checks the {@link Operation}s in the provided {@link OperationChain}
@@ -46,20 +46,21 @@ public class OperationAuthoriser implements GraphHook {
      * This is done by checking the user's auths against the operation auths.
      * If an operation cannot be executed then an {@link IllegalAccessError} is thrown.
      *
-     * @param user    the user to authorise.
+     * @param user      the user to authorise.
      * @param opChain the operation chain.
      */
     @Override
     public void preExecute(final OperationChain<?> opChain, final User user) {
         if (null != opChain) {
-            for (final Operation operation : opChain.getOperations()) {
-                authorise(operation, user);
+            for (final Operation op : opChain.getOperations()) {
+                authorise(op, user);
             }
+            authorise(opChain, user);
         }
     }
 
     @Override
-    public <T> T postExecute(final T result, final OperationChain<?> opChain, final User user) {
+    public <T> T postExecute(final T result, final OperationChain<?> operation, final User user) {
         // This method can be overridden to add additional authorisation checks on the results.
         return result;
     }
@@ -111,6 +112,10 @@ public class OperationAuthoriser implements GraphHook {
 
     protected void authorise(final Operation operation, final User user) {
         if (null != operation) {
+            if (operation instanceof OperationChain) {
+                authorise(operation, user);
+            }
+
             final Class<? extends Operation> opClass = operation.getClass();
             final Set<String> userOpAuths = user.getOpAuths();
             boolean authorised = true;

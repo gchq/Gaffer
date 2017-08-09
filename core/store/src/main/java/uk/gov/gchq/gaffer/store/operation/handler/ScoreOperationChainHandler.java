@@ -66,7 +66,11 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
 
         if (null != opChain) {
             for (final Operation operation : opChain.getOperations()) {
-                chainScore += authorise(operation);
+                if (operation instanceof OperationChain) {
+                    chainScore += getChainScore((OperationChain<?>) operation, user);
+                } else {
+                    chainScore += authorise(operation);
+                }
             }
         }
         return chainScore;

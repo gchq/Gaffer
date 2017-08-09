@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
@@ -65,7 +66,7 @@ public class OperationService implements IOperationService {
     private UserFactory userFactory;
 
     @Override
-    public Object execute(final OperationChain opChain) {
+    public Object execute(final OperationChainDAO opChain) {
         return _execute(opChain);
     }
 
@@ -76,7 +77,7 @@ public class OperationService implements IOperationService {
 
     @SuppressFBWarnings
     @Override
-    public ChunkedOutput<String> executeChunked(final OperationChain opChain) {
+    public ChunkedOutput<String> executeChunked(final OperationChainDAO<CloseableIterable<Element>> opChain) {
         // Create chunked output instance
         final ChunkedOutput<String> output = new ChunkedOutput<>(String.class, "\r\n");
 
