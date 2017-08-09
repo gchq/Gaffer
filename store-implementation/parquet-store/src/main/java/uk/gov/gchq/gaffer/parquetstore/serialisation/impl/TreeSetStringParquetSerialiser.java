@@ -79,6 +79,6 @@ public class TreeSetStringParquetSerialiser implements ParquetSerialiser<TreeSet
 
     @Override
     public boolean canHandle(final Class clazz) {
-        return TreeSet.class.isAssignableFrom(clazz);
+        return TreeSet.class.equals(clazz);
     }
 }

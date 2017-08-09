@@ -305,7 +305,7 @@ public final class Graph {
             return Collections.emptyList();
         }
 
-        return graphHooks.stream().map(GraphHook::getClass).collect(Collectors.toList());
+        return (List) graphHooks.stream().map(GraphHook::getClass).collect(Collectors.toList());
     }
 
     /**

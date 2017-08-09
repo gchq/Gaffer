@@ -77,6 +77,10 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
         this.seedMatchingType = seedMatchingType;
         this.seeds = seeds;
         this.graphIndex = store.getGraphIndex();
+        if (graphIndex == null) {
+            throw new OperationException("Can not perform a Get operation when there is no index set, which is " +
+                    "indicative of there being no data or the data ingest failed.");
+        }
         this.parquetFilterUtils = new ParquetFilterUtils(store);
         this.fs = store.getFS();
     }
