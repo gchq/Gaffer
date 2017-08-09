@@ -55,3 +55,91 @@ to be run before and after an operation chain is executed.
 You can use hooks to do things like custom logging or special operation
 chain authorisation. To implement your own hook, just implement the `GraphHook`
 interface and register it with the graph when you build a `Graph` instance.
+
+## FAQs
+To use an example of the authorised Graph exporter within the road-traffic-demo using the proxy-store, follow these steps.
+
+-Clone Gaffer twice, instance A and instance B.
+-On A: 
+    1.  Add below to road-traffic-demo/pom.xml:
+        ```
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>proxy-store</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        ```
+    2.  In UnknownUserFactory.java:
+        change new User(); to new User.Builder().opAuths(“auth1”).build();
+    3.  Update ExportToOtherAuthorisedGraphOperationDeclarations.json to have relevant auths:
+        ```
+        "idAuths": {
+            "roadTraffic": ["auth1"],
+            "roadTraffic1": ["auth1"]
+        }
+        ```
+    4.  Start A:
+        `mvn clean install -Pquick -Proad-traffic-demo -pl :road-traffic-demo –am`
+    5.  Add below to road-traffic-demo/src/main/resources/graphLibrary/roadTraffic1StoreProps.properties:
+        ```
+        accumulo.instance=someInstanceName
+        gaffer.cache.service.class=uk.gov.gchq.gaffer.cache.impl.JcsCacheService
+        accumulo.password=password
+        accumulo.zookeepers=aZookeeper
+        gaffer.store.class=uk.gov.gchq.gaffer.proxystore.ProxyStore
+        gaffer.store.job.tracker.enabled=true
+        gaffer.host=localhost
+        gaffer.context-root=/rest/v1
+        gaffer.store.properties.class=uk.gov.gchq.gaffer.proxystore.ProxyProperties
+        gaffer.store.operation.declarations=ExportToOtherAuthorisedGraphOperationDeclarations.json,ExportToOtherGraphOperationDeclarations.json,NamedOperationDeclarations.json,accumulo/ResultCacheExportOperations.json,FlinkOperationDeclarations.json,disableOperations.json
+        gaffer.port=8081
+        accumulo.user=user01
+        ```
+-On B:
+    1.  Remove the following from road-traffic-demo/pom.xml:
+        ```
+        <roadTraffic.dataLoader.dataPath>
+            ${project.build.outputDirectory}/roadTrafficSampleData.csv
+        </roadTraffic.dataLoader.dataPath>
+        ```
+    2.  In the same pom (road-traffic-demo/pom.xml) update the port to 8081:
+        ```
+        <standalone-port>8081</standalone-port>
+        ```
+    3.  Start B:
+        `mvn clean install -Pquick -Proad-traffic-demo -pl :road-traffic-demo –am`
+-Navigate to localhost:8080/rest (Graph A) and go to operations -> /graph/doOperation, then insert: 
+ ```
+ {
+    "operations": [
+        {
+            "class": "uk.gov.gchq.gaffer.operation.impl.get.GetAllElements",
+            "view": {
+                "edges": {
+                    "JunctionLocatedAt": {}
+                }
+            }
+       },
+       {
+            "class": "uk.gov.gchq.gaffer.operation.impl.Limit",
+            "resultLimit": 1
+       },
+       {
+            "class" : "uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherAuthorisedGraph",
+            "graphId" : "roadTraffic1",
+            "parentStorePropertiesId" : "roadTraffic1",
+            "parentSchemaIds" : ["roadTraffic"]
+       }
+   ]
+ }
+ ```
+ 
+ This will check the opAuths of the User (the ones we set when we created 
+ the user) against the allowed opAuths specified in the OperationDeclarations 
+ file that we modified.
+ 
+ It will then export one element to Graph B, on localhost:8081/rest. 
+ We can check by going to the same place, operations graph/DoOperation 
+ and click example json.  That will getAllElements with a limit of 1. 
+ This should show an element that has been successfully exported!
+ 
