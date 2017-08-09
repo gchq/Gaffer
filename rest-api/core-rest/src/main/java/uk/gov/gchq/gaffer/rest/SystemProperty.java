@@ -26,6 +26,8 @@ import uk.gov.gchq.gaffer.rest.factory.UnknownUserFactory;
  */
 public abstract class SystemProperty {
     // KEYS
+    public static final String GRAPH_LIBRARY_CLASS = "gaffer.graph.library.class";
+    public static final String GRAPH_LIBRARY_CONFIG = "gaffer.graph.library.config";
     public static final String GRAPH_ID = "gaffer.graph.id";
     public static final String SCHEMA_PATHS = "gaffer.schemas";
     public static final String STORE_PROPERTIES_PATH = "gaffer.storeProperties";

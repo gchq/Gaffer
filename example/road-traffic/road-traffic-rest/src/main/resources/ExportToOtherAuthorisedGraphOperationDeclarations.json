@@ -1,0 +1,18 @@
+{
+  "operations": [
+    {
+      "operation": "uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherAuthorisedGraph",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.operation.export.graph.handler.ExportToOtherAuthorisedGraphHandler",
+        "idAuths": {
+          "roadTraffic": [
+            "auth1"
+          ],
+          "roadTraffic1": [
+            "auth1"
+          ]
+        }
+      }
+    }
+  ]
+}
