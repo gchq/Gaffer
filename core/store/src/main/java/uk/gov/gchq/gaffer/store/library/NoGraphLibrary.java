@@ -29,6 +29,10 @@ public class NoGraphLibrary extends GraphLibrary {
         LOGGER.debug("Your schema will not be stored in a graph library. So you will need to provide it each time you create an instance of Graph.");
     }
 
+    public void initialise(final String path) {
+        // Do nothing.
+    }
+
     @Override
     public Pair<String, String> getIds(final String graphId) {
         return null;

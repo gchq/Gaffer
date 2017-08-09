@@ -27,6 +27,14 @@ public class HashMapGraphLibrary extends GraphLibrary {
     private static final Map<String, byte[]> SCHEMAS = new HashMap<>();
     private static final Map<String, StoreProperties> PROPERTIES = new HashMap<>();
 
+    public HashMapGraphLibrary() {
+
+    }
+
+    public void initialise(final String file) {
+        // Do nothing.
+    }
+
     public static void clear() {
         GRAPHS.clear();
         SCHEMAS.clear();
