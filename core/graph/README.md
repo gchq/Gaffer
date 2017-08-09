@@ -146,8 +146,8 @@ Change new User(); to new User.Builder().opAuths(“auth1”).build();
  }
  ```
  
- This will check the opAuths of the User (the ones we set when we created 
- the user) against the allowed opAuths specified in the OperationDeclarations 
+ This will check the opAuths of the User (the ones set when the User 
+ was created) against the allowed opAuths specified in the OperationDeclarations 
  file that we modified.
  
  It will then export one element to Graph B, on localhost:8081/rest. 
