@@ -60,24 +60,32 @@ interface and register it with the graph when you build a `Graph` instance.
 To use an example of the authorised Graph exporter within the road-traffic-demo using the proxy-store, follow these steps.
 
 -Clone Gaffer twice, instance A and instance B.
--On A: 
-    1.  Add below to road-traffic-demo/pom.xml:
-        ```
-        <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>proxy-store</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        ```
+
+-On A:
+
+1.  Add below to road-traffic-demo/pom.xml:
+    
+```
+<dependency>
+    <groupId>uk.gov.gchq.gaffer</groupId>
+    <artifactId>proxy-store</artifactId>
+    <version>${project.parent.version}</version>
+</dependency>
+```
+        
     2.  In UnknownUserFactory.java:
+    
         change new User(); to new User.Builder().opAuths(“auth1”).build();
+        
     3.  Update ExportToOtherAuthorisedGraphOperationDeclarations.json to have relevant auths:
+    
         ```
         "idAuths": {
             "roadTraffic": ["auth1"],
             "roadTraffic1": ["auth1"]
         }
         ```
+        
     4.  Start A:
         `mvn clean install -Pquick -Proad-traffic-demo -pl :road-traffic-demo –am`
     5.  Add below to road-traffic-demo/src/main/resources/graphLibrary/roadTraffic1StoreProps.properties:
