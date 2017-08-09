@@ -268,7 +268,7 @@ public class JSONSerialiser {
     public JsonNode getJsonNodeFromString(final String content) throws SerialisationException {
         try {
             return mapper.readTree(content);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }

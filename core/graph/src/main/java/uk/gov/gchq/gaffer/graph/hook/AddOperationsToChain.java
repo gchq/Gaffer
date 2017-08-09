@@ -70,36 +70,40 @@ public class AddOperationsToChain implements GraphHook {
         return result;
     }
 
-    public void setStart(final List<Operation> start) {
-        this.defaultOperations.setStart(start);
-    }
-
     public List<Operation> getStart() {
         return defaultOperations.getStart();
     }
 
-    public void setEnd(final List<Operation> end) {
-        this.defaultOperations.setEnd(end);
+    public void setStart(final List<Operation> start) {
+        this.defaultOperations.setStart(start);
     }
 
     public List<Operation> getEnd() {
         return defaultOperations.getEnd();
     }
 
-    public void setBefore(final Map<String, List<Operation>> before) {
-        this.defaultOperations.setBefore(before);
+    public void setEnd(final List<Operation> end) {
+        this.defaultOperations.setEnd(end);
     }
 
     public Map<String, List<Operation>> getBefore() {
         return defaultOperations.getBefore();
     }
 
-    public void setAfter(final Map<String, List<Operation>> after) {
-        this.defaultOperations.setAfter(after);
+    public void setBefore(final Map<String, List<Operation>> before) {
+        this.defaultOperations.setBefore(before);
     }
 
     public Map<String, List<Operation>> getAfter() {
         return defaultOperations.getAfter();
+    }
+
+    public void setAfter(final Map<String, List<Operation>> after) {
+        this.defaultOperations.setAfter(after);
+    }
+
+    public LinkedHashMap<String, AdditionalOperations> getAuthorisedOps() {
+        return authorisedOps;
     }
 
     public void setAuthorisedOps(final LinkedHashMap<String, AdditionalOperations> authorisedOps) {
@@ -109,25 +113,25 @@ public class AddOperationsToChain implements GraphHook {
         }
     }
 
-    public LinkedHashMap<String, AdditionalOperations> getAuthorisedOps() {
-        return authorisedOps;
-    }
-
     private List<Operation> addOperationsToChain(final OperationChain<?> opChain, final AdditionalOperations additionalOperations) {
         List<Operation> newOpList = new ArrayList<>();
 
         newOpList.addAll(additionalOperations.getStart());
         if (opChain != null && !opChain.getOperations().isEmpty()) {
             for (final Operation originalOp : opChain.getOperations()) {
-                if(originalOp instanceof OperationChain) {
+                if (originalOp instanceof OperationChain) {
                     addOperationsToChain(((OperationChain) originalOp), additionalOperations);
                 }
-                List<Operation> beforeOps = additionalOperations.getBefore().get(originalOp.getClass().getName());
+                List<Operation> beforeOps = additionalOperations.getBefore()
+                                                                .get(originalOp.getClass()
+                                                                               .getName());
                 if (beforeOps != null) {
                     newOpList.addAll(beforeOps);
                 }
                 newOpList.add(originalOp);
-                List<Operation> afterOps = additionalOperations.getAfter().get(originalOp.getClass().getName());
+                List<Operation> afterOps = additionalOperations.getAfter()
+                                                               .get(originalOp.getClass()
+                                                                              .getName());
                 if (afterOps != null) {
                     newOpList.addAll(afterOps);
                 }

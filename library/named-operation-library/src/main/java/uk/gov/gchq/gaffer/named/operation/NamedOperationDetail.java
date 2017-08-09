@@ -125,7 +125,7 @@ public class NamedOperationDetail implements Serializable {
         OperationChain opChain;
         try {
             opChain = SERIALISER.deserialise(opStringWithDefaults.getBytes(CHARSET_NAME), OperationChain.class);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
 
@@ -177,7 +177,7 @@ public class NamedOperationDetail implements Serializable {
 
         try {
             opChain = SERIALISER.deserialise(opStringWithParams.getBytes(CHARSET_NAME), OperationChain.class);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
 
@@ -282,7 +282,7 @@ public class NamedOperationDetail implements Serializable {
         public Builder operationChain(final OperationChain opChain) {
             try {
                 this.opChain = new String(SERIALISER.serialise(opChain), Charset.forName(CHARSET_NAME));
-            } catch (SerialisationException se) {
+            } catch (final SerialisationException se) {
                 throw new IllegalArgumentException(se.getMessage());
             }
 

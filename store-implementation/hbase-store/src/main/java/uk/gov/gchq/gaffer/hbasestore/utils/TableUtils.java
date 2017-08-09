@@ -305,7 +305,7 @@ public final class TableUtils {
         final HTableDescriptor descriptor;
         try {
             descriptor = admin.getTableDescriptor(tableName);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new StoreException("Unable to look up the table coprocessors", e);
         }
 

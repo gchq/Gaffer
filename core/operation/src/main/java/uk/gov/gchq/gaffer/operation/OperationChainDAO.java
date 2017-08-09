@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,24 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.named.operation.serialisation;
+package uk.gov.gchq.gaffer.operation;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
-public final class NamedOperationTypeReference {
-    private NamedOperationTypeReference() {
-        // Private constructor to prevent instantiation.
+public class OperationChainDAO<OUT> extends OperationChain<OUT> {
+
+    public OperationChainDAO() {
+        super();
     }
 
-    public static class IterableNamedOperationDetail extends TypeReference<CloseableIterable<NamedOperationDetail>> {
+    @JsonGetter("class")
+    public String getClassName() {
+        return null;
+    }
+
+    @JsonSetter("class")
+    public void setClassName(final String className) {
+        // Do nothing
     }
 }

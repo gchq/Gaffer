@@ -240,7 +240,7 @@ public class ExportToOtherGraphExample extends OperationExample {
             if (new File("target/ExportToOtherGraphGraphLibrary").exists()) {
                 FileUtils.forceDelete(new File("target/ExportToOtherGraphGraphLibrary"));
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
     }

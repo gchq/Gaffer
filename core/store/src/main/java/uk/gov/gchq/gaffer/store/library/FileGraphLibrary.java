@@ -66,7 +66,7 @@ public class FileGraphLibrary extends GraphLibrary {
                     return null;
                 }
                 ids = new Pair<>(split[0], split[1]);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new IllegalArgumentException("Could not read graphs file: " + getGraphsPath(graphId), e);
             }
         } else {
@@ -80,7 +80,7 @@ public class FileGraphLibrary extends GraphLibrary {
         String schemaAndPropsIdsString = new String(schemaAndPropsIds.getFirst() + "," + schemaAndPropsIds.getSecond());
         try {
             FileUtils.writeStringToFile(getGraphsPath(graphId).toFile(), schemaAndPropsIdsString);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new IllegalArgumentException("Could not write Graphs to path: " + getSchemaPath(graphId), e);
         }
     }
@@ -105,7 +105,7 @@ public class FileGraphLibrary extends GraphLibrary {
         if (properties != null) {
             try (FileOutputStream propertiesFileOutputStream = new FileOutputStream(getPropertiesPath(propertiesId).toFile())) {
                 properties.getProperties().store(propertiesFileOutputStream, null);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new IllegalArgumentException("Could not write properties to path: " + getSchemaPath(propertiesId), e);
             }
         } else {
@@ -119,7 +119,7 @@ public class FileGraphLibrary extends GraphLibrary {
         final Path path = getSchemaPath(graphId);
         try {
             return path.toFile().exists() ? Files.readAllBytes(path) : null;
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SchemaException("Unable to read schema bytes from file: " + getSchemaPath(graphId));
         }
     }

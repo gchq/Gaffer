@@ -154,7 +154,7 @@ public class FullExample extends UserWalkthrough {
 
         try {
             log("GET_JSON", StringUtil.toString(new JSONSerialiser().serialise(opChain, true)));
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new RuntimeException(e);
         }
 

@@ -211,7 +211,7 @@ public abstract class OperationExample extends Example {
         final List<String> data;
         try {
             data = IOUtils.readLines(StreamUtil.openStream(getClass(), "operation/data.txt"));
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
 

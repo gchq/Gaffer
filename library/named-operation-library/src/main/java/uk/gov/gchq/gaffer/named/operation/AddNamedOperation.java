@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.named.operation;
 
-
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -70,7 +69,7 @@ public class AddNamedOperation implements Operation {
     public JsonNode getOperationChainAsJsonNode() {
         try {
             return SERIALISER.getJsonNodeFromString(operations);
-        } catch (SerialisationException se) {
+        } catch (final SerialisationException se) {
             throw new IllegalArgumentException(se.getMessage());
         }
     }
@@ -78,7 +77,7 @@ public class AddNamedOperation implements Operation {
     public void setOperationChain(final OperationChain operationChain) {
         try {
             this.operations = new String(SERIALISER.serialise(operationChain), Charset.forName(CHARSET_NAME));
-        } catch (SerialisationException se) {
+        } catch (final SerialisationException se) {
             throw new IllegalArgumentException(se.getMessage());
         }
     }

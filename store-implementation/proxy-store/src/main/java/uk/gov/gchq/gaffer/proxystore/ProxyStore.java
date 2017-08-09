@@ -141,14 +141,7 @@ public class ProxyStore extends Store {
         }
     }
 
-    @Override
-    protected <O> O handleOperationChain(
-            final OperationChain<O> operationChain, final Context context)
-            throws OperationException {
-        return executeOpChainViaUrl(operationChain, context);
-    }
-
-    protected <O> O executeOpChainViaUrl(
+    public <O> O executeOpChainViaUrl(
             final OperationChain<O> operationChain, final Context context)
             throws OperationException {
         final String opChainJson;
@@ -263,6 +256,7 @@ public class ProxyStore extends Store {
     @Override
     protected void addAdditionalOperationHandlers() {
         // no operation handlers to add.
+//        addOperationHandler(OperationChain.class, new OperationChainHandler());
     }
 
     @Override
@@ -293,6 +287,11 @@ public class ProxyStore extends Store {
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
         return null;
+    }
+
+    @Override
+    protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
+        return new uk.gov.gchq.gaffer.proxystore.operation.handler.OperationChainHandler<>();
     }
 
     protected Client createClient(final ProxyProperties proxyProps) {

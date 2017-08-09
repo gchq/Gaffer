@@ -45,7 +45,7 @@ public class JcsCacheService implements ICacheService {
                 Properties cacheProperties = readProperties(configFile);
                 manager.configure(cacheProperties);
                 return;
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new IllegalArgumentException("Cannot create cache using config file " + configFile, e);
             }
         }
@@ -58,7 +58,7 @@ public class JcsCacheService implements ICacheService {
         CompositeCache cache = manager.getCache(cacheName);
         try {
             return new JcsCache<>(cache);
-        } catch (CacheException e) {
+        } catch (final CacheException e) {
             throw new IllegalArgumentException("Failed to create cache", e);
         }
     }

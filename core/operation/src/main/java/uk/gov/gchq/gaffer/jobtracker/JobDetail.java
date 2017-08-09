@@ -49,7 +49,7 @@ public class JobDetail implements Serializable {
         }
     }
 
-    public JobDetail(final String jobId, final String userId, final OperationChain<?> opChain, final JobStatus jobStatus, final String description) {
+    public JobDetail(final String jobId, final String userId, final OperationChain opChain, final JobStatus jobStatus, final String description) {
         final String opChainString = null != opChain ? opChain.toString() : "";
         this.jobId = jobId;
         this.userId = userId;

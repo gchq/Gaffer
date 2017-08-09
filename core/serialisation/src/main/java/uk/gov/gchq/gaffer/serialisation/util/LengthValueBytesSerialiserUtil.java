@@ -42,7 +42,7 @@ public abstract class LengthValueBytesSerialiserUtil {
         CompactRawSerialisationUtils.write(serialisedObject.length, byteOut);
         try {
             byteOut.write(serialisedObject);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
         return byteOut;

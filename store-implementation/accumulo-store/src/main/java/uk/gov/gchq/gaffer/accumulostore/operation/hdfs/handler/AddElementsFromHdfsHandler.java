@@ -48,14 +48,14 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
 
     @Override
     public Void doOperation(final AddElementsFromHdfs operation,
-                            final Context context, final Store store)
+            final Context context, final Store store)
             throws OperationException {
         doOperation(operation, context, (AccumuloStore) store);
         return null;
     }
 
     public void doOperation(final AddElementsFromHdfs operation,
-                            final Context context, final AccumuloStore store)
+            final Context context, final AccumuloStore store)
             throws OperationException {
         validateOperation(operation);
 
@@ -147,7 +147,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
 
         final String tmpSplitsOutputPath = tmpJobWorkingPath + "/sampleSplitsOutput";
         try {
-            store._execute(new OperationChain.Builder()
+            store.execute(new OperationChain.Builder()
                     .first(new SampleDataForSplitPoints.Builder()
                             .addInputPaths(operation.getInputPaths())
                             .jobInitialiser(operation.getJobInitialiser())

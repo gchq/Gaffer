@@ -53,7 +53,7 @@ public class JcsCache <K, V> implements ICache<K, V> {
         }
         try {
             cache.putInGroup(key, groupName, value);
-        } catch (CacheException e) {
+        } catch (final CacheException e) {
             throw new CacheOperationException("Failed to add item to cache", e);
         }
     }
@@ -98,7 +98,7 @@ public class JcsCache <K, V> implements ICache<K, V> {
     public void clear() throws CacheOperationException {
         try {
             cache.clear();
-        } catch (CacheException e) {
+        } catch (final CacheException e) {
             throw new CacheOperationException("Failed to clear cache", e);
         }
     }
