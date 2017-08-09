@@ -26,11 +26,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.roaringbitmap</groupId>
-            <artifactId>RoaringBitmap</artifactId>
-            <version>0.5.11</version>
-        </dependency>
-        <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>bitmap-library</artifactId>
             <version>${project.parent.version}</version>
@@ -75,7 +70,24 @@
                             </shadedClassifierName>
                             <artifactSet>
                                 <includes>
-                                    <include>org.roaringbitmap:RoaringBitmap
+                                    <include>
+                                        org.roaringbitmap:RoaringBitmap
+                                    </include>
+
+                                    <include>
+                                        uk.gov.gchq.gaffer:bitmap-library
+                                    </include>
+
+                                    <include>
+                                        uk.gov.gchq.gaffer:sketches-library
+                                    </include>
+
+                                    <include>
+                                        com.clearspring.analytics:stream
+                                    </include>
+
+                                    <include>
+                                        com.yahoo.datasketches:sketches-core
                                     </include>
                                 </includes>
                             </artifactSet>
