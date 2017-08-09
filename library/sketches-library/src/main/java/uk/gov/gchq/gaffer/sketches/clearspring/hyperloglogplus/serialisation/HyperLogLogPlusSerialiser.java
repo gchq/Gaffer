@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.sketches.serialisation;
+package uk.gov.gchq.gaffer.sketches.clearspring.hyperloglogplus.serialisation;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import uk.gov.gchq.gaffer.exception.SerialisationException;

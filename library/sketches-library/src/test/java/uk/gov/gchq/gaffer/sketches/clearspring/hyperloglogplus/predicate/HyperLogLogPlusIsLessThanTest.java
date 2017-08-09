@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.sketches.predicate;
+package uk.gov.gchq.gaffer.sketches.clearspring.hyperloglogplus.predicate;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import org.junit.Before;
@@ -117,7 +117,7 @@ public class HyperLogLogPlusIsLessThanTest extends PredicateTest {
         final String json = new String(new JSONSerialiser().serialise(filter, true));
         // Then 1
         JsonAssert.assertEquals(String.format("{%n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.predicate.HyperLogLogPlusIsLessThan\",%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.clearspring.hyperloglogplus.predicate.HyperLogLogPlusIsLessThan\",%n" +
                 "  \"orEqualTo\" : false,%n" +
                 "  \"value\" : 15%n" +
                 "}"), json);

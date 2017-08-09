@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.sketches.serialisation.json.hyperloglogplus;
+package uk.gov.gchq.gaffer.sketches.clearspring.hyperloglogplus.serialisation.json.hyperloglogplus;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.fasterxml.jackson.core.JsonGenerator;
