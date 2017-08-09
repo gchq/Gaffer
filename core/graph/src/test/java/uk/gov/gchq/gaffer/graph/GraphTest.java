@@ -257,7 +257,7 @@ public class GraphTest {
         // Given
         final Operation operation = mock(Operation.class);
         final OperationChain opChain = mock(OperationChain.class);
-        given(opChain.getOperations()).willReturn(Lists.newArrayList(operation));
+        given(opChain.getOperations()).willReturn(Collections.singletonList(operation));
 
         final Exception exception = mock(RuntimeException.class);
         final User user = mock(User.class);
@@ -674,7 +674,7 @@ public class GraphTest {
                             .type("int", new TypeDefinition.Builder()
                                     .clazz(Integer.class)
                                     .aggregateFunction(new Sum())
-                                    // invalid serialiser
+                                            // invalid serialiser
                                     .serialiser(new RawDoubleSerialiser())
                                     .build())
                             .type("string", new TypeDefinition.Builder()
