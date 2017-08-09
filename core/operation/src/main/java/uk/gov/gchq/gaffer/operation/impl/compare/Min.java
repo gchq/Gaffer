@@ -90,5 +90,10 @@ public class Min implements
             _getOp().setComparators(Lists.newArrayList(comparators));
             return _self();
         }
+
+        public Builder comparators(final List<Comparator<Element>> comparators) {
+            _getOp().setComparators(comparators);
+            return _self();
+        }
     }
 }
