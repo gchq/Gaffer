@@ -57,7 +57,7 @@ chain authorisation. To implement your own hook, just implement the `GraphHook`
 interface and register it with the graph when you build a `Graph` instance.
 
 ## FAQs
-Here are some frequently askedd questions
+Here are some frequently asked questions.
 
 #### How can I export to another graph using User authorisations?
 
