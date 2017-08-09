@@ -32,7 +32,8 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.AddElementsHandler;
-import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.ImportRDDOfElementsHandler;
+import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.ImportRDDOfElements.ImportJavaRDDOfElementsHandler;
+import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.ImportRDDOfElements.ImportRDDOfElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetDataframeOfElementsHandler;
@@ -43,6 +44,7 @@ import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.spark.SparkConstants;
 import uk.gov.gchq.gaffer.spark.SparkUser;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
+import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator;
 import uk.gov.gchq.gaffer.store.Context;
@@ -56,6 +58,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
@@ -152,6 +155,7 @@ public class ParquetStore extends Store {
             final SparkSession spark = SparkSession.builder()
                     .appName(SPARK_SESSION_NAME)
                     .master(getProperties().getSparkMaster())
+                    .config(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true")
                     .config(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
                     .config(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
                     .getOrCreate();
@@ -183,7 +187,9 @@ public class ParquetStore extends Store {
     @Override
     protected void addAdditionalOperationHandlers() {
         addOperationHandler(GetDataFrameOfElements.class, new GetDataframeOfElementsHandler());
+        addOperationHandler(ImportJavaRDDOfElements.class, new ImportJavaRDDOfElementsHandler());
         addOperationHandler(ImportRDDOfElements.class, new ImportRDDOfElementsHandler());
+
     }
 
     @Override

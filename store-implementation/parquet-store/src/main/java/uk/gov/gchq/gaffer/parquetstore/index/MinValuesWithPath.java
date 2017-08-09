@@ -20,42 +20,25 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import java.util.Arrays;
 
 /**
- * This class is used to store a single parquet file's path along with the Min and Max parquet objects that are contained in that file
+ * This class is used to store a single parquet file's path along with the first rows parquet objects that are contained in that file
  * for a specific gaffer column, i.e. if the vertex was a {@link uk.gov.gchq.gaffer.types.TypeValue} object then the Min would consist of two Strings,
  * the first representing the type and the second representing the value.
  */
-public class MinMaxPath {
+public class MinValuesWithPath {
     private final Object[] min;
-    private final Object[] max;
     private final String path;
 
     @SuppressFBWarnings(value = "EI_EXPOSE_REP2",
             justification = "This method is only used in this package and users will not mutate the values returned.")
-    public MinMaxPath(final Object[] min, final Object[] max, final String path) throws StoreException {
+    public MinValuesWithPath(final Object[] min, final String path) throws StoreException {
         this.min = min;
-        this.max = max;
         this.path = path;
-        // run checks
-        if (min.length != max.length) {
-            throw new StoreException("The MinMaxPath " + this.toString() + " does not have equal length Min and Max arrays.");
-        }
-        for (int colIndex = 0; colIndex < min.length; colIndex++) {
-            if (!min.getClass().getCanonicalName().equals(max.getClass().getCanonicalName())) {
-                throw new StoreException("The MinMaxPath " + this.toString() + " should have the same class type at min[" + colIndex + "] and max[" + colIndex + "].");
-            }
-        }
     }
 
     @SuppressFBWarnings(value = "EI_EXPOSE_REP",
             justification = "This method is only used in this package and users will not mutate the values returned.")
     public Object[] getMin() {
         return min;
-    }
-
-    @SuppressFBWarnings(value = "EI_EXPOSE_REP",
-            justification = "This method is only used in this package and users will not mutate the values returned.")
-    public Object[] getMax() {
-        return max;
     }
 
     public String getPath() {
@@ -65,9 +48,8 @@ public class MinMaxPath {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        sb.append("MinMaxPath{ ")
+        sb.append("MinValuesWithPath{ ")
                 .append("Min=").append(Arrays.toString(min))
-                .append(", Max=").append(Arrays.toString(max))
                 .append(", path=").append(path);
         return sb.toString();
     }
