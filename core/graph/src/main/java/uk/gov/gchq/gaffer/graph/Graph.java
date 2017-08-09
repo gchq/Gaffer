@@ -308,8 +308,23 @@ public final class Graph {
         return (List) graphHooks.stream().map(GraphHook::getClass).collect(Collectors.toList());
     }
 
+    public GraphLibrary getGraphLibrary() {
+        return store.getGraphLibrary();
+    }
+
     /**
+     * <p>
      * Builder for {@link Graph}.
+     * </p>
+     * We recommend instantiating a Graph from a graphConfig.json file, a schema directory and a store.properties file.
+     * For example:
+     * <pre>
+     * new Graph.Builder()
+     *     .config(Paths.get("graphConfig.json"))
+     *     .addSchemas(Paths.get("schema"))
+     *     .storeProperties(Paths.get("store.properties"))
+     *     .build();
+     * </pre>
      */
     public static class Builder {
         public static final String UNABLE_TO_READ_SCHEMA_FROM_URI = "Unable to read schema from URI";
@@ -351,31 +366,67 @@ public final class Graph {
             return this;
         }
 
+        /**
+         * @param library the graph library to set
+         * @return this Builder
+         * @deprecated use Builder.config instead.
+         */
+        @Deprecated
         public Builder library(final GraphLibrary library) {
             configBuilder.library(library);
             return this;
         }
 
+        /**
+         * @param view the graph view to set
+         * @return this Builder
+         * @deprecated use Builder.config instead.
+         */
+        @Deprecated
         public Builder view(final View view) {
             configBuilder.view(view);
             return this;
         }
 
+        /**
+         * @param view the graph view path to set
+         * @return this Builder
+         * @deprecated use Builder.config instead.
+         */
+        @Deprecated
         public Builder view(final Path view) {
             configBuilder.view(view);
             return this;
         }
 
+        /**
+         * @param view the graph view input stream to set
+         * @return this Builder
+         * @deprecated use Builder.config instead.
+         */
+        @Deprecated
         public Builder view(final InputStream view) {
             configBuilder.view(view);
             return this;
         }
 
+        /**
+         * @param view the graph view URI to set
+         * @return this Builder
+         * @deprecated use Builder.config instead.
+         */
+        @Deprecated
         public Builder view(final URI view) {
             configBuilder.view(view);
             return this;
         }
 
+        /**
+         * @param jsonBytes the graph view json bytes to set
+         * @return this Builder
+         * @deprecated use Builder.config instead.
+         */
+        @Deprecated
         public Builder view(final byte[] jsonBytes) {
             configBuilder.view(jsonBytes);
             return this;
@@ -533,6 +584,12 @@ public final class Graph {
             return this;
         }
 
+        /**
+         * @param hooksPath the graph hooks path
+         * @return this Builder
+         * @deprecated use Builder.config instead.
+         */
+        @Deprecated
         public Builder addHooks(final Path hooksPath) {
             if (null == hooksPath || !hooksPath.toFile().exists()) {
                 throw new IllegalArgumentException("Unable to find graph hooks file: " + hooksPath);
@@ -546,6 +603,12 @@ public final class Graph {
             return addHooks(hooks);
         }
 
+        /**
+         * @param hookPath the graph hook path
+         * @return this Builder
+         * @deprecated use Builder.config instead.
+         */
+        @Deprecated
         public Builder addHook(final Path hookPath) {
             if (null == hookPath || !hookPath.toFile().exists()) {
                 throw new IllegalArgumentException("Unable to find graph hook file: " + hookPath);
@@ -560,11 +623,23 @@ public final class Graph {
             return addHook(hook);
         }
 
+        /**
+         * @param graphHook the graph hook to add
+         * @return this Builder
+         * @deprecated use Builder.config instead.
+         */
+        @Deprecated
         public Builder addHook(final GraphHook graphHook) {
             configBuilder.addHook(graphHook);
             return this;
         }
 
+        /**
+         * @param graphHooks the graph hooks to add
+         * @return this Builder
+         * @deprecated use Builder.config instead.
+         */
+        @Deprecated
         public Builder addHooks(final GraphHook... graphHooks) {
             configBuilder.addHooks(graphHooks);
             return this;
@@ -572,8 +647,8 @@ public final class Graph {
 
         public Graph build() {
             final GraphConfig config = configBuilder.build();
-            if (null == config.getGraphLibrary()) {
-                config.setGraphLibrary(new NoGraphLibrary());
+            if (null == config.getLibrary()) {
+                config.setLibrary(new NoGraphLibrary());
             }
 
             if (null == config.getGraphId() && null != store) {
@@ -581,7 +656,7 @@ public final class Graph {
             }
 
             if (null != config.getGraphId()) {
-                Pair<Schema, StoreProperties> parentGraph = config.getGraphLibrary().get(config.getGraphId());
+                Pair<Schema, StoreProperties> parentGraph = config.getLibrary().get(config.getGraphId());
 
                 if (null != parentGraph) {
                     if (null == parentGraph.getSecond()) {
@@ -610,8 +685,8 @@ public final class Graph {
                 throw new IllegalArgumentException("graphId is required");
             }
 
-            config.getGraphLibrary().add(config.getGraphId(), schema, store.getProperties());
-            return new Graph(schema, store, config.getView(), config.getGraphHooks());
+            config.getLibrary().add(config.getGraphId(), schema, store.getProperties());
+            return new Graph(schema, store, config.getView(), config.getHooks());
         }
 
         private void updateSchema(final GraphConfig config) {
@@ -619,7 +694,7 @@ public final class Graph {
 
             if (null != parentSchemaIds) {
                 for (final String parentSchemaId : parentSchemaIds) {
-                    final Schema parentSchema = config.getGraphLibrary().getSchema(parentSchemaId);
+                    final Schema parentSchema = config.getLibrary().getSchema(parentSchemaId);
                     if (null != parentSchema) {
                         if (null == mergedParentSchema) {
                             mergedParentSchema = parentSchema;
@@ -660,7 +735,7 @@ public final class Graph {
         private void updateStore(final GraphConfig config) {
             StoreProperties mergedStoreProperties = null;
             if (null != parentStorePropertiesId) {
-                mergedStoreProperties = config.getGraphLibrary().getProperties(parentStorePropertiesId);
+                mergedStoreProperties = config.getLibrary().getProperties(parentStorePropertiesId);
             }
 
             if (null != properties) {
@@ -694,7 +769,7 @@ public final class Graph {
                 }
             }
 
-            store.setGraphLibrary(config.getGraphLibrary());
+            store.setGraphLibrary(config.getLibrary());
 
             if (null == schema) {
                 schema = store.getSchema();

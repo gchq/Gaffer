@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.graph;
 
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -33,6 +34,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -41,8 +43,8 @@ public final class GraphConfig {
 
     private String graphId;
     private View view;
-    private GraphLibrary graphLibrary;
-    private List<GraphHook> graphHooks;
+    private GraphLibrary library;
+    private List<GraphHook> hooks = new ArrayList<>();
 
     public GraphConfig() {
     }
@@ -67,20 +69,25 @@ public final class GraphConfig {
         this.view = view;
     }
 
-    public GraphLibrary getGraphLibrary() {
-        return graphLibrary;
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+    public GraphLibrary getLibrary() {
+        return library;
     }
 
-    public void setGraphLibrary(final GraphLibrary graphLibrary) {
-        this.graphLibrary = graphLibrary;
+    public void setLibrary(final GraphLibrary library) {
+        this.library = library;
     }
 
-    public List<GraphHook> getGraphHooks() {
-        return graphHooks;
+    public List<GraphHook> getHooks() {
+        return hooks;
     }
 
-    public void setGraphHooks(final List<GraphHook> graphHooks) {
-        this.graphHooks = graphHooks;
+    public void setHooks(final List<GraphHook> hooks) {
+        if (null == hooks) {
+            this.hooks.clear();
+        } else {
+            this.hooks = hooks;
+        }
     }
 
     @Override
@@ -98,8 +105,8 @@ public final class GraphConfig {
         return new EqualsBuilder()
                 .append(graphId, graphConfig.graphId)
                 .append(view, graphConfig.view)
-                .append(graphLibrary, graphConfig.graphLibrary)
-                .append(graphHooks, graphConfig.graphHooks)
+                .append(library, graphConfig.library)
+                .append(hooks, graphConfig.hooks)
                 .isEquals();
     }
 
@@ -108,8 +115,8 @@ public final class GraphConfig {
         return new HashCodeBuilder(11, 41)
                 .append(graphId)
                 .append(view)
-                .append(graphLibrary)
-                .append(graphHooks)
+                .append(library)
+                .append(hooks)
                 .toHashCode();
     }
 
@@ -118,18 +125,13 @@ public final class GraphConfig {
         return new ToStringBuilder(this)
                 .append("graphId", graphId)
                 .append("view", view)
-                .append("graphLibrary", graphLibrary)
-                .append("graphHooks", graphHooks)
+                .append("library", library)
+                .append("hooks", hooks)
                 .toString();
     }
 
     public static class Builder {
         private GraphConfig config = new GraphConfig();
-
-        public Builder graphId(final String graphId) {
-            config.setGraphId(graphId);
-            return this;
-        }
 
         public Builder json(final Path path) {
             try {
@@ -174,15 +176,20 @@ public final class GraphConfig {
             if (null != config.getView()) {
                 this.config.setView(config.getView());
             }
-            if (null != config.getGraphLibrary()) {
-                this.config.setGraphLibrary(config.getGraphLibrary());
+            if (null != config.getLibrary()) {
+                this.config.setLibrary(config.getLibrary());
             }
-            this.config.getGraphHooks().addAll(config.getGraphHooks());
+            this.config.getHooks().addAll(config.getHooks());
+            return this;
+        }
+
+        public Builder graphId(final String graphId) {
+            config.setGraphId(graphId);
             return this;
         }
 
         public Builder library(final GraphLibrary library) {
-            this.config.setGraphLibrary(library);
+            this.config.setLibrary(library);
             return this;
         }
 
@@ -240,18 +247,18 @@ public final class GraphConfig {
         }
 
         public Builder addHook(final GraphHook graphHook) {
-            this.config.getGraphHooks().add(graphHook);
+            this.config.getHooks().add(graphHook);
             return this;
         }
 
         public Builder addHooks(final GraphHook... graphHooks) {
-            Collections.addAll(this.config.getGraphHooks(), graphHooks);
+            Collections.addAll(this.config.getHooks(), graphHooks);
             return this;
         }
 
         public GraphConfig build() {
-            if (null == config.getGraphLibrary()) {
-                config.setGraphLibrary(new NoGraphLibrary());
+            if (null == config.getLibrary()) {
+                config.setLibrary(new NoGraphLibrary());
             }
 
             return config;

@@ -21,6 +21,7 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherGraph;
@@ -157,10 +158,12 @@ public class ExportToOtherGraphExample extends OperationExample {
         graphLibrary.addOrUpdate("exportGraphId", exportSchema, exportStoreProperties);
 
         final Graph graph = new Graph.Builder()
-                .graphId("graph1")
+                .config(new GraphConfig.Builder()
+                        .graphId("graph1")
+                        .library(graphLibrary)
+                        .build())
                 .addSchemas(StreamUtil.openStreams(getClass(), "operation/schema"))
                 .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
-                .library(graphLibrary)
                 .build();
 
         final OperationChain<Iterable<? extends Element>> opChain =
@@ -209,10 +212,12 @@ public class ExportToOtherGraphExample extends OperationExample {
         graphLibrary.addSchema("exportSchemaId", exportSchema);
 
         final Graph graph = new Graph.Builder()
-                .graphId("graph1")
+                .config(new GraphConfig.Builder()
+                        .graphId("graph1")
+                        .library(graphLibrary)
+                        .build())
                 .addSchemas(StreamUtil.openStreams(getClass(), "operation/schema"))
                 .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
-                .library(graphLibrary)
                 .build();
 
         final OperationChain<Iterable<? extends Element>> opChain =

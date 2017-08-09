@@ -37,6 +37,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.GlobalViewElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain;
@@ -59,6 +60,7 @@ import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawDoubleSerialiser;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
@@ -671,7 +673,7 @@ public class GraphTest {
                             .type("int", new TypeDefinition.Builder()
                                     .clazz(Integer.class)
                                     .aggregateFunction(new Sum())
-                                    // invalid serialiser
+                                            // invalid serialiser
                                     .serialiser(new RawDoubleSerialiser())
                                     .build())
                             .type("string", new TypeDefinition.Builder()
@@ -1041,5 +1043,122 @@ public class GraphTest {
                 Arrays.asList(OperationChainLimiter.class, OperationAuthoriser.class),
                 graph.getGraphHooks()
         );
+    }
+
+    @Test
+    public void shouldBuildGraphFromConfigFile() throws Exception {
+        // Given
+        final StoreProperties storeProperties = new StoreProperties();
+        storeProperties.setStoreClass(TestStoreImpl.class.getName());
+
+        // When
+        final Graph graph = new Graph.Builder()
+                .config(StreamUtil.graphConfig(getClass()))
+                .storeProperties(storeProperties)
+                .addSchemas(StreamUtil.schemas(getClass()))
+                .build();
+
+        // Then
+        assertEquals("graphId1", graph.getGraphId());
+        assertEquals(new View.Builder()
+                .globalElements(new GlobalViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .build(), graph.getView());
+        assertEquals(HashMapGraphLibrary.class, graph.getGraphLibrary().getClass());
+        assertEquals(Arrays.asList(OperationChainLimiter.class, AddOperationsToChain.class),
+                graph.getGraphHooks());
+    }
+
+    @Test
+    public void shouldBuildGraphFromConfigAndMergeConfigWithExistingConfig() throws Exception {
+        // Given
+        final StoreProperties storeProperties = new StoreProperties();
+        storeProperties.setStoreClass(TestStoreImpl.class.getName());
+
+        final String graphId1 = "graphId1";
+        final String graphId2 = "graphId2";
+
+        final GraphLibrary library1 = mock(GraphLibrary.class);
+        final GraphLibrary library2 = mock(GraphLibrary.class);
+
+        final View view1 = mock(View.class);
+        final View view2 = mock(View.class);
+
+        final GraphHook hook1 = mock(GraphHook.class);
+        final GraphHook hook2 = mock(GraphHook.class);
+        final GraphHook hook3 = mock(GraphHook.class);
+
+        // When
+        final GraphConfig config = new GraphConfig.Builder()
+                .graphId(graphId2)
+                .library(library2)
+                .addHook(hook2)
+                .view(view2)
+                .build();
+
+        final Graph graph = new Graph.Builder()
+                .graphId(graphId1)
+                .library(library1)
+                .view(view1)
+                .storeProperties(storeProperties)
+                .addSchemas(StreamUtil.schemas(getClass()))
+                .addHook(hook1)
+                .config(config)
+                .addHook(hook3)
+                .build();
+
+        // Then
+        assertEquals(graphId2, graph.getGraphId());
+        assertEquals(view2, graph.getView());
+        assertEquals(library2, graph.getGraphLibrary());
+        assertEquals(Arrays.asList(hook1.getClass(), hook2.getClass(), hook3.getClass()),
+                graph.getGraphHooks());
+    }
+
+    @Test
+    public void shouldBuildGraphFromConfigAndOverrideFields() throws Exception {
+        // Given
+        final StoreProperties storeProperties = new StoreProperties();
+        storeProperties.setStoreClass(TestStoreImpl.class.getName());
+
+        final String graphId1 = "graphId1";
+        final String graphId2 = "graphId2";
+
+        final GraphLibrary library1 = mock(GraphLibrary.class);
+        final GraphLibrary library2 = mock(GraphLibrary.class);
+
+        final View view1 = mock(View.class);
+        final View view2 = mock(View.class);
+
+        final GraphHook hook1 = mock(GraphHook.class);
+        final GraphHook hook2 = mock(GraphHook.class);
+        final GraphHook hook3 = mock(GraphHook.class);
+
+        // When
+        final GraphConfig config = new GraphConfig.Builder()
+                .graphId(graphId2)
+                .library(library2)
+                .addHook(hook2)
+                .view(view2)
+                .build();
+
+        final Graph graph = new Graph.Builder()
+                .config(config)
+                .graphId(graphId1)
+                .library(library1)
+                .view(view1)
+                .storeProperties(storeProperties)
+                .addSchemas(StreamUtil.schemas(getClass()))
+                .addHook(hook1)
+                .addHook(hook3)
+                .build();
+
+        // Then
+        assertEquals(graphId1, graph.getGraphId());
+        assertEquals(view1, graph.getView());
+        assertEquals(library1, graph.getGraphLibrary());
+        assertEquals(Arrays.asList(hook2.getClass(), hook1.getClass(), hook3.getClass()),
+                graph.getGraphHooks());
     }
 }

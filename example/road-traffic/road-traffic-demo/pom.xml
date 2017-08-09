@@ -70,9 +70,9 @@
                             <systemProperties>
                                 <gaffer.rest-api.basePath>${standalone-path}/v1
                                 </gaffer.rest-api.basePath>
-                                <gaffer.graph.id>
-                                    roadTraffic
-                                </gaffer.graph.id>
+                                <gaffer.graph.config>
+                                    ${project.build.outputDirectory}/graphConfig.json
+                                </gaffer.graph.config>
                                 <gaffer.schemas>
                                     ${project.parent.basedir}/road-traffic-model/src/main/resources/schema
                                 </gaffer.schemas>
@@ -82,9 +82,6 @@
                                 <roadTraffic.dataLoader.dataPath>
                                     ${project.build.outputDirectory}/roadTrafficSampleData.csv
                                 </roadTraffic.dataLoader.dataPath>
-                                <gaffer.graph.hooks.path>
-                                    ${project.build.outputDirectory}/graphHooks.json
-                                </gaffer.graph.hooks.path>
                                 <gaffer.error-mode.debug>
                                     false
                                 </gaffer.error-mode.debug>

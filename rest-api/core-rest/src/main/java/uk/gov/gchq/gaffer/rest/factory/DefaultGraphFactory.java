@@ -49,10 +49,6 @@ public class DefaultGraphFactory implements GraphFactory {
         }
     }
 
-    protected static String getGraphId() {
-        return System.getProperty(SystemProperty.GRAPH_ID);
-    }
-
     protected static Path[] getSchemaPaths() {
         final String schemaPaths = System.getProperty(SystemProperty.SCHEMA_PATHS);
         if (null == schemaPaths) {
@@ -105,15 +101,14 @@ public class DefaultGraphFactory implements GraphFactory {
 
         final Graph.Builder builder = new Graph.Builder();
         builder.storeProperties(storeProperties);
-        builder.graphId(getGraphId());
 
         for (final Path path : getSchemaPaths()) {
             builder.addSchema(path);
         }
 
-        final String graphHooksPath = System.getProperty(SystemProperty.GRAPH_HOOKS_PATH);
-        if (null != graphHooksPath) {
-            builder.addHooks(Paths.get(graphHooksPath));
+        final String graphConfigPath = System.getProperty(SystemProperty.GRAPH_CONFIG_PATH);
+        if (null != graphConfigPath) {
+            builder.config(Paths.get(graphConfigPath));
         }
 
         return builder;
