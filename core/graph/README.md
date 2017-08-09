@@ -64,7 +64,6 @@ To use an example of the authorised Graph exporter within the road-traffic-demo 
 -On A:
 
 1.  Add below to road-traffic-demo/pom.xml:
-    
 ```
 <dependency>
     <groupId>uk.gov.gchq.gaffer</groupId>
@@ -73,49 +72,54 @@ To use an example of the authorised Graph exporter within the road-traffic-demo 
 </dependency>
 ```
         
-    2.  In UnknownUserFactory.java:
+2.  In UnknownUserFactory.java:
     
-        change new User(); to new User.Builder().opAuths(“auth1”).build();
+Change new User(); to new User.Builder().opAuths(“auth1”).build();
         
-    3.  Update ExportToOtherAuthorisedGraphOperationDeclarations.json to have relevant auths:
+3.  Update ExportToOtherAuthorisedGraphOperationDeclarations.json to have relevant auths:
+```
+"idAuths": {
+    "roadTraffic": ["auth1"],
+    "roadTraffic1": ["auth1"]
+}
+```
+        
+4.  Start A:
+    `mvn clean install -Pquick -Proad-traffic-demo -pl :road-traffic-demo –am`
     
-        ```
-        "idAuths": {
-            "roadTraffic": ["auth1"],
-            "roadTraffic1": ["auth1"]
-        }
-        ```
-        
-    4.  Start A:
-        `mvn clean install -Pquick -Proad-traffic-demo -pl :road-traffic-demo –am`
-    5.  Add below to road-traffic-demo/src/main/resources/graphLibrary/roadTraffic1StoreProps.properties:
-        ```
-        accumulo.instance=someInstanceName
-        gaffer.cache.service.class=uk.gov.gchq.gaffer.cache.impl.JcsCacheService
-        accumulo.password=password
-        accumulo.zookeepers=aZookeeper
-        gaffer.store.class=uk.gov.gchq.gaffer.proxystore.ProxyStore
-        gaffer.store.job.tracker.enabled=true
-        gaffer.host=localhost
-        gaffer.context-root=/rest/v1
-        gaffer.store.properties.class=uk.gov.gchq.gaffer.proxystore.ProxyProperties
-        gaffer.store.operation.declarations=ExportToOtherAuthorisedGraphOperationDeclarations.json,ExportToOtherGraphOperationDeclarations.json,NamedOperationDeclarations.json,accumulo/ResultCacheExportOperations.json,FlinkOperationDeclarations.json,disableOperations.json
-        gaffer.port=8081
-        accumulo.user=user01
-        ```
+5.  Add below to road-traffic-demo/src/main/resources/graphLibrary/roadTraffic1StoreProps.properties:
+```
+    accumulo.instance=someInstanceName
+    gaffer.cache.service.class=uk.gov.gchq.gaffer.cache.impl.JcsCacheService
+    accumulo.password=password
+    accumulo.zookeepers=aZookeeper
+    gaffer.store.class=uk.gov.gchq.gaffer.proxystore.ProxyStore
+    gaffer.store.job.tracker.enabled=true
+    gaffer.host=localhost
+    gaffer.context-root=/rest/v1
+    gaffer.store.properties.class=uk.gov.gchq.gaffer.proxystore.ProxyProperties
+    gaffer.store.operation.declarations=ExportToOtherAuthorisedGraphOperationDeclarations.json,ExportToOtherGraphOperationDeclarations.json,NamedOperationDeclarations.json,accumulo/ResultCacheExportOperations.json,FlinkOperationDeclarations.json,disableOperations.json
+    gaffer.port=8081
+    accumulo.user=user01
+```
+
 -On B:
-    1.  Remove the following from road-traffic-demo/pom.xml:
-        ```
-        <roadTraffic.dataLoader.dataPath>
-            ${project.build.outputDirectory}/roadTrafficSampleData.csv
-        </roadTraffic.dataLoader.dataPath>
-        ```
-    2.  In the same pom (road-traffic-demo/pom.xml) update the port to 8081:
-        ```
-        <standalone-port>8081</standalone-port>
-        ```
-    3.  Start B:
-        `mvn clean install -Pquick -Proad-traffic-demo -pl :road-traffic-demo –am`
+
+1.  Remove the following from road-traffic-demo/pom.xml:
+```
+    <roadTraffic.dataLoader.dataPath>
+        ${project.build.outputDirectory}/roadTrafficSampleData.csv
+    </roadTraffic.dataLoader.dataPath>
+```
+
+2.  In the same pom (road-traffic-demo/pom.xml) update the port to 8081:
+```
+    <standalone-port>8081</standalone-port>
+```
+
+3.  Start B:
+    `mvn clean install -Pquick -Proad-traffic-demo -pl :road-traffic-demo –am`
+    
 -Navigate to localhost:8080/rest (Graph A) and go to operations -> /graph/doOperation, then insert: 
  ```
  {
