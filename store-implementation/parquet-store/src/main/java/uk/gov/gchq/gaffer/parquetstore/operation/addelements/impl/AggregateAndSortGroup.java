@@ -20,17 +20,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema;
 import org.apache.spark.sql.types.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.Tuple2;
-import scala.Tuple2$;
 import scala.collection.JavaConversions;
 import scala.collection.Seq;
 import scala.collection.Seq$;
@@ -39,17 +35,17 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
-import uk.gov.gchq.gaffer.parquetstore.utils.AggregateGafferRowsFunction;
-import uk.gov.gchq.gaffer.parquetstore.utils.ExtractKeyFromRow;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.util.AggregatorUtil;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -62,10 +58,9 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
     private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
     private static final Logger LOGGER = LoggerFactory.getLogger(AggregateAndSortGroup.class);
     private static final long serialVersionUID = -7828247145178905841L;
-    private static final String SORTED = "/sorted";
+    private static final String SORTED = "/" + ParquetStoreConstants.SORTED;
     private final String group;
     private final String tempFileDir;
-    private final String column;
     private final SparkSession spark;
     private final Map<String, String[]> columnToPaths;
     private final StructType sparkSchema;
@@ -75,10 +70,11 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
     private final String outputDir;
     private final int filesPerGroup;
     private final Boolean isEntity;
-    private final Set<String> groupByColumns;
     private final String[] gafferProperties;
     private final byte[] aggregatorJson;
-    private final boolean isAggregationRequired;
+    private final Set<String> groupByColumns;
+    private final boolean aggregate;
+
 
     public AggregateAndSortGroup(final String group,
                                  final String column,
@@ -86,16 +82,15 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
                                  final String currentGraphDir,
                                  final SparkSession spark) throws SerialisationException {
         this.group = group;
-        this.column = column;
         this.tempFileDir = store.getTempFilesDir();
-        final Schema schema = store.getSchemaUtils().getGafferSchema();
-        final SchemaElementDefinition elementDef = schema.getElement(group);
-        isAggregationRequired = elementDef.isAggregate();
-        this.isEntity = elementDef instanceof SchemaEntityDefinition;
-        this.aggregatorJson = JSON_SERIALISER.serialise(elementDef.getIngestAggregator());
-        this.groupByColumns = AggregatorUtil.getIngestGroupBy(group, schema);
-        this.gafferProperties = new String[elementDef.getProperties().size()];
-        elementDef.getProperties().toArray(this.gafferProperties);
+        final Schema gafferSchema = store.getSchemaUtils().getGafferSchema();
+        final SchemaElementDefinition groupGafferSchema = gafferSchema.getElement(group);
+        this.isEntity = groupGafferSchema instanceof SchemaEntityDefinition;
+        this.aggregate = groupGafferSchema.isAggregate();
+        this.groupByColumns = new HashSet<>(AggregatorUtil.getIngestGroupBy(group, gafferSchema));
+        this.aggregatorJson = JSON_SERIALISER.serialise(groupGafferSchema.getIngestAggregator());
+        this.gafferProperties = new String[groupGafferSchema.getProperties().size()];
+        groupGafferSchema.getProperties().toArray(this.gafferProperties);
         this.spark = spark;
         this.columnToPaths = store.getSchemaUtils().getColumnToPaths(group);
         this.sparkSchema = store.getSchemaUtils().getSparkSchema(group);
@@ -128,31 +123,19 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
                 final Dataset<Row> data = spark.read().parquet(JavaConversions.asScalaBuffer(paths));
 
                 // Aggregate data
-                final JavaRDD<Row> aggregatedData;
-                if (isAggregationRequired) {
-                    final ExtractKeyFromRow keyExtractor = new ExtractKeyFromRow(groupByColumns, columnToPaths,
-                            isEntity);
-                    final JavaPairRDD<Seq<Object>, GenericRowWithSchema> groupedData = data.javaRDD()
-                            .mapToPair(row -> Tuple2$.MODULE$.apply(keyExtractor.call(row), (GenericRowWithSchema) row));
-                    final List<Tuple2<Seq<Object>, GenericRowWithSchema>> kvList = groupedData.take(1);
-                    if (0 == kvList.size()) {
-                        LOGGER.debug("No data was returned in AggregateAndSortGroup for group = {}", group);
-                        return null;
-                    }
-                    final Tuple2<Seq<Object>, GenericRowWithSchema> kv = kvList.get(0);
-                    final JavaPairRDD<Seq<Object>, GenericRowWithSchema> aggregatedDataKV;
-                    if (kv._1().size() == kv._2().size()) {
-                        aggregatedDataKV = groupedData;
-                    } else {
-                        final AggregateGafferRowsFunction aggregator = new AggregateGafferRowsFunction(gafferProperties,
-                                isEntity, groupByColumns, columnToPaths, aggregatorJson, gafferGroupObjectConverter);
-                        aggregatedDataKV = groupedData.reduceByKey(aggregator);
-                    }
-                    aggregatedData = aggregatedDataKV.values().map(genericRow -> (Row) genericRow);
+                final Dataset<Row> aggregatedData;
+                if (aggregate) {
+                    final ExtractKeyFromRow keyExtractor = new ExtractKeyFromRow(groupByColumns, columnToPaths, isEntity);
+                    final AggregateGafferRowsFunction aggregator = new AggregateGafferRowsFunction(gafferProperties,
+                            isEntity, groupByColumns, columnToPaths, aggregatorJson, gafferGroupObjectConverter);
+                    final JavaRDD<Row> aggregatedRDD = data.javaRDD()
+                            .keyBy(keyExtractor)
+                            .reduceByKey(aggregator)
+                            .values();
+                    aggregatedData = spark.createDataFrame(aggregatedRDD, sparkSchema);
                 } else {
-                    aggregatedData = data.toJavaRDD();
+                    aggregatedData = data;
                 }
-
                 // Sort data
                 Dataset<Row> sortedData;
                 final String firstSortColumn;
@@ -169,32 +152,18 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
                 } else {
                     final String[] srcPaths = groupPaths.get(ParquetStoreConstants.SOURCE);
                     final String[] destPaths = groupPaths.get(ParquetStoreConstants.DESTINATION);
-                    if (ParquetStoreConstants.DESTINATION.equals(column)) {
-                        firstSortColumn = destPaths[0];
-                        if (destPaths.length > 1) {
-                            for (int i = 1; i < destPaths.length; i++) {
-                                groupBySeq.$plus$eq(destPaths[i]);
-                            }
+                    firstSortColumn = srcPaths[0];
+                    if (srcPaths.length > 1) {
+                        for (int i = 1; i < srcPaths.length; i++) {
+                            groupBySeq.$plus$eq(srcPaths[i]);
                         }
-                        for (final String srcPath : srcPaths) {
-                            groupBySeq.$plus$eq(srcPath);
-                        }
-                        groupBySeq.$plus$eq(ParquetStoreConstants.DIRECTED);
-                    } else {
-                        firstSortColumn = srcPaths[0];
-                        if (srcPaths.length > 1) {
-                            for (int i = 1; i < srcPaths.length; i++) {
-                                groupBySeq.$plus$eq(srcPaths[i]);
-                            }
-                        }
-                        for (final String destPath : destPaths) {
-                            groupBySeq.$plus$eq(destPath);
-                        }
-                        groupBySeq.$plus$eq(ParquetStoreConstants.DIRECTED);
                     }
+                    for (final String destPath : destPaths) {
+                        groupBySeq.$plus$eq(destPath);
+                    }
+                    groupBySeq.$plus$eq(ParquetStoreConstants.DIRECTED);
                 }
-                sortedData = spark
-                        .createDataFrame(aggregatedData, sparkSchema)
+                sortedData = aggregatedData
                         .sort(firstSortColumn, groupBySeq.result());
 
                 // Write out aggregated and sorted data
