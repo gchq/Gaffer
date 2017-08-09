@@ -51,4 +51,50 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>${shade.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>deploy</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <shadedArtifactAttached>true
+                            </shadedArtifactAttached>
+                            <shadedClassifierName>deploy
+                            </shadedClassifierName>
+                            <artifactSet>
+                                <includes>
+                                    <include>
+                                        org.roaringbitmap:RoaringBitmap
+                                    </include>
+
+                                    <include>
+                                        uk.gov.gchq.gaffer:bitmap-library
+                                    </include>
+
+                                    <include>
+                                        uk.gov.gchq.gaffer:sketches-library
+                                    </include>
+
+                                    <include>
+                                        com.clearspring.analytics:stream
+                                    </include>
+
+                                    <include>
+                                        com.yahoo.datasketches:sketches-core
+                                    </include>
+                                </includes>
+                            </artifactSet>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
