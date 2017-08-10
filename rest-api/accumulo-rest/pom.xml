@@ -36,7 +36,6 @@
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>core-rest</artifactId>
             <version>${project.parent.version}</version>
-            <scope>test</scope>
             <classifier>classes</classifier>
         </dependency>
         <dependency>
