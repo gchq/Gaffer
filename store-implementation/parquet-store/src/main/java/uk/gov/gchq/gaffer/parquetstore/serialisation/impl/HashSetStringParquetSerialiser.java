@@ -1,5 +1,5 @@
 /*
- * Copyright 2017. Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,17 @@
 
 package uk.gov.gchq.gaffer.parquetstore.serialisation.impl;
 
+import com.google.common.collect.Sets;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
-import java.util.Arrays;
-import java.util.TreeSet;
+import java.util.HashSet;
 
 /**
- * This class is used to serialise and de-serialise a {@link TreeSet} value for use by the
+ * This class is used to serialise and de-serialise a {@link HashSet} value for use by the
  * {@link uk.gov.gchq.gaffer.parquetstore.ParquetStore}.
  */
-public class TreeSetStringParquetSerialiser implements ParquetSerialiser<TreeSet<String>> {
-
-    private static final long serialVersionUID = -8284005451029455563L;
+public class HashSetStringParquetSerialiser implements ParquetSerialiser<HashSet<String>> {
+    private static final long serialVersionUID = -2409417834430120277L;
 
     @Override
     public String getParquetSchema(final String colName) {
@@ -39,7 +38,7 @@ public class TreeSetStringParquetSerialiser implements ParquetSerialiser<TreeSet
     }
 
     @Override
-    public Object[] serialise(final TreeSet<String> object) throws SerialisationException {
+    public Object[] serialise(final HashSet<String> object) throws SerialisationException {
         if (object != null) {
             final String[] objects = new String[object.size()];
             object.toArray(objects);
@@ -49,22 +48,21 @@ public class TreeSetStringParquetSerialiser implements ParquetSerialiser<TreeSet
     }
 
     @Override
-    public TreeSet<String> deserialise(final Object[] objects) throws SerialisationException {
+    public HashSet<String> deserialise(final Object[] objects) throws SerialisationException {
         if (objects.length == 1) {
             if (objects[0] instanceof String[]) {
-                final TreeSet<String> treeSet = new TreeSet<>();
-                treeSet.addAll(Arrays.asList(((String[]) objects[0])));
-                return treeSet;
+                final String[] objectsToDeserialise = (String[]) objects[0];
+                return Sets.newHashSet(objectsToDeserialise);
             } else if (objects[0] == null) {
                 return null;
             }
         }
-        throw new SerialisationException("Could not de-serialise objects to a TreeSet<String>");
+        throw new SerialisationException("Could not de-serialise objects to a HashSet<String>");
     }
 
     @Override
-    public TreeSet<String> deserialiseEmpty() throws SerialisationException {
-        throw new SerialisationException("Could not de-serialise objects to a TreeSet<String>");
+    public HashSet<String> deserialiseEmpty() throws SerialisationException {
+        throw new SerialisationException("Could not de-serialise objects to a HashSet<String>");
     }
 
     @Override
@@ -79,6 +77,6 @@ public class TreeSetStringParquetSerialiser implements ParquetSerialiser<TreeSet
 
     @Override
     public boolean canHandle(final Class clazz) {
-        return TreeSet.class.equals(clazz);
+        return HashSet.class.equals(clazz);
     }
 }
