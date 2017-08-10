@@ -19,20 +19,15 @@ package uk.gov.gchq.gaffer.federatedstore.operation;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Sets;
 import org.junit.Assert;
+import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph.Builder;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Set;
 
-public class RemoveGraphTest extends OperationTest {
+public class RemoveGraphTest extends OperationTest<RemoveGraph> {
 
-    @Override
-    protected Class<? extends Operation> getOperationClass() {
-        return RemoveGraph.class;
-    }
-
-    @Override
+    @Test
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException, JsonProcessingException {
 
         String expectedGraphId = "testGraphID";
@@ -60,5 +55,10 @@ public class RemoveGraphTest extends OperationTest {
                 .build();
 
         Assert.assertEquals(expectedGraphId, op.getGraphId());
+    }
+
+    @Override
+    protected RemoveGraph getTestObject() {
+        return new RemoveGraph();
     }
 }

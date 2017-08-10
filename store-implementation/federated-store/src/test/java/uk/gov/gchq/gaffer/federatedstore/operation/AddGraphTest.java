@@ -16,51 +16,16 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Sets;
 import org.junit.Assert;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Set;
 
-public class AddGraphTest extends OperationTest {
-
+public class AddGraphTest extends OperationTest<AddGraph> {
 
     public static final String expectedKey = "gaffer.store.class";
-
-    @Override
-    protected Class<? extends Operation> getOperationClass() {
-        return AddGraph.class;
-    }
-
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException, JsonProcessingException {
-
-        Schema expectedSchema = new Schema.Builder().build();
-        String expectedGraphId = "testGraphID";
-
-        StoreProperties storeProperties = new StoreProperties();
-        String expectedValue = "uk.gov.gchq.gaffer.federatedstore.FederatedStore";
-        storeProperties.set(expectedKey, expectedValue);
-
-
-        AddGraph op = new AddGraph.Builder()
-                .setGraphId(expectedGraphId)
-                .setSchema(expectedSchema)
-                .setStoreProperties(storeProperties.getProperties())
-                .build();
-
-        byte[] serialise = JSON_SERIALISER.serialise(op, true);
-        AddGraph deserialise = JSON_SERIALISER.deserialise(serialise, AddGraph.class);
-
-        Assert.assertEquals(expectedGraphId, deserialise.getGraphId());
-        Assert.assertEquals(expectedSchema, deserialise.getSchema());
-        Assert.assertTrue(deserialise.getProperties().containsKey(expectedKey));
-        Assert.assertEquals(expectedValue, deserialise.getProperties().getProperty(expectedKey));
-    }
 
     @Override
     protected Set<String> getRequiredFields() {
@@ -84,5 +49,10 @@ public class AddGraphTest extends OperationTest {
         Assert.assertEquals(expectedSchema, op.getSchema());
         Assert.assertTrue(op.getProperties().containsKey(expectedKey));
         Assert.assertEquals(expectedValue, op.getProperties().getProperty(expectedKey));
+    }
+
+    @Override
+    protected AddGraph getTestObject() {
+        return new AddGraph();
     }
 }

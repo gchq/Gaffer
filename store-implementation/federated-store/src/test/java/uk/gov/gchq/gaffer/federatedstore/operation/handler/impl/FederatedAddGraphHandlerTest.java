@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.exception.OverwritingException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Collection;
@@ -114,7 +115,7 @@ public class FederatedAddGraphHandlerTest {
                             .build(),
                     new Context(new User("TestUser")),
                     store);
-        } catch (final IllegalStateException e) {
+        } catch (final OverwritingException e) {
             assertEquals(String.format(USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S, "testGraphID"), e.getMessage());
         }
 
