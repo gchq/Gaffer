@@ -13,31 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package uk.gov.gchq.gaffer.commonutil.iterable;
+package uk.gov.gchq.gaffer.commonutil.stream;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
-import uk.gov.gchq.gaffer.commonutil.stream.StreamSupplier;
+import java.io.IOException;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
-public class StreamIterable<T> implements CloseableIterable<T> {
-    private final StreamSupplier<T> streamSupplier;
+public class MapStreamSupplier<T, U> implements StreamSupplier<U> {
+    private Iterable<T> input;
+    private Function<T, U> function;
 
-    public StreamIterable(final StreamSupplier<T> streamSupplier) {
-        this.streamSupplier = streamSupplier;
+    public MapStreamSupplier(final Iterable<T> input, final Function<T, U> function) {
+        this.input = input;
+        this.function = function;
     }
 
     @Override
-    public void close() {
-        CloseableUtil.close(streamSupplier);
+    public void close() throws IOException {
+        CloseableUtil.close(input);
     }
 
     @Override
-    public CloseableIterator<T> iterator() {
-        return new StreamIterator<>(streamSupplier.get());
-    }
-
-    public Stream<T> getStream() {
-        return streamSupplier.get();
+    public Stream<U> get() {
+        return Streams.toStream(input)
+                .map(function);
     }
 }

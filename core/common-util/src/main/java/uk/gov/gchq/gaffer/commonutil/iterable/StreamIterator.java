@@ -58,4 +58,8 @@ public class StreamIterator<T> implements CloseableIterator<T> {
     public void remove() {
         iterator.remove();
     }
+
+    public Stream<T> getStream() {
+        return stream;
+    }
 }
