@@ -52,6 +52,7 @@ public abstract class DisableOperationsTest {
 
     @Before
     public void before() throws IOException {
+        graphConfigPath = tempFolder.newFile("tmpGraphConfig.json");
         storePropsPath = tempFolder.newFile("tmpStore.properties");
         schemaPath = tempFolder.newFile("tmpSchema.json");
         FileUtils.copyURLToFile(getClass().getResource("/graphConfig.json"), graphConfigPath);

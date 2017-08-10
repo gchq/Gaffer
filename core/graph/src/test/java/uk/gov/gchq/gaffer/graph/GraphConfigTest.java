@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.graph;
 
-import org.junit.Test;
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.GlobalViewElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -29,10 +28,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
     @Override
@@ -50,35 +46,6 @@ public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
         assertEquals(obj.getView(), deserialisedObj.getView());
         assertEquals(obj.getLibrary().getClass(), deserialisedObj.getLibrary().getClass());
         assertEquals((List) obj.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList()), (List) deserialisedObj.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList()));
-    }
-
-    @Test
-    public void shouldReturnTrueWhenEqual() {
-        // Given
-        final GraphConfig obj1 = getTestObject();
-        final GraphConfig obj2 = getTestObject();
-
-        // When
-        final boolean result = obj1.equals(obj2);
-
-        // Then
-        assertTrue(result);
-        assertEquals(obj1.hashCode(), obj2.hashCode());
-    }
-
-    @Test
-    public void shouldReturnFalseWhenNotEqual() {
-        // Given
-        final GraphConfig obj1 = getTestObject();
-        final GraphConfig obj2 = getTestObject();
-        obj2.setGraphId("differentId");
-
-        // When
-        final boolean result = obj1.equals(obj2);
-
-        // Then
-        assertFalse(result);
-        assertNotEquals(obj1.hashCode(), obj2.hashCode());
     }
 
     @Override

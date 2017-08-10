@@ -19,8 +19,6 @@ package uk.gov.gchq.gaffer.graph;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
@@ -38,6 +36,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * <code>GraphConfig</code> contains configuration for Graphs. This configuration
+ * is used along side a {@link uk.gov.gchq.gaffer.store.schema.Schema} and
+ * {@link uk.gov.gchq.gaffer.store.StoreProperties} to create a {@link Graph}.
+ * This configuration is made up of graph properties such as a graphId, {@link GraphLibrary},
+ * a graph {@link View} and {@link GraphHook}s.
+ * To create an instance of GraphConfig you can either use the {@link uk.gov.gchq.gaffer.graph.GraphConfig.Builder}
+ * or a json file.
+ *
+ * @see uk.gov.gchq.gaffer.graph.GraphConfig.Builder
+ */
 public final class GraphConfig {
     private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
 
@@ -88,36 +97,6 @@ public final class GraphConfig {
         } else {
             this.hooks = hooks;
         }
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-
-        final GraphConfig graphConfig = (GraphConfig) obj;
-
-        return new EqualsBuilder()
-                .append(graphId, graphConfig.graphId)
-                .append(view, graphConfig.view)
-                .append(library, graphConfig.library)
-                .append(hooks, graphConfig.hooks)
-                .isEquals();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(11, 41)
-                .append(graphId)
-                .append(view)
-                .append(library)
-                .append(hooks)
-                .toHashCode();
     }
 
     @Override
