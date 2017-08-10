@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.add;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -62,6 +63,28 @@ public class AddElementsTest extends OperationTest {
     @Override
     public Class<? extends Operation> getOperationClass() {
         return AddElements.class;
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final Boolean validatable = false;
+        final Boolean skipInvalidElements = false;
+        final Element testInput = new Entity.Builder().property("name", "value").build();
+
+        final AddElements addElements = new AddElements.Builder()
+                .validate(validatable)
+                .skipInvalidElements(skipInvalidElements)
+                .input(testInput)
+                .build();
+
+        // When
+        final AddElements clone = (AddElements) addElements.shallowClone();
+
+        // Then
+        assertEquals(validatable, clone.isValidate());
+        assertEquals(skipInvalidElements, clone.isSkipInvalidElements());
+        assertEquals(Lists.newArrayList(testInput), clone.getInput());
     }
 
     @Test
@@ -148,5 +171,6 @@ public class AddElementsTest extends OperationTest {
         assertFalse(addElements.isValidate());
         assertEquals(element, addElements.getInput().iterator().next());
     }
+
 
 }

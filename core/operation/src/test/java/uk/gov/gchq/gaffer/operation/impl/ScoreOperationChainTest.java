@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,79 +16,64 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import org.junit.Test;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationTest;
-import java.util.Set;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-
-public class LimitTest extends OperationTest {
+public class ScoreOperationChainTest extends OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
     @Override
-    public Class<? extends Operation> getOperationClass() {
-        return Limit.class;
+    protected Class<? extends Operation> getOperationClass() {
+        return ScoreOperationChain.class;
     }
 
     @Override
-    protected Set<String> getRequiredFields() {
-        return Sets.newHashSet("resultLimit");
-    }
-
-    @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException, JsonProcessingException {
         // Given
-        final Limit op = new Limit();
+        final ScoreOperationChain op = new ScoreOperationChain();
 
         // When
         byte[] json = serialiser.serialise(op, true);
-        final Limit deserialisedOp = serialiser.deserialise(json, Limit.class);
+        final ScoreOperationChain deserialisedOp = serialiser.deserialise(json, ScoreOperationChain.class);
 
         // Then
         assertNotNull(deserialisedOp);
     }
 
-    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
-        final Limit<String> limit = new Limit.Builder<String>().input("1", "2").resultLimit(1).build();
+        final OperationChain opChain = new OperationChain();
+        final ScoreOperationChain scoreOperationChain = new ScoreOperationChain.Builder()
+                .operationChain(opChain)
+                .build();
 
         // Then
-        assertThat(limit.getInput(), is(notNullValue()));
-        assertThat(limit.getInput(), iterableWithSize(2));
-        assertThat(limit.getResultLimit(), is(1));
-        assertThat(limit.getInput(), containsInAnyOrder("1", "2"));
+        assertThat(scoreOperationChain.getOperationChain(), is(notNullValue()));
     }
 
     @Override
     public void shouldShallowCloneOperation() {
         // Given
-        final String input = "1";
-        final int resultLimit = 4;
-        final Limit limit = new Limit.Builder<>()
-                .input(input)
-                .resultLimit(resultLimit)
+        final OperationChain opChain = new OperationChain();
+        final ScoreOperationChain scoreOperationChain = new ScoreOperationChain.Builder()
+                .operationChain(opChain)
                 .build();
 
         // When
-        final Limit clone = (Limit) limit.shallowClone();
+        ScoreOperationChain clone = (ScoreOperationChain) scoreOperationChain.shallowClone();
 
         // Then
-        assertEquals(Lists.newArrayList(input), clone.getInput());
-        assertEquals(resultLimit, (int) clone.getResultLimit());
+        assertEquals(opChain, clone.getOperationChain());
     }
 }

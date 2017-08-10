@@ -63,4 +63,22 @@ public class GetGafferResultCacheExportTest extends OperationTest {
         // Then
         assertEquals(key, op.getKey());
     }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final String key = "key";
+        final String jobId = "jobId";
+        final GetGafferResultCacheExport getGafferResultCacheExport = new GetGafferResultCacheExport.Builder()
+                .key(key)
+                .jobId(jobId)
+                .build();
+
+        // When
+        GetGafferResultCacheExport clone = (GetGafferResultCacheExport) getGafferResultCacheExport.shallowClone();
+
+        // Then
+        assertEquals(key, clone.getKey());
+        assertEquals(jobId, clone.getJobId());
+    }
 }

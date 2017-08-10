@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.operation.impl.compare;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -35,8 +36,10 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class SortTest extends OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
@@ -88,5 +91,32 @@ public class SortTest extends OperationTest {
         assertThat(Streams.toStream(sort.getInput())
                 .map(e -> e.getProperty("property"))
                 .collect(toList()), containsInAnyOrder(1, 2));
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final Entity input = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .property("property", 1)
+                .build();
+        final ElementPropertyComparator comparator = new ElementPropertyComparator();
+        final Boolean deDuplicate = false;
+        final int resultLimit = 5;
+        final Sort sort = new Sort.Builder()
+                .input(input)
+                .comparators(comparator)
+                .deduplicate(deDuplicate)
+                .resultLimit(resultLimit)
+                .build();
+
+        // When
+        Sort clone = (Sort) sort.shallowClone();
+
+        // Then
+        assertEquals(Lists.newArrayList(input), clone.getInput());
+        assertEquals(Lists.newArrayList(comparator), clone.getComparators());
+        assertEquals(deDuplicate, clone.isDeduplicate());
+        assertTrue(clone.getResultLimit().equals(resultLimit));
     }
 }

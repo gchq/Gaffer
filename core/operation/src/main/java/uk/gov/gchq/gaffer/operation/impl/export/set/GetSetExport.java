@@ -78,6 +78,16 @@ public class GetSetExport implements
         return new TypeReferenceImpl.IterableObj();
     }
 
+    @Override
+    public Operation shallowClone() {
+        return new GetSetExport.Builder()
+                .start(start)
+                .end(end)
+                .key(key)
+                .jobId(jobId)
+                .build();
+    }
+
     public static class Builder
             extends Operation.BaseBuilder<GetSetExport, Builder>
             implements GetExport.Builder<GetSetExport, Builder>,

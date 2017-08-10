@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.collect.Lists;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -26,10 +27,12 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices.EdgeVertices;
+import uk.gov.gchq.gaffer.operation.impl.output.ToVertices.UseMatchedVertex;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
@@ -88,5 +91,24 @@ public class ToVerticesTest extends OperationTest {
         assertThat(toVertices.getInput(), is(notNullValue()));
         assertThat(toVertices.getInput(), iterableWithSize(2));
         assertThat(toVertices.getEdgeVertices(), is(EdgeVertices.BOTH));
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final Entity input = new Entity(TestGroups.ENTITY);
+        final ToVertices toVertices = new ToVertices.Builder()
+                .input(input)
+                .useMatchedVertex(UseMatchedVertex.EQUAL)
+                .edgeVertices(EdgeVertices.BOTH)
+                .build();
+
+        // When
+        final ToVertices clone = (ToVertices) toVertices.shallowClone();
+
+        // Then
+        assertEquals(Lists.newArrayList(input), clone.getInput());
+        assertEquals(UseMatchedVertex.EQUAL, clone.getUseMatchedVertex());
+        assertEquals(EdgeVertices.BOTH, clone.getEdgeVertices());
     }
 }

@@ -106,6 +106,18 @@ public class AddElementsFromFile implements
         this.validate = validate;
     }
 
+    @Override
+    public Operation shallowClone() {
+        return new AddElementsFromFile.Builder()
+                .filename(filename)
+                .generator(elementGenerator)
+                .validate(validate)
+                .options(options)
+                .skipInvalidElements(skipInvalidElements)
+                .parallelism(parallelism)
+                .build();
+    }
+
     public static class Builder extends BaseBuilder<AddElementsFromFile, Builder>
             implements Validatable.Builder<AddElementsFromFile, Builder>,
             Options.Builder<AddElementsFromFile, Builder> {

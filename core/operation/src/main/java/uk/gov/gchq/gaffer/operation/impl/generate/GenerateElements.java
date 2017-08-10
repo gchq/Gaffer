@@ -90,6 +90,14 @@ public class GenerateElements<OBJ> implements
         return new TypeReferenceImpl.IterableElement();
     }
 
+    @Override
+    public Operation shallowClone() {
+        return new GenerateElements.Builder<OBJ>()
+                .input(input)
+                .generator(elementGenerator)
+                .build();
+    }
+
     public static class Builder<OBJ> extends Operation.BaseBuilder<GenerateElements<OBJ>, Builder<OBJ>>
             implements InputOutput.Builder<GenerateElements<OBJ>, Iterable<? extends OBJ>, Iterable<? extends Element>, Builder<OBJ>>,
             MultiInput.Builder<GenerateElements<OBJ>, OBJ, Builder<OBJ>> {

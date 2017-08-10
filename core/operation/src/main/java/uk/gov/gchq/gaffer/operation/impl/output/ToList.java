@@ -50,6 +50,13 @@ public class ToList<T> implements
         return new TypeReferenceImpl.List();
     }
 
+    @Override
+    public Operation shallowClone() {
+        return new ToList.Builder<>()
+                .input(input)
+                .build();
+    }
+
     public static final class Builder<T>
             extends BaseBuilder<ToList<T>, Builder<T>>
             implements InputOutput.Builder<ToList<T>, Iterable<? extends T>, List<? extends T>, Builder<T>>,

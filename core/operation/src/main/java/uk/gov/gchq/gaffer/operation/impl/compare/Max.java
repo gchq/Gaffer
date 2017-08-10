@@ -79,6 +79,14 @@ public class Max implements
         return new TypeReferenceImpl.Element();
     }
 
+    @Override
+    public Operation shallowClone() {
+        return new Max.Builder()
+                .comparators(comparators)
+                .input(input)
+                .build();
+    }
+
     public static final class Builder
             extends Operation.BaseBuilder<Max, Max.Builder>
             implements InputOutput.Builder<Max, Iterable<? extends Element>, Element, Max.Builder>,

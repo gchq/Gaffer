@@ -78,6 +78,15 @@ public class GetAllElements implements
         this.options = options;
     }
 
+    @Override
+    public Operation shallowClone() {
+        return new GetAllElements.Builder()
+                .directedType(directedType)
+                .options(options)
+                .view(view)
+                .build();
+    }
+
     public static class Builder extends Operation.BaseBuilder<GetAllElements, Builder>
             implements Output.Builder<GetAllElements, CloseableIterable<? extends Element>, Builder>,
             GraphFilters.Builder<GetAllElements, Builder>,

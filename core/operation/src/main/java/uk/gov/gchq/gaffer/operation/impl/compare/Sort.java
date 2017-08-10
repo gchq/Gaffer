@@ -98,6 +98,16 @@ public class Sort implements
         return new TypeReferenceImpl.IterableElement();
     }
 
+    @Override
+    public Operation shallowClone() {
+        return new Sort.Builder()
+                .input(input)
+                .comparators(comparators)
+                .deduplicate(deduplicate)
+                .resultLimit(resultLimit)
+                .build();
+    }
+
     public static final class Builder
             extends BaseBuilder<Sort, Builder>
             implements InputOutput.Builder<Sort, Iterable<? extends Element>, Iterable<? extends Element>, Sort.Builder>,

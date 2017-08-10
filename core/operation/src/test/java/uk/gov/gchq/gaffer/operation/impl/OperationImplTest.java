@@ -80,6 +80,11 @@ public class OperationImplTest extends OperationTest {
         assertEquals(optionalField2, op.getOptionalField2());
     }
 
+    @Override
+    public void shouldShallowCloneOperation() {
+
+    }
+
     @Test
     public void shouldValidateASingleMissingRequiredField() throws SerialisationException {
         // Given

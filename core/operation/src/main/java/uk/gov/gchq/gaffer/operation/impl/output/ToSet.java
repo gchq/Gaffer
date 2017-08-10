@@ -51,6 +51,13 @@ public class ToSet<T> implements
         return new TypeReferenceImpl.Set();
     }
 
+    @Override
+    public Operation shallowClone() {
+        return new ToSet.Builder<>()
+                .input(input)
+                .build();
+    }
+
     public static final class Builder<T>
             extends BaseBuilder<ToSet<T>, Builder<T>>
             implements InputOutput.Builder<ToSet<T>, Iterable<? extends T>, Set<? extends T>, Builder<T>>,

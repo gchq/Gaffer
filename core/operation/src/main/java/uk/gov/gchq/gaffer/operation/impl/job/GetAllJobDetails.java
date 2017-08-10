@@ -31,6 +31,12 @@ public class GetAllJobDetails implements
         return new TypeReferenceImpl.JobDetailIterable();
     }
 
+    @Override
+    public Operation shallowClone() {
+        return new GetAllJobDetails.Builder()
+                .build();
+    }
+
     public static class Builder extends Operation.BaseBuilder<GetAllJobDetails, Builder>
             implements Output.Builder<GetAllJobDetails, CloseableIterable<JobDetail>, Builder> {
         public Builder() {

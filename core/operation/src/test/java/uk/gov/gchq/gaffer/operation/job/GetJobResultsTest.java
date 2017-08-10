@@ -77,4 +77,9 @@ public class GetJobResultsTest extends OperationTest {
         // Then
         assertEquals("jobId", op.getJobId());
     }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+
+    }
 }

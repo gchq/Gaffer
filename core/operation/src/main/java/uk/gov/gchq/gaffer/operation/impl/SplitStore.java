@@ -50,6 +50,14 @@ public class SplitStore implements Operation, Options {
         this.options = options;
     }
 
+    @Override
+    public Operation shallowClone() {
+        return new SplitStore.Builder()
+                .inputPath(inputPath)
+                .options(options)
+                .build();
+    }
+
     public static class Builder extends Operation.BaseBuilder<SplitStore, Builder>
             implements Options.Builder<SplitStore, Builder> {
         public Builder() {

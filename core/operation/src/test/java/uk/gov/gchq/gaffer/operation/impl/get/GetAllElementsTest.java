@@ -88,4 +88,23 @@ public class GetAllElementsTest extends OperationTest {
 
         assertNotNull(getAllElements.getView().getEdge(TestGroups.EDGE));
     }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        View view = new View.Builder()
+                .edge(TestGroups.EDGE)
+                .build();
+        GetAllElements getAllElements = new GetAllElements.Builder()
+                .view(view)
+                .directedType(DirectedType.DIRECTED)
+                .build();
+
+        // When
+        GetAllElements clone = (GetAllElements) getAllElements.shallowClone();
+
+        // Then
+        assertEquals(view, clone.getView());
+        assertEquals(DirectedType.DIRECTED, clone.getDirectedType());
+    }
 }

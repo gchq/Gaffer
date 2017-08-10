@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.operation.impl.compare;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -34,6 +35,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
@@ -87,5 +89,26 @@ public class MaxTest extends OperationTest {
         assertThat(Streams.toStream(max.getInput())
                 .map(e -> e.getProperty("property"))
                 .collect(toList()), containsInAnyOrder(1, 2));
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final Entity input = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .property("property", 1)
+                .build();
+        final ElementPropertyComparator comparator = new ElementPropertyComparator();
+        final Max max = new Max.Builder()
+                .input(input)
+                .comparators(comparator)
+                .build();
+
+        // When
+        Max clone = (Max) max.shallowClone();
+
+        // Then
+        assertEquals(Lists.newArrayList(input), clone.getInput());
+        assertEquals(Lists.newArrayList(comparator), clone.getComparators());
     }
 }

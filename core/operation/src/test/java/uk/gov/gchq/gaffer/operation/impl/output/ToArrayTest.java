@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.output;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -26,6 +27,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
@@ -62,5 +64,20 @@ public class ToArrayTest extends OperationTest {
         assertThat(toArray.getInput(), is(notNullValue()));
         assertThat(toArray.getInput(), iterableWithSize(2));
         assertThat(toArray.getInput(), containsInAnyOrder("1", "2"));
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final String input = "input";
+        final ToArray toArray = new ToArray.Builder<>()
+                .input(input)
+                .build();
+
+        //When
+        final ToArray clone = (ToArray) toArray.shallowClone();
+
+        // Then
+        assertEquals(Lists.newArrayList(input), clone.getInput());
     }
 }

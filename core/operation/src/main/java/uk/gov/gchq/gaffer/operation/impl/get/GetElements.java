@@ -36,30 +36,27 @@ import java.util.Map;
  * Gets elements from Gaffer based on {@link ElementId}s as
  * seeds and returns {@link uk.gov.gchq.gaffer.data.element.Element}s
  * There are various flags to filter out the elements returned:
- *
  * seedMatching - can either be {@code SeedMatchingType.RELATED} or {@code SeedMatchingType.EQUAL}.
  * Equal will only return Elements with identifiers that match the seed exactly.
  * Related will return:
  * <ul>
- *     <li>Entities when their vertex matches vertex of a EntityId</li>
- *     <li>Entities when their vertex matches the source or destination of a EdgeId</li>
- *     <li>Edges when their source, destination and directed type matches the EdgeId</li>
- *     <li>Edges when their source, destination matches the EdgeId where the DirectedType of the EdgeId is {@code DirectedType.EITHER}</li>
- *     <li>Edges when their source or destination match the EntityId's vertex</li>
+ * <li>Entities when their vertex matches vertex of a EntityId</li>
+ * <li>Entities when their vertex matches the source or destination of a EdgeId</li>
+ * <li>Edges when their source, destination and directed type matches the EdgeId</li>
+ * <li>Edges when their source, destination matches the EdgeId where the DirectedType of the EdgeId is {@code DirectedType.EITHER}</li>
+ * <li>Edges when their source or destination match the EntityId's vertex</li>
  * </ul>
- *
  * inOutType - what type of edges to include
  * <ul>
- *     <li>{@code IncludeIncomingOutgoingType.INCOMING} - only returns edges where the destination matches the vertex of EntityId</li>
- *     <li>{@code IncludeIncomingOutgoingType.OUTGOING} - only returns edges where the source matches the vertex of EntityId</li>
- *     <li>{@code IncludeIncomingOutgoingType.EITHER} - returns all edges regardless of their direction</li>
+ * <li>{@code IncludeIncomingOutgoingType.INCOMING} - only returns edges where the destination matches the vertex of EntityId</li>
+ * <li>{@code IncludeIncomingOutgoingType.OUTGOING} - only returns edges where the source matches the vertex of EntityId</li>
+ * <li>{@code IncludeIncomingOutgoingType.EITHER} - returns all edges regardless of their direction</li>
  * </ul>
- *
  * directedType - whether to return directed, undirected or either edges
  * <ul>
- *     <li>{@code DirectedType.DIRECTED} - only return directed edges</li>
- *     <li>{@code DirectedType.UNDIRECTED} - only return undirected edges</li>
- *     <li>{@code DirectedType.EITHER} - return both directed or undirected edges</li>
+ * <li>{@code DirectedType.DIRECTED} - only return directed edges</li>
+ * <li>{@code DirectedType.UNDIRECTED} - only return undirected edges</li>
+ * <li>{@code DirectedType.EITHER} - return both directed or undirected edges</li>
  * </ul>
  */
 public class GetElements implements
@@ -92,7 +89,7 @@ public class GetElements implements
      * Gets the seedMatchingType which determines how to match seeds to identifiers in the Graph.
      *
      * @return seedMatching a {@link SeedMatchingType} describing how the seeds should be
-     *                     matched to the identifiers in the graph.
+     * matched to the identifiers in the graph.
      * @see SeedMatchingType
      */
     @Override
@@ -104,8 +101,8 @@ public class GetElements implements
      * Gets the incomingOutGoingType for this operation which is used for filtering Edges.
      *
      * @return inOutType an {@link IncludeIncomingOutgoingType}
-     *                  that controls the incoming/outgoing direction of {@link uk.gov.gchq.gaffer.data.element.Edge}s that are
-     *                  filtered out in the operation.
+     * that controls the incoming/outgoing direction of {@link uk.gov.gchq.gaffer.data.element.Edge}s that are
+     * filtered out in the operation.
      * @see IncludeIncomingOutgoingType
      */
     @Override
@@ -128,6 +125,7 @@ public class GetElements implements
 
     /**
      * Gets the view of this operation which restricts which elements can be retrieved.
+     *
      * @return view the {@link View} for the operation.
      * @see View
      */
@@ -138,6 +136,7 @@ public class GetElements implements
 
     /**
      * Sets the view of this operation which restricts which elements can be retrieved.
+     *
      * @param view the {@link View} for the operation.
      * @see View
      */
@@ -150,7 +149,7 @@ public class GetElements implements
      * Gets the flag determining whether to return directed, undirected or both types of edges.
      *
      * @return directedType the {@link DirectedType} which relates to whether the edges are directed, undirected or
-     *                     either
+     * either
      * @see DirectedType
      */
     @Override
@@ -175,7 +174,6 @@ public class GetElements implements
      * {@link uk.gov.gchq.gaffer.data.element.id.EdgeId}s or {@link uk.gov.gchq.gaffer.data.element.id.EntityId} or a mix
      *
      * @return input the iterable of {@link ElementId}s
-     *
      * @see ElementId
      */
     @Override
@@ -188,7 +186,6 @@ public class GetElements implements
      * {@link uk.gov.gchq.gaffer.data.element.id.EdgeId}s or {@link uk.gov.gchq.gaffer.data.element.id.EntityId} or a mix
      *
      * @param input the iterable of {@link ElementId}s
-     *
      * @see ElementId
      */
     @Override
@@ -198,6 +195,7 @@ public class GetElements implements
 
     /**
      * Creates an array using the iterable set as the input and returns null if the input is null.
+     *
      * @return an array of inputs
      */
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
@@ -208,6 +206,7 @@ public class GetElements implements
 
     /**
      * Get the output type which in this case is {@link CloseableIterable} of {@link Element}s
+     *
      * @return the ClosableIterable of Elements type reference
      */
     @Override
@@ -229,6 +228,18 @@ public class GetElements implements
     @Override
     public void setOptions(final Map<String, String> options) {
         this.options = options;
+    }
+
+    @Override
+    public Operation shallowClone() {
+        return new GetElements.Builder()
+                .directedType(directedType)
+                .inOutType(inOutType)
+                .input(input)
+                .options(options)
+                .seedMatching(seedMatching)
+                .view(view)
+                .build();
     }
 
     public static class Builder extends Operation.BaseBuilder<GetElements, Builder>

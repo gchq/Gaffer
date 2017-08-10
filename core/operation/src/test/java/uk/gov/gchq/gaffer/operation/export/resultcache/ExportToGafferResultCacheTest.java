@@ -71,4 +71,26 @@ public class ExportToGafferResultCacheTest extends OperationTest {
         assertEquals(key, op.getKey());
         assertEquals(opAuths, op.getOpAuths());
     }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final String key = "key";
+        final HashSet<String> opAuths = Sets.newHashSet("1", "2");
+        final String input = "input";
+        final ExportToGafferResultCache exportToGafferResultCache = new ExportToGafferResultCache.Builder<>()
+                .opAuths(opAuths)
+                .input(input)
+                .key(key)
+                .build();
+
+        // When
+        ExportToGafferResultCache clone = (ExportToGafferResultCache) exportToGafferResultCache.shallowClone();
+
+        // Then
+        assertEquals(key, clone.getKey());
+        assertEquals(input, clone.getInput());
+        assertEquals(opAuths, clone.getOpAuths());
+    }
 }
+

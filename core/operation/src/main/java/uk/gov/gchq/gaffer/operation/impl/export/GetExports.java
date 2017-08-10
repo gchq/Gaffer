@@ -53,6 +53,13 @@ public class GetExports implements
     }
 
     @Override
+    public Operation shallowClone() {
+        return new GetExports.Builder()
+                .exports(getExports)
+                .build();
+    }
+
+    @Override
     public TypeReference<Map<String, CloseableIterable<?>>> getOutputTypeReference() {
         return (TypeReference) new TypeReferenceImpl.MapStringSet();
     }

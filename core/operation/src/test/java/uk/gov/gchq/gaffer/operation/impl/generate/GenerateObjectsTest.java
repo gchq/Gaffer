@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.generate;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -108,5 +109,23 @@ public class GenerateObjectsTest extends OperationTest {
                 .build();
         assertEquals(entity, generateObjects.getInput().iterator().next());
         assertEquals(ObjectGeneratorImpl.class, generateObjects.getElementGenerator().getClass());
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        Element input = new Entity("testEntityGroup", "A");
+        ObjectGeneratorImpl generator = new ObjectGeneratorImpl();
+        GenerateObjects generateObjects = new GenerateObjects.Builder<String>()
+                .input(input)
+                .generator(generator)
+                .build();
+
+        // When
+        GenerateObjects clone = (GenerateObjects) generateObjects.shallowClone();
+
+        // Then
+        assertEquals(Lists.newArrayList(input), clone.getInput());
+        assertEquals(generator, clone.getElementGenerator());
     }
 }

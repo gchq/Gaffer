@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.export;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -73,5 +74,23 @@ public class GetExportsTest extends OperationTest {
         // Then
         assertEquals("key1", op.getGetExports().get(0).getKey());
         assertEquals("key2", op.getGetExports().get(1).getKey());
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final GetSetExport getSetExport = new GetSetExport.Builder()
+                .key("key1")
+                .build();
+
+        final GetExports getExports = new GetExports.Builder()
+                .exports(getSetExport)
+                .build();
+
+        // When
+        final GetExports clone = (GetExports) getExports.shallowClone();
+
+        // Then
+        assertEquals(Lists.newArrayList(getSetExport), clone.getGetExports());
     }
 }

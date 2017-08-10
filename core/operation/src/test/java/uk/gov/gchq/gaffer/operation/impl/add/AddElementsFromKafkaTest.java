@@ -18,9 +18,9 @@ package uk.gov.gchq.gaffer.operation.impl.add;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Sets;
-import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Set;
@@ -109,6 +109,39 @@ public class AddElementsFromKafkaTest extends OperationTest {
         assertEquals(groupId, op.getGroupId());
         assertEquals(topic, op.getTopic());
         assertArrayEquals(servers, op.getBootstrapServers());
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final boolean validate = true;
+        final boolean skipInvalid = false;
+        final Integer parallelism = 2;
+        final Class<TestGeneratorImpl> generator = TestGeneratorImpl.class;
+        final String groupId = "groupId";
+        final String topic = "topic";
+        final String[] servers = {"server1", "server2"};
+        final AddElementsFromKafka addElementsFromKafka = new AddElementsFromKafka.Builder()
+                .generator(generator)
+                .parallelism(parallelism)
+                .validate(validate)
+                .skipInvalidElements(skipInvalid)
+                .groupId(groupId)
+                .topic(topic)
+                .bootstrapServers(servers)
+                .build();
+
+        // When
+        final AddElementsFromKafka clone = (AddElementsFromKafka) addElementsFromKafka.shallowClone();
+
+        // Then
+        assertEquals(validate, clone.isValidate());
+        assertEquals(skipInvalid, clone.isSkipInvalidElements());
+        assertEquals(parallelism, clone.getParallelism());
+        assertEquals(generator, clone.getElementGenerator());
+        assertEquals(groupId, clone.getGroupId());
+        assertEquals(topic, clone.getTopic());
+        assertArrayEquals(servers, clone.getBootstrapServers());
     }
 
     @Override

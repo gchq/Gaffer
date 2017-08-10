@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.generate;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.data.generator.ElementGeneratorImpl;
@@ -24,6 +25,7 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -69,11 +71,30 @@ public class GenerateElementsTest extends OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        GenerateElements<?> generateElements = new GenerateElements.Builder<String>().generator(new ElementGeneratorImpl())
+        GenerateElements<?> generateElements = new GenerateElements.Builder<String>()
+                .generator(new ElementGeneratorImpl())
                 .input("Test1", "Test2")
                 .build();
         Iterator iter = generateElements.getInput().iterator();
         assertEquals("Test1", iter.next());
         assertEquals("Test2", iter.next());
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        List<String> input = Lists.newArrayList("test1", "test2");
+        ElementGeneratorImpl generator = new ElementGeneratorImpl();
+        GenerateElements<?> generateElements = new GenerateElements.Builder<String>()
+                .generator(generator)
+                .input(input)
+                .build();
+
+        // When
+        GenerateElements clone = (GenerateElements) generateElements.shallowClone();
+
+        // Then
+        assertEquals(input, clone.getInput());
+        assertEquals(generator, clone.getElementGenerator());
     }
 }

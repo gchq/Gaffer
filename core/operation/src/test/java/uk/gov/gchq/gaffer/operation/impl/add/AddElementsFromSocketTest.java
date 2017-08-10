@@ -18,9 +18,9 @@ package uk.gov.gchq.gaffer.operation.impl.add;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Sets;
-import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Set;
@@ -109,6 +109,39 @@ public class AddElementsFromSocketTest extends OperationTest {
         assertEquals(hostname, op.getHostname());
         assertEquals(port, op.getPort());
         assertEquals(delimiter, op.getDelimiter());
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final boolean validate = true;
+        final boolean skipInvalid = false;
+        final Integer parallelism = 2;
+        final Class<TestGeneratorImpl> generator = TestGeneratorImpl.class;
+        final int port = 6874;
+        final String hostname = "hostname";
+        final String delimiter = ",";
+        final AddElementsFromSocket addElementsFromSocket = new AddElementsFromSocket.Builder()
+                .generator(generator)
+                .parallelism(parallelism)
+                .validate(validate)
+                .skipInvalidElements(skipInvalid)
+                .hostname(hostname)
+                .port(port)
+                .delimiter(delimiter)
+                .build();
+
+        // Given
+        final AddElementsFromSocket clone = (AddElementsFromSocket) addElementsFromSocket.shallowClone();
+
+        // Then
+        assertEquals(generator, clone.getElementGenerator());
+        assertEquals(parallelism, clone.getParallelism());
+        assertEquals(validate, clone.isValidate());
+        assertEquals(skipInvalid, clone.isSkipInvalidElements());
+        assertEquals(hostname, clone.getHostname());
+        assertEquals(port, clone.getPort());
+        assertEquals(delimiter, clone.getDelimiter());
     }
 
     @Override

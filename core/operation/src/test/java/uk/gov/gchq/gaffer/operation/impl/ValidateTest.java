@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -92,14 +93,35 @@ public class ValidateTest extends OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        Element edge = new Edge.Builder()
+        final Element edge = new Edge.Builder()
                 .group("testGroup")
                 .build();
-        Validate validate = new Validate.Builder()
+        final Validate validate = new Validate.Builder()
                 .input(edge)
                 .skipInvalidElements(true)
                 .build();
         assertTrue(validate.isSkipInvalidElements());
         assertEquals(edge, validate.getInput().iterator().next());
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final Element input = new Edge.Builder()
+                .group("testGroup")
+                .build();
+        final Validate validate = new Validate.Builder()
+                .input(input)
+                .skipInvalidElements(true)
+                .validate(true)
+                .build();
+
+        // When
+        final Validate clone = (Validate) validate.shallowClone();
+
+        // Then
+        assertTrue(clone.isSkipInvalidElements());
+        assertTrue(clone.isValidate());
+        assertEquals(Lists.newArrayList(input), clone.getInput());
     }
 }

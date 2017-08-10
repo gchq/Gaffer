@@ -61,4 +61,19 @@ public class GetJobDetailsTest extends OperationTest {
         // Then
         assertEquals("jobId", op.getJobId());
     }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final String jobId = "jobId";
+        final GetJobDetails getJobDetails = new GetJobDetails.Builder()
+                .jobId(jobId)
+                .build();
+
+        // When
+        GetJobDetails clone = (GetJobDetails) getJobDetails.shallowClone();
+
+        // Then
+        assertEquals(jobId, clone.getJobId());
+    }
 }

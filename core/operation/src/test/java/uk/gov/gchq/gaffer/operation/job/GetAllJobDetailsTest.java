@@ -59,4 +59,17 @@ public class GetAllJobDetailsTest extends OperationTest {
         // Then
         assertNotNull(op);
     }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final GetAllJobDetails getAllJobDetails = new GetAllJobDetails.Builder()
+                .build();
+
+        // When
+        GetAllJobDetails clone = (GetAllJobDetails) getAllJobDetails.shallowClone();
+
+        // Then
+        assertNotNull(clone);
+    }
 }

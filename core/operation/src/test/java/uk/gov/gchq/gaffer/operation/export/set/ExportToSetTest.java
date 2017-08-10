@@ -62,4 +62,22 @@ public class ExportToSetTest extends OperationTest {
         // Then
         assertEquals("key", op.getKey());
     }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final String key = "key";
+        final String input = "input";
+        final ExportToSet exportToSet = new ExportToSet.Builder<>()
+                .key(key)
+                .input(input)
+                .build();
+
+        // When
+        ExportToSet clone = (ExportToSet) exportToSet.shallowClone();
+
+        // Then
+        assertEquals(key, clone.getKey());
+        assertEquals(input, clone.getInput());
+    }
 }

@@ -73,6 +73,14 @@ public class ToMap implements
         return new TypeReferenceImpl.IterableMap();
     }
 
+    @Override
+    public Operation shallowClone() {
+        return new ToMap.Builder()
+                .generator(elementGenerator)
+                .input(input)
+                .build();
+    }
+
     public static final class Builder extends BaseBuilder<ToMap, Builder>
             implements InputOutput.Builder<ToMap, Iterable<? extends Element>, Iterable<? extends Map<String, Object>>, Builder>,
             MultiInput.Builder<ToMap, Element, Builder> {

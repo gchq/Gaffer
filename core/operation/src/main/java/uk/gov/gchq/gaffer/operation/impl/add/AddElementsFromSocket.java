@@ -129,6 +129,20 @@ public class AddElementsFromSocket implements
         return this.parallelism;
     }
 
+    @Override
+    public Operation shallowClone() {
+        return new AddElementsFromSocket.Builder()
+                .delimiter(delimiter)
+                .parallelism(parallelism)
+                .validate(validate)
+                .skipInvalidElements(skipInvalidElements)
+                .options(options)
+                .generator(elementGenerator)
+                .port(port)
+                .hostname(hostname)
+                .build();
+    }
+
     public static class Builder extends Operation.BaseBuilder<AddElementsFromSocket, Builder>
             implements Validatable.Builder<AddElementsFromSocket, Builder>,
             Options.Builder<AddElementsFromSocket, Builder> {

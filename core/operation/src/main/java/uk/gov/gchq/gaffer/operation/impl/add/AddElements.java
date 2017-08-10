@@ -92,6 +92,16 @@ public class AddElements implements
     }
 
     @Override
+    public Operation shallowClone() {
+        return new AddElements.Builder()
+                .options(options)
+                .validate(validate)
+                .skipInvalidElements(skipInvalidElements)
+                .input(elements)
+                .build();
+    }
+
+    @Override
     public boolean equals(final Object obj) {
         if (this == obj) {
             return true;

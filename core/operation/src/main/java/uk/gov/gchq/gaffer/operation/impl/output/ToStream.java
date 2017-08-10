@@ -50,6 +50,13 @@ public class ToStream<T> implements
         return new TypeReferenceImpl.Stream();
     }
 
+    @Override
+    public Operation shallowClone() {
+        return new ToStream.Builder<T>()
+                .input(input)
+                .build();
+    }
+
     public static final class Builder<T>
             extends BaseBuilder<ToStream<T>, Builder<T>>
             implements InputOutput.Builder<ToStream<T>, Iterable<? extends T>, Stream<? extends T>, Builder<T>>,

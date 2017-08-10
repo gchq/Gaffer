@@ -29,6 +29,7 @@ import static org.junit.Assert.assertEquals;
 
 public abstract class OperationTest {
     protected static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
+
     protected abstract Class<? extends Operation> getOperationClass();
 
     protected Set<String> getRequiredFields() {
@@ -40,6 +41,9 @@ public abstract class OperationTest {
 
     @Test
     public abstract void builderShouldCreatePopulatedOperation();
+
+    @Test
+    public abstract void shouldShallowCloneOperation();
 
     @Test
     public void shouldValidateRequiredFields() throws Exception {

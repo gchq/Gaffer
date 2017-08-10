@@ -69,6 +69,14 @@ public class CountGroups implements
         this.input = input;
     }
 
+    @Override
+    public Operation shallowClone() {
+        return new CountGroups.Builder()
+                .limit(limit)
+                .input(input)
+                .build();
+    }
+
     public static class Builder
             extends Operation.BaseBuilder<CountGroups, Builder>
             implements InputOutput.Builder<CountGroups, Iterable<? extends Element>, GroupCounts, Builder>,

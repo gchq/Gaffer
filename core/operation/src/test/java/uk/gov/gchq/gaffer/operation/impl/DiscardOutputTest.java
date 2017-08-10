@@ -59,4 +59,9 @@ public class DiscardOutputTest extends OperationTest {
         // Then
         assertThat(discardOutput.getInput(), is(nullValue()));
     }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+
+    }
 }

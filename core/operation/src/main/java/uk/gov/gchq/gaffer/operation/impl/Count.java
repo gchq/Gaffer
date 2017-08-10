@@ -47,6 +47,13 @@ public class Count<T> implements
         return new TypeReferenceImpl.Long();
     }
 
+    @Override
+    public Operation shallowClone() {
+        return new Count.Builder<>()
+                .input(input)
+                .build();
+    }
+
     public static final class Builder<T>
             extends Operation.BaseBuilder<Count<T>, Builder<T>>
             implements InputOutput.Builder<Count<T>, Iterable<? extends T>, Long, Builder<T>>,

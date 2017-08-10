@@ -73,4 +73,28 @@ public class GetSetExportTest extends OperationTest {
         assertEquals(0, operation.getStart());
         assertEquals(5, (int) operation.getEnd());
     }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final String key = "key";
+        final String jobId = "jobId";
+        final int start = 0;
+        final int end = 5;
+        final GetSetExport getSetExport = new GetSetExport.Builder()
+                .key(key)
+                .jobId(jobId)
+                .start(start)
+                .end(end)
+                .build();
+
+        // When
+        GetSetExport clone = (GetSetExport) getSetExport.shallowClone();
+
+        // Then
+        assertEquals(key, clone.getKey());
+        assertEquals(jobId, clone.getJobId());
+        assertEquals(start, clone.getStart());
+        assertEquals(end, (int) clone.getEnd());
+    }
 }
