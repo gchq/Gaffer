@@ -39,7 +39,6 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
-import uk.gov.gchq.gaffer.traffic.DemoData;
 import uk.gov.gchq.gaffer.traffic.ElementGroup;
 import uk.gov.gchq.gaffer.traffic.generator.RoadTrafficElementGenerator;
 import uk.gov.gchq.gaffer.user.User;
@@ -84,7 +83,7 @@ public class FullExample extends UserWalkthrough {
         final OperationChain<Void> addOpChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<String>()
                         .generator(new RoadTrafficElementGenerator())
-                        .input(IOUtils.readLines(StreamUtil.openStream(DemoData.class, "roadTrafficSampleData.csv")))
+                        .input(IOUtils.readLines(StreamUtil.openStream(getClass(), "FullExample/data.txt")))
                         .build())
                 .then(new AddElements())
                 .build();
@@ -131,7 +130,7 @@ public class FullExample extends UserWalkthrough {
                                                 .execute(new PredicateMap<>("BUS", new IsMoreThan(1000L)))
                                                 .build())
 
-                                        // Extract the bus count out of the frequency map and store in transient property "busCount"
+                                                // Extract the bus count out of the frequency map and store in transient property "busCount"
                                         .transientProperty("busCount", Long.class)
                                         .transformer(new ElementTransformer.Builder()
                                                 .select("countByVehicleType")
@@ -142,7 +141,7 @@ public class FullExample extends UserWalkthrough {
                                 .build())
                         .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
                         .build())
-                // Convert the result entities to a simple CSV in format: Junction,busCount.
+                        // Convert the result entities to a simple CSV in format: Junction,busCount.
                 .then(new ToCsv.Builder()
                         .generator(new CsvGenerator.Builder()
                                 .vertex("Junction")
