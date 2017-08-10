@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.graph;
 
+import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import org.apache.commons.io.FileUtils;
@@ -42,10 +43,12 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.graph.hook.Log4jLogger;
+import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
 import uk.gov.gchq.gaffer.graph.hook.OperationAuthoriser;
 import uk.gov.gchq.gaffer.graph.hook.OperationChainLimiter;
 import uk.gov.gchq.gaffer.integration.store.TestStore;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -281,7 +284,7 @@ public class GraphTest {
         // Given
         final Operation operation = mock(Operation.class);
         final OperationChain opChain = mock(OperationChain.class);
-        given(opChain.getOperations()).willReturn(Collections.singletonList(operation));
+        given(opChain.getOperations()).willReturn(Lists.newArrayList(operation));
 
         final Exception exception = mock(RuntimeException.class);
         final User user = mock(User.class);
@@ -308,7 +311,7 @@ public class GraphTest {
         // Given
         final GetElements operation = mock(GetElements.class);
         final OperationChain opChain = mock(OperationChain.class);
-        given(opChain.getOperations()).willReturn(Collections.singletonList(operation));
+        given(opChain.getOperations()).willReturn(Lists.newArrayList(operation));
 
         final User user = mock(User.class);
         final GraphHook hook1 = mock(GraphHook.class);
@@ -342,7 +345,7 @@ public class GraphTest {
         // Given
         final GetElements operation = mock(GetElements.class);
         final OperationChain opChain = mock(OperationChain.class);
-        given(opChain.getOperations()).willReturn(Collections.singletonList(operation));
+        given(opChain.getOperations()).willReturn(Lists.newArrayList(operation));
 
         final User user = mock(User.class);
         final GraphHook hook1 = mock(GraphHook.class);
@@ -376,7 +379,7 @@ public class GraphTest {
         // Given
         final Operation operation = mock(Operation.class);
         final OperationChain opChain = mock(OperationChain.class);
-        given(opChain.getOperations()).willReturn(Collections.singletonList(operation));
+        given(opChain.getOperations()).willReturn(Lists.newArrayList(operation));
 
         final User user = mock(User.class);
         final GraphHook hook1 = mock(GraphHook.class);
@@ -577,7 +580,7 @@ public class GraphTest {
         given(operation.getView()).willReturn(null);
 
         final OperationChain<Integer> opChain = mock(OperationChain.class);
-        given(opChain.getOperations()).willReturn(Collections.<Operation>singletonList(operation));
+        given(opChain.getOperations()).willReturn(Lists.newArrayList(operation));
         given(store.execute(opChain, user)).willReturn(expectedResult);
 
         // When
@@ -607,7 +610,7 @@ public class GraphTest {
         given(operation.getView()).willReturn(opView);
 
         final OperationChain<Integer> opChain = mock(OperationChain.class);
-        given(opChain.getOperations()).willReturn(Collections.<Operation>singletonList(operation));
+        given(opChain.getOperations()).willReturn(Lists.newArrayList(operation));
         given(store.execute(opChain, user)).willReturn(expectedResult);
 
         // When
@@ -635,7 +638,7 @@ public class GraphTest {
         final Operation operation = mock(Operation.class);
 
         final OperationChain<Integer> opChain = mock(OperationChain.class);
-        given(opChain.getOperations()).willReturn(Collections.singletonList(operation));
+        given(opChain.getOperations()).willReturn(Lists.newArrayList(operation));
         given(store.execute(opChain, user)).willReturn(expectedResult);
 
         // When
@@ -671,7 +674,7 @@ public class GraphTest {
                             .type("int", new TypeDefinition.Builder()
                                     .clazz(Integer.class)
                                     .aggregateFunction(new Sum())
-                                    // invalid serialiser
+                                            // invalid serialiser
                                     .serialiser(new RawDoubleSerialiser())
                                     .build())
                             .type("string", new TypeDefinition.Builder()
@@ -974,7 +977,34 @@ public class GraphTest {
     public void shouldAddHookAndGetGraphHooks() throws Exception {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setStoreClass(TestStoreImpl.class.getName());
+        storeProperties.setStoreClass(TestStore.class.getName());
+        TestStore.mockStore = mock(Store.class);
+        given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
+        final GraphHook graphHook1 = mock(GraphHook.class);
+        final NamedOperationResolver graphHook2 = new NamedOperationResolver();
+        final Log4jLogger graphHook3 = mock(Log4jLogger.class);
+
+        // When
+        final Graph graph = new Graph.Builder()
+                .graphId("graphId")
+                .storeProperties(storeProperties)
+                .addSchemas(StreamUtil.schemas(getClass()))
+                .addHook(graphHook1)
+                .addHook(graphHook2)
+                .addHook(graphHook3)
+                .build();
+
+        // Then
+        assertEquals(Arrays.asList(graphHook1.getClass(), graphHook2.getClass(), graphHook3.getClass()), graph.getGraphHooks());
+    }
+
+    @Test
+    public void shouldAddNamedOperationResolverHookFirst() throws Exception {
+        // Given
+        final StoreProperties storeProperties = new StoreProperties();
+        storeProperties.setStoreClass(TestStore.class.getName());
+        TestStore.mockStore = mock(Store.class);
+        given(TestStore.mockStore.isSupported(NamedOperation.class)).willReturn(true);
         final GraphHook graphHook1 = mock(GraphHook.class);
         final Log4jLogger graphHook2 = mock(Log4jLogger.class);
 
@@ -988,7 +1018,7 @@ public class GraphTest {
                 .build();
 
         // Then
-        assertEquals(Arrays.asList(graphHook1.getClass(), graphHook2.getClass()), graph.getGraphHooks());
+        assertEquals(Arrays.asList(NamedOperationResolver.class, graphHook1.getClass(), graphHook2.getClass()), graph.getGraphHooks());
     }
 
     @Test

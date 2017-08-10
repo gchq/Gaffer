@@ -38,11 +38,6 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>named-operation-library</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>jcs-cache-service</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
