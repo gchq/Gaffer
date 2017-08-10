@@ -33,6 +33,18 @@ Some operations are not available by default and you will need to manually confi
 These customisable operations can be added to you Gaffer graph by providing config
 in one or more operation declaration json files.
 
+## Named Operations
+Named Operations depends on the Cache service being active at runtime.
+In order for the cache service to run you must select your desired
+implementation. You do this by adding another line to the store.properties
+file:
+```
+gaffer.cache.service.class=uk.gov.gchq.gaffer.cache.impl.HashMapCacheService
+```
+
+To find out more about the different cache services on offer, see the
+Cache Library README.
+
 ### ScoreOperationChain
 
 Variables:

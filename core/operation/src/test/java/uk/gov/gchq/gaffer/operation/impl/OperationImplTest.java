@@ -20,7 +20,6 @@ import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.CustomVertex;
 import uk.gov.gchq.koryphe.ValidationResult;
@@ -29,12 +28,11 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
-public class OperationImplTest extends OperationTest {
+public class OperationImplTest extends OperationTest<OperationImpl> {
     private static final JSONSerialiser SERIALISER = new JSONSerialiser();
 
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final String requiredField1 = "value1";
         final CustomVertex requiredField2 = new CustomVertex("type1", "value1");
@@ -132,8 +130,8 @@ public class OperationImplTest extends OperationTest {
     }
 
     @Override
-    public Class<? extends Operation> getOperationClass() {
-        return OperationImpl.class;
+    protected OperationImpl getTestObject() {
+        return new OperationImpl();
     }
 }
 

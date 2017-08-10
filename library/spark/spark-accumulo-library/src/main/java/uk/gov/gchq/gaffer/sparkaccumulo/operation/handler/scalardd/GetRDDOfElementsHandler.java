@@ -46,7 +46,7 @@ public class GetRDDOfElementsHandler extends AbstractGetRDDHandler<GetRDDOfEleme
                                      final Context context,
                                      final AccumuloStore accumuloStore)
             throws OperationException {
-        final SparkContext sparkContext = operation.getSparkContext();
+        final SparkContext sparkContext = operation.getSparkSession().sparkContext();
         final Configuration conf = getConfiguration(operation);
         // Use batch scan option when performing seeded operation
         InputConfigurator.setBatchScan(AccumuloInputFormat.class, conf, true);

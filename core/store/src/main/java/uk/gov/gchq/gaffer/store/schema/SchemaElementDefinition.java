@@ -480,16 +480,16 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
 
-        final SchemaElementDefinition that = (SchemaElementDefinition) o;
+        final SchemaElementDefinition that = (SchemaElementDefinition) obj;
 
         return new EqualsBuilder()
                 .append(elementDefValidator, that.elementDefValidator)
@@ -503,7 +503,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(73, 41)
                 .append(elementDefValidator)
                 .append(properties)
                 .append(identifiers)

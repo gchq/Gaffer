@@ -15,9 +15,6 @@
  */
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -27,6 +24,9 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class SetSerialiserTest extends ToBytesSerialisationTest<Set<? extends Object>> {
 

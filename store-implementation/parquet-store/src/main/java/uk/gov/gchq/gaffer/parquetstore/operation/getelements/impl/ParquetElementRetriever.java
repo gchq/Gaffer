@@ -16,11 +16,8 @@
 
 package uk.gov.gchq.gaffer.parquetstore.operation.getelements.impl;
 
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.parquet.filter2.compat.FilterCompat;
 import org.apache.parquet.filter2.predicate.FilterPredicate;
-import org.apache.parquet.hadoop.ParquetReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -35,18 +32,20 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
-import uk.gov.gchq.gaffer.parquetstore.io.reader.ParquetElementReader;
-import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
-import uk.gov.gchq.gaffer.parquetstore.utils.ParquetFileIterator;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetFilterUtils;
-import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
-
-import java.io.IOException;
-import java.util.Iterator;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * Converts the inputs for get element operations and converts them to a mapping of files to Parquet filters which is
@@ -55,7 +54,6 @@ import java.util.NoSuchElementException;
 public class ParquetElementRetriever implements CloseableIterable<Element> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetElementRetriever.class);
 
-    private final SchemaUtils schemaUtils;
     private final View view;
     private final DirectedType directedType;
     private final SeededGraphFilters.IncludeIncomingOutgoingType includeIncomingOutgoingType;
@@ -63,7 +61,8 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
     private final Iterable<? extends ElementId> seeds;
     private final ParquetFilterUtils parquetFilterUtils;
     private GraphIndex graphIndex;
-    private FileSystem fs;
+    private final ParquetStoreProperties properties;
+    private final Schema gafferSchema;
 
     public ParquetElementRetriever(final View view,
                                    final ParquetStore store,
@@ -72,14 +71,18 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                                    final SeedMatching.SeedMatchingType seedMatchingType,
                                    final Iterable<? extends ElementId> seeds) throws OperationException, StoreException {
         this.view = view;
-        this.schemaUtils = store.getSchemaUtils();
+        this.gafferSchema = store.getSchema();
         this.directedType = directedType;
         this.includeIncomingOutgoingType = includeIncomingOutgoingType;
         this.seedMatchingType = seedMatchingType;
         this.seeds = seeds;
         this.graphIndex = store.getGraphIndex();
+        if (graphIndex == null) {
+            throw new OperationException("Can not perform a Get operation when there is no index set, which is " +
+                    "indicative of there being no data or the data ingest failed.");
+        }
         this.parquetFilterUtils = new ParquetFilterUtils(store);
-        this.fs = store.getFS();
+        this.properties = store.getProperties();
     }
 
     @Override
@@ -88,167 +91,124 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
 
     @Override
     public CloseableIterator<Element> iterator() {
-        return new ParquetIterator(schemaUtils, view, directedType, includeIncomingOutgoingType,
-                seedMatchingType, seeds, parquetFilterUtils, graphIndex, fs);
+        return new ParquetIterator(view, directedType, includeIncomingOutgoingType,
+                seedMatchingType, seeds, parquetFilterUtils, graphIndex, properties, gafferSchema);
     }
 
     protected static class ParquetIterator implements CloseableIterator<Element> {
-        private Element currentElement = null;
-        private ParquetReader<Element> reader;
-        private SchemaUtils schemaUtils;
-        private Map<Path, FilterPredicate> pathToFilterMap;
-        private Path currentPath;
-        private Iterator<Path> paths;
-        private ParquetFileIterator fileIterator;
-        private FileSystem fs;
         private Boolean needsValidation;
         private View view;
+        private ConcurrentLinkedQueue<Element> queue;
+        private List<Future<OperationException>> runningTasks;
+        private ExecutorService executorServicePool;
 
-        protected ParquetIterator(final SchemaUtils schemaUtils,
-                                  final View view,
+        protected ParquetIterator(final View view,
                                   final DirectedType directedType,
                                   final SeededGraphFilters.IncludeIncomingOutgoingType includeIncomingOutgoingType,
                                   final SeedMatching.SeedMatchingType seedMatchingType,
                                   final Iterable<? extends ElementId> seeds,
                                   final ParquetFilterUtils parquetFilterUtils,
                                   final GraphIndex graphIndex,
-                                  final FileSystem fs) {
+                                  final ParquetStoreProperties properties,
+                                  final Schema gafferSchema) {
             try {
                 parquetFilterUtils.buildPathToFilterMap(view, directedType, includeIncomingOutgoingType, seedMatchingType, seeds, graphIndex);
-                this.pathToFilterMap = parquetFilterUtils.getPathToFilterMap();
+                final Map<Path, FilterPredicate> pathToFilterMap = parquetFilterUtils.getPathToFilterMap();
                 this.needsValidation = parquetFilterUtils.requiresValidation();
                 LOGGER.debug("pathToFilterMap: {}", pathToFilterMap);
                 if (!pathToFilterMap.isEmpty()) {
-                    this.fs = fs;
+                    queue = new ConcurrentLinkedQueue<>();
                     this.view = view;
-                    this.paths = pathToFilterMap.keySet().stream().sorted().iterator();
-                    this.schemaUtils = schemaUtils;
-                    this.currentPath = this.paths.next();
-                    try {
-                        this.fileIterator = new ParquetFileIterator(this.currentPath, this.fs);
-                        this.reader = openParquetReader();
-                    } catch (final IOException e) {
-                        LOGGER.error("Path does not exist");
+                    executorServicePool = Executors.newFixedThreadPool(properties.getThreadsAvailable());
+                    final List<RetrieveElementsFromFile> tasks = new ArrayList<>(pathToFilterMap.size());
+                    for (final Map.Entry<Path, FilterPredicate> entry : pathToFilterMap.entrySet()) {
+                        tasks.add(new RetrieveElementsFromFile(entry.getKey(), entry.getValue(), gafferSchema, queue, needsValidation, view));
                     }
+                    runningTasks = executorServicePool.invokeAll(tasks);
                 } else {
                     LOGGER.debug("There are no results for this query");
                 }
             } catch (final OperationException | SerialisationException e) {
                 LOGGER.error("Exception while creating the mapping of file paths to Parquet filters: {}", e.getMessage());
+            } catch (InterruptedException e) {
+                LOGGER.error(e.getMessage(), e);
             }
         }
 
-        private ParquetReader<Element> openParquetReader() throws IOException {
-            if (fileIterator.hasNext()) {
-                final Path file = fileIterator.next();
-                final String group = file.getParent().getName().split("=")[1];
-                final boolean isEntity = schemaUtils.getEntityGroups().contains(group);
-                final GafferGroupObjectConverter converter = schemaUtils.getConverter(group);
-                LOGGER.debug("Opening a new Parquet reader for file: {}", file);
-                FilterPredicate filter = pathToFilterMap.get(currentPath);
-                if (filter != null) {
-                    return new ParquetElementReader.Builder<Element>(file)
-                            .isEntity(isEntity)
-                            .usingConverter(converter)
-                            .withFilter(FilterCompat.get(filter))
-                            .build();
-                } else {
-                    return new ParquetElementReader.Builder<Element>(file)
-                            .isEntity(isEntity)
-                            .usingConverter(converter)
-                            .build();
-                }
-            } else {
-                if (paths.hasNext()) {
-                    currentPath = paths.next();
-                    fileIterator = new ParquetFileIterator(currentPath, fs);
-                    return openParquetReader();
-                }
-            }
-            return null;
-        }
 
         @Override
         public boolean hasNext() {
-            if (currentElement == null) {
-                try {
-                    currentElement = next();
-                } catch (final NoSuchElementException e) {
-                    return false;
+            if (queue != null) {
+                if (queue.isEmpty()) {
+                    boolean finishedAllTasks = runningTasks.isEmpty();
+                    while (!finishedAllTasks && queue.isEmpty()) {
+                        try {
+                            finishedAllTasks = hasFinishedAllTasks();
+                            if (!finishedAllTasks) {
+                                wait(100L);
+                            }
+                        } catch (Exception e) {
+                            LOGGER.error(e.getMessage(), e);
+                            finishedAllTasks = true;
+                        }
+                    }
+                    return !queue.isEmpty();
+                } else {
+                    return true;
+                }
+            } else {
+                return false;
+            }
+        }
+
+        private boolean hasFinishedAllTasks() throws ExecutionException, InterruptedException, OperationException {
+            final List<Future<OperationException>> completedTasks = new ArrayList<>();
+            for (final Future<OperationException> task : runningTasks) {
+                if (task.isDone()) {
+                    final OperationException taskResult = task.get();
+                    if (taskResult != null) {
+                        throw taskResult;
+                    } else {
+                        completedTasks.add(task);
+                    }
                 }
             }
-            return true;
+            runningTasks.removeAll(completedTasks);
+            return runningTasks.isEmpty();
         }
 
 
         @Override
         public Element next() throws NoSuchElementException {
-            Element e = getNextElement();
-            if (needsValidation) {
-                String group = e.getGroup();
-                ElementFilter preAggFilter = view.getElement(group).getPreAggregationFilter();
-                if (preAggFilter != null) {
-                    while (!preAggFilter.test(e)) {
-                        e = getNextElement();
-                        if (!group.equals(e.getGroup())) {
-                            group = e.getGroup();
-                            preAggFilter = view.getElement(group).getPreAggregationFilter();
-                        }
-                    }
-                }
-            }
-            return e;
-        }
-
-        private Element getNextElement() {
-            Element element;
-            try {
-                if (currentElement != null) {
-                    element = currentElement;
-                    currentElement = null;
-                } else {
-                    if (reader != null) {
-                        Element record = reader.read();
-                        if (record != null) {
-                            element = record;
-                        } else {
-                            LOGGER.debug("Closing Parquet reader");
-                            reader.close();
-                            reader = openParquetReader();
-                            if (reader != null) {
-                                record = reader.read();
-                                if (record != null) {
-                                    element = record;
-                                } else {
-                                    LOGGER.debug("This file has no data");
-                                    element = next();
-                                }
-                            } else {
-                                LOGGER.debug("Reached the end of all the files of data");
-                                throw new NoSuchElementException();
+            Element e;
+            while (hasNext()) {
+                e = queue.poll();
+                if (e != null) {
+                    if (needsValidation) {
+                        String group = e.getGroup();
+                        ElementFilter preAggFilter = view.getElement(group).getPreAggregationFilter();
+                        if (preAggFilter != null) {
+                            if (preAggFilter.test(e)) {
+                                return e;
                             }
                         }
                     } else {
-                        throw new NoSuchElementException();
+                        return e;
                     }
                 }
-            } catch (final IOException e) {
-                throw new NoSuchElementException();
             }
-            return element;
+            throw new NoSuchElementException();
         }
 
         @Override
         public void close() {
-            try {
-                if (reader != null) {
-                    LOGGER.debug("Closing ParquetReader");
-                    reader.close();
-                    reader = null;
-                }
-            } catch (final IOException e) {
-                LOGGER.warn("Failed to close {}", getClass().getCanonicalName());
+            if (executorServicePool != null) {
+                executorServicePool.shutdown();
+                executorServicePool = null;
             }
+            needsValidation = null;
+            queue = null;
+            runningTasks = null;
         }
     }
 }

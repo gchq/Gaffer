@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.ObjectGeneratorImpl;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -36,13 +35,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 
-public class GenerateObjectsTest extends OperationTest {
+public class GenerateObjectsTest extends OperationTest<GenerateObjects> {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return GenerateObjects.class;
-    }
 
     @Override
     protected Set<String> getRequiredFields() {
@@ -50,8 +44,7 @@ public class GenerateObjectsTest extends OperationTest {
     }
 
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final List<Element> elements = Arrays.asList(
                 new Entity.Builder()
@@ -108,5 +101,10 @@ public class GenerateObjectsTest extends OperationTest {
                 .build();
         assertEquals(entity, generateObjects.getInput().iterator().next());
         assertEquals(ObjectGeneratorImpl.class, generateObjects.getElementGenerator().getClass());
+    }
+
+    @Override
+    protected GenerateObjects getTestObject() {
+        return new GenerateObjects();
     }
 }

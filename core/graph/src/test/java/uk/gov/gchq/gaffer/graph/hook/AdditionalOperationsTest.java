@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -44,7 +45,7 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 
-public class AdditionalOperationsTest {
+public class AdditionalOperationsTest extends JSONSerialisationTest<AdditionalOperations> {
     private static final JSONSerialiser SERIALISER = new JSONSerialiser();
 
     @Test
@@ -100,5 +101,10 @@ public class AdditionalOperationsTest {
             assertEquals(ops1.get(i).getClass(), ops2.get(i).getClass());
             assertNotSame(ops1.get(i), ops2.get(i));
         }
+    }
+
+    @Override
+    protected AdditionalOperations getTestObject() {
+        return new AdditionalOperations();
     }
 }

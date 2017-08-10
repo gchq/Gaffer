@@ -17,40 +17,16 @@
 package uk.gov.gchq.gaffer.operation.impl.output;
 
 import org.junit.Test;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 
-public class ToEntitySeedsTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return ToEntitySeeds.class;
-    }
-
-    @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
-        // Given
-        final ToEntitySeeds op = new ToEntitySeeds();
-
-        // When
-        byte[] json = serialiser.serialise(op, true);
-        final ToEntitySeeds deserialisedOp = serialiser.deserialise(json, ToEntitySeeds.class);
-
-        // Then
-        assertNotNull(deserialisedOp);
-    }
+public class ToEntitySeedsTest extends OperationTest<ToEntitySeeds> {
 
     @Test
     @Override
@@ -62,5 +38,10 @@ public class ToEntitySeedsTest extends OperationTest {
         assertThat(toEntitySeeds.getInput(), is(notNullValue()));
         assertThat(toEntitySeeds.getInput(), iterableWithSize(2));
         assertThat(toEntitySeeds.getInput(), containsInAnyOrder("1", "2"));
+    }
+
+    @Override
+    protected ToEntitySeeds getTestObject() {
+        return new ToEntitySeeds();
     }
 }

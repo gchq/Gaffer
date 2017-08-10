@@ -19,40 +19,16 @@ package uk.gov.gchq.gaffer.operation.impl;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 
-public class CountGroupsTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return CountGroups.class;
-    }
-
-    @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
-        // Given
-        final CountGroups op = new CountGroups();
-
-        // When
-        byte[] json = serialiser.serialise(op, true);
-        final CountGroups deserialisedOp = serialiser.deserialise(json, CountGroups.class);
-
-        // Then
-        assertNotNull(deserialisedOp);
-    }
+public class CountGroupsTest extends OperationTest<CountGroups> {
 
     @Test
     @Override
@@ -68,5 +44,10 @@ public class CountGroupsTest extends OperationTest {
         assertThat(countGroups.getInput(), iterableWithSize(2));
         assertThat(countGroups.getLimit(), is(1));
         assertThat(countGroups.getInput(), containsInAnyOrder(new Entity(TestGroups.ENTITY), new Entity(TestGroups.ENTITY_2)));
+    }
+
+    @Override
+    protected CountGroups getTestObject() {
+        return new CountGroups();
     }
 }

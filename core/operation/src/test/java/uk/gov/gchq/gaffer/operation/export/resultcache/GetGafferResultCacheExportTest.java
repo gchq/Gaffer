@@ -19,24 +19,17 @@ package uk.gov.gchq.gaffer.operation.export.resultcache;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
 
 import static org.junit.Assert.assertEquals;
 
 
-public class GetGafferResultCacheExportTest extends OperationTest {
+public class GetGafferResultCacheExportTest extends OperationTest<GetGafferResultCacheExport> {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return GetGafferResultCacheExport.class;
-    }
-
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final String key = "key";
         final GetGafferResultCacheExport op = new GetGafferResultCacheExport.Builder()
@@ -62,5 +55,10 @@ public class GetGafferResultCacheExportTest extends OperationTest {
 
         // Then
         assertEquals(key, op.getKey());
+    }
+
+    @Override
+    protected GetGafferResultCacheExport getTestObject() {
+        return new GetGafferResultCacheExport();
     }
 }

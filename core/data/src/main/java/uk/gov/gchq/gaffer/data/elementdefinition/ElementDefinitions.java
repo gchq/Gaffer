@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -157,16 +156,16 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
 
-        final ElementDefinitions<?, ?> that = (ElementDefinitions<?, ?>) o;
+        final ElementDefinitions<?, ?> that = (ElementDefinitions<?, ?>) obj;
 
         return new EqualsBuilder()
                 .append(edges, that.edges)
@@ -176,7 +175,7 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(31, 5)
                 .append(edges)
                 .append(entities)
                 .toHashCode();
@@ -209,8 +208,6 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
             this.elementDefs = elementDefs;
         }
 
-        protected abstract CHILD_CLASS edge(final String group);
-
         /**
          * Adds an edge definition for a given edge type.
          *
@@ -230,16 +227,6 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
             return self();
         }
 
-        public CHILD_CLASS edges(final Collection<String> groups) {
-            for (final String group : groups) {
-                edge(group);
-            }
-
-            return self();
-        }
-
-        protected abstract CHILD_CLASS entity(final String group);
-
 
         /**
          * Adds an entity definition for a given entity type.
@@ -257,15 +244,6 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
         public CHILD_CLASS entities(final Map<String, ENTITY_DEF> entities) {
             elementDefs.getEntities().clear();
             elementDefs.getEntities().putAll(entities);
-            return self();
-        }
-
-        @JsonIgnore
-        public CHILD_CLASS entities(final Collection<String> groups) {
-            for (final String group : groups) {
-                entity(group);
-            }
-
             return self();
         }
 

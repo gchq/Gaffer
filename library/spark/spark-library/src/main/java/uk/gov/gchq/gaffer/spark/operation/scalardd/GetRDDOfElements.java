@@ -16,8 +16,8 @@
 package uk.gov.gchq.gaffer.spark.operation.scalardd;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
+import org.apache.spark.sql.SparkSession;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
@@ -41,7 +41,7 @@ public class GetRDDOfElements implements
 
     private Map<String, String> options;
     @Required
-    private SparkContext sparkContext;
+    private SparkSession sparkSession;
     private Iterable<? extends ElementId> input;
     private IncludeIncomingOutgoingType inOutType;
     private View view;
@@ -50,8 +50,8 @@ public class GetRDDOfElements implements
     public GetRDDOfElements() {
     }
 
-    public GetRDDOfElements(final SparkContext sparkContext) {
-        setSparkContext(sparkContext);
+    public GetRDDOfElements(final SparkSession sparkSession) {
+        setSparkSession(sparkSession);
     }
 
     @Override
@@ -70,13 +70,13 @@ public class GetRDDOfElements implements
     }
 
     @Override
-    public SparkContext getSparkContext() {
-        return sparkContext;
+    public SparkSession getSparkSession() {
+        return sparkSession;
     }
 
     @Override
-    public void setSparkContext(final SparkContext sparkContext) {
-        this.sparkContext = sparkContext;
+    public void setSparkSession(final SparkSession sparkSession) {
+        this.sparkSession = sparkSession;
     }
 
     @Override

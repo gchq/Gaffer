@@ -16,12 +16,14 @@
 
 package uk.gov.gchq.gaffer.operation.data;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import java.util.Objects;
 
 /**
  * An <code>EntitySeed</code> contains a single vertex for an {@link uk.gov.gchq.gaffer.data.element.Entity}.
- * It is used as a mainly used as a seed for queries.
+ * It is mainly used as a seed for queries.
  */
 public class EntitySeed extends ElementSeed implements EntityId {
     private static final long serialVersionUID = -1668220155074029644L;
@@ -45,27 +47,34 @@ public class EntitySeed extends ElementSeed implements EntityId {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
         }
-        if (!(o instanceof EntitySeed)) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
 
-        final EntitySeed that = (EntitySeed) o;
-        return !(vertex != null ? !vertex.equals(that.getVertex()) : that.getVertex() != null);
+        final EntitySeed that = (EntitySeed) obj;
+
+        return new EqualsBuilder()
+                .append(vertex, that.vertex)
+                .isEquals();
     }
 
+    /*
+    Important not to alter hashcode implementation - adopting the ACL3 style
+    does not work for a large selection of prime numbers as arguments.
+    */
     @Override
     public int hashCode() {
-        return vertex != null ? vertex.hashCode() : 0;
+        return Objects.hashCode(vertex);
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .append("vertex", vertex)
-                .build();
+                .toString();
     }
 }

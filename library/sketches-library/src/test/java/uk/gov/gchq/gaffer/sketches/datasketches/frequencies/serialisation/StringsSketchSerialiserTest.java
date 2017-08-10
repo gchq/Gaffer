@@ -15,14 +15,14 @@
  */
 package uk.gov.gchq.gaffer.sketches.datasketches.frequencies.serialisation;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import com.yahoo.sketches.frequencies.ItemsSketch;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.sketches.serialisation.ViaCalculatedValueSerialiserTest;
+import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.ViaCalculatedValueSerialiserTest;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class StringsSketchSerialiserTest extends ViaCalculatedValueSerialiserTest<ItemsSketch<String>, Long> {
 

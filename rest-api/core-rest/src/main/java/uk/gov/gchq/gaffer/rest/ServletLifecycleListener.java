@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.rest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
-
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
