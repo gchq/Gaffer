@@ -155,7 +155,12 @@ public final class ParquetFilterUtils {
 
         if (seeds == null && (view == null || schemaUtils.getEmptyView().equals(view))) {
             // get all elements
-            pathToFilterMap.put(new Path(dataDir + "/" + ParquetStoreConstants.GRAPH), null);
+            for (final String group : entityGroups) {
+                pathToFilterMap.put(new Path(ParquetStore.getGroupDirectory(group, ParquetStoreConstants.VERTEX, dataDir)), null);
+            }
+            for (final String group : edgeGroups) {
+                pathToFilterMap.put(new Path(ParquetStore.getGroupDirectory(group, ParquetStoreConstants.SOURCE, dataDir)), null);
+            }
         } else {
             // Build up the path to filters based on the seeds and then apply the view (group) filters
             for (final String edgeGroup : edgeGroups) {
