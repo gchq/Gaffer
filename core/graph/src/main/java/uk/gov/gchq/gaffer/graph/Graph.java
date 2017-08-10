@@ -26,8 +26,10 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
+import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -99,16 +101,16 @@ public final class Graph {
      * Constructs a <code>Graph</code> with the given {@link uk.gov.gchq.gaffer.store.Store} and
      * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.
      *
-     * @param store      a {@link Store} used to store the elements and handle operations.
      * @param schema     a {@link Schema} that defines the graph. Should be the copy of the schema that the store is initialised with.
+     * @param store      a {@link Store} used to store the elements and handle operations.
      * @param view       a {@link View} defining the view of the data for the graph.
      * @param graphHooks a list of {@link GraphHook}s
      */
     private Graph(final Schema schema, final Store store, final View view, final List<GraphHook> graphHooks) {
+        this.schema = schema;
         this.store = store;
         this.view = view;
         this.graphHooks = graphHooks;
-        this.schema = schema;
     }
 
     /**
@@ -589,7 +591,23 @@ public final class Graph {
             }
 
             library.add(graphId, schema, store.getProperties());
+            updateGraphHooks();
             return new Graph(schema, store, view, graphHooks);
+        }
+
+        private void updateGraphHooks() {
+            if (store.isSupported(NamedOperation.class)) {
+                boolean hasNamedOpHook = false;
+                for (final GraphHook graphHook : graphHooks) {
+                    if (NamedOperationResolver.class.isAssignableFrom(graphHook.getClass())) {
+                        hasNamedOpHook = true;
+                        break;
+                    }
+                }
+                if (!hasNamedOpHook) {
+                    graphHooks.add(0, new NamedOperationResolver());
+                }
+            }
         }
 
         private void updateSchema() {
