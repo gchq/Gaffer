@@ -51,9 +51,32 @@ public class ImportAccumuloKeyValueFilesTest extends OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        final ImportAccumuloKeyValueFiles importAccumuloKeyValueFiles = new ImportAccumuloKeyValueFiles.Builder().inputPath(INPUT_DIRECTORY).failurePath(FAIL_DIRECTORY).option(TEST_OPTION_KEY, "true").build();
-        importAccumuloKeyValueFiles.getInputPath();
-        importAccumuloKeyValueFiles.getFailurePath();
+        // When
+        final ImportAccumuloKeyValueFiles importAccumuloKeyValueFiles = new ImportAccumuloKeyValueFiles.Builder()
+                .inputPath(INPUT_DIRECTORY)
+                .failurePath(FAIL_DIRECTORY)
+                .option(TEST_OPTION_KEY, "true")
+                .build();
+
+        // Then
+        assertEquals(INPUT_DIRECTORY, importAccumuloKeyValueFiles.getInputPath());
+        assertEquals(FAIL_DIRECTORY, importAccumuloKeyValueFiles.getFailurePath());
         assertEquals("true", importAccumuloKeyValueFiles.getOption(TEST_OPTION_KEY));
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final ImportAccumuloKeyValueFiles importAccumuloKeyValueFiles = new ImportAccumuloKeyValueFiles.Builder()
+                .inputPath(INPUT_DIRECTORY)
+                .failurePath(FAIL_DIRECTORY)
+                .build();
+
+        // When
+        final ImportAccumuloKeyValueFiles clone = (ImportAccumuloKeyValueFiles) importAccumuloKeyValueFiles.shallowClone();
+
+        // Then
+        assertEquals(INPUT_DIRECTORY, clone.getInputPath());
+        assertEquals(FAIL_DIRECTORY, clone.getFailurePath());
     }
 }

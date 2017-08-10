@@ -84,6 +84,7 @@ public class AddElementsFromHdfsTest extends OperationTest {
                 "  \"class\" : \"uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs\",%n" +
                 "  \"failurePath\" : \"failurePath\",%n" +
                 "  \"validate\" : true,%n" +
+                "  \"mapperGenerator\" : \"uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator\",%n" +
                 "  \"inputPaths\" : [ \"inputPath\" ],%n" +
                 "  \"outputPath\" : \"outputPath\",%n" +
                 "  \"jobInitialiser\" : {%n" +
@@ -116,6 +117,33 @@ public class AddElementsFromHdfsTest extends OperationTest {
         assertEquals(new Integer(20), addElements.getNumReduceTasks());
         assertEquals("output", addElements.getOutputPath());
         assertEquals("input", addElements.getInputPaths().get(0));
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final AddElementsFromHdfs addElements = new AddElementsFromHdfs.Builder()
+                .addInputPath("input")
+                .outputPath("output")
+                .failurePath("fail")
+                .mapperGenerator(MapperGenerator.class)
+                .mappers(10)
+                .reducers(20)
+                .validate(true)
+                .option("testOption", "true")
+                .build();
+
+        // When
+        AddElementsFromHdfs clone = (AddElementsFromHdfs) addElements.shallowClone();
+
+        // Then
+        assertEquals("true", clone.getOption("testOption"));
+        assertTrue(clone.isValidate());
+        assertEquals("fail", clone.getFailurePath());
+        assertEquals(new Integer(10), clone.getNumMapTasks());
+        assertEquals(new Integer(20), clone.getNumReduceTasks());
+        assertEquals("output", clone.getOutputPath());
+        assertEquals("input", clone.getInputPaths().get(0));
     }
 
     @Test

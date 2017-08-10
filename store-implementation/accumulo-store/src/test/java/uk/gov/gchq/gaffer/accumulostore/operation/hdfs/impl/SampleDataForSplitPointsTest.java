@@ -94,4 +94,28 @@ public class SampleDataForSplitPointsTest extends OperationTest {
             assertNotNull(e.getMessage());
         }
     }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final SampleDataForSplitPoints sampleDataForSplitPoints = new SampleDataForSplitPoints.Builder()
+                .addInputPath(INPUT_DIRECTORY)
+                .splitsFilePath("/test")
+                .proportionToSample(0.1f)
+                .mappers(5)
+                .validate(true)
+                .option(TEST_OPTION_KEY, "true")
+                .build();
+
+        //When
+        SampleDataForSplitPoints clone = (SampleDataForSplitPoints) sampleDataForSplitPoints.shallowClone();
+
+        // Then
+        assertEquals(INPUT_DIRECTORY, clone.getInputPaths().get(0));
+        assertEquals("true", clone.getOption(TEST_OPTION_KEY));
+        assertEquals("/test", clone.getSplitsFilePath());
+        assertTrue(clone.isValidate());
+        assertEquals(0.1f, clone.getProportionToSample(), 1);
+        assertEquals(new Integer(5), clone.getNumMapTasks());
+    }
 }

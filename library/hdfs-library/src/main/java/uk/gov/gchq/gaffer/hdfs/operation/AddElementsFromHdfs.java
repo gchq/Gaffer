@@ -251,6 +251,26 @@ public class AddElementsFromHdfs implements
         this.options = options;
     }
 
+    @Override
+    public Operation shallowClone() {
+        return new AddElementsFromHdfs.Builder()
+                .failurePath(failurePath)
+                .mapperGenerator(mapperGeneratorClassName)
+                .validate(validate)
+                .workingPath(workingPath)
+                .inputPaths(inputPaths)
+                .jobInitialiser(jobInitialiser)
+                .mappers(numMapTasks)
+                .validate(validate)
+                .reducers(numReduceTasks)
+                .outputPath(outputPath)
+                .useProvidedSplits(useProvidedSplits)
+                .splitsFilePath(splitsFilePath)
+                .partitioner(partitioner)
+                .options(options)
+                .build();
+    }
+
     public static final class Builder extends Operation.BaseBuilder<AddElementsFromHdfs, Builder>
             implements MapReduce.Builder<AddElementsFromHdfs, Builder>,
             Options.Builder<AddElementsFromHdfs, Builder> {
@@ -265,6 +285,11 @@ public class AddElementsFromHdfs implements
 
         public Builder mapperGenerator(final Class<? extends MapperGenerator> mapperGeneratorClass) {
             _getOp().setMapperGeneratorClassName(mapperGeneratorClass);
+            return _self();
+        }
+
+        public Builder mapperGenerator(final String mapperGeneratorClassName) {
+            _getOp().setMapperGeneratorClassName(mapperGeneratorClassName);
             return _self();
         }
 

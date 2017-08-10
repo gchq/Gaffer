@@ -88,6 +88,16 @@ public class ExportToOtherAuthorisedGraph implements
         return (TypeReference) new TypeReferenceImpl.Object();
     }
 
+    @Override
+    public Operation shallowClone() {
+        return new ExportToOtherAuthorisedGraph.Builder()
+                .graphId(graphId)
+                .parentSchemaIds(parentSchemaIds.toArray(new String[parentSchemaIds.size()]))
+                .parentStorePropertiesId(parentStorePropertiesId)
+                .input(input)
+                .build();
+    }
+
     public static final class Builder extends BaseBuilder<ExportToOtherAuthorisedGraph, Builder>
             implements ExportTo.Builder<ExportToOtherAuthorisedGraph, Iterable<? extends Element>, Builder> {
         public Builder() {

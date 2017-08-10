@@ -55,6 +55,17 @@ public class ExportToOtherAuthorisedGraphTest extends OperationTest {
     }
 
     @Override
+    public void shouldShallowCloneOperation() {
+        // When
+        ExportToOtherAuthorisedGraph clone = (ExportToOtherAuthorisedGraph) op.shallowClone();
+
+        // Then
+        assertEquals("graphId", clone.getGraphId());
+        assertEquals(Arrays.asList("schema1"), clone.getParentSchemaIds());
+        assertEquals("props1", clone.getParentStorePropertiesId());
+    }
+
+    @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet("graphId");
     }

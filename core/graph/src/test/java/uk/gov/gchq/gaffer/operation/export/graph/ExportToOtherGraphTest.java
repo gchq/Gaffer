@@ -84,6 +84,32 @@ public class ExportToOtherGraphTest extends OperationTest {
     }
 
     @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY)
+                .build();
+        final StoreProperties storeProperties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
+        final ExportToOtherGraph exportToOtherGraph = new ExportToOtherGraph.Builder()
+                .graphId("graphId")
+                .parentSchemaIds("schema1", "schema2")
+                .parentStorePropertiesId("props1")
+                .schema(schema)
+                .storeProperties(storeProperties)
+                .build();
+
+        // When
+        final ExportToOtherGraph clone = (ExportToOtherGraph) exportToOtherGraph.shallowClone();
+
+        // Then
+        assertEquals("graphId", clone.getGraphId());
+        assertEquals(Arrays.asList("schema1", "schema2"), clone.getParentSchemaIds());
+        assertEquals("props1", clone.getParentStorePropertiesId());
+        JsonAssert.assertEquals(schema.toJson(false), clone.getSchema().toJson(false));
+        assertEquals(storeProperties, clone.getStoreProperties());
+    }
+
+    @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet("graphId");
     }
