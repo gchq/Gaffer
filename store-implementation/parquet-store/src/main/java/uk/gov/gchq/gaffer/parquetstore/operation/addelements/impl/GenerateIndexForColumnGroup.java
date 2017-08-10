@@ -35,6 +35,7 @@ import uk.gov.gchq.koryphe.tuple.n.Tuple4;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.NoSuchElementException;
 import java.util.concurrent.Callable;
 
 /**
@@ -74,9 +75,11 @@ public class GenerateIndexForColumnGroup implements Callable<Tuple4<String, Stri
                         seqBuilder.$plus$eq(paths[i]);
                     }
                     final Dataset<Row> fileData = spark.read().parquet(file.getPath().toString()).select(firstColumn, seqBuilder.result());
-                    if (fileData.count() > 0) {
+                    try {
                         final Row minRow = fileData.head();
                         columnIndex.add(generateGafferObjectsIndex(minRow, file.getPath().getName()));
+                    } catch (final NoSuchElementException ignored) {
+                        // ignore as dataframe was empty
                     }
                 }
             }
