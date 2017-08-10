@@ -16,21 +16,17 @@
 
 package uk.gov.gchq.gaffer.rest.serialisation;
 
-import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
-import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.sketches.serialisation.json.hyperloglogplus.HyperLogLogPlusJsonConstants;
-import uk.gov.gchq.gaffer.sketches.serialisation.json.hyperloglogplus.HyperLogLogPlusJsonDeserialiser;
-import uk.gov.gchq.gaffer.sketches.serialisation.json.hyperloglogplus.HyperLogLogPlusJsonSerialiser;
+import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonSerialiser;
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 
 /**
- * A {@link javax.ws.rs.ext.ContextResolver} implementation to provide a default
+ * A {@link ContextResolver} implementation to provide a default
  * {@link ObjectMapper} for converting objects to
- * JSON.
+ * JSON. This implementation will override the default core-rest implementation
+ * and add custom json serialiser classes in.
  */
 @Provider
 public class RestJsonProvider implements ContextResolver<ObjectMapper> {
@@ -47,11 +43,7 @@ public class RestJsonProvider implements ContextResolver<ObjectMapper> {
 
     protected ObjectMapper createMapper() {
         final ObjectMapper mapperTmp = JSONSerialiser.createDefaultMapper();
-        mapperTmp.registerModule(
-                new SimpleModule(HyperLogLogPlusJsonConstants.HYPER_LOG_LOG_PLUS_SERIALISER_MODULE_NAME, new Version(1, 0, 0, null, null, null))
-                        .addSerializer(HyperLogLogPlus.class, new HyperLogLogPlusJsonSerialiser())
-                        .addDeserializer(HyperLogLogPlus.class, new HyperLogLogPlusJsonDeserialiser())
-        );
+        SketchesJsonSerialiser.getModules().forEach(mapperTmp::registerModule);
         return mapperTmp;
     }
 }
