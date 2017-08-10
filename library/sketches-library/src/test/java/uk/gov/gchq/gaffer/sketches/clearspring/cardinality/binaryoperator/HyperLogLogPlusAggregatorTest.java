@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.sketches.binaryoperator;
+package uk.gov.gchq.gaffer.sketches.clearspring.cardinality.binaryoperator;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import org.junit.Before;
@@ -71,7 +71,7 @@ public class HyperLogLogPlusAggregatorTest extends BinaryOperatorTest {
         final String json = new String(new JSONSerialiser().serialise(aggregator, true));
         // Then 1
         JsonAssert.assertEquals(String.format("{%n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.binaryoperator.HyperLogLogPlusAggregator\"%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.clearspring.cardinality.binaryoperator.HyperLogLogPlusAggregator\"%n" +
                 "}"), json);
 
         // When 2
