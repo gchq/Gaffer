@@ -130,7 +130,7 @@ public abstract class Store {
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to aggregate the elements.
      */
-    private Schema schema;
+    protected Schema schema;
 
     /**
      * The store properties - contains specific configuration information for the store - such as database connection strings.
@@ -456,7 +456,7 @@ public abstract class Store {
 
         if (!validationResult.isValid()) {
             throw new SchemaException("Schema is not valid. "
-                                              + validationResult.getErrorString());
+                    + validationResult.getErrorString());
         }
     }
 
@@ -464,8 +464,8 @@ public abstract class Store {
         if ((serialiser != null) && !requiredParentSerialiserClass.isInstance(serialiser)) {
             validationResult.addError(
                     String.format("Schema serialiser (%s) is not instance of %s",
-                                  serialiser.getClass().getSimpleName(),
-                                  requiredParentSerialiserClass.getSimpleName()));
+                            serialiser.getClass().getSimpleName(),
+                            requiredParentSerialiserClass.getSimpleName()));
         }
     }
 
@@ -629,9 +629,9 @@ public abstract class Store {
                 ((Input) op).setInput(result);
             } catch (final ClassCastException e) {
                 throw new UnsupportedOperationException("Operation chain is not compatible. "
-                                                                + op.getClass().getName()
-                                                                + " cannot take " + result.getClass().getName()
-                                                                + " as an input", e);
+                        + op.getClass().getName()
+                        + " cannot take " + result.getClass().getName()
+                        + " as an input", e);
             }
         }
     }

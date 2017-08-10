@@ -50,6 +50,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.exception.OverwritingException;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -97,7 +98,6 @@ public class FederatedStore extends Store {
     public static final String USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S = "User is attempting to overwrite a graph within FederatedStore. GraphId: %s";
     public static final String GRAPH_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_USER_SUPPLIED_PROPERTIES_GRAPH_ID_S = "Graph was not able to be created with the user supplied properties. GraphId: %s";
     private final Map<String, Graph> graphs = Maps.newHashMap();
-    private Schema schema = new Schema();
     private Set<StoreTrait> traits = new HashSet<>();
     public static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
 
@@ -109,11 +109,6 @@ public class FederatedStore extends Store {
 
     public void initialise(final String graphId, final StoreProperties properties) throws StoreException {
         this.initialise(graphId, null, properties);
-    }
-
-    @Override
-    public Schema getSchema() {
-        return schema;
     }
 
     public void add(final Graph... graphs) {
@@ -130,7 +125,7 @@ public class FederatedStore extends Store {
 
     private void _add(final Graph graph) {
         if (graphs.containsKey(graph.getGraphId())) {
-            throw new IllegalStateException((String.format(USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S, graph.getGraphId())));
+            throw new OverwritingException((String.format(USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S, graph.getGraphId())));
         }
         graphs.put(graph.getGraphId(), graph);
     }

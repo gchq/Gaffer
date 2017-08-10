@@ -35,7 +35,7 @@ import java.util.LinkedHashSet;
 
 public class FederatedOperationHandlerTest {
     public static final String TEST_USER = "testUser";
-    protected User user;
+    private User user;
 
     @Before
     public void setUp() throws Exception {
@@ -78,7 +78,6 @@ public class FederatedOperationHandlerTest {
 
     }
 
-
     private Graph getGraphWithMockStore(final Store mockStore) throws uk.gov.gchq.gaffer.operation.OperationException {
         return new Graph.Builder()
                 .graphId("testGraphId")
@@ -86,12 +85,10 @@ public class FederatedOperationHandlerTest {
                 .build();
     }
 
-
     private Store getMockStore(final Schema unusedSchema) throws uk.gov.gchq.gaffer.operation.OperationException {
         Store mockStore1 = Mockito.mock(Store.class);
         given(mockStore1.getSchema()).willReturn(unusedSchema);
         return mockStore1;
     }
-
 
 }
