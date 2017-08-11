@@ -84,7 +84,6 @@ public class AddElementsFromHdfsTest extends OperationTest {
                 "  \"class\" : \"uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs\",%n" +
                 "  \"failurePath\" : \"failurePath\",%n" +
                 "  \"validate\" : true,%n" +
-                "  \"mapperGenerator\" : \"uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator\",%n" +
                 "  \"inputPaths\" : [ \"inputPath\" ],%n" +
                 "  \"outputPath\" : \"outputPath\",%n" +
                 "  \"jobInitialiser\" : {%n" +
