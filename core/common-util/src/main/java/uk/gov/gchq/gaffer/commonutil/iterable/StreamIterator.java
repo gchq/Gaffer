@@ -20,6 +20,12 @@ import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
+/**
+ * A {@link uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator} to compliment
+ * the {@link uk.gov.gchq.gaffer.commonutil.iterable.StreamIterable}.
+ *
+ * @param <T> the object type
+ */
 public class StreamIterator<T> implements CloseableIterator<T> {
     private final Stream<T> stream;
     private final Iterator<T> iterator;

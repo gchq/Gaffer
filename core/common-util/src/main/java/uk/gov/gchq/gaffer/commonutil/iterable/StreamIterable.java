@@ -20,6 +20,12 @@ import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.stream.StreamSupplier;
 import java.util.stream.Stream;
 
+/**
+ * A {@link uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable} which uses
+ * a {@link java.util.stream.Stream} as the underlying data source.
+ *
+ * @param <T> the object type
+ */
 public class StreamIterable<T> implements CloseableIterable<T> {
     private final StreamSupplier<T> streamSupplier;
 
@@ -37,6 +43,14 @@ public class StreamIterable<T> implements CloseableIterable<T> {
         return new StreamIterator<>(streamSupplier.get());
     }
 
+    /**
+     * Get a {@link java.util.stream.Stream} from the {@link uk.gov.gchq.gaffer.commonutil.stream.StreamSupplier}.
+     *
+     * This enables the creation of multiple stream objects from the same base
+     * data, without operating on the same stream multiple times.
+     *
+     * @return a new {@link java.util.stream.Stream}
+     */
     public Stream<T> getStream() {
         return streamSupplier.get();
     }

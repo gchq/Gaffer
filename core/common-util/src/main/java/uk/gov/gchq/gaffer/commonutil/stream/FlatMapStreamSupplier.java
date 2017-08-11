@@ -20,10 +20,23 @@ import java.io.IOException;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+/**
+ * A {@link uk.gov.gchq.gaffer.commonutil.stream.StreamSupplier} which uses a {@link java.util.function.Function}
+ * to convert the input objects into output objects.
+ *
+ * @param <T> the type of input objects
+ * @param <U> the type of output objects
+ */
 public class FlatMapStreamSupplier<T, U> implements StreamSupplier<U> {
     private Iterable<T> input;
     private Function<? super T, ? extends Stream<U>> function;
 
+    /**
+     * Default constructor.
+     *
+     * @param input    the input iterable
+     * @param function the mapping function
+     */
     public FlatMapStreamSupplier(final Iterable<T> input, final Function<? super T, ? extends Stream<U>> function) {
         this.input = input;
         this.function = function;
@@ -37,6 +50,6 @@ public class FlatMapStreamSupplier<T, U> implements StreamSupplier<U> {
     @Override
     public Stream<U> get() {
         return Streams.toStream(input)
-                .flatMap(function);
+                      .flatMap(function);
     }
 }

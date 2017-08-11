@@ -27,4 +27,5 @@ import java.util.stream.Stream;
  * @param <T> the type of the stream elements
  */
 public interface StreamSupplier<T> extends Supplier<Stream<T>>, Closeable {
+    // Empty
 }

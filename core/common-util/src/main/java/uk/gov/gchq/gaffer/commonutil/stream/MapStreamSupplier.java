@@ -20,10 +20,23 @@ import java.io.IOException;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+/**
+ * A {@link uk.gov.gchq.gaffer.commonutil.stream.StreamSupplier} which uses a {@link java.util.function.Function}
+ * to convert the input objects into output objects.
+ *
+ * @param <T> the type of input objects
+ * @param <U> the type of output objects
+ */
 public class MapStreamSupplier<T, U> implements StreamSupplier<U> {
     private Iterable<T> input;
     private Function<T, U> function;
 
+    /**
+     * Default constructor.
+     *
+     * @param input    the input iterable
+     * @param function the mapping function
+     */
     public MapStreamSupplier(final Iterable<T> input, final Function<T, U> function) {
         this.input = input;
         this.function = function;
