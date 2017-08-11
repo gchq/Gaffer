@@ -18,7 +18,7 @@ env:
   - MODULES=:hbase-store,:hbase-rest
   - MODULES=:parquet-store,:parquet-rest
   - MODULES=:integration-test,:map-store,:map-rest
-  - MODULES=:example,:basic,:basic-model,:basic-rest,:road-traffic,:road-traffic-model,:road-traffic-generators,:road-traffic-rest,:road-traffic-demo,:federated-demo,
+  - MODULES=:example,:basic,:basic-model,:basic-rest,:road-traffic,:road-traffic-model,:road-traffic-generators,:road-traffic-rest,:road-traffic-demo,:federated-demo
   - MODULES=:doc,:spark-doc
   - MODULES=:rest-api,:core-rest,:store-implementation,:proxy-store
   - MODULES=:flink-library,:hdfs-library,:spark,:spark-library
