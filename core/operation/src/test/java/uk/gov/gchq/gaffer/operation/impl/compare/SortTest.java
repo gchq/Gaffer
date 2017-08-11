@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.operation.impl.compare;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -106,16 +105,16 @@ public class SortTest extends OperationTest {
         final Sort sort = new Sort.Builder()
                 .input(input)
                 .comparators(comparator)
-                .deduplicate(deDuplicate)
                 .resultLimit(resultLimit)
+                .deduplicate(deDuplicate)
                 .build();
 
         // When
         Sort clone = (Sort) sort.shallowClone();
 
         // Then
-        assertEquals(Lists.newArrayList(input), clone.getInput());
-        assertEquals(Lists.newArrayList(comparator), clone.getComparators());
+        assertEquals(input, clone.getInput().iterator().next());
+        assertEquals(comparator, clone.getComparators().iterator().next());
         assertEquals(deDuplicate, clone.isDeduplicate());
         assertTrue(clone.getResultLimit().equals(resultLimit));
     }

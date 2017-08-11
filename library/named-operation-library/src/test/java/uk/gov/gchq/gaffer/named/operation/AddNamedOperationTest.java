@@ -27,10 +27,13 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 public class AddNamedOperationTest extends OperationTest {
 
@@ -98,6 +101,9 @@ public class AddNamedOperationTest extends OperationTest {
     @Override
     public void shouldShallowCloneOperation() {
         // Given
+        Map<String, ParameterDetail> parameters = new HashMap<>();
+        parameters.put("testParameter", mock(ParameterDetail.class));
+
         AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
                 .operationChain(OPERATION_CHAIN)
                 .description("Test Named Operation")
@@ -105,6 +111,7 @@ public class AddNamedOperationTest extends OperationTest {
                 .overwrite(false)
                 .readAccessRoles(USER)
                 .writeAccessRoles(USER)
+                .parameters(parameters)
                 .build();
         String opChain = null;
         try {
@@ -123,5 +130,6 @@ public class AddNamedOperationTest extends OperationTest {
         assertFalse(clone.isOverwriteFlag());
         assertEquals(Arrays.asList(USER), clone.getReadAccessRoles());
         assertEquals(Arrays.asList(USER), clone.getWriteAccessRoles());
+        assertEquals(parameters, clone.getParameters());
     }
 }

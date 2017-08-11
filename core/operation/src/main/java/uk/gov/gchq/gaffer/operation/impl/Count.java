@@ -49,7 +49,7 @@ public class Count<T> implements
 
     @Override
     public Operation shallowClone() {
-        return new Count.Builder<>()
+        return new Count.Builder<T>()
                 .input(input)
                 .build();
     }

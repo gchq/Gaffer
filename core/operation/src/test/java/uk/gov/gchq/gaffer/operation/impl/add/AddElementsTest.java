@@ -76,6 +76,7 @@ public class AddElementsTest extends OperationTest {
                 .validate(validatable)
                 .skipInvalidElements(skipInvalidElements)
                 .input(testInput)
+                .option("testOption", "true")
                 .build();
 
         // When
@@ -84,6 +85,7 @@ public class AddElementsTest extends OperationTest {
         // Then
         assertEquals(validatable, clone.isValidate());
         assertEquals(skipInvalidElements, clone.isSkipInvalidElements());
+        assertEquals("true", clone.getOption("testOption"));
         assertEquals(Lists.newArrayList(testInput), clone.getInput());
     }
 
@@ -165,7 +167,9 @@ public class AddElementsTest extends OperationTest {
                 .input(element)
                 .skipInvalidElements(true)
                 .option("testOption", "true")
-                .validate(false).build();
+                .validate(false)
+                .build();
+
         assertEquals("true", addElements.getOption("testOption"));
         assertTrue(addElements.isSkipInvalidElements());
         assertFalse(addElements.isValidate());

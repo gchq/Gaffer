@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
-import com.google.common.collect.Lists;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -87,6 +86,6 @@ public class CountGroupsTest extends OperationTest {
 
         // Then
         assertEquals(limit, (int) clone.getLimit());
-        assertEquals(Lists.newArrayList(input), clone.getInput());
+        assertEquals(input, clone.getInput().iterator().next());
     }
 }

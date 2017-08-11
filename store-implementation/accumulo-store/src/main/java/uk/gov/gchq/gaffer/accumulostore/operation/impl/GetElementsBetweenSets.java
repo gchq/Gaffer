@@ -159,13 +159,13 @@ public class GetElementsBetweenSets implements
     @Override
     public Operation shallowClone() {
         return new GetElementsBetweenSets.Builder()
+                .seedMatching(seedMatching)
+                .view(view)
+                .inOutType(inOutType)
+                .directedType(directedType)
                 .input(input)
                 .inputB(inputB)
                 .options(options)
-                .seedMatching(seedMatching)
-                .directedType(directedType)
-                .inOutType(inOutType)
-                .view(view)
                 .build();
     }
 

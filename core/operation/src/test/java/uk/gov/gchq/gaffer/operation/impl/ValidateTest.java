@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
-import com.google.common.collect.Lists;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -122,6 +121,6 @@ public class ValidateTest extends OperationTest {
         // Then
         assertTrue(clone.isSkipInvalidElements());
         assertTrue(clone.isValidate());
-        assertEquals(Lists.newArrayList(input), clone.getInput());
+        assertEquals(input, clone.getInput().iterator().next());
     }
 }

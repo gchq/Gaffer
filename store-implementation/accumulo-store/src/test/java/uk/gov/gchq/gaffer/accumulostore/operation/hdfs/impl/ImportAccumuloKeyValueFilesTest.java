@@ -70,12 +70,14 @@ public class ImportAccumuloKeyValueFilesTest extends OperationTest {
         final ImportAccumuloKeyValueFiles importAccumuloKeyValueFiles = new ImportAccumuloKeyValueFiles.Builder()
                 .inputPath(INPUT_DIRECTORY)
                 .failurePath(FAIL_DIRECTORY)
+                .option("testOption", "true")
                 .build();
 
         // When
         final ImportAccumuloKeyValueFiles clone = (ImportAccumuloKeyValueFiles) importAccumuloKeyValueFiles.shallowClone();
 
         // Then
+        assertEquals("true", clone.getOption("testOption"));
         assertEquals(INPUT_DIRECTORY, clone.getInputPath());
         assertEquals(FAIL_DIRECTORY, clone.getFailurePath());
     }

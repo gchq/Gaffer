@@ -65,10 +65,10 @@ public class ExportToGafferResultCache<T> implements
 
     @Override
     public Operation shallowClone() {
-        return new ExportToGafferResultCache.Builder<>()
+        return new ExportToGafferResultCache.Builder<T>()
+                .key(key)
                 .opAuths(opAuths)
                 .input(input)
-                .key(key)
                 .build();
     }
 

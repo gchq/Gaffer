@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.impl.generate;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -125,7 +124,7 @@ public class GenerateObjectsTest extends OperationTest {
         GenerateObjects clone = (GenerateObjects) generateObjects.shallowClone();
 
         // Then
-        assertEquals(Lists.newArrayList(input), clone.getInput());
+        assertEquals(input, clone.getInput().iterator().next());
         assertEquals(generator, clone.getElementGenerator());
     }
 }

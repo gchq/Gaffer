@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.Lists;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -73,6 +72,6 @@ public class CountTest extends OperationTest {
         final Count clone = (Count) count.shallowClone();
 
         // Then
-        assertEquals(Lists.newArrayList(input), clone.getInput());
+        assertEquals(input, clone.getInput().iterator().next());
     }
 }

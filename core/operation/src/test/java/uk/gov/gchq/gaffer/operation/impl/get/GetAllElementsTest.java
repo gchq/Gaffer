@@ -98,6 +98,7 @@ public class GetAllElementsTest extends OperationTest {
         GetAllElements getAllElements = new GetAllElements.Builder()
                 .view(view)
                 .directedType(DirectedType.DIRECTED)
+                .option("testOption", "true")
                 .build();
 
         // When
@@ -106,5 +107,6 @@ public class GetAllElementsTest extends OperationTest {
         // Then
         assertEquals(view, clone.getView());
         assertEquals(DirectedType.DIRECTED, clone.getDirectedType());
+        assertEquals("true", clone.getOption("testOption"));
     }
 }

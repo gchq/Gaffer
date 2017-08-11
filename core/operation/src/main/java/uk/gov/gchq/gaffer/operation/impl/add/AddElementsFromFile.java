@@ -111,10 +111,10 @@ public class AddElementsFromFile implements
         return new AddElementsFromFile.Builder()
                 .filename(filename)
                 .generator(elementGenerator)
-                .validate(validate)
-                .options(options)
-                .skipInvalidElements(skipInvalidElements)
                 .parallelism(parallelism)
+                .validate(validate)
+                .skipInvalidElements(skipInvalidElements)
+                .options(options)
                 .build();
     }
 

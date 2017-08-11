@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.impl.output;
 
-import com.google.common.collect.Lists;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -78,6 +77,6 @@ public class ToListTest extends OperationTest {
         final ToList clone = (ToList) toList.shallowClone();
 
         // Then
-        assertEquals(Lists.newArrayList(input), clone.getInput());
+        assertEquals(input, clone.getInput().iterator().next());
     }
 }

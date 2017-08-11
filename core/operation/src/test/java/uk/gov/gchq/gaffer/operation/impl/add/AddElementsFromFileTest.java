@@ -99,28 +99,27 @@ public class AddElementsFromFileTest extends OperationTest {
     @Override
     public void shouldShallowCloneOperation() {
         // Given
-        final boolean validate = true;
-        final boolean skipInvalid = false;
         final String filename = "filename";
-        final Integer parallelism = 2;
         final Class<TestGeneratorImpl> generator = TestGeneratorImpl.class;
         final AddElementsFromFile addElementsFromFile = new AddElementsFromFile.Builder()
                 .filename(filename)
                 .generator(generator)
-                .parallelism(parallelism)
-                .validate(validate)
-                .skipInvalidElements(skipInvalid)
+                .parallelism(2)
+                .validate(true)
+                .skipInvalidElements(false)
+                .option("testOption", "true")
                 .build();
 
         // When
         AddElementsFromFile clone = (AddElementsFromFile) addElementsFromFile.shallowClone();
 
         // Then
-        assertEquals(validate, clone.isValidate());
-        assertEquals(skipInvalid, clone.isSkipInvalidElements());
+        assertEquals(true, clone.isValidate());
+        assertEquals(false, clone.isSkipInvalidElements());
         assertEquals(filename, clone.getFilename());
-        assertEquals(parallelism, clone.getParallelism());
+        assertEquals(2, (int) clone.getParallelism());
         assertEquals(generator, clone.getElementGenerator());
+        assertEquals("true", clone.getOption("testOption"));
     }
 
     @Override

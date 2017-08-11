@@ -81,10 +81,10 @@ public class GetSetExport implements
     @Override
     public Operation shallowClone() {
         return new GetSetExport.Builder()
+                .jobId(jobId)
+                .key(key)
                 .start(start)
                 .end(end)
-                .key(key)
-                .jobId(jobId)
                 .build();
     }
 

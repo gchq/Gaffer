@@ -52,7 +52,7 @@ public class ToList<T> implements
 
     @Override
     public Operation shallowClone() {
-        return new ToList.Builder<>()
+        return new ToList.Builder<T>()
                 .input(input)
                 .build();
     }

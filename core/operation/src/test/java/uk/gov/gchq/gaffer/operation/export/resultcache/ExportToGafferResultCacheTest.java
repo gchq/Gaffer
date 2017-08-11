@@ -79,9 +79,9 @@ public class ExportToGafferResultCacheTest extends OperationTest {
         final HashSet<String> opAuths = Sets.newHashSet("1", "2");
         final String input = "input";
         final ExportToGafferResultCache exportToGafferResultCache = new ExportToGafferResultCache.Builder<>()
+                .key(key)
                 .opAuths(opAuths)
                 .input(input)
-                .key(key)
                 .build();
 
         // When

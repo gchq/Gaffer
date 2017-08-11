@@ -129,6 +129,7 @@ public class AddElementsFromKafkaTest extends OperationTest {
                 .groupId(groupId)
                 .topic(topic)
                 .bootstrapServers(servers)
+                .option("testOption", "true")
                 .build();
 
         // When
@@ -142,6 +143,7 @@ public class AddElementsFromKafkaTest extends OperationTest {
         assertEquals(groupId, clone.getGroupId());
         assertEquals(topic, clone.getTopic());
         assertArrayEquals(servers, clone.getBootstrapServers());
+        assertEquals("true", clone.getOption("testOption"));
     }
 
     @Override

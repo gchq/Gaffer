@@ -150,14 +150,14 @@ public class AddElementsFromKafka implements
     @Override
     public Operation shallowClone() {
         return new AddElementsFromKafka.Builder()
+                .topic(topic)
+                .groupId(groupId)
                 .bootstrapServers(bootstrapServers)
                 .generator(elementGenerator)
-                .skipInvalidElements(skipInvalidElements)
-                .groupId(groupId)
                 .parallelism(parallelism)
-                .options(options)
-                .topic(topic)
                 .validate(validate)
+                .skipInvalidElements(skipInvalidElements)
+                .options(options)
                 .build();
     }
 

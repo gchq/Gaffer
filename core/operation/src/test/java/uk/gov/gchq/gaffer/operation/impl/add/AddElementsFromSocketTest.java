@@ -124,11 +124,12 @@ public class AddElementsFromSocketTest extends OperationTest {
         final AddElementsFromSocket addElementsFromSocket = new AddElementsFromSocket.Builder()
                 .generator(generator)
                 .parallelism(parallelism)
-                .validate(validate)
-                .skipInvalidElements(skipInvalid)
+                .validate(true)
+                .skipInvalidElements(false)
                 .hostname(hostname)
                 .port(port)
                 .delimiter(delimiter)
+                .option("testOption", "true")
                 .build();
 
         // Given
@@ -137,11 +138,12 @@ public class AddElementsFromSocketTest extends OperationTest {
         // Then
         assertEquals(generator, clone.getElementGenerator());
         assertEquals(parallelism, clone.getParallelism());
-        assertEquals(validate, clone.isValidate());
-        assertEquals(skipInvalid, clone.isSkipInvalidElements());
+        assertEquals(true, clone.isValidate());
+        assertEquals(false, clone.isSkipInvalidElements());
         assertEquals(hostname, clone.getHostname());
         assertEquals(port, clone.getPort());
         assertEquals(delimiter, clone.getDelimiter());
+        assertEquals("true", clone.getOption("testOption"));
     }
 
     @Override

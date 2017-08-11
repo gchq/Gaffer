@@ -57,6 +57,7 @@ public class SplitStoreTest extends OperationTest {
         // Given
         final SplitStore splitStore = new SplitStore.Builder()
                 .inputPath(INPUT_DIRECTORY)
+                .option(TEST_OPTION_KEY, "false")
                 .build();
 
         // When
@@ -64,5 +65,6 @@ public class SplitStoreTest extends OperationTest {
 
         // Then
         assertEquals(INPUT_DIRECTORY, clone.getInputPath());
+        assertEquals("false", clone.getOptions().get(TEST_OPTION_KEY));
     }
 }

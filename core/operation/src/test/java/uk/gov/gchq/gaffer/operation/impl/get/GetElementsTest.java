@@ -175,6 +175,7 @@ public class GetElementsTest extends OperationTest {
                 .view(view)
                 .directedType(DirectedType.DIRECTED)
                 .seedMatching(SeedMatchingType.RELATED)
+                .option("testOption", "true")
                 .build();
 
         // When
@@ -186,5 +187,6 @@ public class GetElementsTest extends OperationTest {
         assertEquals(view, clone.getView());
         assertEquals(DirectedType.DIRECTED, clone.getDirectedType());
         assertEquals(SeedMatchingType.RELATED, clone.getSeedMatching());
+        assertEquals("true", clone.getOption("testOption"));
     }
 }

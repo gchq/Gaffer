@@ -82,7 +82,26 @@ public class OperationImplTest extends OperationTest {
 
     @Override
     public void shouldShallowCloneOperation() {
+        // Given
+        final String requiredField1 = "value1";
+        final CustomVertex requiredField2 = new CustomVertex("type1", "value1");
+        final Date optionalField1 = new Date(1L);
+        final CustomVertex optionalField2 = new CustomVertex("type2", "value2");
+        final OperationImpl op = new OperationImpl.Builder()
+                .requiredField1(requiredField1)
+                .requiredField2(requiredField2)
+                .optionalField1(optionalField1)
+                .optionalField2(optionalField2)
+                .build();
 
+        // When
+        OperationImpl clone = (OperationImpl) op.shallowClone();
+
+        // Then
+        assertEquals(requiredField1, clone.getRequiredField1());
+        assertEquals(requiredField2, clone.getRequiredField2());
+        assertEquals(optionalField1, clone.getOptionalField1());
+        assertEquals(optionalField2, clone.getOptionalField2());
     }
 
     @Test

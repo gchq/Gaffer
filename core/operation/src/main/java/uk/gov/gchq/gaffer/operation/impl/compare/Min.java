@@ -80,8 +80,8 @@ public class Min implements
     @Override
     public Operation shallowClone() {
         return new Min.Builder()
-                .comparators(comparators)
                 .input(input)
+                .comparators(comparators)
                 .build();
     }
 

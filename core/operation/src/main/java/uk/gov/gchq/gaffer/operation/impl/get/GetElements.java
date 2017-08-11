@@ -233,12 +233,12 @@ public class GetElements implements
     @Override
     public Operation shallowClone() {
         return new GetElements.Builder()
-                .directedType(directedType)
-                .inOutType(inOutType)
-                .input(input)
-                .options(options)
                 .seedMatching(seedMatching)
                 .view(view)
+                .inOutType(inOutType)
+                .directedType(directedType)
+                .input(input)
+                .options(options)
                 .build();
     }
 

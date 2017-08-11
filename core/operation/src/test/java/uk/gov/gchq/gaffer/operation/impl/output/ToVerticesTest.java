@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.Lists;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -107,7 +106,7 @@ public class ToVerticesTest extends OperationTest {
         final ToVertices clone = (ToVertices) toVertices.shallowClone();
 
         // Then
-        assertEquals(Lists.newArrayList(input), clone.getInput());
+        assertEquals(input, clone.getInput().iterator().next());
         assertEquals(UseMatchedVertex.EQUAL, clone.getUseMatchedVertex());
         assertEquals(EdgeVertices.BOTH, clone.getEdgeVertices());
     }

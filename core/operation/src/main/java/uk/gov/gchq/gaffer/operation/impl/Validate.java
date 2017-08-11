@@ -80,9 +80,9 @@ public class Validate implements
     @Override
     public Operation shallowClone() {
         return new Validate.Builder()
-                .input(input)
-                .skipInvalidElements(skipInvalidElements)
                 .validate(validate)
+                .skipInvalidElements(skipInvalidElements)
+                .input(input)
                 .build();
     }
 

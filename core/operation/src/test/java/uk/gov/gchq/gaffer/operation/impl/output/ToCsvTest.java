@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -90,7 +89,7 @@ public class ToCsvTest extends OperationTest {
         final ToCsv clone = (ToCsv) toCsv.shallowClone();
 
         // Then
-        assertEquals(Lists.newArrayList(input), clone.getInput());
+        assertEquals(input, clone.getInput().iterator().next());
         assertEquals(generator, clone.getElementGenerator());
         assertFalse(clone.isIncludeHeader());
     }

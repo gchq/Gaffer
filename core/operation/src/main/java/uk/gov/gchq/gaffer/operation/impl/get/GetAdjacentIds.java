@@ -120,11 +120,11 @@ public class GetAdjacentIds implements
     @Override
     public Operation shallowClone() {
         return new GetAdjacentIds.Builder()
-                .directedType(directedType)
-                .inOutType(inOutType)
-                .input(input)
-                .options(options)
                 .view(view)
+                .input(input)
+                .directedType(directedType)
+                .options(options)
+                .inOutType(inOutType)
                 .build();
     }
 

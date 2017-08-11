@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.operation.impl.compare;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -108,7 +107,7 @@ public class MaxTest extends OperationTest {
         Max clone = (Max) max.shallowClone();
 
         // Then
-        assertEquals(Lists.newArrayList(input), clone.getInput());
-        assertEquals(Lists.newArrayList(comparator), clone.getComparators());
+        assertEquals(input, clone.getInput().iterator().next());
+        assertEquals(comparator, clone.getComparators().iterator().next());
     }
 }

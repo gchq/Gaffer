@@ -78,8 +78,8 @@ public class ToCsv implements
     public Operation shallowClone() {
         return new ToCsv.Builder()
                 .generator(elementGenerator)
-                .includeHeader(includeHeader)
                 .input(input)
+                .includeHeader(includeHeader)
                 .build();
     }
 

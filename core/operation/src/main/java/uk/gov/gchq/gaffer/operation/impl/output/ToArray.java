@@ -50,7 +50,7 @@ public class ToArray<T> implements
 
     @Override
     public Operation shallowClone() {
-        return new ToArray.Builder<>()
+        return new ToArray.Builder<T>()
                 .input(input)
                 .build();
     }

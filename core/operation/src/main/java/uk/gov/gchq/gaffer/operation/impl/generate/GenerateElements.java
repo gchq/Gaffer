@@ -93,8 +93,8 @@ public class GenerateElements<OBJ> implements
     @Override
     public Operation shallowClone() {
         return new GenerateElements.Builder<OBJ>()
-                .input(input)
                 .generator(elementGenerator)
+                .input(input)
                 .build();
     }
 

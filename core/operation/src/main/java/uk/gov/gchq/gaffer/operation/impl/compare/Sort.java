@@ -103,8 +103,8 @@ public class Sort implements
         return new Sort.Builder()
                 .input(input)
                 .comparators(comparators)
-                .deduplicate(deduplicate)
                 .resultLimit(resultLimit)
+                .deduplicate(deduplicate)
                 .build();
     }
 

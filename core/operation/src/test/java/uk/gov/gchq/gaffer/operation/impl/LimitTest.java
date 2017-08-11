@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -30,6 +29,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
@@ -82,13 +82,15 @@ public class LimitTest extends OperationTest {
         final Limit limit = new Limit.Builder<>()
                 .input(input)
                 .resultLimit(resultLimit)
+                .truncate(false)
                 .build();
 
         // When
         final Limit clone = (Limit) limit.shallowClone();
 
         // Then
-        assertEquals(Lists.newArrayList(input), clone.getInput());
+        assertEquals(input, clone.getInput().iterator().next());
         assertEquals(resultLimit, (int) clone.getResultLimit());
+        assertFalse(clone.getTruncate());
     }
 }

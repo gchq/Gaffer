@@ -72,9 +72,9 @@ public class ToVertices implements
     @Override
     public Operation shallowClone() {
         return new ToVertices.Builder()
-                .edgeVertices(edgeVertices)
-                .useMatchedVertex(useMatchedVertex)
                 .input(input)
+                .useMatchedVertex(useMatchedVertex)
+                .edgeVertices(edgeVertices)
                 .build();
     }
 

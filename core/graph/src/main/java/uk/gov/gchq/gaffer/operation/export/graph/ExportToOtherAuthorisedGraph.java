@@ -92,9 +92,9 @@ public class ExportToOtherAuthorisedGraph implements
     public Operation shallowClone() {
         return new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(graphId)
+                .input(input)
                 .parentSchemaIds(parentSchemaIds.toArray(new String[parentSchemaIds.size()]))
                 .parentStorePropertiesId(parentStorePropertiesId)
-                .input(input)
                 .build();
     }
 

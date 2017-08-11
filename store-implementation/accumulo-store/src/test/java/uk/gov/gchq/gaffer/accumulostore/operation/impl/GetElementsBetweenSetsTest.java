@@ -8,6 +8,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
+import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import java.util.Iterator;
 
@@ -83,6 +84,7 @@ public class GetElementsBetweenSetsTest extends OperationTest {
                 .directedType(DirectedType.UNDIRECTED)
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
+                .seedMatching(SeedMatchingType.EQUAL)
                 .view(view)
                 .build();
 
@@ -92,6 +94,7 @@ public class GetElementsBetweenSetsTest extends OperationTest {
         // Then
         assertEquals("true", clone.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertEquals(DirectedType.UNDIRECTED, clone.getDirectedType());
+        assertEquals(SeedMatchingType.EQUAL, clone.getSeedMatching());
         assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING, clone.getIncludeIncomingOutGoing());
         assertEquals(AccumuloTestData.SEED_B, clone.getInput().iterator().next());
         assertEquals(AccumuloTestData.SEED_A, clone.getInputB().iterator().next());

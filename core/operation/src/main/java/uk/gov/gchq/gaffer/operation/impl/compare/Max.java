@@ -82,8 +82,8 @@ public class Max implements
     @Override
     public Operation shallowClone() {
         return new Max.Builder()
-                .comparators(comparators)
                 .input(input)
+                .comparators(comparators)
                 .build();
     }
 

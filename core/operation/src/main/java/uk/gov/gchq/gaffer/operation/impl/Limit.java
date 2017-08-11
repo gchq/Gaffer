@@ -87,8 +87,8 @@ public class Limit<T> implements
     public Operation shallowClone() {
         return new Limit.Builder<T>()
                 .resultLimit(resultLimit)
-                .truncate(truncate)
                 .input(input)
+                .truncate(truncate)
                 .build();
     }
 

@@ -132,14 +132,14 @@ public class AddElementsFromSocket implements
     @Override
     public Operation shallowClone() {
         return new AddElementsFromSocket.Builder()
-                .delimiter(delimiter)
+                .hostname(hostname)
+                .port(port)
+                .generator(elementGenerator)
                 .parallelism(parallelism)
                 .validate(validate)
                 .skipInvalidElements(skipInvalidElements)
+                .delimiter(delimiter)
                 .options(options)
-                .generator(elementGenerator)
-                .port(port)
-                .hostname(hostname)
                 .build();
     }
 

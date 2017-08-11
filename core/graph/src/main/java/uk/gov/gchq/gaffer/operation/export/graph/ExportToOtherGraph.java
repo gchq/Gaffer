@@ -128,11 +128,11 @@ public class ExportToOtherGraph implements
     public Operation shallowClone() {
         return new ExportToOtherGraph.Builder()
                 .graphId(graphId)
-                .parentSchemaIds(parentSchemaIds.toArray(new String[parentSchemaIds.size()]))
-                .parentStorePropertiesId(parentStorePropertiesId)
-                .schema(schema)
-                .storeProperties(storeProperties)
                 .input(input)
+                .parentSchemaIds(parentSchemaIds.toArray(new String[parentSchemaIds.size()]))
+                .schema(schema)
+                .parentStorePropertiesId(parentStorePropertiesId)
+                .storeProperties(storeProperties)
                 .build();
     }
 
