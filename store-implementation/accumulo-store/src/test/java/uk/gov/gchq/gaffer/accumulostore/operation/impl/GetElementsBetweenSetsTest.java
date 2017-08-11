@@ -70,4 +70,31 @@ public class GetElementsBetweenSetsTest extends OperationTest {
         assertEquals(AccumuloTestData.SEED_A, getElementsBetweenSets.getInputB().iterator().next());
         assertNotNull(getElementsBetweenSets.getView());
     }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final View view = new View.Builder()
+                .edge("testEdgeGroup")
+                .build();
+        final GetElementsBetweenSets getElementsBetweenSets = new GetElementsBetweenSets.Builder()
+                .input(AccumuloTestData.SEED_B)
+                .inputB(AccumuloTestData.SEED_A)
+                .directedType(DirectedType.UNDIRECTED)
+                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING)
+                .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
+                .view(view)
+                .build();
+
+        // When
+        final GetElementsBetweenSets clone = (GetElementsBetweenSets) getElementsBetweenSets.shallowClone();
+
+        // Then
+        assertEquals("true", clone.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
+        assertEquals(DirectedType.UNDIRECTED, clone.getDirectedType());
+        assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING, clone.getIncludeIncomingOutGoing());
+        assertEquals(AccumuloTestData.SEED_B, clone.getInput().iterator().next());
+        assertEquals(AccumuloTestData.SEED_A, clone.getInputB().iterator().next());
+        assertEquals(view, clone.getView());
+    }
 }

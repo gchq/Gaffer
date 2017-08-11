@@ -103,6 +103,17 @@ public class GetElementsInRanges
         this.options = options;
     }
 
+    @Override
+    public Operation shallowClone() {
+        return new GetElementsInRanges.Builder()
+                .input(input)
+                .inOutType(inOutType)
+                .view(view)
+                .directedType(directedType)
+                .options(options)
+                .build();
+    }
+
     public static class Builder extends Operation.BaseBuilder<GetElementsInRanges, Builder>
             implements InputOutput.Builder<GetElementsInRanges, Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, CloseableIterable<? extends Element>, Builder>,
             MultiInput.Builder<GetElementsInRanges, Pair<? extends ElementId, ? extends ElementId>, Builder>,

@@ -26,10 +26,11 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
-
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 public class AddNamedOperationTest extends OperationTest {
 
@@ -67,7 +68,7 @@ public class AddNamedOperationTest extends OperationTest {
                 "  \"writeAccessRoles\": [\"User\"],%n" +
                 "  \"overwriteFlag\": true,%n" +
                 "  \"operationChain\": {\"operations\": [{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\", \"input\": [{\"vertex\": \"seed\", \"class\": \"uk.gov.gchq.gaffer.operation.data.EntitySeed\"}]}]}" +
-        "}"), json);
+                "}"), json);
     }
 
     @Test
@@ -92,5 +93,35 @@ public class AddNamedOperationTest extends OperationTest {
         assertEquals("Test Named Operation", addNamedOperation.getDescription());
         assertEquals(Arrays.asList(USER), addNamedOperation.getReadAccessRoles());
         assertEquals(Arrays.asList(USER), addNamedOperation.getWriteAccessRoles());
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
+                .operationChain(OPERATION_CHAIN)
+                .description("Test Named Operation")
+                .name("Test")
+                .overwrite(false)
+                .readAccessRoles(USER)
+                .writeAccessRoles(USER)
+                .build();
+        String opChain = null;
+        try {
+            opChain = new String(serialiser.serialise(OPERATION_CHAIN));
+        } catch (SerialisationException e) {
+            fail();
+        }
+
+        // When
+        AddNamedOperation clone = (AddNamedOperation) addNamedOperation.shallowClone();
+
+        // Then
+        assertEquals(opChain, clone.getOperationChainAsString());
+        assertEquals("Test", clone.getOperationName());
+        assertEquals("Test Named Operation", clone.getDescription());
+        assertFalse(clone.isOverwriteFlag());
+        assertEquals(Arrays.asList(USER), clone.getReadAccessRoles());
+        assertEquals(Arrays.asList(USER), clone.getWriteAccessRoles());
     }
 }

@@ -273,19 +273,38 @@ public class SampleDataForSplitPoints implements
 
     @Override
     public Operation shallowClone() {
-        return new SampleDataForSplitPoints.Builder()
-                .compressionCodec(compressionCodec)
-                .mapperGenerator(mapperGeneratorClassName)
-                .numSplits(numSplits)
-                .proportionToSample(proportionToSample)
-                .validate(validate)
-                .inputPaths(inputPaths)
-                .outputPath(outputPath)
-                .jobInitialiser(jobInitialiser)
-                .splitsFilePath(splitsFilePath)
-                .useProvidedSplits(useProvidedSplits)
-                .options(options)
-                .build();
+        if (minMapTasks != null && maxMapTasks != null) {
+            return new SampleDataForSplitPoints.Builder()
+                    .splitsFilePath(splitsFilePath)
+                    .numSplits(numSplits)
+                    .useProvidedSplits(useProvidedSplits)
+                    .validate(validate)
+                    .proportionToSample(proportionToSample)
+                    .mapperGenerator(mapperGeneratorClassName)
+                    .inputPaths(inputPaths)
+                    .outputPath(outputPath)
+                    .jobInitialiser(jobInitialiser)
+                    .minMappers(minMapTasks)
+                    .maxMappers(maxMapTasks)
+                    .options(options)
+                    .compressionCodec(compressionCodec)
+                    .build();
+        } else {
+            return new SampleDataForSplitPoints.Builder()
+                    .splitsFilePath(splitsFilePath)
+                    .numSplits(numSplits)
+                    .useProvidedSplits(useProvidedSplits)
+                    .validate(validate)
+                    .proportionToSample(proportionToSample)
+                    .mapperGenerator(mapperGeneratorClassName)
+                    .inputPaths(inputPaths)
+                    .outputPath(outputPath)
+                    .jobInitialiser(jobInitialiser)
+                    .mappers(numMapTasks)
+                    .options(options)
+                    .compressionCodec(compressionCodec)
+                    .build();
+        }
     }
 
 

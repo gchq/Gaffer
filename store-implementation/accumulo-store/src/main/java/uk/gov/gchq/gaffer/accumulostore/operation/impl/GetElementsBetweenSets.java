@@ -156,6 +156,19 @@ public class GetElementsBetweenSets implements
         CloseableUtil.close(inputB);
     }
 
+    @Override
+    public Operation shallowClone() {
+        return new GetElementsBetweenSets.Builder()
+                .input(input)
+                .inputB(inputB)
+                .options(options)
+                .seedMatching(seedMatching)
+                .directedType(directedType)
+                .inOutType(inOutType)
+                .view(view)
+                .build();
+    }
+
     public static class Builder extends Operation.BaseBuilder<GetElementsBetweenSets, Builder>
             implements InputOutput.Builder<GetElementsBetweenSets, Iterable<? extends EntityId>, CloseableIterable<? extends Element>, Builder>,
             MultiInput.Builder<GetElementsBetweenSets, EntityId, Builder>,

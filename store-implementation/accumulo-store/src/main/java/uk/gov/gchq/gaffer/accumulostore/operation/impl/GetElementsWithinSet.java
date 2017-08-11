@@ -98,6 +98,16 @@ public class GetElementsWithinSet implements
         this.options = options;
     }
 
+    @Override
+    public Operation shallowClone() {
+        return new GetElementsWithinSet.Builder()
+                .view(view)
+                .directedType(directedType)
+                .input(input)
+                .options(options)
+                .build();
+    }
+
     public static class Builder extends Operation.BaseBuilder<GetElementsWithinSet, Builder>
             implements InputOutput.Builder<GetElementsWithinSet, Iterable<? extends EntityId>, CloseableIterable<? extends Element>, Builder>,
             MultiInput.Builder<GetElementsWithinSet, EntityId, Builder>,

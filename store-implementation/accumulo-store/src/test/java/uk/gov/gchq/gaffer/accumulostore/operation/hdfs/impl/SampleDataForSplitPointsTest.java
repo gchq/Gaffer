@@ -118,4 +118,30 @@ public class SampleDataForSplitPointsTest extends OperationTest {
         assertEquals(0.1f, clone.getProportionToSample(), 1);
         assertEquals(new Integer(5), clone.getNumMapTasks());
     }
+
+    @Test
+    public void shouldShallowCloneOperationWithMinAndMaxMappers() {
+        // Given
+        final SampleDataForSplitPoints sampleDataForSplitPoints = new SampleDataForSplitPoints.Builder()
+                .addInputPath(INPUT_DIRECTORY)
+                .splitsFilePath("/test")
+                .proportionToSample(0.1f)
+                .maxMappers(10)
+                .minMappers(2)
+                .validate(true)
+                .option(TEST_OPTION_KEY, "true")
+                .build();
+
+        //When
+        SampleDataForSplitPoints clone = (SampleDataForSplitPoints) sampleDataForSplitPoints.shallowClone();
+
+        // Then
+        assertEquals(INPUT_DIRECTORY, clone.getInputPaths().get(0));
+        assertEquals("true", clone.getOption(TEST_OPTION_KEY));
+        assertEquals("/test", clone.getSplitsFilePath());
+        assertTrue(clone.isValidate());
+        assertEquals(0.1f, clone.getProportionToSample(), 1);
+        assertEquals(new Integer(10), clone.getMaxMapTasks());
+        assertEquals(new Integer(2), clone.getMinMapTasks());
+    }
 }

@@ -52,7 +52,8 @@ public class GetElementsWithinSetTest extends OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        final GetElementsWithinSet getElementsWithinSet = new GetElementsWithinSet.Builder().input(AccumuloTestData.SEED_A)
+        final GetElementsWithinSet getElementsWithinSet = new GetElementsWithinSet.Builder()
+                .input(AccumuloTestData.SEED_A)
                 .directedType(DirectedType.DIRECTED)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
                 .view(new View.Builder()
@@ -63,5 +64,28 @@ public class GetElementsWithinSetTest extends OperationTest {
         assertEquals(DirectedType.DIRECTED, getElementsWithinSet.getDirectedType());
         assertEquals(AccumuloTestData.SEED_A, getElementsWithinSet.getInput().iterator().next());
         assertNotNull(getElementsWithinSet.getView());
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final View view = new View.Builder()
+                .edge("testEdgegroup")
+                .build();
+        final GetElementsWithinSet getElementsWithinSet = new GetElementsWithinSet.Builder()
+                .input(AccumuloTestData.SEED_A)
+                .directedType(DirectedType.DIRECTED)
+                .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
+                .view(view)
+                .build();
+
+        // When
+        final GetElementsWithinSet clone = (GetElementsWithinSet) getElementsWithinSet.shallowClone();
+
+        // Then
+        assertEquals("true", clone.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
+        assertEquals(DirectedType.DIRECTED, clone.getDirectedType());
+        assertEquals(AccumuloTestData.SEED_A, clone.getInput().iterator().next());
+        assertEquals(view, clone.getView());
     }
 }
