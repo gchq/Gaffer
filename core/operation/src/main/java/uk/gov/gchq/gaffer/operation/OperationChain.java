@@ -133,7 +133,7 @@ public class OperationChain<OUT> implements Closeable {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17,21)
+        return new HashCodeBuilder(17, 21)
                 .append(operations)
                 .toHashCode();
     }
