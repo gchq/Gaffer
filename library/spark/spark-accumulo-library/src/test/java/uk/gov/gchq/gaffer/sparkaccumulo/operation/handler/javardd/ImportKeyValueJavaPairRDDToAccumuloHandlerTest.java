@@ -33,6 +33,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.spark.SparkConstants;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements;
@@ -56,7 +57,9 @@ public class ImportKeyValueJavaPairRDDToAccumuloHandlerTest {
     @Test
     public void checkImportKeyValueJavaPairRDD() throws OperationException, IOException, InterruptedException {
         final Graph graph1 = new Graph.Builder()
-                .graphId("graphId")
+                .config(new GraphConfig.Builder()
+                        .graphId("graphId")
+                        .build())
                 .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/types.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))

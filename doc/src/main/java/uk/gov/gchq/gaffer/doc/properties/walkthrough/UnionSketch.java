@@ -50,7 +50,7 @@ public class UnionSketch extends PropertiesWalkthrough {
         /// [graph] create a graph using our schema and store properties
         // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
-                .graphId("graph1")
+                .config(StreamUtil.graphConfig(getClass()))
                 .addSchemas(StreamUtil.openStreams(getClass(), "properties/unionSketch/schema"))
                 .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();
