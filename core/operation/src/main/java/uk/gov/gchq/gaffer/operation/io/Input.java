@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.operation.io;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.apache.commons.lang3.exception.CloneFailedException;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.operation.Operation;
 import java.io.IOException;
@@ -31,16 +30,6 @@ public interface Input<I> extends Operation {
     @Override
     default void close() throws IOException {
         CloseableUtil.close(getInput());
-    }
-
-    @Override
-    default Operation shallowClone() throws CloneFailedException {
-        final I input = getInput();
-        setInput(null);
-        final Input<I> clone = (Input<I>) Operation.super.shallowClone();
-        setInput(input);
-        clone.setInput(input);
-        return clone;
     }
 
     interface Builder<OP extends Input<I>, I, B extends Builder<OP, I, ?>>

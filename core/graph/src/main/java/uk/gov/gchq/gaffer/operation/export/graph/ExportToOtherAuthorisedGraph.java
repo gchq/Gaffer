@@ -123,5 +123,14 @@ public class ExportToOtherAuthorisedGraph implements
             return _self();
         }
 
+        public Builder parentSchemaIds(final List<String> parentSchemaIds) {
+            if (null == _getOp().getParentSchemaIds()) {
+                _getOp().setParentSchemaIds(parentSchemaIds);
+            } else {
+                _getOp().getParentSchemaIds().addAll(parentSchemaIds);
+            }
+            return _self();
+        }
+
     }
 }
