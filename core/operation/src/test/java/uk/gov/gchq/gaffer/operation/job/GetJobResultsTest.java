@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.operation.job;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.export.Export;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
@@ -31,17 +30,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 
-public class GetJobResultsTest extends OperationTest {
+public class GetJobResultsTest extends OperationTest<GetJobResults> {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return GetJobResults.class;
-    }
-
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final GetJobResults operation = new GetJobResults.Builder()
                 .jobId("jobId")
@@ -90,6 +83,9 @@ public class GetJobResultsTest extends OperationTest {
 
         // Then
         assertNotNull(clone);
+    }
 
+    protected GetJobResults getTestObject() {
+        return new GetJobResults();
     }
 }

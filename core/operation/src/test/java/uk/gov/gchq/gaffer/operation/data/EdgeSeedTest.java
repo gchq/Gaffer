@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.operation.data;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.junit.Test;
+import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
@@ -38,7 +39,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class EdgeSeedTest {
+public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
     @Test
     public void shouldBeRelatedToEntityIdWhenSourceEqualsVertex() {
         // Given
@@ -394,6 +395,11 @@ public class EdgeSeedTest {
         assertThat(edgeSeed1, equalTo(edgeSeed2));
     }
 
+    @Override
+    protected EdgeSeed getTestObject() {
+        return new EdgeSeed();
+    }
+
     private class Vertex {
         private final String property;
 
@@ -406,16 +412,16 @@ public class EdgeSeedTest {
         }
 
         @Override
-        public boolean equals(final Object o) {
-            if (this == o) {
+        public boolean equals(final Object obj) {
+            if (this == obj) {
                 return true;
             }
 
-            if (o == null || getClass() != o.getClass()) {
+            if (obj == null || getClass() != obj.getClass()) {
                 return false;
             }
 
-            final Vertex vertex = (Vertex) o;
+            final Vertex vertex = (Vertex) obj;
 
             return new EqualsBuilder()
                     .append(property, vertex.property)
@@ -424,7 +430,7 @@ public class EdgeSeedTest {
 
         @Override
         public int hashCode() {
-            return new HashCodeBuilder(17, 37)
+            return new HashCodeBuilder(53, 41)
                     .append(property)
                     .toHashCode();
         }

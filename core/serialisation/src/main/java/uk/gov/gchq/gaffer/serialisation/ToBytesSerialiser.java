@@ -73,9 +73,13 @@ public interface ToBytesSerialiser<T> extends Serialiser<T, byte[]> {
      * @param bytes the bytes to deserialise
      * @return T the deserialised object
      * @throws SerialisationException if the object fails to deserialise
+     *
+     * Note that this implementation is less efficient than using deserialise
+     * with an offset and a length, but may still be used if necessary.
+     *
+     * @see #deserialise(byte[], int, int)
      */
     @Override
-    @Deprecated
     T deserialise(final byte[] bytes) throws SerialisationException;
 
     /**

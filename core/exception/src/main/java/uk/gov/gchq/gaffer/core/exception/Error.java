@@ -84,7 +84,7 @@ public final class Error {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(29, 31)
                 .append(statusCode)
                 .append(simpleMessage)
                 .toHashCode();

@@ -6,13 +6,12 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
-public class ImportAccumuloKeyValueFilesTest extends OperationTest {
+public class ImportAccumuloKeyValueFilesTest extends OperationTest<ImportAccumuloKeyValueFiles> {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
     private static final String INPUT_DIRECTORY = "/input";
@@ -20,18 +19,12 @@ public class ImportAccumuloKeyValueFilesTest extends OperationTest {
     private static final String TEST_OPTION_KEY = "testOption";
 
     @Override
-    protected Class<? extends Operation> getOperationClass() {
-        return ImportAccumuloKeyValueFiles.class;
-    }
-
-    @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet("failurePath", "inputPath");
     }
 
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final ImportAccumuloKeyValueFiles op = new ImportAccumuloKeyValueFiles();
         op.setInputPath(INPUT_DIRECTORY);
@@ -80,5 +73,9 @@ public class ImportAccumuloKeyValueFilesTest extends OperationTest {
         assertEquals("true", clone.getOption("testOption"));
         assertEquals(INPUT_DIRECTORY, clone.getInputPath());
         assertEquals(FAIL_DIRECTORY, clone.getFailurePath());
+    }
+
+    protected ImportAccumuloKeyValueFiles getTestObject() {
+        return new ImportAccumuloKeyValueFiles();
     }
 }

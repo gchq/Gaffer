@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.operation.export.graph;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Sets;
+import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Arrays;
 import java.util.Set;
@@ -34,8 +34,8 @@ public class ExportToOtherAuthorisedGraphTest extends OperationTest {
             .parentStorePropertiesId("props1")
             .build();
 
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException, JsonProcessingException {
+    @Test
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException, JsonProcessingException {
         // Given / When
         final byte[] json = JSON_SERIALISER.serialise(op);
         final ExportToOtherAuthorisedGraph deserialisedOp = JSON_SERIALISER.deserialise(json, op.getClass());
@@ -71,7 +71,7 @@ public class ExportToOtherAuthorisedGraphTest extends OperationTest {
     }
 
     @Override
-    protected Class<? extends Operation> getOperationClass() {
-        return ExportToOtherAuthorisedGraph.class;
+    protected ExportToOtherAuthorisedGraph getTestObject() {
+        return new ExportToOtherAuthorisedGraph();
     }
 }

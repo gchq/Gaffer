@@ -18,9 +18,6 @@ package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -28,31 +25,10 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 
-public class ToSetTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return ToSet.class;
-    }
-
-    @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
-        // Given
-        final ToSet op = new ToSet();
-
-        // When
-        byte[] json = serialiser.serialise(op, true);
-        final ToSet deserialisedOp = serialiser.deserialise(json, ToSet.class);
-
-        // Then
-        assertNotNull(deserialisedOp);
-    }
+public class ToSetTest extends OperationTest<ToSet> {
 
     @Test
     @Override
@@ -79,5 +55,9 @@ public class ToSetTest extends OperationTest {
 
         // Then
         assertEquals(Lists.newArrayList(input), clone.getInput());
+    }
+
+    protected ToSet getTestObject() {
+        return new ToSet();
     }
 }

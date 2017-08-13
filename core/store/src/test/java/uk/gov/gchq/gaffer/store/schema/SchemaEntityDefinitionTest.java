@@ -17,8 +17,12 @@
 package uk.gov.gchq.gaffer.store.schema;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.koryphe.ValidationResult;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class SchemaEntityDefinitionTest extends SchemaElementDefinitionTest<SchemaEntityDefinition> {
     @Override
@@ -62,5 +66,47 @@ public class SchemaEntityDefinitionTest extends SchemaElementDefinitionTest<Sche
 
         // Then
         assertEquals("vertex.string", mergedDef.getVertex());
+    }
+
+    @Test
+    public void shouldPassValidationWhenVertexDefined() {
+        // Given
+        final SchemaEntityDefinition elementDef = new SchemaEntityDefinition.Builder()
+                .vertex("vertex.string")
+                .build();
+
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, elementDef)
+                .type("vertex.string", String.class)
+                .build();
+
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+
+        // When
+        final ValidationResult result = validator.validate(elementDef);
+
+        // Then
+        assertTrue(result.isValid());
+    }
+
+    @Test
+    public void shouldFailValidationWhenVertexNotDefined() {
+        // Given
+        final SchemaEntityDefinition elementDef = new SchemaEntityDefinition.Builder()
+                .vertex(null)
+                .build();
+
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, elementDef)
+                .type("vertex.string", String.class)
+                .build();
+
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+
+        // When
+        final ValidationResult result = validator.validate(elementDef);
+
+        // Then
+        assertFalse(result.isValid());
     }
 }

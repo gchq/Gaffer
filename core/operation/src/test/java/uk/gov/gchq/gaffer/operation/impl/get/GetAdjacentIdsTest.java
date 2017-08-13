@@ -23,7 +23,6 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
@@ -36,13 +35,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
-public class GetAdjacentIdsTest extends OperationTest {
+public class GetAdjacentIdsTest extends OperationTest<GetAdjacentIds> {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return GetAdjacentIds.class;
-    }
 
     @Test
     public void shouldSetDirectedTypeToBoth() {
@@ -59,7 +53,8 @@ public class GetAdjacentIdsTest extends OperationTest {
         assertEquals(DirectedType.EITHER, op.getDirectedType());
     }
 
-    private void shouldSerialiseAndDeserialiseOperationWithEntityIds() throws SerialisationException {
+    @Test
+    public void shouldSerialiseAndDeserialiseOperationWithEntityIds() throws SerialisationException {
         // Given
         final EntityId entitySeed = new EntitySeed("identifier");
         final GetAdjacentIds op = new GetAdjacentIds.Builder()
@@ -132,12 +127,6 @@ public class GetAdjacentIdsTest extends OperationTest {
 
     @Test
     @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
-        shouldSerialiseAndDeserialiseOperationWithEntityIds();
-    }
-
-    @Test
-    @Override
     public void builderShouldCreatePopulatedOperation() {
         builderShouldCreatePopulatedOperationAll();
         builderShouldCreatePopulatedOperationIncoming();
@@ -167,5 +156,9 @@ public class GetAdjacentIdsTest extends OperationTest {
                 clone.getIncludeIncomingOutGoing());
         assertEquals(view, clone.getView());
         assertEquals(Lists.newArrayList(input), clone.getInput());
+    }
+
+    protected GetAdjacentIds getTestObject() {
+        return new GetAdjacentIds();
     }
 }

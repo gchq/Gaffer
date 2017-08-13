@@ -18,9 +18,6 @@ package uk.gov.gchq.gaffer.operation.impl;
 
 import com.google.common.collect.Sets;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Set;
 
@@ -30,35 +27,14 @@ import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 
-public class LimitTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return Limit.class;
-    }
+public class LimitTest extends OperationTest<Limit> {
 
     @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet("resultLimit");
-    }
-
-    @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
-        // Given
-        final Limit op = new Limit();
-
-        // When
-        byte[] json = serialiser.serialise(op, true);
-        final Limit deserialisedOp = serialiser.deserialise(json, Limit.class);
-
-        // Then
-        assertNotNull(deserialisedOp);
     }
 
     @Test
@@ -92,5 +68,9 @@ public class LimitTest extends OperationTest {
         assertEquals(input, clone.getInput().iterator().next());
         assertEquals(resultLimit, (int) clone.getResultLimit());
         assertFalse(clone.getTruncate());
+    }
+
+    protected Limit getTestObject() {
+        return new Limit();
     }
 }

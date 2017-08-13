@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.Test;
+import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.GroupCounts;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -52,7 +53,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class OperationChainTest {
+public class OperationChainTest extends JSONSerialisationTest<OperationChain> {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
     @Test
@@ -213,5 +214,10 @@ public class OperationChainTest {
         for (final Operation operation : operations) {
             verify(operation).close();
         }
+    }
+
+    @Override
+    protected OperationChain getTestObject() {
+        return new OperationChain();
     }
 }

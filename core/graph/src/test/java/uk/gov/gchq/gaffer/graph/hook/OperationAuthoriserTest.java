@@ -16,30 +16,41 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
+import com.google.common.collect.Sets;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 
-public class OperationAuthoriserTest {
+public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> {
+    private static final String OP_AUTHS_PATH = "/opAuthoriser.json";
+
+    public OperationAuthoriserTest() {
+        super(OperationAuthoriser.class);
+    }
+
     @Test
     public void shouldAcceptOperationChainWhenUserHasAllOpAuths() {
         // Given
-        final OperationAuthoriser opAuthoriser = new OperationAuthoriser(StreamUtil.opAuths(getClass()));
+        final OperationAuthoriser hook = fromJson(OP_AUTHS_PATH);
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GetElements())
                 .then(new GenerateObjects<>())
@@ -49,7 +60,7 @@ public class OperationAuthoriserTest {
                 .build();
 
         // When
-        opAuthoriser.preExecute(opChain, user);
+        hook.preExecute(opChain, user);
 
         // Then - no exceptions
     }
@@ -57,7 +68,7 @@ public class OperationAuthoriserTest {
     @Test
     public void shouldRejectOperationChainWhenUserDoesntHaveAllOpAuthsForAllOperations() {
         // Given
-        final OperationAuthoriser opAuthoriser = new OperationAuthoriser(StreamUtil.opAuths(getClass()));
+        final OperationAuthoriser hook = fromJson(OP_AUTHS_PATH);
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GetAdjacentIds())  // Requires SuperUser
                 .build();
@@ -68,7 +79,7 @@ public class OperationAuthoriserTest {
 
         // When/Then
         try {
-            opAuthoriser.preExecute(opChain, user);
+            hook.preExecute(opChain, user);
             fail("Exception expected");
         } catch (final UnauthorisedException e) {
             assertNotNull(e.getMessage());
@@ -78,7 +89,7 @@ public class OperationAuthoriserTest {
     @Test
     public void shouldRejectOperationChainWhenUserDoesntHaveAnyOpAuths() throws OperationException {
         // Given
-        final OperationAuthoriser opAuthoriser = new OperationAuthoriser(StreamUtil.opAuths(getClass()));
+        final OperationAuthoriser hook = fromJson(OP_AUTHS_PATH);
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GetAdjacentIds())
                 .then(new GetElements())
@@ -88,7 +99,7 @@ public class OperationAuthoriserTest {
 
         // When/Then
         try {
-            opAuthoriser.preExecute(opChain, user);
+            hook.preExecute(opChain, user);
             fail("Exception expected");
         } catch (final UnauthorisedException e) {
             assertNotNull(e.getMessage());
@@ -98,7 +109,7 @@ public class OperationAuthoriserTest {
     @Test
     public void shouldRejectOperationChainWhenUserDoesntHaveAllowedAuth() throws OperationException {
         // Given
-        final OperationAuthoriser opAuthoriser = new OperationAuthoriser(StreamUtil.opAuths(getClass()));
+        final OperationAuthoriser hook = fromJson(OP_AUTHS_PATH);
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GetAdjacentIds())
                 .then(new GetElements())
@@ -110,7 +121,7 @@ public class OperationAuthoriserTest {
 
         // When/Then
         try {
-            opAuthoriser.preExecute(opChain, user);
+            hook.preExecute(opChain, user);
             fail("Exception expected");
         } catch (final UnauthorisedException e) {
             assertNotNull(e.getMessage());
@@ -120,10 +131,10 @@ public class OperationAuthoriserTest {
     @Test
     public void shouldReturnAllOpAuths() {
         // Given
-        final OperationAuthoriser opAuthoriser = new OperationAuthoriser(StreamUtil.opAuths(getClass()));
+        final OperationAuthoriser hook = fromJson(OP_AUTHS_PATH);
 
         // When
-        final Set<String> allOpAuths = opAuthoriser.getAllOpAuths();
+        final Set<String> allOpAuths = hook.getAllAuths();
 
         // Then
         assertThat(allOpAuths,
@@ -133,7 +144,7 @@ public class OperationAuthoriserTest {
     @Test
     public void shouldReturnResultWithoutModification() {
         // Given
-        final OperationAuthoriser opAuthoriser = new OperationAuthoriser(StreamUtil.opAuths(getClass()));
+        final OperationAuthoriser hook = fromJson(OP_AUTHS_PATH);
         final Object result = mock(Object.class);
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GenerateObjects<>())
@@ -143,9 +154,64 @@ public class OperationAuthoriserTest {
                 .build();
 
         // When
-        final Object returnedResult = opAuthoriser.postExecute(result, opChain, user);
+        final Object returnedResult = hook.postExecute(result, opChain, user);
 
         // Then
         assertSame(result, returnedResult);
+    }
+
+    @Override
+    public void shouldJsonSerialiseAndDeserialise() {
+        // Given
+        final OperationAuthoriser hook = fromJson(OP_AUTHS_PATH);
+
+        // When
+        final byte[] json = toJson(hook);
+        final OperationAuthoriser deserialisedHook = fromJson(json);
+
+        // Then
+        assertNotNull(deserialisedHook);
+    }
+
+    @Test
+    public void shouldSetAndGetAuths() {
+        // Given
+        final OperationAuthoriser hook = new OperationAuthoriser();
+        final Map<Class<?>, Set<String>> auths = new HashMap<>();
+        auths.put(Operation.class, Sets.newHashSet("auth1"));
+        auths.put(GetElements.class, Sets.newHashSet("auth2"));
+        auths.put(GetAllElements.class, Sets.newHashSet("auth3", "auth4"));
+
+        // When
+        hook.setAuths(auths);
+        final Map<Class<?>, Set<String>> result = hook.getAuths();
+
+        // Then
+        assertEquals(auths, result);
+        assertEquals(
+                Sets.newHashSet("auth1", "auth2", "auth3", "auth4"),
+                hook.getAllAuths()
+        );
+    }
+
+    @Test
+    public void shouldSetAndGetAuthsAsStrings() throws ClassNotFoundException {
+        // Given
+        final OperationAuthoriser hook = new OperationAuthoriser();
+        final Map<String, Set<String>> auths = new HashMap<>();
+        auths.put(Operation.class.getName(), Sets.newHashSet("auth1"));
+        auths.put(GetElements.class.getName(), Sets.newHashSet("auth2"));
+        auths.put(GetAllElements.class.getName(), Sets.newHashSet("auth3", "auth4"));
+
+        // When
+        hook.setAuthsFromStrings(auths);
+        final Map<String, Set<String>> result = hook.getAuthsAsStrings();
+
+        // Then
+        assertEquals(auths, result);
+        assertEquals(
+                Sets.newHashSet("auth1", "auth2", "auth3", "auth4"),
+                hook.getAllAuths()
+        );
     }
 }

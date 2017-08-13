@@ -69,7 +69,7 @@ public class CustomVertex {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(13, 37)
+        return new HashCodeBuilder(37, 53)
                 .append(type)
                 .append(value)
                 .toHashCode();

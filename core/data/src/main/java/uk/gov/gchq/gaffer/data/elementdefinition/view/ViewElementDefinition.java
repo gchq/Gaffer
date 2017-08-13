@@ -206,16 +206,16 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
 
-        final ViewElementDefinition that = (ViewElementDefinition) o;
+        final ViewElementDefinition that = (ViewElementDefinition) obj;
 
         return new EqualsBuilder()
                 .append(transformer, that.transformer)
@@ -229,7 +229,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(7, 23)
                 .append(transformer)
                 .append(preAggregationFilter)
                 .append(postAggregationFilter)

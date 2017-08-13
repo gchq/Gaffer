@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.spark.operation.dataframe;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import org.apache.spark.sql.SQLContext;
+import org.apache.spark.sql.SparkSession;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -52,7 +52,7 @@ public class GetDataFrameOfElements implements
         Options {
 
     @Required
-    private SQLContext sqlContext;
+    private SparkSession sparkSession;
     private List<Converter> converters;
     private Map<String, String> options;
     private View view;
@@ -61,19 +61,19 @@ public class GetDataFrameOfElements implements
     public GetDataFrameOfElements() {
     }
 
-    public GetDataFrameOfElements(final SQLContext sqlContext,
+    public GetDataFrameOfElements(final SparkSession sparkSession,
                                   final List<Converter> converters) {
         this();
-        this.sqlContext = sqlContext;
+        this.sparkSession = sparkSession;
         this.converters = converters;
     }
 
-    public void setSqlContext(final SQLContext sqlContext) {
-        this.sqlContext = sqlContext;
+    public void setSparkSession(final SparkSession sparkSession) {
+        this.sparkSession = sparkSession;
     }
 
-    public SQLContext getSqlContext() {
-        return sqlContext;
+    public SparkSession getSparkSession() {
+        return sparkSession;
     }
 
     public void setConverters(final List<Converter> converters) {
@@ -127,8 +127,8 @@ public class GetDataFrameOfElements implements
             super(new GetDataFrameOfElements());
         }
 
-        public Builder sqlContext(final SQLContext sqlContext) {
-            _getOp().setSqlContext(sqlContext);
+        public Builder sparkSession(final SparkSession sparkSession) {
+            _getOp().setSparkSession(sparkSession);
             return _self();
         }
 

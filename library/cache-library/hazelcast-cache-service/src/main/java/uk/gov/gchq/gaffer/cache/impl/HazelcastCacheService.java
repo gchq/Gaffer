@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.ICacheService;
-
 import java.util.Properties;
 
 import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_CONFIG_FILE;

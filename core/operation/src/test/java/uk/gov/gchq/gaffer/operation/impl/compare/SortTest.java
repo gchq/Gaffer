@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.operation.impl.compare;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -23,9 +22,6 @@ import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort.Builder;
 import java.util.Set;
@@ -36,35 +32,14 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-public class SortTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return Sort.class;
-    }
+public class SortTest extends OperationTest<Sort> {
 
     @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet("comparators");
-    }
-
-    @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException, JsonProcessingException {
-        // Given
-        final Sort op = new Sort();
-
-        // When
-        byte[] json = serialiser.serialise(op, true);
-        final Sort deserialisedOp = serialiser.deserialise(json, Sort.class);
-
-        // Then
-        assertNotNull(deserialisedOp);
     }
 
     @Test
@@ -117,5 +92,9 @@ public class SortTest extends OperationTest {
         assertEquals(comparator, clone.getComparators().iterator().next());
         assertEquals(deDuplicate, clone.isDeduplicate());
         assertTrue(clone.getResultLimit().equals(resultLimit));
+    }
+
+    protected Sort getTestObject() {
+        return new Sort();
     }
 }

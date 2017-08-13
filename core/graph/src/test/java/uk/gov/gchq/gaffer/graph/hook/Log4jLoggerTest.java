@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.user.User;
@@ -24,12 +25,12 @@ import uk.gov.gchq.gaffer.user.User;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
 
+public class Log4jLoggerTest extends JSONSerialisationTest<Log4jLogger> {
 
-public class Log4jLoggerTest {
     @Test
     public void shouldReturnResultWithoutModification() {
         // Given
-        final Log4jLogger hook = new Log4jLogger();
+        final Log4jLogger hook = getTestObject();
         final Object result = mock(Object.class);
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GenerateObjects<>())
@@ -43,5 +44,9 @@ public class Log4jLoggerTest {
 
         // Then
         assertSame(result, returnedResult);
+    }
+
+    public Log4jLogger getTestObject() {
+        return new Log4jLogger();
     }
 }

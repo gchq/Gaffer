@@ -15,8 +15,8 @@
  */
 package uk.gov.gchq.gaffer.spark.operation.scalardd;
 
-import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
+import org.apache.spark.sql.SparkSession;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -31,18 +31,18 @@ public class ImportRDDOfElements implements
         Options {
     public static final String HADOOP_CONFIGURATION_KEY = "Hadoop_Configuration_Key";
     @Required
-    private SparkContext sparkContext;
+    private SparkSession sparkSession;
     private RDD<Element> input;
     private Map<String, String> options;
 
     @Override
-    public SparkContext getSparkContext() {
-        return sparkContext;
+    public SparkSession getSparkSession() {
+        return sparkSession;
     }
 
     @Override
-    public void setSparkContext(final SparkContext sparkContext) {
-        this.sparkContext = sparkContext;
+    public void setSparkSession(final SparkSession sparkSession) {
+        this.sparkSession = sparkSession;
     }
 
     @Override
