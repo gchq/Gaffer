@@ -65,6 +65,7 @@ import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
@@ -82,11 +83,14 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.ValidationResult;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -255,6 +259,25 @@ public class AccumuloStore extends Store {
     @Override
     protected SchemaOptimiser createSchemaOptimiser() {
         return new SchemaOptimiser(new AccumuloSerialisationFactory());
+    }
+
+    @Override
+    public void validateSchemas() {
+        super.validateSchemas();
+        if (!getSchema().getVertexSerialiser().isConsistent()) {
+            throw new SchemaException("Vertex serialiser is inconsistent - store may be unable to handle this.");
+        }
+    }
+
+    @Override
+    protected void validateSchemaElementDefinition(final Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry, final ValidationResult validationResult) {
+        super.validateSchemaElementDefinition(schemaElementDefinitionEntry, validationResult);
+
+        for (String property : schemaElementDefinitionEntry.getValue().getGroupBy()) {
+            if (!schemaElementDefinitionEntry.getValue().getPropertyTypeDef(property).getSerialiser().isConsistent()) {
+                validationResult.addError("Property serialiser is inconsistent - store may be unable to handle this.");
+            }
+        }
     }
 
     @Override

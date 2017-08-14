@@ -451,20 +451,7 @@ public abstract class Store {
         } else {
             validationResult.add(schema.validate());
 
-            getSchemaElements().entrySet().forEach(schemaElementDefinitionEntry -> schemaElementDefinitionEntry.getValue().getProperties().forEach(propertyName -> {
-                final Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
-                final Serialiser serialisation = schemaElementDefinitionEntry
-                        .getValue()
-                        .getPropertyTypeDef(propertyName)
-                        .getSerialiser();
-
-                if (null == serialisation) {
-                    validationResult.addError(
-                            String.format("Could not find a serialiser for property '%s' in the group '%s'.", propertyName, schemaElementDefinitionEntry.getKey()));
-                } else if (!serialisation.canHandle(propertyClass)) {
-                    validationResult.addError(String.format("Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema", serialisation.getClass().getName(), propertyName, schemaElementDefinitionEntry.getKey()));
-                }
-            }));
+            getSchemaElements().entrySet().forEach(def -> validateSchemaElementDefinition(def, validationResult));
 
             validateSchema(validationResult, getSchema().getVertexSerialiser());
 
@@ -478,6 +465,23 @@ public abstract class Store {
         }
     }
 
+    protected void validateSchemaElementDefinition(final Map.Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry, final ValidationResult validationResult) {
+        schemaElementDefinitionEntry.getValue().getProperties().forEach(propertyName -> {
+            final Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
+            final Serialiser serialisation = schemaElementDefinitionEntry
+                    .getValue()
+                    .getPropertyTypeDef(propertyName)
+                    .getSerialiser();
+
+            if (null == serialisation) {
+                validationResult.addError(
+                        String.format("Could not find a serialiser for property '%s' in the group '%s'.", propertyName, schemaElementDefinitionEntry.getKey()));
+            } else if (!serialisation.canHandle(propertyClass)) {
+                validationResult.addError(String.format("Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema", serialisation.getClass().getName(), propertyName, schemaElementDefinitionEntry.getKey()));
+            }
+        });
+    }
+
     protected void validateSchema(final ValidationResult validationResult, final Serialiser serialiser) {
         if ((serialiser != null) && !requiredParentSerialiserClass.isInstance(serialiser)) {
             validationResult.addError(
@@ -487,13 +491,13 @@ public abstract class Store {
                     )
             );
         }
-        if (serialiser != null && !serialiser.isConsistent()) {
-            validationResult.addError(
-                    String.format("Schema serialiser (%s) is inconsistent - store may be unable to handle this.",
-                            serialiser.getClass().getSimpleName()
-                    )
-            );
-        }
+//        if (serialiser != null && !serialiser.isConsistent()) {
+//            validationResult.addError(
+//                    String.format("Schema serialiser (%s) is inconsistent - store may be unable to handle this.",
+//                            serialiser.getClass().getSimpleName()
+//                    )
+//            );
+//        }
     }
 
     protected <O> OperationChain<O> prepareOperationChain(final OperationChain<O> operationChain, final Context context) {
