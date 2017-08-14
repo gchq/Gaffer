@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.output;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
@@ -23,6 +24,8 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 
@@ -41,6 +44,21 @@ public class ToSetTest extends OperationTest<ToSet> {
     }
 
     @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final String input = "1";
+        final ToSet toSet = new ToSet.Builder<>()
+                .input(input)
+                .build();
+
+        // When
+        final ToSet clone = toSet.shallowClone();
+
+        // Then
+        assertNotSame(toSet, clone);
+        assertEquals(Lists.newArrayList(input), clone.getInput());
+    }
+
     protected ToSet getTestObject() {
         return new ToSet();
     }

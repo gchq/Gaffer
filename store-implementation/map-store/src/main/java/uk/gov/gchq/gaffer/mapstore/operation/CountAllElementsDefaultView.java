@@ -43,6 +43,13 @@ public class CountAllElementsDefaultView implements
         return new TypeReferenceImpl.Long();
     }
 
+    @Override
+    public CountAllElementsDefaultView shallowClone() {
+        return new CountAllElementsDefaultView.Builder()
+                .input(input)
+                .build();
+    }
+
     public static final class Builder
             extends Operation.BaseBuilder<CountAllElementsDefaultView, Builder>
             implements InputOutput.Builder<CountAllElementsDefaultView, Iterable<? extends Element>, Long, Builder>,

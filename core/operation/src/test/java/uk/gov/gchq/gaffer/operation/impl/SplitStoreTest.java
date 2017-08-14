@@ -1,4 +1,4 @@
-package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.impl;
+package uk.gov.gchq.gaffer.operation.impl;
 
 
 import com.google.common.collect.Sets;
@@ -6,10 +6,10 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
-import uk.gov.gchq.gaffer.operation.impl.SplitStore;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 public class SplitStoreTest extends OperationTest<SplitStore> {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
@@ -47,6 +47,22 @@ public class SplitStoreTest extends OperationTest<SplitStore> {
     }
 
     @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final SplitStore splitStore = new SplitStore.Builder()
+                .inputPath(INPUT_DIRECTORY)
+                .option(TEST_OPTION_KEY, "false")
+                .build();
+
+        // When
+        final SplitStore clone = splitStore.shallowClone();
+
+        // Then
+        assertNotSame(splitStore, clone);
+        assertEquals(INPUT_DIRECTORY, clone.getInputPath());
+        assertEquals("false", clone.getOptions().get(TEST_OPTION_KEY));
+    }
+
     protected SplitStore getTestObject() {
         return new SplitStore();
     }

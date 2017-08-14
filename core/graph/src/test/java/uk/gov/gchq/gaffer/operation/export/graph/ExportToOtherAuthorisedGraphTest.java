@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 public class ExportToOtherAuthorisedGraphTest extends OperationTest {
 
@@ -52,6 +53,18 @@ public class ExportToOtherAuthorisedGraphTest extends OperationTest {
         assertEquals("graphId", op.getGraphId());
         assertEquals(Arrays.asList("schema1"), op.getParentSchemaIds());
         assertEquals("props1", op.getParentStorePropertiesId());
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // When
+        ExportToOtherAuthorisedGraph clone = op.shallowClone();
+
+        // Then
+        assertNotSame(op, clone);
+        assertEquals("graphId", clone.getGraphId());
+        assertEquals(Arrays.asList("schema1"), clone.getParentSchemaIds());
+        assertEquals("props1", clone.getParentStorePropertiesId());
     }
 
     @Override

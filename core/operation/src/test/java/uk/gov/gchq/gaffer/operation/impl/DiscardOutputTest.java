@@ -21,6 +21,7 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 
@@ -37,6 +38,17 @@ public class DiscardOutputTest extends OperationTest<DiscardOutput> {
     }
 
     @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final DiscardOutput op = getTestObject();
+
+        // When
+        final DiscardOutput clone = op.shallowClone();
+
+        // Then
+        assertNotSame(op, clone);
+    }
+
     protected DiscardOutput getTestObject() {
         return new DiscardOutput();
     }

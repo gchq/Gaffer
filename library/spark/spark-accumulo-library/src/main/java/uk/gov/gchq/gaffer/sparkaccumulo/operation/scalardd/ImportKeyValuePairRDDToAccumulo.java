@@ -70,6 +70,15 @@ public class ImportKeyValuePairRDDToAccumulo implements
         this.options = options;
     }
 
+    public ImportKeyValuePairRDDToAccumulo shallowClone() {
+        return new ImportKeyValuePairRDDToAccumulo.Builder()
+                .input(input)
+                .outputPath(outputPath)
+                .failurePath(failurePath)
+                .options(options)
+                .build();
+    }
+
     public static class Builder extends Operation.BaseBuilder<ImportKeyValuePairRDDToAccumulo, Builder>
             implements Input.Builder<ImportKeyValuePairRDDToAccumulo, RDD<Tuple2<Key, Value>>, Builder>,
             Options.Builder<ImportKeyValuePairRDDToAccumulo, Builder> {

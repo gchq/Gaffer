@@ -13,6 +13,7 @@ import java.util.Iterator;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 
 public class GetElementsWithinSetTest extends OperationTest<GetElementsWithinSet> {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
@@ -45,7 +46,8 @@ public class GetElementsWithinSetTest extends OperationTest<GetElementsWithinSet
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        final GetElementsWithinSet getElementsWithinSet = new GetElementsWithinSet.Builder().input(AccumuloTestData.SEED_A)
+        final GetElementsWithinSet getElementsWithinSet = new GetElementsWithinSet.Builder()
+                .input(AccumuloTestData.SEED_A)
                 .directedType(DirectedType.DIRECTED)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
                 .view(new View.Builder()
@@ -59,6 +61,29 @@ public class GetElementsWithinSetTest extends OperationTest<GetElementsWithinSet
     }
 
     @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final View view = new View.Builder()
+                .edge("testEdgegroup")
+                .build();
+        final GetElementsWithinSet getElementsWithinSet = new GetElementsWithinSet.Builder()
+                .input(AccumuloTestData.SEED_A)
+                .directedType(DirectedType.DIRECTED)
+                .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
+                .view(view)
+                .build();
+
+        // When
+        final GetElementsWithinSet clone = getElementsWithinSet.shallowClone();
+
+        // Then
+        assertNotSame(getElementsWithinSet, clone);
+        assertEquals("true", clone.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
+        assertEquals(DirectedType.DIRECTED, clone.getDirectedType());
+        assertEquals(AccumuloTestData.SEED_A, clone.getInput().iterator().next());
+        assertEquals(view, clone.getView());
+    }
+
     protected GetElementsWithinSet getTestObject() {
         return new GetElementsWithinSet();
     }

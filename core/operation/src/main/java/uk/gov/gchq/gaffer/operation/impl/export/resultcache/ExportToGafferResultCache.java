@@ -64,6 +64,15 @@ public class ExportToGafferResultCache<T> implements
     }
 
     @Override
+    public ExportToGafferResultCache<T> shallowClone() {
+        return new ExportToGafferResultCache.Builder<T>()
+                .key(key)
+                .opAuths(opAuths)
+                .input(input)
+                .build();
+    }
+
+    @Override
     public TypeReference<T> getOutputTypeReference() {
         return (TypeReference) new TypeReferenceImpl.Object();
     }

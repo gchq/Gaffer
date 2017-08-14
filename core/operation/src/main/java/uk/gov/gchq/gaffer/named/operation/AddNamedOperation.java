@@ -123,6 +123,18 @@ public class AddNamedOperation implements Operation {
         return parameters;
     }
 
+    public AddNamedOperation shallowClone() {
+        return new AddNamedOperation.Builder()
+                .operationChain(operations)
+                .name(operationName)
+                .description(description)
+                .readAccessRoles(readAccessRoles.toArray(new String[readAccessRoles.size()]))
+                .writeAccessRoles(writeAccessRoles.toArray(new String[writeAccessRoles.size()]))
+                .overwrite(overwriteFlag)
+                .parameters(parameters)
+                .build();
+    }
+
     public static class Builder extends BaseBuilder<AddNamedOperation, Builder> {
         public Builder() {
             super(new AddNamedOperation());

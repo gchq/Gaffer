@@ -56,6 +56,14 @@ public class GetGafferResultCacheExport implements
         return new TypeReferenceImpl.CloseableIterableObj();
     }
 
+    @Override
+    public GetGafferResultCacheExport shallowClone() {
+        return new GetGafferResultCacheExport.Builder()
+                .jobId(jobId)
+                .key(key)
+                .build();
+    }
+
     public static class Builder
             extends Operation.BaseBuilder<GetGafferResultCacheExport, Builder>
             implements GetExport.Builder<GetGafferResultCacheExport, Builder>,

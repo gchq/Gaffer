@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.get;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -32,6 +33,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 public class GetAdjacentIdsTest extends OperationTest<GetAdjacentIds> {
@@ -132,6 +134,32 @@ public class GetAdjacentIdsTest extends OperationTest<GetAdjacentIds> {
     }
 
     @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        EntityId input = new EntitySeed("A");
+        View view = new View.Builder()
+                .edge("testEdgeGroup")
+                .build();
+        GetAdjacentIds getAdjacentIds = new GetAdjacentIds.Builder()
+                .input(input)
+                .inOutType(IncludeIncomingOutgoingType.INCOMING)
+                .directedType(DirectedType.DIRECTED)
+                .view(view)
+                .build();
+
+        // When
+        GetAdjacentIds clone = getAdjacentIds.shallowClone();
+
+
+        // Then
+        assertNotSame(getAdjacentIds, clone);
+        assertEquals(DirectedType.DIRECTED, clone.getDirectedType());
+        assertEquals(IncludeIncomingOutgoingType.INCOMING,
+                clone.getIncludeIncomingOutGoing());
+        assertEquals(view, clone.getView());
+        assertEquals(Lists.newArrayList(input), clone.getInput());
+    }
+
     protected GetAdjacentIds getTestObject() {
         return new GetAdjacentIds();
     }

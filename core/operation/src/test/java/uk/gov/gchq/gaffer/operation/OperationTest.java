@@ -37,6 +37,9 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
     public abstract void builderShouldCreatePopulatedOperation();
 
     @Test
+    public abstract void shouldShallowCloneOperation();
+
+    @Test
     public void shouldValidateRequiredFields() throws Exception {
         // Given
         final Operation op = getTestObject();

@@ -80,6 +80,14 @@ public class NamedOperation<I_ITEM, O> implements
         return (TypeReference) new TypeReferenceImpl.Object();
     }
 
+    public NamedOperation shallowClone() {
+        return new NamedOperation.Builder<I_ITEM, O>()
+                .input(input)
+                .name(operationName)
+                .parameters(parameters)
+                .build();
+    }
+
     public static class Builder<I_ITEM, O> extends BaseBuilder<NamedOperation<I_ITEM, O>, Builder<I_ITEM, O>>
             implements InputOutput.Builder<NamedOperation<I_ITEM, O>, Iterable<? extends I_ITEM>, O, Builder<I_ITEM, O>>,
             MultiInput.Builder<NamedOperation<I_ITEM, O>, I_ITEM, Builder<I_ITEM, O>> {
