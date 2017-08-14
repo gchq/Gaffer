@@ -26,6 +26,8 @@ import uk.gov.gchq.gaffer.rest.factory.UnknownUserFactory;
  */
 public abstract class SystemProperty {
     // KEYS
+    public static final String GRAPH_LIBRARY_CLASS = "gaffer.graph.library.class";
+    public static final String GRAPH_LIBRARY_CONFIG = "gaffer.graph.library.config";
     public static final String GRAPH_ID = "gaffer.graph.id";
     public static final String SCHEMA_PATHS = "gaffer.schemas";
     public static final String STORE_PROPERTIES_PATH = "gaffer.storeProperties";
@@ -36,6 +38,7 @@ public abstract class SystemProperty {
     public static final String SERVICES_PACKAGE_PREFIX = "gaffer.rest-api.resourcePackage";
     public static final String PACKAGE_PREFIXES = "gaffer.package.prefixes";
     public static final String OP_AUTHS_PATH = "gaffer.operation.auths.path";
+    public static final String ADD_OPERATIONS_TO_CHAIN_PATH = "gaffer.graph.hook.add.operations.path";
     public static final String OPERATION_SCORES_FILE = OperationChainLimiter.OPERATION_SCORES_FILE_KEY;
     public static final String AUTH_SCORES_FILE = OperationChainLimiter.AUTH_SCORES_FILE_KEY;
     public static final String ENABLE_CHAIN_LIMITER = "gaffer.chain.limiter.enable";

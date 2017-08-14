@@ -1,0 +1,49 @@
+{
+  "types": {
+    "simpleByteProperty": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Max"
+      }
+    },
+    "simpleDoubleProperty": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+      }
+    },
+    "simpleIntProperty": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+      }
+    },
+    "simpleFloatProperty": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+      }
+    },
+    "treeSet": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.CollectionConcat"
+      }
+    },
+    "freqMap": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.binaryoperator.FreqMapAggregator"
+      }
+    },
+    "simpleLongProperty": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+      }
+    },
+    "simpleShortProperty": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+      }
+    },
+    "simpleDateProperty": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Max"
+      }
+    }
+  }
+}

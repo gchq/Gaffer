@@ -276,11 +276,6 @@ public class ProxyStore extends Store {
     }
 
     @Override
-    public boolean isValidationRequired() {
-        return false;
-    }
-
-    @Override
     protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
         return null;
     }
@@ -298,11 +293,6 @@ public class ProxyStore extends Store {
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
         return null;
-    }
-
-    @Override
-    protected Object doUnhandledOperation(final Operation operation, final Context context) {
-        throw new UnsupportedOperationException("All operations should be executed via the provided Gaffer URL");
     }
 
     protected Client createClient(final ProxyProperties proxyProps) {

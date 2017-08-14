@@ -1,9 +1,0 @@
-{
-  "types": {
-    "count.long": {
-      "aggregateFunction": {
-        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
-      }
-    }
-  }
-}

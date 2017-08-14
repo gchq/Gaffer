@@ -15,8 +15,7 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.StreamIterable;
-import uk.gov.gchq.gaffer.commonutil.stream.Streams;
+import uk.gov.gchq.gaffer.commonutil.iterable.StreamMapIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
@@ -31,7 +30,6 @@ public class ToEntitySeedsHandler implements OutputOperationHandler<ToEntitySeed
             return null;
         }
 
-        return new StreamIterable<>(Streams.toStream(operation.getInput())
-                                           .map(EntitySeed::new));
+        return new StreamMapIterable<>(operation.getInput(), EntitySeed::new);
     }
 }

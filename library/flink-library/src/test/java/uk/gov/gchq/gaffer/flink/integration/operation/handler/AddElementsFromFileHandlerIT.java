@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
 import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromFile;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.File;
@@ -39,6 +40,7 @@ public class AddElementsFromFileHandlerIT extends FlinkTest {
     public void before() throws IOException {
         file = testFolder.newFile("inputFile.txt");
         FileUtils.write(file, DATA);
+        MapStore.resetStaticMap();
     }
 
     @Test

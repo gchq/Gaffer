@@ -11,16 +11,12 @@ As we now have multiple roads in our sample data, we will include the name of th
 We have also add in a frequency map for the counts of each vehicle time. This will allow us to perform queries such as to find out which roads have a large number of buses. 
 Here are the updated schema files:
 
-##### Data Schema
-${DATA_SCHEMA_JSON}
+##### Elements schema
+${ELEMENTS_JSON}
 
 
-##### Data Types
-${DATA_TYPES_JSON}
-
-
-##### Store Types
-${STORE_TYPES_JSON}
+##### Types schema
+${TYPES_JSON}
 
 
 #### Example complex query

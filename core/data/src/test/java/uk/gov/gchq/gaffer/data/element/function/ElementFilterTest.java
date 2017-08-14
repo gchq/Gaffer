@@ -28,12 +28,15 @@ import uk.gov.gchq.koryphe.impl.predicate.Not;
 import uk.gov.gchq.koryphe.impl.predicate.Or;
 import uk.gov.gchq.koryphe.tuple.predicate.KoryphePredicate2;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
+import java.util.List;
 import java.util.function.Predicate;
 
 import static junit.framework.TestCase.assertSame;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 public class ElementFilterTest {
@@ -303,5 +306,35 @@ public class ElementFilterTest {
         assertFalse(result2);
         assertFalse(result3);
         assertTrue(result4);
+    }
+
+    @Test
+    public void shouldReturnUnmodifiableComponentsWhenLocked() {
+        // Given
+        final ElementFilter filter = new ElementFilter();
+
+        // When
+        filter.lock();
+        final List<TupleAdaptedPredicate<String, ?>> components = filter.getComponents();
+
+        // Then
+        try {
+            components.add(null);
+            fail("Exception expected");
+        } catch (final UnsupportedOperationException e) {
+            assertNotNull(e);
+        }
+    }
+
+    @Test
+    public void shouldReturnModifiableComponentsWhenNotLocked() {
+        // Given
+        final ElementFilter filter = new ElementFilter();
+
+        // When
+        final List<TupleAdaptedPredicate<String, ?>> components = filter.getComponents();
+
+        // Then - no exceptions
+        components.add(null);
     }
 }

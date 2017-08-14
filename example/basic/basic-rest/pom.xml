@@ -19,7 +19,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>basic</artifactId>
-        <version>0.7.7</version>
+        <version>0.7.8</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -126,7 +126,7 @@
                                     ${project.parent.basedir}/basic-model/src/main/resources/schema
                                 </gaffer.schemas>
                                 <gaffer.storeProperties>
-                                    ${project.build.outputDirectory}/mockaccumulo.properties
+                                    ${project.build.outputDirectory}/${store.type}/store.properties
                                 </gaffer.storeProperties>
                                 <gaffer.error-mode.debug>
                                     false

@@ -25,6 +25,7 @@ import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.iterable.TransformIterable;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
@@ -41,6 +42,8 @@ import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -72,6 +75,20 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     protected Map<IdentifierType, String> identifiers;
 
     protected ElementFilter validator;
+
+    protected ElementFilter fullValidatorCache;
+
+    protected ElementFilter fullValidatorWithIsACache;
+
+    protected ElementAggregator aggregator;
+
+    protected Set<String> propertiesInAggregatorCache;
+
+    protected ElementAggregator fullAggregatorCache;
+
+    protected ElementAggregator ingestAggregatorCache;
+
+    protected final Map<Set<String>, ElementAggregator> queryAggregatorCacheMap = new HashMap<>();
 
     protected Schema schemaReference;
 
@@ -163,6 +180,16 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         return clazz;
     }
 
+    @JsonIgnore
+    public ElementAggregator getOriginalAggregator() {
+        return aggregator;
+    }
+
+    @JsonGetter("aggregateFunctions")
+    public List<TupleAdaptedBinaryOperator<String, ?>> getOriginalAggregateFunctions() {
+        return null != aggregator ? aggregator.getComponents() : null;
+    }
+
     /**
      * @return a cloned instance of {@link ElementAggregator} fully populated with all the
      * {@link java.util.function.BinaryOperator}s defined in this
@@ -172,43 +199,107 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
      */
     @JsonIgnore
     public ElementAggregator getFullAggregator() {
-        final ElementAggregator aggregator = new ElementAggregator();
-        if (aggregate) {
-            for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
-                addTypeAggregateFunction(aggregator, entry.getKey(), entry.getValue());
+        if (null == fullAggregatorCache) {
+            fullAggregatorCache = new ElementAggregator();
+            if (aggregate) {
+                if (null != aggregator) {
+                    fullAggregatorCache.getComponents().addAll(aggregator.getComponents());
+                }
+                final Set<String> aggregatorProperties = getAggregatorProperties();
+                for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
+                    if (!aggregatorProperties.contains(entry.getKey())) {
+                        addTypeAggregateFunction(fullAggregatorCache, entry.getKey(), entry.getValue());
+                    }
+                }
             }
+            fullAggregatorCache.lock();
         }
 
-        return aggregator;
+        return fullAggregatorCache;
     }
 
     @JsonIgnore
     public ElementAggregator getIngestAggregator() {
-        final ElementAggregator aggregator = new ElementAggregator();
-        if (aggregate) {
-            for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
-                if (!groupBy.contains(entry.getKey()) && !entry.getKey().equals(schemaReference.getVisibilityProperty())) {
-                    addTypeAggregateFunction(aggregator, entry.getKey(), entry.getValue());
+        if (null == ingestAggregatorCache) {
+            ingestAggregatorCache = new ElementAggregator();
+            if (aggregate) {
+                final Set<String> aggregatorProperties = getAggregatorProperties();
+                if (null != aggregator) {
+                    for (final TupleAdaptedBinaryOperator<String, ?> component : aggregator.getComponents()) {
+                        final String[] selection = component.getSelection();
+                        if (selection.length == 1 && !groupBy.contains(selection[0]) && !selection[0].equals(schemaReference.getVisibilityProperty())) {
+                            ingestAggregatorCache.getComponents().add(component);
+                        } else if (!CollectionUtil.containsAny(groupBy, selection)) {
+                            ingestAggregatorCache.getComponents().add(component);
+                        }
+                    }
+                }
+                for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
+                    if (!aggregatorProperties.contains(entry.getKey())) {
+                        if (!groupBy.contains(entry.getKey()) && !entry.getKey().equals(schemaReference.getVisibilityProperty())) {
+                            addTypeAggregateFunction(ingestAggregatorCache, entry.getKey(), entry.getValue());
+                        }
+                    }
                 }
             }
+            ingestAggregatorCache.lock();
         }
 
-        return aggregator;
+        return ingestAggregatorCache;
     }
 
     @JsonIgnore
-    public ElementAggregator getQueryAggregator(final Set<String> viewGroupBy) {
-        final ElementAggregator aggregator = new ElementAggregator();
-        if (aggregate) {
-            final Set<String> mergedGroupBy = null == viewGroupBy ? groupBy : viewGroupBy;
-            for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
-                if (!mergedGroupBy.contains(entry.getKey())) {
-                    addTypeAggregateFunction(aggregator, entry.getKey(), entry.getValue());
+    public ElementAggregator getQueryAggregator(final Set<String> viewGroupBy, final ElementAggregator viewAggregator) {
+        ElementAggregator queryAggregator = null;
+        if (null == viewAggregator) {
+            queryAggregator = queryAggregatorCacheMap.get(viewGroupBy);
+        }
+
+        if (null == queryAggregator) {
+            queryAggregator = new ElementAggregator();
+            if (aggregate) {
+                final Set<String> mergedGroupBy = null == viewGroupBy ? groupBy : viewGroupBy;
+                final Set<String> viewAggregatorProps;
+                if (null == viewAggregator) {
+                    viewAggregatorProps = Collections.emptySet();
+                } else {
+                    viewAggregatorProps = new HashSet<>(getPropertyMap().size() - mergedGroupBy.size());
+                    for (final TupleAdaptedBinaryOperator<String, ?> component : viewAggregator.getComponents()) {
+                        Collections.addAll(viewAggregatorProps, component.getSelection());
+                        queryAggregator.getComponents().add(component);
+                    }
                 }
+                if (null == aggregator) {
+                    for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
+                        if (!mergedGroupBy.contains(entry.getKey()) && !viewAggregatorProps.contains(entry.getKey())) {
+                            addTypeAggregateFunction(queryAggregator, entry.getKey(), entry.getValue());
+                        }
+                    }
+                } else {
+                    for (final TupleAdaptedBinaryOperator<String, ?> component : aggregator.getComponents()) {
+                        final String[] selection = component.getSelection();
+                        if (selection.length == 1 && !mergedGroupBy.contains(selection[0]) && !viewAggregatorProps.contains(selection[0])) {
+                            queryAggregator.getComponents().add(component);
+                        } else if (CollectionUtil.anyMissing(mergedGroupBy, selection) && CollectionUtil.anyMissing(viewAggregatorProps, selection)) {
+                            queryAggregator.getComponents().add(component);
+                        }
+                    }
+                    final Set<String> aggregatorProperties = getAggregatorProperties();
+                    for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
+                        if (!mergedGroupBy.contains(entry.getKey()) && !viewAggregatorProps.contains(entry.getKey()) && !aggregatorProperties.contains(entry.getKey())) {
+                            addTypeAggregateFunction(queryAggregator, entry.getKey(), entry.getValue());
+                        }
+                    }
+                }
+            }
+            queryAggregator.lock();
+            // Don't cache the aggregator if a view aggregator has been provided
+            if (null == viewAggregator) {
+                queryAggregatorCacheMap.put(viewGroupBy, queryAggregator);
             }
         }
 
-        return aggregator;
+        return queryAggregator;
     }
 
     /**
@@ -249,26 +340,41 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     }
 
     public ElementFilter getValidator(final boolean includeIsA) {
-        final ElementFilter fullValidator = new ElementFilter();
-        if (null != validator) {
-            fullValidator.setComponents(new ArrayList<>(validator.getComponents()));
-        }
-        for (final Entry<IdentifierType, String> entry : getIdentifierMap().entrySet()) {
-            final String key = entry.getKey().name();
-            if (includeIsA) {
-                addIsAFunction(fullValidator, key, entry.getValue());
-            }
-            addTypeValidatorFunctions(fullValidator, key, entry.getValue());
-        }
-        for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
-            final String key = entry.getKey();
-            if (includeIsA) {
-                addIsAFunction(fullValidator, key, entry.getValue());
-            }
-            addTypeValidatorFunctions(fullValidator, key, entry.getValue());
+        ElementFilter fullValidatorTmp;
+        if (includeIsA) {
+            fullValidatorTmp = fullValidatorWithIsACache;
+        } else {
+            fullValidatorTmp = fullValidatorCache;
         }
 
-        return fullValidator;
+        if (null == fullValidatorTmp) {
+            fullValidatorTmp = new ElementFilter();
+            if (null != validator) {
+                fullValidatorTmp.setComponents(new ArrayList<>(validator.getComponents()));
+            }
+            for (final Entry<IdentifierType, String> entry : getIdentifierMap().entrySet()) {
+                final String key = entry.getKey().name();
+                if (includeIsA) {
+                    addIsAFunction(fullValidatorTmp, key, entry.getValue());
+                }
+                addTypeValidatorFunctions(fullValidatorTmp, key, entry.getValue());
+            }
+            for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
+                final String key = entry.getKey();
+                if (includeIsA) {
+                    addIsAFunction(fullValidatorTmp, key, entry.getValue());
+                }
+                addTypeValidatorFunctions(fullValidatorTmp, key, entry.getValue());
+            }
+
+            fullValidatorTmp.lock();
+            if (includeIsA) {
+                fullValidatorWithIsACache = fullValidatorTmp;
+            } else {
+                fullValidatorCache = fullValidatorTmp;
+            }
+        }
+        return fullValidatorTmp;
     }
 
     @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "null is only returned when the validator is null")
@@ -427,6 +533,12 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         groupBy = Collections.unmodifiableSet(groupBy);
         properties = Collections.unmodifiableMap(properties);
         identifiers = Collections.unmodifiableMap(identifiers);
+        if (null != validator) {
+            validator.lock();
+        }
+        if (null != aggregator) {
+            aggregator.lock();
+        }
     }
 
     @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
@@ -436,6 +548,20 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
 
     public void setAggregate(final boolean aggregate) {
         this.aggregate = aggregate;
+    }
+
+    private Set<String> getAggregatorProperties() {
+        if (null == propertiesInAggregatorCache) {
+            if (null == aggregator) {
+                propertiesInAggregatorCache = Collections.emptySet();
+            } else {
+                propertiesInAggregatorCache = new HashSet<>();
+                for (final TupleAdaptedBinaryOperator<String, ?> component : aggregator.getComponents()) {
+                    Collections.addAll(propertiesInAggregatorCache, component.getSelection());
+                }
+            }
+        }
+        return propertiesInAggregatorCache;
     }
 
     protected abstract static class BaseBuilder<ELEMENT_DEF extends SchemaElementDefinition,
@@ -474,6 +600,20 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             return self();
         }
 
+        public CHILD_CLASS aggregator(final ElementAggregator aggregator) {
+            elDef.aggregator = aggregator;
+            return self();
+        }
+
+        @JsonSetter("aggregateFunctions")
+        public CHILD_CLASS aggregateFunctions(final List<TupleAdaptedBinaryOperator<String, Tuple<String>>> aggregateFunctions) {
+            if (null == elDef.aggregator) {
+                elDef.aggregator = new ElementAggregator();
+            }
+            elDef.aggregator.getComponents().addAll(aggregateFunctions);
+            return self();
+        }
+
         public CHILD_CLASS validator(final ElementFilter validator) {
             elDef.validator = validator;
             return self();
@@ -481,19 +621,19 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
 
         @JsonSetter("validateFunctions")
         public CHILD_CLASS validateFunctions(final List<TupleAdaptedPredicate<String, Tuple<String>>> predicates) {
-            if (null == getElementDef().validator) {
-                getElementDef().validator = new ElementFilter();
+            if (null == elDef.validator) {
+                elDef.validator = new ElementFilter();
             }
-            getElementDef().validator.getComponents().addAll(predicates);
+            elDef.validator.getComponents().addAll(predicates);
             return self();
         }
 
         @SafeVarargs
         public final CHILD_CLASS validateFunctions(final TupleAdaptedPredicate<String, Tuple<String>>... predicates) {
-            if (null == getElementDef().validator) {
-                getElementDef().validator = new ElementFilter();
+            if (null == elDef.validator) {
+                elDef.validator = new ElementFilter();
             }
-            Collections.addAll(getElementDef().validator.getComponents(), predicates);
+            Collections.addAll(elDef.validator.getComponents(), predicates);
             return self();
         }
 
@@ -528,36 +668,57 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         }
 
         public CHILD_CLASS merge(final ELEMENT_DEF elementDef) {
-            if (getElementDef().properties.isEmpty()) {
-                getElementDef().properties.putAll(elementDef.getPropertyMap());
+            if (elDef.properties.isEmpty()) {
+                elDef.properties.putAll(elementDef.getPropertyMap());
             } else {
                 for (final Entry<String, String> entry : elementDef.getPropertyMap().entrySet()) {
-                    if (null == getElementDef().getPropertyTypeName(entry.getKey())) {
-                        getElementDef().properties.put(entry.getKey(), entry.getValue());
-                    } else {
-                        throw new SchemaException("Unable to merge element definitions because the property exists in both definitions");
+                    final String typeName = elDef.getPropertyTypeName(entry.getKey());
+                    if (null == typeName) {
+                        elDef.properties.put(entry.getKey(), entry.getValue());
+                    } else if (!typeName.equals(entry.getValue())) {
+                        throw new SchemaException("Unable to merge element definitions because the property " + entry.getKey() + " exists in both definitions with different types: " + typeName + " and " + entry.getValue());
                     }
                 }
             }
 
-            if (getElementDef().identifiers.isEmpty()) {
-                getElementDef().identifiers.putAll(elementDef.getIdentifierMap());
+            if (elDef.identifiers.isEmpty()) {
+                elDef.identifiers.putAll(elementDef.getIdentifierMap());
             } else {
                 for (final Entry<IdentifierType, String> entry : elementDef.getIdentifierMap().entrySet()) {
-                    getElementDef().identifiers.put(entry.getKey(), entry.getValue());
+                    elDef.identifiers.put(entry.getKey(), entry.getValue());
                 }
             }
 
-            if (null == getElementDef().validator) {
-                getElementDef().validator = elementDef.validator;
+            if (null == elDef.validator) {
+                elDef.validator = elementDef.validator;
             } else if (null != elementDef.getOriginalValidateFunctions()) {
-                getElementDef().validator.getComponents().addAll(elementDef.validator.getComponents());
+                final ElementFilter combinedFilter = new ElementFilter();
+                combinedFilter.getComponents().addAll(elDef.validator.getComponents());
+                combinedFilter.getComponents().addAll(elementDef.validator.getComponents());
+                combinedFilter.lock();
+                elDef.validator = combinedFilter;
             }
+            elDef.fullValidatorCache = null;
+            elDef.fullValidatorWithIsACache = null;
 
-            getElementDef().groupBy = new LinkedHashSet<>(elementDef.groupBy);
-            getElementDef().parents = null != elementDef.parents ? new LinkedHashSet<>(elementDef.parents) : null;
-            getElementDef().description = elementDef.description;
-            getElementDef().aggregate = getElementDef().aggregate && elementDef.aggregate;
+            if (null == elDef.aggregator) {
+                elDef.aggregator = elementDef.aggregator;
+            } else if (null != elementDef.getOriginalAggregateFunctions()) {
+                final ElementAggregator combinedAggregator = new ElementAggregator();
+                combinedAggregator.getComponents().addAll(elDef.aggregator.getComponents());
+                combinedAggregator.getComponents().addAll(elementDef.aggregator.getComponents());
+                combinedAggregator.lock();
+                elDef.aggregator = combinedAggregator;
+            }
+            elDef.propertiesInAggregatorCache = null;
+            elDef.fullAggregatorCache = null;
+            elDef.ingestAggregatorCache = null;
+            elDef.queryAggregatorCacheMap.clear();
+
+            elDef.groupBy = new LinkedHashSet<>(elementDef.groupBy);
+            elDef.parents = null != elementDef.parents ? new LinkedHashSet<>(elementDef.parents) : null;
+            elDef.description = elementDef.description;
+            elDef.aggregate = elDef.aggregate && elementDef.aggregate;
 
             return self();
         }

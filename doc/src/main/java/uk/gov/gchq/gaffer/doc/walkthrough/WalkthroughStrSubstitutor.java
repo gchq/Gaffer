@@ -57,6 +57,7 @@ import java.util.function.Function;
 
 public abstract class WalkthroughStrSubstitutor {
     public static final String JAVA_DOC_URL_PREFIX = "http://gchq.github.io/Gaffer/";
+    public static final String KORYPHE_JAVA_DOC_URL_PREFIX = "http://gchq.github.io/koryphe/";
     public static final String GITHUB_URL_PREFIX = "https://github.com/gchq/Gaffer/blob/master/";
     public static final String GITHUB_WIKI_URL_PREFIX = "https://github.com/gchq/Gaffer/wiki/";
     public static final String JAVA_SRC_PATH = "/src/main/java/";
@@ -108,21 +109,28 @@ public abstract class WalkthroughStrSubstitutor {
         }
         params.put("STORE_PROPERTIES",
                 "\n```properties\n" + getResource("/mockaccumulostore.properties", exampleClass).replaceAll("#.*\\n", "") + "\n```\n");
-        params.put("DATA_SCHEMA_LINK",
-                getGitHubResourcesLink(schemaPath + "/dataSchema.json", modulePath));
-        params.put("DATA_TYPES_LINK",
-                getGitHubResourcesLink(schemaPath + "/dataTypes.json", modulePath));
-        params.put("STORE_TYPES_LINK",
-                getGitHubResourcesLink(schemaPath + "/storeTypes.json", modulePath));
+        params.put("ELEMENTS_SCHEMA_LINK",
+                getGitHubResourcesLink(schemaPath + "/elements.json", modulePath));
+        params.put("TYPES_SCHEMA_LINK",
+                getGitHubResourcesLink(schemaPath + "/types.json", modulePath));
+        params.put("AGGREGATION_LINK",
+                getGitHubResourcesLink(schemaPath + "/aggregation.json", modulePath));
         params.put("STORE_PROPERTIES_LINK",
                 getGitHubResourcesLink("/mockaccumulostore.properties", modulePath));
         if (null != schemaPath) {
-            params.put("DATA_SCHEMA_JSON",
-                    "\n```json\n" + getResource(schemaPath + "/dataSchema.json", exampleClass) + "\n```\n");
-            params.put("DATA_TYPES_JSON",
-                    "\n```json\n" + getResource(schemaPath + "/dataTypes.json", exampleClass) + "\n```\n");
-            params.put("STORE_TYPES_JSON",
-                    "\n```json\n" + getResource(schemaPath + "/storeTypes.json", exampleClass) + "\n```\n");
+            params.put("ELEMENTS_JSON",
+                    "\n```json\n" + getResource(schemaPath + "/elements.json", exampleClass) + "\n```\n");
+            params.put("TYPES_JSON",
+                    "\n```json\n" + getResource(schemaPath + "/types.json", exampleClass) + "\n```\n");
+
+            if (null != exampleClass.getResource("/" + schemaPath + "/aggregation.json")) {
+                params.put("AGGREGATION_JSON",
+                        "\n```json\n" + getResource(schemaPath + "/aggregation.json", exampleClass) + "\n```\n");
+            }
+            if (null != exampleClass.getResource("/" + schemaPath + "/validation.json")) {
+                params.put("VALIDATION_JSON",
+                        "\n```json\n" + getResource(schemaPath + "/validation.json", exampleClass) + "\n```\n");
+            }
         }
 
         params.putAll(createParameterMap(text, example, modulePath));
@@ -206,7 +214,7 @@ public abstract class WalkthroughStrSubstitutor {
         final String resource;
         try (final InputStream stream = StreamUtil.openStream(clazz, resourcePath)) {
             if (null == stream) {
-                resource = "";
+                throw new IllegalArgumentException("Resource was not found: " + resourcePath);
             } else {
                 resource = new String(IOUtils.toByteArray(stream), CommonConstants.UTF_8);
             }
@@ -217,7 +225,19 @@ public abstract class WalkthroughStrSubstitutor {
     }
 
     public static String getJavaDocLink(final Class<?> clazz) {
-        return "[" + clazz.getSimpleName() + "](" + JAVA_DOC_URL_PREFIX + clazz.getName().replaceAll("\\.", "/") + ".html)";
+        return getJavaDocLink(clazz, true);
+    }
+
+    public static String getJavaDocLink(final Class<?> clazz, final boolean simpleName) {
+        final String javaDocUrlPrefix;
+        if (clazz.getName().contains("uk.gov.gchq.koryphe")) {
+            javaDocUrlPrefix = KORYPHE_JAVA_DOC_URL_PREFIX;
+        } else {
+            javaDocUrlPrefix = JAVA_DOC_URL_PREFIX;
+        }
+
+        final String displayName = simpleName ? clazz.getSimpleName() : clazz.getName();
+        return "[" + displayName + "](" + javaDocUrlPrefix + clazz.getName().replaceAll("\\.", "/") + ".html)";
     }
 
     public static String getGitHubResourcesLink(final String resourcePath, final String modulePath) {

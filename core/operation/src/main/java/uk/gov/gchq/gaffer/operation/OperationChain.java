@@ -53,6 +53,7 @@ public class OperationChain<OUT> implements Closeable {
     private List<Operation> operations;
 
     public OperationChain() {
+        this(new ArrayList<>());
     }
 
     public OperationChain(final Operation operation) {

@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -49,14 +50,19 @@ public class SortHandlerTest {
         final Entity entity2 = new Entity.Builder().group(TestGroups.ENTITY)
                 .property("property", 2)
                 .build();
-        final Entity entity3 = new Entity.Builder().group(TestGroups.ENTITY)
+        final Entity entity3a = new Entity.Builder().group(TestGroups.ENTITY)
                 .property("property", 3)
+                .property("otherProp", "a")
+                .build();
+        final Entity entity3b = new Entity.Builder().group(TestGroups.ENTITY)
+                .property("property", 3)
+                .property("otherProp", "b")
                 .build();
         final Entity entity4 = new Entity.Builder().group(TestGroups.ENTITY)
                 .property("property", 4)
                 .build();
 
-        final List<Entity> input = Lists.newArrayList(entity1, entity3, entity2, entity4);
+        final List<Entity> input = Lists.newArrayList(entity1, entity4, entity3a, entity3b, entity2);
 
         final Sort sort = new Sort.Builder()
                 .input(input)
@@ -72,7 +78,11 @@ public class SortHandlerTest {
         final Iterable<? extends Element> result = handler.doOperation(sort, null, null);
 
         // Then
-        assertEquals(Arrays.asList(entity1, entity2, entity3, entity4), Lists.newArrayList(result));
+        final List<? extends Element> resultList = Lists.newArrayList(result);
+        assertTrue("Expected: \n" + Arrays.asList(entity1, entity2, entity3a, entity3b, entity4)
+                        + "\n but got: \n" + resultList,
+                Arrays.asList(entity1, entity2, entity3a, entity3b, entity4).equals(resultList)
+                        || Arrays.asList(entity1, entity2, entity3b, entity3a, entity4).equals(resultList));
     }
 
     @Test
@@ -96,11 +106,11 @@ public class SortHandlerTest {
         final Sort sort = new Sort.Builder()
                 .input(input)
                 .comparators(new ElementPropertyComparator.Builder()
-                        .groups(TestGroups.ENTITY)
-                        .property("property")
-                        .comparator(new PropertyComparatorImpl())
-                        .reverse(true)
-                        .build()
+                                .groups(TestGroups.ENTITY)
+                                .property("property")
+                                .comparator(new PropertyComparatorImpl())
+                                .reverse(true)
+                                .build()
                 )
                 .build();
 
@@ -182,6 +192,7 @@ public class SortHandlerTest {
                         .groups(TestGroups.ENTITY)
                         .comparator(new PropertyComparatorImpl())
                         .build())
+                .deduplicate(true)
                 .build();
 
         final SortHandler handler = new SortHandler();
@@ -219,6 +230,7 @@ public class SortHandlerTest {
                         .groups(TestGroups.ENTITY)
                         .comparator(new PropertyComparatorImpl())
                         .build())
+                .deduplicate(false)
                 .build();
 
         final SortHandler handler = new SortHandler();
@@ -227,7 +239,7 @@ public class SortHandlerTest {
         final Iterable<? extends Element> result = handler.doOperation(sort, null, null);
 
         // Then
-        assertEquals(4, Iterables.size(result));
+        assertEquals(5, Iterables.size(result));
 
         assertNull(Iterables.getLast(result).getProperty("property"));
         assertNotNull(Iterables.getFirst(result, null).getProperty("property"));
@@ -333,7 +345,7 @@ public class SortHandlerTest {
     public void shouldSortLargeNumberOfElements() throws OperationException {
         // Given
         final int streamSize = 10000;
-
+        final int resultLimit = 5000;
         final Stream<Element> stream = new Random()
                 .ints(streamSize * 2) // generate a few extra in case there are duplicates
                 .distinct()
@@ -348,7 +360,10 @@ public class SortHandlerTest {
                 .comparators(new ElementPropertyComparator.Builder()
                         .groups(TestGroups.ENTITY)
                         .property("property")
+                        .reverse(false)
                         .build())
+                .resultLimit(resultLimit)
+                .deduplicate(true)
                 .build();
 
         final SortHandler handler = new SortHandler();
@@ -357,8 +372,16 @@ public class SortHandlerTest {
         final Iterable<? extends Element> result = handler.doOperation(sort, null, null);
 
         // Then
+        final ArrayList<? extends Element> elements = Lists.newArrayList(result);
+        final ArrayList<? extends Element> sortedElements = Lists.newArrayList(result);
+        sortedElements.sort(new ElementPropertyComparator.Builder()
+                .groups(TestGroups.ENTITY)
+                .property("property")
+                .reverse(false)
+                .build());
+        assertEquals(elements, sortedElements);
         assertNotNull(result);
-        assertEquals(streamSize, Iterables.size(result));
+        assertEquals(resultLimit, Iterables.size(result));
     }
 
     private static class ElementComparatorImpl implements Comparator<Element> {
