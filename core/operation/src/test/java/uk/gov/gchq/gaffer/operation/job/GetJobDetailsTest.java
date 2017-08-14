@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 
 public class GetJobDetailsTest extends OperationTest<GetJobDetails> {
@@ -64,9 +65,10 @@ public class GetJobDetailsTest extends OperationTest<GetJobDetails> {
                 .build();
 
         // When
-        GetJobDetails clone = (GetJobDetails) getJobDetails.shallowClone();
+        GetJobDetails clone = getJobDetails.shallowClone();
 
         // Then
+        assertNotSame(getJobDetails, clone);
         assertEquals(jobId, clone.getJobId());
     }
 

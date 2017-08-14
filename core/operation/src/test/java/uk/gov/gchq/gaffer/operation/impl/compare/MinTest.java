@@ -32,6 +32,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 public class MinTest extends OperationTest<Min> {
@@ -80,9 +81,10 @@ public class MinTest extends OperationTest<Min> {
                 .build();
 
         // When
-        Min clone = (Min) min.shallowClone();
+        Min clone = min.shallowClone();
 
         // Then
+        assertNotSame(min, clone);
         assertEquals(input, clone.getInput().iterator().next());
         assertEquals(comparator, clone.getComparators().iterator().next());
     }

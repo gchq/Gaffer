@@ -26,6 +26,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 
@@ -79,9 +80,10 @@ public class GetAllElementsTest extends OperationTest<GetAllElements> {
                 .build();
 
         // When
-        GetAllElements clone = (GetAllElements) getAllElements.shallowClone();
+        GetAllElements clone = getAllElements.shallowClone();
 
         // Then
+        assertNotSame(getAllElements, clone);
         assertEquals(view, clone.getView());
         assertEquals(DirectedType.DIRECTED, clone.getDirectedType());
         assertEquals("true", clone.getOption("testOption"));

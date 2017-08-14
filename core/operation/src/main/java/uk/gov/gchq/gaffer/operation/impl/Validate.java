@@ -78,7 +78,7 @@ public class Validate implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public Validate shallowClone() {
         return new Validate.Builder()
                 .validate(validate)
                 .skipInvalidElements(skipInvalidElements)

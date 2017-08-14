@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 public class CountTest extends OperationTest {
@@ -52,6 +53,7 @@ public class CountTest extends OperationTest {
         final Count clone = count.shallowClone();
 
         // Then
+        assertNotSame(count, clone);
         assertEquals(input, clone.getInput().iterator().next());
     }
 

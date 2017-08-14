@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResult
 import java.util.HashSet;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 
 public class ExportToGafferResultCacheTest extends OperationTest<ExportToGafferResultCache> {
@@ -78,9 +79,10 @@ public class ExportToGafferResultCacheTest extends OperationTest<ExportToGafferR
                 .build();
 
         // When
-        ExportToGafferResultCache clone = (ExportToGafferResultCache) exportToGafferResultCache.shallowClone();
+        ExportToGafferResultCache clone = exportToGafferResultCache.shallowClone();
 
         // Then
+        assertNotSame(exportToGafferResultCache, clone);
         assertEquals(key, clone.getKey());
         assertEquals(input, clone.getInput());
         assertEquals(opAuths, clone.getOpAuths());

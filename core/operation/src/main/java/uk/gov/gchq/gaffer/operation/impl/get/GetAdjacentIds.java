@@ -118,7 +118,7 @@ public class GetAdjacentIds implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public GetAdjacentIds shallowClone() {
         return new GetAdjacentIds.Builder()
                 .view(view)
                 .input(input)

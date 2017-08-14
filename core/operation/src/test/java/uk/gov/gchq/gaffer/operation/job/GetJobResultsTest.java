@@ -27,6 +27,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 
@@ -79,9 +80,10 @@ public class GetJobResultsTest extends OperationTest<GetJobResults> {
                 .build();
 
         // When
-        final GetJobResults clone = (GetJobResults) getJobResults.shallowClone();
+        final GetJobResults clone = getJobResults.shallowClone();
 
         // Then
+        assertNotSame(getJobResults, clone);
         assertNotNull(clone);
     }
 

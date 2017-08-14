@@ -98,7 +98,7 @@ public class GenerateObjects<OBJ> implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public GenerateObjects<OBJ> shallowClone() {
         return new GenerateObjects.Builder<OBJ>()
                 .generator(elementGenerator)
                 .input(input)

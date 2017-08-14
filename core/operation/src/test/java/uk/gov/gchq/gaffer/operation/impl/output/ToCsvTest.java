@@ -33,6 +33,7 @@ import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 public class ToCsvTest extends OperationTest {
@@ -81,9 +82,10 @@ public class ToCsvTest extends OperationTest {
                 .build();
 
         // When
-        final ToCsv clone = (ToCsv) toCsv.shallowClone();
+        final ToCsv clone = toCsv.shallowClone();
 
         // Then
+        assertNotSame(toCsv, clone);
         assertEquals(input, clone.getInput().iterator().next());
         assertEquals(generator, clone.getElementGenerator());
         assertFalse(clone.isIncludeHeader());

@@ -51,7 +51,7 @@ public class ToList<T> implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public ToList<T> shallowClone() {
         return new ToList.Builder<T>()
                 .input(input)
                 .build();

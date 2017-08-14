@@ -51,7 +51,7 @@ public class SplitStore implements Operation, Options {
     }
 
     @Override
-    public Operation shallowClone() {
+    public SplitStore shallowClone() {
         return new SplitStore.Builder()
                 .inputPath(inputPath)
                 .options(options)

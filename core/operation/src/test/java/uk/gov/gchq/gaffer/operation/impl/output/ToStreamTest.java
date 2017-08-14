@@ -25,6 +25,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 
@@ -51,9 +52,10 @@ public class ToStreamTest extends OperationTest<ToStream> {
                 .build();
 
         // When
-        final ToStream clone = (ToStream) toStream.shallowClone();
+        final ToStream clone = toStream.shallowClone();
 
         // Then
+        assertNotSame(toStream, clone);
         assertEquals(Lists.newArrayList(input), clone.getInput());
     }
 

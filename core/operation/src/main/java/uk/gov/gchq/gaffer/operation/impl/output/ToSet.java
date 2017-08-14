@@ -52,7 +52,7 @@ public class ToSet<T> implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public ToSet shallowClone() {
         return new ToSet.Builder<T>()
                 .input(input)
                 .build();

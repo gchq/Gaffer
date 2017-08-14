@@ -29,6 +29,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 
@@ -65,9 +66,10 @@ public class ToMapTest extends OperationTest<ToMap> {
                 .build();
 
         // When
-        ToMap clone = (ToMap) toMap.shallowClone();
+        ToMap clone = toMap.shallowClone();
 
         // Then
+        assertNotSame(toMap, clone);
         assertEquals(Lists.newArrayList(input), clone.getInput());
     }
 

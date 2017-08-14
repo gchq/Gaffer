@@ -84,7 +84,7 @@ public class Limit<T> implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public Limit<T> shallowClone() {
         return new Limit.Builder<T>()
                 .resultLimit(resultLimit)
                 .input(input)

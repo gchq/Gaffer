@@ -93,7 +93,7 @@ public class AddElements implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public AddElements shallowClone() {
         return new AddElements.Builder()
                 .validate(validate)
                 .skipInvalidElements(skipInvalidElements)

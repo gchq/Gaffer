@@ -74,7 +74,7 @@ public class ToMap implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public ToMap shallowClone() {
         return new ToMap.Builder()
                 .generator(elementGenerator)
                 .input(input)

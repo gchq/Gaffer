@@ -27,6 +27,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 public class ScoreOperationChainTest extends OperationTest {
@@ -69,6 +70,7 @@ public class ScoreOperationChainTest extends OperationTest {
         ScoreOperationChain clone = scoreOperationChain.shallowClone();
 
         // Then
+        assertNotSame(scoreOperationChain, clone);
         assertEquals(opChain, clone.getOperationChain());
     }
 

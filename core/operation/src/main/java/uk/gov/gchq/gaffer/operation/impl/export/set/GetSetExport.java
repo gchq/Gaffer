@@ -79,7 +79,7 @@ public class GetSetExport implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public GetSetExport shallowClone() {
         return new GetSetExport.Builder()
                 .jobId(jobId)
                 .key(key)

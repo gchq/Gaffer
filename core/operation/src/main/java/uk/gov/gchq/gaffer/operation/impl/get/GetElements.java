@@ -231,7 +231,7 @@ public class GetElements implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public GetElements shallowClone() {
         return new GetElements.Builder()
                 .seedMatching(seedMatching)
                 .view(view)

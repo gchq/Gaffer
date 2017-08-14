@@ -35,7 +35,7 @@ public class DiscardOutput implements
     }
 
     @Override
-    public Operation shallowClone() throws CloneFailedException {
+    public DiscardOutput shallowClone() throws CloneFailedException {
         return new DiscardOutput();
     }
 

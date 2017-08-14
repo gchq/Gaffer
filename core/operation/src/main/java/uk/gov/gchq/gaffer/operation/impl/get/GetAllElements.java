@@ -79,7 +79,7 @@ public class GetAllElements implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public GetAllElements shallowClone() {
         return new GetAllElements.Builder()
                 .view(view)
                 .directedType(directedType)

@@ -57,7 +57,7 @@ public class GetGafferResultCacheExport implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public GetGafferResultCacheExport shallowClone() {
         return new GetGafferResultCacheExport.Builder()
                 .jobId(jobId)
                 .key(key)

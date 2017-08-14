@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 public class OperationImplTest extends OperationTest<OperationImpl> {
     private static final JSONSerialiser SERIALISER = new JSONSerialiser();
@@ -93,9 +94,10 @@ public class OperationImplTest extends OperationTest<OperationImpl> {
                 .build();
 
         // When
-        OperationImpl clone = (OperationImpl) op.shallowClone();
+        OperationImpl clone = op.shallowClone();
 
         // Then
+        assertNotSame(op, clone);
         assertEquals(requiredField1, clone.getRequiredField1());
         assertEquals(requiredField2, clone.getRequiredField2());
         assertEquals(optionalField1, clone.getOptionalField1());

@@ -99,7 +99,7 @@ public class Sort implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public Sort shallowClone() {
         return new Sort.Builder()
                 .input(input)
                 .comparators(comparators)

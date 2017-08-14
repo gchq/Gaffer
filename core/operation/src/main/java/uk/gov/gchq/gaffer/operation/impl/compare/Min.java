@@ -78,7 +78,7 @@ public class Min implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public Min shallowClone() {
         return new Min.Builder()
                 .input(input)
                 .comparators(comparators)

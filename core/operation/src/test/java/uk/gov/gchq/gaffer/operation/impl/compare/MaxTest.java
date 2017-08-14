@@ -31,6 +31,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 public class MaxTest extends OperationTest<Max> {
@@ -79,9 +80,10 @@ public class MaxTest extends OperationTest<Max> {
                 .build();
 
         // When
-        Max clone = (Max) max.shallowClone();
+        Max clone = max.shallowClone();
 
         // Then
+        assertNotSame(max, clone);
         assertEquals(input, clone.getInput().iterator().next());
         assertEquals(comparator, clone.getComparators().iterator().next());
     }

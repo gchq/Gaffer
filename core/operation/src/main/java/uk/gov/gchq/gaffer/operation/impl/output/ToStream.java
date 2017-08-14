@@ -51,7 +51,7 @@ public class ToStream<T> implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public ToStream<T> shallowClone() {
         return new ToStream.Builder<T>()
                 .input(input)
                 .build();

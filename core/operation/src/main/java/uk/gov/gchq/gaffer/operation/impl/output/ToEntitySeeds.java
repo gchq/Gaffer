@@ -50,7 +50,7 @@ public class ToEntitySeeds implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public ToEntitySeeds shallowClone() {
         return new ToEntitySeeds.Builder()
                 .input(input)
                 .build();

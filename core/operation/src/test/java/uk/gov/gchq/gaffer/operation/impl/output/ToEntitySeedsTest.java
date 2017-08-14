@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 
@@ -50,9 +51,10 @@ public class ToEntitySeedsTest extends OperationTest<ToEntitySeeds> {
                 .build();
 
         // When
-        final ToEntitySeeds clone = (ToEntitySeeds) toEntitySeeds.shallowClone();
+        final ToEntitySeeds clone = toEntitySeeds.shallowClone();
 
         // Then
+        assertNotSame(toEntitySeeds, clone);
         assertEquals(input, clone.getInput().iterator().next());
     }
 

@@ -41,7 +41,7 @@ public class GetJobDetails implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public GetJobDetails shallowClone() {
         return new GetJobDetails.Builder()
                 .jobId(jobId)
                 .build();

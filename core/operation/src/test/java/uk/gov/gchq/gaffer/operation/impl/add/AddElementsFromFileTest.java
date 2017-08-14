@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 public class AddElementsFromFileTest extends OperationTest<AddElementsFromFile> {
 
@@ -107,9 +108,10 @@ public class AddElementsFromFileTest extends OperationTest<AddElementsFromFile> 
                 .build();
 
         // When
-        AddElementsFromFile clone = (AddElementsFromFile) addElementsFromFile.shallowClone();
+        AddElementsFromFile clone = addElementsFromFile.shallowClone();
 
         // Then
+        assertNotSame(addElementsFromFile, clone);
         assertEquals(true, clone.isValidate());
         assertEquals(false, clone.isSkipInvalidElements());
         assertEquals(filename, clone.getFilename());

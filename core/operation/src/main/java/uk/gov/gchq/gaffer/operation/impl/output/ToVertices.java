@@ -70,7 +70,7 @@ public class ToVertices implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public ToVertices shallowClone() {
         return new ToVertices.Builder()
                 .input(input)
                 .useMatchedVertex(useMatchedVertex)

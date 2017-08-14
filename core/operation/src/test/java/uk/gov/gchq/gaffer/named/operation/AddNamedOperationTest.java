@@ -31,6 +31,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
@@ -114,9 +115,10 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         }
 
         // When
-        AddNamedOperation clone = (AddNamedOperation) addNamedOperation.shallowClone();
+        AddNamedOperation clone = addNamedOperation.shallowClone();
 
         // Then
+        assertNotSame(addNamedOperation, clone);
         assertEquals(opChain, clone.getOperationChainAsString());
         assertEquals("Test", clone.getOperationName());
         assertEquals("Test Named Operation", clone.getDescription());

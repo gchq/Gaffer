@@ -9,6 +9,7 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 public class SplitStoreTest extends OperationTest<SplitStore> {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
@@ -54,9 +55,10 @@ public class SplitStoreTest extends OperationTest<SplitStore> {
                 .build();
 
         // When
-        final SplitStore clone = (SplitStore) splitStore.shallowClone();
+        final SplitStore clone = splitStore.shallowClone();
 
         // Then
+        assertNotSame(splitStore, clone);
         assertEquals(INPUT_DIRECTORY, clone.getInputPath());
         assertEquals("false", clone.getOptions().get(TEST_OPTION_KEY));
     }

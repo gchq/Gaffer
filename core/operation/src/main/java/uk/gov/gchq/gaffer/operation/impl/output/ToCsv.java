@@ -75,7 +75,7 @@ public class ToCsv implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public ToCsv shallowClone() {
         return new ToCsv.Builder()
                 .generator(elementGenerator)
                 .input(input)

@@ -107,7 +107,7 @@ public class AddElementsFromFile implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public AddElementsFromFile shallowClone() {
         return new AddElementsFromFile.Builder()
                 .filename(filename)
                 .generator(elementGenerator)

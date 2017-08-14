@@ -148,7 +148,7 @@ public class AddElementsFromKafka implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public AddElementsFromKafka shallowClone() {
         return new AddElementsFromKafka.Builder()
                 .topic(topic)
                 .groupId(groupId)

@@ -29,6 +29,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 
@@ -109,9 +110,10 @@ public class ValidateTest extends OperationTest<Validate> {
                 .build();
 
         // When
-        final Validate clone = (Validate) validate.shallowClone();
+        final Validate clone = validate.shallowClone();
 
         // Then
+        assertNotSame(validate, clone);
         assertTrue(clone.isSkipInvalidElements());
         assertTrue(clone.isValidate());
         assertEquals(input, clone.getInput().iterator().next());

@@ -27,6 +27,7 @@ import java.util.Set;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 public class AddElementsFromKafkaTest extends OperationTest<AddElementsFromKafka> {
 
@@ -129,9 +130,10 @@ public class AddElementsFromKafkaTest extends OperationTest<AddElementsFromKafka
                 .build();
 
         // When
-        final AddElementsFromKafka clone = (AddElementsFromKafka) addElementsFromKafka.shallowClone();
+        final AddElementsFromKafka clone = addElementsFromKafka.shallowClone();
 
         // Then
+        assertNotSame(addElementsFromKafka, clone);
         assertEquals(validate, clone.isValidate());
         assertEquals(skipInvalid, clone.isSkipInvalidElements());
         assertEquals(parallelism, clone.getParallelism());

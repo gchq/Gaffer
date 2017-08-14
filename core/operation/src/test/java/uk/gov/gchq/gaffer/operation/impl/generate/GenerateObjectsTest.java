@@ -32,6 +32,7 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 
@@ -114,9 +115,10 @@ public class GenerateObjectsTest extends OperationTest<GenerateObjects> {
                 .build();
 
         // When
-        GenerateObjects clone = (GenerateObjects) generateObjects.shallowClone();
+        GenerateObjects clone = generateObjects.shallowClone();
 
         // Then
+        assertNotSame(generateObjects, clone);
         assertEquals(input, clone.getInput().iterator().next());
         assertEquals(generator, clone.getElementGenerator());
     }

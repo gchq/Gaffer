@@ -80,7 +80,7 @@ public class Max implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public Max shallowClone() {
         return new Max.Builder()
                 .input(input)
                 .comparators(comparators)

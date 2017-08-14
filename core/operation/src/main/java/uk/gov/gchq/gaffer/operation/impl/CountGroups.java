@@ -70,7 +70,7 @@ public class CountGroups implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public CountGroups shallowClone() {
         return new CountGroups.Builder()
                 .input(input)
                 .limit(limit)

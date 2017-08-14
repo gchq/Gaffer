@@ -33,6 +33,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 public class GetAdjacentIdsTest extends OperationTest<GetAdjacentIds> {
@@ -147,10 +148,11 @@ public class GetAdjacentIdsTest extends OperationTest<GetAdjacentIds> {
                 .build();
 
         // When
-        GetAdjacentIds clone = (GetAdjacentIds) getAdjacentIds.shallowClone();
+        GetAdjacentIds clone = getAdjacentIds.shallowClone();
 
 
         // Then
+        assertNotSame(getAdjacentIds, clone);
         assertEquals(DirectedType.DIRECTED, clone.getDirectedType());
         assertEquals(IncludeIncomingOutgoingType.INCOMING,
                 clone.getIncludeIncomingOutGoing());

@@ -59,7 +59,7 @@ public class ExportToSet<T> implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public ExportToSet<T> shallowClone() {
         return new ExportToSet.Builder<T>()
                 .key(key)
                 .input(input)

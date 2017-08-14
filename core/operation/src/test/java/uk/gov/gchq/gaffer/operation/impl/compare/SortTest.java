@@ -32,6 +32,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -85,9 +86,10 @@ public class SortTest extends OperationTest<Sort> {
                 .build();
 
         // When
-        Sort clone = (Sort) sort.shallowClone();
+        Sort clone = sort.shallowClone();
 
         // Then
+        assertNotSame(sort, clone);
         assertEquals(input, clone.getInput().iterator().next());
         assertEquals(comparator, clone.getComparators().iterator().next());
         assertEquals(deDuplicate, clone.isDeduplicate());

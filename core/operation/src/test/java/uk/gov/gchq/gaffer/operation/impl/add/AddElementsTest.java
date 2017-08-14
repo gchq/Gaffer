@@ -32,6 +32,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 public class AddElementsTest extends OperationTest<AddElements> {
@@ -74,9 +75,10 @@ public class AddElementsTest extends OperationTest<AddElements> {
                 .build();
 
         // When
-        final AddElements clone = (AddElements) addElements.shallowClone();
+        final AddElements clone = addElements.shallowClone();
 
         // Then
+        assertNotSame(addElements, clone);
         assertEquals(validatable, clone.isValidate());
         assertEquals(skipInvalidElements, clone.isSkipInvalidElements());
         assertEquals("true", clone.getOption("testOption"));

@@ -32,7 +32,7 @@ public class GetAllJobDetails implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public GetAllJobDetails shallowClone() {
         return new GetAllJobDetails.Builder()
                 .build();
     }

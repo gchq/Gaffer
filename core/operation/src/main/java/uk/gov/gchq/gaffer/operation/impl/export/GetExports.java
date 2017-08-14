@@ -53,7 +53,7 @@ public class GetExports implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public GetExports shallowClone() {
         return new GetExports.Builder()
                 .exports(getExports)
                 .build();

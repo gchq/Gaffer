@@ -43,9 +43,10 @@ public class DiscardOutputTest extends OperationTest<DiscardOutput> {
         final DiscardOutput op = getTestObject();
 
         // When
-        final DiscardOutput clone = (DiscardOutput) op.shallowClone();
+        final DiscardOutput clone = op.shallowClone();
 
         // Then
+        assertNotSame(op, clone);
         assertNotSame(op, clone);
     }
 

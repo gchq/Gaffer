@@ -27,6 +27,7 @@ import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 
@@ -62,9 +63,10 @@ public class LimitTest extends OperationTest<Limit> {
                 .build();
 
         // When
-        final Limit clone = (Limit) limit.shallowClone();
+        final Limit clone = limit.shallowClone();
 
         // Then
+        assertNotSame(limit, clone);
         assertEquals(input, clone.getInput().iterator().next());
         assertEquals(resultLimit, (int) clone.getResultLimit());
         assertFalse(clone.getTruncate());

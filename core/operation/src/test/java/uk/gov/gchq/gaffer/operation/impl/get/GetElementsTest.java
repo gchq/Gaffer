@@ -37,6 +37,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 public class GetElementsTest extends OperationTest<GetElements> {
@@ -168,9 +169,10 @@ public class GetElementsTest extends OperationTest<GetElements> {
                 .build();
 
         // When
-        GetElements clone = (GetElements) getElements.shallowClone();
+        GetElements clone = getElements.shallowClone();
 
         // Then
+        assertNotSame(getElements, clone);
         assertEquals(Lists.newArrayList(input), clone.getInput());
         assertEquals(IncludeIncomingOutgoingType.EITHER, clone.getIncludeIncomingOutGoing());
         assertEquals(view, clone.getView());

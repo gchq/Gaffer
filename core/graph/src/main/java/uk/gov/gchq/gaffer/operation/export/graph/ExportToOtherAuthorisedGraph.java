@@ -89,7 +89,7 @@ public class ExportToOtherAuthorisedGraph implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public ExportToOtherAuthorisedGraph shallowClone() {
         return new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(graphId)
                 .input(input)

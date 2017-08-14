@@ -32,6 +32,7 @@ import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 
@@ -96,9 +97,10 @@ public class ToVerticesTest extends OperationTest<ToVertices> {
                 .build();
 
         // When
-        final ToVertices clone = (ToVertices) toVertices.shallowClone();
+        final ToVertices clone = toVertices.shallowClone();
 
         // Then
+        assertNotSame(toVertices, clone);
         assertEquals(input, clone.getInput().iterator().next());
         assertEquals(UseMatchedVertex.EQUAL, clone.getUseMatchedVertex());
         assertEquals(EdgeVertices.BOTH, clone.getEdgeVertices());

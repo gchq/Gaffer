@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 
 public class ExportToSetTest extends OperationTest<ExportToSet> {
@@ -67,9 +68,10 @@ public class ExportToSetTest extends OperationTest<ExportToSet> {
                 .build();
 
         // When
-        ExportToSet clone = (ExportToSet) exportToSet.shallowClone();
+        ExportToSet clone = exportToSet.shallowClone();
 
         // Then
+        assertNotSame(exportToSet, clone);
         assertEquals(key, clone.getKey());
         assertEquals(input, clone.getInput());
     }

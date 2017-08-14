@@ -123,7 +123,7 @@ public class AddNamedOperation implements Operation {
         return parameters;
     }
 
-    public Operation shallowClone() {
+    public AddNamedOperation shallowClone() {
         return new AddNamedOperation.Builder()
                 .operationChain(operations)
                 .name(operationName)

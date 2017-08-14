@@ -130,7 +130,7 @@ public class AddElementsFromSocket implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public AddElementsFromSocket shallowClone() {
         return new AddElementsFromSocket.Builder()
                 .hostname(hostname)
                 .port(port)

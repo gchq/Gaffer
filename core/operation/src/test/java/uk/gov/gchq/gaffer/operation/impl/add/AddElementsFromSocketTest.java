@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 public class AddElementsFromSocketTest extends OperationTest<AddElementsFromSocket> {
 
@@ -110,8 +111,6 @@ public class AddElementsFromSocketTest extends OperationTest<AddElementsFromSock
     @Override
     public void shouldShallowCloneOperation() {
         // Given
-        final boolean validate = true;
-        final boolean skipInvalid = false;
         final Integer parallelism = 2;
         final Class<TestGeneratorImpl> generator = TestGeneratorImpl.class;
         final int port = 6874;
@@ -129,9 +128,10 @@ public class AddElementsFromSocketTest extends OperationTest<AddElementsFromSock
                 .build();
 
         // Given
-        final AddElementsFromSocket clone = (AddElementsFromSocket) addElementsFromSocket.shallowClone();
+        final AddElementsFromSocket clone = addElementsFromSocket.shallowClone();
 
         // Then
+        assertNotSame(addElementsFromSocket, clone);
         assertEquals(generator, clone.getElementGenerator());
         assertEquals(parallelism, clone.getParallelism());
         assertEquals(true, clone.isValidate());
