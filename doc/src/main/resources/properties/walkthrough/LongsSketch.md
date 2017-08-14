@@ -4,17 +4,21 @@ ${CODE_LINK}
 
 This example demonstrates how the LongsSketch sketch from the Data Sketches library can be used to maintain estimates of the frequencies of longs stored on on vertices and edges. For example suppose every time an edge is observed there is a long value associated with it which specifies the size of the interaction. Storing all the different longs on the edge could be expensive in storage. Instead we can use a LongsSketch which will give us approximate counts of the number of times a particular long was observed.
 
-##### Data schema
-This is our new data schema. The edge has a property called 'longsSketch'. This will store the LongsSketch object.
-${DATA_SCHEMA_JSON}
+${PROPERTY_CLASS}
+${PREDICATES}
+${AGGREGATORS}
+${SERIALISERS}
 
-##### Data types
-We have added a new data type - 'longs.sketch'. This is a com.yahoo.sketches.frequencies.LongsSketch object.
-${DATA_TYPES_JSON}
+##### Elements schema
+This is our new elements schema. The edge has a property called 'longsSketch'. This will store the LongsSketch object.
 
-##### Store types
-Here we have added in the serialiser and aggregator for the LongsSketch object. Gaffer will automatically aggregate these sketches, using the provided aggregator, so they will keep up to date as new edges are added to the graph.
-${STORE_TYPES_JSON}
+${ELEMENTS_JSON}
+
+##### Types schema
+We have added a new type - 'longs.sketch'. This is a com.yahoo.sketches.frequencies.LongsSketch object.
+We also added in the serialiser and aggregator for the LongsSketch object. Gaffer will automatically aggregate these sketches, using the provided aggregator, so they will keep up to date as new edges are added to the graph.
+
+${TYPES_JSON}
 
 Only one edge is in the graph. This was added 1000 times, and each time it had the 'longs.sketch' property containing a randomly generated long between 0 and 9 (inclusive). The sketch does not retain all the distinct occurrences of these long values, but allows one to estimate the number of occurrences of the different values. Here is the Edge:
 

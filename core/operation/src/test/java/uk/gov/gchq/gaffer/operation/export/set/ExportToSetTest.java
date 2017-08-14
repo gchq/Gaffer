@@ -19,24 +19,17 @@ package uk.gov.gchq.gaffer.operation.export.set;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 
 import static org.junit.Assert.assertEquals;
 
 
-public class ExportToSetTest extends OperationTest {
+public class ExportToSetTest extends OperationTest<ExportToSet> {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return ExportToSet.class;
-    }
-
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final String key = "key";
         final ExportToSet op = new ExportToSet.Builder<>()
@@ -61,5 +54,10 @@ public class ExportToSetTest extends OperationTest {
 
         // Then
         assertEquals("key", op.getKey());
+    }
+
+    @Override
+    protected ExportToSet getTestObject() {
+        return new ExportToSet();
     }
 }

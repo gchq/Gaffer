@@ -24,7 +24,7 @@ import org.junit.rules.TemporaryFolder;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.impl.SplitStore;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromFile;
 import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
 import java.io.File;
 import java.io.IOException;
@@ -33,16 +33,16 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 
-public class DisableOperationsTest {
+public abstract class DisableOperationsTest {
     @Rule
     public final TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-    private final Class<? extends Operation>[] disabledOperations;
-    private File storePropsPath;
-    private File schemaPath;
-    private static final String GRAPH_ID = "graphId";
+    protected final Class<? extends Operation>[] disabledOperations;
+    protected File graphConfigPath;
+    protected File storePropsPath;
+    protected File schemaPath;
 
     public DisableOperationsTest() throws IOException {
-        this(SplitStore.class);
+        this(AddElementsFromFile.class);
     }
 
     @SafeVarargs
@@ -52,9 +52,10 @@ public class DisableOperationsTest {
 
     @Before
     public void before() throws IOException {
+        graphConfigPath = tempFolder.newFile("tmpGraphConfig.json");
         storePropsPath = tempFolder.newFile("tmpStore.properties");
         schemaPath = tempFolder.newFile("tmpSchema.json");
-        System.setProperty(SystemProperty.GRAPH_ID, "graphId");
+        FileUtils.copyURLToFile(getClass().getResource("/graphConfig.json"), graphConfigPath);
         FileUtils.copyURLToFile(getClass().getResource("/store.properties"), storePropsPath);
         FileUtils.copyURLToFile(getClass().getResource("/schema/schema.json"), schemaPath);
     }
@@ -64,7 +65,7 @@ public class DisableOperationsTest {
         // Given
         System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, storePropsPath.getAbsolutePath());
         System.setProperty(SystemProperty.SCHEMA_PATHS, schemaPath.getAbsolutePath());
-        System.setProperty(SystemProperty.GRAPH_ID, "graphId");
+        System.setProperty(SystemProperty.GRAPH_CONFIG_PATH, graphConfigPath.getAbsolutePath());
         final DefaultGraphFactory factory = new DefaultGraphFactory();
 
         // When
@@ -79,12 +80,13 @@ public class DisableOperationsTest {
     @Test
     public void shouldNotDisableOperationsWhenNotUsingRestApi() {
         // Given
+        System.setProperty(SystemProperty.GRAPH_CONFIG_PATH, graphConfigPath.getAbsolutePath());
         System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, storePropsPath.getAbsolutePath());
         System.setProperty(SystemProperty.SCHEMA_PATHS, schemaPath.getAbsolutePath());
 
         // When
         final Graph graph = new Graph.Builder()
-                .graphId(GRAPH_ID)
+                .config(graphConfigPath.toURI())
                 .storeProperties(storePropsPath.toURI())
                 .addSchema(schemaPath.toURI())
                 .build();

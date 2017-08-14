@@ -22,8 +22,6 @@ import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.io.IOException;
 import java.util.Arrays;
@@ -34,19 +32,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 
-public class AddElementsFromHdfsTest extends OperationTest {
-    private static final JSONSerialiser SERIALISER = new JSONSerialiser();
+public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> {
     private static final String ADD_ELEMENTS_FROM_HDFS_JSON = String.format("{%n" +
             "  \"class\" : \"uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs\",%n" +
             "  \"inputPaths\" : [ \"TestInput\" ],%n" +
             "  \"outputPath\" : \"TestOutput\",%n" +
             "  \"validate\" : true%n" +
             "}");
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return AddElementsFromHdfs.class;
-    }
 
     @Override
     protected Set<String> getRequiredFields() {
@@ -60,8 +52,7 @@ public class AddElementsFromHdfsTest extends OperationTest {
     }
 
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final AddElementsFromHdfs addElements = new AddElementsFromHdfs.Builder()
                 .addInputPath("inputPath")
@@ -121,7 +112,7 @@ public class AddElementsFromHdfsTest extends OperationTest {
     @Test
     public void shouldSerialisePopulatedAddElementsFromHdfsOperation() throws IOException {
         // Given
-        final AddElementsFromHdfs addElementsFromHdfs = new AddElementsFromHdfs();
+        final AddElementsFromHdfs addElementsFromHdfs = getTestObject();
         addElementsFromHdfs.setInputPaths(Arrays.asList("TestInput"));
         addElementsFromHdfs.setOutputPath("TestOutput");
 
@@ -141,5 +132,10 @@ public class AddElementsFromHdfsTest extends OperationTest {
         final List<String> inputPaths = addElementsFromHdfs.getInputPaths();
         assertEquals("TestInput", inputPaths.get(0));
         assertEquals("TestOutput", addElementsFromHdfs.getOutputPath());
+    }
+
+    @Override
+    protected AddElementsFromHdfs getTestObject() {
+        return new AddElementsFromHdfs();
     }
 }

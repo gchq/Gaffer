@@ -9,7 +9,6 @@ import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import java.util.ArrayList;
@@ -20,17 +19,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
-public class GetElementsInRangesTest extends OperationTest {
+public class GetElementsInRangesTest extends OperationTest<GetElementsInRanges> {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
-    @Override
-    protected Class<? extends Operation> getOperationClass() {
-        return GetElementsInRanges.class;
-    }
-
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final List<Pair<ElementId, ElementId>> pairList = new ArrayList<>();
         final Pair<ElementId, ElementId> pair1 = new Pair<>(AccumuloTestData.SEED_SOURCE_1, AccumuloTestData.SEED_DESTINATION_1);
@@ -70,5 +63,10 @@ public class GetElementsInRangesTest extends OperationTest {
         assertEquals(DirectedType.UNDIRECTED, getElementsInRanges.getDirectedType());
         assertEquals(seed, getElementsInRanges.getInput().iterator().next());
         assertNotNull(getElementsInRanges.getView());
+    }
+
+    @Override
+    protected GetElementsInRanges getTestObject() {
+        return new GetElementsInRanges();
     }
 }

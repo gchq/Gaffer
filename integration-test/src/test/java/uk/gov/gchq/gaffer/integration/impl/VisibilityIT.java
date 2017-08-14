@@ -27,13 +27,13 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -333,7 +333,9 @@ public class VisibilityIT extends AbstractStoreIT {
                 .type(TestTypes.VISIBILITY, new TypeDefinition.Builder()
                         .clazz(String.class)
                         .aggregateFunction(new StringConcat())
-                        .serialiser(new StringSerialiser())
+                        .build())
+                .type(TestGroups.ENTITY, new TypeDefinition.Builder()
+                        .clazz(String.class)
                         .build())
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex(TestTypes.ID_STRING)
@@ -358,7 +360,9 @@ public class VisibilityIT extends AbstractStoreIT {
 
     private Graph createGraphWithNoVisibility() {
         return new Graph.Builder()
-                .graphId("integrationTestGraphWithNoVisibility")
+                .config(new GraphConfig.Builder()
+                        .graphId("integrationTestGraphWithNoVisibility")
+                        .build())
                 .storeProperties(getStoreProperties())
                 .addSchema(createSchemaNoVisibility())
                 .addSchema(getStoreSchema())

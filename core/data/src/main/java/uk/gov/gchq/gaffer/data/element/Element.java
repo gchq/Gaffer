@@ -89,7 +89,7 @@ public abstract class Element implements ElementId {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(13, 17)
+        return new HashCodeBuilder(53, 17)
                 .append(group)
                 .append(properties)
                 .toHashCode();
@@ -110,16 +110,28 @@ public abstract class Element implements ElementId {
 
     @Override
     public boolean equals(final Object obj) {
-        return null != obj
-                && (obj instanceof Element)
-                && equals((Element) obj);
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final Element element = (Element) obj;
+
+        return new EqualsBuilder()
+                .append(group, element.group)
+                .append(properties, element.properties)
+                .isEquals();
     }
 
-    public boolean equals(final Element element) {
-        return null != element
-                && new EqualsBuilder()
-                .append(group, element.getGroup())
-                .isEquals() && getProperties().equals(element.getProperties());
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("group", group)
+                .append("properties", properties)
+                .build();
     }
 
     @JsonIgnore
@@ -151,14 +163,6 @@ public abstract class Element implements ElementId {
      */
     void setProperties(final Properties properties) {
         this.properties = properties;
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("group", group)
-                .append("properties", properties)
-                .build();
     }
 }
 

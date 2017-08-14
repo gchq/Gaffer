@@ -22,12 +22,21 @@ public class LimitedCloseableIterable<T> implements CloseableIterable<T> {
     private final CloseableIterable<T> iterable;
     private final int start;
     private final Integer end;
+    private final Boolean truncate;
 
     public LimitedCloseableIterable(final Iterable<T> iterable, final int start, final Integer end) {
         this(new WrappedCloseableIterable<>(iterable), start, end);
     }
 
+    public LimitedCloseableIterable(final Iterable<T> iterable, final int start, final Integer end, final Boolean truncate) {
+        this(new WrappedCloseableIterable<>(iterable), start, end, truncate);
+    }
+
     public LimitedCloseableIterable(final CloseableIterable<T> iterable, final int start, final Integer end) {
+        this(iterable, start, end, true);
+    }
+
+    public LimitedCloseableIterable(final CloseableIterable<T> iterable, final int start, final Integer end, final Boolean truncate) {
         if (null != end && start > end) {
             throw new IllegalArgumentException("start should be less than end");
         }
@@ -40,6 +49,8 @@ public class LimitedCloseableIterable<T> implements CloseableIterable<T> {
 
         this.start = start;
         this.end = end;
+        this.truncate = truncate;
+
     }
 
     @JsonIgnore
@@ -59,6 +70,6 @@ public class LimitedCloseableIterable<T> implements CloseableIterable<T> {
 
     @Override
     public CloseableIterator<T> iterator() {
-        return new LimitedCloseableIterator<>(iterable.iterator(), start, end);
+        return new LimitedCloseableIterator<>(iterable.iterator(), start, end, truncate);
     }
 }

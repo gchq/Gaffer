@@ -68,7 +68,6 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.SplitStore;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -76,7 +75,6 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
-import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -279,11 +277,6 @@ public class AccumuloStore extends Store {
                         .withZkHosts(getProperties().getZookeepers()));
     }
 
-    @Override
-    public Object doUnhandledOperation(final Operation operation, final Context context) {
-        throw new UnsupportedOperationException("Operation: " + operation.getClass() + " is not supported");
-    }
-
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be AccumuloProperties")
     @Override
     public AccumuloProperties getProperties() {
@@ -413,11 +406,6 @@ public class AccumuloStore extends Store {
      */
     public AccumuloKeyPackage getKeyPackage() {
         return keyPackage;
-    }
-
-    @Override
-    public boolean isValidationRequired() {
-        return false;
     }
 
     public List<String> getTabletServers() throws StoreException {

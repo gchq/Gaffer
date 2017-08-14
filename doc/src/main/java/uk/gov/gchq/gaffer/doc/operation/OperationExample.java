@@ -38,6 +38,7 @@ import java.util.stream.Stream;
 
 public abstract class OperationExample extends Example {
     private final Graph graph = createExampleGraph();
+    //private Graph graph;
 
     public OperationExample(final Class<? extends Operation> classForExample) {
         super(classForExample);
@@ -68,6 +69,18 @@ public abstract class OperationExample extends Example {
             log(description + "\n");
         }
         printMethodJavaSnippet();
+
+        log(METHOD_DIVIDER);
+    }
+
+    protected void showExample(final OperationChain operation,
+                               final String description) {
+        log("#### " + getMethodNameAsSentence(1) + "\n");
+        if (StringUtils.isNotBlank(description)) {
+            log(description + "\n");
+        }
+        printMethodJavaSnippet();
+        printAsJson(operation);
 
         log(METHOD_DIVIDER);
     }
@@ -186,7 +199,7 @@ public abstract class OperationExample extends Example {
 
     protected Graph createExampleGraph() {
         final Graph graph = new Graph.Builder()
-                .graphId("graph1")
+                .config(StreamUtil.graphConfig(getClass()))
                 .addSchemas(StreamUtil.openStreams(getClass(), "operation/schema"))
                 .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();

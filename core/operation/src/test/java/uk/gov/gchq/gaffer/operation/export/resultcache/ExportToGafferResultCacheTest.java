@@ -20,7 +20,6 @@ import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
 import java.util.HashSet;
@@ -28,17 +27,11 @@ import java.util.HashSet;
 import static org.junit.Assert.assertEquals;
 
 
-public class ExportToGafferResultCacheTest extends OperationTest {
+public class ExportToGafferResultCacheTest extends OperationTest<ExportToGafferResultCache> {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return ExportToGafferResultCache.class;
-    }
-
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final String key = "key";
         final HashSet<String> opAuths = Sets.newHashSet("1", "2");
@@ -70,5 +63,10 @@ public class ExportToGafferResultCacheTest extends OperationTest {
         // Then
         assertEquals(key, op.getKey());
         assertEquals(opAuths, op.getOpAuths());
+    }
+
+    @Override
+    protected ExportToGafferResultCache getTestObject() {
+        return new ExportToGafferResultCache();
     }
 }

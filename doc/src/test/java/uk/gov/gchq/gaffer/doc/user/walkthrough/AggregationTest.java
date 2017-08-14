@@ -50,9 +50,9 @@ public class AggregationTest {
                         .dest("11")
                         .directed(true)
                         .group("RoadUse")
-                        .property("count", 2L)
+                        .property("count", 1L)
                         .property("startDate", Aggregation.MAY_01_2000)
-                        .property("endDate", new Date(Aggregation.MAY_02_2000.getTime() - 1))
+                        .property("endDate", new Date(Aggregation.MAY_03_2000.getTime() - 1))
                         .build()
         };
 

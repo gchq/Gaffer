@@ -27,3 +27,7 @@ target/
 __pycache__
 *.pem
 *.DS_Store
+.gaffer/
+parquet_data/
+*/graphLibrary/
+graphLibrary/

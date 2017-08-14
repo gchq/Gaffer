@@ -1,0 +1,10 @@
+{
+  "operations": [
+    {
+      "operation": "uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherGraph",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.operation.export.graph.handler.ExportToOtherGraphHandler"
+      }
+    }
+  ]
+}

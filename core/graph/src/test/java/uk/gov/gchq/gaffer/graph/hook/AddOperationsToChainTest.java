@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.graph.hook;
 import org.junit.Test;
 import sun.misc.IOUtils;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.Count;
@@ -44,13 +43,17 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class AddOperationsToChainTest {
+public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain> {
     private static final String ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH = "addOperationsToChain.json";
+
+    public AddOperationsToChainTest() {
+        super(AddOperationsToChain.class);
+    }
 
     @Test
     public void shouldAddAllOperationsWithNoAuthsGivenPath() throws IOException {
         // Given
-        AddOperationsToChain addOperationsToChain = new AddOperationsToChain(ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH);
+        AddOperationsToChain hook = fromJson(ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH);
 
         Operation discardOutput = new DiscardOutput();
         Operation splitStore = new SplitStore();
@@ -83,7 +86,7 @@ public class AddOperationsToChainTest {
                 .build();
 
         // When
-        addOperationsToChain.preExecute(opChain, new User());
+        hook.preExecute(opChain, new User());
 
         // Then
         for (int i = 0; i < opChain.getOperations().size(); i++) {
@@ -94,7 +97,7 @@ public class AddOperationsToChainTest {
     @Test
     public void shouldAddAllOperationsWithFirstAuthsGivenPath() throws IOException {
         // Given
-        AddOperationsToChain addOperationsToChain = new AddOperationsToChain(ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH);
+        AddOperationsToChain hook = fromJson(ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH);
 
         User user = new User.Builder().opAuths("auth1", "auth2").build();
 
@@ -118,7 +121,7 @@ public class AddOperationsToChainTest {
                 .build();
 
         // When
-        addOperationsToChain.preExecute(opChain, user);
+        hook.preExecute(opChain, user);
 
         // Then
         for (int i = 0; i < opChain.getOperations().size(); i++) {
@@ -129,7 +132,7 @@ public class AddOperationsToChainTest {
     @Test
     public void shouldAddAllOperationsWithSecondAuthsGivenPath() throws IOException {
         // Given
-        AddOperationsToChain addOperationsToChain = new AddOperationsToChain(ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH);
+        AddOperationsToChain hook = fromJson(ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH);
 
         User user = new User.Builder().opAuths("auth2").build();
 
@@ -155,7 +158,7 @@ public class AddOperationsToChainTest {
                 .build();
 
         // When
-        addOperationsToChain.preExecute(opChain, user);
+        hook.preExecute(opChain, user);
 
         // Then
         for (int i = 0; i < opChain.getOperations().size(); i++) {
@@ -170,7 +173,7 @@ public class AddOperationsToChainTest {
         try (final InputStream inputStream = StreamUtil.openStream(getClass(), ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH)) {
             bytes = IOUtils.readFully(inputStream, inputStream.available(), true);
         }
-        final AddOperationsToChain addOperationsToChain = new AddOperationsToChain(bytes);
+        final AddOperationsToChain hook = fromJson(bytes);
 
         Operation discardOutput = new DiscardOutput();
         Operation splitStore = new SplitStore();
@@ -203,7 +206,7 @@ public class AddOperationsToChainTest {
                 .build();
 
         // When
-        addOperationsToChain.preExecute(opChain, new User());
+        hook.preExecute(opChain, new User());
 
         // Then
         for (int i = 0; i < opChain.getOperations().size(); i++) {
@@ -212,67 +215,53 @@ public class AddOperationsToChainTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenFileDoesntExist() throws IOException {
-        // Given
-        final String falseAddOperationsPath = "/this/path/doesnt/exist";
-
-        // When / Then
-        try {
-            new AddOperationsToChain(falseAddOperationsPath);
-            fail("Exception expected");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
-    }
-
-    @Test
     public void shouldThrowExceptionWhenAddingNullExtraOperation() throws IOException {
         // Given
-        final String nullTestJson = "{\"start\":[{\"class\": null}]}";
+        final String nullTestJson = "{\"class\": \"uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain\", \"start\":[{\"class\": null}]}";
 
         //When / Then
         try {
-            new AddOperationsToChain(nullTestJson.getBytes());
+            fromJson(nullTestJson.getBytes());
             fail("Exception expected");
-        } catch (SchemaException e) {
-            assertNotNull(e.getMessage());
+        } catch (final RuntimeException e) {
+            assertTrue(e.getMessage().contains("Invalid type id 'null'"));
         }
     }
 
     @Test
     public void shouldThrowExceptionWhenAddingEmptyExtraOperation() throws IOException {
         // Given
-        final String emptyTestJson = "{\"start\":[{\"class\": \"\"}]}";
+        final String emptyTestJson = "{\"class\": \"uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain\", \"start\":[{\"class\": \"\"}]}";
 
         //When / Then
         try {
-            new AddOperationsToChain(emptyTestJson.getBytes());
+            fromJson(emptyTestJson.getBytes());
             fail("Exception expected");
-        } catch (SchemaException e) {
-            assertNotNull(e.getMessage());
+        } catch (final RuntimeException e) {
+            assertTrue(e.getMessage().contains("Invalid type id ''"));
         }
     }
 
     @Test
     public void shouldThrowExceptionWhenAddingFalseExtraOperation() throws IOException {
         // Given
-        final String falseOperationTestJson = "{\"start\":[{\"class\": \"this.Operation.Doesnt.Exist\"}]}";
+        final String falseOperationTestJson = "{\"class\": \"uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain\", \"start\":[{\"class\": \"this.Operation.Doesnt.Exist\"}]}";
 
         //When / Then
         try {
-            new AddOperationsToChain(falseOperationTestJson.getBytes());
+            fromJson(falseOperationTestJson.getBytes());
             fail("Exception expected");
-        } catch (SchemaException e) {
-            assertNotNull(e.getMessage());
+        } catch (final RuntimeException e) {
+            assertTrue(e.getMessage().contains("Invalid type id 'this.Operation.Doesnt.Exist'"));
         }
     }
 
     @Test
     public void shouldClearListWhenAddingOperations() throws IOException {
         //Given
-        final AddOperationsToChain addOperationsToChain = new AddOperationsToChain(ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH);
-        addOperationsToChain.setBefore(null);
-        addOperationsToChain.setAfter(null);
+        final AddOperationsToChain hook = fromJson(ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH);
+        hook.setBefore(null);
+        hook.setAfter(null);
 
         Operation discardOutput = new DiscardOutput();
         Operation splitStore = new SplitStore();
@@ -290,7 +279,7 @@ public class AddOperationsToChainTest {
                 .build();
 
         // When
-        addOperationsToChain.preExecute(opChain, new User());
+        hook.preExecute(opChain, new User());
 
         // Then
         for (int i = 0; i < opChain.getOperations().size(); i++) {
@@ -302,13 +291,13 @@ public class AddOperationsToChainTest {
     @Test
     public void shouldReturnClonedOperations() throws IOException {
         // Given
-        final AddOperationsToChain addOperationsToChain = new AddOperationsToChain(ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH);
+        final AddOperationsToChain hook = fromJson(ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH);
 
         // When / Then
-        assertClonedOperations(addOperationsToChain.getStart(), addOperationsToChain.getStart());
-        assertClonedOperations(addOperationsToChain.getBefore(), addOperationsToChain.getBefore());
-        assertClonedOperations(addOperationsToChain.getAfter(), addOperationsToChain.getAfter());
-        assertClonedOperations(addOperationsToChain.getEnd(), addOperationsToChain.getEnd());
+        assertClonedOperations(hook.getStart(), hook.getStart());
+        assertClonedOperations(hook.getBefore(), hook.getBefore());
+        assertClonedOperations(hook.getAfter(), hook.getAfter());
+        assertClonedOperations(hook.getEnd(), hook.getEnd());
     }
 
     public void assertClonedOperations(final Map<String, List<Operation>> after1, final Map<String, List<Operation>> after2) {
@@ -325,5 +314,18 @@ public class AddOperationsToChainTest {
             assertEquals(ops1.get(i).getClass(), ops2.get(i).getClass());
             assertNotSame(ops1.get(i), ops2.get(i));
         }
+    }
+
+    @Override
+    public void shouldJsonSerialiseAndDeserialise() {
+        // Given
+        final AddOperationsToChain hook = fromJson(ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH);
+
+        // When
+        final byte[] json = toJson(hook);
+        final AddOperationsToChain deserialisedHook = fromJson(json);
+
+        // Then
+        assertNotNull(deserialisedHook);
     }
 }

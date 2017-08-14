@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.stream.StreamSupplier;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
@@ -29,8 +31,10 @@ public class StreamIterableTest {
     @Test
     public void shouldDelegateIteratorToIterable() {
         // Given
+        final StreamSupplier<Object> streamSupplier = mock(StreamSupplier.class);
         final Stream<Object> stream = mock(Stream.class);
-        final StreamIterable<Object> wrappedIterable = new StreamIterable<>(stream);
+        given(streamSupplier.get()).willReturn(stream);
+        final StreamIterable<Object> wrappedIterable = new StreamIterable<>(streamSupplier);
         final Iterator<Object> iterator = mock(Iterator.class);
         given(stream.iterator()).willReturn(iterator);
 
@@ -43,15 +47,17 @@ public class StreamIterableTest {
     }
 
     @Test
-    public void shouldDelegateCloseToStreamIterable() {
+    public void shouldDelegateCloseToStreamIterable() throws IOException {
         // Given
+        final StreamSupplier<Object> streamSupplier = mock(StreamSupplier.class);
         final Stream<Object> stream = mock(Stream.class);
-        final StreamIterable<Object> streamIterable = new StreamIterable<>(stream);
+        given(streamSupplier.get()).willReturn(stream);
+        final StreamIterable<Object> streamIterable = new StreamIterable<>(streamSupplier);
 
         // When
         streamIterable.close();
 
         // Then
-        verify(stream).close();
+        verify(streamSupplier).close();
     }
 }

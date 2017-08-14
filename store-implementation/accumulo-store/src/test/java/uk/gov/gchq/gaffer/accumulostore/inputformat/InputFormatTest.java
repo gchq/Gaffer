@@ -132,8 +132,8 @@ public class InputFormatTest {
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
-    private static String getJsonString(final Object o) throws SerialisationException {
-        return new String(JSON_SERIALISER.serialise(o));
+    private static String getJsonString(final Object obj) throws SerialisationException {
+        return new String(JSON_SERIALISER.serialise(obj));
     }
 
     @Test
@@ -313,12 +313,7 @@ public class InputFormatTest {
     }
 
     private Schema getSchemaWithVisibilities() {
-        final Schema schema = Schema.fromJson(
-                this.getClass().getResourceAsStream("/schemaWithVisibilities/dataSchemaWithVisibilities.json"),
-                this.getClass().getResourceAsStream("/schemaWithVisibilities/dataTypes.json"),
-                this.getClass().getResourceAsStream("/schemaWithVisibilities/storeSchema.json"),
-                this.getClass().getResourceAsStream("/schemaWithVisibilities/storeTypes.json"));
-        return schema;
+        return Schema.fromJson(StreamUtil.openStreams(getClass(), "schemaWithVisibilities"));
     }
 
     private class Driver extends Configured implements Tool {

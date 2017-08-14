@@ -37,7 +37,7 @@ import java.util.Set;
 
 public class ReservoirItemsUnion extends PropertiesWalkthrough {
     public ReservoirItemsUnion() {
-        super("Using ReservoirItemsUnion to store a random sample of strings seen on an Element", "properties/reservoirItemsUnion", ReservoirItemsUnionElementGenerator.class);
+        super(com.yahoo.sketches.sampling.ReservoirItemsUnion.class, "properties/reservoirItemsUnion", ReservoirItemsUnionElementGenerator.class);
     }
 
     public static void main(final String[] args) throws OperationException {
@@ -49,7 +49,7 @@ public class ReservoirItemsUnion extends PropertiesWalkthrough {
         /// [graph] create a graph using our schema and store properties
         // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
-                .graphId("graph1")
+                .config(StreamUtil.graphConfig(getClass()))
                 .addSchemas(StreamUtil.openStreams(getClass(), "properties/reservoirItemsUnion/schema"))
                 .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();

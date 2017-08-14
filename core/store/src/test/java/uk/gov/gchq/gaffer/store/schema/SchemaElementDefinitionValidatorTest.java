@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.store.schema;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.collections.Sets;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
@@ -244,36 +245,30 @@ public class SchemaElementDefinitionValidatorTest {
     @Test
     public void shouldValidateAndReturnTrueWhenAggregatorIsValid() {
         // Given
-        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
         final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
-        final Map<String, String> properties = new HashMap<>();
-        properties.put(TestPropertyNames.PROP_1, "int");
-        properties.put(TestPropertyNames.PROP_2, "int");
         final BinaryOperator<Integer> function1 = mock(BinaryOperator.class);
         final BinaryOperator function2 = mock(BinaryOperator.class);
-        final ElementAggregator aggregator = new ElementAggregator.Builder()
-                .select(TestPropertyNames.PROP_1)
-                .execute(function1)
-                .select(TestPropertyNames.PROP_2)
-                .execute(function2)
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex("int1")
+                        .property(TestPropertyNames.PROP_1, "int1")
+                        .property(TestPropertyNames.PROP_2, "int2")
+                        .build())
+                .type("int1", new TypeDefinition.Builder()
+                        .clazz(Integer.class)
+                        .aggregateFunction(function1)
+                        .build())
+                .type("int2", new TypeDefinition.Builder()
+                        .clazz(Integer.class)
+                        .aggregateFunction(function2)
+                        .build())
                 .build();
 
-        given(elementDef.getIdentifiers()).willReturn(new HashSet<>());
-        given(elementDef.getProperties()).willReturn(properties.keySet());
-        given(elementDef.getPropertyMap()).willReturn(properties);
-        given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
-        given(elementDef.getFullAggregator()).willReturn(aggregator);
-        given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) Integer.class);
-        given(elementDef.getPropertyClass(TestPropertyNames.PROP_2)).willReturn((Class) Integer.class);
-        given(elementDef.isAggregate()).willReturn(true);
-
         // When
-        final ValidationResult result = validator.validate(elementDef);
+        final ValidationResult result = validator.validate(schema.getEntity(TestGroups.ENTITY));
 
         // Then
         assertTrue(result.isValid());
-        verify(elementDef, Mockito.atLeastOnce()).getPropertyClass(TestPropertyNames.PROP_1);
-        verify(elementDef, Mockito.atLeastOnce()).getPropertyClass(TestPropertyNames.PROP_2);
     }
 
     @Test
@@ -355,5 +350,272 @@ public class SchemaElementDefinitionValidatorTest {
 
         // Then
         assertTrue(result.isValid());
+    }
+
+    @Test
+    public void shouldValidateAndReturnFalseWhenAggregatorProvidedWithNoProperties() {
+        // Given
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+        final BinaryOperator<Integer> function1 = mock(BinaryOperator.class);
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex("id")
+                        .aggregator(new ElementAggregator.Builder()
+                                .select(IdentifierType.VERTEX.name())
+                                .execute(function1)
+                                .build())
+                        .build())
+                .type("id", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .build();
+
+        // When
+        final ValidationResult result = validator.validate(schema.getElement(TestGroups.ENTITY));
+
+        // Then
+        assertFalse(result.isValid());
+        assertEquals(com.google.common.collect.Sets.newHashSet("Groups with no properties should not have any aggregators"),
+                result.getErrors());
+    }
+
+    @Test
+    public void shouldValidateAndReturnFalseWhenAggregatorHasIdentifierInSelection() {
+        // Given
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+        final BinaryOperator<Integer> function1 = mock(BinaryOperator.class);
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex("id")
+                        .property(TestPropertyNames.STRING, "string")
+                        .aggregator(new ElementAggregator.Builder()
+                                .select(IdentifierType.VERTEX.name())
+                                .execute(function1)
+                                .build())
+                        .build())
+                .type("id", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .type("string", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .aggregateFunction(function1)
+                        .build())
+                .build();
+
+        // When
+        final ValidationResult result = validator.validate(schema.getElement(TestGroups.ENTITY));
+
+        // Then
+        assertFalse(result.isValid());
+        assertEquals(com.google.common.collect.Sets.newHashSet("Identifiers cannot be selected for aggregation: " + IdentifierType.VERTEX.name()),
+                result.getErrors());
+    }
+
+    @Test
+    public void shouldValidateAndReturnFalseWhenVisibilityIsAggregatedWithOtherProperty() {
+        // Given
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+        final BinaryOperator<Integer> function1 = mock(BinaryOperator.class);
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex("id")
+                        .property(TestPropertyNames.STRING, "string")
+                        .property(TestPropertyNames.VISIBILITY, "string")
+                        .aggregator(new ElementAggregator.Builder()
+                                .select(TestPropertyNames.STRING, TestPropertyNames.VISIBILITY)
+                                .execute(function1)
+                                .build())
+                        .build())
+                .visibilityProperty(TestPropertyNames.VISIBILITY)
+                .type("id", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .type("string", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .aggregateFunction(function1)
+                        .build())
+                .build();
+
+        // When
+        final ValidationResult result = validator.validate(schema.getElement(TestGroups.ENTITY));
+
+        // Then
+        assertFalse(result.isValid());
+        assertEquals(com.google.common.collect.Sets.newHashSet(
+                "The visibility property must be aggregated by itself. It is currently aggregated in the tuple: [stringProperty, visibility], by aggregate function: " + function1.getClass().getName()
+                ),
+                result.getErrors());
+    }
+
+    @Test
+    public void shouldValidateAndReturnTrueWhenTimestampIsAggregatedWithANonGroupByProperty() {
+        // Given
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+        final BinaryOperator<Integer> function1 = mock(BinaryOperator.class);
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex("id")
+                        .property(TestPropertyNames.STRING, "string")
+                        .property(TestPropertyNames.TIMESTAMP, "string")
+                        .aggregator(new ElementAggregator.Builder()
+                                .select(TestPropertyNames.STRING, TestPropertyNames.TIMESTAMP)
+                                .execute(function1)
+                                .build())
+                        .build())
+                .timestampProperty(TestPropertyNames.TIMESTAMP)
+                .type("id", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .type("string", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .aggregateFunction(function1)
+                        .build())
+                .build();
+
+        // When
+        final ValidationResult result = validator.validate(schema.getElement(TestGroups.ENTITY));
+
+        // Then
+        assertTrue(result.isValid());
+    }
+
+    @Test
+    public void shouldValidateAndReturnFalseWhenTimestampIsAggregatedWithAGroupByProperty() {
+        // Given
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+        final BinaryOperator<Integer> function1 = mock(BinaryOperator.class);
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex("id")
+                        .property(TestPropertyNames.STRING, "string")
+                        .property(TestPropertyNames.TIMESTAMP, "string")
+                        .groupBy(TestPropertyNames.STRING)
+                        .aggregator(new ElementAggregator.Builder()
+                                .select(TestPropertyNames.STRING, TestPropertyNames.TIMESTAMP)
+                                .execute(function1)
+                                .build())
+                        .build())
+                .timestampProperty(TestPropertyNames.TIMESTAMP)
+                .type("id", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .type("string", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .aggregateFunction(function1)
+                        .build())
+                .build();
+
+        // When
+        final ValidationResult result = validator.validate(schema.getElement(TestGroups.ENTITY));
+
+        // Then
+        assertFalse(result.isValid());
+        assertEquals(com.google.common.collect.Sets.newHashSet(
+                "groupBy properties and non-groupBy properties (including timestamp) must be not be aggregated using the same BinaryOperator. Selection tuple: [stringProperty, timestamp], is aggregated by: " + function1.getClass().getName()
+                ),
+                result.getErrors());
+    }
+
+    @Test
+    public void shouldValidateAndReturnFalseWhenGroupByIsAggregatedWithNonGroupByProperty() {
+        // Given
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+        final BinaryOperator<Integer> function1 = mock(BinaryOperator.class);
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex("id")
+                        .property(TestPropertyNames.PROP_1, "string")
+                        .property(TestPropertyNames.PROP_2, "string")
+                        .groupBy(TestPropertyNames.PROP_1)
+                        .aggregator(new ElementAggregator.Builder()
+                                .select(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                                .execute(function1)
+                                .build())
+                        .build())
+                .type("id", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .type("string", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .aggregateFunction(function1)
+                        .build())
+                .build();
+
+        // When
+        final ValidationResult result = validator.validate(schema.getElement(TestGroups.ENTITY));
+
+        // Then
+        assertFalse(result.isValid());
+        assertEquals(com.google.common.collect.Sets.newHashSet(
+                "groupBy properties and non-groupBy properties (including timestamp) must be not be aggregated using the same BinaryOperator. Selection tuple: [property1, property2], is aggregated by: " + function1.getClass().getName()
+                ),
+                result.getErrors());
+    }
+
+    @Test
+    public void shouldValidateAndReturnFalseWhenAggregatorHasNoFunction() {
+        // Given
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+        final BinaryOperator<Integer> function1 = mock(BinaryOperator.class);
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex("id")
+                        .property(TestPropertyNames.PROP_1, "string")
+                        .aggregator(new ElementAggregator.Builder()
+                                .select(TestPropertyNames.PROP_1)
+                                .execute(null)
+                                .build())
+                        .build())
+                .type("id", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .type("string", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .build();
+
+        // When
+        final ValidationResult result = validator.validate(schema.getElement(TestGroups.ENTITY));
+
+        // Then
+        assertFalse(result.isValid());
+        assertEquals(com.google.common.collect.Sets.newHashSet(
+                "ElementAggregator contains a null function."
+                ),
+                result.getErrors());
+    }
+
+    @Test
+    public void shouldValidateAndReturnFalseWhenAggregatorSelectionHasUnknownProperty() {
+        // Given
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+        final BinaryOperator<Integer> function1 = mock(BinaryOperator.class);
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex("id")
+                        .property(TestPropertyNames.STRING, "string")
+                        .aggregator(new ElementAggregator.Builder()
+                                .select(TestPropertyNames.STRING, TestPropertyNames.PROP_1)
+                                .execute(function1)
+                                .build())
+                        .build())
+                .type("id", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .type("string", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .aggregateFunction(function1)
+                        .build())
+                .build();
+
+        // When
+        final ValidationResult result = validator.validate(schema.getElement(TestGroups.ENTITY));
+
+        // Then
+        assertFalse(result.isValid());
+        assertEquals(com.google.common.collect.Sets.newHashSet(
+                "Unknown property used in an aggregator: " + TestPropertyNames.PROP_1
+                ),
+                result.getErrors());
     }
 }

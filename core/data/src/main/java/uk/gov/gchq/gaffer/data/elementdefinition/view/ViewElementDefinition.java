@@ -24,6 +24,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinition;
@@ -49,10 +50,11 @@ import java.util.Set;
 @JsonDeserialize(builder = ViewElementDefinition.Builder.class)
 public class ViewElementDefinition implements ElementDefinition, Cloneable {
     private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
-    protected ElementTransformer transformer;
     protected ElementFilter preAggregationFilter;
     protected ElementFilter postAggregationFilter;
+    protected ElementAggregator aggregator;
     protected ElementFilter postTransformFilter;
+    protected ElementTransformer transformer;
 
     /**
      * This field overrides the group by properties in the schema.
@@ -138,6 +140,14 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
         return null != preAggregationFilter && !preAggregationFilter.getComponents().isEmpty();
     }
 
+    public ElementAggregator getAggregator() {
+        return aggregator;
+    }
+
+    public void setAggregator(final ElementAggregator aggregator) {
+        this.aggregator = aggregator;
+    }
+
     @JsonIgnore
     public ElementFilter getPostAggregationFilter() {
         return postAggregationFilter;
@@ -196,16 +206,16 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
 
-        final ViewElementDefinition that = (ViewElementDefinition) o;
+        final ViewElementDefinition that = (ViewElementDefinition) obj;
 
         return new EqualsBuilder()
                 .append(transformer, that.transformer)
@@ -219,7 +229,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(7, 23)
                 .append(transformer)
                 .append(preAggregationFilter)
                 .append(postAggregationFilter)
@@ -284,6 +294,11 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
         public CHILD_CLASS preAggregationFilterFunctions(final List<TupleAdaptedPredicate<String, ?>> filterFunctions) {
             getElementDef().preAggregationFilter = new ElementFilter();
             getElementDef().preAggregationFilter.getComponents().addAll(filterFunctions);
+            return self();
+        }
+
+        public CHILD_CLASS aggregator(final ElementAggregator aggregator) {
+            getElementDef().aggregator = aggregator;
             return self();
         }
 

@@ -29,7 +29,9 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.spark.SparkConstants;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
@@ -50,10 +52,12 @@ public class ImportJavaRDDOfElementsHandlerTest {
     @Test
     public void checkImportJavaRDDOfElements() throws OperationException, IOException, InterruptedException {
         final Graph graph1 = new Graph.Builder()
-                .graphId("graphId")
-                .addSchema(getClass().getResourceAsStream("/schema/dataSchema.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/dataTypes.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/storeTypes.json"))
+                .config(new GraphConfig.Builder()
+                        .graphId("graphId")
+                        .build())
+                .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/types.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
                 .build();
 
@@ -89,9 +93,9 @@ public class ImportJavaRDDOfElementsHandlerTest {
         final SparkConf sparkConf = new SparkConf()
                 .setMaster("local")
                 .setAppName("testCheckGetCorrectElementsInJavaRDDForEntityId")
-                .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-                .set("spark.kryo.registrator", "uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator")
-                .set("spark.driver.allowMultipleContexts", "true");
+                .set(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
+                .set(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
+                .set(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true");
         final JavaSparkContext sparkContext = new JavaSparkContext(sparkConf);
 
         // Create Hadoop configuration and serialise to a string

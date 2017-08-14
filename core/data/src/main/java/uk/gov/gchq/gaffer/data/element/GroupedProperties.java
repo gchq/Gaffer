@@ -62,6 +62,7 @@ public class GroupedProperties extends Properties {
                 .isEquals();
     }
 
+    @Override
     public int hashCode() {
         return new HashCodeBuilder(23, 5)
                 .append(group)

@@ -29,6 +29,10 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobStatus;
 import uk.gov.gchq.gaffer.jobtracker.JobTracker;
+import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
+import uk.gov.gchq.gaffer.named.operation.DeleteNamedOperation;
+import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -64,6 +68,7 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.OperationUtil;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
@@ -84,6 +89,10 @@ import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandle
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetAllJobDetailsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetJobDetailsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetJobResultsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.DeleteNamedOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.GetAllNamedOperationsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.NamedOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToArrayHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToCsvHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToEntitySeedsHandler;
@@ -137,6 +146,7 @@ public abstract class Store {
     private StoreProperties properties;
 
     private final SchemaOptimiser schemaOptimiser;
+    private GraphLibrary library;
 
     private JobTracker jobTracker;
     private ExecutorService executorService;
@@ -178,6 +188,7 @@ public abstract class Store {
     }
 
     public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
+        LOGGER.debug("Initialising {}", getClass().getSimpleName());
         if (null == graphId) {
             throw new IllegalArgumentException("graphId is required");
         }
@@ -213,11 +224,6 @@ public abstract class Store {
      * @return the {@link uk.gov.gchq.gaffer.store.StoreTrait}s for this store.
      */
     public abstract Set<StoreTrait> getTraits();
-
-    /**
-     * @return true if the store requires validation, so it requires Validatable operations to have a validation step.
-     */
-    public abstract boolean isValidationRequired();
 
     /**
      * Executes a given operation and returns the result.
@@ -318,6 +324,16 @@ public abstract class Store {
         return initialJobDetail;
     }
 
+    /**
+     * Executes an operation chain with the provided context, without updating the
+     * job tracker.
+     *
+     * @param operationChain operation chain to execute
+     * @param context        the context containing the user
+     * @param <O>            the output type
+     * @return the result of the operation chain
+     * @throws OperationException if an error occurs whilst executing the operation chain.
+     */
     public <O> O _execute(final OperationChain<O> operationChain, final Context context) throws OperationException {
         final OperationChain<O> optimisedOperationChain = prepareOperationChain(operationChain, context);
         return handleOperationChain(optimisedOperationChain, context);
@@ -414,6 +430,14 @@ public abstract class Store {
      */
     public StoreProperties getProperties() {
         return properties;
+    }
+
+    public void setGraphLibrary(final GraphLibrary library) {
+        this.library = library;
+    }
+
+    public GraphLibrary getGraphLibrary() {
+        return library;
     }
 
     public void optimiseSchema() {
@@ -543,13 +567,15 @@ public abstract class Store {
     protected abstract Class<? extends Serialiser> getRequiredParentSerialiserClass();
 
     /**
-     * Should deal with any unhandled operations, could simply throw an {@link UnsupportedOperationException}.
+     * Should deal with any unhandled operations, simply throws an {@link UnsupportedOperationException}.
      *
      * @param operation the operation that does not have a registered handler.
      * @param context   operation execution context
      * @return the result of the operation.
      */
-    protected abstract Object doUnhandledOperation(final Operation operation, final Context context);
+    protected Object doUnhandledOperation(final Operation operation, final Context context) {
+        throw new UnsupportedOperationException("Operation " + operation.getClass() + " is not supported by the " + getClass().getSimpleName() + ".");
+    }
 
     protected final void addOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {
         if (null == handler) {
@@ -676,6 +702,14 @@ public abstract class Store {
         addOperationHandler(ToSet.class, new ToSetHandler<>());
         addOperationHandler(ToStream.class, new ToStreamHandler<>());
         addOperationHandler(ToVertices.class, new ToVerticesHandler());
+
+        // Named operation
+        if (null != CacheServiceLoader.getService()) {
+            addOperationHandler(NamedOperation.class, new NamedOperationHandler());
+            addOperationHandler(AddNamedOperation.class, new AddNamedOperationHandler());
+            addOperationHandler(GetAllNamedOperations.class, new GetAllNamedOperationsHandler());
+            addOperationHandler(DeleteNamedOperation.class, new DeleteNamedOperationHandler());
+        }
 
         // ElementComparison
         addOperationHandler(Max.class, new MaxHandler());

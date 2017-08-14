@@ -34,6 +34,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser;
@@ -73,17 +74,7 @@ public class AddElementsFromHdfsIT {
     }
 
     @Test
-    public void shouldAddElementsFromHdfsWhenOutputDirectoryAlreadyExists() throws Exception {
-        final FileSystem fs = FileSystem.getLocal(createLocalConf());
-        fs.mkdirs(new Path(outputDir));
-        addElementsFromHdfs();
-    }
-
-    @Test
-    public void shouldAddElementsFromHdfsWhenFailureDirectoryAlreadyExists() throws Exception {
-        final FileSystem fs = FileSystem.getLocal(createLocalConf());
-        fs.mkdirs(new Path(failureDir));
-
+    public void shouldAddElementsFromHdfs() throws Exception {
         addElementsFromHdfs();
     }
 
@@ -155,7 +146,9 @@ public class AddElementsFromHdfsIT {
 
     private Graph createGraph() throws StoreException {
         return new Graph.Builder()
-                .graphId("graph1")
+                .config(new GraphConfig.Builder()
+                        .graphId("graph1")
+                        .build())
                 .storeProperties(StreamUtil.storeProps(getClass()))
                 .addSchemas(StreamUtil.schemas(getClass()))
                 .build();

@@ -1,9 +1,0 @@
-{
-  "types": {
-    "simpleProperty": {
-      "aggregateFunction": {
-        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
-      }
-    }
-  }
-}

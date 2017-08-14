@@ -31,7 +31,7 @@ import java.util.Set;
 
 public class BoundedTimestampSet extends PropertiesWalkthrough {
     public BoundedTimestampSet() {
-        super("Using a BoundedTimestampSet to record a sample of the set of timestamps an element was active", "properties/boundedTimestampSet",
+        super(uk.gov.gchq.gaffer.time.BoundedTimestampSet.class, "properties/boundedTimestampSet",
                 BoundedTimestampSetElementGenerator.class);
     }
 
@@ -44,7 +44,7 @@ public class BoundedTimestampSet extends PropertiesWalkthrough {
         /// [graph] create a graph using our schema and store properties
         // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
-                .graphId("graph1")
+                .config(StreamUtil.graphConfig(getClass()))
                 .addSchemas(StreamUtil.openStreams(getClass(), "properties/boundedTimestampSet/schema"))
                 .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();
