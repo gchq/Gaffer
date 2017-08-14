@@ -33,7 +33,6 @@ uk.gov.gchq.gaffer.cache.exception
 uk.gov.gchq.gaffer.cache.impl
 uk.gov.gchq.gaffer.cache.util
 uk.gov.gchq.gaffer.commonutil
-uk.gov.gchq.gaffer.commonutil.collection
 uk.gov.gchq.gaffer.commonutil.exception
 uk.gov.gchq.gaffer.commonutil.iterable
 uk.gov.gchq.gaffer.commonutil.pair
@@ -69,9 +68,7 @@ uk.gov.gchq.gaffer.exception
 uk.gov.gchq.gaffer.flink.operation.handler
 uk.gov.gchq.gaffer.function
 uk.gov.gchq.gaffer.graph
-uk.gov.gchq.gaffer.graph.exception
 uk.gov.gchq.gaffer.graph.hook
-uk.gov.gchq.gaffer.graph.library
 uk.gov.gchq.gaffer.hbasestore
 uk.gov.gchq.gaffer.hbasestore.coprocessor
 uk.gov.gchq.gaffer.hbasestore.coprocessor.processor
@@ -107,6 +104,8 @@ uk.gov.gchq.gaffer.operation
 uk.gov.gchq.gaffer.operation.data
 uk.gov.gchq.gaffer.operation.data.generator
 uk.gov.gchq.gaffer.operation.export
+uk.gov.gchq.gaffer.operation.export.graph
+uk.gov.gchq.gaffer.operation.export.graph.handler
 uk.gov.gchq.gaffer.operation.export.resultcache
 uk.gov.gchq.gaffer.operation.export.resultcache.handler
 uk.gov.gchq.gaffer.operation.export.resultcache.handler.util
@@ -123,6 +122,20 @@ uk.gov.gchq.gaffer.operation.impl.job
 uk.gov.gchq.gaffer.operation.impl.output
 uk.gov.gchq.gaffer.operation.io
 uk.gov.gchq.gaffer.operation.serialisation
+uk.gov.gchq.gaffer.parquetstore
+uk.gov.gchq.gaffer.parquetstore.index
+uk.gov.gchq.gaffer.parquetstore.io.reader
+uk.gov.gchq.gaffer.parquetstore.io.reader.converter
+uk.gov.gchq.gaffer.parquetstore.io.writer
+uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler
+uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.ImportRDDOfElements
+uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl
+uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.RDD
+uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler
+uk.gov.gchq.gaffer.parquetstore.operation.getelements.impl
+uk.gov.gchq.gaffer.parquetstore.serialisation
+uk.gov.gchq.gaffer.parquetstore.serialisation.impl
+uk.gov.gchq.gaffer.parquetstore.utils
 uk.gov.gchq.gaffer.proxystore
 uk.gov.gchq.gaffer.rest
 uk.gov.gchq.gaffer.rest.application
@@ -151,7 +164,9 @@ uk.gov.gchq.gaffer.sketches.datasketches.theta.binaryoperator
 uk.gov.gchq.gaffer.sketches.datasketches.theta.serialisation
 uk.gov.gchq.gaffer.sketches.predicate
 uk.gov.gchq.gaffer.sketches.serialisation
+uk.gov.gchq.gaffer.sketches.serialisation.json
 uk.gov.gchq.gaffer.sketches.serialisation.json.hyperloglogplus
+uk.gov.gchq.gaffer.spark
 uk.gov.gchq.gaffer.spark.examples
 uk.gov.gchq.gaffer.spark.operation.dataframe
 uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property
@@ -174,6 +189,8 @@ uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.java
 uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.scala
 uk.gov.gchq.gaffer.store
 uk.gov.gchq.gaffer.store.element
+uk.gov.gchq.gaffer.store.exception
+uk.gov.gchq.gaffer.store.library
 uk.gov.gchq.gaffer.store.operation
 uk.gov.gchq.gaffer.store.operation.handler
 uk.gov.gchq.gaffer.store.operation.handler.compare
