@@ -80,4 +80,9 @@ public class ArrayListStringParquetSerialiser implements ParquetSerialiser<Array
     public boolean canHandle(final Class clazz) {
         return ArrayList.class.equals(clazz);
     }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

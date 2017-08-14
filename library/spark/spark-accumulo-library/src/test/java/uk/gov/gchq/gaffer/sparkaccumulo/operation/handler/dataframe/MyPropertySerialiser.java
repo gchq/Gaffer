@@ -54,4 +54,9 @@ public class MyPropertySerialiser implements ToBytesSerialiser<MyProperty> {
     public boolean preservesObjectOrdering() {
         return false;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

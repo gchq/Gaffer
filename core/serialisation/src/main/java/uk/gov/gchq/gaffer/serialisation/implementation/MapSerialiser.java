@@ -86,6 +86,11 @@ public class MapSerialiser implements ToBytesSerialiser<Map<? extends Object, ? 
     }
 
     @Override
+    public boolean isConsistent() {
+        return false;
+    }
+
+    @Override
     public byte[] serialiseNull() {
         return new byte[0];
     }

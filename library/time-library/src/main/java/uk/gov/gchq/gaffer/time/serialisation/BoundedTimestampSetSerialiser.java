@@ -126,4 +126,9 @@ public class BoundedTimestampSetSerialiser implements ToBytesSerialiser<BoundedT
     public boolean preservesObjectOrdering() {
         return false;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

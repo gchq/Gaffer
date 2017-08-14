@@ -100,4 +100,9 @@ public class EdgeSerialiser extends PropertiesSerialiser implements ToBytesSeria
     public Edge deserialiseEmpty() throws SerialisationException {
         return null;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

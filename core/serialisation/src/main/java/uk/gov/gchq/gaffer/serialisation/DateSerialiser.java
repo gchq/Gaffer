@@ -60,4 +60,9 @@ public class DateSerialiser extends ToBytesViaStringDeserialiser<Date> {
     public boolean preservesObjectOrdering() {
         return true;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

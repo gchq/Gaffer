@@ -51,4 +51,9 @@ public class SketchSerialiser implements ToBytesSerialiser<Sketch> {
     public boolean preservesObjectOrdering() {
         return false;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

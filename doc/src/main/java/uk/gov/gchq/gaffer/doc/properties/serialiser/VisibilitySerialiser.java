@@ -64,4 +64,9 @@ public class VisibilitySerialiser implements ToBytesSerialiser<String> {
     public boolean preservesObjectOrdering() {
         return true;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

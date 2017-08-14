@@ -71,6 +71,11 @@ public class RoaringBitmapSerialiser implements ToBytesSerialiser<RoaringBitmap>
     }
 
     @Override
+    public boolean isConsistent() {
+        return true;
+    }
+
+    @Override
     public RoaringBitmap deserialiseEmpty() {
         return new RoaringBitmap();
     }

@@ -56,4 +56,9 @@ public class ReservoirItemsSketchSerialiser<T> implements ToBytesSerialiser<Rese
     public boolean preservesObjectOrdering() {
         return false;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

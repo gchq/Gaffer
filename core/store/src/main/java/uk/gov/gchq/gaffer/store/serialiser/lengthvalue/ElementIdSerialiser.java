@@ -103,4 +103,9 @@ public class ElementIdSerialiser implements ToBytesSerialiser<ElementId> {
     public boolean preservesObjectOrdering() {
         return false;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

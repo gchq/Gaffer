@@ -76,4 +76,9 @@ public class ElementSerialiser extends PropertiesSerialiser implements ToBytesSe
     public Element deserialiseEmpty() throws SerialisationException {
         return null;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

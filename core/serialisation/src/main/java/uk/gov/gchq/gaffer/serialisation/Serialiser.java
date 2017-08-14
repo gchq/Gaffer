@@ -86,4 +86,6 @@ public interface Serialiser<INPUT, OUTPUT> extends Serializable {
      * @return true if the serialisation will preserve the order of the INPUT, otherwise false.
      */
     boolean preservesObjectOrdering();
+
+    boolean isConsistent();
 }

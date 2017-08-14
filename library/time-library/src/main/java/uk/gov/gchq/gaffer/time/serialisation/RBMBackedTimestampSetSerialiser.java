@@ -103,4 +103,9 @@ public class RBMBackedTimestampSetSerialiser implements ToBytesSerialiser<RBMBac
     public boolean preservesObjectOrdering() {
         return false;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

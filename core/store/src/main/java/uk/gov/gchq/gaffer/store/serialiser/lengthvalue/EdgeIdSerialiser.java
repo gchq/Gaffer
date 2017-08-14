@@ -89,4 +89,9 @@ public class EdgeIdSerialiser implements ToBytesSerialiser<EdgeId> {
     public boolean preservesObjectOrdering() {
         return false;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

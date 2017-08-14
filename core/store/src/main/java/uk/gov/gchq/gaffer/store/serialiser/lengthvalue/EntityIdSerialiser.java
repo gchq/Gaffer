@@ -78,4 +78,9 @@ public class EntityIdSerialiser implements ToBytesSerialiser<EntityId> {
     public boolean preservesObjectOrdering() {
         return false;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }
