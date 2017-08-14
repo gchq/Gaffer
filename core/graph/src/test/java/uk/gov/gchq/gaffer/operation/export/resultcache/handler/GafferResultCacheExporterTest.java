@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -70,7 +71,9 @@ public class GafferResultCacheExporterTest {
     public void before() {
         given(store.getSchema()).willReturn(new Schema());
         resultCache = new Graph.Builder()
-                .graphId("resultCacheGraph")
+                .config(new GraphConfig.Builder()
+                        .graphId("resultCacheGraph")
+                        .build())
                 .store(store)
                 .build();
     }
