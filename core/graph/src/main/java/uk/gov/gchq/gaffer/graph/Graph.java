@@ -349,6 +349,10 @@ public final class Graph {
             return this;
         }
 
+        public String getGraphId() {
+            return graphId;
+        }
+
         public Builder config(final Path path) {
             configBuilder.json(path);
             return this;

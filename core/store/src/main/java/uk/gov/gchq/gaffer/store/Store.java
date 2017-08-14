@@ -138,7 +138,7 @@ public abstract class Store {
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to aggregate the elements.
      */
-    private Schema schema;
+    protected Schema schema;
 
     /**
      * The store properties - contains specific configuration information for the store - such as database connection strings.
@@ -169,7 +169,7 @@ public abstract class Store {
 
         final String storeClass = storeProperties.getStoreClass();
         if (null == storeClass) {
-            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS);
+            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS + ", GraphId: " + graphId);
         }
 
         final Store newStore;
