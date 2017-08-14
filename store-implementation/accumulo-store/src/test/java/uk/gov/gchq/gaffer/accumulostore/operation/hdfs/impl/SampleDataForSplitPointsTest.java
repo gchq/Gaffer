@@ -128,7 +128,7 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
                 .build();
 
         //When
-        SampleDataForSplitPoints clone = (SampleDataForSplitPoints) sampleDataForSplitPoints.shallowClone();
+        SampleDataForSplitPoints clone = sampleDataForSplitPoints.shallowClone();
 
         // Then
         assertEquals(INPUT_DIRECTORY, clone.getInputPaths().get(0));
