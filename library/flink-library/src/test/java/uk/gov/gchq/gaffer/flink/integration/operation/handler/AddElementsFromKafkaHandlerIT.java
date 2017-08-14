@@ -110,7 +110,7 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
             }
         }).start();
 
-        Thread.sleep(20000);
+        Thread.sleep(30000);
 
         new Thread(() -> {
             // Create kafka producer and add some data
@@ -125,10 +125,11 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
         }).start();
 
         // Then
+        Thread.sleep(5000);
         try {
             verifyElements(graph);
         } catch (final AssertionError e) {
-            Thread.sleep(20000);
+            Thread.sleep(30000);
             verifyElements(graph);
         }
     }

@@ -25,9 +25,8 @@ import uk.gov.gchq.gaffer.rest.factory.UnknownUserFactory;
  */
 public abstract class SystemProperty {
     // KEYS
-    public static final String GRAPH_LIBRARY_CLASS = "gaffer.graph.library.class";
-    public static final String GRAPH_LIBRARY_CONFIG = "gaffer.graph.library.config";
-    public static final String GRAPH_ID = "gaffer.graph.id";
+
+    public static final String GRAPH_CONFIG_PATH = "gaffer.graph.config";
     public static final String SCHEMA_PATHS = "gaffer.schemas";
     public static final String STORE_PROPERTIES_PATH = "gaffer.storeProperties";
     public static final String BASE_URL = "gaffer.rest-api.basePath";
@@ -37,7 +36,30 @@ public abstract class SystemProperty {
     public static final String SERVICES_PACKAGE_PREFIX = "gaffer.rest-api.resourcePackage";
     public static final String PACKAGE_PREFIXES = "gaffer.package.prefixes";
     public static final String REST_DEBUG = DebugUtil.DEBUG;
+
+    /**
+     * @deprecated create a GraphConfig json file and use GRAPH_CONFIG_PATH instead
+     */
+    @Deprecated
+    public static final String GRAPH_ID = "gaffer.graph.id";
+
+    /**
+     * @deprecated create a GraphConfig json file and use GRAPH_CONFIG_PATH instead
+     */
+    @Deprecated
     public static final String GRAPH_HOOKS_PATH = "gaffer.graph.hooks.path";
+
+    /**
+     * @deprecated create a GraphConfig json file and use GRAPH_CONFIG_PATH instead
+     */
+    @Deprecated
+    public static final String GRAPH_LIBRARY_CLASS = "gaffer.graph.library.class";
+
+    /**
+     * @deprecated create a GraphConfig json file and use GRAPH_CONFIG_PATH instead
+     */
+    @Deprecated
+    public static final String GRAPH_LIBRARY_CONFIG = "gaffer.graph.library.config";
 
     // DEFAULTS
     /**
