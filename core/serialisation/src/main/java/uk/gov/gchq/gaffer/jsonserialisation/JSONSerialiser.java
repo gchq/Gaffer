@@ -47,15 +47,21 @@ import java.io.InputStream;
  * The serialisation is set to not include nulls or default values.
  */
 public class JSONSerialiser {
+    public static final String JSON_SERIALISER_CLASS_KEY = "gaffer.serialiser.json.class";
+    public static final String DEFAULT_SERIALISER_CLASS_NAME = JSONSerialiser.class.getName();
+
     public static final String FILTER_FIELDS_BY_NAME = "filterFieldsByName";
+
     private static final JsonFactory JSON_FACTORY = new JsonFactory();
+
+    private static JSONSerialiser instance;
 
     private final ObjectMapper mapper;
 
     /**
      * Constructs a <code>JSONSerialiser</code> that skips nulls and default values.
      */
-    public JSONSerialiser() {
+    protected JSONSerialiser() {
         this(createDefaultMapper());
     }
 
@@ -67,32 +73,28 @@ public class JSONSerialiser {
      *
      * @param mapper a custom object mapper
      */
-    public JSONSerialiser(final ObjectMapper mapper) {
+    protected JSONSerialiser(final ObjectMapper mapper) {
         this.mapper = mapper;
     }
 
-    public static JSONSerialiser fromClass(final String className) {
-        if (null == className || className.isEmpty()) {
-            return new JSONSerialiser();
+    public static JSONSerialiser getInstance() {
+        if (null == instance) {
+            updateInstance();
         }
+        return instance;
+    }
 
-        try {
-            return fromClass(Class.forName(className).asSubclass(JSONSerialiser.class));
-        } catch (final ClassNotFoundException e) {
-            throw new IllegalArgumentException("Could not create instance of json serialiser from class: " + className);
+    public static void updateInstance(final String jsonSerialiserClass) {
+        if (null != jsonSerialiserClass) {
+            System.setProperty(JSON_SERIALISER_CLASS_KEY, jsonSerialiserClass);
+            _updateInstance(jsonSerialiserClass);
+        } else {
+            updateInstance();
         }
     }
 
-    public static JSONSerialiser fromClass(final Class<? extends JSONSerialiser> clazz) {
-        if (null == clazz) {
-            return new JSONSerialiser();
-        }
-
-        try {
-            return clazz.newInstance();
-        } catch (final InstantiationException | IllegalAccessException e) {
-            throw new IllegalArgumentException("Could not create instance of json serialiser from class: " + clazz.getName());
-        }
+    public static void updateInstance() {
+        _updateInstance(System.getProperty(JSON_SERIALISER_CLASS_KEY, DEFAULT_SERIALISER_CLASS_NAME));
     }
 
     public static ObjectMapper createDefaultMapper() {
@@ -111,12 +113,6 @@ public class JSONSerialiser {
         return mapper;
     }
 
-    private static SimpleModule getCloseableIterableDeserialiserModule() {
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(CloseableIterable.class, new CloseableIterableDeserializer());
-        return module;
-    }
-
     public static FilterProvider getFilterProvider(final String... fieldsToExclude) {
         if (null == fieldsToExclude || fieldsToExclude.length == 0) {
             // Use the 'serializeAllExcept' method so it is compatible with older versions of jackson
@@ -128,13 +124,12 @@ public class JSONSerialiser {
                 .addFilter(FILTER_FIELDS_BY_NAME, (BeanPropertyFilter) SimpleBeanPropertyFilter.serializeAllExcept(fieldsToExclude));
     }
 
-
     /**
      * @param clazz the clazz of the object to be serialised/deserialised
      * @return true if the clazz can be serialised/deserialised
      */
-    public boolean canHandle(final Class clazz) {
-        return mapper.canSerialize(clazz);
+    public static boolean canHandle(final Class clazz) {
+        return getInstance().mapper.canSerialize(clazz);
     }
 
     /**
@@ -145,7 +140,7 @@ public class JSONSerialiser {
      * @return the provided object serialised into bytes
      * @throws SerialisationException if the object fails to be serialised
      */
-    public byte[] serialise(final Object object, final String... fieldsToExclude) throws SerialisationException {
+    public static byte[] serialise(final Object object, final String... fieldsToExclude) throws SerialisationException {
         return serialise(object, false, fieldsToExclude);
     }
 
@@ -159,7 +154,7 @@ public class JSONSerialiser {
      * @return the provided object serialised (with pretty printing) into bytes
      * @throws SerialisationException if the object fails to serialise
      */
-    public byte[] serialise(final Object object, final boolean prettyPrint, final String... fieldsToExclude) throws SerialisationException {
+    public static byte[] serialise(final Object object, final boolean prettyPrint, final String... fieldsToExclude) throws SerialisationException {
         final ByteArrayBuilder byteArrayBuilder = new ByteArrayBuilder();
         try {
             serialise(object, JSON_FACTORY.createGenerator(byteArrayBuilder, JsonEncoding.UTF8), prettyPrint, fieldsToExclude);
@@ -179,13 +174,13 @@ public class JSONSerialiser {
      * @param fieldsToExclude optional property names to exclude from the json
      * @throws SerialisationException if the object fails to serialise
      */
-    public void serialise(final Object object, final JsonGenerator jsonGenerator, final boolean prettyPrint, final String... fieldsToExclude)
+    public static void serialise(final Object object, final JsonGenerator jsonGenerator, final boolean prettyPrint, final String... fieldsToExclude)
             throws SerialisationException {
         if (prettyPrint) {
             jsonGenerator.useDefaultPrettyPrinter();
         }
 
-        final ObjectWriter writer = mapper.writer(getFilterProvider(fieldsToExclude));
+        final ObjectWriter writer = getInstance().mapper.writer(getFilterProvider(fieldsToExclude));
         try {
             writer.writeValue(jsonGenerator, object);
         } catch (final IOException e) {
@@ -200,9 +195,9 @@ public class JSONSerialiser {
      * @return the deserialised object
      * @throws SerialisationException if the bytes fail to deserialise
      */
-    public <T> T deserialise(final byte[] bytes, final Class<T> clazz) throws SerialisationException {
+    public static <T> T deserialise(final byte[] bytes, final Class<T> clazz) throws SerialisationException {
         try {
-            return mapper.readValue(bytes, clazz);
+            return getInstance().mapper.readValue(bytes, clazz);
         } catch (final IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
@@ -215,7 +210,7 @@ public class JSONSerialiser {
      * @return the deserialised object
      * @throws SerialisationException if the bytes fail to deserialise
      */
-    public <T> T deserialise(final InputStream stream, final Class<T> clazz) throws SerialisationException {
+    public static <T> T deserialise(final InputStream stream, final Class<T> clazz) throws SerialisationException {
         try (final InputStream stream2 = stream) {
             final byte[] bytes = IOUtils.toByteArray(stream2);
             return deserialise(bytes, clazz);
@@ -231,9 +226,9 @@ public class JSONSerialiser {
      * @return the deserialised object
      * @throws SerialisationException if the bytes fail to deserialise
      */
-    public <T> T deserialise(final byte[] bytes, final TypeReference<T> type) throws SerialisationException {
+    public static <T> T deserialise(final byte[] bytes, final TypeReference<T> type) throws SerialisationException {
         try {
-            return mapper.readValue(bytes, type);
+            return getInstance().mapper.readValue(bytes, type);
         } catch (final IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
@@ -246,11 +241,24 @@ public class JSONSerialiser {
      * @return the deserialised object
      * @throws SerialisationException if the bytes fail to deserialise
      */
-    public <T> T deserialise(final InputStream stream, final TypeReference<T> type) throws SerialisationException {
+    public static <T> T deserialise(final InputStream stream, final TypeReference<T> type) throws SerialisationException {
         try (final InputStream stream2 = stream) {
             final byte[] bytes = IOUtils.toByteArray(stream2);
             return deserialise(bytes, type);
         } catch (final IOException e) {
+            throw new SerialisationException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * @param content the {@link java.lang.String} containing the bytes of the object to deserialise
+     * @return the deserialised object
+     * @throws SerialisationException if the bytes fail to deserialise
+     */
+    public static JsonNode getJsonNodeFromString(final String content) throws SerialisationException {
+        try {
+            return getInstance().mapper.readTree(content);
+        } catch (IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }
@@ -260,16 +268,24 @@ public class JSONSerialiser {
         return mapper;
     }
 
-    /**
-     * @param content the {@link java.lang.String} containing the bytes of the object to deserialise
-     * @return the deserialised object
-     * @throws SerialisationException if the bytes fail to deserialise
-     */
-    public JsonNode getJsonNodeFromString(final String content) throws SerialisationException {
-        try {
-            return mapper.readTree(content);
-        } catch (IOException e) {
-            throw new SerialisationException(e.getMessage(), e);
+    private static void _updateInstance(final String jsonSerialiserClass) {
+        if (null == instance || !instance.getClass().getName().equals(jsonSerialiserClass)) {
+            final String className = System.getProperty(JSON_SERIALISER_CLASS_KEY);
+            if (null == className) {
+                instance = new JSONSerialiser();
+            } else {
+                try {
+                    instance = Class.forName(className).asSubclass(JSONSerialiser.class).newInstance();
+                } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                    throw new IllegalArgumentException("System property " + JSON_SERIALISER_CLASS_KEY + " must be set to a class that is a sub class of " + JSONSerialiser.class.getName(), e);
+                }
+            }
         }
+    }
+
+    private static SimpleModule getCloseableIterableDeserialiserModule() {
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(CloseableIterable.class, new CloseableIterableDeserializer());
+        return module;
     }
 }

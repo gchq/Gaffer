@@ -47,8 +47,6 @@ import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ExamplesServiceTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @InjectMocks
     private ExamplesService service;
 
@@ -124,8 +122,8 @@ public class ExamplesServiceTest {
         final OperationChain opChain = service.execute();
 
         // When
-        byte[] bytes = serialiser.serialise(opChain);
-        final OperationChain deserialisedOp = serialiser.deserialise(bytes, opChain.getClass());
+        byte[] bytes = JSONSerialiser.serialise(opChain);
+        final OperationChain deserialisedOp = JSONSerialiser.deserialise(bytes, opChain.getClass());
 
         // Then
         assertNotNull(deserialisedOp);
@@ -145,8 +143,8 @@ public class ExamplesServiceTest {
         //Given
 
         // When
-        byte[] bytes = serialiser.serialise(operation);
-        final Operation deserialisedOp = serialiser.deserialise(bytes, operation.getClass());
+        byte[] bytes = JSONSerialiser.serialise(operation);
+        final Operation deserialisedOp = JSONSerialiser.deserialise(bytes, operation.getClass());
 
         // Then
         assertNotNull(deserialisedOp);

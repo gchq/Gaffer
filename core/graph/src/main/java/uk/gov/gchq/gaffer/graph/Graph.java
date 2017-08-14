@@ -74,7 +74,6 @@ import java.util.stream.Collectors;
  * @see uk.gov.gchq.gaffer.graph.Graph.Builder
  */
 public final class Graph {
-    private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
     private static final Logger LOGGER = LoggerFactory.getLogger(Graph.class);
 
     /**
@@ -447,6 +446,9 @@ public final class Graph {
 
         public Builder storeProperties(final StoreProperties properties) {
             this.properties = properties;
+            if (null != properties) {
+                JSONSerialiser.updateInstance(properties.getJsonSerialiserClass());
+            }
             return this;
         }
 
@@ -604,7 +606,7 @@ public final class Graph {
             }
             final GraphHook[] hooks;
             try {
-                hooks = JSON_SERIALISER.deserialise(FileUtils.readFileToByteArray(hooksPath.toFile()), GraphHook[].class);
+                hooks = JSONSerialiser.deserialise(FileUtils.readFileToByteArray(hooksPath.toFile()), GraphHook[].class);
             } catch (final IOException e) {
                 throw new IllegalArgumentException("Unable to load graph hooks file: " + hooksPath, e);
             }
@@ -624,7 +626,7 @@ public final class Graph {
 
             final GraphHook hook;
             try {
-                hook = JSON_SERIALISER.deserialise(FileUtils.readFileToByteArray(hookPath.toFile()), GraphHook.class);
+                hook = JSONSerialiser.deserialise(FileUtils.readFileToByteArray(hookPath.toFile()), GraphHook.class);
             } catch (final IOException e) {
                 throw new IllegalArgumentException("Unable to load graph hook file: " + hookPath, e);
             }

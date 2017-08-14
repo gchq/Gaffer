@@ -37,8 +37,6 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 public class GetAdjacentIdsTest extends OperationTest<GetAdjacentIds> {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @Test
     public void shouldSetDirectedTypeToBoth() {
         // Given
@@ -63,8 +61,8 @@ public class GetAdjacentIdsTest extends OperationTest<GetAdjacentIds> {
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(op, true);
-        final GetAdjacentIds deserialisedOp = serialiser.deserialise(json, GetAdjacentIds.class);
+        byte[] json = JSONSerialiser.serialise(op, true);
+        final GetAdjacentIds deserialisedOp = JSONSerialiser.deserialise(json, GetAdjacentIds.class);
 
         // Then
         final Iterator itr = deserialisedOp.getInput().iterator();

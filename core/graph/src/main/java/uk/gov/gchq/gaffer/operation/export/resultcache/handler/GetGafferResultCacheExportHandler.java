@@ -37,8 +37,6 @@ public class GetGafferResultCacheExportHandler extends GetExportHandler<GetGaffe
 
     private String cacheStorePropertiesPath;
 
-    private JSONSerialiser jsonSerialiser = new JSONSerialiser();
-
     @Override
     protected Class<GafferResultCacheExporter> getExporterClass() {
         return GafferResultCacheExporter.class;
@@ -49,7 +47,7 @@ public class GetGafferResultCacheExportHandler extends GetExportHandler<GetGaffe
         final String jobId = null != export.getJobId() ? export.getJobId() : context.getJobId();
         return new GafferResultCacheExporter(
                 context.getUser(), jobId, createGraph(store),
-                jsonSerialiser, visibility, null);
+                visibility, null);
     }
 
     protected Graph createGraph(final Store store) {
@@ -86,17 +84,5 @@ public class GetGafferResultCacheExportHandler extends GetExportHandler<GetGaffe
 
     public void setStorePropertiesPath(final String cacheStorePropertiesPath) {
         this.cacheStorePropertiesPath = cacheStorePropertiesPath;
-    }
-
-    public String getJsonSerialiserClass() {
-        return null != jsonSerialiser ? jsonSerialiser.getClass().getName() : JSONSerialiser.class.getName();
-    }
-
-    public void setJsonSerialiser(final JSONSerialiser jsonSerialiser) {
-        this.jsonSerialiser = jsonSerialiser;
-    }
-
-    public void setJsonSerialiserClass(final String jsonSerialiserClass) {
-        this.jsonSerialiser = JSONSerialiser.fromClass(jsonSerialiserClass);
     }
 }

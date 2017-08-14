@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
@@ -56,6 +57,8 @@ public class StoreProperties implements Cloneable {
 
     public static final String EXECUTOR_SERVICE_THREAD_COUNT = "gaffer.store.job.executor.threads";
     public static final String EXECUTOR_SERVICE_THREAD_COUNT_DEFAULT = "50";
+
+    public static final String JSON_SERIALISER_CLASS = JSONSerialiser.JSON_SERIALISER_CLASS_KEY;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StoreProperties.class);
 
@@ -240,6 +243,23 @@ public class StoreProperties implements Cloneable {
             combinedPaths = combinedPaths + "," + newPathsCsv;
         }
         setOperationDeclarationPaths(combinedPaths);
+    }
+
+    public String getJsonSerialiserClass() {
+        return get(JSON_SERIALISER_CLASS, getDefaultJsonSerialiserClass().getName());
+    }
+
+    @JsonIgnore
+    public void setJsonSerialiserClass(final Class<? extends JSONSerialiser> jsonSerialiserClass) {
+        setJsonSerialiserClass(jsonSerialiserClass.getName());
+    }
+
+    public void setJsonSerialiserClass(final String jsonSerialiserClass) {
+        set(JSON_SERIALISER_CLASS, jsonSerialiserClass);
+    }
+
+    protected Class<? extends JSONSerialiser> getDefaultJsonSerialiserClass() {
+        return null; // JSONSerialiser will be used.
     }
 
     public void setProperties(final Properties properties) {

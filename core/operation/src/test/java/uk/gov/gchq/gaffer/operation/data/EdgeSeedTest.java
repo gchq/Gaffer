@@ -235,11 +235,10 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
         final Integer destination = 2;
         final boolean directed = true;
         final EdgeId seed = new EdgeSeed(source, destination, directed);
-        final JSONSerialiser serialiser = new JSONSerialiser();
 
         // When
-        final byte[] bytes = serialiser.serialise(seed);
-        final EdgeId seedDeserialised = serialiser.deserialise(bytes, EdgeId.class);
+        final byte[] bytes = JSONSerialiser.serialise(seed);
+        final EdgeId seedDeserialised = JSONSerialiser.deserialise(bytes, EdgeId.class);
 
         // Then
         assertEquals(seed, seedDeserialised);
@@ -258,11 +257,10 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
         destination.setValue("destinationValue");
         final boolean directed = true;
         final EdgeId seed = new EdgeSeed(source, destination, directed);
-        final JSONSerialiser serialiser = new JSONSerialiser();
 
         // When
-        final byte[] bytes = serialiser.serialise(seed);
-        final EdgeId seedDeserialised = serialiser.deserialise(bytes, EdgeId.class);
+        final byte[] bytes = JSONSerialiser.serialise(seed);
+        final EdgeId seedDeserialised = JSONSerialiser.deserialise(bytes, EdgeId.class);
 
         // Then
         assertTrue(seedDeserialised.getSource() instanceof CustomVertex);

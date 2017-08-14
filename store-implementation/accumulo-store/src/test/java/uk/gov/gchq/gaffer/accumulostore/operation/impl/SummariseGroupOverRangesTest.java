@@ -36,8 +36,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 
 public class SummariseGroupOverRangesTest extends OperationTest<SummariseGroupOverRanges> {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -51,9 +49,9 @@ public class SummariseGroupOverRangesTest extends OperationTest<SummariseGroupOv
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(op, true);
+        byte[] json = JSONSerialiser.serialise(op, true);
 
-        final SummariseGroupOverRanges deserialisedOp = serialiser.deserialise(json, SummariseGroupOverRanges.class);
+        final SummariseGroupOverRanges deserialisedOp = JSONSerialiser.deserialise(json, SummariseGroupOverRanges.class);
 
         // Then
         final Iterator<? extends Pair<? extends ElementId, ? extends ElementId>> itrPairs = deserialisedOp.getInput().iterator();

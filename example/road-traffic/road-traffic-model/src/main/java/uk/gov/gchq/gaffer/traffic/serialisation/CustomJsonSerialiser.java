@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.traffic.serialisation;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.json.HyperLogLogPlusJsonDeserialiser;
@@ -24,8 +25,13 @@ import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.json.Hy
 
 public class CustomJsonSerialiser extends JSONSerialiser {
     public CustomJsonSerialiser() {
-        super();
-        getMapper().registerModule(getHllpModule());
+        super(createMapper());
+    }
+
+    private static ObjectMapper createMapper() {
+        ObjectMapper mapper = createDefaultMapper();
+        mapper.registerModule(getHllpModule());
+        return mapper;
     }
 
     private static SimpleModule getHllpModule() {

@@ -28,18 +28,12 @@ import javax.ws.rs.ext.Provider;
  */
 @Provider
 public class RestJsonProvider implements ContextResolver<ObjectMapper> {
-    public final ObjectMapper mapper;
-
     public RestJsonProvider() {
-        this.mapper = createMapper();
+        JSONSerialiser.updateInstance();
     }
 
     @Override
     public ObjectMapper getContext(final Class<?> aClass) {
-        return mapper;
-    }
-
-    protected ObjectMapper createMapper() {
-        return JSONSerialiser.createDefaultMapper();
+        return JSONSerialiser.getInstance().getMapper();
     }
 }

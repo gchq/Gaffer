@@ -49,7 +49,6 @@ public class GafferResultCacheExporter implements Exporter {
     private final String jobId;
     private final User user;
     private final Graph resultCache;
-    private final JSONSerialiser jsonSerialiser;
     private final String visibility;
     private final TreeSet<String> requiredOpAuths;
     private final Set<String> userOpAuths;
@@ -57,13 +56,11 @@ public class GafferResultCacheExporter implements Exporter {
     public GafferResultCacheExporter(final User user,
                                      final String jobId,
                                      final Graph resultCache,
-                                     final JSONSerialiser jsonSerialiser,
                                      final String visibility,
                                      final Set<String> requiredOpAuths) {
         this.user = user;
         this.jobId = jobId;
         this.resultCache = resultCache;
-        this.jsonSerialiser = jsonSerialiser;
         this.visibility = visibility;
         if (null == requiredOpAuths) {
             this.requiredOpAuths = CollectionUtil.treeSet(user.getUserId());
@@ -93,7 +90,7 @@ public class GafferResultCacheExporter implements Exporter {
                         valueJson = null;
                     } else {
                         valueClass = value.getClass();
-                        valueJson = jsonSerialiser.serialise(value);
+                        valueJson = JSONSerialiser.serialise(value);
                     }
 
                     return new Edge.Builder()
@@ -136,15 +133,12 @@ public class GafferResultCacheExporter implements Exporter {
         if (null == edges) {
             return new WrappedCloseableIterable<>();
         }
-        return new TransformJsonResult(edges, jsonSerialiser);
+        return new TransformJsonResult(edges);
     }
 
     private static class TransformJsonResult extends TransformIterable<Element, Object> {
-        private final JSONSerialiser jsonSerialiser;
-
-        TransformJsonResult(final Iterable<? extends Element> input, final JSONSerialiser jsonSerialiser) {
+        TransformJsonResult(final Iterable<? extends Element> input) {
             super(input, new AlwaysValid<>(), false, true);
-            this.jsonSerialiser = jsonSerialiser;
         }
 
         @Override
@@ -164,7 +158,7 @@ public class GafferResultCacheExporter implements Exporter {
             }
 
             try {
-                return jsonSerialiser.deserialise(resultBytes, resultClass);
+                return JSONSerialiser.deserialise(resultBytes, resultClass);
             } catch (final SerialisationException e) {
                 try {
                     LOGGER.error("Unable to deserialise result: {}", new String(resultBytes, CommonConstants.UTF_8), e);
@@ -186,10 +180,6 @@ public class GafferResultCacheExporter implements Exporter {
 
     protected Graph getResultCache() {
         return resultCache;
-    }
-
-    protected JSONSerialiser getJsonSerialiser() {
-        return jsonSerialiser;
     }
 
     protected String getVisibility() {

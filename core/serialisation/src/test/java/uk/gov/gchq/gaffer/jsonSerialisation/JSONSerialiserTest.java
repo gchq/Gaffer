@@ -17,8 +17,6 @@
 package uk.gov.gchq.gaffer.jsonSerialisation;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -33,13 +31,10 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 
 public class JSONSerialiserTest {
 
-    private JSONSerialiser serialiser = null;
     private final Pair<Object, byte[]>[] historicSerialisationPairs;
 
     @SuppressWarnings("unchecked")
@@ -56,42 +51,25 @@ public class JSONSerialiserTest {
         };
     }
 
-    @Before
-    public void setupTest() throws SerialisationException {
-        serialiser = new JSONSerialiser();
-    }
-
-    @Test
-    public void shouldConstructWithCustomObjectMapper() throws IOException {
-        // Given
-        final ObjectMapper objectMapper = mock(ObjectMapper.class);
-
-        // When
-        final JSONSerialiser jsonSerialiser = new JSONSerialiser(objectMapper);
-
-        // Then
-        assertSame(objectMapper, jsonSerialiser.getMapper());
-    }
-
     @Test
     public void testPrimitiveSerialisation() throws IOException {
-        byte[] b = serialiser.serialise(2);
-        Object o = serialiser.deserialise(b, Object.class);
+        byte[] b = JSONSerialiser.serialise(2);
+        Object o = JSONSerialiser.deserialise(b, Object.class);
         assertEquals(Integer.class, o.getClass());
         assertEquals(2, o);
     }
 
     @Test
     public void canHandleUnParameterisedDAO() throws SerialisationException {
-        assertTrue(serialiser.canHandle(SimpleTestObject.class));
+        assertTrue(JSONSerialiser.canHandle(SimpleTestObject.class));
     }
 
     @Test
     public void testDAOSerialisation() throws SerialisationException {
         SimpleTestObject test = new SimpleTestObject();
         test.setX("Test");
-        byte[] b = serialiser.serialise(test);
-        Object o = serialiser.deserialise(b, SimpleTestObject.class);
+        byte[] b = JSONSerialiser.serialise(test);
+        Object o = JSONSerialiser.deserialise(b, SimpleTestObject.class);
         assertEquals(SimpleTestObject.class, o.getClass());
         assertEquals("Test", ((SimpleTestObject) o).getX());
     }
@@ -100,7 +78,7 @@ public class JSONSerialiserTest {
     public void shouldNotPrettyPrintByDefaultWhenSerialising() throws SerialisationException {
         SimpleTestObject test = new SimpleTestObject();
         test.setX("TestValue1");
-        byte[] bytes = serialiser.serialise(test);
+        byte[] bytes = JSONSerialiser.serialise(test);
         assertEquals("{\"x\":\"TestValue1\"}", new String(bytes));
     }
 
@@ -108,13 +86,13 @@ public class JSONSerialiserTest {
     public void shouldPrettyPrintWhenSerialisingAndSetToPrettyPrint() throws SerialisationException {
         SimpleTestObject test = new SimpleTestObject();
         test.setX("TestValue1");
-        byte[] bytes = serialiser.serialise(test, true);
+        byte[] bytes = JSONSerialiser.serialise(test, true);
         JsonAssert.assertEquals(String.format("{%n  \"x\" : \"TestValue1\"%n}"), new String(bytes));
     }
 
     @Test
     public void canHandleParameterisedDAO() throws SerialisationException {
-        assertTrue(serialiser.canHandle(ParameterisedTestObject.class));
+        assertTrue(JSONSerialiser.canHandle(ParameterisedTestObject.class));
     }
 
     @Test
@@ -122,8 +100,8 @@ public class JSONSerialiserTest {
         ParameterisedTestObject<Integer> test = new ParameterisedTestObject<>();
         test.setX("Test");
         test.setK(2);
-        byte[] b = serialiser.serialise(test);
-        Object o = serialiser.deserialise(b, ParameterisedTestObject.class);
+        byte[] b = JSONSerialiser.serialise(test);
+        Object o = JSONSerialiser.deserialise(b, ParameterisedTestObject.class);
         assertEquals(ParameterisedTestObject.class, o.getClass());
         assertEquals("Test", ((ParameterisedTestObject) o).getX());
         assertEquals(Integer.class, ((ParameterisedTestObject) o).getK().getClass());
@@ -135,8 +113,8 @@ public class JSONSerialiserTest {
         ParameterisedTestObject<Integer> test = new ParameterisedTestObject<>();
         test.setX("Test");
         test.setK(2);
-        byte[] b = serialiser.serialise(test);
-        ParameterisedTestObject<Integer> o = serialiser.deserialise(b, new TypeReference<ParameterisedTestObject<Integer>>() {
+        byte[] b = JSONSerialiser.serialise(test);
+        ParameterisedTestObject<Integer> o = JSONSerialiser.deserialise(b, new TypeReference<ParameterisedTestObject<Integer>>() {
         });
         assertEquals("Test", o.getX());
         assertEquals(Integer.valueOf(2), o.getK());
@@ -146,8 +124,8 @@ public class JSONSerialiserTest {
     public void testParameterisedDeserialisationOfComplexObject() throws SerialisationException {
         SimpleTestObject test = new SimpleTestObject();
         test.setX("Test");
-        byte[] b = serialiser.serialise(test);
-        SimpleTestObject o = serialiser.deserialise(b, SimpleTestObject.class);
+        byte[] b = JSONSerialiser.serialise(test);
+        SimpleTestObject o = JSONSerialiser.deserialise(b, SimpleTestObject.class);
         assertEquals(SimpleTestObject.class, o.getClass());
         assertEquals("Test", o.getX());
     }
@@ -157,8 +135,8 @@ public class JSONSerialiserTest {
         ParameterisedTestObject<Integer> test = new ParameterisedTestObject<>();
         test.setX("Test");
         test.setK(2);
-        byte[] b = serialiser.serialise(test);
-        ParameterisedTestObject o = serialiser.deserialise(b, ParameterisedTestObject.class);
+        byte[] b = JSONSerialiser.serialise(test);
+        ParameterisedTestObject o = JSONSerialiser.deserialise(b, ParameterisedTestObject.class);
         assertEquals(ParameterisedTestObject.class, o.getClass());
         assertEquals("Test", o.getX());
         assertEquals(Integer.class, o.getK().getClass());
@@ -170,8 +148,8 @@ public class JSONSerialiserTest {
     public void testParameterisedDeserialisationOfComplexObjectToIncorrectType() throws SerialisationException {
         SimpleTestObject test = new SimpleTestObject();
         test.setX("Test");
-        byte[] b = serialiser.serialise(test);
-        serialiser.deserialise(b, Integer.class);
+        byte[] b = JSONSerialiser.serialise(test);
+        JSONSerialiser.deserialise(b, Integer.class);
     }
 
     @Test
@@ -180,7 +158,7 @@ public class JSONSerialiserTest {
         final SimpleTestObject obj = new SimpleTestObject();
 
         // When
-        final String json = new String(serialiser.serialise(obj, "x"), CommonConstants.UTF_8);
+        final String json = new String(JSONSerialiser.serialise(obj, "x"), CommonConstants.UTF_8);
 
         // Then
         assertFalse(json.contains("x"));
@@ -192,7 +170,7 @@ public class JSONSerialiserTest {
         final SimpleTestObject obj = new SimpleTestObject();
 
         // When
-        final String json = new String(serialiser.serialise(obj), CommonConstants.UTF_8);
+        final String json = new String(JSONSerialiser.serialise(obj), CommonConstants.UTF_8);
 
         // Then
         assertTrue(json.contains("x"));
@@ -208,11 +186,11 @@ public class JSONSerialiserTest {
     }
 
     protected void deserialiseSecond(final Pair<Object, byte[]> pair) throws SerialisationException {
-        assertEquals(pair.getFirst(), serialiser.deserialise(pair.getSecond(), pair.getFirst().getClass()));
+        assertEquals(pair.getFirst(), JSONSerialiser.deserialise(pair.getSecond(), pair.getFirst().getClass()));
     }
 
     protected void serialiseFirst(final Pair<Object, byte[]> pair) throws SerialisationException {
-        byte[] serialise = serialiser.serialise(pair.getFirst());
+        byte[] serialise = JSONSerialiser.serialise(pair.getFirst());
         assertArrayEquals(pair.getSecond(), serialise);
     }
 

@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.rest;
 
 import uk.gov.gchq.gaffer.commonutil.DebugUtil;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UnknownUserFactory;
 
@@ -25,7 +26,6 @@ import uk.gov.gchq.gaffer.rest.factory.UnknownUserFactory;
  */
 public abstract class SystemProperty {
     // KEYS
-
     public static final String GRAPH_CONFIG_PATH = "gaffer.graph.config";
     public static final String SCHEMA_PATHS = "gaffer.schemas";
     public static final String STORE_PROPERTIES_PATH = "gaffer.storeProperties";
@@ -35,6 +35,7 @@ public abstract class SystemProperty {
     public static final String USER_FACTORY_CLASS = "gaffer.user.factory.class";
     public static final String SERVICES_PACKAGE_PREFIX = "gaffer.rest-api.resourcePackage";
     public static final String PACKAGE_PREFIXES = "gaffer.package.prefixes";
+    public static final String JSON_SERIALISER_CLASS = JSONSerialiser.JSON_SERIALISER_CLASS_KEY;
     public static final String REST_DEBUG = DebugUtil.DEBUG;
 
     /**

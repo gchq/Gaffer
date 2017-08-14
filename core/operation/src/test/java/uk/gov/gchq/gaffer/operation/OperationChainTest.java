@@ -54,8 +54,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class OperationChainTest extends JSONSerialisationTest<OperationChain> {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @Test
     public void shouldSerialiseAndDeserialiseOperationChain() throws SerialisationException {
         // Given
@@ -65,8 +63,8 @@ public class OperationChainTest extends JSONSerialisationTest<OperationChain> {
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(opChain, true);
-        final OperationChain deserialisedOp = serialiser.deserialise(json, OperationChain.class);
+        byte[] json = JSONSerialiser.serialise(opChain, true);
+        final OperationChain deserialisedOp = JSONSerialiser.deserialise(json, OperationChain.class);
 
         // Then
         assertNotNull(deserialisedOp);

@@ -12,8 +12,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 
 public class SplitStoreTest extends OperationTest<SplitStore> {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     private static final String INPUT_DIRECTORY = "/input";
     private static final String TEST_OPTION_KEY = "testOption";
 
@@ -29,9 +27,9 @@ public class SplitStoreTest extends OperationTest<SplitStore> {
         op.setInputPath(INPUT_DIRECTORY);
 
         // When
-        byte[] json = serialiser.serialise(op, true);
+        byte[] json = JSONSerialiser.serialise(op, true);
 
-        final SplitStore deserialisedOp = serialiser.deserialise(json, SplitStore.class);
+        final SplitStore deserialisedOp = JSONSerialiser.deserialise(json, SplitStore.class);
 
         // Then
         assertEquals(INPUT_DIRECTORY, deserialisedOp.getInputPath());

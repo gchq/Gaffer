@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.io.IOException;
 import java.util.Arrays;
@@ -69,7 +70,7 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
                 .build();
 
         // When
-        String json = new String(SERIALISER.serialise(addElements, true));
+        String json = new String(JSONSerialiser.serialise(addElements, true));
 
         // Then
         JsonAssert.assertEquals(String.format("{%n" +
@@ -146,7 +147,7 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
         addElementsFromHdfs.setOutputPath("TestOutput");
 
         // When
-        final String json = new String(SERIALISER.serialise(addElementsFromHdfs, true));
+        final String json = new String(JSONSerialiser.serialise(addElementsFromHdfs, true));
 
         // Then
         JsonAssert.assertEquals(ADD_ELEMENTS_FROM_HDFS_JSON, json);
@@ -155,7 +156,7 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
     @Test
     public void shouldDeserialiseAddElementsOperation() throws IOException {
         // When
-        final AddElementsFromHdfs addElementsFromHdfs = SERIALISER.deserialise(ADD_ELEMENTS_FROM_HDFS_JSON.getBytes(), AddElementsFromHdfs.class);
+        final AddElementsFromHdfs addElementsFromHdfs = JSONSerialiser.deserialise(ADD_ELEMENTS_FROM_HDFS_JSON.getBytes(), AddElementsFromHdfs.class);
 
         // Then
         final List<String> inputPaths = addElementsFromHdfs.getInputPaths();

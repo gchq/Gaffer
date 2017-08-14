@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 public class AdditionalOperations {
-    private static final JSONSerialiser SERIALISER = new JSONSerialiser();
     private List<byte[]> start;
     private List<byte[]> end;
     private Map<String, List<byte[]>> before;
@@ -105,7 +104,7 @@ public class AdditionalOperations {
         final List<byte[]> serialisedOps = new ArrayList<>(ops.size());
         for (final Operation op : ops) {
             try {
-                serialisedOps.add(SERIALISER.serialise(op));
+                serialisedOps.add(JSONSerialiser.serialise(op));
             } catch (final SerialisationException e) {
                 throw new RuntimeException("Unable to serialise operation: " + op.toString(), e);
             }
@@ -122,7 +121,7 @@ public class AdditionalOperations {
         final List<Operation> ops = new ArrayList<>(serialisedOps.size());
         for (final byte[] bytes : serialisedOps) {
             try {
-                ops.add(SERIALISER.deserialise(bytes, Operation.class));
+                ops.add(JSONSerialiser.deserialise(bytes, Operation.class));
             } catch (final SerialisationException e) {
                 throw new RuntimeException("Unable to deserialise operation", e);
             }

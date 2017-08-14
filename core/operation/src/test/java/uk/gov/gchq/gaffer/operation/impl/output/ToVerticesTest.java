@@ -37,8 +37,6 @@ import static org.junit.Assert.assertThat;
 
 
 public class ToVerticesTest extends OperationTest<ToVertices> {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException, JsonProcessingException {
         // Given
@@ -49,8 +47,8 @@ public class ToVerticesTest extends OperationTest<ToVertices> {
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(op, true);
-        final ToVertices deserialisedOp = serialiser.deserialise(json, ToVertices.class);
+        byte[] json = JSONSerialiser.serialise(op, true);
+        final ToVertices deserialisedOp = JSONSerialiser.deserialise(json, ToVertices.class);
 
         // Then
         assertNotNull(deserialisedOp);
@@ -64,8 +62,8 @@ public class ToVerticesTest extends OperationTest<ToVertices> {
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(op, true);
-        final ToVertices deserialisedOp = serialiser.deserialise(json, ToVertices.class);
+        byte[] json = JSONSerialiser.serialise(op, true);
+        final ToVertices deserialisedOp = JSONSerialiser.deserialise(json, ToVertices.class);
 
         // Then
         assertNotNull(deserialisedOp);

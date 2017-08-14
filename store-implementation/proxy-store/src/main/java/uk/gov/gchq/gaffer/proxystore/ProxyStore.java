@@ -64,7 +64,6 @@ import java.util.Set;
 
 public class ProxyStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyStore.class);
-    private JSONSerialiser jsonSerialiser;
     private Client client;
     private Set<StoreTrait> traits;
     private Schema schema;
@@ -73,9 +72,12 @@ public class ProxyStore extends Store {
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "The properties should always be ProxyProperties")
     @Override
     public void initialise(final String graphId, final Schema unusedSchema, final StoreProperties properties) throws StoreException {
-        final ProxyProperties proxyProps = (ProxyProperties) properties;
-        jsonSerialiser = proxyProps.getJsonSerialiser();
+        final String jsonSerialiserClass = properties.getJsonSerialiserClass();
+        if (null != jsonSerialiserClass) {
+            JSONSerialiser.updateInstance(jsonSerialiserClass);
+        }
 
+        final ProxyProperties proxyProps = (ProxyProperties) properties;
         client = createClient(proxyProps);
         schema = fetchSchema(proxyProps);
         traits = fetchTraits(proxyProps);
@@ -153,7 +155,7 @@ public class ProxyStore extends Store {
             throws OperationException {
         final String opChainJson;
         try {
-            opChainJson = new String(jsonSerialiser.serialise(operationChain), CommonConstants.UTF_8);
+            opChainJson = new String(JSONSerialiser.serialise(operationChain), CommonConstants.UTF_8);
         } catch (final UnsupportedEncodingException | SerialisationException e) {
             throw new OperationException("Unable to serialise operation chain into JSON.", e);
         }
@@ -170,7 +172,7 @@ public class ProxyStore extends Store {
                            final TypeReference<O> outputType,
                            final Context context) throws StoreException {
         try {
-            return doPost(url, new String(jsonSerialiser.serialise(body), CommonConstants.UTF_8), outputType, context);
+            return doPost(url, new String(JSONSerialiser.serialise(body), CommonConstants.UTF_8), outputType, context);
         } catch (final SerialisationException | UnsupportedEncodingException e) {
             throw new StoreException("Unable to serialise body of request into json.", e);
         }
@@ -251,7 +253,7 @@ public class ProxyStore extends Store {
                     "Unable to deserialise JSON: " + jsonString, e);
         }
 
-        return jsonSerialiser.deserialise(jsonBytes, outputTypeReference);
+        return JSONSerialiser.deserialise(jsonBytes, outputTypeReference);
     }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be ProxyProperties")

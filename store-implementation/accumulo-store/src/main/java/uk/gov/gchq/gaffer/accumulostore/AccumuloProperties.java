@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.accumulostore;
 
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
+import uk.gov.gchq.gaffer.accumulostore.serialisation.AccumuloJsonSerialiser;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -376,5 +378,10 @@ public class AccumuloProperties extends StoreProperties {
      */
     public void setEnableValidatorIterator(final boolean enableValidatorIterator) {
         set(ENABLE_VALIDATOR_ITERATOR, Boolean.toString(enableValidatorIterator));
+    }
+
+    @Override
+    protected Class<? extends JSONSerialiser> getDefaultJsonSerialiserClass() {
+        return AccumuloJsonSerialiser.class;
     }
 }

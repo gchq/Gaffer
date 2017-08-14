@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Arrays;
 import java.util.Set;
@@ -38,8 +39,8 @@ public class ExportToOtherAuthorisedGraphTest extends OperationTest {
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException, JsonProcessingException {
         // Given / When
-        final byte[] json = JSON_SERIALISER.serialise(op);
-        final ExportToOtherAuthorisedGraph deserialisedOp = JSON_SERIALISER.deserialise(json, op.getClass());
+        final byte[] json = JSONSerialiser.serialise(op);
+        final ExportToOtherAuthorisedGraph deserialisedOp = JSONSerialiser.deserialise(json, op.getClass());
 
         // Then
         assertEquals("graphId", deserialisedOp.getGraphId());
