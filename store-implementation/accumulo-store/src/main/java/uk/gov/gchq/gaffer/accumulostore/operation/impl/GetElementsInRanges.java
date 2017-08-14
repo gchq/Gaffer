@@ -104,7 +104,7 @@ public class GetElementsInRanges
     }
 
     @Override
-    public Operation shallowClone() {
+    public GetElementsInRanges shallowClone() {
         return new GetElementsInRanges.Builder()
                 .input(input)
                 .inOutType(inOutType)

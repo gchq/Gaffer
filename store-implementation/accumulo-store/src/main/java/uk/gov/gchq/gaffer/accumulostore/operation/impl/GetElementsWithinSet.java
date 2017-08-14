@@ -99,7 +99,7 @@ public class GetElementsWithinSet implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public GetElementsWithinSet shallowClone() {
         return new GetElementsWithinSet.Builder()
                 .view(view)
                 .directedType(directedType)

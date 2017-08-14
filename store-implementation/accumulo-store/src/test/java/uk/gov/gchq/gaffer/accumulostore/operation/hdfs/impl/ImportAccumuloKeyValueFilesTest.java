@@ -10,6 +10,7 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 public class ImportAccumuloKeyValueFilesTest extends OperationTest<ImportAccumuloKeyValueFiles> {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
@@ -67,9 +68,10 @@ public class ImportAccumuloKeyValueFilesTest extends OperationTest<ImportAccumul
                 .build();
 
         // When
-        final ImportAccumuloKeyValueFiles clone = (ImportAccumuloKeyValueFiles) importAccumuloKeyValueFiles.shallowClone();
+        final ImportAccumuloKeyValueFiles clone = importAccumuloKeyValueFiles.shallowClone();
 
         // Then
+        assertNotSame(importAccumuloKeyValueFiles, clone);
         assertEquals("true", clone.getOption("testOption"));
         assertEquals(INPUT_DIRECTORY, clone.getInputPath());
         assertEquals(FAIL_DIRECTORY, clone.getFailurePath());

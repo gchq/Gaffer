@@ -13,6 +13,7 @@ import java.util.Iterator;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 
 public class GetElementsWithinSetTest extends OperationTest<GetElementsWithinSet> {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
@@ -73,9 +74,10 @@ public class GetElementsWithinSetTest extends OperationTest<GetElementsWithinSet
                 .build();
 
         // When
-        final GetElementsWithinSet clone = (GetElementsWithinSet) getElementsWithinSet.shallowClone();
+        final GetElementsWithinSet clone = getElementsWithinSet.shallowClone();
 
         // Then
+        assertNotSame(getElementsWithinSet, clone);
         assertEquals("true", clone.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertEquals(DirectedType.DIRECTED, clone.getDirectedType());
         assertEquals(AccumuloTestData.SEED_A, clone.getInput().iterator().next());

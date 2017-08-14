@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 
@@ -124,9 +125,10 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
                 .build();
 
         // When
-        AddElementsFromHdfs clone = (AddElementsFromHdfs) addElements.shallowClone();
+        AddElementsFromHdfs clone = addElements.shallowClone();
 
         // Then
+        assertNotSame(addElements, clone);
         assertEquals("true", clone.getOption("testOption"));
         assertTrue(clone.isValidate());
         assertEquals("fail", clone.getFailurePath());

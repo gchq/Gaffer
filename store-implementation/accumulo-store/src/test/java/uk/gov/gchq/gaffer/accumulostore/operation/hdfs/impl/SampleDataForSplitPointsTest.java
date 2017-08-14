@@ -12,6 +12,7 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -101,9 +102,10 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
                 .build();
 
         //When
-        SampleDataForSplitPoints clone = (SampleDataForSplitPoints) sampleDataForSplitPoints.shallowClone();
+        SampleDataForSplitPoints clone = sampleDataForSplitPoints.shallowClone();
 
         // Then
+        assertNotSame(sampleDataForSplitPoints, clone);
         assertEquals(INPUT_DIRECTORY, clone.getInputPaths().get(0));
         assertEquals("true", clone.getOption(TEST_OPTION_KEY));
         assertEquals("/test", clone.getSplitsFilePath());

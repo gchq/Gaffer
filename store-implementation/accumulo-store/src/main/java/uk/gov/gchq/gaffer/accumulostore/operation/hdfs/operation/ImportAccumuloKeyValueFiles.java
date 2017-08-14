@@ -57,7 +57,7 @@ public class ImportAccumuloKeyValueFiles implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public ImportAccumuloKeyValueFiles shallowClone() {
         return new ImportAccumuloKeyValueFiles.Builder()
                 .failurePath(failurePath)
                 .inputPath(inputPath)

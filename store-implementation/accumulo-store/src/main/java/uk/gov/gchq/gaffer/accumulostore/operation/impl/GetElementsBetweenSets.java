@@ -157,7 +157,7 @@ public class GetElementsBetweenSets implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public GetElementsBetweenSets shallowClone() {
         return new GetElementsBetweenSets.Builder()
                 .seedMatching(seedMatching)
                 .view(view)

@@ -14,6 +14,7 @@ import java.util.Iterator;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 
 public class GetElementsBetweenSetsTest extends OperationTest<GetElementsBetweenSets> {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
@@ -82,9 +83,10 @@ public class GetElementsBetweenSetsTest extends OperationTest<GetElementsBetween
                 .build();
 
         // When
-        final GetElementsBetweenSets clone = (GetElementsBetweenSets) getElementsBetweenSets.shallowClone();
+        final GetElementsBetweenSets clone = getElementsBetweenSets.shallowClone();
 
         // Then
+        assertNotSame(getElementsBetweenSets, clone);
         assertEquals("true", clone.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertEquals(DirectedType.UNDIRECTED, clone.getDirectedType());
         assertEquals(SeedMatchingType.EQUAL, clone.getSeedMatching());

@@ -47,7 +47,6 @@ public class DiscardOutputTest extends OperationTest<DiscardOutput> {
 
         // Then
         assertNotSame(op, clone);
-        assertNotSame(op, clone);
     }
 
     protected DiscardOutput getTestObject() {

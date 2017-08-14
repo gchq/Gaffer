@@ -272,7 +272,7 @@ public class SampleDataForSplitPoints implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public SampleDataForSplitPoints shallowClone() {
         if (minMapTasks != null && maxMapTasks != null) {
             return new SampleDataForSplitPoints.Builder()
                     .splitsFilePath(splitsFilePath)

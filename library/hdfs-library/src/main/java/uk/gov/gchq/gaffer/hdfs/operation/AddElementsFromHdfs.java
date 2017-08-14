@@ -257,7 +257,7 @@ public class AddElementsFromHdfs implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public AddElementsFromHdfs shallowClone() {
         return new AddElementsFromHdfs.Builder()
                 .failurePath(failurePath)
                 .workingPath(workingPath)
