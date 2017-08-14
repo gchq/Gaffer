@@ -119,6 +119,18 @@ public class GetRDDOfElements implements
         this.directedType = directedType;
     }
 
+    @Override
+    public GetRDDOfElements shallowClone() {
+        return new GetRDDOfElements.Builder()
+                .options(options)
+                .sparkSession(sparkSession)
+                .input(input)
+                .inOutType(inOutType)
+                .view(view)
+                .directedType(directedType)
+                .build();
+    }
+
     public static class Builder extends Operation.BaseBuilder<GetRDDOfElements, Builder>
             implements InputOutput.Builder<GetRDDOfElements, Iterable<? extends ElementId>, RDD<Element>, Builder>,
             MultiInput.Builder<GetRDDOfElements, ElementId, Builder>,

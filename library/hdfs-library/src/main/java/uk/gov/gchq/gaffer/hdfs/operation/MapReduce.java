@@ -28,11 +28,13 @@ import java.util.List;
 /**
  * This <code>MapReduce</code> class should be implemented for any Operations that run map reduce jobs.
  * {@link JobInitialiser}.
- * <p/>
+ * <p>
  * <b>NOTE</b> - currently this job has to be run as a hadoop job.
- * <p/>
+ * </p>
+ * <p>
  * If you want to specify the number of mappers and/or the number of reducers
  * then either set the exact number or set a min and/or max value.
+ * </p>
  *
  * @see Builder
  */

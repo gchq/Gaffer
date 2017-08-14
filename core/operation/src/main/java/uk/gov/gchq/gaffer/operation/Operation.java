@@ -81,11 +81,12 @@ public interface Operation extends Closeable {
     JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
 
     /**
+     * Operation implementations should ensure a ShallowClone method is implemented.
      * Performs a shallow clone. Creates a new instance and copies the fields across.
      * It does not clone the fields.
      *
-     * @return the shallow clone
-     * @throws CloneFailedException
+     * @return shallow clone
+     * @throws CloneFailedException if a Clone error occurs
      */
     Operation shallowClone() throws CloneFailedException;
 
