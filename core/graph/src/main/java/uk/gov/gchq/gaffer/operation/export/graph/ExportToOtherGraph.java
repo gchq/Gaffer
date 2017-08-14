@@ -125,7 +125,7 @@ public class ExportToOtherGraph implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public ExportToOtherGraph shallowClone() {
         return new ExportToOtherGraph.Builder()
                 .graphId(graphId)
                 .input(input)

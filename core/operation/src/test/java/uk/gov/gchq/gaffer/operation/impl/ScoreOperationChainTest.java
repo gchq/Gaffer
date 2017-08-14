@@ -17,9 +17,9 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
@@ -32,13 +32,8 @@ import static org.junit.Assert.assertThat;
 public class ScoreOperationChainTest extends OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
-    @Override
-    protected Class<? extends Operation> getOperationClass() {
-        return ScoreOperationChain.class;
-    }
-
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException, JsonProcessingException {
+    @Test
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException, JsonProcessingException {
         // Given
         final ScoreOperationChain op = new ScoreOperationChain();
 
@@ -71,9 +66,14 @@ public class ScoreOperationChainTest extends OperationTest {
                 .build();
 
         // When
-        ScoreOperationChain clone = (ScoreOperationChain) scoreOperationChain.shallowClone();
+        ScoreOperationChain clone = scoreOperationChain.shallowClone();
 
         // Then
         assertEquals(opChain, clone.getOperationChain());
+    }
+
+    @Override
+    protected ScoreOperationChain getTestObject() {
+        return new ScoreOperationChain();
     }
 }

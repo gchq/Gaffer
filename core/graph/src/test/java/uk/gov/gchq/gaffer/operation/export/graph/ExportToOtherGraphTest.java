@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 public class ExportToOtherGraphTest extends OperationTest<ExportToOtherGraph> {
     @Test
@@ -89,7 +90,7 @@ public class ExportToOtherGraphTest extends OperationTest<ExportToOtherGraph> {
     public void shouldShallowCloneOperation() {
         // Given
         final Schema schema = new Schema.Builder()
-                .entity(TestGroups.ENTITY)
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition())
                 .build();
         final StoreProperties storeProperties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
         final ExportToOtherGraph exportToOtherGraph = new ExportToOtherGraph.Builder()
@@ -101,9 +102,10 @@ public class ExportToOtherGraphTest extends OperationTest<ExportToOtherGraph> {
                 .build();
 
         // When
-        final ExportToOtherGraph clone = (ExportToOtherGraph) exportToOtherGraph.shallowClone();
+        final ExportToOtherGraph clone = exportToOtherGraph.shallowClone();
 
         // Then
+        assertNotSame(exportToOtherGraph, clone);
         assertEquals("graphId", clone.getGraphId());
         assertEquals(Arrays.asList("schema1", "schema2"), clone.getParentSchemaIds());
         assertEquals("props1", clone.getParentStorePropertiesId());

@@ -39,7 +39,7 @@ public class ScoreOperationChain implements Operation, Output<Integer> {
         this.operationChain = operationChain;
     }
 
-    public Operation shallowClone() {
+    public ScoreOperationChain shallowClone() {
         return new ScoreOperationChain.Builder()
                 .operationChain(operationChain)
                 .build();

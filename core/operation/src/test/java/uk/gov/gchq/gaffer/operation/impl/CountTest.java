@@ -16,40 +16,20 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
+import org.junit.Test;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 public class CountTest extends OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
     @Override
-    protected Class<? extends Operation> getOperationClass() {
-        return Count.class;
-    }
-
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException, JsonProcessingException {
-        // Given
-        final Count op = new Count();
-
-        // When
-        byte[] json = serialiser.serialise(op, true);
-        final Count deserialisedOp = serialiser.deserialise(json, Count.class);
-
-        // Then
-        assertNotNull(deserialisedOp);
-    }
-
-    @Override
+    @Test
     public void builderShouldCreatePopulatedOperation() {
         // Given
         final Count count = new Count.Builder<String>()
@@ -69,9 +49,14 @@ public class CountTest extends OperationTest {
                 .build();
 
         // When
-        final Count clone = (Count) count.shallowClone();
+        final Count clone = count.shallowClone();
 
         // Then
         assertEquals(input, clone.getInput().iterator().next());
+    }
+
+    @Override
+    protected Count getTestObject() {
+        return new Count();
     }
 }

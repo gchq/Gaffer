@@ -32,6 +32,12 @@ public class DeleteNamedOperation implements Operation {
         this.operationName = operationName;
     }
 
+    public DeleteNamedOperation shallowClone() {
+        return new DeleteNamedOperation.Builder()
+                .name(operationName)
+                .build();
+    }
+
     public static class Builder extends BaseBuilder<DeleteNamedOperation, Builder> {
         public Builder() {
             super(new DeleteNamedOperation());

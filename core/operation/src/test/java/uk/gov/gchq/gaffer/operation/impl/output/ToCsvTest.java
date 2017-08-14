@@ -18,12 +18,12 @@ package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Sets;
+import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.CsvGenerator;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Set;
 
@@ -38,13 +38,8 @@ import static org.junit.Assert.assertThat;
 public class ToCsvTest extends OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
-    @Override
-    protected Class<? extends Operation> getOperationClass() {
-        return ToCsv.class;
-    }
-
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException, JsonProcessingException {
+    @Test
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException, JsonProcessingException {
         // Given
         final ToCsv op = new ToCsv.Builder().build();
 
@@ -97,5 +92,10 @@ public class ToCsvTest extends OperationTest {
     @Override
     public Set<String> getRequiredFields() {
         return Sets.newHashSet("elementGenerator");
+    }
+
+    @Override
+    protected ToCsv getTestObject() {
+        return new ToCsv();
     }
 }

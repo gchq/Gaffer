@@ -48,7 +48,7 @@ public class Count<T> implements
     }
 
     @Override
-    public Operation shallowClone() {
+    public Count shallowClone() {
         return new Count.Builder<T>()
                 .input(input)
                 .build();
