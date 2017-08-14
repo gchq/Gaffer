@@ -17,17 +17,18 @@
 package uk.gov.gchq.gaffer.store.operation.handler;
 
 
-import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.ScoreOperationChain;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -36,11 +37,16 @@ import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -50,12 +56,6 @@ public class ScoreOperationChainHandlerTest {
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
-
-    @After
-    public void after() {
-        System.clearProperty(ScoreOperationChainHandler.AUTH_SCORES_FILE_KEY);
-        System.clearProperty(ScoreOperationChainHandler.OPERATION_SCORES_FILE_KEY);
-    }
 
     @Test
     public void shouldLoadFromScoreOperationChainDeclarationFile() throws SerialisationException {
@@ -67,30 +67,8 @@ public class ScoreOperationChainHandlerTest {
     }
 
     @Test
-    public void shouldLoadFromScoreOperationChainDeclarationFileUsingFileProperties() throws SerialisationException {
-        System.setProperty(ScoreOperationChainHandler.AUTH_SCORES_FILE_KEY, getClass().getResource("/authScores.properties").getPath());
-        System.setProperty(ScoreOperationChainHandler.OPERATION_SCORES_FILE_KEY, getClass().getResource("/opScores.properties").getPath());
-
-        final InputStream s = StreamUtil.openStream(getClass(), "ScoreOperationChainDeclarationNoFileNames.json");
-        final OperationDeclarations deserialised = json.deserialise(s, OperationDeclarations.class);
-
-        assertEquals(1, deserialised.getOperations().size());
-        assert (deserialised.getOperations().get(0).getHandler() instanceof ScoreOperationChainHandler);
-    }
-
-    @Test
-    public void shouldFailToLoadFromScoreOperationChainDeclarationFileWithNoFileNames() throws SerialisationException {
-        final InputStream s = StreamUtil.openStream(getClass(), "ScoreOperationChainDeclarationNoFileNames.json");
-        exception.expect(SerialisationException.class);
-        json.deserialise(s, OperationDeclarations.class);
-    }
-
-    @Test
-    public void shouldExecuteScoreChainOperationWithFilesFromProperties() throws OperationException {
+    public void shouldExecuteScoreChainOperation() throws OperationException {
         // Given
-        System.setProperty(ScoreOperationChainHandler.AUTH_SCORES_FILE_KEY, getClass().getResource("/authScores.properties").getPath());
-        System.setProperty(ScoreOperationChainHandler.OPERATION_SCORES_FILE_KEY, getClass().getResource("/opScores.properties").getPath());
-
         final ScoreOperationChainHandler operationHandler = new ScoreOperationChainHandler();
 
         final Context context = mock(Context.class);
@@ -124,45 +102,86 @@ public class ScoreOperationChainHandlerTest {
     }
 
     @Test
-    public void shouldExecuteScoreChainOperationWithCustomFileNames() throws OperationException {
+    public void shouldSetAndGetAuthScores() {
         // Given
-        final ScoreOperationChainHandler operationHandler =
-                new ScoreOperationChainHandler(getClass().getResource("/customOpScores.properties").getPath(),
-                        getClass().getResource("/authScores.properties").getPath());
-
-        final Context context = mock(Context.class);
-        final Store store = mock(Store.class);
-        final User user = mock(User.class);
-        final ScoreOperationChain scoreOperationChain = mock(ScoreOperationChain.class);
-
-        StoreProperties storeProperties = new StoreProperties();
-
-        final GetAdjacentIds op1 = mock(GetAdjacentIds.class);
-        final GetElements op2 = mock(GetElements.class);
-        final OperationChain opChain = new OperationChain(Arrays.asList(op1, op2));
-        final Integer expectedResult = 4;
-
-        given(context.getUser()).willReturn(user);
-        Set<String> opAuths = new HashSet<>();
-        opAuths.add("TEST_USER");
-        given(user.getOpAuths()).willReturn(opAuths);
-        given(scoreOperationChain.getOperationChain()).willReturn(opChain);
-        given(store.getProperties()).willReturn(storeProperties);
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
+        final Map<String, Integer> authScores = new HashMap<>();
+        authScores.put("auth1", 1);
+        authScores.put("auth2", 2);
+        authScores.put("auth3", 3);
 
         // When
-        final Object result = operationHandler.doOperation(
-                new ScoreOperationChain.Builder()
-                        .operationChain(opChain)
-                        .build(),
-                context, store);
+        handler.setAuthScores(authScores);
+        final Map<String, Integer> result = handler.getAuthScores();
 
         // Then
-        assertSame(expectedResult, result);
+        assertEquals(authScores, result);
     }
 
     @Test
-    public void shouldFailToCreateScoreChainOperationHandlerWhenPropertiesNotSet() throws OperationException {
-        exception.expect(IllegalArgumentException.class);
-        new ScoreOperationChainHandler();
+    public void shouldSetAndGetOpScores() {
+        // Given
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
+        final LinkedHashMap<Class<? extends Operation>, Integer> opScores = new LinkedHashMap<>();
+        opScores.put(Operation.class, 1);
+        opScores.put(GetElements.class, 2);
+        opScores.put(GetAllElements.class, 3);
+
+        // When
+        handler.setOpScores(opScores);
+        final Map<Class<? extends Operation>, Integer> result = handler.getOpScores();
+
+        // Then
+        assertEquals(opScores, result);
+    }
+
+    @Test
+    public void shouldSetAndGetOpScoresAsStrings() throws ClassNotFoundException {
+        // Given
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
+        final LinkedHashMap<String, Integer> opScores = new LinkedHashMap<>();
+        opScores.put(Operation.class.getName(), 1);
+        opScores.put(GetElements.class.getName(), 2);
+        opScores.put(GetAllElements.class.getName(), 3);
+
+        // When
+        handler.setOpScoresFromStrings(opScores);
+        final Map<String, Integer> result = handler.getOpScoresAsStrings();
+
+        // Then
+        assertEquals(opScores, result);
+    }
+
+    @Test
+    public void shouldPassValidationOfOperationScores() throws ClassNotFoundException {
+        // Given
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
+        final LinkedHashMap<String, Integer> opScores = new LinkedHashMap<>();
+        opScores.put(Operation.class.getName(), 1);
+        opScores.put(GetElements.class.getName(), 2);
+        opScores.put(GetAllElements.class.getName(), 3);
+
+        // When
+        handler.setOpScoresFromStrings(opScores);
+
+        // Then - no exceptions
+    }
+
+    @Test
+    public void shouldFailValidationOfOperationScores() throws ClassNotFoundException {
+        // Given
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
+        final LinkedHashMap<String, Integer> opScores = new LinkedHashMap<>();
+        opScores.put(GetElements.class.getName(), 2);
+        opScores.put(GetAllElements.class.getName(), 3);
+        opScores.put(Operation.class.getName(), 1);
+
+        // When / Then
+        try {
+            handler.setOpScoresFromStrings(opScores);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Operation scores are configured incorrectly."));
+        }
     }
 }

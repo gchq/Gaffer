@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -41,7 +42,6 @@ import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.impl.predicate.Not;
 import uk.gov.gchq.koryphe.impl.predicate.Or;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -67,16 +67,18 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
         ParquetStoreProperties pp = (ParquetStoreProperties) StoreProperties.loadStoreProperties(
                 AbstractOperationsTest.class.getResourceAsStream("/multiUseStore.properties"));
         return new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("test")
+                        .build())
                 .addSchema(getSchema())
                 .storeProperties(pp)
-                .graphId("test")
                 .build();
     }
 
     protected static Schema getSchema() {
         return Schema.fromJson(StreamUtil.openStreams(StringVertexOperationsTest.class, "schemaUsingStringVertexType"));
     }
-    
+
     private static Iterable<? extends Element> getElements() {
         return DataGen.generate300StringElementsWithNullProperties();
     }
@@ -95,24 +97,24 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
     @Override
     public void setupView() {
         view = new View.Builder()
-            .edge(TestGroups.EDGE,
-                new ViewElementDefinition.Builder()
-                    .preAggregationFilter(
-                        new ElementFilter.Builder()
-                            .select(ParquetStoreConstants.SOURCE)
-                            .execute(new Or<>(new IsLessThan("src12", true), new IsMoreThan("src4", true)))
-                            .build())
-                    .build())
-            .entity(TestGroups.ENTITY,
-                new ViewElementDefinition.Builder()
-                    .preAggregationFilter(
-                        new ElementFilter.Builder()
-                            .select(ParquetStoreConstants.VERTEX)
-                            .execute(
-                                new Not<>(new IsMoreThan("vert12", false)))
-                            .build())
-                .build())
-            .build();
+                .edge(TestGroups.EDGE,
+                        new ViewElementDefinition.Builder()
+                                .preAggregationFilter(
+                                        new ElementFilter.Builder()
+                                                .select(ParquetStoreConstants.SOURCE)
+                                                .execute(new Or<>(new IsLessThan("src12", true), new IsMoreThan("src4", true)))
+                                                .build())
+                                .build())
+                .entity(TestGroups.ENTITY,
+                        new ViewElementDefinition.Builder()
+                                .preAggregationFilter(
+                                        new ElementFilter.Builder()
+                                                .select(ParquetStoreConstants.VERTEX)
+                                                .execute(
+                                                        new Not<>(new IsMoreThan("vert12", false)))
+                                                .build())
+                                .build())
+                .build();
     }
 
     @Override

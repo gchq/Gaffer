@@ -18,23 +18,19 @@ package uk.gov.gchq.gaffer.operation.impl.add;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Sets;
-import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
+import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
-public class AddElementsFromSocketTest extends OperationTest {
-    @Override
-    protected Class<? extends Operation> getOperationClass() {
-        return AddElementsFromSocket.class;
-    }
+public class AddElementsFromSocketTest extends OperationTest<AddElementsFromSocket> {
 
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException, JsonProcessingException {
+    @Test
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException, JsonProcessingException {
         // Given
         final boolean validate = true;
         final boolean skipInvalid = false;
@@ -115,5 +111,10 @@ public class AddElementsFromSocketTest extends OperationTest {
     protected Set<String> getRequiredFields() {
         // port is required but as it is an int it cannot be null
         return Sets.newHashSet("hostname", "elementGenerator");
+    }
+
+    @Override
+    protected AddElementsFromSocket getTestObject() {
+        return new AddElementsFromSocket();
     }
 }

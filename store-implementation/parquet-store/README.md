@@ -94,6 +94,9 @@ be created using:
 
 ```
 Graph graph = new Graph.Builder()
+      .config(new GraphConfig.Builder()
+          .graphId(uniqueNameOfYourGraph)
+          .build())
       .addSchemas(schemas)
       .storeProperties(storeProperties)
       .build();

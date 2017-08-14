@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.export.graph;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Sets;
+import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -25,17 +26,18 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import java.util.Arrays;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
-public class ExportToOtherGraphTest extends OperationTest {
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException, JsonProcessingException {
+public class ExportToOtherGraphTest extends OperationTest<ExportToOtherGraph> {
+    @Test
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException, JsonProcessingException {
         // Given
         final Schema schema = new Schema.Builder()
-                .entity(TestGroups.ENTITY)
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition())
                 .build();
         final StoreProperties storeProperties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
         final ExportToOtherGraph op = new ExportToOtherGraph.Builder()
@@ -62,7 +64,7 @@ public class ExportToOtherGraphTest extends OperationTest {
     public void builderShouldCreatePopulatedOperation() {
         // Given
         final Schema schema = new Schema.Builder()
-                .entity(TestGroups.ENTITY)
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition())
                 .build();
         final StoreProperties storeProperties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
 
@@ -89,7 +91,7 @@ public class ExportToOtherGraphTest extends OperationTest {
     }
 
     @Override
-    protected Class<ExportToOtherGraph> getOperationClass() {
-        return ExportToOtherGraph.class;
+    protected ExportToOtherGraph getTestObject() {
+        return new ExportToOtherGraph();
     }
 }

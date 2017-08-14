@@ -16,9 +16,8 @@
 
 package uk.gov.gchq.gaffer.operation;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.Collections;
@@ -27,16 +26,12 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 
-public abstract class OperationTest {
+public abstract class OperationTest<T extends Operation> extends JSONSerialisationTest<T> {
     protected static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
-    protected abstract Class<? extends Operation> getOperationClass();
 
     protected Set<String> getRequiredFields() {
         return Collections.emptySet();
     }
-
-    @Test
-    public abstract void shouldSerialiseAndDeserialiseOperation() throws SerialisationException, JsonProcessingException;
 
     @Test
     public abstract void builderShouldCreatePopulatedOperation();
@@ -44,7 +39,7 @@ public abstract class OperationTest {
     @Test
     public void shouldValidateRequiredFields() throws Exception {
         // Given
-        final Operation op = getOperationClass().newInstance();
+        final Operation op = getTestObject();
 
         // When
         final ValidationResult validationResult = op.validate();

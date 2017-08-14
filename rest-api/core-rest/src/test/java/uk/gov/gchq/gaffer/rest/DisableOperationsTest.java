@@ -37,9 +37,9 @@ public abstract class DisableOperationsTest {
     @Rule
     public final TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     protected final Class<? extends Operation>[] disabledOperations;
+    protected File graphConfigPath;
     protected File storePropsPath;
     protected File schemaPath;
-    protected static final String GRAPH_ID = "graphId";
 
     public DisableOperationsTest() throws IOException {
         this(AddElementsFromFile.class);
@@ -52,9 +52,10 @@ public abstract class DisableOperationsTest {
 
     @Before
     public void before() throws IOException {
+        graphConfigPath = tempFolder.newFile("tmpGraphConfig.json");
         storePropsPath = tempFolder.newFile("tmpStore.properties");
         schemaPath = tempFolder.newFile("tmpSchema.json");
-        System.setProperty(SystemProperty.GRAPH_ID, "graphId");
+        FileUtils.copyURLToFile(getClass().getResource("/graphConfig.json"), graphConfigPath);
         FileUtils.copyURLToFile(getClass().getResource("/store.properties"), storePropsPath);
         FileUtils.copyURLToFile(getClass().getResource("/schema/schema.json"), schemaPath);
     }
@@ -64,7 +65,7 @@ public abstract class DisableOperationsTest {
         // Given
         System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, storePropsPath.getAbsolutePath());
         System.setProperty(SystemProperty.SCHEMA_PATHS, schemaPath.getAbsolutePath());
-        System.setProperty(SystemProperty.GRAPH_ID, "graphId");
+        System.setProperty(SystemProperty.GRAPH_CONFIG_PATH, graphConfigPath.getAbsolutePath());
         final DefaultGraphFactory factory = new DefaultGraphFactory();
 
         // When
@@ -79,12 +80,13 @@ public abstract class DisableOperationsTest {
     @Test
     public void shouldNotDisableOperationsWhenNotUsingRestApi() {
         // Given
+        System.setProperty(SystemProperty.GRAPH_CONFIG_PATH, graphConfigPath.getAbsolutePath());
         System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, storePropsPath.getAbsolutePath());
         System.setProperty(SystemProperty.SCHEMA_PATHS, schemaPath.getAbsolutePath());
 
         // When
         final Graph graph = new Graph.Builder()
-                .graphId(GRAPH_ID)
+                .config(graphConfigPath.toURI())
                 .storeProperties(storePropsPath.toURI())
                 .addSchema(schemaPath.toURI())
                 .build();

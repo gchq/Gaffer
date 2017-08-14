@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.types;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
-
 import java.util.Comparator;
 
 public class TypeValue implements Comparable<TypeValue> {
@@ -75,7 +74,7 @@ public class TypeValue implements Comparable<TypeValue> {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(17, 89)
                 .append(type)
                 .append(value)
                 .toHashCode();

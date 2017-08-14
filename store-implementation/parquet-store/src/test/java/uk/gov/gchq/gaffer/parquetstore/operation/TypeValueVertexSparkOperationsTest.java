@@ -35,7 +35,6 @@ import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.types.TypeValue;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,7 +94,7 @@ public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsT
         //check returned elements are correct
         final List<Element> expected = new ArrayList<>(175);
         final List<Element> actual = TestUtils.convertTypeValueRowsToElements(data);
-        for (int x = 0 ; x < 25; x++) {
+        for (int x = 0; x < 25; x++) {
             final String type = "type" + (x % 5);
             final TypeValue src = new TypeValue(type, "src" + x);
             final TypeValue dst = new TypeValue(type, "dst" + (x + 1));

@@ -32,7 +32,6 @@ import uk.gov.gchq.gaffer.parquetstore.index.ColumnIndex;
 import uk.gov.gchq.gaffer.parquetstore.index.MinValuesWithPath;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.koryphe.tuple.n.Tuple4;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.NoSuchElementException;

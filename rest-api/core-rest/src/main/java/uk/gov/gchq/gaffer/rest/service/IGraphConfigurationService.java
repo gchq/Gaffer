@@ -44,12 +44,12 @@ public interface IGraphConfigurationService {
 
     @GET
     @Path("/filterFunctions")
-    @ApiOperation(value = "Gets available filter functions. See <a href='https://github.com/gchq/Gaffer/wiki/filter-function-examples' target='_blank' style='text-decoration: underline;'>Wiki</a>.", response = String.class, responseContainer = "list")
+    @ApiOperation(value = "Gets available filter functions.", response = String.class, responseContainer = "list")
     Set<Class> getFilterFunctions();
 
     @GET
     @Path("/filterFunctions/{inputClass}")
-    @ApiOperation(value = "Gets available filter functions for the given input class is provided.  See <a href='https://github.com/gchq/Gaffer/wiki/filter-function-examples' target='_blank' style='text-decoration: underline;'>Wiki</a>.", response = String.class, responseContainer = "list")
+    @ApiOperation(value = "Gets available filter functions for the given input class is provided.", response = String.class, responseContainer = "list")
     Set<Class> getFilterFunctions(@ApiParam(value = "a function input java class") @PathParam("inputClass") final String inputClass);
 
     @GET
@@ -69,7 +69,7 @@ public interface IGraphConfigurationService {
 
     @GET
     @Path("/operations")
-    @ApiOperation(value = "Gets all operations supported by the store. See <a href='https://github.com/gchq/Gaffer/wiki/operation-examples' target='_blank' style='text-decoration: underline;'>Wiki</a>.", response = String.class, responseContainer = "list")
+    @ApiOperation(value = "Gets all operations supported by the store.", response = String.class, responseContainer = "list")
     Set<Class> getOperations();
 
     @GET

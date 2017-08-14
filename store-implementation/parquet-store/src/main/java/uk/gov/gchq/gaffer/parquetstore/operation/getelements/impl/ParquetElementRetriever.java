@@ -37,7 +37,6 @@ import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetFilterUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

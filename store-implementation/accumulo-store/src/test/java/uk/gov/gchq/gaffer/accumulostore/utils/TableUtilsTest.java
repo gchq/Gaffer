@@ -32,6 +32,7 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -282,7 +283,9 @@ public class TableUtilsTest {
 
         // When
         new Graph.Builder()
-                .graphId(null)
+                .config(new GraphConfig.Builder()
+                        .graphId(null)
+                        .build())
                 .addSchema(schema)
                 .storeProperties(properties)
                 .build();

@@ -21,7 +21,7 @@
     <groupId>uk.gov.gchq.gaffer</groupId>
     <artifactId>gaffer2</artifactId>
     <packaging>pom</packaging>
-    <version>0.7.8-SNAPSHOT</version>
+    <version>0.7.9-SNAPSHOT</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>A scalable Graph database framework</description>
@@ -42,7 +42,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skip.surefire.tests>false</skip.surefire.tests>
         <skip.failsafe.tests>false</skip.failsafe.tests>
-        <exclude.tests/>
+        <exclude.tests />
 
         <java.version>1.8</java.version>
         <maven.compiler.source>1.8</maven.compiler.source>

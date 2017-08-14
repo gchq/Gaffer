@@ -34,7 +34,6 @@ import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,7 +90,7 @@ public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest
         //check returned elements are correct
         final List<Element> expected = new ArrayList<>(175);
         final List<Element> actual = TestUtils.convertStringRowsToElements(data);
-        for (long i = 0 ; i < 25; i++) {
+        for (long i = 0; i < 25; i++) {
             expected.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, true, null, null, null, null, null, null, null, null, 2));
             expected.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, false, null, null, null, null, null, null, null, null, 2));
 

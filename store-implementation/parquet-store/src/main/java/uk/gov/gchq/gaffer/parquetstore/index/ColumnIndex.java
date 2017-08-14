@@ -20,7 +20,6 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.parquet.bytes.BytesUtils;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.store.StoreException;
-
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Iterator;

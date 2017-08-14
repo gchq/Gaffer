@@ -29,7 +29,6 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.types.TypeValue;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;

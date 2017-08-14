@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.spark.SparkConstants;
@@ -68,9 +69,11 @@ public abstract class AbstractSparkOperationsTest {
 
     static Graph getGraph(final Schema schema, final ParquetStoreProperties properties) throws StoreException {
         return new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("test")
+                        .build())
                 .addSchema(schema)
                 .storeProperties(properties)
-                .graphId("test")
                 .build();
     }
 
@@ -97,7 +100,7 @@ public abstract class AbstractSparkOperationsTest {
     @Test
     public void getDataFrameOfElementsTest() throws OperationException {
         final Dataset<Row> data = graph.execute(new GetDataFrameOfElements.Builder()
-                .sqlContext(spark.sqlContext())
+                .sparkSession(spark)
                 .build(), USER);
         checkGetDataFrameOfElements(data);
     }
@@ -112,7 +115,7 @@ public abstract class AbstractSparkOperationsTest {
                 .build();
         try {
             graph.execute(new GetDataFrameOfElements.Builder()
-                    .sqlContext(spark.sqlContext())
+                    .sparkSession(spark)
                     .view(view).build(), USER);
             fail();
         } catch (final OperationException e) {

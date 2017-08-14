@@ -18,10 +18,12 @@ package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.serialisation;
 import com.yahoo.sketches.quantiles.ItemsSketch;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-
 import java.util.Comparator;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class StringsSketchSerialiserTest {
     private static final double DELTA = 0.01D;

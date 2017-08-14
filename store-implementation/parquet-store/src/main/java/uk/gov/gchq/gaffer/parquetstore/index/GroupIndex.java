@@ -20,7 +20,6 @@ import org.apache.hadoop.fs.Path;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.store.StoreException;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;

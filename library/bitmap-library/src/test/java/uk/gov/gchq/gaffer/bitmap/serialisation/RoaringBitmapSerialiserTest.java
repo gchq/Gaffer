@@ -15,14 +15,14 @@
  */
 package uk.gov.gchq.gaffer.bitmap.serialisation;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 import org.roaringbitmap.RoaringBitmap;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
+
+import static org.junit.Assert.assertEquals;
 
 public class RoaringBitmapSerialiserTest extends ToBytesSerialisationTest<RoaringBitmap> {
 

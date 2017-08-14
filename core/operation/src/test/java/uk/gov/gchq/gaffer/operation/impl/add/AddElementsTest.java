@@ -23,7 +23,6 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.io.IOException;
 import java.util.Arrays;
@@ -34,7 +33,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class AddElementsTest extends OperationTest {
+public class AddElementsTest extends OperationTest<AddElements> {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
     public static final String ADD_ELEMENTS_JSON = String.format("{%n" +
             "  \"class\" : \"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",%n" +
@@ -59,16 +58,10 @@ public class AddElementsTest extends OperationTest {
             "  } ]%n" +
             "}");
 
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return AddElements.class;
-    }
-
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
-        final AddElements addElements = new AddElements();
+        final AddElements addElements = getTestObject();
 
         // When
         String json = new String(serialiser.serialise(addElements, true));
@@ -149,4 +142,8 @@ public class AddElementsTest extends OperationTest {
         assertEquals(element, addElements.getInput().iterator().next());
     }
 
+    @Override
+    protected AddElements getTestObject() {
+        return new AddElements();
+    }
 }

@@ -291,16 +291,6 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             return self();
         }
 
-        @Override
-        public CHILD_CLASS entity(final String group) {
-            return entity(group, new SchemaEntityDefinition());
-        }
-
-        @Override
-        public CHILD_CLASS edge(final String group) {
-            return edge(group, new SchemaEdgeDefinition());
-        }
-
         /**
          * Sets the {@link Serialiser}.
          *

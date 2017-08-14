@@ -6,7 +6,6 @@ import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import java.util.Iterator;
@@ -15,17 +14,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
-public class GetElementsBetweenSetsTest extends OperationTest {
+public class GetElementsBetweenSetsTest extends OperationTest<GetElementsBetweenSets> {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
-    @Override
-    protected Class<? extends Operation> getOperationClass() {
-        return GetElementsBetweenSets.class;
-    }
-
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder()
                 .input(AccumuloTestData.SEED_SOURCE_1, AccumuloTestData.SEED_DESTINATION_1)
@@ -69,5 +62,10 @@ public class GetElementsBetweenSetsTest extends OperationTest {
         assertEquals(AccumuloTestData.SEED_B, getElementsBetweenSets.getInput().iterator().next());
         assertEquals(AccumuloTestData.SEED_A, getElementsBetweenSets.getInputB().iterator().next());
         assertNotNull(getElementsBetweenSets.getView());
+    }
+
+    @Override
+    protected GetElementsBetweenSets getTestObject() {
+        return new GetElementsBetweenSets();
     }
 }

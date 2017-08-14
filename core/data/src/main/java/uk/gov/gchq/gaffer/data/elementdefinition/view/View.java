@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -234,16 +235,16 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
 
-        final View view = (View) o;
+        final View view = (View) obj;
 
         return new EqualsBuilder()
                 .appendSuper(super.equals(view))
@@ -272,14 +273,29 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
             super(view);
         }
 
-        @Override
         public CHILD_CLASS entity(final String group) {
             return entity(group, new ViewElementDefinition());
         }
 
-        @Override
+        @JsonIgnore
+        public CHILD_CLASS entities(final Collection<String> groups) {
+            for (final String group : groups) {
+                entity(group);
+            }
+
+            return self();
+        }
+
         public CHILD_CLASS edge(final String group) {
             return edge(group, new ViewElementDefinition());
+        }
+
+        public CHILD_CLASS edges(final Collection<String> groups) {
+            for (final String group : groups) {
+                edge(group);
+            }
+
+            return self();
         }
 
         public CHILD_CLASS globalElements(final GlobalViewElementDefinition... globalElements) {

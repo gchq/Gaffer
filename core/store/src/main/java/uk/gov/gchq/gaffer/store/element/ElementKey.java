@@ -98,14 +98,17 @@ public interface ElementKey {
 
         @Override
         public boolean equals(final Object obj) {
-            return null != obj
-                    && (obj instanceof EntityKey)
-                    && equals((EntityKey) obj);
-        }
+            if (this == obj) {
+                return true;
+            }
 
-        public boolean equals(final EntityKey entityKey) {
-            return null != entityKey
-                    && new EqualsBuilder()
+            if (obj == null || getClass() != obj.getClass()) {
+                return false;
+            }
+
+            final EntityKey entityKey = (EntityKey) obj;
+
+            return new EqualsBuilder()
                     .append(entity.getGroup(), entityKey.entity.getGroup())
                     .append(entity.getVertex(), entityKey.entity.getVertex())
                     .append(groupByProperties, entityKey.groupByProperties)

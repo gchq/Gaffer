@@ -6,7 +6,6 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Arrays;
 import java.util.Set;
@@ -16,15 +15,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class SampleDataForSplitPointsTest extends OperationTest {
+public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSplitPoints> {
     private static final JSONSerialiser SERIALISER = new JSONSerialiser();
     private static final String INPUT_DIRECTORY = "/input";
     private static final String TEST_OPTION_KEY = "testOption";
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return SampleDataForSplitPoints.class;
-    }
 
     @Override
     protected Set<String> getRequiredFields() {
@@ -38,8 +32,7 @@ public class SampleDataForSplitPointsTest extends OperationTest {
     }
 
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final String resultPath = "/result";
         final SampleDataForSplitPoints op = new SampleDataForSplitPoints();
@@ -86,12 +79,17 @@ public class SampleDataForSplitPointsTest extends OperationTest {
 
     @Test
     public void expectIllegalArgumentExceptionWhenTryingToSetReducers() {
-        final SampleDataForSplitPoints op = new SampleDataForSplitPoints();
+        final SampleDataForSplitPoints op = getTestObject();
         try {
             op.setNumReduceTasks(10);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             assertNotNull(e.getMessage());
         }
+    }
+
+    @Override
+    protected SampleDataForSplitPoints getTestObject() {
+        return new SampleDataForSplitPoints();
     }
 }

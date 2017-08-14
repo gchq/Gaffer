@@ -22,7 +22,6 @@ import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
@@ -38,13 +37,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
-public class GetElementsTest extends OperationTest {
+public class GetElementsTest extends OperationTest<GetElements> {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return GetElements.class;
-    }
 
     @Test
     public void shouldSetSeedMatchingTypeToEquals() {
@@ -61,7 +55,8 @@ public class GetElementsTest extends OperationTest {
         assertEquals(SeedMatchingType.EQUAL, op.getSeedMatching());
     }
 
-    private void shouldSerialiseAndDeserialiseOperationWithElementIds() throws SerialisationException {
+    @Test
+    public void shouldSerialiseAndDeserialiseOperationWithElementIds() throws SerialisationException {
         // Given
         final ElementSeed elementSeed1 = new EntitySeed("identifier");
         final ElementSeed elementSeed2 = new EdgeSeed("source2", "destination2", true);
@@ -149,14 +144,13 @@ public class GetElementsTest extends OperationTest {
 
     @Test
     @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
-        shouldSerialiseAndDeserialiseOperationWithElementIds();
-    }
-
-    @Test
-    @Override
     public void builderShouldCreatePopulatedOperation() {
         builderShouldCreatePopulatedOperationAll();
         builderShouldCreatePopulatedOperationIncoming();
+    }
+
+    @Override
+    protected GetElements getTestObject() {
+        return new GetElements();
     }
 }

@@ -16,7 +16,8 @@
 package uk.gov.gchq.gaffer.spark.examples
 
 import org.apache.log4j.{Level, Logger}
-import org.apache.spark.{SparkConf, SparkContext}
+import org.apache.spark.SparkConf
+import org.apache.spark.sql.SparkSession
 import uk.gov.gchq.gaffer.doc.operation.OperationExample
 import uk.gov.gchq.gaffer.graph.Graph
 import uk.gov.gchq.gaffer.operation.OperationException
@@ -25,8 +26,8 @@ import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements
 import uk.gov.gchq.gaffer.user.User
 
 /**
-  * An example showing how the {@link GetJavaRDDOfElements} operation is used from Scala.
-  */
+ * An example showing how the {@link GetJavaRDDOfElements} operation is used from Scala.
+ */
 class GetRDDOfAllElementsExample extends OperationExample(classOf[GetRDDOfAllElements]) {
   private lazy val ROOT_LOGGER = Logger.getRootLogger
 
@@ -40,29 +41,29 @@ class GetRDDOfAllElementsExample extends OperationExample(classOf[GetRDDOfAllEle
       .set(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
       .set(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
       .set(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true")
-    val sc = new SparkContext(sparkConf)
-    sc.setLogLevel("OFF")
+    val sparkSession = new SparkSession.Builder().config(sparkConf).getOrCreate()
+    sparkSession.sparkContext.setLogLevel("OFF")
     try {
-      getRddOfAllElements(sc, getGraph)
+      getRddOfAllElements(sparkSession, getGraph)
     } catch {
       case e: OperationException => {
-        sc.stop()
+        sparkSession.stop()
         throw new RuntimeException(e)
       }
     }
-    sc.stop()
+    sparkSession.stop()
     ROOT_LOGGER.setLevel(Level.INFO)
   }
 
   @throws[OperationException]
-  def getRddOfAllElements(sc: SparkContext, graph: Graph) {
+  def getRddOfAllElements(sparkSession: SparkSession, graph: Graph) {
     ROOT_LOGGER.setLevel(Level.INFO)
     // Avoid using getMethodNameAsSentence as it messes up the formatting of the "RDD" part
     log("#### get RDD of all elements\n")
     printGraph()
     ROOT_LOGGER.setLevel(Level.OFF)
     val operation = new GetRDDOfAllElements.Builder()
-      .sparkContext(sc)
+      .sparkSession(sparkSession)
       .build
     val rdd = graph.execute(operation, new User("user01"))
     val elements = rdd.collect
