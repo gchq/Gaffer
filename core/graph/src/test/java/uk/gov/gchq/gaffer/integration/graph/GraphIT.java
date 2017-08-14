@@ -3,6 +3,7 @@ package uk.gov.gchq.gaffer.integration.graph;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -56,7 +57,9 @@ public class GraphIT {
         // When
         try {
             new Graph.Builder()
-                    .graphId("graph1")
+                    .config(new GraphConfig.Builder()
+                            .graphId("graph1")
+                            .build())
                     .storeProperties(storePropertiesStream)
                     .addSchema(elementSchemaStream)
                     .addSchema(typesSchemaStream)
@@ -111,7 +114,9 @@ public class GraphIT {
 
         // When
         new Graph.Builder()
-                .graphId("graphId")
+                .config(new GraphConfig.Builder()
+                        .graphId("graphId")
+                        .build())
                 .storeProperties(storePropertiesStream)
                 .addSchema(elementsSchemaStream)
                 .addSchema(typesSchemaStream)

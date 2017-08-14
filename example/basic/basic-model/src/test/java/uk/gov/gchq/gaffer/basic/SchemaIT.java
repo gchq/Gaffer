@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.basic;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -30,7 +31,9 @@ public class SchemaIT {
 
         // When
         new Graph.Builder()
-                .graphId("basicGraph")
+                .config(new GraphConfig.Builder()
+                        .graphId("basicGraph")
+                        .build())
                 .storeProperties(storeProps)
                 .addSchemas(schema)
                 .build();
