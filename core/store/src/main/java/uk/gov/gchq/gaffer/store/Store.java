@@ -483,7 +483,16 @@ public abstract class Store {
             validationResult.addError(
                     String.format("Schema serialiser (%s) is not instance of %s",
                             serialiser.getClass().getSimpleName(),
-                            requiredParentSerialiserClass.getSimpleName()));
+                            requiredParentSerialiserClass.getSimpleName()
+                    )
+            );
+        }
+        if (serialiser != null && !serialiser.isConsistent()) {
+            validationResult.addError(
+                    String.format("Schema serialiser (%s) is inconsistent - store may be unable to handle this.",
+                            serialiser.getClass().getSimpleName()
+                    )
+            );
         }
     }
 
