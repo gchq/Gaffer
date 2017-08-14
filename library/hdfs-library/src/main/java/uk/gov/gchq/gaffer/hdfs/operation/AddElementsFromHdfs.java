@@ -31,6 +31,11 @@ import java.util.Map;
  * It order to be generic and deal with any type of input file you also need to provide a
  * {@link MapperGenerator} class name and a
  * {@link uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser}.
+ * You will need to write your own {@link MapperGenerator} to convert the input
+ * data into gaffer {@link uk.gov.gchq.gaffer.data.element.Element}s. This can
+ * be as simple as delegating to your {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator}
+ * class, however it can be more complex and make use of the configuration in
+ * {@link org.apache.hadoop.mapreduce.MapContext}.
  * <p>
  * For normal operation handlers the operation {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View} will be ignored.
  * </p>
