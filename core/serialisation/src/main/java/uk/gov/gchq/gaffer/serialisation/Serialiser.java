@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.serialisation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import java.io.Serializable;
 
@@ -87,5 +88,6 @@ public interface Serialiser<INPUT, OUTPUT> extends Serializable {
      */
     boolean preservesObjectOrdering();
 
+    @JsonIgnore
     boolean isConsistent();
 }
