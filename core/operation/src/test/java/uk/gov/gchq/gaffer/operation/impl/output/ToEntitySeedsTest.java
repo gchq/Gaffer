@@ -23,6 +23,8 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 
@@ -41,6 +43,21 @@ public class ToEntitySeedsTest extends OperationTest<ToEntitySeeds> {
     }
 
     @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final String input = "1";
+        final ToEntitySeeds toEntitySeeds = new ToEntitySeeds.Builder()
+                .input(input)
+                .build();
+
+        // When
+        final ToEntitySeeds clone = toEntitySeeds.shallowClone();
+
+        // Then
+        assertNotSame(toEntitySeeds, clone);
+        assertEquals(input, clone.getInput().iterator().next());
+    }
+
     protected ToEntitySeeds getTestObject() {
         return new ToEntitySeeds();
     }

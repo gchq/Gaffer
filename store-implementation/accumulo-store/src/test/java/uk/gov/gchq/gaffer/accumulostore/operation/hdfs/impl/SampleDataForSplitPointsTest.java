@@ -12,6 +12,7 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -89,6 +90,56 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
     }
 
     @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final SampleDataForSplitPoints sampleDataForSplitPoints = new SampleDataForSplitPoints.Builder()
+                .addInputPath(INPUT_DIRECTORY)
+                .splitsFilePath("/test")
+                .proportionToSample(0.1f)
+                .mappers(5)
+                .validate(true)
+                .option(TEST_OPTION_KEY, "true")
+                .build();
+
+        //When
+        SampleDataForSplitPoints clone = sampleDataForSplitPoints.shallowClone();
+
+        // Then
+        assertNotSame(sampleDataForSplitPoints, clone);
+        assertEquals(INPUT_DIRECTORY, clone.getInputPaths().get(0));
+        assertEquals("true", clone.getOption(TEST_OPTION_KEY));
+        assertEquals("/test", clone.getSplitsFilePath());
+        assertTrue(clone.isValidate());
+        assertEquals(0.1f, clone.getProportionToSample(), 1);
+        assertEquals(new Integer(5), clone.getNumMapTasks());
+    }
+
+    @Test
+    public void shouldShallowCloneOperationWithMinAndMaxMappers() {
+        // Given
+        final SampleDataForSplitPoints sampleDataForSplitPoints = new SampleDataForSplitPoints.Builder()
+                .addInputPath(INPUT_DIRECTORY)
+                .splitsFilePath("/test")
+                .proportionToSample(0.1f)
+                .maxMappers(10)
+                .minMappers(2)
+                .validate(true)
+                .option(TEST_OPTION_KEY, "true")
+                .build();
+
+        //When
+        SampleDataForSplitPoints clone = sampleDataForSplitPoints.shallowClone();
+
+        // Then
+        assertEquals(INPUT_DIRECTORY, clone.getInputPaths().get(0));
+        assertEquals("true", clone.getOption(TEST_OPTION_KEY));
+        assertEquals("/test", clone.getSplitsFilePath());
+        assertTrue(clone.isValidate());
+        assertEquals(0.1f, clone.getProportionToSample(), 1);
+        assertEquals(new Integer(10), clone.getMaxMapTasks());
+        assertEquals(new Integer(2), clone.getMinMapTasks());
+    }
+
     protected SampleDataForSplitPoints getTestObject() {
         return new SampleDataForSplitPoints();
     }

@@ -74,6 +74,15 @@ public class ToCsv implements
         return new TypeReferenceImpl.IterableString();
     }
 
+    @Override
+    public ToCsv shallowClone() {
+        return new ToCsv.Builder()
+                .generator(elementGenerator)
+                .input(input)
+                .includeHeader(includeHeader)
+                .build();
+    }
+
     public static final class Builder extends BaseBuilder<ToCsv, Builder>
             implements InputOutput.Builder<ToCsv, Iterable<? extends Element>, Iterable<? extends String>, Builder>,
             MultiInput.Builder<ToCsv, Element, Builder> {

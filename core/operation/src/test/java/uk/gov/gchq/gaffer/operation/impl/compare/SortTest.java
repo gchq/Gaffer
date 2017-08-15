@@ -31,7 +31,10 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class SortTest extends OperationTest<Sort> {
 
@@ -66,6 +69,33 @@ public class SortTest extends OperationTest<Sort> {
     }
 
     @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final Entity input = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .property("property", 1)
+                .build();
+        final ElementPropertyComparator comparator = new ElementPropertyComparator();
+        final Boolean deDuplicate = false;
+        final int resultLimit = 5;
+        final Sort sort = new Sort.Builder()
+                .input(input)
+                .comparators(comparator)
+                .resultLimit(resultLimit)
+                .deduplicate(deDuplicate)
+                .build();
+
+        // When
+        Sort clone = sort.shallowClone();
+
+        // Then
+        assertNotSame(sort, clone);
+        assertEquals(input, clone.getInput().iterator().next());
+        assertEquals(comparator, clone.getComparators().iterator().next());
+        assertEquals(deDuplicate, clone.isDeduplicate());
+        assertTrue(clone.getResultLimit().equals(resultLimit));
+    }
+
     protected Sort getTestObject() {
         return new Sort();
     }

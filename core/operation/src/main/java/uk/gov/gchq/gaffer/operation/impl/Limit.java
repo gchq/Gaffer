@@ -83,6 +83,15 @@ public class Limit<T> implements
         return TypeReferenceImpl.createIterableT();
     }
 
+    @Override
+    public Limit<T> shallowClone() {
+        return new Limit.Builder<T>()
+                .resultLimit(resultLimit)
+                .input(input)
+                .truncate(truncate)
+                .build();
+    }
+
     public static final class Builder<T>
             extends Operation.BaseBuilder<Limit<T>, Builder<T>>
             implements InputOutput.Builder<Limit<T>, Iterable<? extends T>, Iterable<? extends T>, Builder<T>>,

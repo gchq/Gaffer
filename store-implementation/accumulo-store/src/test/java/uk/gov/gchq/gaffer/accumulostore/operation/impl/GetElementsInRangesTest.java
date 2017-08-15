@@ -18,6 +18,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 
 public class GetElementsInRangesTest extends OperationTest<GetElementsInRanges> {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
@@ -43,7 +44,6 @@ public class GetElementsInRangesTest extends OperationTest<GetElementsInRanges> 
         assertEquals(pair1, itrPairs.next());
         assertEquals(pair2, itrPairs.next());
         assertFalse(itrPairs.hasNext());
-
     }
 
     @SuppressWarnings("unchecked")
@@ -66,6 +66,30 @@ public class GetElementsInRangesTest extends OperationTest<GetElementsInRanges> 
     }
 
     @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final Pair<ElementId, ElementId> seed = new Pair<>(AccumuloTestData.SEED_A, AccumuloTestData.SEED_B);
+        final View view = new View.Builder().edge("testEdgeGroup").build();
+        final GetElementsInRanges getElementsInRanges = new GetElementsInRanges.Builder()
+                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.EITHER)
+                .input(seed)
+                .directedType(DirectedType.UNDIRECTED)
+                .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
+                .view(view)
+                .build();
+
+        // When
+        final GetElementsInRanges clone = getElementsInRanges.shallowClone();
+
+        // Then
+        assertNotSame(getElementsInRanges, clone);
+        assertEquals("true", clone.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
+        assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.EITHER, clone.getIncludeIncomingOutGoing());
+        assertEquals(DirectedType.UNDIRECTED, clone.getDirectedType());
+        assertEquals(seed, clone.getInput().iterator().next());
+        assertEquals(view, clone.getView());
+    }
+
     protected GetElementsInRanges getTestObject() {
         return new GetElementsInRanges();
     }

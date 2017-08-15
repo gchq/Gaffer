@@ -102,7 +102,9 @@ See [Getting Started](Getting-Started.md) for details of how to write a schema t
 
 ```java
 Graph graph = new Graph.Builder()
-      .graphId(uniqueNameOfYourGraph)
+      .config(new GraphConfig.Builder()
+          .graphId(uniqueNameOfYourGraph)
+          .build())
       .addSchemas(schemas)
       .storeProperties(storeProperties)
       .build();

@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 
@@ -107,6 +108,34 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
         assertEquals(new Integer(20), addElements.getNumReduceTasks());
         assertEquals("output", addElements.getOutputPath());
         assertEquals("input", addElements.getInputPaths().get(0));
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final AddElementsFromHdfs addElements = new AddElementsFromHdfs.Builder()
+                .addInputPath("input")
+                .outputPath("output")
+                .failurePath("fail")
+                .mapperGenerator(MapperGenerator.class)
+                .mappers(10)
+                .reducers(20)
+                .validate(true)
+                .option("testOption", "true")
+                .build();
+
+        // When
+        AddElementsFromHdfs clone = addElements.shallowClone();
+
+        // Then
+        assertNotSame(addElements, clone);
+        assertEquals("true", clone.getOption("testOption"));
+        assertTrue(clone.isValidate());
+        assertEquals("fail", clone.getFailurePath());
+        assertEquals(new Integer(10), clone.getNumMapTasks());
+        assertEquals(new Integer(20), clone.getNumReduceTasks());
+        assertEquals("output", clone.getOutputPath());
+        assertEquals("input", clone.getInputPaths().get(0));
     }
 
     @Test

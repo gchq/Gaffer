@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 
 public class GetSetExportTest extends OperationTest<GetSetExport> {
@@ -68,6 +69,30 @@ public class GetSetExportTest extends OperationTest<GetSetExport> {
     }
 
     @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final String key = "key";
+        final String jobId = "jobId";
+        final int start = 0;
+        final int end = 5;
+        final GetSetExport getSetExport = new GetSetExport.Builder()
+                .key(key)
+                .jobId(jobId)
+                .start(start)
+                .end(end)
+                .build();
+
+        // When
+        GetSetExport clone = getSetExport.shallowClone();
+
+        // Then
+        assertNotSame(getSetExport, clone);
+        assertEquals(key, clone.getKey());
+        assertEquals(jobId, clone.getJobId());
+        assertEquals(start, clone.getStart());
+        assertEquals(end, (int) clone.getEnd());
+    }
+
     protected GetSetExport getTestObject() {
         return new GetSetExport();
     }

@@ -26,6 +26,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -79,7 +80,9 @@ public class ExamplesServiceTest {
         final Store store = mock(Store.class);
         given(store.getSchema()).willReturn(schema);
         final Graph graph = new Graph.Builder()
-                .graphId("graphId")
+                .config(new GraphConfig.Builder()
+                        .graphId("graphId")
+                        .build())
                 .store(store)
                 .build();
         given(graphFactory.getGraph()).willReturn(graph);

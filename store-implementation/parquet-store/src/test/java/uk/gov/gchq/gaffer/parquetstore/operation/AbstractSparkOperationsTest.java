@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.spark.SparkConstants;
@@ -68,9 +69,11 @@ public abstract class AbstractSparkOperationsTest {
 
     static Graph getGraph(final Schema schema, final ParquetStoreProperties properties) throws StoreException {
         return new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("test")
+                        .build())
                 .addSchema(schema)
                 .storeProperties(properties)
-                .graphId("test")
                 .build();
     }
 

@@ -69,6 +69,15 @@ public class ToVertices implements
         this.useMatchedVertex = useMatchedVertex;
     }
 
+    @Override
+    public ToVertices shallowClone() {
+        return new ToVertices.Builder()
+                .input(input)
+                .useMatchedVertex(useMatchedVertex)
+                .edgeVertices(edgeVertices)
+                .build();
+    }
+
     public enum EdgeVertices {
         NONE,
         SOURCE,
