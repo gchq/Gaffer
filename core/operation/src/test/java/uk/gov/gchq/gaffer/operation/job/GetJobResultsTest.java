@@ -26,6 +26,8 @@ import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 
@@ -72,6 +74,19 @@ public class GetJobResultsTest extends OperationTest<GetJobResults> {
     }
 
     @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final GetJobResults getJobResults = new GetJobResults.Builder()
+                .build();
+
+        // When
+        final GetJobResults clone = getJobResults.shallowClone();
+
+        // Then
+        assertNotSame(getJobResults, clone);
+        assertNotNull(clone);
+    }
+
     protected GetJobResults getTestObject() {
         return new GetJobResults();
     }

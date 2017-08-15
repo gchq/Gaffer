@@ -77,6 +77,14 @@ public class Min implements
         return new TypeReferenceImpl.Element();
     }
 
+    @Override
+    public Min shallowClone() {
+        return new Min.Builder()
+                .input(input)
+                .comparators(comparators)
+                .build();
+    }
+
     public static final class Builder
             extends Operation.BaseBuilder<Min, Min.Builder>
             implements InputOutput.Builder<Min, Iterable<? extends Element>, Element, Min.Builder>,

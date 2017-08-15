@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 public class AddElementsFromFileTest extends OperationTest<AddElementsFromFile> {
 
@@ -90,6 +91,33 @@ public class AddElementsFromFileTest extends OperationTest<AddElementsFromFile> 
         assertEquals(parallelism, op.getParallelism());
         assertEquals(validate, op.isValidate());
         assertEquals(skipInvalid, op.isSkipInvalidElements());
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final String filename = "filename";
+        final Class<TestGeneratorImpl> generator = TestGeneratorImpl.class;
+        final AddElementsFromFile addElementsFromFile = new AddElementsFromFile.Builder()
+                .filename(filename)
+                .generator(generator)
+                .parallelism(2)
+                .validate(true)
+                .skipInvalidElements(false)
+                .option("testOption", "true")
+                .build();
+
+        // When
+        AddElementsFromFile clone = addElementsFromFile.shallowClone();
+
+        // Then
+        assertNotSame(addElementsFromFile, clone);
+        assertEquals(true, clone.isValidate());
+        assertEquals(false, clone.isSkipInvalidElements());
+        assertEquals(filename, clone.getFilename());
+        assertEquals(2, (int) clone.getParallelism());
+        assertEquals(generator, clone.getElementGenerator());
+        assertEquals("true", clone.getOption("testOption"));
     }
 
     @Override

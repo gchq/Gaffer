@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,51 +14,51 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.impl.output;
+package uk.gov.gchq.gaffer.operation.impl;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
+public class CountTest extends OperationTest {
+    private static final JSONSerialiser serialiser = new JSONSerialiser();
 
-public class ToListTest extends OperationTest<ToList> {
-
-    @Test
     @Override
+    @Test
     public void builderShouldCreatePopulatedOperation() {
         // Given
-        final ToList<String> toList = new ToList.Builder<String>().input("1", "2").build();
+        final Count count = new Count.Builder<String>()
+                .input("1", "2")
+                .build();
 
         // Then
-        assertThat(toList.getInput(), is(notNullValue()));
-        assertThat(toList.getInput(), iterableWithSize(2));
-        assertThat(toList.getInput(), containsInAnyOrder("1", "2"));
+        assertThat(count.getInput(), is(notNullValue()));
     }
 
     @Override
     public void shouldShallowCloneOperation() {
         // Given
         final String input = "1";
-        final ToList toList = new ToList.Builder<>()
+        final Count count = new Count.Builder<>()
                 .input(input)
                 .build();
 
         // When
-        final ToList clone = toList.shallowClone();
+        final Count clone = count.shallowClone();
 
         // Then
-        assertNotSame(toList, clone);
+        assertNotSame(count, clone);
         assertEquals(input, clone.getInput().iterator().next());
     }
 
-    protected ToList getTestObject() {
-        return new ToList();
+    @Override
+    protected Count getTestObject() {
+        return new Count();
     }
 }

@@ -19,7 +19,7 @@ $("#resource_operations .operation-params").find("td:eq(2)").append("<input type
 
 function loadExample(exampleButton){
     var urlSuffix = $(exampleButton).closest('.operation').find(".path").text().trim();
-    var exampleUrl = getVersion() + "/example" + urlSuffix;
+    var exampleUrl = "v1/example" + urlSuffix;
     var onSuccess = function(response){
         var json=JSON.stringify(response, null,"   ");
         $(exampleButton.parentElement.parentElement).find("textarea").val(json);
@@ -35,7 +35,7 @@ function log() {
 
 function init(onSwaggerComplete){
       window.swaggerUi = new SwaggerUi({
-        url: getVersion() + "/swagger.json",
+        url: "v1/swagger.json",
         dom_id: "swagger-ui-container",
         supportedSubmitMethods: ['get', 'post', 'put', 'delete'],
         onComplete: function(swaggerApi, swaggerUi){

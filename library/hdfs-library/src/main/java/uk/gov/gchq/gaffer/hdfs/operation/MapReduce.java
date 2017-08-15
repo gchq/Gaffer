@@ -30,9 +30,11 @@ import java.util.List;
  * {@link JobInitialiser}.
  * <p>
  * <b>NOTE</b> - currently this job has to be run as a hadoop job.
+ * </p>
  * <p>
  * If you want to specify the number of mappers and/or the number of reducers
  * then either set the exact number or set a min and/or max value.
+ * </p>
  *
  * @see Builder
  */
@@ -150,7 +152,7 @@ public interface MapReduce {
         }
 
         default B reducers(final Integer numReduceTasks) {
-            if (null != _getOp().getMinReduceTasks() || null != _getOp().getMaxReduceTasks()) {
+            if (null != numReduceTasks && (null != _getOp().getMinReduceTasks() || null != _getOp().getMaxReduceTasks())) {
                 throw new IllegalArgumentException("Invalid combination of fields. " +
                         "Either provide the number of reducers to use or provide a min and max value.");
             }
@@ -159,7 +161,7 @@ public interface MapReduce {
         }
 
         default B minReducers(final Integer minReduceTasks) {
-            if (null != _getOp().getNumReduceTasks()) {
+            if (null != minReduceTasks && null != _getOp().getNumReduceTasks()) {
                 throw new IllegalArgumentException("Invalid combination of fields. " +
                         "Either provide the number of reducers to use or provide a min and max value.");
             }
@@ -168,7 +170,7 @@ public interface MapReduce {
         }
 
         default B maxReducers(final Integer maxReduceTasks) {
-            if (null != _getOp().getNumReduceTasks()) {
+            if (null != maxReduceTasks && null != _getOp().getNumReduceTasks()) {
                 throw new IllegalArgumentException("Invalid combination of fields. " +
                         "Either provide the number of reducers to use or provide a min and max value.");
             }
@@ -177,7 +179,7 @@ public interface MapReduce {
         }
 
         default B mappers(final Integer numMapTasks) {
-            if (null != _getOp().getMinMapTasks() || null != _getOp().getMaxMapTasks()) {
+            if (null != numMapTasks && (null != _getOp().getMinMapTasks() || null != _getOp().getMaxMapTasks())) {
                 throw new IllegalArgumentException("Invalid combination of fields. " +
                         "Either provide the number of mappers to use or provide a min and max value.");
             }
@@ -186,7 +188,7 @@ public interface MapReduce {
         }
 
         default B minMappers(final Integer minMapTasks) {
-            if (null != _getOp().getNumMapTasks()) {
+            if (null != minMapTasks && null != _getOp().getNumMapTasks()) {
                 throw new IllegalArgumentException("Invalid combination of fields. " +
                         "Either provide the number of mappers to use or provide a min and max value.");
             }
@@ -195,7 +197,7 @@ public interface MapReduce {
         }
 
         default B maxMappers(final Integer maxMapTasks) {
-            if (null != _getOp().getNumMapTasks()) {
+            if (null != maxMapTasks && null != _getOp().getNumMapTasks()) {
                 throw new IllegalArgumentException("Invalid combination of fields. " +
                         "Either provide the number of mappers to use or provide a min and max value.");
             }

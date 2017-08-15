@@ -7,12 +7,14 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
+import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import java.util.Iterator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 
 public class GetElementsBetweenSetsTest extends OperationTest<GetElementsBetweenSets> {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
@@ -65,6 +67,35 @@ public class GetElementsBetweenSetsTest extends OperationTest<GetElementsBetween
     }
 
     @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final View view = new View.Builder()
+                .edge("testEdgeGroup")
+                .build();
+        final GetElementsBetweenSets getElementsBetweenSets = new GetElementsBetweenSets.Builder()
+                .input(AccumuloTestData.SEED_B)
+                .inputB(AccumuloTestData.SEED_A)
+                .directedType(DirectedType.UNDIRECTED)
+                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING)
+                .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
+                .seedMatching(SeedMatchingType.EQUAL)
+                .view(view)
+                .build();
+
+        // When
+        final GetElementsBetweenSets clone = getElementsBetweenSets.shallowClone();
+
+        // Then
+        assertNotSame(getElementsBetweenSets, clone);
+        assertEquals("true", clone.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
+        assertEquals(DirectedType.UNDIRECTED, clone.getDirectedType());
+        assertEquals(SeedMatchingType.EQUAL, clone.getSeedMatching());
+        assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING, clone.getIncludeIncomingOutGoing());
+        assertEquals(AccumuloTestData.SEED_B, clone.getInput().iterator().next());
+        assertEquals(AccumuloTestData.SEED_A, clone.getInputB().iterator().next());
+        assertEquals(view, clone.getView());
+    }
+
     protected GetElementsBetweenSets getTestObject() {
         return new GetElementsBetweenSets();
     }

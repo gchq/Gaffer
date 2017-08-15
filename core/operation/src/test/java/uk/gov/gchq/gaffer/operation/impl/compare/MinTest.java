@@ -31,6 +31,8 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 public class MinTest extends OperationTest<Min> {
@@ -66,6 +68,27 @@ public class MinTest extends OperationTest<Min> {
     }
 
     @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final Entity input = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .property("property", 1)
+                .build();
+        final ElementPropertyComparator comparator = new ElementPropertyComparator();
+        final Min min = new Min.Builder()
+                .input(input)
+                .comparators(comparator)
+                .build();
+
+        // When
+        Min clone = min.shallowClone();
+
+        // Then
+        assertNotSame(min, clone);
+        assertEquals(input, clone.getInput().iterator().next());
+        assertEquals(comparator, clone.getComparators().iterator().next());
+    }
+
     protected Min getTestObject() {
         return new Min();
     }

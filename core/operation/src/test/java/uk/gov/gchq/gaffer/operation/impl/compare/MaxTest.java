@@ -30,6 +30,8 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 public class MaxTest extends OperationTest<Max> {
@@ -65,6 +67,27 @@ public class MaxTest extends OperationTest<Max> {
     }
 
     @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final Entity input = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .property("property", 1)
+                .build();
+        final ElementPropertyComparator comparator = new ElementPropertyComparator();
+        final Max max = new Max.Builder()
+                .input(input)
+                .comparators(comparator)
+                .build();
+
+        // When
+        Max clone = max.shallowClone();
+
+        // Then
+        assertNotSame(max, clone);
+        assertEquals(input, clone.getInput().iterator().next());
+        assertEquals(comparator, clone.getComparators().iterator().next());
+    }
+
     protected Max getTestObject() {
         return new Max();
     }

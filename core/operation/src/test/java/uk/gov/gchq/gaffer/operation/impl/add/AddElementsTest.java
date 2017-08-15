@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.add;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -31,6 +32,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 public class AddElementsTest extends OperationTest<AddElements> {
@@ -57,6 +59,31 @@ public class AddElementsTest extends OperationTest<AddElements> {
             "    \"directed\" : true%n" +
             "  } ]%n" +
             "}");
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final Boolean validatable = false;
+        final Boolean skipInvalidElements = false;
+        final Element testInput = new Entity.Builder().property("name", "value").build();
+
+        final AddElements addElements = new AddElements.Builder()
+                .validate(validatable)
+                .skipInvalidElements(skipInvalidElements)
+                .input(testInput)
+                .option("testOption", "true")
+                .build();
+
+        // When
+        final AddElements clone = addElements.shallowClone();
+
+        // Then
+        assertNotSame(addElements, clone);
+        assertEquals(validatable, clone.isValidate());
+        assertEquals(skipInvalidElements, clone.isSkipInvalidElements());
+        assertEquals("true", clone.getOption("testOption"));
+        assertEquals(Lists.newArrayList(testInput), clone.getInput());
+    }
 
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
@@ -135,7 +162,9 @@ public class AddElementsTest extends OperationTest<AddElements> {
                 .input(element)
                 .skipInvalidElements(true)
                 .option("testOption", "true")
-                .validate(false).build();
+                .validate(false)
+                .build();
+
         assertEquals("true", addElements.getOption("testOption"));
         assertTrue(addElements.isSkipInvalidElements());
         assertFalse(addElements.isValidate());

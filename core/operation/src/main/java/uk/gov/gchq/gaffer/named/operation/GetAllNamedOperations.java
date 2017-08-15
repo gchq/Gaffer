@@ -30,6 +30,11 @@ public class GetAllNamedOperations implements
         return new NamedOperationTypeReference.IterableNamedOperationDetail();
     }
 
+    public GetAllNamedOperations shallowClone() {
+        return new GetAllNamedOperations.Builder()
+                .build();
+    }
+
     public static class Builder extends BaseBuilder<GetAllNamedOperations, Builder>
             implements Output.Builder<GetAllNamedOperations, CloseableIterable<NamedOperationDetail>, Builder> {
         public Builder() {

@@ -271,6 +271,26 @@ public class SampleDataForSplitPoints implements
         this.options = options;
     }
 
+    @Override
+    public SampleDataForSplitPoints shallowClone() {
+        return new SampleDataForSplitPoints.Builder()
+                .splitsFilePath(splitsFilePath)
+                .numSplits(numSplits)
+                .useProvidedSplits(useProvidedSplits)
+                .validate(validate)
+                .proportionToSample(proportionToSample)
+                .mapperGenerator(mapperGeneratorClassName)
+                .inputPaths(inputPaths)
+                .outputPath(outputPath)
+                .jobInitialiser(jobInitialiser)
+                .mappers(numMapTasks)
+                .minMappers(minMapTasks)
+                .maxMappers(maxMapTasks)
+                .options(options)
+                .compressionCodec(compressionCodec)
+                .build();
+    }
+
 
     public static class Builder extends Operation.BaseBuilder<SampleDataForSplitPoints, Builder>
             implements MapReduce.Builder<SampleDataForSplitPoints, Builder>,
@@ -286,6 +306,11 @@ public class SampleDataForSplitPoints implements
 
         public Builder mapperGenerator(final Class<? extends MapperGenerator> mapperGeneratorClass) {
             _getOp().setMapperGeneratorClassName(mapperGeneratorClass);
+            return _self();
+        }
+
+        public Builder mapperGenerator(final String mapperGeneratorClassName) {
+            _getOp().setMapperGeneratorClassName(mapperGeneratorClassName);
             return _self();
         }
 
