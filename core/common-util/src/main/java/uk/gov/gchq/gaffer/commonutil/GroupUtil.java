@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.commonutil;
 
 import java.util.regex.Pattern;
 
-public class GroupUtil {
+public final class GroupUtil {
     private static final Pattern PROPERTY_ALLOWED_CHARACTERS = Pattern.compile("[a-zA-Z0-9|]*");
 
     private GroupUtil() {
@@ -26,10 +26,11 @@ public class GroupUtil {
         // All methods are static and should be called directly.
     }
 
-    public static void validate(String group) throws IllegalArgumentException {
-        if (group != null)
+    public static void validate(final String group) {
+        if (group != null) {
             if (!PROPERTY_ALLOWED_CHARACTERS.matcher(group).matches()) {
                 throw new IllegalArgumentException("Group is invalid: " + group + ", it must match regex: " + PROPERTY_ALLOWED_CHARACTERS);
             }
+        }
     }
 }

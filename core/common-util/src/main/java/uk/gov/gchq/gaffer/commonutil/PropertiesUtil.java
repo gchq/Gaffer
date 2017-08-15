@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-public class PropertiesUtil {
+public final class PropertiesUtil {
     private static final Pattern PROPERTY_ALLOWED_CHARACTERS = Pattern.compile("[a-zA-Z0-9|]*");
 
     private PropertiesUtil() {
@@ -28,20 +28,20 @@ public class PropertiesUtil {
         // All methods are static and should be called directly.
     }
 
-    public static void validate(String property) throws IllegalArgumentException {
+    public static void validate(final String property) {
         if (property != null) {
             validateValue(property);
         }
     }
 
-    public static void validate(Properties properties) throws IllegalArgumentException {
+    public static void validate(final Properties properties) {
         if (properties != null && !properties.isEmpty()) {
             List<String> propertiesValues = (List) properties.values();
             propertiesValues.forEach(val -> validate(val));
         }
     }
 
-    private static void validateValue(String propertyValue) {
+    private static void validateValue(final String propertyValue) {
         if (!PROPERTY_ALLOWED_CHARACTERS.matcher(propertyValue).matches()) {
             throw new IllegalArgumentException("Property is invalid: " + propertyValue + ", it must match regex: " + PROPERTY_ALLOWED_CHARACTERS);
         }
