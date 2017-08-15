@@ -66,7 +66,8 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     private final SchemaElementDefinitionValidator elementDefValidator;
 
     /**
-     * Property map of property name to accepted type.
+     * Map of property name to accepted type name.
+     * The type name relates to the types part of the schema
      */
     protected Map<String, String> properties;
 

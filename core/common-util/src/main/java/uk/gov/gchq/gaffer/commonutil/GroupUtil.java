@@ -18,6 +18,9 @@ package uk.gov.gchq.gaffer.commonutil;
 
 import java.util.regex.Pattern;
 
+/**
+ * Utility methods for Schema groups.
+ */
 public final class GroupUtil {
     private static final Pattern PROPERTY_ALLOWED_CHARACTERS = Pattern.compile("[a-zA-Z0-9|]*");
 
@@ -26,6 +29,12 @@ public final class GroupUtil {
         // All methods are static and should be called directly.
     }
 
+    /**
+     * Checks the input String against the allowed group pattern.
+     *
+     * @param group group name String to validate.
+     * @throws IllegalArgumentException if group name String is invalid.
+     */
     public static void validate(final String group) {
         if (group != null) {
             if (!PROPERTY_ALLOWED_CHARACTERS.matcher(group).matches()) {

@@ -20,6 +20,9 @@ import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+/**
+ * Utility methods for Schema Properties.
+ */
 public final class PropertiesUtil {
     private static final Pattern PROPERTY_ALLOWED_CHARACTERS = Pattern.compile("[a-zA-Z0-9|]*");
 
@@ -28,12 +31,24 @@ public final class PropertiesUtil {
         // All methods are static and should be called directly.
     }
 
+    /**
+     * Checks the input String against the allowed property pattern.
+     *
+     * @param property String to validate.
+     * @throws IllegalArgumentException if property String is invalid.
+     */
     public static void validate(final String property) {
         if (property != null) {
             validateValue(property);
         }
     }
 
+    /**
+     * Checks all Property value Strings against the allowed property pattern.
+     *
+     * @param properties Properties to validate.
+     * @throws IllegalArgumentException if and property value is invalid.
+     */
     public static void validate(final Properties properties) {
         if (properties != null && !properties.isEmpty()) {
             List<String> propertiesValues = (List) properties.values();
