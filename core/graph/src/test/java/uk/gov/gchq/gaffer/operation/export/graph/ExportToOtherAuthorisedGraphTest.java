@@ -27,7 +27,6 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
-import static uk.gov.gchq.gaffer.operation.Operation.JSON_SERIALISER;
 
 public class ExportToOtherAuthorisedGraphTest extends OperationTest {
 
