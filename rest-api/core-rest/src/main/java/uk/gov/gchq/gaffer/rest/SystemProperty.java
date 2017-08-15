@@ -36,6 +36,7 @@ public abstract class SystemProperty {
     public static final String SERVICES_PACKAGE_PREFIX = "gaffer.rest-api.resourcePackage";
     public static final String PACKAGE_PREFIXES = "gaffer.package.prefixes";
     public static final String JSON_SERIALISER_CLASS = JSONSerialiser.JSON_SERIALISER_CLASS_KEY;
+    public static final String JSON_SERIALISER_MODULES = JSONSerialiser.JSON_SERIALISER_MODULES;
     public static final String REST_DEBUG = DebugUtil.DEBUG;
 
     /**

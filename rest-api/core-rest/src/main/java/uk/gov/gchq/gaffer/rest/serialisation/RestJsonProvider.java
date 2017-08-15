@@ -34,6 +34,6 @@ public class RestJsonProvider implements ContextResolver<ObjectMapper> {
 
     @Override
     public ObjectMapper getContext(final Class<?> aClass) {
-        return JSONSerialiser.getInstance().getMapper();
+        return JSONSerialiser.getMapper();
     }
 }

@@ -447,7 +447,7 @@ public final class Graph {
         public Builder storeProperties(final StoreProperties properties) {
             this.properties = properties;
             if (null != properties) {
-                JSONSerialiser.updateInstance(properties.getJsonSerialiserClass());
+                JSONSerialiser.updateInstance(properties.getJsonSerialiserClass(), properties.getJsonSerialiserModules());
             }
             return this;
         }

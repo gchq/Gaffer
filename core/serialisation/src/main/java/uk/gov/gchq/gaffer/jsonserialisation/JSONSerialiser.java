@@ -26,6 +26,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -35,24 +36,50 @@ import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
+import com.google.common.collect.Sets;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.jackson.CloseableIterableDeserializer;
+import uk.gov.gchq.koryphe.impl.binaryoperator.StringDeduplicateConcat;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
+import java.util.Set;
 
 /**
  * A <code>JSONSerialiser</code> provides the ability to serialise and deserialise to/from JSON.
  * The serialisation is set to not include nulls or default values.
+ * <p>
+ * JSONSerialiser is a singleton. The behaviour of the {@link ObjectMapper}
+ * can be configured by extending this class and configuring the ObjectMapper.
+ * Child classes must has a default no argument constructor. You will then need
+ * to set the gaffer.serialiser.json.class property in your StoreProperties or
+ * as a System Property.
+ * </p>
+ * <p>
+ * Once the singleton instance has been instantiated it will not be updated,
+ * unless update() or update(jsonSerialiserClass) is called. An update will
+ * be done automatically in the REST API when it is first initialised and
+ * also when a Store is initialised.
+ * </p>
  */
 public class JSONSerialiser {
     public static final String JSON_SERIALISER_CLASS_KEY = "gaffer.serialiser.json.class";
+    /**
+     * CSV of {@link JSONSerialiserModules} class names. These modules will
+     * be added to the {@link ObjectMapper}.
+     */
+    public static final String JSON_SERIALISER_MODULES = "gaffer.serialiser.json.modules";
     public static final String DEFAULT_SERIALISER_CLASS_NAME = JSONSerialiser.class.getName();
 
     public static final String FILTER_FIELDS_BY_NAME = "filterFieldsByName";
 
     private static final JsonFactory JSON_FACTORY = new JsonFactory();
+    private static final Logger LOGGER = LoggerFactory.getLogger(JSONSerialiser.class);
 
     private static JSONSerialiser instance;
 
@@ -77,14 +104,37 @@ public class JSONSerialiser {
         this.mapper = mapper;
     }
 
-    public static JSONSerialiser getInstance() {
-        if (null == instance) {
-            updateInstance();
+    /**
+     * Child classes of this JSONSerialiser can call this method to register
+     * custom modules.
+     *
+     * @param modules the {@link ObjectMapper} modules to register
+     */
+    protected void registerModules(final Module... modules) {
+        for (final Module module : modules) {
+            mapper.registerModule(module);
         }
-        return instance;
     }
 
-    public static void updateInstance(final String jsonSerialiserClass) {
+    /**
+     * Child classes of this JSONSerialiser can call this method to register
+     * custom modules.
+     *
+     * @param modules the {@link ObjectMapper} modules to register
+     */
+    protected void registerModules(final Collection<Module> modules) {
+        modules.forEach(mapper::registerModule);
+    }
+
+    public static void updateInstance(final String jsonSerialiserClass, final String jsonSerialiserModules) {
+        if (StringUtils.isNotBlank(jsonSerialiserModules)) {
+            final String modulesCsv = new StringDeduplicateConcat().apply(
+                    System.getProperty(JSON_SERIALISER_MODULES),
+                    jsonSerialiserModules
+            );
+            System.setProperty(JSON_SERIALISER_MODULES, modulesCsv);
+        }
+
         if (null != jsonSerialiserClass) {
             System.setProperty(JSON_SERIALISER_CLASS_KEY, jsonSerialiserClass);
             _updateInstance(jsonSerialiserClass);
@@ -264,23 +314,43 @@ public class JSONSerialiser {
     }
 
     @JsonIgnore
-    public ObjectMapper getMapper() {
-        return mapper;
+    public static ObjectMapper getMapper() {
+        return getInstance().mapper;
+    }
+
+    private static JSONSerialiser getInstance() {
+        if (null == instance) {
+            updateInstance();
+        }
+        return instance;
     }
 
     private static void _updateInstance(final String jsonSerialiserClass) {
-        if (null == instance || !instance.getClass().getName().equals(jsonSerialiserClass)) {
-            final String className = System.getProperty(JSON_SERIALISER_CLASS_KEY);
-            if (null == className) {
-                instance = new JSONSerialiser();
-            } else {
-                try {
-                    instance = Class.forName(className).asSubclass(JSONSerialiser.class).newInstance();
-                } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-                    throw new IllegalArgumentException("System property " + JSON_SERIALISER_CLASS_KEY + " must be set to a class that is a sub class of " + JSONSerialiser.class.getName(), e);
-                }
+        final JSONSerialiser newInstance;
+        if (null == jsonSerialiserClass) {
+            newInstance = new JSONSerialiser();
+        } else {
+            try {
+                newInstance = Class.forName(jsonSerialiserClass).asSubclass(JSONSerialiser.class).newInstance();
+            } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                throw new IllegalArgumentException("Property " + JSON_SERIALISER_CLASS_KEY + " must be set to a class that is a sub class of " + JSONSerialiser.class.getName() + ". This class is not valid: " + jsonSerialiserClass, e);
             }
         }
+
+        final String moduleFactories = System.getProperty(JSON_SERIALISER_MODULES, "");
+        final Set<String> factoryClasses = Sets.newHashSet(moduleFactories.split(","));
+        factoryClasses.remove("");
+        for (String factoryClass : factoryClasses) {
+            final JSONSerialiserModules factory;
+            try {
+                factory = Class.forName(factoryClass).asSubclass(JSONSerialiserModules.class).newInstance();
+            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                throw new IllegalArgumentException("Property " + JSON_SERIALISER_MODULES + " must be set to a csv of classes that are a sub class of " + JSONSerialiserModules.class.getName() + ". These classes are not valid: " + factoryClass, e);
+            }
+            newInstance.mapper.registerModules(factory.getModules());
+        }
+        instance = newInstance;
+        LOGGER.debug("Updated json serialiser to use: {}, and modules: {}", jsonSerialiserClass, moduleFactories);
     }
 
     private static SimpleModule getCloseableIterableDeserialiserModule() {

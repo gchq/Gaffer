@@ -17,9 +17,9 @@
 package uk.gov.gchq.gaffer.accumulostore;
 
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
-import uk.gov.gchq.gaffer.accumulostore.serialisation.AccumuloJsonSerialiser;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.koryphe.impl.binaryoperator.StringDeduplicateConcat;
 import java.io.InputStream;
 import java.nio.file.Path;
 
@@ -381,7 +381,10 @@ public class AccumuloProperties extends StoreProperties {
     }
 
     @Override
-    protected Class<? extends JSONSerialiser> getDefaultJsonSerialiserClass() {
-        return AccumuloJsonSerialiser.class;
+    public String getJsonSerialiserModules() {
+        return new StringDeduplicateConcat().apply(
+                SketchesJsonModules.class.getName(),
+                super.getJsonSerialiserModules()
+        );
     }
 }

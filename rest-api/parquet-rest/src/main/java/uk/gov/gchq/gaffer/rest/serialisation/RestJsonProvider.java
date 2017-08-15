@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.rest.serialisation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonSerialiser;
+import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 
@@ -43,7 +43,7 @@ public class RestJsonProvider implements ContextResolver<ObjectMapper> {
 
     protected ObjectMapper createMapper() {
         final ObjectMapper mapperTmp = JSONSerialiser.createDefaultMapper();
-        SketchesJsonSerialiser.getModules().forEach(mapperTmp::registerModule);
+        SketchesJsonModules.getModules().forEach(mapperTmp::registerModule);
         return mapperTmp;
     }
 }

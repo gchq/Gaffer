@@ -196,10 +196,9 @@ public abstract class Store {
         this.graphId = graphId;
         this.schema = schema;
         this.properties = properties;
-        final String jsonSerialiserClass = properties.getJsonSerialiserClass();
-        if (null != jsonSerialiserClass) {
-            JSONSerialiser.updateInstance(jsonSerialiserClass);
-        }
+
+        JSONSerialiser.updateInstance(properties.getJsonSerialiserClass(), properties.getJsonSerialiserModules());
+
         startCacheServiceLoader(properties);
         this.jobTracker = createJobTracker(properties);
 
