@@ -264,20 +264,13 @@ public class AccumuloStore extends Store {
     @Override
     public void validateSchemas() {
         super.validateSchemas();
-        if (!getSchema().getVertexSerialiser().isConsistent()) {
-            throw new SchemaException("Vertex serialiser is inconsistent - store may be unable to handle this.");
-        }
+        validateConsistentVertex();
     }
 
     @Override
     protected void validateSchemaElementDefinition(final Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry, final ValidationResult validationResult) {
         super.validateSchemaElementDefinition(schemaElementDefinitionEntry, validationResult);
-
-        for (String property : schemaElementDefinitionEntry.getValue().getGroupBy()) {
-            if (!schemaElementDefinitionEntry.getValue().getPropertyTypeDef(property).getSerialiser().isConsistent()) {
-                validationResult.addError("Property serialiser is inconsistent - store may be unable to handle this.");
-            }
-        }
+        validateConsistentGroupByProperties(schemaElementDefinitionEntry, validationResult);
     }
 
     @Override

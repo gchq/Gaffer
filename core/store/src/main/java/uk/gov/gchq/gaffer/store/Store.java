@@ -116,6 +116,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -462,6 +463,21 @@ public abstract class Store {
         if (!validationResult.isValid()) {
             throw new SchemaException("Schema is not valid. "
                     + validationResult.getErrorString());
+        }
+    }
+
+    public void validateConsistentVertex() {
+        if (!getSchema().getVertexSerialiser().isConsistent()) {
+            throw new SchemaException("Vertex serialiser is inconsistent. This store requires vertices to be serialised in a consistent way.");
+        }
+    }
+
+    public void validateConsistentGroupByProperties(final Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry, final ValidationResult validationResult) {
+        for (String property : schemaElementDefinitionEntry.getValue().getGroupBy()) {
+            if (!getSchema().getVertexSerialiser().isConsistent()) {
+                validationResult.addError("Serialiser for groupBy property: " + property
+                + " is inconsistent. This store requires all groupBy property serialisers to be consistent.");
+            }
         }
     }
 
