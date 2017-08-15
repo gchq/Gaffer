@@ -59,12 +59,15 @@ import java.util.Set;
  * can be configured by extending this class and configuring the ObjectMapper.
  * Child classes must has a default no argument constructor. You will then need
  * to set the gaffer.serialiser.json.class property in your StoreProperties or
+ * as a System Property. You can also add modules to the ObjectMapper by writing
+ * an implementation of {@link JSONSerialiserModules} and registering it using the
+ * gaffer.serialiser.json.modules property in your StoreProperties or
  * as a System Property.
  * </p>
  * <p>
  * Once the singleton instance has been instantiated it will not be updated,
- * unless update() or update(jsonSerialiserClass) is called. An update will
- * be done automatically in the REST API when it is first initialised and
+ * unless update() or update(jsonSerialiserClass, jsonSerialiserModules) is called.
+ * An update will be done automatically in the REST API when it is first initialised and
  * also when a Store is initialised.
  * </p>
  */
