@@ -126,7 +126,7 @@ public class JSONSerialiser {
         modules.forEach(mapper::registerModule);
     }
 
-    public static void updateInstance(final String jsonSerialiserClass, final String jsonSerialiserModules) {
+    public static void update(final String jsonSerialiserClass, final String jsonSerialiserModules) {
         if (StringUtils.isNotBlank(jsonSerialiserModules)) {
             final String modulesCsv = new StringDeduplicateConcat().apply(
                     System.getProperty(JSON_SERIALISER_MODULES),
@@ -137,14 +137,33 @@ public class JSONSerialiser {
 
         if (null != jsonSerialiserClass) {
             System.setProperty(JSON_SERIALISER_CLASS_KEY, jsonSerialiserClass);
-            _updateInstance(jsonSerialiserClass);
-        } else {
-            updateInstance();
         }
+        update();
     }
 
-    public static void updateInstance() {
-        _updateInstance(System.getProperty(JSON_SERIALISER_CLASS_KEY, DEFAULT_SERIALISER_CLASS_NAME));
+    public static void update() {
+        final String jsonSerialiserClass = System.getProperty(JSON_SERIALISER_CLASS_KEY, DEFAULT_SERIALISER_CLASS_NAME);
+        final JSONSerialiser newInstance;
+        try {
+            newInstance = Class.forName(jsonSerialiserClass).asSubclass(JSONSerialiser.class).newInstance();
+        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            throw new IllegalArgumentException("Property " + JSON_SERIALISER_CLASS_KEY + " must be set to a class that is a sub class of " + JSONSerialiser.class.getName() + ". This class is not valid: " + jsonSerialiserClass, e);
+        }
+
+        final String moduleFactories = System.getProperty(JSON_SERIALISER_MODULES, "");
+        final Set<String> factoryClasses = Sets.newHashSet(moduleFactories.split(","));
+        factoryClasses.remove("");
+        for (final String factoryClass : factoryClasses) {
+            final JSONSerialiserModules factory;
+            try {
+                factory = Class.forName(factoryClass).asSubclass(JSONSerialiserModules.class).newInstance();
+            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                throw new IllegalArgumentException("Property " + JSON_SERIALISER_MODULES + " must be set to a csv of classes that are a sub class of " + JSONSerialiserModules.class.getName() + ". These classes are not valid: " + factoryClass, e);
+            }
+            newInstance.mapper.registerModules(factory.getModules());
+        }
+        instance = newInstance;
+        LOGGER.debug("Updated json serialiser to use: {}, and modules: {}", jsonSerialiserClass, moduleFactories);
     }
 
     public static ObjectMapper createDefaultMapper() {
@@ -320,37 +339,9 @@ public class JSONSerialiser {
 
     private static JSONSerialiser getInstance() {
         if (null == instance) {
-            updateInstance();
+            update();
         }
         return instance;
-    }
-
-    private static void _updateInstance(final String jsonSerialiserClass) {
-        final JSONSerialiser newInstance;
-        if (null == jsonSerialiserClass) {
-            newInstance = new JSONSerialiser();
-        } else {
-            try {
-                newInstance = Class.forName(jsonSerialiserClass).asSubclass(JSONSerialiser.class).newInstance();
-            } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-                throw new IllegalArgumentException("Property " + JSON_SERIALISER_CLASS_KEY + " must be set to a class that is a sub class of " + JSONSerialiser.class.getName() + ". This class is not valid: " + jsonSerialiserClass, e);
-            }
-        }
-
-        final String moduleFactories = System.getProperty(JSON_SERIALISER_MODULES, "");
-        final Set<String> factoryClasses = Sets.newHashSet(moduleFactories.split(","));
-        factoryClasses.remove("");
-        for (final String factoryClass : factoryClasses) {
-            final JSONSerialiserModules factory;
-            try {
-                factory = Class.forName(factoryClass).asSubclass(JSONSerialiserModules.class).newInstance();
-            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-                throw new IllegalArgumentException("Property " + JSON_SERIALISER_MODULES + " must be set to a csv of classes that are a sub class of " + JSONSerialiserModules.class.getName() + ". These classes are not valid: " + factoryClass, e);
-            }
-            newInstance.mapper.registerModules(factory.getModules());
-        }
-        instance = newInstance;
-        LOGGER.debug("Updated json serialiser to use: {}, and modules: {}", jsonSerialiserClass, moduleFactories);
     }
 
     private static SimpleModule getCloseableIterableDeserialiserModule() {

@@ -74,7 +74,7 @@ public class ProxyStore extends Store {
     public void initialise(final String graphId, final Schema unusedSchema, final StoreProperties properties) throws StoreException {
         final String jsonSerialiserClass = properties.getJsonSerialiserClass();
         if (null != jsonSerialiserClass) {
-            JSONSerialiser.updateInstance(jsonSerialiserClass, properties.getJsonSerialiserModules());
+            JSONSerialiser.update(jsonSerialiserClass, properties.getJsonSerialiserModules());
         }
 
         final ProxyProperties proxyProps = (ProxyProperties) properties;

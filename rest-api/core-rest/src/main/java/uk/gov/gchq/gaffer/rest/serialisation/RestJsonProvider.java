@@ -29,7 +29,7 @@ import javax.ws.rs.ext.Provider;
 @Provider
 public class RestJsonProvider implements ContextResolver<ObjectMapper> {
     public RestJsonProvider() {
-        JSONSerialiser.updateInstance();
+        JSONSerialiser.update();
     }
 
     @Override

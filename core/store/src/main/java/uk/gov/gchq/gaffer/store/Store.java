@@ -197,7 +197,7 @@ public abstract class Store {
         this.schema = schema;
         this.properties = properties;
 
-        JSONSerialiser.updateInstance(properties.getJsonSerialiserClass(), properties.getJsonSerialiserModules());
+        JSONSerialiser.update(properties.getJsonSerialiserClass(), properties.getJsonSerialiserModules());
 
         startCacheServiceLoader(properties);
         this.jobTracker = createJobTracker(properties);
