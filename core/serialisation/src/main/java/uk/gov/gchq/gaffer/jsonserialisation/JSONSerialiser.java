@@ -48,6 +48,7 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringDeduplicateConcat;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -160,7 +161,10 @@ public class JSONSerialiser {
             } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
                 throw new IllegalArgumentException("Property " + JSON_SERIALISER_MODULES + " must be set to a csv of classes that are a sub class of " + JSONSerialiserModules.class.getName() + ". These classes are not valid: " + factoryClass, e);
             }
-            newInstance.mapper.registerModules(factory.getModules());
+            final List<Module> modules = factory.getModules();
+            if (null != modules) {
+                newInstance.mapper.registerModules(modules);
+            }
         }
         instance = newInstance;
         LOGGER.debug("Updated json serialiser to use: {}, and modules: {}", jsonSerialiserClass, moduleFactories);
@@ -337,7 +341,8 @@ public class JSONSerialiser {
         return getInstance().mapper;
     }
 
-    private static JSONSerialiser getInstance() {
+    @JsonIgnore
+    public static JSONSerialiser getInstance() {
         if (null == instance) {
             update();
         }

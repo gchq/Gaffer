@@ -272,7 +272,7 @@ public class StoreProperties implements Cloneable {
         for (final Class module : modules) {
             moduleNames.add(module.getName());
         }
-        setJsonSerialiserClass(StringUtils.join(moduleNames, ","));
+        setJsonSerialiserModules(StringUtils.join(moduleNames, ","));
     }
 
     public void setJsonSerialiserModules(final String modules) {
