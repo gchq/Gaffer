@@ -110,6 +110,8 @@ public class SchemaOptimiser {
                     typeDef.setSerialiser(serialisationFactory.getSerialiser(typeDef.getClazz(), isStoreOrdered));
                 } else if (isStoreOrdered && !typeDef.getSerialiser().preservesObjectOrdering()) {
                     LOGGER.info("{} serialiser is used for a 'group by' property in an ordered store and it does not preserve the order of bytes. See https://github.com/gchq/Gaffer/wiki/Dev-Guide#serialisers.", typeDef.getSerialiser().getClass().getName());
+                } else if (!typeDef.getSerialiser().isConsistent()) {
+                    LOGGER.info("{} serialiser is used for a 'group by' property and is inconsistent, which may cause unintended or unexpected results.", typeDef.getSerialiser().getClass().getName());
                 }
 
                 if (typeDef.getSerialiser() instanceof JavaSerialiser) {
@@ -171,6 +173,10 @@ public class SchemaOptimiser {
 
             if (isStoreOrdered && !serialiser.preservesObjectOrdering()) {
                 LOGGER.info("{} serialiser is used for vertex serialisation in an ordered store and it does not preserve the order of bytes. See https://github.com/gchq/Gaffer/wiki/Dev-Guide#serialisers.", serialiser.getClass().getName());
+            }
+
+            if (!serialiser.isConsistent()) {
+                LOGGER.info("{} serialiser is used for vertex serialisation and is inconsistent, which may produce unintended or unexpected results.", serialiser.getClass().getName());
             }
 
             if (serialiser instanceof JavaSerialiser) {
