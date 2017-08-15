@@ -28,24 +28,22 @@ public class PropertiesUtil {
         // All methods are static and should be called directly.
     }
 
-    public static void validate(String propertyKey) throws IllegalArgumentException {
-        if (propertyKey != null) {
-            validateValue(propertyKey);
+    public static void validate(String property) throws IllegalArgumentException {
+        if (property != null) {
+            validateValue(property);
         }
     }
 
     public static void validate(Properties properties) throws IllegalArgumentException {
         if (properties != null && !properties.isEmpty()) {
             List<String> propertiesValues = (List) properties.values();
-            for (String value : propertiesValues) {
-                validateValue(value);
-            }
+            propertiesValues.forEach(val -> validate(val));
         }
     }
 
     private static void validateValue(String propertyValue) {
         if (!PROPERTY_ALLOWED_CHARACTERS.matcher(propertyValue).matches()) {
-            throw new IllegalArgumentException("Property value is invalid: " + propertyValue + ", it must match regex: " + PROPERTY_ALLOWED_CHARACTERS);
+            throw new IllegalArgumentException("Property is invalid: " + propertyValue + ", it must match regex: " + PROPERTY_ALLOWED_CHARACTERS);
         }
     }
 }

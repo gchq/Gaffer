@@ -410,9 +410,9 @@ public class SchemaTest {
 
         assertEquals(JavaSerialiser.class,
                 store.getElement(TestGroups.EDGE)
-                     .getPropertyTypeDef(TestPropertyNames.PROP_1)
-                     .getSerialiser()
-                     .getClass());
+                        .getPropertyTypeDef(TestPropertyNames.PROP_1)
+                        .getSerialiser()
+                        .getClass());
     }
 
     @Test
@@ -720,8 +720,8 @@ public class SchemaTest {
 
         // Then
         assertArrayEquals(new String[]{TestGroups.EDGE}, schema.getEdge(TestGroups.EDGE_2)
-                                                               .getParents()
-                                                               .toArray());
+                .getParents()
+                .toArray());
     }
 
     @Test
@@ -799,8 +799,8 @@ public class SchemaTest {
                         TestPropertyNames.PROP_3,
                         TestPropertyNames.PROP_4},
                 schema.getEntity(TestGroups.ENTITY_4)
-                      .getProperties()
-                      .toArray());
+                        .getProperties()
+                        .toArray());
 
         // Check order of properties and overrides is from order of parents
         assertArrayEquals(new String[]{
@@ -810,8 +810,8 @@ public class SchemaTest {
                         TestPropertyNames.PROP_4,
                         TestPropertyNames.PROP_5},
                 schema.getEntity(TestGroups.ENTITY_5)
-                      .getProperties()
-                      .toArray());
+                        .getProperties()
+                        .toArray());
 
         assertEquals("A parent entity with a single property", schema.getEntity(TestGroups.ENTITY).getDescription());
         assertEquals("An entity that should have properties: 1, 2, 3, 4 and 5", schema.getEntity(TestGroups.ENTITY_5).getDescription());
@@ -1122,6 +1122,124 @@ public class SchemaTest {
 
         // Then
         assertFalse(result);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenEdgeGroupIsInvalid() {
+        // Given
+        final SchemaEdgeDefinition edgeDef = new SchemaEdgeDefinition();
+        final String invalidGroupString = "invalidGroup-@?";
+
+        // When / Then
+        try {
+            new Schema.Builder()
+                    .edge(invalidGroupString, edgeDef)
+                    .build();
+            fail("Exception expected");
+        } catch (IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Group is invalid"));
+        }
+    }
+
+    @Test
+    public void shouldBuildSchemaWhenEdgeGroupIsValid() {
+        // Given
+        final SchemaEdgeDefinition edgeDef = new SchemaEdgeDefinition();
+        final String validGroupString = "val1dGr0up||";
+
+        // When
+        new Schema.Builder()
+                .edge(validGroupString, edgeDef)
+                .build();
+
+        // Then - no exceptions
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenEntityGroupIsInvalid() {
+        // Given
+        final SchemaEntityDefinition entityDef = new SchemaEntityDefinition();
+        final String invalidGroupString = "invalidGroup-@?";
+
+        // When / Then
+        try {
+            new Schema.Builder()
+                    .entity(invalidGroupString, entityDef)
+                    .build();
+            fail("Exception expected");
+        } catch (IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Group is invalid"));
+        }
+    }
+
+    @Test
+    public void shouldBuildSchemaWhenEntityGroupIsValid() {
+        // Given
+        final SchemaEntityDefinition entityDef = new SchemaEntityDefinition();
+        final String validGroupString = "val1dGr0up||";
+
+        // When
+        new Schema.Builder()
+                .entity(validGroupString, entityDef)
+                .build();
+
+        // Then - no exceptions
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenEdgePropertyIsInvalid() {
+        // When / Then
+        try {
+            new Schema.Builder()
+                    .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                            .property("invalidPropName{@3#", "str")
+                            .build());
+            fail("Exception expected");
+        } catch (IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Property is invalid"));
+        }
+    }
+
+    @Test
+    public void shouldBuildSchemaWhenEdgePropertyisValid() {
+        // Given
+        final SchemaEdgeDefinition edgeDef = new SchemaEdgeDefinition.Builder()
+                .property("val1dPr0perty||", "str")
+                .build();
+
+        // When
+        new Schema.Builder()
+                .edge(TestGroups.EDGE, edgeDef);
+
+        // Then - no exceptions
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenEntityPropertyIsInvalid() {
+        // When / Then
+        try {
+            new Schema.Builder()
+                    .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                            .property("invalidPropName{@3#", "str")
+                            .build());
+            fail("Exception expected");
+        } catch (IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Property is invalid"));
+        }
+    }
+
+    @Test
+    public void shouldBuildSchemaWhenEntityPropertyIsValid() {
+        // Given
+        final SchemaEntityDefinition entityDef = new SchemaEntityDefinition.Builder()
+                .property("val1dPr0perty||", "str")
+                .build();
+
+        // When
+        new Schema.Builder()
+                .entity(TestGroups.ENTITY, entityDef);
+
+        // Then - no exceptions
     }
 
 
