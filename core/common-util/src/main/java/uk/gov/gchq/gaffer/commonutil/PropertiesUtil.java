@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
-import java.util.List;
-import java.util.Properties;
 import java.util.regex.Pattern;
 
 /**
@@ -32,33 +30,15 @@ public final class PropertiesUtil {
     }
 
     /**
-     * Checks the input String against the allowed property pattern.
+     * Checks the input property String against the allowed property pattern.
      *
      * @param property String to validate.
      * @throws IllegalArgumentException if property String is invalid.
      */
-    public static void validate(final String property) {
-        if (property != null) {
-            validateValue(property);
+    public static void validateName(final String property) {
+        if (!PROPERTY_ALLOWED_CHARACTERS.matcher(property).matches()) {
+            throw new IllegalArgumentException("Property is invalid: " + property + ", it must match regex: " + PROPERTY_ALLOWED_CHARACTERS);
         }
     }
 
-    /**
-     * Checks all Property value Strings against the allowed property pattern.
-     *
-     * @param properties Properties to validate.
-     * @throws IllegalArgumentException if and property value is invalid.
-     */
-    public static void validate(final Properties properties) {
-        if (properties != null && !properties.isEmpty()) {
-            List<String> propertiesValues = (List) properties.values();
-            propertiesValues.forEach(val -> validate(val));
-        }
-    }
-
-    private static void validateValue(final String propertyValue) {
-        if (!PROPERTY_ALLOWED_CHARACTERS.matcher(propertyValue).matches()) {
-            throw new IllegalArgumentException("Property is invalid: " + propertyValue + ", it must match regex: " + PROPERTY_ALLOWED_CHARACTERS);
-        }
-    }
 }

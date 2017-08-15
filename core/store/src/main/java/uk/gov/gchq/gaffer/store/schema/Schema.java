@@ -460,7 +460,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
         @Override
         public Schema build() {
-            validateGroups();
+            validateGroupNames();
 
             for (final SchemaElementDefinition elementDef : getThisSchema().getEntities().values()) {
                 elementDef.schemaReference = getThisSchema();
@@ -522,10 +522,10 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             }
         }
 
-        private void validateGroups() {
-            getThisSchema().getEdgeGroups().forEach(edgeGroup -> GroupUtil.validate(edgeGroup));
+        private void validateGroupNames() {
+            getThisSchema().getEdgeGroups().forEach(GroupUtil::validateName);
 
-            getThisSchema().getEntityGroups().forEach(entityGroup -> GroupUtil.validate(entityGroup));
+            getThisSchema().getEntityGroups().forEach(GroupUtil::validateName);
         }
     }
 

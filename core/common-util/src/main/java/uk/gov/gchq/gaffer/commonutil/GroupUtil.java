@@ -30,16 +30,14 @@ public final class GroupUtil {
     }
 
     /**
-     * Checks the input String against the allowed group pattern.
+     * Checks the input group String against the allowed group pattern.
      *
      * @param group group name String to validate.
      * @throws IllegalArgumentException if group name String is invalid.
      */
-    public static void validate(final String group) {
-        if (group != null) {
-            if (!PROPERTY_ALLOWED_CHARACTERS.matcher(group).matches()) {
-                throw new IllegalArgumentException("Group is invalid: " + group + ", it must match regex: " + PROPERTY_ALLOWED_CHARACTERS);
-            }
+    public static void validateName(final String group) {
+        if (!PROPERTY_ALLOWED_CHARACTERS.matcher(group).matches()) {
+            throw new IllegalArgumentException("Group is invalid: " + group + ", it must match regex: " + PROPERTY_ALLOWED_CHARACTERS);
         }
     }
 }
