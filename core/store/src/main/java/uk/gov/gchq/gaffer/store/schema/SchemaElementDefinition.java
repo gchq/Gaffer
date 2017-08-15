@@ -725,9 +725,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         }
 
         public ELEMENT_DEF build() {
-            for (final String property : elDef.getProperties()) {
-                PropertiesUtil.validate(property);
-            }
+            elDef.getProperties().forEach(property -> PropertiesUtil.validate(property));
             elDef.lock();
             return elDef;
         }

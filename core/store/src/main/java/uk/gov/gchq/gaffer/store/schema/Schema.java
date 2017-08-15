@@ -460,7 +460,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
         @Override
         public Schema build() {
-            validateGroupsAndProperties();
+            validateGroups();
 
             for (final SchemaElementDefinition elementDef : getThisSchema().getEntities().values()) {
                 elementDef.schemaReference = getThisSchema();
@@ -522,14 +522,10 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             }
         }
 
-        private void validateGroupsAndProperties() throws IllegalArgumentException {
-            for (final String edgeGroup : getThisSchema().getEdgeGroups()) {
-                GroupUtil.validate(edgeGroup);
-            }
+        private void validateGroups() {
+            getThisSchema().getEdgeGroups().forEach(edgeGroup -> GroupUtil.validate(edgeGroup));
 
-            for (final String entityGroup : getThisSchema().getEntityGroups()) {
-                GroupUtil.validate(entityGroup);
-            }
+            getThisSchema().getEntityGroups().forEach(entityGroup -> GroupUtil.validate(entityGroup));
         }
     }
 
