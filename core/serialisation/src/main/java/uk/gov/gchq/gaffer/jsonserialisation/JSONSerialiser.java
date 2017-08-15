@@ -340,7 +340,7 @@ public class JSONSerialiser {
         final String moduleFactories = System.getProperty(JSON_SERIALISER_MODULES, "");
         final Set<String> factoryClasses = Sets.newHashSet(moduleFactories.split(","));
         factoryClasses.remove("");
-        for (String factoryClass : factoryClasses) {
+        for (final String factoryClass : factoryClasses) {
             final JSONSerialiserModules factory;
             try {
                 factory = Class.forName(factoryClass).asSubclass(JSONSerialiserModules.class).newInstance();

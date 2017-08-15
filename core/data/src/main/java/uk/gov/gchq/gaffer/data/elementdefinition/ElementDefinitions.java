@@ -37,11 +37,14 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * <p>
  * Contains the full list of groups in the graph.
- * <p/>
+ * </p>
+ * <p>
  * This class must be JSON serialisable.
  * A schema should normally be written in JSON and then deserialised at runtime.
  * Examples of JSON schemas can be found in the example projects.
+ * </p>
  *
  * @param <ENTITY_DEF> the type of {@link ElementDefinition} for the entities
  * @param <EDGE_DEF>   the type of {@link ElementDefinition} for the edges

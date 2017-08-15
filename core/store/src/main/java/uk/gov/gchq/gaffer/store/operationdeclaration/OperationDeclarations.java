@@ -30,7 +30,6 @@ import java.util.List;
 
 /**
  * Contains a list of Operations defined in a JSON file, referenced in the store.properties.
- * <p/>
  * Used to add operation handlers.
  */
 public class OperationDeclarations {

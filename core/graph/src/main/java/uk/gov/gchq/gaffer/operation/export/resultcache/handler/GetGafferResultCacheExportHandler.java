@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.operation.export.resultcache.handler;
 
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.export.resultcache.GafferResultCacheExporter;
 import uk.gov.gchq.gaffer.operation.export.resultcache.handler.util.GafferResultCacheUtil;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
