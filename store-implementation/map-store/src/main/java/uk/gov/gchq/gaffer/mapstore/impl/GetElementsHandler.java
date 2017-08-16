@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewUtil;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -76,6 +77,7 @@ public class GetElementsHandler
             elements = elements.flatMap(e -> Streams.toStream(mapImpl.getElements(e)));
             elements = GetElementsUtil.applyView(elements, schema, getElements.getView());
             elements = elements.map(element -> mapImpl.cloneElement(element, schema));
+            elements.forEach(e -> ViewUtil.removeProperties(getElements.getView(), e));
             return new WrappedCloseableIterator<>(elements.iterator());
         }
     }

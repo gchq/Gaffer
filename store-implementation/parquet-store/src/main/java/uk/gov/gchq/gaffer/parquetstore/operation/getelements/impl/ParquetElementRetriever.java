@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
@@ -185,16 +186,12 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                 e = queue.poll();
                 if (e != null) {
                     if (needsValidation) {
-                        String group = e.getGroup();
-                        ElementFilter preAggFilter = view.getElement(group).getPreAggregationFilter();
-                        if (preAggFilter != null) {
-                            if (preAggFilter.test(e)) {
-                                return e;
-                            }
+                        final ElementFilter preAggFilter = view.getElement(e.getGroup()).getPreAggregationFilter();
+                        if (preAggFilter != null && !preAggFilter.test(e)) {
+                            continue;
                         }
-                    } else {
-                        return e;
                     }
+                    ViewUtil.removeProperties(view, e);
                 }
             }
             throw new NoSuchElementException();

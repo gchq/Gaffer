@@ -18,8 +18,10 @@ package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -74,6 +76,10 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
      */
     protected Set<String> groupBy;
 
+    protected Set<String> properties;
+
+    protected Set<String> excludeProperties;
+
     /**
      * Transient property map of property name to class.
      */
@@ -85,6 +91,19 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
 
     public void setGroupBy(final LinkedHashSet<String> groupBy) {
         this.groupBy = groupBy;
+    }
+
+    public Set<String> getProperties() {
+        return properties;
+    }
+
+    public Set<String> getExcludeProperties() {
+        return excludeProperties;
+    }
+
+    @JsonIgnore
+    public boolean isAllProperties() {
+        return null == properties && (null == excludeProperties || excludeProperties.isEmpty());
     }
 
     public Class<?> getTransientPropertyClass(final String propertyName) {
@@ -271,6 +290,57 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
             this.elDef = elementDef;
         }
 
+        public CHILD_CLASS allProperties() {
+            elDef.properties = null;
+            elDef.excludeProperties = null;
+            return self();
+        }
+
+        @JsonSetter("properties")
+        public CHILD_CLASS properties(final Set<String> properties) {
+            if (null != properties && null != elDef.excludeProperties && !elDef.excludeProperties.isEmpty()) {
+                throw new IllegalArgumentException("You cannot set both properties and excludeProperties");
+            }
+            elDef.properties = properties;
+            return self();
+        }
+
+        public CHILD_CLASS properties(final String... properties) {
+            if (null != properties && null != elDef.excludeProperties && !elDef.excludeProperties.isEmpty()) {
+                throw new IllegalArgumentException("You cannot set both properties and excludeProperties");
+            }
+
+            if (null == properties) {
+                elDef.properties = null;
+            } else {
+                elDef.properties = Sets.newHashSet(properties);
+            }
+            return self();
+        }
+
+        @JsonSetter("excludeProperties")
+        public CHILD_CLASS excludeProperties(final Set<String> excludeProperties) {
+            if (null != excludeProperties && !excludeProperties.isEmpty() && null != elDef.properties) {
+                throw new IllegalArgumentException("You cannot set both properties and excludeProperties");
+            }
+
+            elDef.excludeProperties = excludeProperties;
+            return self();
+        }
+
+        public CHILD_CLASS excludeProperties(final String... excludeProperties) {
+            if (null != excludeProperties && excludeProperties.length > 0 && null != elDef.properties) {
+                throw new IllegalArgumentException("You cannot set both properties and excludeProperties");
+            }
+
+            if (null == excludeProperties) {
+                elDef.excludeProperties = null;
+            } else {
+                elDef.excludeProperties = Sets.newHashSet(excludeProperties);
+            }
+            return self();
+        }
+
         public CHILD_CLASS transientProperty(final String propertyName, final Class<?> clazz) {
             elDef.transientProperties.put(propertyName, clazz);
             return self();
@@ -409,6 +479,14 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
 
             if (null != elementDef.getGroupBy()) {
                 getElementDef().groupBy = new LinkedHashSet<>(elementDef.getGroupBy());
+            }
+
+            if (null != elementDef.getProperties()) {
+                properties(elementDef.getProperties());
+            }
+
+            if (null != elementDef.getExcludeProperties() && !elementDef.getExcludeProperties().isEmpty()) {
+                excludeProperties(elementDef.getExcludeProperties());
             }
 
             return self();

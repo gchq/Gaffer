@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
@@ -226,6 +227,7 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
                             final Cell possibleNext = cellsItr.next();
                             nextElement = deserialiseAndTransform(possibleNext);
                             if (postTransformFilter(nextElement)) {
+                                ViewUtil.removeProperties(operation.getView(), nextElement);
                                 hasNext = true;
                                 return true;
                             } else {
