@@ -32,8 +32,6 @@ import static org.junit.Assert.assertThat;
 
 
 public class GetJobResultsTest extends OperationTest<GetJobResults> {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -42,8 +40,8 @@ public class GetJobResultsTest extends OperationTest<GetJobResults> {
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(operation, true);
-        final GetJobResults deserialisedOp = serialiser.deserialise(json, GetJobResults.class);
+        byte[] json = JSONSerialiser.serialise(operation, true);
+        final GetJobResults deserialisedOp = JSONSerialiser.deserialise(json, GetJobResults.class);
 
         // Then
         assertEquals("jobId", deserialisedOp.getJobId());

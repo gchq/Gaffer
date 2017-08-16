@@ -27,8 +27,6 @@ import static org.junit.Assert.assertNotSame;
 
 
 public class GetGafferResultCacheExportTest extends OperationTest<GetGafferResultCacheExport> {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -38,8 +36,8 @@ public class GetGafferResultCacheExportTest extends OperationTest<GetGafferResul
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(op, true);
-        final GetGafferResultCacheExport deserialisedOp = serialiser.deserialise(json, GetGafferResultCacheExport.class);
+        byte[] json = JSONSerialiser.serialise(op, true);
+        final GetGafferResultCacheExport deserialisedOp = JSONSerialiser.deserialise(json, GetGafferResultCacheExport.class);
 
         // Then
         assertEquals(key, deserialisedOp.getKey());

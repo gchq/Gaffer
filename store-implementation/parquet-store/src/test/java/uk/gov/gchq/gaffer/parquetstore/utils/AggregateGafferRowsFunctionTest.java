@@ -43,7 +43,6 @@ import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
 
 public class AggregateGafferRowsFunctionTest {
-    private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
     private SchemaUtils utils;
 
     @Before
@@ -70,7 +69,7 @@ public class AggregateGafferRowsFunctionTest {
         final GafferGroupObjectConverter converter = utils.getConverter(group);
         final String[] gafferProperties = new String[elementSchema.getProperties().size()];
         elementSchema.getProperties().toArray(gafferProperties);
-        final byte[] aggregatorJson = JSON_SERIALISER.serialise(elementSchema.getIngestAggregator());
+        final byte[] aggregatorJson = JSONSerialiser.serialise(elementSchema.getIngestAggregator());
         final AggregateGafferRowsFunction aggregator = new AggregateGafferRowsFunction(gafferProperties,
                 true, elementSchema.getGroupBy(), utils.getColumnToPaths(group), aggregatorJson, converter);
         final GenericRowWithSchema row1 = DataGen.generateEntityRow(utils, group, "vertex", (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1());
@@ -98,7 +97,7 @@ public class AggregateGafferRowsFunctionTest {
     public void mergeEdgeRowsTest() throws OperationException, SerialisationException {
         final String group = "BasicEdge";
         final SchemaElementDefinition elementSchema = utils.getGafferSchema().getElement(group);
-        final byte[] aggregatorJson = JSON_SERIALISER.serialise(elementSchema.getIngestAggregator());
+        final byte[] aggregatorJson = JSONSerialiser.serialise(elementSchema.getIngestAggregator());
         final GafferGroupObjectConverter converter = utils.getConverter(group);
         final String[] gafferProperties = new String[elementSchema.getProperties().size()];
         elementSchema.getProperties().toArray(gafferProperties);

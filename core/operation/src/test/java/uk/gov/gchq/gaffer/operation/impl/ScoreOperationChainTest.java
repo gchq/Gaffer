@@ -31,16 +31,14 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 public class ScoreOperationChainTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException, JsonProcessingException {
         // Given
         final ScoreOperationChain op = new ScoreOperationChain();
 
         // When
-        byte[] json = serialiser.serialise(op, true);
-        final ScoreOperationChain deserialisedOp = serialiser.deserialise(json, ScoreOperationChain.class);
+        byte[] json = JSONSerialiser.serialise(op, true);
+        final ScoreOperationChain deserialisedOp = JSONSerialiser.deserialise(json, ScoreOperationChain.class);
 
         // Then
         assertNotNull(deserialisedOp);

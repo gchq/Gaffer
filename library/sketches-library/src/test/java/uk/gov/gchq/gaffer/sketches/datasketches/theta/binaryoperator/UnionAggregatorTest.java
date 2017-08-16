@@ -65,14 +65,14 @@ public class UnionAggregatorTest extends BinaryOperatorTest {
         final UnionAggregator aggregator = new UnionAggregator();
 
         // When 1
-        final String json = new String(new JSONSerialiser().serialise(aggregator, true));
+        final String json = new String(JSONSerialiser.serialise(aggregator, true));
         // Then 1
         JsonAssert.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.theta.binaryoperator.UnionAggregator\"%n" +
                 "}"), json);
 
         // When 2
-        final UnionAggregator deserialisedAggregator = new JSONSerialiser()
+        final UnionAggregator deserialisedAggregator = JSONSerialiser
                 .deserialise(json.getBytes(), UnionAggregator.class);
         // Then 2
         assertNotNull(deserialisedAggregator);

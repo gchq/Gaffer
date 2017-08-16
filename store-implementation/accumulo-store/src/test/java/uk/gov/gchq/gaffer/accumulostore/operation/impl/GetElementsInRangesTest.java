@@ -21,8 +21,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 
 public class GetElementsInRangesTest extends OperationTest<GetElementsInRanges> {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -35,9 +33,9 @@ public class GetElementsInRangesTest extends OperationTest<GetElementsInRanges> 
                 .input(pairList)
                 .build();
         // When
-        byte[] json = serialiser.serialise(op, true);
+        byte[] json = JSONSerialiser.serialise(op, true);
 
-        final GetElementsInRanges deserialisedOp = serialiser.deserialise(json, GetElementsInRanges.class);
+        final GetElementsInRanges deserialisedOp = JSONSerialiser.deserialise(json, GetElementsInRanges.class);
 
         // Then
         final Iterator<? extends Pair<? extends ElementId, ? extends ElementId>> itrPairs = deserialisedOp.getInput().iterator();

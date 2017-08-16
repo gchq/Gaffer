@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017. Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,40 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.hbasestore;
+package uk.gov.gchq.gaffer.accumulostore;
 
 import com.fasterxml.jackson.databind.Module;
-import org.apache.hadoop.fs.Path;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
 import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
-import uk.gov.gchq.gaffer.store.StoreException;
-import java.io.IOException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class HBasePropertiesTest {
+public class AccumuloPropertiesTest {
     @Test
-    public void shouldGetAndSetProperties() throws StoreException, IOException {
+    public void shouldMergeAccumuloJsonModules() {
         // Given
-        final HBaseProperties properties = new HBaseProperties();
-
-        // When
-        properties.setDependencyJarsHdfsDirPath("pathTo/jars");
-        properties.setWriteBufferSize(10);
-        properties.setZookeepers("zookeeper1,zookeeper2");
-
-        // Then
-        assertEquals(new Path("pathTo/jars"), properties.getDependencyJarsHdfsDirPath());
-        assertEquals(10, properties.getWriteBufferSize());
-        assertEquals("zookeeper1,zookeeper2", properties.getZookeepers());
-    }
-
-    @Test
-    public void shouldMergeHBaseJsonModules() {
-        // Given
-        final HBaseProperties props = new HBaseProperties();
+        final AccumuloProperties props = new AccumuloProperties();
         props.setJsonSerialiserModules(TestCustomJsonModules1.class.getName() + "," + TestCustomJsonModules2.class.getName());
 
         // When
@@ -58,9 +39,9 @@ public class HBasePropertiesTest {
     }
 
     @Test
-    public void shouldMergeHBaseJsonModulesAndDeduplicate() {
+    public void shouldMergeAccumuloJsonModulesAndDeduplicate() {
         // Given
-        final HBaseProperties props = new HBaseProperties();
+        final AccumuloProperties props = new AccumuloProperties();
         props.setJsonSerialiserModules(TestCustomJsonModules1.class.getName() + "," + SketchesJsonModules.class.getName());
 
         // When

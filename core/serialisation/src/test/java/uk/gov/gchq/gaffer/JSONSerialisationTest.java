@@ -22,9 +22,6 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import static org.junit.Assert.assertNotNull;
 
 public abstract class JSONSerialisationTest<T> {
-
-    protected static final JSONSerialiser SERIALISER = new JSONSerialiser();
-
     @Test
     public void shouldJsonSerialiseAndDeserialise() {
         // Given
@@ -42,7 +39,7 @@ public abstract class JSONSerialisationTest<T> {
 
     protected byte[] toJson(final T testObj) {
         try {
-            return SERIALISER.serialise(testObj, true);
+            return JSONSerialiser.serialise(testObj, true);
         } catch (final SerialisationException e) {
             throw new RuntimeException(e);
         }
@@ -50,7 +47,7 @@ public abstract class JSONSerialisationTest<T> {
 
     protected T fromJson(final byte[] jsonObj) {
         try {
-            return SERIALISER.deserialise(jsonObj, (Class<T>) getTestObject().getClass());
+            return JSONSerialiser.deserialise(jsonObj, (Class<T>) getTestObject().getClass());
         } catch (final SerialisationException e) {
             throw new RuntimeException(e);
         }

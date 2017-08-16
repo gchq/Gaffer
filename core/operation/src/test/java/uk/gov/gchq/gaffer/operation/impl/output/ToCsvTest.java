@@ -37,16 +37,14 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 public class ToCsvTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException, JsonProcessingException {
         // Given
         final ToCsv op = new ToCsv.Builder().build();
 
         // When
-        byte[] json = serialiser.serialise(op, true);
-        final ToCsv deserialisedOp = serialiser.deserialise(json, ToCsv.class);
+        byte[] json = JSONSerialiser.serialise(op, true);
+        final ToCsv deserialisedOp = JSONSerialiser.deserialise(json, ToCsv.class);
 
         // Then
         assertNotNull(deserialisedOp);
