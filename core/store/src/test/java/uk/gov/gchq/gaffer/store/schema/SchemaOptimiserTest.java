@@ -112,10 +112,8 @@ public class SchemaOptimiserTest {
         final Schema optimisedSchema = optimiser.optimise(schema, isOrdered);
 
         // Then
-        assertSame(stringSerialiser, optimisedSchema.getType("string")
-                                                    .getSerialiser());
-        assertSame(intSerialiser, optimisedSchema.getType("int")
-                                                 .getSerialiser());
+        assertSame(stringSerialiser, optimisedSchema.getType("string").getSerialiser());
+        assertSame(intSerialiser, optimisedSchema.getType("int").getSerialiser());
         assertSame(javaSerialiser, optimisedSchema.getVertexSerialiser());
         verify(serialisationFactory, never()).getSerialiser(String.class, false, true);
         verify(serialisationFactory, never()).getSerialiser(Serializable.class, false, true);
