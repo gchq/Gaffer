@@ -151,7 +151,7 @@ public class HBaseStore extends Store {
     /**
      * Gets the table.
      *
-     * @return the table
+     * @return the table.
      * @throws StoreException if a reference to the table could not be created.
      */
     public Table getTable() throws StoreException {

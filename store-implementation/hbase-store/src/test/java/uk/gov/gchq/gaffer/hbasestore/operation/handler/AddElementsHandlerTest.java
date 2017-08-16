@@ -162,8 +162,6 @@ public class AddElementsHandlerTest {
         final List<Element> elementsAdded = CellUtil.getElements(puts, new ElementSerialisation(SCHEMA), false);
         assertEquals(expectedElements.size(), elementsAdded.size());
         assertThat(elementsAdded, IsCollectionContaining.hasItems(expectedElementsArr));
-
-        //verify(table).flushCommits();
     }
 
     @Test
@@ -213,8 +211,6 @@ public class AddElementsHandlerTest {
         final List<Element> elementsAdded2 = CellUtil.getElements(puts2, new ElementSerialisation(SCHEMA), false);
         assertEquals(expectedElements.size(), elementsAdded2.size());
         assertThat(elementsAdded2, IsCollectionContaining.hasItems(expectedElementsArr));
-
-        //verify(table, times(2)).flushCommits();
     }
 
     @Test
@@ -263,8 +259,6 @@ public class AddElementsHandlerTest {
         final List<Element> elementsAdded = CellUtil.getElements(puts, new ElementSerialisation(SCHEMA), false);
         assertEquals(expectedElements.size(), elementsAdded.size());
         assertThat(elementsAdded, IsCollectionContaining.hasItems(expectedElementsArr));
-
-        //verify(table).flushCommits();
     }
 
     @Test
@@ -288,7 +282,6 @@ public class AddElementsHandlerTest {
 
         // Then
         verify(table, never()).put(anyListOf(Put.class));
-        //verify(table, never()).flushCommits();
     }
 
     private List<Element> createElements() {
