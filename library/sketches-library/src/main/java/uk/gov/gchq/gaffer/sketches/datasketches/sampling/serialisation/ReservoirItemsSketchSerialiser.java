@@ -59,6 +59,6 @@ public class ReservoirItemsSketchSerialiser<T> implements ToBytesSerialiser<Rese
 
     @Override
     public boolean isConsistent() {
-        return true;
+        return false;
     }
 }

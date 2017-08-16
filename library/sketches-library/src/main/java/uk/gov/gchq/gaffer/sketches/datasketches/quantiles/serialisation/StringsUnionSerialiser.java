@@ -60,6 +60,6 @@ public class StringsUnionSerialiser implements ToBytesSerialiser<ItemsUnion<Stri
 
     @Override
     public boolean isConsistent() {
-        return true;
+        return false;
     }
 }

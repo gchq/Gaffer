@@ -72,7 +72,7 @@ public class RoaringBitmapSerialiser implements ToBytesSerialiser<RoaringBitmap>
 
     @Override
     public boolean isConsistent() {
-        return true;
+        return false;
     }
 
     @Override

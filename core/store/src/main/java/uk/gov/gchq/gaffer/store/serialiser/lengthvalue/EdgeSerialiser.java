@@ -103,6 +103,6 @@ public class EdgeSerialiser extends PropertiesSerialiser implements ToBytesSeria
 
     @Override
     public boolean isConsistent() {
-        return true;
+        return false;
     }
 }

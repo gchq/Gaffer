@@ -54,6 +54,6 @@ public class SketchSerialiser implements ToBytesSerialiser<Sketch> {
 
     @Override
     public boolean isConsistent() {
-        return true;
+        return false;
     }
 }

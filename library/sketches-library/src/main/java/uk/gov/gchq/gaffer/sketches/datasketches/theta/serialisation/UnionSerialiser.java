@@ -57,6 +57,6 @@ public class UnionSerialiser implements ToBytesSerialiser<Union> {
 
     @Override
     public boolean isConsistent() {
-        return true;
+        return false;
     }
 }

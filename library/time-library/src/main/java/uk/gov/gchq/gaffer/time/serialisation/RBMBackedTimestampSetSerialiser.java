@@ -106,6 +106,6 @@ public class RBMBackedTimestampSetSerialiser implements ToBytesSerialiser<RBMBac
 
     @Override
     public boolean isConsistent() {
-        return true;
+        return false;
     }
 }

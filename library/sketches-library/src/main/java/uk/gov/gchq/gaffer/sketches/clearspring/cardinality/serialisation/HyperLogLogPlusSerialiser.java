@@ -58,6 +58,6 @@ public class HyperLogLogPlusSerialiser implements ToBytesSerialiser<HyperLogLogP
 
     @Override
     public boolean isConsistent() {
-        return true;
+        return false;
     }
 }

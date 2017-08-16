@@ -54,7 +54,7 @@ public class ReservoirLongsSketchSerialiser implements ToBytesSerialiser<Reservo
 
     @Override
     public boolean isConsistent() {
-        return true;
+        return false;
     }
 }
 

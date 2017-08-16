@@ -110,6 +110,6 @@ public class AvroSerialiser implements ToBytesSerialiser<Object> {
 
     @Override
     public boolean isConsistent() {
-        return true;
+        return false;
     }
 }

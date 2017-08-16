@@ -97,6 +97,6 @@ public class EntitySerialiser extends PropertiesSerialiser implements ToBytesSer
 
     @Override
     public boolean isConsistent() {
-        return true;
+        return false;
     }
 }

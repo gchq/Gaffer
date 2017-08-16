@@ -56,7 +56,7 @@ public class DoublesUnionSerialiser implements ToBytesSerialiser<DoublesUnion> {
 
     @Override
     public boolean isConsistent() {
-        return true;
+        return false;
     }
 }
 

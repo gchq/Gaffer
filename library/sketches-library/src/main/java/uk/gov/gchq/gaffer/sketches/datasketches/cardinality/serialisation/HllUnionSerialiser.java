@@ -53,6 +53,6 @@ public class HllUnionSerialiser implements ToBytesSerialiser<Union> {
 
     @Override
     public boolean isConsistent() {
-        return true;
+        return false;
     }
 }

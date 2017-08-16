@@ -78,7 +78,7 @@ public class NestedHyperLogLogPlusParquetSerialiser implements ParquetSerialiser
 
     @Override
     public boolean isConsistent() {
-        return true;
+        return false;
     }
 
     @Override

@@ -53,6 +53,6 @@ public class HllSketchSerialiser implements ToBytesSerialiser<HllSketch> {
 
     @Override
     public boolean isConsistent() {
-        return true;
+        return false;
     }
 }

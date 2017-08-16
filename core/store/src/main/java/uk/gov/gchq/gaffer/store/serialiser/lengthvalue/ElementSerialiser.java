@@ -79,6 +79,6 @@ public class ElementSerialiser extends PropertiesSerialiser implements ToBytesSe
 
     @Override
     public boolean isConsistent() {
-        return true;
+        return false;
     }
 }

@@ -129,6 +129,6 @@ public class BoundedTimestampSetSerialiser implements ToBytesSerialiser<BoundedT
 
     @Override
     public boolean isConsistent() {
-        return true;
+        return false;
     }
 }

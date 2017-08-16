@@ -101,11 +101,13 @@ public class ElementIdSerialiser implements ToBytesSerialiser<ElementId> {
 
     @Override
     public boolean preservesObjectOrdering() {
-        return false;
+        return null != edgeIdSerialiser && null != entityIdSerialiser
+                && edgeIdSerialiser.preservesObjectOrdering() && entityIdSerialiser.preservesObjectOrdering();
     }
 
     @Override
     public boolean isConsistent() {
-        return true;
+        return null != edgeIdSerialiser && null != entityIdSerialiser
+                && edgeIdSerialiser.isConsistent() && entityIdSerialiser.isConsistent();
     }
 }

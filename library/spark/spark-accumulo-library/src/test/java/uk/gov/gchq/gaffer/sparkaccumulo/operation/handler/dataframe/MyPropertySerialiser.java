@@ -57,6 +57,6 @@ public class MyPropertySerialiser implements ToBytesSerialiser<MyProperty> {
 
     @Override
     public boolean isConsistent() {
-        return true;
+        return false;
     }
 }

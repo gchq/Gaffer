@@ -76,11 +76,11 @@ public class EntityIdSerialiser implements ToBytesSerialiser<EntityId> {
 
     @Override
     public boolean preservesObjectOrdering() {
-        return false;
+        return null != vertexSerialiser && vertexSerialiser.preservesObjectOrdering();
     }
 
     @Override
     public boolean isConsistent() {
-        return true;
+        return null != vertexSerialiser && vertexSerialiser.isConsistent();
     }
 }
