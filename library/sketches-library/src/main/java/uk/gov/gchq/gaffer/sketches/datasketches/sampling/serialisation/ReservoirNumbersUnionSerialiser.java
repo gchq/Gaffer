@@ -56,6 +56,6 @@ public class ReservoirNumbersUnionSerialiser implements ToBytesSerialiser<Reserv
 
     @Override
     public boolean isConsistent() {
-        return true;
+        return false;
     }
 }

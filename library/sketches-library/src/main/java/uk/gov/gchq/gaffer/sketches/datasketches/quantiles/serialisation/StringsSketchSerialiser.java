@@ -60,6 +60,6 @@ public class StringsSketchSerialiser implements ToBytesSerialiser<ItemsSketch<St
 
     @Override
     public boolean isConsistent() {
-        return true;
+        return false;
     }
 }
