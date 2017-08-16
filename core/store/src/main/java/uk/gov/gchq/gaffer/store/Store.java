@@ -107,6 +107,7 @@ import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
+import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
@@ -116,7 +117,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -175,7 +175,9 @@ public abstract class Store {
 
         final Store newStore;
         try {
-            newStore = Class.forName(storeClass).asSubclass(Store.class).newInstance();
+            newStore = Class.forName(storeClass)
+                            .asSubclass(Store.class)
+                            .newInstance();
         } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
         }
@@ -297,7 +299,7 @@ public abstract class Store {
             }
             if (!hasExport) {
                 operationChain.getOperations()
-                        .add(new ExportToGafferResultCache());
+                              .add(new ExportToGafferResultCache());
             }
         }
 
@@ -375,7 +377,8 @@ public abstract class Store {
             for (final Class<? extends Operation> nextOp : getSupportedOperations()) {
                 if (Input.class.isAssignableFrom(nextOp)) {
                     final Class<?> inputType = OperationUtil.getInputType((Class) nextOp);
-                    if (OperationUtil.isValid(outputType, inputType).isValid()) {
+                    if (OperationUtil.isValid(outputType, inputType)
+                                     .isValid()) {
                         ops.add(nextOp);
                     }
                 }
@@ -452,12 +455,14 @@ public abstract class Store {
         } else {
             validationResult.add(schema.validate());
 
-            getSchemaElements().entrySet().forEach(def -> validateSchemaElementDefinition(def, validationResult));
+            getSchemaElements().entrySet()
+                               .forEach(def -> validateSchemaElementDefinition(def, validationResult));
 
             validateSchema(validationResult, getSchema().getVertexSerialiser());
 
             getSchema().getTypes().entrySet().forEach(entrySet ->
-                    validateSchema(validationResult, entrySet.getValue().getSerialiser()));
+                    validateSchema(validationResult, entrySet.getValue()
+                                                             .getSerialiser()));
         }
 
         if (!validationResult.isValid()) {
@@ -466,36 +471,52 @@ public abstract class Store {
         }
     }
 
-    public void validateConsistentVertex() {
-        if (!getSchema().getVertexSerialiser().isConsistent()) {
+    protected void validateConsistentVertex() {
+        if (null != getSchema().getVertexSerialiser() && !getSchema().getVertexSerialiser()
+                                                                     .isConsistent()) {
             throw new SchemaException("Vertex serialiser is inconsistent. This store requires vertices to be serialised in a consistent way.");
         }
     }
 
-    public void validateConsistentGroupByProperties(final Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry, final ValidationResult validationResult) {
-        for (String property : schemaElementDefinitionEntry.getValue().getGroupBy()) {
-            if (!getSchema().getVertexSerialiser().isConsistent()) {
-                validationResult.addError("Serialiser for groupBy property: " + property
-                + " is inconsistent. This store requires all groupBy property serialisers to be consistent.");
+    protected void validateConsistentGroupByProperties(final Map.Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry, final ValidationResult validationResult) {
+        for (final String property : schemaElementDefinitionEntry.getValue()
+                                                                 .getGroupBy()) {
+            final TypeDefinition propertyTypeDef = schemaElementDefinitionEntry.getValue()
+                                                                               .getPropertyTypeDef(property);
+            if (null != propertyTypeDef) {
+                final Serialiser serialiser = propertyTypeDef.getSerialiser();
+                if (null != serialiser && !serialiser.isConsistent()) {
+                    validationResult.addError("Serialiser for groupBy property: " + property
+                            + " is inconsistent. This store requires all groupBy property serialisers to be consistent. Serialiser "
+                            + serialiser.getClass().getName() + " is not consistent.");
+                }
             }
         }
     }
 
     protected void validateSchemaElementDefinition(final Map.Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry, final ValidationResult validationResult) {
-        schemaElementDefinitionEntry.getValue().getProperties().forEach(propertyName -> {
-            final Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
-            final Serialiser serialisation = schemaElementDefinitionEntry
-                    .getValue()
-                    .getPropertyTypeDef(propertyName)
-                    .getSerialiser();
+        schemaElementDefinitionEntry.getValue()
+                                    .getProperties()
+                                    .forEach(propertyName -> {
+                                        final Class propertyClass = schemaElementDefinitionEntry
+                                                .getValue()
+                                                .getPropertyClass(propertyName);
+                                        final Serialiser serialisation = schemaElementDefinitionEntry
+                                                .getValue()
+                                                .getPropertyTypeDef(propertyName)
+                                                .getSerialiser();
 
-            if (null == serialisation) {
-                validationResult.addError(
-                        String.format("Could not find a serialiser for property '%s' in the group '%s'.", propertyName, schemaElementDefinitionEntry.getKey()));
-            } else if (!serialisation.canHandle(propertyClass)) {
-                validationResult.addError(String.format("Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema", serialisation.getClass().getName(), propertyName, schemaElementDefinitionEntry.getKey()));
-            }
-        });
+                                        if (null == serialisation) {
+                                            validationResult.addError(
+                                                    String.format("Could not find a serialiser for property '%s' in the group '%s'.", propertyName, schemaElementDefinitionEntry
+                                                            .getKey()));
+                                        } else if (!serialisation.canHandle(propertyClass)) {
+                                            validationResult.addError(String.format("Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema", serialisation
+                                                    .getClass()
+                                                    .getName(), propertyName, schemaElementDefinitionEntry
+                                                    .getKey()));
+                                        }
+                                    });
     }
 
     protected void validateSchema(final ValidationResult validationResult, final Serialiser serialiser) {
@@ -507,19 +528,14 @@ public abstract class Store {
                     )
             );
         }
-//        if (serialiser != null && !serialiser.isConsistent()) {
-//            validationResult.addError(
-//                    String.format("Schema serialiser (%s) is inconsistent - store may be unable to handle this.",
-//                            serialiser.getClass().getSimpleName()
-//                    )
-//            );
-//        }
     }
 
     protected <O> OperationChain<O> prepareOperationChain(final OperationChain<O> operationChain, final Context context) {
-        final ValidationResult validationResult = opChainValidator.validate(operationChain, context.getUser(), this);
+        final ValidationResult validationResult = opChainValidator.validate(operationChain, context
+                .getUser(), this);
         if (!validationResult.isValid()) {
-            throw new IllegalArgumentException("Operation chain is invalid. " + validationResult.getErrorString());
+            throw new IllegalArgumentException("Operation chain is invalid. " + validationResult
+                    .getErrorString());
         }
 
         OperationChain<O> optimisedOperationChain = operationChain;
@@ -603,7 +619,8 @@ public abstract class Store {
      * @return the result of the operation.
      */
     protected Object doUnhandledOperation(final Operation operation, final Context context) {
-        throw new UnsupportedOperationException("Operation " + operation.getClass() + " is not supported by the " + getClass().getSimpleName() + ".");
+        throw new UnsupportedOperationException("Operation " + operation.getClass() + " is not supported by the " + getClass()
+                .getSimpleName() + ".");
     }
 
     protected final void addOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {
@@ -635,13 +652,17 @@ public abstract class Store {
     }
 
     private JobDetail addOrUpdateJobDetail(final OperationChain<?> operationChain, final Context context, final String msg, final JobStatus jobStatus) {
-        final JobDetail newJobDetail = new JobDetail(context.getJobId(), context.getUser().getUserId(), operationChain, jobStatus, msg);
+        final JobDetail newJobDetail = new JobDetail(context.getJobId(), context
+                .getUser()
+                .getUserId(), operationChain, jobStatus, msg);
         if (null != jobTracker) {
-            final JobDetail oldJobDetail = jobTracker.getJob(newJobDetail.getJobId(), context.getUser());
+            final JobDetail oldJobDetail = jobTracker.getJob(newJobDetail.getJobId(), context
+                    .getUser());
             if (null == oldJobDetail) {
                 jobTracker.addOrUpdateJob(newJobDetail, context.getUser());
             } else {
-                jobTracker.addOrUpdateJob(new JobDetail(oldJobDetail, newJobDetail), context.getUser());
+                jobTracker.addOrUpdateJob(new JobDetail(oldJobDetail, newJobDetail), context
+                        .getUser());
             }
         }
         return newJobDetail;

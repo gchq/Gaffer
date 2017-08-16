@@ -101,23 +101,24 @@ public class SerialisationFactory {
      *                                  no compatible serialiser could be found.
      */
     public Serialiser getSerialiser(final Class<?> objClass) {
-        return getSerialiser(objClass, false);
+        return getSerialiser(objClass, false, false);
     }
 
     /**
      * @param objClass      the class of an object to be serialised.
      * @param preserveOrder if true then the returned serialiser should preserve order.
+     * @param consistentSerialiser if true then the returned serialiser should be consistent
      * @return a compatible serialiser.
      * @throws IllegalArgumentException if the object class parameter is null or
      *                                  no compatible serialiser could be found.
      */
-    public Serialiser getSerialiser(final Class<?> objClass, final boolean preserveOrder) {
+    public Serialiser getSerialiser(final Class<?> objClass, final boolean preserveOrder, final boolean consistentSerialiser) {
         if (null == objClass) {
             throw new IllegalArgumentException("Object class for serialising is required");
         }
 
         for (final Serialiser serialiser : serialisers) {
-            if (canSerialiseClass(objClass, preserveOrder, serialiser)) {
+            if (canSerialiseClass(objClass, preserveOrder, serialiser) && (!consistentSerialiser || serialiser.isConsistent())) {
                 return serialiser;
             }
         }
