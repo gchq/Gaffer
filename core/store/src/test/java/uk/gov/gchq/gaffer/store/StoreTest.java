@@ -16,7 +16,10 @@
 
 package uk.gov.gchq.gaffer.store;
 
+import com.fasterxml.jackson.databind.Module;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -37,6 +40,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobStatus;
 import uk.gov.gchq.gaffer.jobtracker.JobTracker;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.DeleteNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
@@ -146,6 +150,10 @@ public class StoreTest {
 
     @Before
     public void setup() {
+        System.clearProperty(JSONSerialiser.JSON_SERIALISER_CLASS_KEY);
+        System.clearProperty(JSONSerialiser.JSON_SERIALISER_MODULES);
+        JSONSerialiser.update();
+
         schemaOptimiser = mock(SchemaOptimiser.class);
         operationChainValidator = mock(OperationChainValidator.class);
         store = new StoreImpl();
@@ -191,6 +199,14 @@ public class StoreTest {
                 .type("true", Boolean.class)
                 .build();
     }
+
+    @After
+    public void after() {
+        System.clearProperty(JSONSerialiser.JSON_SERIALISER_CLASS_KEY);
+        System.clearProperty(JSONSerialiser.JSON_SERIALISER_MODULES);
+        JSONSerialiser.update();
+    }
+
 
     @Test
     public void shouldThrowExceptionIfGraphIdIsNull() throws Exception {
@@ -616,6 +632,33 @@ public class StoreTest {
     }
 
     @Test
+    public void shouldUpdateJsonSerialiser() throws StoreException {
+        // Given
+        final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJsonSerialiserClass()).willReturn(TestCustomJsonSerialiser1.class.getName());
+        given(properties.getJsonSerialiserModules()).willReturn(StorePropertiesTest.TestCustomJsonModules1.class.getName());
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
+
+        TestCustomJsonSerialiser1.mapper = mock(ObjectMapper.class);
+        System.setProperty(JSONSerialiser.JSON_SERIALISER_CLASS_KEY, TestCustomJsonSerialiser1.class.getName());
+        StorePropertiesTest.TestCustomJsonModules1.modules = Arrays.asList(
+                mock(Module.class),
+                mock(Module.class)
+        );
+
+        final Store store = new StoreImpl();
+        final Schema schema = new Schema();
+
+        // When
+        store.initialise("graphId", schema, properties);
+
+        // Then
+        assertEquals(TestCustomJsonSerialiser1.class, JSONSerialiser.getInstance().getClass());
+        assertSame(TestCustomJsonSerialiser1.mapper, JSONSerialiser.getMapper());
+        verify(TestCustomJsonSerialiser1.mapper).registerModules(StorePropertiesTest.TestCustomJsonModules1.modules);
+    }
+
+    @Test
     public void shouldSetAndGetGraphLibrary() {
         // Given
         final Store store = new StoreImpl();
@@ -763,6 +806,14 @@ public class StoreTest {
         @Override
         protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
             return Serialiser.class;
+        }
+    }
+
+    public static final class TestCustomJsonSerialiser1 extends JSONSerialiser {
+        public static ObjectMapper mapper;
+
+        public TestCustomJsonSerialiser1() {
+            super(mapper);
         }
     }
 }

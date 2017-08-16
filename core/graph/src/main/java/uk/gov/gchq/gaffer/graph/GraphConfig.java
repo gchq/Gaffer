@@ -48,8 +48,6 @@ import java.util.List;
  * @see uk.gov.gchq.gaffer.graph.GraphConfig.Builder
  */
 public final class GraphConfig {
-    private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
-
     private String graphId;
     private View view;
     private GraphLibrary library;
@@ -142,7 +140,7 @@ public final class GraphConfig {
 
         public Builder json(final byte[] bytes) {
             try {
-                return merge(JSON_SERIALISER.deserialise(bytes, GraphConfig.class));
+                return merge(JSONSerialiser.deserialise(bytes, GraphConfig.class));
             } catch (final IOException e) {
                 throw new IllegalArgumentException("Unable to deserialise graph config", e);
             }
@@ -204,7 +202,7 @@ public final class GraphConfig {
             }
             final GraphHook[] hooks;
             try {
-                hooks = JSON_SERIALISER.deserialise(FileUtils.readFileToByteArray(hooksPath.toFile()), GraphHook[].class);
+                hooks = JSONSerialiser.deserialise(FileUtils.readFileToByteArray(hooksPath.toFile()), GraphHook[].class);
             } catch (final IOException e) {
                 throw new IllegalArgumentException("Unable to load graph hooks file: " + hooksPath, e);
             }
@@ -218,7 +216,7 @@ public final class GraphConfig {
 
             final GraphHook hook;
             try {
-                hook = JSON_SERIALISER.deserialise(FileUtils.readFileToByteArray(hookPath.toFile()), GraphHook.class);
+                hook = JSONSerialiser.deserialise(FileUtils.readFileToByteArray(hookPath.toFile()), GraphHook.class);
             } catch (final IOException e) {
                 throw new IllegalArgumentException("Unable to load graph hook file: " + hookPath, e);
             }

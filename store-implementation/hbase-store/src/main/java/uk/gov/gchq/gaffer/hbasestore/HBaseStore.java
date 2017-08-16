@@ -23,7 +23,7 @@ import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
-import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
@@ -153,16 +153,16 @@ public class HBaseStore extends Store {
     }
 
     /**
-     * Gets the HBase table.
+     * Gets the table.
      *
-     * @return the HBase table
+     * @return the table.
      * @throws StoreException if a reference to the table could not be created.
      */
-    public HTable getTable() throws StoreException {
+    public Table getTable() throws StoreException {
         final TableName tableName = getTableName();
         final Connection connection = getConnection();
         try {
-            return (HTable) connection.getTable(tableName);
+            return connection.getTable(tableName);
         } catch (final IOException e) {
             CloseableUtil.close(connection);
             throw new StoreException(e);

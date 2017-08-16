@@ -30,12 +30,9 @@ import java.util.List;
 
 /**
  * Contains a list of Operations defined in a JSON file, referenced in the store.properties.
- * <p>
  * Used to add operation handlers.
  */
 public class OperationDeclarations {
-    protected static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
-
     private List<OperationDeclaration> operations;
 
     public List<OperationDeclaration> getOperations() {
@@ -89,7 +86,7 @@ public class OperationDeclarations {
 
     public static OperationDeclarations fromJson(final byte[] json) {
         try {
-            return JSON_SERIALISER.deserialise(json, OperationDeclarations.class);
+            return JSONSerialiser.deserialise(json, OperationDeclarations.class);
         } catch (final SerialisationException e) {
             throw new SchemaException("Failed to load element definitions from bytes", e);
         }
@@ -97,7 +94,7 @@ public class OperationDeclarations {
 
     public static OperationDeclarations fromJson(final InputStream inputStream) {
         try {
-            return JSON_SERIALISER.deserialise(inputStream, OperationDeclarations.class);
+            return JSONSerialiser.deserialise(inputStream, OperationDeclarations.class);
         } catch (final SerialisationException e) {
             throw new SchemaException("Failed to load element definitions from bytes", e);
         }

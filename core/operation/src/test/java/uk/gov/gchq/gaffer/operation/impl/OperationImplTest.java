@@ -30,8 +30,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 
 public class OperationImplTest extends OperationTest<OperationImpl> {
-    private static final JSONSerialiser SERIALISER = new JSONSerialiser();
-
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -47,8 +45,8 @@ public class OperationImplTest extends OperationTest<OperationImpl> {
                 .build();
 
         // When
-        byte[] json = SERIALISER.serialise(op, true);
-        final OperationImpl deserialisedOp = SERIALISER.deserialise(json, OperationImpl.class);
+        byte[] json = JSONSerialiser.serialise(op, true);
+        final OperationImpl deserialisedOp = JSONSerialiser.deserialise(json, OperationImpl.class);
 
         // Then
         assertEquals(requiredField1, deserialisedOp.getRequiredField1());

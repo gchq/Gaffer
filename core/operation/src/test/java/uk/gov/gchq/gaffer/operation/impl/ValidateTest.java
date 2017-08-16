@@ -34,8 +34,6 @@ import static org.junit.Assert.assertTrue;
 
 
 public class ValidateTest extends OperationTest<Validate> {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -60,8 +58,8 @@ public class ValidateTest extends OperationTest<Validate> {
         op.setInput(elements);
 
         // When
-        byte[] json = serialiser.serialise(op, true);
-        final Validate deserialisedOp = serialiser.deserialise(json, Validate.class);
+        byte[] json = JSONSerialiser.serialise(op, true);
+        final Validate deserialisedOp = JSONSerialiser.deserialise(json, Validate.class);
 
         // Then
         final Iterator<? extends Element> itr = deserialisedOp.getInput().iterator();

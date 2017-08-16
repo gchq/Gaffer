@@ -41,7 +41,7 @@ public class GraphConfigTest {
     @Test
     public void shouldDeserialisationJson() throws IOException {
         // Given
-        final GraphConfig config = new JSONSerialiser().deserialise(StreamUtil.graphConfig(getClass()), GraphConfig.class);
+        final GraphConfig config = JSONSerialiser.deserialise(StreamUtil.graphConfig(getClass()), GraphConfig.class);
 
         // Then
         assertEquals("graphId1", config.getGraphId());

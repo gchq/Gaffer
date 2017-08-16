@@ -27,6 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
@@ -35,7 +37,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * A <code>StoreProperties</code> contains specific configuration information for the store, such as database
@@ -56,6 +60,9 @@ public class StoreProperties implements Cloneable {
 
     public static final String EXECUTOR_SERVICE_THREAD_COUNT = "gaffer.store.job.executor.threads";
     public static final String EXECUTOR_SERVICE_THREAD_COUNT_DEFAULT = "50";
+
+    public static final String JSON_SERIALISER_CLASS = JSONSerialiser.JSON_SERIALISER_CLASS_KEY;
+    public static final String JSON_SERIALISER_MODULES = JSONSerialiser.JSON_SERIALISER_MODULES;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StoreProperties.class);
 
@@ -240,6 +247,36 @@ public class StoreProperties implements Cloneable {
             combinedPaths = combinedPaths + "," + newPathsCsv;
         }
         setOperationDeclarationPaths(combinedPaths);
+    }
+
+    public String getJsonSerialiserClass() {
+        return get(JSON_SERIALISER_CLASS);
+    }
+
+    @JsonIgnore
+    public void setJsonSerialiserClass(final Class<? extends JSONSerialiser> jsonSerialiserClass) {
+        setJsonSerialiserClass(jsonSerialiserClass.getName());
+    }
+
+    public void setJsonSerialiserClass(final String jsonSerialiserClass) {
+        set(JSON_SERIALISER_CLASS, jsonSerialiserClass);
+    }
+
+    public String getJsonSerialiserModules() {
+        return get(JSON_SERIALISER_MODULES, "");
+    }
+
+    @JsonIgnore
+    public void setJsonSerialiserModules(final Set<Class<? extends JSONSerialiserModules>> modules) {
+        final Set<String> moduleNames = new HashSet<>(modules.size());
+        for (final Class module : modules) {
+            moduleNames.add(module.getName());
+        }
+        setJsonSerialiserModules(StringUtils.join(moduleNames, ","));
+    }
+
+    public void setJsonSerialiserModules(final String modules) {
+        set(JSON_SERIALISER_MODULES, modules);
     }
 
     public void setProperties(final Properties properties) {

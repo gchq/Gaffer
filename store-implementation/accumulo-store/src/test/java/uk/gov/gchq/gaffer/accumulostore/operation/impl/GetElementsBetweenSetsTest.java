@@ -17,7 +17,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 
 public class GetElementsBetweenSetsTest extends OperationTest<GetElementsBetweenSets> {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
 
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
@@ -28,9 +27,9 @@ public class GetElementsBetweenSetsTest extends OperationTest<GetElementsBetween
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(op, true);
+        byte[] json = JSONSerialiser.serialise(op, true);
 
-        final GetElementsBetweenSets deserialisedOp = serialiser.deserialise(json, GetElementsBetweenSets.class);
+        final GetElementsBetweenSets deserialisedOp = JSONSerialiser.deserialise(json, GetElementsBetweenSets.class);
 
         // Then
         final Iterator itrSeedsA = deserialisedOp.getInput().iterator();

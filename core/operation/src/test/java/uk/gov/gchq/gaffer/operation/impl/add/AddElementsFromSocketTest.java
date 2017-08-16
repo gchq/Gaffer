@@ -22,12 +22,12 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
-import static uk.gov.gchq.gaffer.operation.Operation.JSON_SERIALISER;
 
 public class AddElementsFromSocketTest extends OperationTest<AddElementsFromSocket> {
 
@@ -52,8 +52,8 @@ public class AddElementsFromSocketTest extends OperationTest<AddElementsFromSock
                 .build();
 
         // When
-        final byte[] json = JSON_SERIALISER.serialise(op, true);
-        final AddElementsFromSocket deserialisedOp = JSON_SERIALISER.deserialise(json, AddElementsFromSocket.class);
+        final byte[] json = JSONSerialiser.serialise(op, true);
+        final AddElementsFromSocket deserialisedOp = JSONSerialiser.deserialise(json, AddElementsFromSocket.class);
 
         // Then
         JsonAssert.assertEquals(String.format("{%n" +

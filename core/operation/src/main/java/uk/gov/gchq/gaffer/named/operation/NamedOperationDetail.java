@@ -35,7 +35,6 @@ import java.util.Map;
 import java.util.Set;
 
 public class NamedOperationDetail implements Serializable {
-    private static final JSONSerialiser SERIALISER = new JSONSerialiser();
     private static final long serialVersionUID = -8831783492657131469L;
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
     private String operationName;
@@ -115,7 +114,7 @@ public class NamedOperationDetail implements Serializable {
 
                 try {
                     opStringWithDefaults = opStringWithDefaults.replace(buildParamNameString(paramKey),
-                            new String(SERIALISER.serialise(parameterDetailPair.getValue().getDefaultValue(), CHARSET_NAME), CHARSET_NAME));
+                            new String(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue(), CHARSET_NAME), CHARSET_NAME));
                 } catch (SerialisationException | UnsupportedEncodingException e) {
                     throw new IllegalArgumentException(e.getMessage());
                 }
@@ -124,7 +123,7 @@ public class NamedOperationDetail implements Serializable {
 
         OperationChain opChain;
         try {
-            opChain = SERIALISER.deserialise(opStringWithDefaults.getBytes(CHARSET_NAME), OperationChain.class);
+            opChain = JSONSerialiser.deserialise(opStringWithDefaults.getBytes(CHARSET_NAME), OperationChain.class);
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
@@ -157,13 +156,13 @@ public class NamedOperationDetail implements Serializable {
                 String paramKey = parameterDetailPair.getKey();
                 try {
                     if (executionParams != null && executionParams.containsKey(paramKey)) {
-                        Object paramObj = SERIALISER.deserialise(SERIALISER.serialise(executionParams.get(paramKey)), parameterDetailPair.getValue().getValueClass());
+                        Object paramObj = JSONSerialiser.deserialise(JSONSerialiser.serialise(executionParams.get(paramKey)), parameterDetailPair.getValue().getValueClass());
 
                         opStringWithParams = opStringWithParams.replace(buildParamNameString(paramKey),
-                                new String(SERIALISER.serialise(paramObj, CHARSET_NAME), CHARSET_NAME));
+                                new String(JSONSerialiser.serialise(paramObj, CHARSET_NAME), CHARSET_NAME));
                     } else if (!parameterDetailPair.getValue().isRequired()) {
                         opStringWithParams = opStringWithParams.replace(buildParamNameString(paramKey),
-                                new String(SERIALISER.serialise(parameterDetailPair.getValue().getDefaultValue(), CHARSET_NAME), CHARSET_NAME));
+                                new String(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue(), CHARSET_NAME), CHARSET_NAME));
                     } else {
                         throw new IllegalArgumentException("Missing parameter " + paramKey + " with no default");
                     }
@@ -176,7 +175,7 @@ public class NamedOperationDetail implements Serializable {
         OperationChain opChain;
 
         try {
-            opChain = SERIALISER.deserialise(opStringWithParams.getBytes(CHARSET_NAME), OperationChain.class);
+            opChain = JSONSerialiser.deserialise(opStringWithParams.getBytes(CHARSET_NAME), OperationChain.class);
         } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
@@ -281,7 +280,7 @@ public class NamedOperationDetail implements Serializable {
 
         public Builder operationChain(final OperationChain opChain) {
             try {
-                this.opChain = new String(SERIALISER.serialise(opChain), Charset.forName(CHARSET_NAME));
+                this.opChain = new String(JSONSerialiser.serialise(opChain), Charset.forName(CHARSET_NAME));
             } catch (SerialisationException se) {
                 throw new IllegalArgumentException(se.getMessage());
             }

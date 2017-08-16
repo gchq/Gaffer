@@ -40,7 +40,7 @@ public class FreqMapAggregatorTest extends BinaryOperatorTest {
         final FreqMapAggregator aggregator = new FreqMapAggregator();
 
         // When 1
-        final String json = new String(new JSONSerialiser().serialise(aggregator, true));
+        final String json = new String(JSONSerialiser.serialise(aggregator, true));
 
         // Then 1
         JsonAssert.assertEquals(String.format("{%n" +
@@ -48,7 +48,7 @@ public class FreqMapAggregatorTest extends BinaryOperatorTest {
                 "}"), json);
 
         // When 2
-        final FreqMapAggregator deserialisedAggregator = new JSONSerialiser().deserialise(json.getBytes(), getFunctionClass());
+        final FreqMapAggregator deserialisedAggregator = JSONSerialiser.deserialise(json.getBytes(), getFunctionClass());
 
         // Then 2
         assertNotNull(deserialisedAggregator);
