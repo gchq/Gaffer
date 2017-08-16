@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import org.junit.Test;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import static org.hamcrest.Matchers.is;
@@ -27,8 +26,6 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 public class CountTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @Override
     @Test
     public void builderShouldCreatePopulatedOperation() {

@@ -173,13 +173,12 @@ public class EntitySeedTest extends JSONSerialisationTest<EntitySeed>{
         final Integer vertex2 = 2;
         final EntityId seed1 = new EntitySeed(vertex1);
         final EntityId seed2 = new EntitySeed(vertex2);
-        final JSONSerialiser serialiser = new JSONSerialiser();
 
         // When
-        final byte[] bytes1 = serialiser.serialise(seed1);
-        final byte[] bytes2 = serialiser.serialise(seed2);
-        final EntityId seed1Deserialised = serialiser.deserialise(bytes1, EntityId.class);
-        final EntityId seed2Deserialised = serialiser.deserialise(bytes2, EntityId.class);
+        final byte[] bytes1 = JSONSerialiser.serialise(seed1);
+        final byte[] bytes2 = JSONSerialiser.serialise(seed2);
+        final EntityId seed1Deserialised = JSONSerialiser.deserialise(bytes1, EntityId.class);
+        final EntityId seed2Deserialised = JSONSerialiser.deserialise(bytes2, EntityId.class);
 
 
         // Then
@@ -196,11 +195,10 @@ public class EntitySeedTest extends JSONSerialisationTest<EntitySeed>{
         vertex.setType("type");
         vertex.setValue("value");
         final EntityId seed = new EntitySeed(vertex);
-        final JSONSerialiser serialiser = new JSONSerialiser();
 
         // When
-        final byte[] bytes = serialiser.serialise(seed);
-        final EntityId seedDeserialised = serialiser.deserialise(bytes, EntityId.class);
+        final byte[] bytes = JSONSerialiser.serialise(seed);
+        final EntityId seedDeserialised = JSONSerialiser.deserialise(bytes, EntityId.class);
 
         // Then
         assertTrue(seedDeserialised.getVertex() instanceof CustomVertex);

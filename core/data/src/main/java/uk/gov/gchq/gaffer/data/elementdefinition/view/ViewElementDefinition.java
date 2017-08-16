@@ -49,7 +49,6 @@ import java.util.Set;
  */
 @JsonDeserialize(builder = ViewElementDefinition.Builder.class)
 public class ViewElementDefinition implements ElementDefinition, Cloneable {
-    private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
     protected ElementFilter preAggregationFilter;
     protected ElementFilter postAggregationFilter;
     protected ElementAggregator aggregator;
@@ -195,7 +194,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
 
     public byte[] toJson(final boolean prettyPrint, final String... fieldsToExclude) throws SchemaException {
         try {
-            return JSON_SERIALISER.serialise(this, prettyPrint, fieldsToExclude);
+            return JSONSerialiser.serialise(this, prettyPrint, fieldsToExclude);
         } catch (final SerialisationException e) {
             throw new SchemaException(e.getMessage(), e);
         }
@@ -361,7 +360,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
         @JsonIgnore
         protected CHILD_CLASS json(final byte[] jsonBytes, final Class<? extends ViewElementDefinition> clazz) throws SchemaException {
             try {
-                merge(JSON_SERIALISER.deserialise(jsonBytes, clazz));
+                merge(JSONSerialiser.deserialise(jsonBytes, clazz));
             } catch (final SerialisationException e) {
                 throw new SchemaException("Unable to deserialise json", e);
             }

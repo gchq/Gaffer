@@ -45,8 +45,6 @@ import static org.junit.Assert.assertEquals;
 
 public class RestApiTestUtil {
     public static final String REST_URI = "http://localhost:8080/rest/v1";
-    public static final String GRAPH_ID = "graph1";
-    public static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
     private static final Client client = ClientBuilder.newClient();
     private static HttpServer server;
 
@@ -113,7 +111,7 @@ public class RestApiTestUtil {
         return client.target(REST_URI)
                 .path("/graph/doOperation/operation")
                 .request()
-                .post(Entity.entity(JSON_SERIALISER.serialise(operation), MediaType.APPLICATION_JSON_TYPE));
+                .post(Entity.entity(JSONSerialiser.serialise(operation), MediaType.APPLICATION_JSON_TYPE));
     }
 
     public static Response executeOperationChain(final OperationChain opChain) throws IOException {
@@ -121,7 +119,7 @@ public class RestApiTestUtil {
         return client.target(REST_URI)
                 .path("/graph/doOperation")
                 .request()
-                .post(Entity.entity(JSON_SERIALISER.serialise(opChain), MediaType.APPLICATION_JSON_TYPE));
+                .post(Entity.entity(JSONSerialiser.serialise(opChain), MediaType.APPLICATION_JSON_TYPE));
     }
 
     public static Response executeOperationChainChunked(final OperationChain opChain) throws IOException {
@@ -129,7 +127,7 @@ public class RestApiTestUtil {
         return client.target(REST_URI)
                 .path("/graph/doOperation/chunked")
                 .request()
-                .post(Entity.entity(JSON_SERIALISER.serialise(opChain), MediaType.APPLICATION_JSON_TYPE));
+                .post(Entity.entity(JSONSerialiser.serialise(opChain), MediaType.APPLICATION_JSON_TYPE));
     }
 
     public static Response executeOperationChunked(final Operation operation) throws IOException {
@@ -137,7 +135,7 @@ public class RestApiTestUtil {
         return client.target(REST_URI)
                 .path("/graph/doOperation/chunked/operation")
                 .request()
-                .post(Entity.entity(JSON_SERIALISER.serialise(operation), MediaType.APPLICATION_JSON_TYPE));
+                .post(Entity.entity(JSONSerialiser.serialise(operation), MediaType.APPLICATION_JSON_TYPE));
     }
 
     public static void startServer() throws IOException {

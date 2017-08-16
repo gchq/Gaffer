@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.operation.export.resultcache.handler;
 
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.export.resultcache.GafferResultCacheExporter;
 import uk.gov.gchq.gaffer.operation.export.resultcache.handler.util.GafferResultCacheUtil;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
@@ -37,8 +36,6 @@ public class ExportToGafferResultCacheHandler extends ExportToHandler<ExportToGa
 
     private String cacheStorePropertiesPath;
 
-    private JSONSerialiser jsonSerialiser = new JSONSerialiser();
-
     @Override
     protected Class<GafferResultCacheExporter> getExporterClass() {
         return GafferResultCacheExporter.class;
@@ -48,7 +45,7 @@ public class ExportToGafferResultCacheHandler extends ExportToHandler<ExportToGa
     protected GafferResultCacheExporter createExporter(final ExportToGafferResultCache export, final Context context, final Store store) {
         return new GafferResultCacheExporter(
                 context.getUser(), context.getJobId(), createGraph(store),
-                jsonSerialiser, visibility, export.getOpAuths());
+                visibility, export.getOpAuths());
     }
 
     protected Graph createGraph(final Store store) {
@@ -85,17 +82,5 @@ public class ExportToGafferResultCacheHandler extends ExportToHandler<ExportToGa
 
     public void setStorePropertiesPath(final String cacheStorePropertiesPath) {
         this.cacheStorePropertiesPath = cacheStorePropertiesPath;
-    }
-
-    public String getJsonSerialiserClass() {
-        return null != jsonSerialiser ? jsonSerialiser.getClass().getName() : JSONSerialiser.class.getName();
-    }
-
-    public void setJsonSerialiser(final JSONSerialiser jsonSerialiser) {
-        this.jsonSerialiser = jsonSerialiser;
-    }
-
-    public void setJsonSerialiserClass(final String jsonSerialiserClass) {
-        setJsonSerialiser(JSONSerialiser.fromClass(jsonSerialiserClass));
     }
 }

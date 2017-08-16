@@ -40,9 +40,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class ViewElementDefinitionTest {
-
-    public static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
-
     @Test
     public void shouldBuildElementDefinition() {
         // Given
@@ -103,8 +100,8 @@ public class ViewElementDefinitionTest {
                 .build();
 
         // When
-        final byte[] json = JSON_SERIALISER.serialise(elementDef, true);
-        final ViewElementDefinition deserialisedElementDef = JSON_SERIALISER.deserialise(json, ViewElementDefinition.class);
+        final byte[] json = JSONSerialiser.serialise(elementDef, true);
+        final ViewElementDefinition deserialisedElementDef = JSONSerialiser.deserialise(json, ViewElementDefinition.class);
 
         final List<TupleAdaptedPredicate<String, ?>> preFilterComponents = deserialisedElementDef.getPreAggregationFilter().getComponents();
         assertEquals(1, preFilterComponents.size());
