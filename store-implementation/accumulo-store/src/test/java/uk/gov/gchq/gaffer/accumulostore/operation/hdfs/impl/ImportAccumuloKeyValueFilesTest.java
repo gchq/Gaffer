@@ -13,8 +13,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 
 public class ImportAccumuloKeyValueFilesTest extends OperationTest<ImportAccumuloKeyValueFiles> {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     private static final String INPUT_DIRECTORY = "/input";
     private static final String FAIL_DIRECTORY = "/fail";
     private static final String TEST_OPTION_KEY = "testOption";
@@ -32,9 +30,9 @@ public class ImportAccumuloKeyValueFilesTest extends OperationTest<ImportAccumul
         op.setFailurePath(FAIL_DIRECTORY);
 
         // When
-        byte[] json = serialiser.serialise(op, true);
+        byte[] json = JSONSerialiser.serialise(op, true);
 
-        final ImportAccumuloKeyValueFiles deserialisedOp = serialiser.deserialise(json, ImportAccumuloKeyValueFiles.class);
+        final ImportAccumuloKeyValueFiles deserialisedOp = JSONSerialiser.deserialise(json, ImportAccumuloKeyValueFiles.class);
 
         // Then
         assertEquals(INPUT_DIRECTORY, deserialisedOp.getInputPath());

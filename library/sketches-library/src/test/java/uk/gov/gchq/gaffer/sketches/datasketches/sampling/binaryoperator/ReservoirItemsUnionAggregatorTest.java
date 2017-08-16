@@ -89,14 +89,14 @@ public class ReservoirItemsUnionAggregatorTest extends BinaryOperatorTest {
         final ReservoirItemsUnionAggregator aggregator = new ReservoirItemsUnionAggregator();
 
         // When 1
-        final String json = new String(new JSONSerialiser().serialise(aggregator, true));
+        final String json = new String(JSONSerialiser.serialise(aggregator, true));
         // Then 1
         JsonAssert.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.sampling.binaryoperator.ReservoirItemsUnionAggregator\"%n" +
                 "}"), json);
 
         // When 2
-        final ReservoirItemsUnionAggregator deserialisedAggregator = new JSONSerialiser()
+        final ReservoirItemsUnionAggregator deserialisedAggregator = JSONSerialiser
                 .deserialise(json.getBytes(), ReservoirItemsUnionAggregator.class);
         // Then 2
         assertNotNull(deserialisedAggregator);

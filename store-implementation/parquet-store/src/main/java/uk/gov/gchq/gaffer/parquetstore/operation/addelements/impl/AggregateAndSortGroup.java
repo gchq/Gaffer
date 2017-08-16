@@ -41,7 +41,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.util.AggregatorUtil;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -55,7 +54,6 @@ import java.util.concurrent.Callable;
  * Aggregates and sorts a directory of parquet files that represents a single group so each group can be processed in parallel.
  */
 public class AggregateAndSortGroup implements Callable<OperationException>, Serializable {
-    private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
     private static final Logger LOGGER = LoggerFactory.getLogger(AggregateAndSortGroup.class);
     private static final long serialVersionUID = -7828247145178905841L;
     private static final String SORTED = "/" + ParquetStoreConstants.SORTED;
@@ -88,7 +86,7 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
         this.isEntity = groupGafferSchema instanceof SchemaEntityDefinition;
         this.aggregate = groupGafferSchema.isAggregate();
         this.groupByColumns = new HashSet<>(AggregatorUtil.getIngestGroupBy(group, gafferSchema));
-        this.aggregatorJson = JSON_SERIALISER.serialise(groupGafferSchema.getIngestAggregator());
+        this.aggregatorJson = JSONSerialiser.serialise(groupGafferSchema.getIngestAggregator());
         this.gafferProperties = new String[groupGafferSchema.getProperties().size()];
         groupGafferSchema.getProperties().toArray(this.gafferProperties);
         this.spark = spark;

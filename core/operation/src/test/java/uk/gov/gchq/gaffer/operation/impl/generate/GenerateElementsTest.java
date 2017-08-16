@@ -34,8 +34,6 @@ import static org.junit.Assert.assertTrue;
 
 
 public class GenerateElementsTest extends OperationTest<GenerateElements> {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet("elementGenerator");
@@ -50,8 +48,8 @@ public class GenerateElementsTest extends OperationTest<GenerateElements> {
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(op, true);
-        final GenerateElements<String> deserialisedOp = serialiser.deserialise(json, GenerateElements.class);
+        byte[] json = JSONSerialiser.serialise(op, true);
+        final GenerateElements<String> deserialisedOp = JSONSerialiser.deserialise(json, GenerateElements.class);
 
         // Then
         final Iterator itr = deserialisedOp.getInput().iterator();

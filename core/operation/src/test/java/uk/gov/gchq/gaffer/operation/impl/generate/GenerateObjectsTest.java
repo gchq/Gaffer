@@ -37,8 +37,6 @@ import static org.junit.Assert.assertTrue;
 
 
 public class GenerateObjectsTest extends OperationTest<GenerateObjects> {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet("elementGenerator");
@@ -69,8 +67,8 @@ public class GenerateObjectsTest extends OperationTest<GenerateObjects> {
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(op, true);
-        final GenerateObjects<String> deserialisedOp = serialiser.deserialise(json, GenerateObjects.class);
+        byte[] json = JSONSerialiser.serialise(op, true);
+        final GenerateObjects<String> deserialisedOp = JSONSerialiser.deserialise(json, GenerateObjects.class);
 
         // Then
         final Iterator<? extends Element> itr = deserialisedOp.getInput().iterator();

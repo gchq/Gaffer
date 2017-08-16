@@ -36,10 +36,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
-
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
     private static final OperationChain OPERATION_CHAIN = new OperationChain.Builder().first(new GetAdjacentIds.Builder().input(new EntitySeed("seed")).build()).build();
-
     public static final String USER = "User";
 
     @Test
@@ -54,7 +51,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 .build();
 
         // When
-        String json = new String(serialiser.serialise(addNamedOperation, true));
+        String json = new String(JSONSerialiser.serialise(addNamedOperation, true));
 
         // Then
         JsonAssert.assertEquals(String.format("{%n" +
@@ -81,7 +78,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 .build();
         String opChain = null;
         try {
-            opChain = new String(serialiser.serialise(OPERATION_CHAIN));
+            opChain = new String(JSONSerialiser.serialise(OPERATION_CHAIN));
         } catch (SerialisationException e) {
             fail();
         }
@@ -109,7 +106,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 .build();
         String opChain = null;
         try {
-            opChain = new String(serialiser.serialise(OPERATION_CHAIN));
+            opChain = new String(JSONSerialiser.serialise(OPERATION_CHAIN));
         } catch (SerialisationException e) {
             fail();
         }

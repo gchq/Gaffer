@@ -24,7 +24,6 @@ import java.util.Locale;
 
 public abstract class Example {
     public static final String CAPITALS_AND_NUMBERS_REGEX = "((?=[A-Z])|(?<=[0-9])(?=[a-zA-Z])|(?<=[a-zA-Z])(?=[0-9]))";
-    public static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
     public static final String DIVIDER = "-----------------------------------------------";
     public static final String TITLE_DIVIDER = DIVIDER;
     public static final String METHOD_DIVIDER = DIVIDER + "\n";
@@ -116,7 +115,7 @@ public abstract class Example {
 
     protected String getJson(final Object object) {
         try {
-            return new String(JSON_SERIALISER.serialise(object, true), CommonConstants.UTF_8);
+            return new String(JSONSerialiser.serialise(object, true), CommonConstants.UTF_8);
         } catch (final SerialisationException | UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
