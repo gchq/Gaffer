@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 
 public abstract class OperationTest<T extends Operation> extends JSONSerialisationTest<T> {
-    protected static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
 
     protected Set<String> getRequiredFields() {
         return Collections.emptySet();
