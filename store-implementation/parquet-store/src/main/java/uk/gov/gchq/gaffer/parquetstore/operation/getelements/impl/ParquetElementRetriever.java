@@ -186,12 +186,18 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                 e = queue.poll();
                 if (e != null) {
                     if (needsValidation) {
-                        final ElementFilter preAggFilter = view.getElement(e.getGroup()).getPreAggregationFilter();
-                        if (preAggFilter != null && !preAggFilter.test(e)) {
-                            continue;
+                        String group = e.getGroup();
+                        ElementFilter preAggFilter = view.getElement(group).getPreAggregationFilter();
+                        if (preAggFilter != null) {
+                            if (preAggFilter.test(e)) {
+                                ViewUtil.removeProperties(view, e);
+                                return e;
+                            }
                         }
+                    } else {
+                        ViewUtil.removeProperties(view, e);
+                        return e;
                     }
-                    ViewUtil.removeProperties(view, e);
                 }
             }
             throw new NoSuchElementException();

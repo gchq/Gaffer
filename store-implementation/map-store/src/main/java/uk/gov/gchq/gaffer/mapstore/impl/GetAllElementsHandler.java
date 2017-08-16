@@ -63,7 +63,10 @@ public class GetAllElementsHandler implements OutputOperationHandler<GetAllEleme
             elements = GetElementsUtil.applyDirectedTypeFilter(elements, getAllElements.getView().hasEdges(), getAllElements.getDirectedType());
             elements = GetElementsUtil.applyView(elements, schema, getAllElements.getView());
             elements = elements.map(element -> mapImpl.cloneElement(element, schema));
-            elements.forEach(e -> ViewUtil.removeProperties(getAllElements.getView(), e));
+            elements = elements.map(element -> {
+                ViewUtil.removeProperties(getAllElements.getView(), element);
+                return element;
+            });
             return new WrappedCloseableIterator<>(elements.iterator());
         }
     }

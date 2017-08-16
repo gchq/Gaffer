@@ -28,3 +28,18 @@ ${GET_ELEMENTS_WITH_DESCRIPTION_RESULT}
 ```
 
 As you can see we’ve now got a new `”description”` property on each Edge.
+
+We can also limit what properties we want to be returned. We can either provide
+a list of properties to include, using the 'properties' field, or properties
+to exclude, using the 'excludeProperties' field. In this case once we have used
+the count property to create our description we don't actually want the count
+property to be returned. So we will exclude it using the following code:
+
+${GET_WITH_NO_COUNT_SNIPPET}
+
+and the result now does not contain the count property:
+
+```
+${GET_ELEMENTS_WITH_DESCRIPTION_AND_NO_COUNT_RESULT}
+```
+

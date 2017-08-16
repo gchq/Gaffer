@@ -126,7 +126,28 @@ public class Transforms extends UserWalkthrough {
             log("GET_ELEMENTS_WITH_DESCRIPTION_RESULT", e.toString());
         }
 
-        return resultsWithDescription;
+
+        // [get with no count]
+        // ---------------------------------------------------------
+        final View viewWithExcludedProperties = new View.Builder()
+                .edge("RoadUse", new ViewElementDefinition.Builder()
+                        .transientProperty("description", String.class)
+                        .transformer(descriptionTransformer)
+                        .excludeProperties("count")
+                        .build())
+                .build();
+        final GetElements getEdgesWithDescriptionAndNoCount = new GetElements.Builder()
+                .input(new EntitySeed("10"))
+                .view(viewWithExcludedProperties)
+                .build();
+        final CloseableIterable<? extends Element> resultsWithDescriptionAndNoCount = graph.execute(getEdgesWithDescriptionAndNoCount, user);
+        // ---------------------------------------------------------
+        log("\nAnd the result without the count property:\n");
+        for (final Element e : resultsWithDescriptionAndNoCount) {
+            log("GET_ELEMENTS_WITH_DESCRIPTION_AND_NO_COUNT_RESULT", e.toString());
+        }
+
+        return resultsWithDescriptionAndNoCount;
     }
 
     public static void main(final String[] args) throws OperationException, IOException {

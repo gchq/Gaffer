@@ -77,7 +77,10 @@ public class GetElementsHandler
             elements = elements.flatMap(e -> Streams.toStream(mapImpl.getElements(e)));
             elements = GetElementsUtil.applyView(elements, schema, getElements.getView());
             elements = elements.map(element -> mapImpl.cloneElement(element, schema));
-            elements.forEach(e -> ViewUtil.removeProperties(getElements.getView(), e));
+            elements = elements.map(element -> {
+                ViewUtil.removeProperties(getElements.getView(), element);
+                return element;
+            });
             return new WrappedCloseableIterator<>(elements.iterator());
         }
     }
