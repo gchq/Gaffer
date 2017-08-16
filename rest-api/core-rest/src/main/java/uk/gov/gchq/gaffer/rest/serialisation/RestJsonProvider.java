@@ -22,24 +22,18 @@ import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 
 /**
- * A {@link javax.ws.rs.ext.ContextResolver} implementation to provide a default
- * {@link com.fasterxml.jackson.databind.ObjectMapper} for converting objects to
- * JSON.
+ * A {@link javax.ws.rs.ext.ContextResolver} implementation to provide the
+ * {@link ObjectMapper} from {@link JSONSerialiser}. The JSONSerialiser and
+ * ObjectMapper can be configured by System Properties, see {@link JSONSerialiser}
  */
 @Provider
 public class RestJsonProvider implements ContextResolver<ObjectMapper> {
-    public final ObjectMapper mapper;
-
     public RestJsonProvider() {
-        this.mapper = createMapper();
+        JSONSerialiser.update();
     }
 
     @Override
     public ObjectMapper getContext(final Class<?> aClass) {
-        return mapper;
-    }
-
-    protected ObjectMapper createMapper() {
-        return JSONSerialiser.createDefaultMapper();
+        return JSONSerialiser.getMapper();
     }
 }

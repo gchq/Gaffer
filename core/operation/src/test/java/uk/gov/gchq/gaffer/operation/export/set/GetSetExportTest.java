@@ -27,8 +27,6 @@ import static org.junit.Assert.assertNotSame;
 
 
 public class GetSetExportTest extends OperationTest<GetSetExport> {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -40,8 +38,8 @@ public class GetSetExportTest extends OperationTest<GetSetExport> {
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(operation, true);
-        final GetSetExport deserialisedOp = serialiser.deserialise(json, GetSetExport.class);
+        byte[] json = JSONSerialiser.serialise(operation, true);
+        final GetSetExport deserialisedOp = JSONSerialiser.deserialise(json, GetSetExport.class);
 
         // Then
         assertEquals("key", deserialisedOp.getKey());

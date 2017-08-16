@@ -88,14 +88,14 @@ public class ReservoirLongsSketchAggregatorTest extends BinaryOperatorTest {
         final ReservoirLongsSketchAggregator aggregator = new ReservoirLongsSketchAggregator();
 
         // When 1
-        final String json = new String(new JSONSerialiser().serialise(aggregator, true));
+        final String json = new String(JSONSerialiser.serialise(aggregator, true));
         // Then 1
         JsonUtil.equals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.sampling.binaryoperator.ReservoirLongsSketchAggregator\"%n" +
                 "}"), json);
 
         // When 2
-        final ReservoirLongsSketchAggregator deserialisedAggregator = new JSONSerialiser()
+        final ReservoirLongsSketchAggregator deserialisedAggregator = JSONSerialiser
                 .deserialise(json.getBytes(), ReservoirLongsSketchAggregator.class);
         // Then 2
         assertNotNull(deserialisedAggregator);

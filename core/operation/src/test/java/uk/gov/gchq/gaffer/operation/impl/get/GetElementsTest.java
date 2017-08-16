@@ -41,8 +41,6 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 public class GetElementsTest extends OperationTest<GetElements> {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @Test
     public void shouldSetSeedMatchingTypeToEquals() {
         // Given
@@ -68,8 +66,8 @@ public class GetElementsTest extends OperationTest<GetElements> {
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(op, true);
-        final GetElements deserialisedOp = serialiser.deserialise(json, GetElements.class);
+        byte[] json = JSONSerialiser.serialise(op, true);
+        final GetElements deserialisedOp = JSONSerialiser.deserialise(json, GetElements.class);
 
         // Then
         final Iterator itr = deserialisedOp.getInput().iterator();

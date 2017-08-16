@@ -44,8 +44,6 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 public class PartAggregationIT extends AbstractStoreIT {
-    private static final JSONSerialiser SERIALISER = new JSONSerialiser();
-
     @Test
     public void shouldAggregateOnlyRequiredGroups() throws OperationException {
         //Given
@@ -188,7 +186,7 @@ public class PartAggregationIT extends AbstractStoreIT {
     private Comparator<Element> getJsonSort() {
         return Comparator.comparing(a -> {
             try {
-                return new String(SERIALISER.serialise(a));
+                return new String(JSONSerialiser.serialise(a));
             } catch (final SerialisationException e) {
                 throw new RuntimeException(e);
             }

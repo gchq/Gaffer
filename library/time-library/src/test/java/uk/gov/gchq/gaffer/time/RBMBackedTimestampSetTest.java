@@ -35,7 +35,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
 
-public class RBMBackedTimestampSetTest extends JSONSerialisationTest<RBMBackedTimestampSet>{
+public class RBMBackedTimestampSetTest extends JSONSerialisationTest<RBMBackedTimestampSet> {
     private SortedSet<Instant> instants = new TreeSet<>();
     private Instant instant1;
     private Instant instant2;
@@ -51,7 +51,6 @@ public class RBMBackedTimestampSetTest extends JSONSerialisationTest<RBMBackedTi
     @Test
     public void shouldSerialiseAndDeserialise() throws SerialisationException {
         // Given
-        final JSONSerialiser serialiser = new JSONSerialiser();
         final RBMBackedTimestampSet boundedTimestampSet = new RBMBackedTimestampSet(CommonTimeUtil.TimeBucket.SECOND);
         IntStream.range(0, 20)
                 .forEach(i -> {
@@ -59,8 +58,8 @@ public class RBMBackedTimestampSetTest extends JSONSerialisationTest<RBMBackedTi
                 });
 
         // When
-        final byte[] json = serialiser.serialise(boundedTimestampSet, true);
-        final RBMBackedTimestampSet deserialisedObj = serialiser.deserialise(json, RBMBackedTimestampSet.class);
+        final byte[] json = JSONSerialiser.serialise(boundedTimestampSet, true);
+        final RBMBackedTimestampSet deserialisedObj = JSONSerialiser.deserialise(json, RBMBackedTimestampSet.class);
 
         // Then
         assertEquals(boundedTimestampSet, deserialisedObj);

@@ -36,7 +36,6 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 public class AddElementsTest extends OperationTest<AddElements> {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
     public static final String ADD_ELEMENTS_JSON = String.format("{%n" +
             "  \"class\" : \"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",%n" +
             "  \"validate\" : true,%n" +
@@ -91,7 +90,7 @@ public class AddElementsTest extends OperationTest<AddElements> {
         final AddElements addElements = getTestObject();
 
         // When
-        String json = new String(serialiser.serialise(addElements, true));
+        String json = new String(JSONSerialiser.serialise(addElements, true));
 
         // Then
         JsonAssert.assertEquals(String.format("{%n" +
@@ -123,7 +122,7 @@ public class AddElementsTest extends OperationTest<AddElements> {
                 .build();
 
         // When
-        String json = new String(serialiser.serialise(addElements, true));
+        String json = new String(JSONSerialiser.serialise(addElements, true));
 
         // Then
         JsonAssert.assertEquals(ADD_ELEMENTS_JSON, json);
@@ -134,7 +133,7 @@ public class AddElementsTest extends OperationTest<AddElements> {
         // Given
 
         // When
-        AddElements addElements = serialiser.deserialise(ADD_ELEMENTS_JSON.getBytes(), AddElements.class);
+        AddElements addElements = JSONSerialiser.deserialise(ADD_ELEMENTS_JSON.getBytes(), AddElements.class);
 
         // Then
         final Iterator<? extends Element> itr = addElements.getInput().iterator();

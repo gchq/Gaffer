@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobStatus;
 import uk.gov.gchq.gaffer.jobtracker.JobTracker;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.DeleteNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
@@ -196,6 +197,9 @@ public abstract class Store {
         this.graphId = graphId;
         this.schema = schema;
         this.properties = properties;
+
+        JSONSerialiser.update(properties.getJsonSerialiserClass(), properties.getJsonSerialiserModules());
+
         startCacheServiceLoader(properties);
         this.jobTracker = createJobTracker(properties);
 
