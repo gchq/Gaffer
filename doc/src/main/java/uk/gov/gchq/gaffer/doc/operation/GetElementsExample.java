@@ -19,12 +19,14 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.koryphe.impl.function.Concat;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.impl.predicate.Or;
@@ -49,6 +51,9 @@ public class GetElementsExample extends OperationExample {
 
         getEntitiesRelatedTo2WithCountLessThan2OrMoreThan5();
         getEdgesRelatedTo2WhenSourceIsLessThan2OrDestinationIsMoreThan3();
+
+        getEntitiesAndReturnOnlySomeProperties();
+        getEntitiesAndExcludeProperties();
     }
 
     public CloseableIterable<? extends Element> getEntitiesAndEdgesThatAreRelatedToVertex2() {
@@ -175,5 +180,51 @@ public class GetElementsExample extends OperationExample {
                         "First, you need to select all the values you want: 'select(a, b, c)'. This will create an array of the selected values, [a, b, c]. " +
                         "You then need to use the Or.Builder to build your Or predicate, using .select() then .execute(). " +
                         "When selecting values in the Or.Builder you need to refer to the position in the [a,b,c] array. So to use property 'a', use position 0 - select(0).");
+    }
+
+    public CloseableIterable<? extends Element> getEntitiesAndReturnOnlySomeProperties() {
+        // ---------------------------------------------------------
+        final Concat concat = new Concat();
+        concat.setSeparator("|");
+        final GetElements operation = new GetElements.Builder()
+                .input(new EntitySeed(2))
+                .view(new View.Builder()
+                        .edge("edge", new ViewElementDefinition.Builder()
+                                .transientProperty("vertex|count", String.class)
+                                .properties("vertex|count")
+                                .transformer(new ElementTransformer.Builder()
+                                        .select(IdentifierType.SOURCE.name(), "count")
+                                        .execute(concat)
+                                        .project("vertex|count")
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation, null);
+    }
+
+    public CloseableIterable<? extends Element> getEntitiesAndExcludeProperties() {
+        // ---------------------------------------------------------
+        final Concat concat = new Concat();
+        concat.setSeparator("|");
+        final GetElements operation = new GetElements.Builder()
+                .input(new EntitySeed(2))
+                .view(new View.Builder()
+                        .edge("edge", new ViewElementDefinition.Builder()
+                                .transientProperty("vertex|count", String.class)
+                                .excludeProperties("count")
+                                .transformer(new ElementTransformer.Builder()
+                                        .select(IdentifierType.SOURCE.name(), "count")
+                                        .execute(concat)
+                                        .project("vertex|count")
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(operation, null);
     }
 }
