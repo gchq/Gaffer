@@ -151,23 +151,24 @@ public final class Graph {
      * @throws OperationException thrown if the job fails to run.
      */
     public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
+        final OperationChain<?> clonedOpChain = operationChain.shallowClone();
         try {
             for (final GraphHook graphHook : graphHooks) {
-                graphHook.preExecute(operationChain, user);
+                graphHook.preExecute(clonedOpChain, user);
             }
 
-            updateOperationChainView(operationChain);
+            updateOperationChainView(clonedOpChain);
 
-            JobDetail result = store.executeJob(operationChain, user);
+            JobDetail result = store.executeJob(clonedOpChain, user);
 
             for (final GraphHook graphHook : graphHooks) {
-                result = graphHook.postExecute(result, operationChain, user);
+                result = graphHook.postExecute(result, clonedOpChain, user);
             }
 
             return result;
 
         } catch (final Exception e) {
-            CloseableUtil.close(operationChain);
+            CloseableUtil.close(clonedOpChain);
             throw e;
         }
     }
@@ -184,21 +185,26 @@ public final class Graph {
      * @throws OperationException if an operation fails
      */
     public <O> O execute(final OperationChain<O> operationChain, final User user) throws OperationException {
+        if(null == operationChain) {
+            throw new IllegalArgumentException("operationChain is required");
+        }
+
+        final OperationChain<O> clonedOpChain = operationChain.shallowClone();
         O result = null;
         try {
             for (final GraphHook graphHook : graphHooks) {
-                graphHook.preExecute(operationChain, user);
+                graphHook.preExecute(clonedOpChain, user);
             }
 
-            updateOperationChainView(operationChain);
+            updateOperationChainView(clonedOpChain);
 
-            result = store.execute(operationChain, user);
+            result = store.execute(clonedOpChain, user);
 
             for (final GraphHook graphHook : graphHooks) {
-                result = graphHook.postExecute(result, operationChain, user);
+                result = graphHook.postExecute(result, clonedOpChain, user);
             }
         } catch (final Exception e) {
-            CloseableUtil.close(operationChain);
+            CloseableUtil.close(clonedOpChain);
             CloseableUtil.close(result);
 
             throw e;
