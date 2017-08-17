@@ -185,7 +185,7 @@ public final class Graph {
      * @throws OperationException if an operation fails
      */
     public <O> O execute(final OperationChain<O> operationChain, final User user) throws OperationException {
-        if(null == operationChain) {
+        if (null == operationChain) {
             throw new IllegalArgumentException("operationChain is required");
         }
 

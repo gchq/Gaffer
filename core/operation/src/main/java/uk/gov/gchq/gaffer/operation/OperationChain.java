@@ -131,6 +131,7 @@ public class OperationChain<OUT> implements Closeable {
     }
 
     /**
+     * <p>
      * A <code>Builder</code> is a type safe way of building an {@link uk.gov.gchq.gaffer.operation.OperationChain}.
      * The builder instance is updated after each method call so it is best to chain the method calls together.
      * Usage:<br>
@@ -144,7 +145,7 @@ public class OperationChain<OUT> implements Closeable {
      * &nbsp;&nbsp;.build()<br>
      * &nbsp;)<br>
      * &nbsp;.build();
-     * <p/>
+     * </p>
      * For a full example see the Example module.
      */
     public static class Builder {
