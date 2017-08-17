@@ -51,5 +51,10 @@ public class ReservoirLongsSketchSerialiser implements ToBytesSerialiser<Reservo
     public boolean preservesObjectOrdering() {
         return false;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return false;
+    }
 }
 

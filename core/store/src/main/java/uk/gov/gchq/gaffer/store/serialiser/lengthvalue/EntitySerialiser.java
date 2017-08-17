@@ -94,4 +94,9 @@ public class EntitySerialiser extends PropertiesSerialiser implements ToBytesSer
     public Entity deserialiseEmpty() throws SerialisationException {
         return null;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return false;
+    }
 }

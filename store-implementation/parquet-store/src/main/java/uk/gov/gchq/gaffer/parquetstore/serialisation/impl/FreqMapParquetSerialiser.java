@@ -70,6 +70,11 @@ public class FreqMapParquetSerialiser implements ParquetSerialiser<FreqMap> {
     }
 
     @Override
+    public boolean isConsistent() {
+        return true;
+    }
+
+    @Override
     public Object[] serialiseNull() {
         return new Object[0];
     }

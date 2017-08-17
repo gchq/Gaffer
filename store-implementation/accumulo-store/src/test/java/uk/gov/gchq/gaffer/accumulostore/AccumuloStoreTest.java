@@ -45,6 +45,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -59,6 +60,7 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -67,7 +69,11 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
+import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import java.io.IOException;
 import java.util.Collection;
@@ -382,5 +388,39 @@ public class AccumuloStoreTest {
         assertTrue("Collection should contain STORE_VALIDATION trait", traits.contains(STORE_VALIDATION));
         assertTrue("Collection should contain ORDERED trait", traits.contains(ORDERED));
         assertTrue("Collection should contain VISIBILITY trait", traits.contains(VISIBILITY));
+    }
+
+    @Test(expected = SchemaException.class)
+    public void shouldFindInconsistentVertexSerialiser() throws StoreException {
+        final Schema inconsistentSchema = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("string")
+                        .directed("false")
+                        .property(TestPropertyNames.INT, "int")
+                        .groupBy(TestPropertyNames.INT)
+                        .build())
+                .type("string", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .serialiser(new StringSerialiser())
+                        .aggregateFunction(new StringConcat())
+                        .build())
+                .type("int", new TypeDefinition.Builder()
+                        .clazz(Integer.class)
+                        .serialiser(new JavaSerialiser())
+                        .aggregateFunction(new Sum())
+                        .build())
+                .type("false", Boolean.class)
+                .build();
+
+        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
+
+        store.preInitialise("graphId", inconsistentSchema, PROPERTIES);
+        try {
+            store.validateSchemas();
+            fail("Exception expected");
+        } catch (SchemaException e) {
+            assert(e.getMessage().contains("serialisers to be consistent."));
+        }
     }
 }

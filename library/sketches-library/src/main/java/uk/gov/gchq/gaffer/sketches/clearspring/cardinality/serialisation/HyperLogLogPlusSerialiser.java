@@ -55,4 +55,9 @@ public class HyperLogLogPlusSerialiser implements ToBytesSerialiser<HyperLogLogP
     public boolean preservesObjectOrdering() {
         return false;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return false;
+    }
 }

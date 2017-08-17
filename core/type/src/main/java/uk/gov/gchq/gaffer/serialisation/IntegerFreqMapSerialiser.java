@@ -98,4 +98,9 @@ public class IntegerFreqMapSerialiser implements ToBytesSerialiser<IntegerFreqMa
     public boolean preservesObjectOrdering() {
         return false;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return false;
+    }
 }

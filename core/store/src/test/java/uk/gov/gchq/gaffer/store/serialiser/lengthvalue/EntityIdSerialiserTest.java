@@ -100,6 +100,11 @@ public class EntityIdSerialiserTest {
 
     @Test
     public void testPreserveObjectOrdering() throws SerialisationException {
-        assertEquals(false, serialiser.preservesObjectOrdering());
+        assertEquals(true, serialiser.preservesObjectOrdering());
+    }
+
+    @Test
+    public void testIsConsistent() {
+        assertEquals(true, serialiser.isConsistent());
     }
 }
