@@ -51,6 +51,7 @@ public final class GraphConfig {
     private String graphId;
     private View view;
     private GraphLibrary library;
+    private String description;
     private List<GraphHook> hooks = new ArrayList<>();
 
     public GraphConfig() {
@@ -83,6 +84,14 @@ public final class GraphConfig {
 
     public void setLibrary(final GraphLibrary library) {
         this.library = library;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public List<GraphHook> getHooks() {
@@ -167,6 +176,11 @@ public final class GraphConfig {
 
         public Builder library(final GraphLibrary library) {
             this.config.setLibrary(library);
+            return this;
+        }
+
+        public Builder description(final String description) {
+            this.config.setDescription(description);
             return this;
         }
 

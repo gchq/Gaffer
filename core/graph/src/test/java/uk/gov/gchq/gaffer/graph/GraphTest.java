@@ -175,6 +175,7 @@ public class GraphTest {
         // When
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
+                        .description("testDescription")
                         .graphId(GRAPH_ID)
                         .build())
                 .storeProperties(storeProperties)
@@ -187,6 +188,7 @@ public class GraphTest {
         // Then
         final Schema schema = graph.getSchema();
         schema.getEntity(TestGroups.ENTITY);
+        assertEquals("testDescription", graph.getDescription());
     }
 
     @Test
