@@ -54,7 +54,7 @@ public class SerialisationFactoryTest {
         final boolean ordered = true;
 
         // When
-        final Serialiser serialiser = factory.getSerialiser(clazz, ordered);
+        final Serialiser serialiser = factory.getSerialiser(clazz, ordered, true);
 
         // Then
         assertTrue(serialiser.canHandle(clazz));
@@ -83,7 +83,7 @@ public class SerialisationFactoryTest {
         final boolean ordered = true;
 
         // When
-        final Serialiser serialiser = factory.getSerialiser(clazz, ordered);
+        final Serialiser serialiser = factory.getSerialiser(clazz, ordered, true);
 
         // Then
         assertTrue(serialiser.canHandle(clazz));

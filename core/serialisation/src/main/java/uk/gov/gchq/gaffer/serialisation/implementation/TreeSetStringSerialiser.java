@@ -78,4 +78,9 @@ public class TreeSetStringSerialiser extends ToBytesViaStringDeserialiser<TreeSe
     public boolean preservesObjectOrdering() {
         return true;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

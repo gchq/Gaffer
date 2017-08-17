@@ -51,5 +51,10 @@ public class ReservoirLongsUnionSerialiser implements ToBytesSerialiser<Reservoi
     public boolean preservesObjectOrdering() {
         return false;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return false;
+    }
 }
 

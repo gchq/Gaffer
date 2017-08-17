@@ -58,4 +58,9 @@ public class CompactRawLongSerialiser implements ToBytesSerialiser<Long> {
     public boolean preservesObjectOrdering() {
         return false;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }
