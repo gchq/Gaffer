@@ -95,4 +95,9 @@ public class GroupedPropertiesSerialiser extends PropertiesSerialiser implements
     public String getGroup(final byte[] bytes) throws SerialisationException {
         return StringUtil.toString(LengthValueBytesSerialiserUtil.deserialise(bytes, 0));
     }
+
+    @Override
+    public boolean isConsistent() {
+        return false;
+    }
 }

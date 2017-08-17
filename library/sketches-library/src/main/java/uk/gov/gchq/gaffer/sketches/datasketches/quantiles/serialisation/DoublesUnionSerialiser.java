@@ -53,5 +53,10 @@ public class DoublesUnionSerialiser implements ToBytesSerialiser<DoublesUnion> {
     public boolean preservesObjectOrdering() {
         return false;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return false;
+    }
 }
 

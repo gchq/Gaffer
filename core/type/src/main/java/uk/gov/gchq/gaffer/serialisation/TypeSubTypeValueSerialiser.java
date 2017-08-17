@@ -113,6 +113,11 @@ public class TypeSubTypeValueSerialiser implements ToBytesSerialiser<TypeSubType
     }
 
     @Override
+    public boolean isConsistent() {
+        return true;
+    }
+
+    @Override
     public TypeSubTypeValue deserialiseEmpty() {
         return new TypeSubTypeValue();
     }

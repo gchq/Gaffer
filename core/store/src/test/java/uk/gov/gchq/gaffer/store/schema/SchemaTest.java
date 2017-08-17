@@ -410,9 +410,9 @@ public class SchemaTest {
 
         assertEquals(JavaSerialiser.class,
                 store.getElement(TestGroups.EDGE)
-                        .getPropertyTypeDef(TestPropertyNames.PROP_1)
-                        .getSerialiser()
-                        .getClass());
+                     .getPropertyTypeDef(TestPropertyNames.PROP_1)
+                     .getSerialiser()
+                     .getClass());
     }
 
     @Test
@@ -720,8 +720,8 @@ public class SchemaTest {
 
         // Then
         assertArrayEquals(new String[]{TestGroups.EDGE}, schema.getEdge(TestGroups.EDGE_2)
-                .getParents()
-                .toArray());
+                                                               .getParents()
+                                                               .toArray());
     }
 
     @Test
@@ -799,8 +799,8 @@ public class SchemaTest {
                         TestPropertyNames.PROP_3,
                         TestPropertyNames.PROP_4},
                 schema.getEntity(TestGroups.ENTITY_4)
-                        .getProperties()
-                        .toArray());
+                      .getProperties()
+                      .toArray());
 
         // Check order of properties and overrides is from order of parents
         assertArrayEquals(new String[]{
@@ -810,8 +810,8 @@ public class SchemaTest {
                         TestPropertyNames.PROP_4,
                         TestPropertyNames.PROP_5},
                 schema.getEntity(TestGroups.ENTITY_5)
-                        .getProperties()
-                        .toArray());
+                      .getProperties()
+                      .toArray());
 
         assertEquals("A parent entity with a single property", schema.getEntity(TestGroups.ENTITY).getDescription());
         assertEquals("An entity that should have properties: 1, 2, 3, 4 and 5", schema.getEntity(TestGroups.ENTITY_5).getDescription());
@@ -1268,6 +1268,11 @@ public class SchemaTest {
 
         @Override
         public boolean preservesObjectOrdering() {
+            return true;
+        }
+
+        @Override
+        public boolean isConsistent() {
             return true;
         }
     }

@@ -57,6 +57,11 @@ public class OrderedDoubleSerialiser implements ToBytesSerialiser<Double> {
     }
 
     @Override
+    public boolean isConsistent() {
+        return true;
+    }
+
+    @Override
     public boolean canHandle(final Class clazz) {
         return Double.class.equals(clazz);
     }
