@@ -75,6 +75,7 @@ public class GetJobResultsTest extends OperationTest<GetJobResults> {
     public void shouldShallowCloneOperation() {
         // Given
         final GetJobResults getJobResults = new GetJobResults.Builder()
+                .jobId("id1")
                 .build();
 
         // When
@@ -83,6 +84,7 @@ public class GetJobResultsTest extends OperationTest<GetJobResults> {
         // Then
         assertNotSame(getJobResults, clone);
         assertNotNull(clone);
+        assertEquals(getJobResults.getJobId(), clone.getJobId());
     }
 
     protected GetJobResults getTestObject() {
