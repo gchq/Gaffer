@@ -33,6 +33,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyCloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewUtil;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.io.Input;
@@ -138,6 +139,7 @@ public abstract class AccumuloItemRetriever<OP extends Output<CloseableIterable<
                 }
                 doTransformation(nextElm);
                 if (doPostFilter(nextElm)) {
+                    ViewUtil.removeProperties(operation.getView(), nextElm);
                     return true;
                 } else {
                     nextElm = null;
