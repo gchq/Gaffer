@@ -25,11 +25,10 @@ import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResult
 import java.util.HashSet;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 
 public class ExportToGafferResultCacheTest extends OperationTest<ExportToGafferResultCache> {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -41,8 +40,8 @@ public class ExportToGafferResultCacheTest extends OperationTest<ExportToGafferR
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(op, true);
-        final ExportToGafferResultCache deserialisedOp = serialiser.deserialise(json, ExportToGafferResultCache.class);
+        byte[] json = JSONSerialiser.serialise(op, true);
+        final ExportToGafferResultCache deserialisedOp = JSONSerialiser.deserialise(json, ExportToGafferResultCache.class);
 
         // Then
         assertEquals(key, deserialisedOp.getKey());
@@ -66,7 +65,29 @@ public class ExportToGafferResultCacheTest extends OperationTest<ExportToGafferR
     }
 
     @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final String key = "key";
+        final HashSet<String> opAuths = Sets.newHashSet("1", "2");
+        final String input = "input";
+        final ExportToGafferResultCache exportToGafferResultCache = new ExportToGafferResultCache.Builder<>()
+                .key(key)
+                .opAuths(opAuths)
+                .input(input)
+                .build();
+
+        // When
+        ExportToGafferResultCache clone = exportToGafferResultCache.shallowClone();
+
+        // Then
+        assertNotSame(exportToGafferResultCache, clone);
+        assertEquals(key, clone.getKey());
+        assertEquals(input, clone.getInput());
+        assertEquals(opAuths, clone.getOpAuths());
+    }
+
     protected ExportToGafferResultCache getTestObject() {
         return new ExportToGafferResultCache();
     }
 }
+

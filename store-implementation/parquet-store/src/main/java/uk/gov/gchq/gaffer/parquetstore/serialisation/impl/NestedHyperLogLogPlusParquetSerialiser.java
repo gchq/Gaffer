@@ -77,6 +77,11 @@ public class NestedHyperLogLogPlusParquetSerialiser implements ParquetSerialiser
     }
 
     @Override
+    public boolean isConsistent() {
+        return false;
+    }
+
+    @Override
     public Object[] serialiseNull() {
         return new Object[0];
     }

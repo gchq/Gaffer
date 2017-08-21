@@ -6,7 +6,7 @@
     "int": {
       "class": "java.lang.Integer",
       "serialiser": {
-        "class": "uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser"
+        "class": "uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser"
       },
       "aggregateFunction": {
         "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
@@ -15,7 +15,7 @@
     "float": {
       "class": "java.lang.Float",
       "serialiser": {
-        "class": "uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser"
+        "class": "uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedFloatSerialiser"
       },
       "aggregateFunction": {
         "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
@@ -24,7 +24,7 @@
     "double": {
       "class": "java.lang.Double",
       "serialiser": {
-        "class": "uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser"
+        "class": "uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedDoubleSerialiser"
       },
       "aggregateFunction": {
         "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
@@ -33,7 +33,7 @@
     "long": {
       "class": "java.lang.Long",
       "serialiser": {
-        "class": "uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser"
+        "class": "uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedLongSerialiser"
       },
       "aggregateFunction": {
         "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
@@ -45,7 +45,7 @@
     "simpleProperty": {
       "class": "java.lang.Integer",
       "serialiser": {
-        "class": "uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser"
+        "class": "uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedLongSerialiser"
       },
       "aggregateFunction": {
         "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
@@ -54,7 +54,7 @@
     "colQualProperty": {
       "class": "java.lang.Integer",
       "serialiser": {
-        "class": "uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser"
+        "class": "uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser"
       },
       "aggregateFunction": {
         "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"

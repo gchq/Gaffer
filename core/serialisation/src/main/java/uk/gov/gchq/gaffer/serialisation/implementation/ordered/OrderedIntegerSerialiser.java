@@ -79,6 +79,11 @@ public class OrderedIntegerSerialiser implements ToBytesSerialiser<Integer> {
     }
 
     @Override
+    public boolean isConsistent() {
+        return true;
+    }
+
+    @Override
     public boolean canHandle(final Class clazz) {
         return Integer.class.equals(clazz);
     }

@@ -94,4 +94,9 @@ public class TypeValueSerialiser implements ToBytesSerialiser<TypeValue> {
     public boolean preservesObjectOrdering() {
         return true;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

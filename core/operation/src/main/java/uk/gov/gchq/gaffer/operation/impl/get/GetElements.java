@@ -231,6 +231,18 @@ public class GetElements implements
         this.options = options;
     }
 
+    @Override
+    public GetElements shallowClone() {
+        return new GetElements.Builder()
+                .seedMatching(seedMatching)
+                .view(view)
+                .inOutType(inOutType)
+                .directedType(directedType)
+                .input(input)
+                .options(options)
+                .build();
+    }
+
     public static class Builder extends Operation.BaseBuilder<GetElements, Builder>
             implements InputOutput.Builder<GetElements, Iterable<? extends ElementId>, CloseableIterable<? extends Element>, Builder>,
             MultiInput.Builder<GetElements, ElementId, Builder>,

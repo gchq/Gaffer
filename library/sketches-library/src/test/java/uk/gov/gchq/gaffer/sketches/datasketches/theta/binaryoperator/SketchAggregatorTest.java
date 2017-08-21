@@ -65,14 +65,14 @@ public class SketchAggregatorTest extends BinaryOperatorTest {
         final SketchAggregator aggregator = new SketchAggregator();
 
         // When 1
-        final String json = new String(new JSONSerialiser().serialise(aggregator, true));
+        final String json = new String(JSONSerialiser.serialise(aggregator, true));
         // Then 1
         JsonUtil.equals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.theta.binaryoperator.SketchAggregator\"%n" +
                 "}"), json);
 
         // When 2
-        final SketchAggregator deserialisedAggregator = new JSONSerialiser()
+        final SketchAggregator deserialisedAggregator = JSONSerialiser
                 .deserialise(json.getBytes(), SketchAggregator.class);
         // Then 2
         assertNotNull(deserialisedAggregator);

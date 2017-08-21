@@ -107,6 +107,17 @@ public class SummariseGroupOverRanges
         this.options = options;
     }
 
+    @Override
+    public SummariseGroupOverRanges shallowClone() {
+        return new SummariseGroupOverRanges.Builder()
+                .input(input)
+                .inOutType(inOutType)
+                .view(view)
+                .directedType(directedType)
+                .options(options)
+                .build();
+    }
+
     public static class Builder extends Operation.BaseBuilder<SummariseGroupOverRanges, Builder>
             implements InputOutput.Builder<SummariseGroupOverRanges, Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, CloseableIterable<? extends Element>, Builder>,
             MultiInput.Builder<SummariseGroupOverRanges, Pair<? extends ElementId, ? extends ElementId>, Builder>,

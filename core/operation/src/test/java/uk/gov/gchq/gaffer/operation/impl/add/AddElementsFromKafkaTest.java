@@ -22,11 +22,13 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Set;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 public class AddElementsFromKafkaTest extends OperationTest<AddElementsFromKafka> {
 
@@ -51,8 +53,8 @@ public class AddElementsFromKafkaTest extends OperationTest<AddElementsFromKafka
                 .build();
 
         // When
-        final byte[] json = JSON_SERIALISER.serialise(op, true);
-        final AddElementsFromKafka deserialisedOp = JSON_SERIALISER.deserialise(json, AddElementsFromKafka.class);
+        final byte[] json = JSONSerialiser.serialise(op, true);
+        final AddElementsFromKafka deserialisedOp = JSONSerialiser.deserialise(json, AddElementsFromKafka.class);
 
         // Then
         JsonAssert.assertEquals(String.format("{%n" +
@@ -105,6 +107,42 @@ public class AddElementsFromKafkaTest extends OperationTest<AddElementsFromKafka
         assertEquals(groupId, op.getGroupId());
         assertEquals(topic, op.getTopic());
         assertArrayEquals(servers, op.getBootstrapServers());
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final boolean validate = true;
+        final boolean skipInvalid = false;
+        final Integer parallelism = 2;
+        final Class<TestGeneratorImpl> generator = TestGeneratorImpl.class;
+        final String groupId = "groupId";
+        final String topic = "topic";
+        final String[] servers = {"server1", "server2"};
+        final AddElementsFromKafka addElementsFromKafka = new AddElementsFromKafka.Builder()
+                .generator(generator)
+                .parallelism(parallelism)
+                .validate(validate)
+                .skipInvalidElements(skipInvalid)
+                .groupId(groupId)
+                .topic(topic)
+                .bootstrapServers(servers)
+                .option("testOption", "true")
+                .build();
+
+        // When
+        final AddElementsFromKafka clone = addElementsFromKafka.shallowClone();
+
+        // Then
+        assertNotSame(addElementsFromKafka, clone);
+        assertEquals(validate, clone.isValidate());
+        assertEquals(skipInvalid, clone.isSkipInvalidElements());
+        assertEquals(parallelism, clone.getParallelism());
+        assertEquals(generator, clone.getElementGenerator());
+        assertEquals(groupId, clone.getGroupId());
+        assertEquals(topic, clone.getTopic());
+        assertArrayEquals(servers, clone.getBootstrapServers());
+        assertEquals("true", clone.getOption("testOption"));
     }
 
     @Override

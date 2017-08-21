@@ -13,10 +13,9 @@ import java.util.Iterator;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 
 public class GetElementsWithinSetTest extends OperationTest<GetElementsWithinSet> {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -28,9 +27,9 @@ public class GetElementsWithinSetTest extends OperationTest<GetElementsWithinSet
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(op, true);
+        byte[] json = JSONSerialiser.serialise(op, true);
 
-        final GetElementsWithinSet deserialisedOp = serialiser.deserialise(json, GetElementsWithinSet.class);
+        final GetElementsWithinSet deserialisedOp = JSONSerialiser.deserialise(json, GetElementsWithinSet.class);
 
         // Then
         final Iterator itrSeedsA = deserialisedOp.getInput().iterator();
@@ -60,6 +59,29 @@ public class GetElementsWithinSetTest extends OperationTest<GetElementsWithinSet
     }
 
     @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final View view = new View.Builder()
+                .edge("testEdgegroup")
+                .build();
+        final GetElementsWithinSet getElementsWithinSet = new GetElementsWithinSet.Builder()
+                .input(AccumuloTestData.SEED_A)
+                .directedType(DirectedType.DIRECTED)
+                .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
+                .view(view)
+                .build();
+
+        // When
+        final GetElementsWithinSet clone = getElementsWithinSet.shallowClone();
+
+        // Then
+        assertNotSame(getElementsWithinSet, clone);
+        assertEquals("true", clone.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
+        assertEquals(DirectedType.DIRECTED, clone.getDirectedType());
+        assertEquals(AccumuloTestData.SEED_A, clone.getInput().iterator().next());
+        assertEquals(view, clone.getView());
+    }
+
     protected GetElementsWithinSet getTestObject() {
         return new GetElementsWithinSet();
     }

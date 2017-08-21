@@ -123,6 +123,11 @@ public class FreqMapSerialiser implements ToBytesSerialiser<FreqMap> {
     }
 
     @Override
+    public boolean isConsistent() {
+        return false;
+    }
+
+    @Override
     public FreqMap deserialiseEmpty() {
         return new FreqMap();
     }

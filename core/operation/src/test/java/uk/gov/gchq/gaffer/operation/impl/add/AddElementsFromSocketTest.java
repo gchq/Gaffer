@@ -22,10 +22,12 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 public class AddElementsFromSocketTest extends OperationTest<AddElementsFromSocket> {
 
@@ -50,8 +52,8 @@ public class AddElementsFromSocketTest extends OperationTest<AddElementsFromSock
                 .build();
 
         // When
-        final byte[] json = JSON_SERIALISER.serialise(op, true);
-        final AddElementsFromSocket deserialisedOp = JSON_SERIALISER.deserialise(json, AddElementsFromSocket.class);
+        final byte[] json = JSONSerialiser.serialise(op, true);
+        final AddElementsFromSocket deserialisedOp = JSONSerialiser.deserialise(json, AddElementsFromSocket.class);
 
         // Then
         JsonAssert.assertEquals(String.format("{%n" +
@@ -105,6 +107,40 @@ public class AddElementsFromSocketTest extends OperationTest<AddElementsFromSock
         assertEquals(hostname, op.getHostname());
         assertEquals(port, op.getPort());
         assertEquals(delimiter, op.getDelimiter());
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final Integer parallelism = 2;
+        final Class<TestGeneratorImpl> generator = TestGeneratorImpl.class;
+        final int port = 6874;
+        final String hostname = "hostname";
+        final String delimiter = ",";
+        final AddElementsFromSocket addElementsFromSocket = new AddElementsFromSocket.Builder()
+                .generator(generator)
+                .parallelism(parallelism)
+                .validate(true)
+                .skipInvalidElements(false)
+                .hostname(hostname)
+                .port(port)
+                .delimiter(delimiter)
+                .option("testOption", "true")
+                .build();
+
+        // Given
+        final AddElementsFromSocket clone = addElementsFromSocket.shallowClone();
+
+        // Then
+        assertNotSame(addElementsFromSocket, clone);
+        assertEquals(generator, clone.getElementGenerator());
+        assertEquals(parallelism, clone.getParallelism());
+        assertEquals(true, clone.isValidate());
+        assertEquals(false, clone.isSkipInvalidElements());
+        assertEquals(hostname, clone.getHostname());
+        assertEquals(port, clone.getPort());
+        assertEquals(delimiter, clone.getDelimiter());
+        assertEquals("true", clone.getOption("testOption"));
     }
 
     @Override

@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.export.graph.handler;
 
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.Graph.Builder;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherGraph;
 import uk.gov.gchq.gaffer.operation.export.graph.OtherGraphExporter;
 import uk.gov.gchq.gaffer.store.Context;
@@ -62,8 +63,10 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
         Schema schema = resolveSchema(export, store);
 
         return new Builder()
-                .graphId(export.getGraphId())
-                .library(store.getGraphLibrary())
+                .config(new GraphConfig.Builder()
+                        .graphId(export.getGraphId())
+                        .library(store.getGraphLibrary())
+                        .build())
                 .addSchema(schema)
                 .storeProperties(storeProperties)
                 .build();
@@ -131,8 +134,10 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
     private Graph createGraphWithLibraryAndID(final String graphId, final GraphLibrary graphLibrary) {
         // If the graphId exists in the graphLibrary then just use it
         return new Graph.Builder()
-                .graphId(graphId)
-                .library(graphLibrary)
+                .config(new GraphConfig.Builder()
+                        .graphId(graphId)
+                        .library(graphLibrary)
+                        .build())
                 .build();
     }
 
@@ -143,7 +148,9 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
         final StoreProperties exportStoreProperties = export.getStoreProperties();
         final StoreProperties properties = (null == exportStoreProperties) ? store.getProperties() : exportStoreProperties;
         return new Builder()
-                .graphId(export.getGraphId())
+                .config(new GraphConfig.Builder()
+                        .graphId(export.getGraphId())
+                        .build())
                 .addSchema(schema)
                 .storeProperties(properties)
                 .build();

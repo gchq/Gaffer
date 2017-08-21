@@ -49,11 +49,8 @@ public class SparkOperationDeclarationsTest {
 
     @Test
     public void shouldContainAllSparkOperationsAndHandlers() throws SerialisationException {
-        // Given
-        final JSONSerialiser jsonSerialiser = new JSONSerialiser();
-
         // When
-        final OperationDeclarations deserialised = jsonSerialiser
+        final OperationDeclarations deserialised = JSONSerialiser
                 .deserialise(StreamUtil.openStream(getClass(), ACCUMULO_OP_DECLARATIONS_JSON_PATH), OperationDeclarations.class);
 
         // Then
@@ -94,7 +91,6 @@ public class SparkOperationDeclarationsTest {
         final OperationDeclaration od8 = deserialised.getOperations().get(8);
         assertEquals(ImportRDDOfElements.class, od8.getOperation());
         assertTrue(od8.getHandler() instanceof ImportRDDOfElementsHandler);
-
 
 
     }

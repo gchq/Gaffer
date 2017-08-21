@@ -51,4 +51,9 @@ public class LongsSketchSerialiser implements ToBytesSerialiser<LongsSketch> {
     public boolean preservesObjectOrdering() {
         return false;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return false;
+    }
 }

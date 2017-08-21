@@ -120,6 +120,18 @@ public class GetJavaRDDOfElements implements
         this.directedType = directedType;
     }
 
+    @Override
+    public GetJavaRDDOfElements shallowClone() {
+        return new GetJavaRDDOfElements.Builder()
+                .options(options)
+                .javaSparkContext(sparkContext)
+                .input(input)
+                .inOutType(inOutType)
+                .view(view)
+                .directedType(directedType)
+                .build();
+    }
+
     public static class Builder extends BaseBuilder<GetJavaRDDOfElements, Builder>
             implements InputOutput.Builder<GetJavaRDDOfElements, Iterable<? extends ElementId>, JavaRDD<Element>, Builder>,
             MultiInput.Builder<GetJavaRDDOfElements, ElementId, Builder>,

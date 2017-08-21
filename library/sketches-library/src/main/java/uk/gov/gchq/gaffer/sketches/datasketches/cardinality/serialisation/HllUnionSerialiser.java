@@ -50,4 +50,9 @@ public class HllUnionSerialiser implements ToBytesSerialiser<Union> {
     public boolean preservesObjectOrdering() {
         return false;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return false;
+    }
 }

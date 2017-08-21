@@ -18,10 +18,9 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 
 public class GetElementsInRangesTest extends OperationTest<GetElementsInRanges> {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -34,9 +33,9 @@ public class GetElementsInRangesTest extends OperationTest<GetElementsInRanges> 
                 .input(pairList)
                 .build();
         // When
-        byte[] json = serialiser.serialise(op, true);
+        byte[] json = JSONSerialiser.serialise(op, true);
 
-        final GetElementsInRanges deserialisedOp = serialiser.deserialise(json, GetElementsInRanges.class);
+        final GetElementsInRanges deserialisedOp = JSONSerialiser.deserialise(json, GetElementsInRanges.class);
 
         // Then
         final Iterator<? extends Pair<? extends ElementId, ? extends ElementId>> itrPairs = deserialisedOp.getInput().iterator();
@@ -65,6 +64,30 @@ public class GetElementsInRangesTest extends OperationTest<GetElementsInRanges> 
     }
 
     @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final Pair<ElementId, ElementId> seed = new Pair<>(AccumuloTestData.SEED_A, AccumuloTestData.SEED_B);
+        final View view = new View.Builder().edge("testEdgeGroup").build();
+        final GetElementsInRanges getElementsInRanges = new GetElementsInRanges.Builder()
+                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.EITHER)
+                .input(seed)
+                .directedType(DirectedType.UNDIRECTED)
+                .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
+                .view(view)
+                .build();
+
+        // When
+        final GetElementsInRanges clone = getElementsInRanges.shallowClone();
+
+        // Then
+        assertNotSame(getElementsInRanges, clone);
+        assertEquals("true", clone.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
+        assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.EITHER, clone.getIncludeIncomingOutGoing());
+        assertEquals(DirectedType.UNDIRECTED, clone.getDirectedType());
+        assertEquals(seed, clone.getInput().iterator().next());
+        assertEquals(view, clone.getView());
+    }
+
     protected GetElementsInRanges getTestObject() {
         return new GetElementsInRanges();
     }

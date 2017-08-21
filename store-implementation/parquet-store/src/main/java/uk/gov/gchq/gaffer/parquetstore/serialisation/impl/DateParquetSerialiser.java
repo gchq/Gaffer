@@ -64,6 +64,11 @@ public class DateParquetSerialiser implements ParquetSerialiser<Date> {
     }
 
     @Override
+    public boolean isConsistent() {
+        return true;
+    }
+
+    @Override
     public Object[] serialiseNull() {
         return new Comparable[0];
     }

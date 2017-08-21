@@ -79,6 +79,14 @@ public class Max implements
         return new TypeReferenceImpl.Element();
     }
 
+    @Override
+    public Max shallowClone() {
+        return new Max.Builder()
+                .input(input)
+                .comparators(comparators)
+                .build();
+    }
+
     public static final class Builder
             extends Operation.BaseBuilder<Max, Max.Builder>
             implements InputOutput.Builder<Max, Iterable<? extends Element>, Element, Max.Builder>,
@@ -90,6 +98,11 @@ public class Max implements
         @SafeVarargs
         public final Builder comparators(final Comparator<Element>... comparators) {
             _getOp().setComparators(Lists.newArrayList(comparators));
+            return _self();
+        }
+
+        public Builder comparators(final List<Comparator<Element>> comparators) {
+            _getOp().setComparators(comparators);
             return _self();
         }
     }

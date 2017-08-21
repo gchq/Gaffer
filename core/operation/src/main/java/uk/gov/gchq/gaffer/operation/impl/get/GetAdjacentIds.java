@@ -117,6 +117,17 @@ public class GetAdjacentIds implements
         this.inOutType = inOutType;
     }
 
+    @Override
+    public GetAdjacentIds shallowClone() {
+        return new GetAdjacentIds.Builder()
+                .view(view)
+                .input(input)
+                .directedType(directedType)
+                .options(options)
+                .inOutType(inOutType)
+                .build();
+    }
+
     public static class Builder extends Operation.BaseBuilder<GetAdjacentIds, Builder>
             implements InputOutput.Builder<GetAdjacentIds, Iterable<? extends EntityId>, CloseableIterable<? extends EntityId>, Builder>,
             MultiInput.Builder<GetAdjacentIds, EntityId, Builder>,

@@ -47,10 +47,9 @@ public class GraphFactoryTest {
     @Before
     @After
     public void cleanUp() {
-        System.clearProperty(SystemProperty.GRAPH_ID);
+        System.clearProperty(SystemProperty.GRAPH_CONFIG_PATH);
         System.clearProperty(SystemProperty.SCHEMA_PATHS);
         System.clearProperty(SystemProperty.STORE_PROPERTIES_PATH);
-        System.clearProperty(SystemProperty.GRAPH_HOOKS_PATH);
     }
 
     @Test
@@ -90,27 +89,27 @@ public class GraphFactoryTest {
     }
 
     @Test
-    public void shouldNotAddGraphHooksWhenSystemPropertyNotSet() throws IOException {
+    public void shouldNotAddGraphConfigWhenSystemPropertyNotSet() throws IOException {
         // Given
-        System.setProperty(SystemProperty.GRAPH_ID, "graphId");
         System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, "store.properties");
 
         final File schemaFile = testFolder.newFile("schema.json");
         FileUtils.writeLines(schemaFile, IOUtils.readLines(StreamUtil.openStream(getClass(), "/schema/schema.json")));
         System.setProperty(SystemProperty.SCHEMA_PATHS, schemaFile.getAbsolutePath());
 
-        System.clearProperty(SystemProperty.GRAPH_HOOKS_PATH);
+        System.clearProperty(SystemProperty.GRAPH_CONFIG_PATH);
         final GraphFactory factory = new DefaultGraphFactory();
 
-        // When
-        final Graph graph = factory.createGraph();
-
-        // Then
-        assertEquals(0, graph.getGraphHooks().size());
+        // When / Then
+        try {
+            factory.createGraph();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("graphId is required", e.getMessage());
+        }
     }
 
     @Test
-    public void shouldAddGraphHooksWhenSystemPropertySet() throws IOException {
+    public void shouldAddGraphConfigHooksWhenSystemPropertySet() throws IOException {
         // Given
         final File storePropertiesFile = testFolder.newFile("store.properties");
         FileUtils.writeLines(storePropertiesFile, IOUtils.readLines(StreamUtil.openStream(getClass(), "store.properties")));
@@ -120,11 +119,9 @@ public class GraphFactoryTest {
         FileUtils.writeLines(schemaFile, IOUtils.readLines(StreamUtil.openStream(getClass(), "/schema/schema.json")));
         System.setProperty(SystemProperty.SCHEMA_PATHS, schemaFile.getAbsolutePath());
 
-        System.setProperty(SystemProperty.GRAPH_ID, "graphId");
-
-        final File graphHooksFile = testFolder.newFile("graphHooks.json");
-        FileUtils.writeLines(graphHooksFile, IOUtils.readLines(StreamUtil.openStream(getClass(), "graphHooks.json")));
-        System.setProperty(SystemProperty.GRAPH_HOOKS_PATH, graphHooksFile.getAbsolutePath());
+        final File graphConfigFile = testFolder.newFile("graphConfig.json");
+        FileUtils.writeLines(graphConfigFile, IOUtils.readLines(StreamUtil.openStream(getClass(), "graphConfigWithHooks.json")));
+        System.setProperty(SystemProperty.GRAPH_CONFIG_PATH, graphConfigFile.getAbsolutePath());
 
         final GraphFactory factory = new DefaultGraphFactory();
 
