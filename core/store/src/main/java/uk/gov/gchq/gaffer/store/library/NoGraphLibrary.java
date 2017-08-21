@@ -22,6 +22,10 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.exception.OverwritingException;
 
+/**
+ * A <code>NoGraphLibrary</code> will not store any relationships between graphIds,
+ * storePropertiesIds or schemaIds.
+ */
 public class NoGraphLibrary extends GraphLibrary {
     private static final Logger LOGGER = LoggerFactory.getLogger(NoGraphLibrary.class);
 
