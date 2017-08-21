@@ -141,19 +141,18 @@ public class ProxyStore extends Store {
         }
     }
 
-    public <O> O executeOpChainViaUrl(
-            final OperationChain<O> operationChain, final Context context)
+    public <O> O executeOpChainViaUrl(final OperationChain<O> opChain, final Context context)
             throws OperationException {
         final String opChainJson;
         try {
-            opChainJson = new String(jsonSerialiser.serialise(operationChain), CommonConstants.UTF_8);
+            opChainJson = new String(jsonSerialiser.serialise(opChain), CommonConstants.UTF_8);
         } catch (final UnsupportedEncodingException | SerialisationException e) {
             throw new OperationException("Unable to serialise operation chain into JSON.", e);
         }
 
         final URL url = getProperties().getGafferUrl("graph/doOperation");
         try {
-            return doPost(url, opChainJson, operationChain.getOutputTypeReference(), context);
+            return doPost(url, opChainJson, opChain.getOutputTypeReference(), context);
         } catch (final StoreException e) {
             throw new OperationException(e.getMessage(), e);
         }

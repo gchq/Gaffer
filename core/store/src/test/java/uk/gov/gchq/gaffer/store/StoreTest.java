@@ -393,7 +393,7 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
         final int expectedNumberOfOperations = 35;
-        store.initialise("graphId", schema, properties);
+       ` store.initialise("graphId", schema, properties);
 
         // When
         final Set<Class<? extends Operation>> supportedOperations = store.getSupportedOperations();
