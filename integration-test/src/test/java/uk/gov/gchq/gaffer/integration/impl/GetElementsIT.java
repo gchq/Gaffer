@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -146,7 +147,9 @@ public class GetElementsIT extends AbstractStoreIT {
     @Test
     public void shouldReturnEmptyIteratorIfNoSeedsProvidedForGetElementsBySeed() throws Exception {
         // Given
-        final GetElements op = new GetElements();
+        final GetElements op = new GetElements.Builder()
+                .input(new EmptyClosableIterable<>())
+                .build();
 
         // When
         final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
@@ -158,8 +161,9 @@ public class GetElementsIT extends AbstractStoreIT {
     @Test
     public void shouldReturnEmptyIteratorIfNoSeedsProvidedForGetRelatedElements() throws Exception {
         // Given
-        final GetElements op = new GetElements();
-
+        final GetElements op = new GetElements.Builder()
+                .input(new EmptyClosableIterable<>())
+                .build();
         // When
         final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
 

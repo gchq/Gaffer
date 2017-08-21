@@ -54,7 +54,7 @@ public class OperationChainValidatorTest {
                 new GetElements(),
                 new ToVertices(),
                 new GetAdjacentIds()
-        )), true);
+        )), false);
     }
 
     @Test
@@ -97,7 +97,7 @@ public class OperationChainValidatorTest {
                         .generator(e -> e)
                         .build(),
                 new GetAdjacentIds()
-        )), true);
+        )), false);
     }
 
     @Test
@@ -110,7 +110,7 @@ public class OperationChainValidatorTest {
                 new ExportToSet<>(),
                 new DiscardOutput(),
                 new GetExports()
-        )), true);
+        )), false);
     }
 
     @Test

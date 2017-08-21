@@ -40,6 +40,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -140,6 +141,7 @@ public class InputFormatTest {
     public void shouldReturnCorrectDataToMapReduceJob() throws Exception {
         final GetElements op = new GetElements.Builder()
                 .view(new View())
+                .input(new EmptyClosableIterable<>())
                 .build();
         final Set<String> expectedResults = new HashSet<>();
         for (final Element element : DATA) {
@@ -168,6 +170,7 @@ public class InputFormatTest {
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE)
                         .build())
+                .input(new EmptyClosableIterable<>())
                 .build();
         final Set<String> expectedResults = new HashSet<>();
         for (final Element element : DATA) {
@@ -196,6 +199,7 @@ public class InputFormatTest {
         final Schema schema = getSchemaWithVisibilities();
         final GetElements op = new GetElements.Builder()
                 .view(new View())
+                .input(new EmptyClosableIterable<>())
                 .build();
         final Set<String> expectedResultsPublicNotPrivate = new HashSet<>();
         final Set<String> expectedResultsPrivate = new HashSet<>();
