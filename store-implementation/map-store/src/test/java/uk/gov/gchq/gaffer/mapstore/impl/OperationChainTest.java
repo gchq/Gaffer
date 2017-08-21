@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.mapstore.impl;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -65,7 +64,6 @@ public class OperationChainTest {
                         .view(new View.Builder()
                                 .edge("edge")
                                 .build())
-                        .input(new EntitySeed("vertex1"))
                         .build())
                 .build(), new User());
 
