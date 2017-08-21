@@ -165,6 +165,9 @@ public final class GraphConfig {
             if (null != config.getLibrary()) {
                 this.config.setLibrary(config.getLibrary());
             }
+            if (null != config.getDescription()) {
+                this.config.setDescription(config.getDescription());
+            }
             this.config.getHooks().addAll(config.getHooks());
             return this;
         }
