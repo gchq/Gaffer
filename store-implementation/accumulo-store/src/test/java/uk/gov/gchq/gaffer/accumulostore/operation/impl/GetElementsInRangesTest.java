@@ -43,7 +43,6 @@ public class GetElementsInRangesTest extends OperationTest<GetElementsInRanges> 
         assertEquals(pair1, itrPairs.next());
         assertEquals(pair2, itrPairs.next());
         assertFalse(itrPairs.hasNext());
-
     }
 
     @SuppressWarnings("unchecked")

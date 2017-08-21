@@ -141,7 +141,6 @@ public class InputFormatTest {
     public void shouldReturnCorrectDataToMapReduceJob() throws Exception {
         final GetElements op = new GetElements.Builder()
                 .view(new View())
-                .input(new EmptyClosableIterable<>())
                 .build();
         final Set<String> expectedResults = new HashSet<>();
         for (final Element element : DATA) {
@@ -170,7 +169,6 @@ public class InputFormatTest {
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE)
                         .build())
-                .input(new EmptyClosableIterable<>())
                 .build();
         final Set<String> expectedResults = new HashSet<>();
         for (final Element element : DATA) {
@@ -199,7 +197,6 @@ public class InputFormatTest {
         final Schema schema = getSchemaWithVisibilities();
         final GetElements op = new GetElements.Builder()
                 .view(new View())
-                .input(new EmptyClosableIterable<>())
                 .build();
         final Set<String> expectedResultsPublicNotPrivate = new HashSet<>();
         final Set<String> expectedResultsPrivate = new HashSet<>();

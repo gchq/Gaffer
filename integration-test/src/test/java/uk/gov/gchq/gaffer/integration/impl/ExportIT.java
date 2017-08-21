@@ -20,8 +20,8 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChain.Builder;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.data.generator.EntityIdExtractor;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
@@ -90,7 +91,6 @@ public class ExportIT extends AbstractStoreIT {
                         .build())
                 .then(new GetElements.Builder()
                         .view(edgesView)
-                        .input(new EmptyClosableIterable<>())
                         .build())
                 .then(new ExportToSet<>())
                 .then(new DiscardOutput())
@@ -101,6 +101,6 @@ public class ExportIT extends AbstractStoreIT {
         final Iterable<?> export = graph.execute(exportOpChain, getUser());
 
         // Then
-        assertEquals(1, Lists.newArrayList(export).size());
+        assertEquals(2, Lists.newArrayList(export).size());
     }
 }

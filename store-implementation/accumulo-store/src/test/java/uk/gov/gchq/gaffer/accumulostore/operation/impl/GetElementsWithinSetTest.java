@@ -45,7 +45,8 @@ public class GetElementsWithinSetTest extends OperationTest<GetElementsWithinSet
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        final GetElementsWithinSet getElementsWithinSet = new GetElementsWithinSet.Builder().input(AccumuloTestData.SEED_A)
+        final GetElementsWithinSet getElementsWithinSet = new GetElementsWithinSet.Builder()
+                .input(AccumuloTestData.SEED_A)
                 .directedType(DirectedType.DIRECTED)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
                 .view(new View.Builder()

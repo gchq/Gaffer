@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.operation.impl.get;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
-import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
@@ -72,21 +71,8 @@ public class GetElements implements
     private View view;
     private IncludeIncomingOutgoingType inOutType;
     private DirectedType directedType;
-    @Required
     private Iterable<? extends ElementId> input;
     private Map<String, String> options;
-
-    /**
-     * Gets the seedMatchingType which determines how to match seeds to identifiers in the Graph.
-     *
-     * @return seedMatching a {@link SeedMatchingType} describing how the seeds should be
-     * matched to the identifiers in the graph.
-     * @see SeedMatchingType
-     */
-    @Override
-    public SeedMatchingType getSeedMatching() {
-        return seedMatching;
-    }
 
     /**
      * Sets the seedMatchingType which determines how to match seeds to identifiers in the Graph.
@@ -98,6 +84,18 @@ public class GetElements implements
     @Override
     public void setSeedMatching(final SeedMatchingType seedMatching) {
         this.seedMatching = seedMatching;
+    }
+
+    /**
+     * Gets the seedMatchingType which determines how to match seeds to identifiers in the Graph.
+     *
+     * @return seedMatching a {@link SeedMatchingType} describing how the seeds should be
+     * matched to the identifiers in the graph.
+     * @see SeedMatchingType
+     */
+    @Override
+    public SeedMatchingType getSeedMatching() {
+        return seedMatching;
     }
 
     /**
@@ -233,16 +231,6 @@ public class GetElements implements
         this.options = options;
     }
 
-    @Override
-    public ValidationResult validate() {
-        final ValidationResult result = InputOutput.super.validate();
-        if (null == input) {
-            result.addError("Please specify an input.");
-        }
-
-        return result;
-    }
-
     public static class Builder extends Operation.BaseBuilder<GetElements, Builder>
             implements InputOutput.Builder<GetElements, Iterable<? extends ElementId>, CloseableIterable<? extends Element>, Builder>,
             MultiInput.Builder<GetElements, ElementId, Builder>,
@@ -251,16 +239,6 @@ public class GetElements implements
             Options.Builder<GetElements, Builder> {
         public Builder() {
             super(new GetElements());
-        }
-
-        @Override
-        public GetElements build() {
-            final GetElements build = super.build();
-            if (build.validate().isValid()) {
-                return build;
-            } else {
-                throw new RuntimeException("Input not defined.");
-            }
         }
     }
 }
