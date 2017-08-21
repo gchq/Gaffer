@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * A <code>AddOperationsToChain</code> is a {@link GraphHook} that allows a
@@ -40,7 +39,7 @@ public class AddOperationsToChain implements GraphHook {
      * Adds in the additional Operations specified.  The original opChain will
      * be updated.
      *
-     * @param operation the {@link OperationChain} being executed.
+     * @param opChain the {@link OperationChain} being executed.
      * @param user    the {@link User} executing the operation chain
      */
     @Override

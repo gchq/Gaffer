@@ -216,7 +216,7 @@ public class NamedOperationHandlerTest {
         final NamedOperationDetail extendedNamedOperation = new NamedOperationDetail.Builder()
                 .operationName(opName)
                 .description("standard operation")
-                .operationChain("{ \"class\":\"uk.gov.gchq.gaffer.operation.OperationChain\", \"operations\": [ { \"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\" }, { \"class\":\"uk.gov.gchq.gaffer.operation.impl.Limit\", \"resultLimit\": \"${param1}\" } ] }")
+                .operationChain("{ \"operations\": [ { \"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\" }, { \"class\":\"uk.gov.gchq.gaffer.operation.impl.Limit\", \"resultLimit\": \"${param1}\" } ] }")
                 .parameters(paramDetailMap)
                 .build();
 
