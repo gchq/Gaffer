@@ -65,6 +65,11 @@ public class TypeSubTypeValueParquetSerialiser implements ParquetSerialiser<Type
     }
 
     @Override
+    public boolean isConsistent() {
+        return true;
+    }
+
+    @Override
     public Object[] serialiseNull() {
         return new Object[0];
     }

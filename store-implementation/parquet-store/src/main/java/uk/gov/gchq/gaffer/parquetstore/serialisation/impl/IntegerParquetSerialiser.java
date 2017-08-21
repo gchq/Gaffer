@@ -59,6 +59,11 @@ public class IntegerParquetSerialiser implements ParquetSerialiser<Integer> {
     }
 
     @Override
+    public boolean isConsistent() {
+        return true;
+    }
+
+    @Override
     public Object[] serialiseNull() {
         return new Object[0];
     }

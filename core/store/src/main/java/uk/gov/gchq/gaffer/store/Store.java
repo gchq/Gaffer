@@ -108,6 +108,7 @@ import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
+import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
@@ -455,20 +456,8 @@ public abstract class Store {
         } else {
             validationResult.add(schema.validate());
 
-            getSchemaElements().entrySet().forEach(schemaElementDefinitionEntry -> schemaElementDefinitionEntry.getValue().getProperties().forEach(propertyName -> {
-                final Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
-                final Serialiser serialisation = schemaElementDefinitionEntry
-                        .getValue()
-                        .getPropertyTypeDef(propertyName)
-                        .getSerialiser();
-
-                if (null == serialisation) {
-                    validationResult.addError(
-                            String.format("Could not find a serialiser for property '%s' in the group '%s'.", propertyName, schemaElementDefinitionEntry.getKey()));
-                } else if (!serialisation.canHandle(propertyClass)) {
-                    validationResult.addError(String.format("Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema", serialisation.getClass().getName(), propertyName, schemaElementDefinitionEntry.getKey()));
-                }
-            }));
+            getSchemaElements().entrySet()
+                    .forEach(def -> validateSchemaElementDefinition(def, validationResult));
 
             validateSchema(validationResult, getSchema().getVertexSerialiser());
 
@@ -480,6 +469,46 @@ public abstract class Store {
             throw new SchemaException("Schema is not valid. "
                     + validationResult.getErrorString());
         }
+    }
+
+    protected void validateConsistentVertex() {
+        if (null != getSchema().getVertexSerialiser() && !getSchema().getVertexSerialiser()
+                .isConsistent()) {
+            throw new SchemaException("Vertex serialiser is inconsistent. This store requires vertices to be serialised in a consistent way.");
+        }
+    }
+
+    protected void validateConsistentGroupByProperties(final Map.Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry, final ValidationResult validationResult) {
+        for (final String property : schemaElementDefinitionEntry.getValue()
+                .getGroupBy()) {
+            final TypeDefinition propertyTypeDef = schemaElementDefinitionEntry.getValue()
+                    .getPropertyTypeDef(property);
+            if (null != propertyTypeDef) {
+                final Serialiser serialiser = propertyTypeDef.getSerialiser();
+                if (null != serialiser && !serialiser.isConsistent()) {
+                    validationResult.addError("Serialiser for groupBy property: " + property
+                                                      + " is inconsistent. This store requires all groupBy property serialisers to be consistent. Serialiser "
+                                                      + serialiser.getClass().getName() + " is not consistent.");
+                }
+            }
+        }
+    }
+
+    protected void validateSchemaElementDefinition(final Map.Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry, final ValidationResult validationResult) {
+        schemaElementDefinitionEntry.getValue()
+                .getProperties()
+                .forEach(propertyName -> {
+                    final Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
+                    final Serialiser serialisation = schemaElementDefinitionEntry.getValue().getPropertyTypeDef(propertyName).getSerialiser();
+
+                    if (null == serialisation) {
+                        validationResult.addError(
+                                String.format("Could not find a serialiser for property '%s' in the group '%s'.", propertyName, schemaElementDefinitionEntry.getKey()));
+                    } else if (!serialisation.canHandle(propertyClass)) {
+                        validationResult.addError(String.format("Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema",
+                                                                serialisation.getClass().getName(), propertyName, schemaElementDefinitionEntry.getKey()));
+                    }
+                });
     }
 
     protected void validateSchema(final ValidationResult validationResult, final Serialiser serialiser) {
