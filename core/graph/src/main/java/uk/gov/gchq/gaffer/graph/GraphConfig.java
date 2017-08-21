@@ -90,7 +90,7 @@ public final class GraphConfig {
         return description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(final String description) {
         this.description = description;
     }
 
