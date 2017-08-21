@@ -81,35 +81,22 @@ public final class Graph {
      */
     private final Store store;
 
-    /**
-     * The {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View} - by default this will just contain all the groups
-     * in the graph's {@link Schema}, however it can be set to a subview to
-     * allow multiple operations to be performed on the same subview.
-     */
-    private final View view;
-
-    /**
-     * List of {@link GraphHook}s to be triggered before and after operations are
-     * executed on the graph.
-     */
-    private List<GraphHook> graphHooks;
-
     private Schema schema;
+
+    private GraphConfig config;
 
     /**
      * Constructs a <code>Graph</code> with the given {@link uk.gov.gchq.gaffer.store.Store} and
      * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.
      *
-     * @param schema     a {@link Schema} that defines the graph. Should be the copy of the schema that the store is initialised with.
-     * @param store      a {@link Store} used to store the elements and handle operations.
-     * @param view       a {@link View} defining the view of the data for the graph.
-     * @param graphHooks a list of {@link GraphHook}s
+     * @param config a {@link GraphConfig} used to store the configuration for a Graph.
+     * @param schema a {@link Schema} that defines the graph. Should be the copy of the schema that the store is initialised with.
+     * @param store  a {@link Store} used to store the elements and handle operations.
      */
-    private Graph(final Schema schema, final Store store, final View view, final List<GraphHook> graphHooks) {
+    private Graph(final GraphConfig config, final Schema schema, final Store store) {
+        this.config = config;
         this.schema = schema;
         this.store = store;
-        this.view = view;
-        this.graphHooks = graphHooks;
     }
 
     /**
@@ -153,7 +140,7 @@ public final class Graph {
     public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
         final OperationChain<?> clonedOpChain = operationChain.shallowClone();
         try {
-            for (final GraphHook graphHook : graphHooks) {
+            for (final GraphHook graphHook : config.getHooks()) {
                 graphHook.preExecute(clonedOpChain, user);
             }
 
@@ -161,7 +148,7 @@ public final class Graph {
 
             JobDetail result = store.executeJob(clonedOpChain, user);
 
-            for (final GraphHook graphHook : graphHooks) {
+            for (final GraphHook graphHook : config.getHooks()) {
                 result = graphHook.postExecute(result, clonedOpChain, user);
             }
 
@@ -192,7 +179,7 @@ public final class Graph {
         final OperationChain<O> clonedOpChain = operationChain.shallowClone();
         O result = null;
         try {
-            for (final GraphHook graphHook : graphHooks) {
+            for (final GraphHook graphHook : config.getHooks()) {
                 graphHook.preExecute(clonedOpChain, user);
             }
 
@@ -200,7 +187,7 @@ public final class Graph {
 
             result = store.execute(clonedOpChain, user);
 
-            for (final GraphHook graphHook : graphHooks) {
+            for (final GraphHook graphHook : config.getHooks()) {
                 result = graphHook.postExecute(result, clonedOpChain, user);
             }
         } catch (final Exception e) {
@@ -220,10 +207,10 @@ public final class Graph {
                 final OperationView operationView = (OperationView) operation;
                 final View opView;
                 if (null == operationView.getView()) {
-                    opView = view;
+                    opView = config.getView();
                 } else if (!operationView.getView().hasGroups()) {
                     opView = new View.Builder()
-                            .merge(view)
+                            .merge(config.getView())
                             .merge(operationView.getView())
                             .build();
                 } else {
@@ -266,7 +253,7 @@ public final class Graph {
      * @return the graph view.
      */
     public View getView() {
-        return view;
+        return config.getView();
     }
 
     /**
@@ -274,6 +261,13 @@ public final class Graph {
      */
     public Schema getSchema() {
         return schema;
+    }
+
+    /**
+     * @return the description held in the {@link GraphConfig}
+     */
+    public String getDescription() {
+        return config.getDescription();
     }
 
     /**
@@ -308,11 +302,11 @@ public final class Graph {
     }
 
     public List<Class<? extends GraphHook>> getGraphHooks() {
-        if (graphHooks.isEmpty()) {
+        if (config.getHooks().isEmpty()) {
             return Collections.emptyList();
         }
 
-        return (List) graphHooks.stream().map(GraphHook::getClass).collect(Collectors.toList());
+        return (List) config.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList());
     }
 
     public GraphLibrary getGraphLibrary() {
@@ -442,6 +436,11 @@ public final class Graph {
         @Deprecated
         public Builder view(final byte[] jsonBytes) {
             configBuilder.view(jsonBytes);
+            return this;
+        }
+
+        public Builder description(final String description) {
+            configBuilder.description(description);
             return this;
         }
 
@@ -703,7 +702,7 @@ public final class Graph {
 
             updateGraphHooks(config);
             config.getLibrary().add(config.getGraphId(), schema, store.getProperties());
-            return new Graph(schema, store, config.getView(), config.getHooks());
+            return new Graph(config, schema, store);
         }
 
         private void updateGraphHooks(final GraphConfig config) {
