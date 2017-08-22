@@ -150,4 +150,9 @@ public class ColumnIndex {
             return value;
         }
     }
+
+    @Override
+    public String toString() {
+        return minValuesWithPaths.toString();
+    }
 }

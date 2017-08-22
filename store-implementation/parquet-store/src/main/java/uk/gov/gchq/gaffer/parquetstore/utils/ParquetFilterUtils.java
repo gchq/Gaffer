@@ -143,8 +143,19 @@ public final class ParquetFilterUtils {
         final Set<String> edgeGroups;
         final Set<String> entityGroups;
         if (view != null) {
-            edgeGroups = view.getEdgeGroups();
-            entityGroups = view.getEntityGroups();
+            edgeGroups = new HashSet<>();
+            entityGroups = new HashSet<>();
+            final Set<String> indexedGroups = graphIndex.groupsIndexed();
+            for (final String group : view.getEdgeGroups()) {
+                if (indexedGroups.contains(group)) {
+                    edgeGroups.add(group);
+                }
+            }
+            for (final String group : view.getEntityGroups()) {
+                if (indexedGroups.contains(group)) {
+                    entityGroups.add(group);
+                }
+            }
         } else {
             edgeGroups = schemaUtils.getEdgeGroups();
             entityGroups = schemaUtils.getEntityGroups();
@@ -436,14 +447,15 @@ public final class ParquetFilterUtils {
 
     private Set<Path> getIndexedPathsForSeeds(final Object[] seed, final String indexedColumn,
                                                              final String group) {
-        if (graphIndex.getGroup(group).columnsIndexed().contains(indexedColumn)) {
-            final List<Object[]> seeds = new ArrayList<>();
-            seeds.add(seed);
-            final Map<Object[], Set<Path>> seedToPaths = getIndexedPathsForSeeds(seeds, indexedColumn, group);
-            return seedToPaths.get(seed);
-        } else {
-            return null;
+        if (graphIndex.groupsIndexed().contains(group)) {
+            if (graphIndex.getGroup(group).columnsIndexed().contains(indexedColumn)) {
+                final List<Object[]> seeds = new ArrayList<>();
+                seeds.add(seed);
+                final Map<Object[], Set<Path>> seedToPaths = getIndexedPathsForSeeds(seeds, indexedColumn, group);
+                return seedToPaths.get(seed);
+            }
         }
+        return null;
     }
 
     private Set<Path> getAllPathsForColumn(final String group) {
@@ -454,9 +466,11 @@ public final class ParquetFilterUtils {
         } else {
             graphColumn = ParquetStoreConstants.SOURCE;
         }
-        final Iterator<MinValuesWithPath> minValuesWithPathIterator = graphIndex.getGroup(group).getColumn(graphColumn).getIterator();
-        while (minValuesWithPathIterator.hasNext()) {
-            paths.add(new Path(ParquetStore.getGroupDirectory(group, graphColumn, dataDir) + "/" + minValuesWithPathIterator.next().getPath()));
+        if (graphIndex.groupsIndexed().contains(group)) {
+            final Iterator<MinValuesWithPath> minValuesWithPathIterator = graphIndex.getGroup(group).getColumn(graphColumn).getIterator();
+            while (minValuesWithPathIterator.hasNext()) {
+                paths.add(new Path(ParquetStore.getGroupDirectory(group, graphColumn, dataDir) + "/" + minValuesWithPathIterator.next().getPath()));
+            }
         }
         return paths;
     }

@@ -77,11 +77,18 @@ public class GroupIndex {
                 if (fs.exists(path)) {
                     final ColumnIndex colIndex = new ColumnIndex();
                     colIndex.read(fs.open(path));
-                    add(column, colIndex);
+                    if (colIndex.getIterator().hasNext()) {
+                        add(column, colIndex);
+                    }
                 }
             }
         } catch (final IOException e) {
             throw new StoreException(e.getMessage());
         }
+    }
+
+    @Override
+    public String toString() {
+        return columnToIndex.toString();
     }
 }

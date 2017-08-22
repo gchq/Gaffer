@@ -39,7 +39,7 @@ import java.util.concurrent.Callable;
  */
 public class GenerateIndexedColumnSortedData implements Callable<OperationException>, Serializable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.AggregateAndSortGroup.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AggregateGroup.class);
     private static final long serialVersionUID = -7828247145178905841L;
     private final String group;
     private final SparkSession spark;

@@ -25,6 +25,8 @@ import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.EdgeKryoSerializer;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.EntityKryoSerializer;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.HyperLogLogPlusKryoSerializer;
 import uk.gov.gchq.gaffer.types.FreqMap;
+import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
+import uk.gov.gchq.gaffer.types.TypeValue;
 
 /**
  * A custom {@link KryoRegistrator} that serializes Gaffer {@link Entity}s and {@link Edge}s. NB: It
@@ -39,5 +41,7 @@ public class Registrator implements KryoRegistrator {
         kryo.register(Properties.class);
         kryo.register(FreqMap.class);
         kryo.register(HyperLogLogPlus.class, new HyperLogLogPlusKryoSerializer());
+        kryo.register(TypeValue.class);
+        kryo.register(TypeSubTypeValue.class);
     }
 }

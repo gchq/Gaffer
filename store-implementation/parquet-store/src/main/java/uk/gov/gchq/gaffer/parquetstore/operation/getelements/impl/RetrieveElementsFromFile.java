@@ -70,19 +70,23 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
         if (elementFilter == null) {
             elementFilter = new ViewElementDefinition.Builder().json(elementDefinitionJson).build().getPreAggregationFilter();
         }
-        final ParquetReader<Element> fileReader = openParquetReader();
-        Element e = fileReader.read();
-        while (e != null) {
-            if (needsValidation) {
-                if (elementFilter.test(e)) {
+        try {
+            final ParquetReader<Element> fileReader = openParquetReader();
+            Element e = fileReader.read();
+            while (e != null) {
+                if (needsValidation) {
+                    if (elementFilter.test(e)) {
+                        queue.add(e);
+                    }
+                } else {
                     queue.add(e);
                 }
-            } else {
-                queue.add(e);
+                e = fileReader.read();
             }
-            e = fileReader.read();
+            fileReader.close();
+        } catch (final IOException ignore) {
+            // ignore as this file does not exist
         }
-        fileReader.close();
         return null;
     }
 

@@ -61,13 +61,16 @@ The `ParquetStoreProperties` class contains all properties relating to the confi
 
 - `spark.master`: The string that sets what mode to run Spark in. By default, if Spark is installed on the machine it will use Spark's defaults, otherwise it will run in local mode using all available threads;
 - `parquet.data.dir`: The file path to save the graph files under, by default this will be a relative path \<current path\>/parquet_data;
-- `parquet.temp_data.dir`: The file path to save the temporary graph files under, by default this will be a relative path \<current path\>/.gaffer/temp_parquet_data. Warning: this directory will automatically be deleted at the start and end of any `AddElements` operation;
-- `parquet.add_elements.threadsAvailable`: The number of threads to make available to the `AddElements` operations to increase the parallelism, by default this is set to 3 which will provide maximum parallelism when adding a single Gaffer group;
-- `parquet.add_elements.row_group.size`: This parameter sets the maximum row group size in bytes before compression for the Parquet files, see [Parquet documentation](https://parquet.apache.org/documentation/latest/) for more information. By default this is set to 4MB;
+- `parquet.temp_data.dir`: The file path to save the temporary graph files under, by default this will be a relative path 
+\<current path\>/.gaffer/temp_parquet_data. Warning: this directory will automatically be deleted at the start and end of any `AddElements` operation;
+- `parquet.threadsAvailable`: The number of threads to make available to the operations to increase the parallelism, by 
+default this is set to 3 which will provide maximum parallelism when adding a single Gaffer group;
+- `parquet.add_elements.row_group.size`: This parameter sets the maximum row group size in bytes before compression for 
+the Parquet files, see [Parquet documentation](https://parquet.apache.org/documentation/latest/) for more information. By default this is set to 4MB;
 - `parquet.add_elements.page.size`: This just exposes the Parquet file format parameter controlling the maximum page and 
 dictionary page size in bytes before compression, see [Parquet documentation](https://parquet.apache.org/documentation/latest/) 
 for more information. By default this is set to 1MB;
-- `parquet.add_elements.output_files_per_group`: This is the number of files that the output data is split into per Gaffer group. By default this is set to 100.
+- `parquet.add_elements.output_files_per_group`: This is the number of files that the output data is split into per Gaffer group. By default this is set to 10.
 
 A complete Gaffer properties file using a `ParquetStore` will look like:
 
@@ -122,7 +125,7 @@ The other way to import data is to from an `RDD<Element>` using the `ImportRDDOf
 RDD<Element> elements = ..// Create an RDD<Element> from your data
 ImportRDDOfElements addElements = new ImportRDDOfElements.Builder()
         .input(elements)
-        .sparkContext(<SparkContext>)
+        .sparkSession(<SparkSession>)
         .build();
 graph.execute(addElements, new User());
 ```
@@ -342,6 +345,17 @@ It is also worth noting that the order of the `Object[]` created by the `getParq
 `getPOJOFromObjects` method should match the ordering of the leaf nodes in the Parquet schema, so in the example the 
 raw_bytes is first and the cardinality is second.
 
+## Optimisations
+
+With Get operations there are optimisations performed to allow for the minimal number of files to be queried based on 
+the inputs to the query.
+
+This means that you will get significant improvements if you can formulate your filters with the `Or` and `Not` filters as close to 
+the leaves of the filter tree as possible.
+
+You will also gain significant improvements if you run two queried and merged/deduplicate the results locally rather than using 
+an `Or` filter at the root of the filter tree.
+
 ## Troubleshooting
 
 When trying to filter a column you get `store.schema.ViewValidator ERROR  - No class type found for transient property 
@@ -401,10 +415,12 @@ of an edge.
 
 The main two operations are the `AddElements` and the `GetElements`.
 
-The `AddElements` operation is a three stage process:
-1. Write the unsorted data split by group and `Element` type into Parquet files in the temporary files directory using the `ParquetElementWriter`;
-2. Using Spark, sort and aggregate the data in the temporary files directory and the current store files on a per group basis;
-3. Generate an `GraphIndex` containing the range of vertices in each file and load that into memory.
+The `AddElements` operation is a five stage process:
+1. Write the unsorted data split by split points, group and `Element` type into Parquet files in the temporary files directory using the `ParquetElementWriter`;
+2. Using Spark, aggregate the data in each of the temporary files directories and the current store files on a per split, per group basis;
+3. Using Spark, sort the data in each of the temporary files directories on a per group basis;
+4. Using Spark, load in each of the Edge group's temporary files and sort them by destination to allow indexing by destination;
+5. Generate an `GraphIndex` containing the range of vertices in each file and load that into memory.
 
 The `GetElements` operation is a four stage process per group:
 1. From the Gaffer view build up a corresponding Parquet filter;

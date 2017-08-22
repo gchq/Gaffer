@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.Serializable;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * This is a function used by Spark to write out a Spark RDD's partition of data to file.
@@ -37,17 +38,23 @@ public class WriteUnsortedDataFunction implements Serializable, VoidFunction<Ite
     private static final long serialVersionUID = 1420859039414174311L;
     private final String tempFilesDir;
     private final byte[] gafferSchema;
+    private final Map<String, Map<Integer, Object>> groupToSplitPoints;
+    private final int numOfFilesPerGroup;
 
 
-    public WriteUnsortedDataFunction(final String tempFilesDir, final SchemaUtils schemaUtils) {
+    public WriteUnsortedDataFunction(final String tempFilesDir, final SchemaUtils schemaUtils,
+                                     final Map<String, Map<Integer, Object>> groupToSplitPoints,
+                                     final int numOfFilesPerGroup) {
         this.tempFilesDir = tempFilesDir;
         this.gafferSchema = schemaUtils.getGafferSchema().toCompactJson();
+        this.groupToSplitPoints = groupToSplitPoints;
+        this.numOfFilesPerGroup = numOfFilesPerGroup;
     }
 
     @Override
     public void call(final Iterator<Element> elements) throws Exception {
         SchemaUtils utils = new SchemaUtils(Schema.fromJson(gafferSchema));
-        final WriteUnsortedData writer = new WriteUnsortedData(tempFilesDir, utils);
+        final WriteUnsortedData writer = new WriteUnsortedData(tempFilesDir, utils, groupToSplitPoints);
         try {
             writer.writeElements(elements);
         } catch (final OperationException e) {

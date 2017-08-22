@@ -22,7 +22,10 @@ import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.apache.spark.TaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.comparison.ComparableOrToStringComparator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.io.writer.ParquetElementWriter;
@@ -40,34 +43,32 @@ public class WriteUnsortedData {
     private static final Logger LOGGER = LoggerFactory.getLogger(WriteUnsortedData.class);
     private String tempFilesDir;
     private final SchemaUtils schemaUtils;
-    private final Map<String, ParquetWriter<Element>> groupToWriter;
-    private final Map<String, Integer> groupToFileNumber;
+    private final Map<String, Map<Integer, ParquetWriter<Element>>> groupSplitToWriter;
+    private final Map<String, Map<Integer, Object>> groupToSplitPoints;
+    private final ComparableOrToStringComparator comparator;
 
-    public WriteUnsortedData(final ParquetStore store) {
-        this(store.getTempFilesDir(), store.getSchemaUtils());
+    public WriteUnsortedData(final ParquetStore store, final Map<String, Map<Integer, Object>> groupToSplitPoints) {
+        this(store.getTempFilesDir(), store.getSchemaUtils(), groupToSplitPoints);
     }
 
-    public WriteUnsortedData(final String tempFilesDir, final SchemaUtils schemaUtils) {
+    public WriteUnsortedData(final String tempFilesDir, final SchemaUtils schemaUtils,
+                             final Map<String, Map<Integer, Object>> groupToSplitPoints) {
         this.tempFilesDir = tempFilesDir;
         this.schemaUtils = schemaUtils;
-        this.groupToWriter = new HashMap<>();
-        this.groupToFileNumber = new HashMap<>();
+        this.groupToSplitPoints = groupToSplitPoints;
+        this.comparator = new ComparableOrToStringComparator();
+        this.groupSplitToWriter = new HashMap<>();
     }
 
     public void writeElements(final Iterator<? extends Element> elements) throws OperationException {
         try {
-            // Create a writer for each group
-            for (final String group : schemaUtils.getEntityGroups()) {
-                groupToWriter.put(group, buildWriter(group, ParquetStoreConstants.VERTEX, true));
-            }
-            for (final String group : schemaUtils.getEdgeGroups()) {
-                groupToWriter.put(group, buildWriter(group, ParquetStoreConstants.SOURCE, false));
-            }
             // Write elements
             _writeElements(elements);
             // Close the writers
-            for (final ParquetWriter<Element> writer : groupToWriter.values()) {
-                writer.close();
+            for (final Map<Integer, ParquetWriter<Element>> splitToWriter : groupSplitToWriter.values()) {
+                for (final ParquetWriter<Element> writer : splitToWriter.values()) {
+                    writer.close();
+                }
             }
         } catch (final IOException | OperationException e) {
             throw new OperationException("Exception writing elements to temporary directory: " + tempFilesDir, e);
@@ -78,7 +79,19 @@ public class WriteUnsortedData {
         while (elements.hasNext()) {
             final Element element = elements.next();
             final String group = element.getGroup();
-            ParquetWriter<Element> writer = groupToWriter.get(group);
+            final ParquetWriter<Element> writer;
+            final Map<Integer, ParquetWriter<Element>> splitToWriter;
+            if  (groupSplitToWriter.containsKey(group)) {
+                splitToWriter = groupSplitToWriter.get(group);
+            } else {
+                splitToWriter = new HashMap<>();
+                groupSplitToWriter.put(group, splitToWriter);
+            }
+            if (schemaUtils.getEntityGroups().contains(group)) {
+                writer = getWriter(splitToWriter, groupToSplitPoints.get(group), ((Entity) element).getVertex(), group, ParquetStoreConstants.VERTEX);
+            } else {
+                writer = getWriter(splitToWriter, groupToSplitPoints.get(group), ((Edge) element).getSource(), group, ParquetStoreConstants.SOURCE);
+            }
             if (writer != null) {
                 writer.write(element);
             } else {
@@ -87,15 +100,40 @@ public class WriteUnsortedData {
         }
     }
 
-    private ParquetWriter<Element> buildWriter(final String group, final String column, final boolean isEntity) throws IOException {
-        Integer fileNumber = groupToFileNumber.get(group);
-        if (fileNumber == null) {
-            groupToFileNumber.put(group, 0);
-            fileNumber = 0;
+    private ParquetWriter<Element> getWriter(final Map<Integer, ParquetWriter<Element>> splitToWriter,
+                                             final Map<Integer, Object> splitPoints,
+                                             final Object gafferObject, final String group, final String column) throws IOException {
+        final int numOfSplits = splitPoints.size();
+        for (int i = 1; i < numOfSplits; i++) {
+            final Object splitPoint = splitPoints.get(i);
+            final int comparision = comparator.compare(gafferObject, splitPoint);
+            if (comparision < 0) {
+                return _getWriter(splitToWriter, i - 1, group, column);
+            }
         }
-        LOGGER.debug("Creating a new writer for group: {}", group + " with file number " + fileNumber);
+        if (numOfSplits == 1 && comparator.compare(gafferObject, splitPoints.get(0)) == 0) {
+            return _getWriter(splitToWriter, 0, group, column);
+        }
+        return _getWriter(splitToWriter, numOfSplits - 1, group, column);
+    }
+
+    private ParquetWriter<Element> _getWriter(final Map<Integer, ParquetWriter<Element>> splitToWriter, final int i,
+                                              final String group, final String column) throws IOException {
+        final boolean isEntity = ParquetStoreConstants.VERTEX.equals(column);
+        final ParquetWriter<Element> writer;
+        if (!splitToWriter.containsKey(i)) {
+            writer = buildWriter(group, column, isEntity, i);
+            splitToWriter.put(i, writer);
+        } else {
+            writer = splitToWriter.get(i);
+        }
+        return writer;
+    }
+
+    private ParquetWriter<Element> buildWriter(final String group, final String column, final boolean isEntity, final int splitNumber) throws IOException {
+        LOGGER.debug("Creating a new writer for group: {}", group + " with file number " + splitNumber);
         final Path filePath = new Path(ParquetStore.getGroupDirectory(group, column,
-                tempFilesDir) + "/part-" + TaskContext.getPartitionId() + "-" + fileNumber + ".parquet");
+                tempFilesDir) + "/raw/split" + splitNumber + "/part-" + TaskContext.getPartitionId() + ".parquet");
 
         return new ParquetElementWriter.Builder(filePath)
                 .isEntity(isEntity)

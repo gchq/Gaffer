@@ -68,8 +68,15 @@ public class ParquetStorePropertiesTest {
     }
 
     @Test
+    public void sampleRateTest(){
+        assertEquals((Integer) 10, props.getSampleRate());
+        props.setSampleRate(100000);
+        assertEquals((Integer) 100000, props.getSampleRate());
+    }
+
+    @Test
     public void addElementsOutputFilesPerGroupTest(){
-        assertEquals(100, props.getAddElementsOutputFilesPerGroup());
+        assertEquals(10, props.getAddElementsOutputFilesPerGroup());
         props.setAddElementsOutputFilesPerGroup(10000);
         assertEquals(10000, props.getAddElementsOutputFilesPerGroup());
     }

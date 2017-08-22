@@ -26,8 +26,11 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.AggregateAndSortTempData;
+import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.CalculateSplitPointsFromIndex;
+import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.CalculateSplitPointsFromIterable;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.GenerateIndices;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.WriteUnsortedData;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
@@ -37,9 +40,13 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * An {@link OperationHandler} for the {@link AddElements} operation on the {@link ParquetStore}.
@@ -68,6 +75,8 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             throws OperationException {
         try {
             final FileSystem fs = store.getFS();
+            final ParquetStoreProperties parquetStoreProperties = store.getProperties();
+            final Schema gafferSchema = store.getSchema();
             final String rootDataDirString = store.getDataDir();
             final String tempDirString = store.getTempFilesDir();
             final Path tempDir = new Path(tempDirString);
@@ -78,8 +87,31 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             // Write the data out
             LOGGER.debug("Starting to write the unsorted Parquet data to {} split by group", tempDirString);
             final Iterable<? extends Element> input = addElementsOperation.getInput();
+            final CalculateSplitPointsFromIterable calculateSplitPointsFromIterable =
+                    new CalculateSplitPointsFromIterable(parquetStoreProperties.getSampleRate(),
+                            parquetStoreProperties.getAddElementsOutputFilesPerGroup() - 1);
+            final Map<String, Map<Integer, Object>> groupToSplitPoints;
+            final GraphIndex index = store.getGraphIndex();
+            if (null == index) {
+                groupToSplitPoints = new HashMap<>();
+                for (final String group : gafferSchema.getEdgeGroups()) {
+                    final Map<Integer, Object> splitPoints = calculateSplitPointsFromIterable.calculateSplitsForGroup(input, group, false);
+                    if (splitPoints != null) {
+                        groupToSplitPoints.put(group, splitPoints);
+                    }
+                }
+                for (final String group : gafferSchema.getEntityGroups()) {
+                    final Map<Integer, Object> splitPoints = calculateSplitPointsFromIterable.calculateSplitsForGroup(input, group, true);
+                    if (splitPoints != null) {
+                        groupToSplitPoints.put(group, splitPoints);
+                    }
+                }
+            } else {
+                groupToSplitPoints = CalculateSplitPointsFromIndex.apply(index, store.getSchemaUtils(), parquetStoreProperties, input);
+            }
+
             final Iterator<? extends Element> inputIter = input.iterator();
-            new WriteUnsortedData(store).writeElements(inputIter);
+            new WriteUnsortedData(store, groupToSplitPoints).writeElements(inputIter);
             if (inputIter instanceof CloseableIterator) {
                 ((CloseableIterator) inputIter).close();
             }
@@ -89,7 +121,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             LOGGER.debug("Finished writing the unsorted Parquet data to {}", tempDirString);
             // Use to Spark read in all the data, aggregate and sort it
             LOGGER.debug("Starting to write the sorted and aggregated Parquet data to {}/sorted split by group", tempDirString);
-            new AggregateAndSortTempData(store, spark);
+            new AggregateAndSortTempData(store, spark, groupToSplitPoints);
             LOGGER.debug("Finished writing the sorted and aggregated Parquet data to {}/sorted", tempDirString);
             // Generate the file based index
             LOGGER.debug("Starting to write the indexes");

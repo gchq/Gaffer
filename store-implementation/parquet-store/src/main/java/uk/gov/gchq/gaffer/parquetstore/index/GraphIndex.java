@@ -71,7 +71,14 @@ public class GraphIndex {
         for (final String group : groups) {
             final GroupIndex groupIndex = new GroupIndex();
             groupIndex.readColumns(group, rootDir, fs);
-            add(group, groupIndex);
+            if (!groupIndex.columnsIndexed().isEmpty()) {
+                add(group, groupIndex);
+            }
         }
+    }
+
+    @Override
+    public String toString() {
+        return groupToIndex.toString();
     }
 }
