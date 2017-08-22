@@ -132,7 +132,7 @@ public class ExportToOtherGraphExample extends OperationExample {
     public void simpleExportUsingGraphFromGraphLibrary() {
         // ---------------------------------------------------------
         // Setup the graphLibrary with an export graph
-        final FileGraphLibrary graphLibrary = new FileGraphLibrary("target/ExportToOtherGraphGraphLibrary");
+        final FileGraphLibrary graphLibrary = new FileGraphLibrary("target/graphLibrary");
 
         final AccumuloProperties exportStoreProperties = new AccumuloProperties();
         exportStoreProperties.setId("exportStorePropertiesId");
@@ -157,10 +157,9 @@ public class ExportToOtherGraphExample extends OperationExample {
         graphLibrary.addOrUpdate("exportGraphId", exportSchema, exportStoreProperties);
 
         final Graph graph = new Graph.Builder()
-                .graphId("graph1")
+                .config(StreamUtil.openStream(getClass(), "graphConfigWithLibrary.json"))
                 .addSchemas(StreamUtil.openStreams(getClass(), "operation/schema"))
                 .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
-                .library(graphLibrary)
                 .build();
 
         final OperationChain<Iterable<? extends Element>> opChain =
@@ -184,7 +183,7 @@ public class ExportToOtherGraphExample extends OperationExample {
     public void exportToNewGraphBasedOnConfigFromGraphLibrary() {
         // ---------------------------------------------------------
         // Setup the graphLibrary with a schema and store properties for exporting
-        final FileGraphLibrary graphLibrary = new FileGraphLibrary("target/ExportToOtherGraphGraphLibrary");
+        final FileGraphLibrary graphLibrary = new FileGraphLibrary("target/graphLibrary");
 
         final AccumuloProperties exportStoreProperties = new AccumuloProperties();
         exportStoreProperties.setId("exportStorePropertiesId");
@@ -209,10 +208,9 @@ public class ExportToOtherGraphExample extends OperationExample {
         graphLibrary.addSchema("exportSchemaId", exportSchema);
 
         final Graph graph = new Graph.Builder()
-                .graphId("graph1")
+                .config(StreamUtil.openStream(getClass(), "graphConfigWithLibrary.json"))
                 .addSchemas(StreamUtil.openStreams(getClass(), "operation/schema"))
                 .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
-                .library(graphLibrary)
                 .build();
 
         final OperationChain<Iterable<? extends Element>> opChain =

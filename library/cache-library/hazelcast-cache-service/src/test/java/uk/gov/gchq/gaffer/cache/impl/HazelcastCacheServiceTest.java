@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.cache.impl;
 
 
+import org.apache.commons.io.FileUtils;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -25,10 +26,14 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import java.io.File;
+import java.io.IOException;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -44,6 +49,9 @@ public class HazelcastCacheServiceTest {
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
+
+    @Rule
+    public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     @Before
     public void beforeEach() {
@@ -80,8 +88,14 @@ public class HazelcastCacheServiceTest {
     }
 
     private void initialiseWithTestConfig() {
-        String filePath = new File("src/test/resources/hazelcast.xml").getAbsolutePath();
-        cacheProperties.setProperty(CacheProperties.CACHE_CONFIG_FILE, filePath);
+        final File file;
+        try {
+            file = tempFolder.newFile("hazelcast.xml");
+            FileUtils.copyInputStreamToFile(StreamUtil.openStream(getClass(), "hazelcast.xml"), file);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
+        cacheProperties.setProperty(CacheProperties.CACHE_CONFIG_FILE, file.getAbsolutePath());
         service.initialise(cacheProperties);
     }
 
@@ -147,7 +161,7 @@ public class HazelcastCacheServiceTest {
         try {
             service.putSafeInCache(CACHE_NAME, "test", 2);
             fail("Expected an exception");
-        } catch (CacheOperationException e) {
+        } catch (final CacheOperationException e) {
             assertEquals((Integer) 1, service.getFromCache(CACHE_NAME, "test"));
         }
 

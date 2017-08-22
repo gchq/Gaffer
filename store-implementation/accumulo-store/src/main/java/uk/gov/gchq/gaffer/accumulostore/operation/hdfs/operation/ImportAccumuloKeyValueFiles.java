@@ -56,6 +56,15 @@ public class ImportAccumuloKeyValueFiles implements
         this.options = options;
     }
 
+    @Override
+    public ImportAccumuloKeyValueFiles shallowClone() {
+        return new ImportAccumuloKeyValueFiles.Builder()
+                .failurePath(failurePath)
+                .inputPath(inputPath)
+                .options(options)
+                .build();
+    }
+
 
     public static class Builder extends Operation.BaseBuilder<ImportAccumuloKeyValueFiles, Builder>
             implements Options.Builder<ImportAccumuloKeyValueFiles, Builder> {

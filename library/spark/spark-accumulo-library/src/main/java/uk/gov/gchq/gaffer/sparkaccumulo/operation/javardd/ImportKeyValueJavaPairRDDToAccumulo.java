@@ -72,6 +72,16 @@ public class ImportKeyValueJavaPairRDDToAccumulo implements
         this.options = options;
     }
 
+    @Override
+    public ImportKeyValueJavaPairRDDToAccumulo shallowClone() {
+        return new ImportKeyValueJavaPairRDDToAccumulo.Builder()
+                .outputPath(outputPath)
+                .failurePath(failurePath)
+                .input(input)
+                .options(options)
+                .build();
+    }
+
     public static class Builder extends Operation.BaseBuilder<ImportKeyValueJavaPairRDDToAccumulo, Builder>
             implements Input.Builder<ImportKeyValueJavaPairRDDToAccumulo, JavaPairRDD<Key, Value>, Builder>,
             Options.Builder<ImportKeyValueJavaPairRDDToAccumulo, Builder> {

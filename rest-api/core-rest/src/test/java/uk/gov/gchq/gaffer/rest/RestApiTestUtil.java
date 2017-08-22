@@ -35,6 +35,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -44,8 +45,6 @@ import static org.junit.Assert.assertEquals;
 
 public class RestApiTestUtil {
     public static final String REST_URI = "http://localhost:8080/rest/v1";
-    public static final String GRAPH_ID = "graph1";
-    public static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
     private static final Client client = ClientBuilder.newClient();
     private static HttpServer server;
 
@@ -76,8 +75,11 @@ public class RestApiTestUtil {
     }
 
     public static void reinitialiseGraph(final TemporaryFolder testFolder, final Schema schema, final StoreProperties storeProperties) throws IOException {
+        final File graphConfigFile = new File(testFolder.getRoot().getAbsoluteFile() + "/graphConfig.json");
+        if (!graphConfigFile.exists()) {
+            FileUtils.copyURLToFile(RestApiTestUtil.class.getResource("/graphConfig.json"), graphConfigFile);
+        }
         FileUtils.writeByteArrayToFile(testFolder.newFile("schema.json"), schema.toJson(true));
-
         try (OutputStream out = new FileOutputStream(testFolder.newFile("store.properties"))) {
             storeProperties.getProperties().store(out, "This is an optional header comment string");
         }
@@ -85,7 +87,7 @@ public class RestApiTestUtil {
         // set properties for REST service
         System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, testFolder.getRoot() + "/store.properties");
         System.setProperty(SystemProperty.SCHEMA_PATHS, testFolder.getRoot() + "/schema.json");
-        System.setProperty(SystemProperty.GRAPH_ID, GRAPH_ID);
+        System.setProperty(SystemProperty.GRAPH_CONFIG_PATH, graphConfigFile.getAbsolutePath());
 
         reinitialiseGraph();
     }
@@ -109,7 +111,7 @@ public class RestApiTestUtil {
         return client.target(REST_URI)
                 .path("/graph/doOperation/operation")
                 .request()
-                .post(Entity.entity(JSON_SERIALISER.serialise(operation), MediaType.APPLICATION_JSON_TYPE));
+                .post(Entity.entity(JSONSerialiser.serialise(operation), MediaType.APPLICATION_JSON_TYPE));
     }
 
     public static Response executeOperationChain(final OperationChain opChain) throws IOException {
@@ -117,7 +119,7 @@ public class RestApiTestUtil {
         return client.target(REST_URI)
                 .path("/graph/doOperation")
                 .request()
-                .post(Entity.entity(JSON_SERIALISER.serialise(opChain), MediaType.APPLICATION_JSON_TYPE));
+                .post(Entity.entity(JSONSerialiser.serialise(opChain), MediaType.APPLICATION_JSON_TYPE));
     }
 
     public static Response executeOperationChainChunked(final OperationChain opChain) throws IOException {
@@ -125,7 +127,7 @@ public class RestApiTestUtil {
         return client.target(REST_URI)
                 .path("/graph/doOperation/chunked")
                 .request()
-                .post(Entity.entity(JSON_SERIALISER.serialise(opChain), MediaType.APPLICATION_JSON_TYPE));
+                .post(Entity.entity(JSONSerialiser.serialise(opChain), MediaType.APPLICATION_JSON_TYPE));
     }
 
     public static Response executeOperationChunked(final Operation operation) throws IOException {
@@ -133,7 +135,7 @@ public class RestApiTestUtil {
         return client.target(REST_URI)
                 .path("/graph/doOperation/chunked/operation")
                 .request()
-                .post(Entity.entity(JSON_SERIALISER.serialise(operation), MediaType.APPLICATION_JSON_TYPE));
+                .post(Entity.entity(JSONSerialiser.serialise(operation), MediaType.APPLICATION_JSON_TYPE));
     }
 
     public static void startServer() throws IOException {

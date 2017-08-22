@@ -51,5 +51,10 @@ public class DoublesSketchSerialiser implements ToBytesSerialiser<DoublesSketch>
     public boolean preservesObjectOrdering() {
         return false;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return false;
+    }
 }
 

@@ -32,6 +32,7 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -86,7 +87,7 @@ public class TableUtilsTest {
         final Runnable invalidateTable = () -> {
             try {
                 AddUpdateTableIterator.removeIterator(store, AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME);
-            } catch (StoreException e) {
+            } catch (final StoreException e) {
                 throw new RuntimeException(e);
             }
         };
@@ -100,7 +101,7 @@ public class TableUtilsTest {
         final Runnable invalidateTable = () -> {
             try {
                 AddUpdateTableIterator.removeIterator(store, AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME);
-            } catch (StoreException e) {
+            } catch (final StoreException e) {
                 throw new RuntimeException(e);
             }
         };
@@ -282,7 +283,9 @@ public class TableUtilsTest {
 
         // When
         new Graph.Builder()
-                .graphId(null)
+                .config(new GraphConfig.Builder()
+                        .graphId(null)
+                        .build())
                 .addSchema(schema)
                 .storeProperties(properties)
                 .build();

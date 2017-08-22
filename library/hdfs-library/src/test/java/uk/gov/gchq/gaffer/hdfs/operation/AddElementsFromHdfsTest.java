@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.io.IOException;
 import java.util.Arrays;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 
@@ -68,7 +70,7 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
                 .build();
 
         // When
-        String json = new String(SERIALISER.serialise(addElements, true));
+        String json = new String(JSONSerialiser.serialise(addElements, true));
 
         // Then
         JsonAssert.assertEquals(String.format("{%n" +
@@ -109,6 +111,34 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
         assertEquals("input", addElements.getInputPaths().get(0));
     }
 
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final AddElementsFromHdfs addElements = new AddElementsFromHdfs.Builder()
+                .addInputPath("input")
+                .outputPath("output")
+                .failurePath("fail")
+                .mapperGenerator(MapperGenerator.class)
+                .mappers(10)
+                .reducers(20)
+                .validate(true)
+                .option("testOption", "true")
+                .build();
+
+        // When
+        AddElementsFromHdfs clone = addElements.shallowClone();
+
+        // Then
+        assertNotSame(addElements, clone);
+        assertEquals("true", clone.getOption("testOption"));
+        assertTrue(clone.isValidate());
+        assertEquals("fail", clone.getFailurePath());
+        assertEquals(new Integer(10), clone.getNumMapTasks());
+        assertEquals(new Integer(20), clone.getNumReduceTasks());
+        assertEquals("output", clone.getOutputPath());
+        assertEquals("input", clone.getInputPaths().get(0));
+    }
+
     @Test
     public void shouldSerialisePopulatedAddElementsFromHdfsOperation() throws IOException {
         // Given
@@ -117,7 +147,7 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
         addElementsFromHdfs.setOutputPath("TestOutput");
 
         // When
-        final String json = new String(SERIALISER.serialise(addElementsFromHdfs, true));
+        final String json = new String(JSONSerialiser.serialise(addElementsFromHdfs, true));
 
         // Then
         JsonAssert.assertEquals(ADD_ELEMENTS_FROM_HDFS_JSON, json);
@@ -126,7 +156,7 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
     @Test
     public void shouldDeserialiseAddElementsOperation() throws IOException {
         // When
-        final AddElementsFromHdfs addElementsFromHdfs = SERIALISER.deserialise(ADD_ELEMENTS_FROM_HDFS_JSON.getBytes(), AddElementsFromHdfs.class);
+        final AddElementsFromHdfs addElementsFromHdfs = JSONSerialiser.deserialise(ADD_ELEMENTS_FROM_HDFS_JSON.getBytes(), AddElementsFromHdfs.class);
 
         // Then
         final List<String> inputPaths = addElementsFromHdfs.getInputPaths();

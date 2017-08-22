@@ -48,6 +48,13 @@ public class ToArray<T> implements
         return new TypeReferenceImpl.Array();
     }
 
+    @Override
+    public ToArray<T> shallowClone() {
+        return new ToArray.Builder<T>()
+                .input(input)
+                .build();
+    }
+
     public static final class Builder<T>
             extends BaseBuilder<ToArray<T>, ToArray.Builder<T>>
             implements InputOutput.Builder<ToArray<T>, Iterable<? extends T>, T[], Builder<T>>,

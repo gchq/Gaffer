@@ -32,8 +32,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class OperationDeclarationsTest {
-    private final JSONSerialiser json = new JSONSerialiser();
-
     @Test
     public void testSerialiseDeserialise() throws SerialisationException {
         // Given
@@ -45,7 +43,7 @@ public class OperationDeclarationsTest {
                 .build();
 
         // When
-        final byte[] definitionJson = json.serialise(declarations);
+        final byte[] definitionJson = JSONSerialiser.serialise(declarations);
 
         final OperationDeclarations deserialised = OperationDeclarations.fromJson(definitionJson);
         assertEquals(1, deserialised.getOperations().size());

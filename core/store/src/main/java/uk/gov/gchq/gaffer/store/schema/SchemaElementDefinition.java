@@ -26,6 +26,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
+import uk.gov.gchq.gaffer.commonutil.PropertiesUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.iterable.TransformIterable;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
@@ -65,7 +66,8 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     private final SchemaElementDefinitionValidator elementDefValidator;
 
     /**
-     * Property map of property name to accepted type.
+     * Map of property name to accepted type name.
+     * The type name relates to the types part of the schema
      */
     protected Map<String, String> properties;
 
@@ -724,6 +726,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         }
 
         public ELEMENT_DEF build() {
+            elDef.getProperties().forEach(PropertiesUtil::validateName);
             elDef.lock();
             return elDef;
         }

@@ -57,8 +57,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class OperationChainTest extends JSONSerialisationTest<OperationChain> {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @Test
     public void shouldSerialiseAndDeserialiseOperationChain() throws SerialisationException {
         // Given
@@ -68,8 +66,8 @@ public class OperationChainTest extends JSONSerialisationTest<OperationChain> {
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(opChain, true);
-        final OperationChain deserialisedOp = serialiser.deserialise(json, OperationChain.class);
+        byte[] json = JSONSerialiser.serialise(opChain, true);
+        final OperationChain deserialisedOp = JSONSerialiser.deserialise(json, OperationChain.class);
 
         // Then
         assertNotNull(deserialisedOp);
@@ -244,6 +242,36 @@ public class OperationChainTest extends JSONSerialisationTest<OperationChain> {
         assertThat(first, instanceOf(AddElements.class));
         assertThat(second, instanceOf(GetElements.class));
         assertThat(third, instanceOf(Limit.class));
+    }
+
+    @Test
+    public void shouldDoAShallowClone() throws IOException {
+        // Given
+        final List<Operation> ops = Arrays.asList(
+                mock(Operation.class),
+                mock(Input.class),
+                mock(Input.class),
+                mock(MultiInput.class),
+                mock(Input.class)
+        );
+        final List<Operation> clonedOps = Arrays.asList(
+                mock(Operation.class),
+                mock(Input.class),
+                mock(Input.class),
+                mock(MultiInput.class),
+                mock(Input.class)
+        );
+        for (int i = 0; i < ops.size(); i++) {
+            given(ops.get(i).shallowClone()).willReturn(clonedOps.get(i));
+        }
+
+        final OperationChain opChain = new OperationChain(ops);
+
+        // When
+        final OperationChain clone = opChain.shallowClone();
+
+        // Then
+        assertEquals(clonedOps, clone.getOperations());
     }
 
     @Override

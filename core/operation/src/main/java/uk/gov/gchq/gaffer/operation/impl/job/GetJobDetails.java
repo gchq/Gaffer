@@ -40,6 +40,13 @@ public class GetJobDetails implements
         return new TypeReferenceImpl.JobDetail();
     }
 
+    @Override
+    public GetJobDetails shallowClone() {
+        return new GetJobDetails.Builder()
+                .jobId(jobId)
+                .build();
+    }
+
     public static class Builder extends Operation.BaseBuilder<GetJobDetails, Builder>
             implements Output.Builder<GetJobDetails, JobDetail, Builder> {
         public Builder() {

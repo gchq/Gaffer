@@ -77,6 +77,14 @@ public class Min implements
         return new TypeReferenceImpl.Element();
     }
 
+    @Override
+    public Min shallowClone() {
+        return new Min.Builder()
+                .input(input)
+                .comparators(comparators)
+                .build();
+    }
+
     public static final class Builder
             extends Operation.BaseBuilder<Min, Min.Builder>
             implements InputOutput.Builder<Min, Iterable<? extends Element>, Element, Min.Builder>,
@@ -88,6 +96,11 @@ public class Min implements
         @SafeVarargs
         public final Min.Builder comparators(final Comparator<Element>... comparators) {
             _getOp().setComparators(Lists.newArrayList(comparators));
+            return _self();
+        }
+
+        public Builder comparators(final List<Comparator<Element>> comparators) {
+            _getOp().setComparators(comparators);
             return _self();
         }
     }

@@ -38,7 +38,7 @@ public class NamedOperationExample extends OperationExample {
     }
 
     public NamedOperationExample() {
-        super(NamedOperation.class);
+        super(NamedOperation.class, "See [Named Operations](https://github.com/gchq/Gaffer/wiki/Dev-Guide#namedoperations) for information on configuring named operations for your Gaffer graph.");
     }
 
     @Override

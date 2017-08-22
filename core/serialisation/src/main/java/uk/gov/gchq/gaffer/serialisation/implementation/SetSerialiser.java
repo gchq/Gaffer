@@ -96,6 +96,11 @@ public class SetSerialiser implements ToBytesSerialiser<Set<? extends Object>> {
     }
 
     @Override
+    public boolean isConsistent() {
+        return false;
+    }
+
+    @Override
     public byte[] serialiseNull() {
         return new byte[0];
     }

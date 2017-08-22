@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.Graph.Builder;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -595,7 +596,9 @@ public class AccumuloAggregationIT {
 
     protected Graph createGraph() {
         return new Builder()
-                .graphId("graphId")
+                .config(new GraphConfig.Builder()
+                        .graphId("graphId")
+                        .build())
                 .storeProperties(STORE_PROPERTIES)
                 .addSchema(new Schema.Builder()
                         .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
@@ -630,7 +633,9 @@ public class AccumuloAggregationIT {
 
     protected Graph createGraphNoVisibility() {
         return new Builder()
-                .graphId("graphWithNoVisibility")
+                .config(new GraphConfig.Builder()
+                        .graphId("graphWithNoVisibility")
+                        .build())
                 .storeProperties(STORE_PROPERTIES)
                 .addSchema(new Schema.Builder()
                         .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
@@ -658,7 +663,9 @@ public class AccumuloAggregationIT {
 
     protected Graph createGraphNoAggregators() {
         return new Builder()
-                .graphId("graphWithNoAggregators")
+                .config(new GraphConfig.Builder()
+                        .graphId("graphWithNoAggregators")
+                        .build())
                 .storeProperties(STORE_PROPERTIES)
                 .addSchema(new Schema.Builder()
                         .type(TestTypes.ID_STRING, new TypeDefinition.Builder()

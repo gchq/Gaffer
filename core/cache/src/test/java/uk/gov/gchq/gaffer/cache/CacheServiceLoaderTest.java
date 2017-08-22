@@ -45,7 +45,7 @@ public class CacheServiceLoaderTest {
     public void shouldDoNothingOnInitialiseIfNoPropertiesAreGiven() {
         try {
             CacheServiceLoader.initialise(null);
-        } catch (NullPointerException e) {
+        } catch (final NullPointerException e) {
             fail("Should not have thrown an exception");
         }
     }

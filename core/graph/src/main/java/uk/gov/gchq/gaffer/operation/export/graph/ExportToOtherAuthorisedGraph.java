@@ -88,6 +88,16 @@ public class ExportToOtherAuthorisedGraph implements
         return (TypeReference) new TypeReferenceImpl.Object();
     }
 
+    @Override
+    public ExportToOtherAuthorisedGraph shallowClone() {
+        return new ExportToOtherAuthorisedGraph.Builder()
+                .graphId(graphId)
+                .input(input)
+                .parentSchemaIds(parentSchemaIds.toArray(new String[parentSchemaIds.size()]))
+                .parentStorePropertiesId(parentStorePropertiesId)
+                .build();
+    }
+
     public static final class Builder extends BaseBuilder<ExportToOtherAuthorisedGraph, Builder>
             implements ExportTo.Builder<ExportToOtherAuthorisedGraph, Iterable<? extends Element>, Builder> {
         public Builder() {
@@ -109,6 +119,15 @@ public class ExportToOtherAuthorisedGraph implements
                 _getOp().setParentSchemaIds(Lists.newArrayList(parentSchemaIds));
             } else {
                 Collections.addAll(_getOp().getParentSchemaIds(), parentSchemaIds);
+            }
+            return _self();
+        }
+
+        public Builder parentSchemaIds(final List<String> parentSchemaIds) {
+            if (null == _getOp().getParentSchemaIds()) {
+                _getOp().setParentSchemaIds(parentSchemaIds);
+            } else {
+                _getOp().getParentSchemaIds().addAll(parentSchemaIds);
             }
             return _self();
         }

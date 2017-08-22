@@ -38,7 +38,6 @@ import java.util.Set;
  * This is used by the Spark reduceByKey method to aggregate two {@link GenericRowWithSchema}'s using the Gaffer aggregator's.
  */
 public class AggregateGafferRowsFunction implements Function2<Row, Row, Row>, Serializable {
-    private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
     private static final Logger LOGGER = LoggerFactory.getLogger(AggregateGafferRowsFunction.class);
     private static final long serialVersionUID = -8353767193380574516L;
     private final Boolean isEntity;
@@ -102,7 +101,7 @@ public class AggregateGafferRowsFunction implements Function2<Row, Row, Row>, Se
         LOGGER.trace("Second properties object to be aggregated: {}", prop2);
         // merge properties
         if (null == aggregator) {
-            aggregator = JSON_SERIALISER.deserialise(aggregatorJson, ElementAggregator.class);
+            aggregator = JSONSerialiser.deserialise(aggregatorJson, ElementAggregator.class);
         }
         Properties mergedProperties = aggregator.apply(prop1, prop2);
         LOGGER.trace("Merged properties object after aggregation: {}", mergedProperties);

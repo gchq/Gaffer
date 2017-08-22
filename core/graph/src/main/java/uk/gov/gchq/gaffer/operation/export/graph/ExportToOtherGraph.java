@@ -125,6 +125,18 @@ public class ExportToOtherGraph implements
     }
 
     @Override
+    public ExportToOtherGraph shallowClone() {
+        return new ExportToOtherGraph.Builder()
+                .graphId(graphId)
+                .input(input)
+                .parentSchemaIds(parentSchemaIds.toArray(new String[parentSchemaIds.size()]))
+                .schema(schema)
+                .parentStorePropertiesId(parentStorePropertiesId)
+                .storeProperties(storeProperties)
+                .build();
+    }
+
+    @Override
     public TypeReference<Iterable<? extends Element>> getOutputTypeReference() {
         return new TypeReferenceImpl.IterableElement();
     }

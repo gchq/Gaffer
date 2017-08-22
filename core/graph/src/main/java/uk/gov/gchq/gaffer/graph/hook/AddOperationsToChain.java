@@ -114,7 +114,7 @@ public class AddOperationsToChain implements GraphHook {
     }
 
     private List<Operation> addOperationsToChain(final OperationChain<?> opChain, final AdditionalOperations additionalOperations) {
-        List<Operation> newOpList = new ArrayList<>();
+        final List<Operation> newOpList = new ArrayList<>();
 
         newOpList.addAll(additionalOperations.getStart());
         if (opChain != null && !opChain.getOperations().isEmpty()) {
@@ -122,14 +122,14 @@ public class AddOperationsToChain implements GraphHook {
                 if (originalOp instanceof OperationChain) {
                     addOperationsToChain(((OperationChain) originalOp), additionalOperations);
                 }
-                List<Operation> beforeOps = additionalOperations.getBefore()
+                final List<Operation> beforeOps = additionalOperations.getBefore()
                                                                 .get(originalOp.getClass()
                                                                                .getName());
                 if (beforeOps != null) {
                     newOpList.addAll(beforeOps);
                 }
                 newOpList.add(originalOp);
-                List<Operation> afterOps = additionalOperations.getAfter()
+                final List<Operation> afterOps = additionalOperations.getAfter()
                                                                .get(originalOp.getClass()
                                                                               .getName());
                 if (afterOps != null) {

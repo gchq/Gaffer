@@ -29,6 +29,11 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobStatus;
 import uk.gov.gchq.gaffer.jobtracker.JobTracker;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
+import uk.gov.gchq.gaffer.named.operation.DeleteNamedOperation;
+import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChainDAO;
@@ -87,6 +92,10 @@ import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandle
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetAllJobDetailsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetJobDetailsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetJobResultsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.DeleteNamedOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.GetAllNamedOperationsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.NamedOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToArrayHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToCsvHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToEntitySeedsHandler;
@@ -101,6 +110,7 @@ import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
+import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
@@ -188,6 +198,9 @@ public abstract class Store {
         this.graphId = graphId;
         this.schema = schema;
         this.properties = properties;
+
+        JSONSerialiser.update(properties.getJsonSerialiserClass(), properties.getJsonSerialiserModules());
+
         startCacheServiceLoader(properties);
         this.jobTracker = createJobTracker(properties);
 
@@ -477,15 +490,54 @@ public abstract class Store {
 
             validateSchema(validationResult, getSchema().getVertexSerialiser());
 
-            getSchema().getTypes().entrySet().forEach(entrySet ->
-                    validateSchema(validationResult, entrySet.getValue()
-                                                             .getSerialiser()));
+            getSchema().getTypes()
+                       .forEach((k, v) -> validateSchema(validationResult, v.getSerialiser()));
         }
 
         if (!validationResult.isValid()) {
             throw new SchemaException("Schema is not valid. "
                     + validationResult.getErrorString());
         }
+    }
+
+    protected void validateConsistentVertex() {
+        if (null != getSchema().getVertexSerialiser() && !getSchema().getVertexSerialiser()
+                .isConsistent()) {
+            throw new SchemaException("Vertex serialiser is inconsistent. This store requires vertices to be serialised in a consistent way.");
+        }
+    }
+
+    protected void validateConsistentGroupByProperties(final Map.Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry, final ValidationResult validationResult) {
+        for (final String property : schemaElementDefinitionEntry.getValue()
+                .getGroupBy()) {
+            final TypeDefinition propertyTypeDef = schemaElementDefinitionEntry.getValue()
+                    .getPropertyTypeDef(property);
+            if (null != propertyTypeDef) {
+                final Serialiser serialiser = propertyTypeDef.getSerialiser();
+                if (null != serialiser && !serialiser.isConsistent()) {
+                    validationResult.addError("Serialiser for groupBy property: " + property
+                                                      + " is inconsistent. This store requires all groupBy property serialisers to be consistent. Serialiser "
+                                                      + serialiser.getClass().getName() + " is not consistent.");
+                }
+            }
+        }
+    }
+
+    protected void validateSchemaElementDefinition(final Map.Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry, final ValidationResult validationResult) {
+        schemaElementDefinitionEntry.getValue()
+                .getProperties()
+                .forEach(propertyName -> {
+                    final Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
+                    final Serialiser serialisation = schemaElementDefinitionEntry.getValue().getPropertyTypeDef(propertyName).getSerialiser();
+
+                    if (null == serialisation) {
+                        validationResult.addError(
+                                String.format("Could not find a serialiser for property '%s' in the group '%s'.", propertyName, schemaElementDefinitionEntry.getKey()));
+                    } else if (!serialisation.canHandle(propertyClass)) {
+                        validationResult.addError(String.format("Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema",
+                                                                serialisation.getClass().getName(), propertyName, schemaElementDefinitionEntry.getKey()));
+                    }
+                });
     }
 
     protected void validateSchema(final ValidationResult validationResult, final Serialiser serialiser) {
@@ -690,6 +742,14 @@ public abstract class Store {
         addOperationHandler(ToSet.class, new ToSetHandler<>());
         addOperationHandler(ToStream.class, new ToStreamHandler<>());
         addOperationHandler(ToVertices.class, new ToVerticesHandler());
+
+        // Named operation
+        if (null != CacheServiceLoader.getService()) {
+            addOperationHandler(NamedOperation.class, new NamedOperationHandler());
+            addOperationHandler(AddNamedOperation.class, new AddNamedOperationHandler());
+            addOperationHandler(GetAllNamedOperations.class, new GetAllNamedOperationsHandler());
+            addOperationHandler(DeleteNamedOperation.class, new DeleteNamedOperationHandler());
+        }
 
         // ElementComparison
         addOperationHandler(Max.class, new MaxHandler());

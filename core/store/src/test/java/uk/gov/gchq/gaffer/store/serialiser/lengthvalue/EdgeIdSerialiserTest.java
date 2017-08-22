@@ -51,7 +51,7 @@ public class EdgeIdSerialiserTest {
         try {
             serialiser = new EdgeIdSerialiser(schema);
             fail("Exception expected");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Vertex serialiser is required"));
         }
     }
@@ -86,6 +86,11 @@ public class EdgeIdSerialiserTest {
 
     @Test
     public void testPreserveObjectOrdering() throws SerialisationException {
-        assertEquals(false, serialiser.preservesObjectOrdering());
+        assertEquals(true, serialiser.preservesObjectOrdering());
+    }
+
+    @Test
+    public void testIsConsistent() {
+        assertEquals(true, serialiser.isConsistent());
     }
 }

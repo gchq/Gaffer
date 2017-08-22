@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.output;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -27,6 +28,8 @@ import java.util.Set;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 
@@ -53,6 +56,23 @@ public class ToMapTest extends OperationTest<ToMap> {
     }
 
     @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final Entity input = new Entity(TestGroups.ENTITY);
+        final MapGenerator generator = new MapGenerator();
+        final ToMap toMap = new ToMap.Builder()
+                .input(input)
+                .generator(generator)
+                .build();
+
+        // When
+        ToMap clone = toMap.shallowClone();
+
+        // Then
+        assertNotSame(toMap, clone);
+        assertEquals(Lists.newArrayList(input), clone.getInput());
+    }
+
     protected ToMap getTestObject() {
         return new ToMap();
     }
