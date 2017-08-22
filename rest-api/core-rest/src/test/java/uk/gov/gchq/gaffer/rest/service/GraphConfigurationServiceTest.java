@@ -76,8 +76,6 @@ public class GraphConfigurationServiceTest {
     @Mock
     private Store store;
 
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @Before
     public void setup() {
         final Schema schema = mock(Schema.class);
@@ -254,8 +252,8 @@ public class GraphConfigurationServiceTest {
     @Test
     public void shouldSerialiseAndDeserialiseGetStoreTraits() throws IOException {
         // When
-        byte[] bytes = serialiser.serialise(service.getStoreTraits());
-        final Set<StoreTrait> traits = serialiser.deserialise(bytes, Set.class);
+        byte[] bytes = JSONSerialiser.serialise(service.getStoreTraits());
+        final Set<StoreTrait> traits = JSONSerialiser.deserialise(bytes, Set.class);
 
         // Then
         assertNotNull(traits);

@@ -50,7 +50,6 @@ public class TransformsTest {
                         .dest("11")
                         .directed(true)
                         .property("description", "3 vehicles have travelled between junction 10 and junction 11")
-                        .property("count", 3L)
                         .build(),
                 new Edge.Builder()
                         .group("RoadUse")
@@ -58,7 +57,6 @@ public class TransformsTest {
                         .dest("10")
                         .directed(true)
                         .property("description", "1 vehicles have travelled between junction 11 and junction 10")
-                        .property("count", 1L)
                         .build()
         };
 

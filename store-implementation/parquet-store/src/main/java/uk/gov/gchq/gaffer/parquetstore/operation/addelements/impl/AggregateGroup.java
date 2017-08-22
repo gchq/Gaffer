@@ -39,7 +39,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.util.AggregatorUtil;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -56,7 +55,6 @@ public class AggregateGroup implements Callable<OperationException>, Serializabl
     private static final String SPLIT = "/split";
     private static final String RAW = "/raw";
     private static final String AGGREGATED = "/aggregated";
-    private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
     private static final Logger LOGGER = LoggerFactory.getLogger(AggregateGroup.class);
     private static final long serialVersionUID = -7828247145178905841L;
     private final String group;
@@ -87,7 +85,7 @@ public class AggregateGroup implements Callable<OperationException>, Serializabl
         this.isEntity = groupGafferSchema instanceof SchemaEntityDefinition;
         this.aggregate = groupGafferSchema.isAggregate();
         this.groupByColumns = new HashSet<>(AggregatorUtil.getIngestGroupBy(group, gafferSchema));
-        this.aggregatorJson = JSON_SERIALISER.serialise(groupGafferSchema.getIngestAggregator());
+        this.aggregatorJson = JSONSerialiser.serialise(groupGafferSchema.getIngestAggregator());
         this.gafferProperties = new String[groupGafferSchema.getProperties().size()];
         groupGafferSchema.getProperties().toArray(this.gafferProperties);
         this.spark = spark;

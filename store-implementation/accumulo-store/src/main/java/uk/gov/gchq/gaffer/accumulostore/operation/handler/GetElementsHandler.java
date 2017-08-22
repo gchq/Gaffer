@@ -44,6 +44,10 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
             throw new IllegalArgumentException("The accumulostore.operation.return_matched_id_as_edge_source option has been removed. Instead of flipping the Edges around the result Edges will have a matchedVertex field set specifying if the SOURCE or DESTINATION was matched.");
         }
 
+        if (null == operation.getInput()) {
+            throw new OperationException("Operation input is undefined - please specify an input.");
+        }
+
         try {
             return new AccumuloElementsRetriever(store, operation, user);
         } catch (final IteratorSettingException | StoreException e) {

@@ -49,6 +49,13 @@ public class ToEntitySeeds implements
         return new TypeReferenceImpl.IterableEntitySeed();
     }
 
+    @Override
+    public ToEntitySeeds shallowClone() {
+        return new ToEntitySeeds.Builder()
+                .input(input)
+                .build();
+    }
+
     public static final class Builder
             extends BaseBuilder<ToEntitySeeds, Builder>
             implements InputOutput.Builder<ToEntitySeeds, Iterable<? extends Object>, Iterable<? extends EntitySeed>, Builder>,

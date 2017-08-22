@@ -48,11 +48,10 @@ import java.util.List;
  * @see uk.gov.gchq.gaffer.graph.GraphConfig.Builder
  */
 public final class GraphConfig {
-    private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
-
     private String graphId;
     private View view;
     private GraphLibrary library;
+    private String description;
     private List<GraphHook> hooks = new ArrayList<>();
 
     public GraphConfig() {
@@ -85,6 +84,14 @@ public final class GraphConfig {
 
     public void setLibrary(final GraphLibrary library) {
         this.library = library;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(final String description) {
+        this.description = description;
     }
 
     public List<GraphHook> getHooks() {
@@ -142,7 +149,7 @@ public final class GraphConfig {
 
         public Builder json(final byte[] bytes) {
             try {
-                return merge(JSON_SERIALISER.deserialise(bytes, GraphConfig.class));
+                return merge(JSONSerialiser.deserialise(bytes, GraphConfig.class));
             } catch (final IOException e) {
                 throw new IllegalArgumentException("Unable to deserialise graph config", e);
             }
@@ -158,6 +165,9 @@ public final class GraphConfig {
             if (null != config.getLibrary()) {
                 this.config.setLibrary(config.getLibrary());
             }
+            if (null != config.getDescription()) {
+                this.config.setDescription(config.getDescription());
+            }
             this.config.getHooks().addAll(config.getHooks());
             return this;
         }
@@ -169,6 +179,11 @@ public final class GraphConfig {
 
         public Builder library(final GraphLibrary library) {
             this.config.setLibrary(library);
+            return this;
+        }
+
+        public Builder description(final String description) {
+            this.config.setDescription(description);
             return this;
         }
 
@@ -204,7 +219,7 @@ public final class GraphConfig {
             }
             final GraphHook[] hooks;
             try {
-                hooks = JSON_SERIALISER.deserialise(FileUtils.readFileToByteArray(hooksPath.toFile()), GraphHook[].class);
+                hooks = JSONSerialiser.deserialise(FileUtils.readFileToByteArray(hooksPath.toFile()), GraphHook[].class);
             } catch (final IOException e) {
                 throw new IllegalArgumentException("Unable to load graph hooks file: " + hooksPath, e);
             }
@@ -218,7 +233,7 @@ public final class GraphConfig {
 
             final GraphHook hook;
             try {
-                hook = JSON_SERIALISER.deserialise(FileUtils.readFileToByteArray(hookPath.toFile()), GraphHook.class);
+                hook = JSONSerialiser.deserialise(FileUtils.readFileToByteArray(hookPath.toFile()), GraphHook.class);
             } catch (final IOException e) {
                 throw new IllegalArgumentException("Unable to load graph hook file: " + hookPath, e);
             }

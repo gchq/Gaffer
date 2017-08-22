@@ -23,6 +23,8 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 
@@ -41,6 +43,21 @@ public class ToListTest extends OperationTest<ToList> {
     }
 
     @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final String input = "1";
+        final ToList toList = new ToList.Builder<>()
+                .input(input)
+                .build();
+
+        // When
+        final ToList clone = toList.shallowClone();
+
+        // Then
+        assertNotSame(toList, clone);
+        assertEquals(input, clone.getInput().iterator().next());
+    }
+
     protected ToList getTestObject() {
         return new ToList();
     }

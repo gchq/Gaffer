@@ -52,15 +52,13 @@ import static org.mockito.Mockito.mock;
 
 
 public class ScoreOperationChainHandlerTest {
-    private final JSONSerialiser json = new JSONSerialiser();
-
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
     @Test
     public void shouldLoadFromScoreOperationChainDeclarationFile() throws SerialisationException {
         final InputStream s = StreamUtil.openStream(getClass(), "TestScoreOperationChainDeclaration.json");
-        final OperationDeclarations deserialised = json.deserialise(s, OperationDeclarations.class);
+        final OperationDeclarations deserialised = JSONSerialiser.deserialise(s, OperationDeclarations.class);
 
         assertEquals(1, deserialised.getOperations().size());
         assert (deserialised.getOperations().get(0).getHandler() instanceof ScoreOperationChainHandler);

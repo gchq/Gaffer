@@ -171,7 +171,7 @@ public class Aggregation extends UserWalkthrough {
                         .build())
                 .build();
 
-        log("GET_ALL_EDGES_SUMMARISED_IN_TIME_WINDOW_RESULT_WITH_MIN_COUNT_JSON", StringUtil.toString(new JSONSerialiser().serialise(edgesSummarisedInTimeWindowWithMinCountOperation, true)));
+        log("GET_ALL_EDGES_SUMMARISED_IN_TIME_WINDOW_RESULT_WITH_MIN_COUNT_JSON", StringUtil.toString(JSONSerialiser.serialise(edgesSummarisedInTimeWindowWithMinCountOperation, true)));
 
         final CloseableIterable<? extends Element> edgesSummarisedInTimeWindowWithMinCount = graph.execute(edgesSummarisedInTimeWindowWithMinCountOperation, user);
         // ---------------------------------------------------------

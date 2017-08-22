@@ -23,7 +23,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -33,6 +35,7 @@ import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
@@ -144,9 +147,59 @@ public class GetElementsIT extends AbstractStoreIT {
     }
 
     @Test
+     public void shouldGetElementsWithProvidedProperties() throws Exception {
+        // Given
+        final User user = new User();
+
+        final GetElements op = new GetElements.Builder()
+                .input(new EntitySeed(SOURCE_2))
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .properties(TestPropertyNames.COUNT)
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        final CloseableIterable<? extends Element> results = graph.execute(op, user);
+
+        // Then
+        for (final Element result : results) {
+            assertEquals(1, result.getProperties().size());
+            assertEquals(1L, result.getProperties().get(TestPropertyNames.COUNT));
+        }
+    }
+
+    @Test
+    public void shouldGetElementsWithExcludedProperties() throws Exception {
+        // Given
+        final User user = new User();
+
+        final GetElements op = new GetElements.Builder()
+                .input(new EntitySeed(SOURCE_2))
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .properties(TestPropertyNames.COUNT)
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        final CloseableIterable<? extends Element> results = graph.execute(op, user);
+
+        // Then
+        for (final Element result : results) {
+            assertEquals(1, result.getProperties().size());
+            assertEquals(1L, result.getProperties().get(TestPropertyNames.COUNT));
+        }
+    }
+
+    @Test
     public void shouldReturnEmptyIteratorIfNoSeedsProvidedForGetElementsBySeed() throws Exception {
         // Given
-        final GetElements op = new GetElements();
+        final GetElements op = new GetElements.Builder()
+                .input(new EmptyClosableIterable<>())
+                .build();
 
         // When
         final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
@@ -158,8 +211,9 @@ public class GetElementsIT extends AbstractStoreIT {
     @Test
     public void shouldReturnEmptyIteratorIfNoSeedsProvidedForGetRelatedElements() throws Exception {
         // Given
-        final GetElements op = new GetElements();
-
+        final GetElements op = new GetElements.Builder()
+                .input(new EmptyClosableIterable<>())
+                .build();
         // When
         final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
 

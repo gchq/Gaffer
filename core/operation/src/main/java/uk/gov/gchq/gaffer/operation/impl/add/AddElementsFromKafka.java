@@ -147,6 +147,20 @@ public class AddElementsFromKafka implements
         return result;
     }
 
+    @Override
+    public AddElementsFromKafka shallowClone() {
+        return new AddElementsFromKafka.Builder()
+                .topic(topic)
+                .groupId(groupId)
+                .bootstrapServers(bootstrapServers)
+                .generator(elementGenerator)
+                .parallelism(parallelism)
+                .validate(validate)
+                .skipInvalidElements(skipInvalidElements)
+                .options(options)
+                .build();
+    }
+
     public static class Builder extends BaseBuilder<AddElementsFromKafka, Builder>
             implements Validatable.Builder<AddElementsFromKafka, Builder>,
             Options.Builder<AddElementsFromKafka, Builder> {

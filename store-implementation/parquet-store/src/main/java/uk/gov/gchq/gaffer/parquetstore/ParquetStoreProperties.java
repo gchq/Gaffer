@@ -19,8 +19,10 @@ package uk.gov.gchq.gaffer.parquetstore;
 import org.apache.spark.SparkConf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
+import uk.gov.gchq.koryphe.impl.binaryoperator.StringDeduplicateConcat;
 import java.io.Serializable;
 import java.nio.file.Path;
 
@@ -134,5 +136,13 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
 
     public void setSparkMaster(final String sparkMaster) {
         set(SPARK_MASTER, sparkMaster);
+    }
+
+    @Override
+    public String getJsonSerialiserModules() {
+        return new StringDeduplicateConcat().apply(
+                SketchesJsonModules.class.getName(),
+                super.getJsonSerialiserModules()
+        );
     }
 }

@@ -28,7 +28,6 @@ import java.io.Serializable;
 
 @JsonDeserialize(builder = ParameterDetail.Builder.class)
 public class ParameterDetail implements Serializable {
-    private static final JSONSerialiser SERIALISER = new JSONSerialiser();
     private static final long serialVersionUID = -883113279877131469L;
     private String description;
     private Object defaultValue;
@@ -53,8 +52,8 @@ public class ParameterDetail implements Serializable {
         this.valueClass = clazz;
 
         try {
-            byte[] json = SERIALISER.serialise(defaultValue);
-            Object es = SERIALISER.deserialise(json, this.valueClass);
+            byte[] json = JSONSerialiser.serialise(defaultValue);
+            JSONSerialiser.deserialise(json, this.valueClass);
         } catch (SerialisationException e) {
             throw new IllegalArgumentException(e);
         }

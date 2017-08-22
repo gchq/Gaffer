@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
@@ -189,10 +190,12 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                         ElementFilter preAggFilter = view.getElement(group).getPreAggregationFilter();
                         if (preAggFilter != null) {
                             if (preAggFilter.test(e)) {
+                                ViewUtil.removeProperties(view, e);
                                 return e;
                             }
                         }
                     } else {
+                        ViewUtil.removeProperties(view, e);
                         return e;
                     }
                 }

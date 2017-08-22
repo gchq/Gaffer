@@ -24,6 +24,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -91,7 +92,7 @@ public abstract class AbstractOperationsTest {
 
     @Test
     public void getElementsTest() throws OperationException {
-        final CloseableIterable<? extends Element> data = graph.execute(new GetElements.Builder().build(), USER);
+        final CloseableIterable<? extends Element> data = graph.execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).build(), USER);
         assertFalse(data.iterator().hasNext());
         data.close();
     }
@@ -134,7 +135,7 @@ public abstract class AbstractOperationsTest {
                         .build())
                 .build();
         try {
-            graph.execute(new GetElements.Builder().view(view).build(), USER);
+            graph.execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).view(view).build(), USER);
             fail("IllegalArgumentException Exception expected");
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Operation chain"));
@@ -156,7 +157,7 @@ public abstract class AbstractOperationsTest {
                         .build())
                 .build();
         try {
-            graph.execute(new GetElements.Builder().view(view).build(), USER);
+            graph.execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).view(view).build(), USER);
             fail("IllegalArgumentException Exception expected");
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Operation chain"));

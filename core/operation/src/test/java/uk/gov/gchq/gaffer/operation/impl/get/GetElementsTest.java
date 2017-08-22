@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.get;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
@@ -28,6 +29,7 @@ import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import java.util.Iterator;
 
 import static junit.framework.TestCase.assertNotNull;
@@ -35,11 +37,10 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 public class GetElementsTest extends OperationTest<GetElements> {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @Test
     public void shouldSetSeedMatchingTypeToEquals() {
         // Given
@@ -65,8 +66,8 @@ public class GetElementsTest extends OperationTest<GetElements> {
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(op, true);
-        final GetElements deserialisedOp = serialiser.deserialise(json, GetElements.class);
+        byte[] json = JSONSerialiser.serialise(op, true);
+        final GetElements deserialisedOp = JSONSerialiser.deserialise(json, GetElements.class);
 
         // Then
         final Iterator itr = deserialisedOp.getInput().iterator();
@@ -124,6 +125,7 @@ public class GetElementsTest extends OperationTest<GetElements> {
         // When
         final GetElements op = new GetElements.Builder()
                 .directedType(DirectedType.EITHER)
+                .input(new EntitySeed())
                 .build();
 
         // Then
@@ -135,6 +137,7 @@ public class GetElementsTest extends OperationTest<GetElements> {
         // When
         final GetElements op = new GetElements.Builder()
                 .option("key", "value")
+                .input(new EntitySeed())
                 .build();
 
         // Then
@@ -150,7 +153,37 @@ public class GetElementsTest extends OperationTest<GetElements> {
     }
 
     @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        EntitySeed input = new EntitySeed("A");
+        View view = new View.Builder()
+                .edge("testEdgeGroup")
+                .build();
+        final GetElements getElements = new GetElements.Builder()
+                .input(input)
+                .inOutType(IncludeIncomingOutgoingType.EITHER)
+                .view(view)
+                .directedType(DirectedType.DIRECTED)
+                .seedMatching(SeedMatchingType.RELATED)
+                .option("testOption", "true")
+                .build();
+
+        // When
+        GetElements clone = getElements.shallowClone();
+
+        // Then
+        assertNotSame(getElements, clone);
+        assertEquals(Lists.newArrayList(input), clone.getInput());
+        assertEquals(IncludeIncomingOutgoingType.EITHER, clone.getIncludeIncomingOutGoing());
+        assertEquals(view, clone.getView());
+        assertEquals(DirectedType.DIRECTED, clone.getDirectedType());
+        assertEquals(SeedMatchingType.RELATED, clone.getSeedMatching());
+        assertEquals("true", clone.getOption("testOption"));
+    }
+
     protected GetElements getTestObject() {
-        return new GetElements();
+        return new GetElements.Builder()
+                .input(new EntitySeed())
+                .build();
     }
 }
