@@ -65,16 +65,27 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
     }
 
     protected void updateOperationInput(final Operation op, final Object result) {
-        if (null != result && op instanceof Input && null == ((Input) op).getInput()) {
-            try {
-                ((Input) op).setInput(result);
-            } catch (final ClassCastException e) {
-                throw new UnsupportedOperationException("Operation chain is not compatible. "
-                        + op.getClass().getName()
-                        + " cannot take " + result.getClass().getName()
-                        + " as an input", e);
+        if (op instanceof OperationChain) {
+            final Operation firstOp = (Operation) ((OperationChain) op).getOperations()
+                                                                       .get(0);
+            if (firstOp instanceof Input) {
+                setOperationInput((Input) firstOp, result);
             }
+        } else if (null != result
+                && op instanceof Input
+                && null == ((Input) op).getInput()) {
+            setOperationInput((Input) op, result);
         }
     }
 
+    private void setOperationInput(final Input op, final Object result) {
+        try {
+            op.setInput(result);
+        } catch (final ClassCastException e) {
+            throw new UnsupportedOperationException("Operation chain is not compatible. "
+                    + op.getClass().getName()
+                    + " cannot take " + result.getClass().getName()
+                    + " as an input", e);
+        }
+    }
 }

@@ -53,12 +53,12 @@ public class OperationChainLimiter implements GraphHook {
      * If an operation cannot be executed then an {@link IllegalAccessError} is thrown.
      *
      * @param user    the user to authorise.
-     * @param operation the operation chain.
+     * @param opChain the operation chain.
      */
     @Override
-    public void preExecute(final OperationChain<?> operation, final User user) {
-        if (null != operation) {
-            Integer chainScore = scorer.getChainScore(operation, user);
+    public void preExecute(final OperationChain<?> opChain, final User user) {
+        if (null != opChain) {
+            Integer chainScore = scorer.getChainScore(opChain, user);
             Integer maxAuthScore = scorer.getMaxUserAuthScore(user.getOpAuths());
 
             if (chainScore > maxAuthScore) {
@@ -69,7 +69,7 @@ public class OperationChainLimiter implements GraphHook {
     }
 
     @Override
-    public <T> T postExecute(final T result, final OperationChain<?> operation, final User user) {
+    public <T> T postExecute(final T result, final OperationChain<?> opChain, final User user) {
         // This method can be overridden to add additional authorisation checks on the results.
         return result;
     }
