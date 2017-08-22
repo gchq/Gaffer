@@ -471,6 +471,9 @@ public abstract class Store {
         }
     }
 
+    /**
+     * Throws a {@link SchemaException} if the Vertex Serialiser is inconsistent.
+     */
     protected void validateConsistentVertex() {
         if (null != getSchema().getVertexSerialiser() && !getSchema().getVertexSerialiser()
                 .isConsistent()) {
@@ -478,6 +481,13 @@ public abstract class Store {
         }
     }
 
+    /**
+     * Ensures that each of the GroupBy properties in the {@link SchemaElementDefinition} is consistent,
+     * otherwise an error is added to the {@link ValidationResult}.
+     *
+     * @param schemaElementDefinitionEntry A map of SchemaElementDefinitions
+     * @param validationResult The validation result
+     */
     protected void validateConsistentGroupByProperties(final Map.Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry, final ValidationResult validationResult) {
         for (final String property : schemaElementDefinitionEntry.getValue()
                 .getGroupBy()) {

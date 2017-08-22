@@ -19,7 +19,7 @@ import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 /**
- * An <code>FreqMapExtractor</code> is a {@link KorypheFunction} that extractor a
+ * A <code>FreqMapExtractor</code> is a {@link KorypheFunction} that extracts a
  * count from a frequency map for the provided key.
  */
 public class FreqMapExtractor extends KorypheFunction<FreqMap, Long> {
