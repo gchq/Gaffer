@@ -17,7 +17,9 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.directrdd;
 
 import org.apache.hadoop.conf.Configuration;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
@@ -34,5 +36,14 @@ public final class Utils {
         final byte[] serialised = baos.toByteArray();
         baos.close();
         return serialised;
+    }
+
+    public static Configuration deserialiseConfiguration(final byte[] serialisedConfiguration) throws IOException {
+        final ByteArrayInputStream bais = new ByteArrayInputStream(serialisedConfiguration);
+        final DataInputStream dis = new DataInputStream(bais);
+        final Configuration configuration = new Configuration();
+        configuration.readFields(dis);
+        dis.close();
+        return configuration;
     }
 }

@@ -31,10 +31,10 @@ import org.apache.accumulo.core.file.rfile.RFile;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.apache.accumulo.core.iterators.system.MultiIterator;
 import org.apache.accumulo.core.util.Pair;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.util.StringUtils;
 import org.apache.spark.Partition;
 import org.apache.spark.TaskContext;
 import org.apache.spark.util.TaskCompletionListener;
@@ -46,7 +46,6 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -56,14 +55,13 @@ import java.util.stream.Collectors;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
- * A <code>RFileReaderIterator</code> is a {@link scala.collection.Iterator} formed by merging iterators over
+ * A <code>RFileReaderIterator</code> is a {@link java.util.Iterator} formed by merging iterators over
  * a set of RFiles.
  */
 public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Value>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(RFileReaderIterator.class);
     private final Partition partition;
     private final TaskContext taskContext;
-//    private final Set<String> requiredColumnFamilies;
     private final List<SortedKeyValueIterator<Key, Value>> iterators = new ArrayList<>();
     private SortedKeyValueIterator<Key, Value> mergedIterator = null;
     private SortedKeyValueIterator<Key, Value> iteratorAfterIterators = null;
@@ -71,14 +69,9 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
 
     public RFileReaderIterator(final Partition partition,
                                final TaskContext taskContext,
-//                               final Set<String> requiredColumnFamilies,
                                final Configuration configuration) {
         this.partition = partition;
         this.taskContext = taskContext;
-//        if (null == requiredColumnFamilies || requiredColumnFamilies.isEmpty()) {
-//            throw new IllegalArgumentException("requiredColumnFamilies must be non-null and non-empty");
-//        }
-//        this.requiredColumnFamilies = requiredColumnFamilies;
         this.configuration = configuration;
         try {
             init();
@@ -94,8 +87,8 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
 
     @Override
     public Map.Entry<Key, Value> next() {
-        final Map.Entry<Key, Value> next = new AbstractMap.SimpleEntry<>(iteratorAfterIterators.getTopKey(),
-                iteratorAfterIterators.getTopValue());
+        final Map.Entry<Key, Value> next = new AbstractMap.SimpleEntry<>(new Key(iteratorAfterIterators.getTopKey()),
+                new Value(iteratorAfterIterators.getTopValue()));
         try {
             iteratorAfterIterators.next();
         } catch (final IOException e) {
@@ -105,8 +98,8 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
     }
 
     private void init() throws IOException {
-        LOGGER.info("Initialising RFileReaderIterator");
         final AccumuloTablet accumuloTablet = (AccumuloTablet) partition;
+        LOGGER.info("Initialising RFileReaderIterator for files {}", StringUtils.join(accumuloTablet.getFiles(), ','));
         final AccumuloConfiguration accumuloConfiguration = SiteConfiguration.getInstance(DefaultConfiguration.getInstance());
 
         // Required column families according to the configuration
@@ -116,9 +109,9 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
                 .map(Pair::getFirst)
                 .map(c -> new ArrayByteSequence(c.toString()))
                 .collect(Collectors.toSet());
+        LOGGER.info("RFileReaderIterator will read column families of {}", StringUtils.join(requiredColumnFamilies, ','));
 
         // Column families
-        final Set<ByteSequence> columnFamilies = new HashSet<>();
         final List<SortedKeyValueIterator<Key, Value>> iterators = new ArrayList<>();
         for (final String filename : accumuloTablet.getFiles()) {
             final Path path = new Path(filename);
@@ -127,14 +120,6 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
             final RFile.Reader rFileReader = new RFile.Reader(
                     new CachableBlockFile.Reader(fs, path, configuration, null, null, accumuloConfiguration));
             iterators.add(rFileReader);
-
-            for (final ArrayList<ByteSequence> cfs : rFileReader.getLocalityGroupCF().values()) {
-                for (final ByteSequence bs : cfs) {
-                    if (requiredColumnFamilies.contains(cfs.toString())) {
-                        columnFamilies.add(bs);
-                    }
-                }
-            }
         }
         mergedIterator = new MultiIterator(iterators, true);
 
@@ -154,7 +139,7 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
         });
 
         final Range range = new Range(accumuloTablet.getStartRow(), true, accumuloTablet.getEndRow(), false);
-        iteratorAfterIterators.seek(range, columnFamilies, false);
+        iteratorAfterIterators.seek(range, requiredColumnFamilies, true);
         LOGGER.info("Initialised iterator");
     }
 
@@ -182,7 +167,7 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
         LOGGER.info("Found {} iterators in configuration", iterators.length());
 
         // Compose the set of iterators encoded in the job configuration
-        final StringTokenizer tokens = new StringTokenizer(iterators, StringUtils.COMMA_STR);
+        final StringTokenizer tokens = new StringTokenizer(iterators, org.apache.hadoop.util.StringUtils.COMMA_STR);
         final List<IteratorSetting> list = new ArrayList<>();
         try {
             while (tokens.hasMoreTokens()) {
@@ -200,7 +185,7 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
     }
 
     protected static String enumToConfKey(final Class<?> implementingClass, final Enum<?> e) {
-        return implementingClass.getSimpleName() + "." + e.getDeclaringClass().getSimpleName() + "." + StringUtils.camelize(e.name().toLowerCase());
+        return implementingClass.getSimpleName() + "." + e.getDeclaringClass().getSimpleName() + "." + org.apache.hadoop.util.StringUtils.camelize(e.name().toLowerCase());
     }
 
     private void close() {
