@@ -15,16 +15,20 @@
  */
 package uk.gov.gchq.gaffer.sparkaccumulo.operation;
 
+import com.google.common.collect.Sets;
 import org.apache.accumulo.core.client.*;
 import org.apache.accumulo.core.client.admin.CompactionConfig;
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
+import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
 import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.iterators.user.GrepIterator;
 import org.apache.accumulo.core.security.SystemPermission;
+import org.apache.accumulo.core.util.Pair;
 import org.apache.accumulo.minicluster.MiniAccumuloCluster;
 import org.apache.accumulo.minicluster.MiniAccumuloConfig;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.spark.SparkConf;
 import org.junit.Rule;
@@ -32,7 +36,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.inputformat.ElementInputFormat;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.directrdd.RFileReaderRDD;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -40,13 +43,10 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class RFileReaderRDDTest {
     private final String USER = "user";
@@ -103,9 +103,12 @@ public class RFileReaderRDDTest {
 
         // When
         final SparkConf sparkConf = getSparkConf("testRFileReaderRDDCanBeCreatedAndIsNonEmpty");
+        final Configuration conf = new Configuration();
+        InputConfigurator.fetchColumns(AccumuloInputFormat.class, conf,
+                Sets.newHashSet(new Pair<>(new Text("CF"), new Text("CQ"))));
         final RFileReaderRDD rdd = new RFileReaderRDD(sparkConf,
                 cluster.getInstanceName(), cluster.getZooKeepers(), USER, PASSWORD, TABLE,
-                /**new HashSet<>(Arrays.asList("CF")),*/ serialiseConfiguration(new Configuration()));
+                serialiseConfiguration(conf));
         final long count = rdd.count();
 
         // Then
@@ -163,12 +166,14 @@ public class RFileReaderRDDTest {
         final Configuration conf = new Configuration();
         final Job job = Job.getInstance(conf);
         AccumuloInputFormat.addIterator(job, new IteratorSetting(1, "NAME", GrepIterator.class.getName(), options));
+        InputConfigurator.fetchColumns(AccumuloInputFormat.class, job.getConfiguration(),
+                Sets.newHashSet(new Pair<>(new Text("CF"), new Text("CQ"))));
 
         // When
         final SparkConf sparkConf = getSparkConf("testRFileReaderRDDAppliesIteratorCorrectly");
         final RFileReaderRDD rdd = new RFileReaderRDD(sparkConf,
                 cluster.getInstanceName(), cluster.getZooKeepers(), USER, PASSWORD, TABLE,
-                /** new HashSet<>(Arrays.asList("CF")),*/ serialiseConfiguration(job.getConfiguration()));
+                serialiseConfiguration(job.getConfiguration()));
         final long count = rdd.count();
 
         // Then
