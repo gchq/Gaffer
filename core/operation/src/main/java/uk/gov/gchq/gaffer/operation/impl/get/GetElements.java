@@ -30,7 +30,6 @@ import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
-import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.Map;
 
 /**

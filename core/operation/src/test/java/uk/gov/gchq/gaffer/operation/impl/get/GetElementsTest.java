@@ -146,15 +146,6 @@ public class GetElementsTest extends OperationTest<GetElements> {
     }
 
     @Test
-    public void shouldFailWhenInputUndefined() {
-        // When
-        final GetElements op = new GetElements();
-
-        // Then
-        assertFalse(op.validate().isValid());
-    }
-
-    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         builderShouldCreatePopulatedOperationAll();
