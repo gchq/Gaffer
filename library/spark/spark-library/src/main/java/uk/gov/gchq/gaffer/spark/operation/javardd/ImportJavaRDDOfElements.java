@@ -66,6 +66,15 @@ public class ImportJavaRDDOfElements implements
         this.options = options;
     }
 
+    @Override
+    public ImportJavaRDDOfElements shallowClone() {
+        return new ImportJavaRDDOfElements.Builder()
+                .javaSparkContext(sparkContext)
+                .input(input)
+                .options(options)
+                .build();
+    }
+
     public static class Builder extends BaseBuilder<ImportJavaRDDOfElements, Builder>
             implements Input.Builder<ImportJavaRDDOfElements, JavaRDD<Element>, Builder>,
             JavaRdd.Builder<ImportJavaRDDOfElements, Builder>,

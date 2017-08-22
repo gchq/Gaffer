@@ -1,0 +1,17 @@
+{
+  "edges": {
+    "RoadUse": {
+      "aggregateFunctions": [
+        {
+          "selection": [
+            "startDate",
+            "endDate"
+          ],
+          "binaryOperator": {
+            "class": "uk.gov.gchq.gaffer.doc.dev.aggregator.ExampleTuple2BinaryOperator"
+          }
+        }
+      ]
+    }
+  }
+}

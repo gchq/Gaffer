@@ -16,6 +16,9 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TreeSet;
 
 public final class CollectionUtil {
@@ -45,5 +48,67 @@ public final class CollectionUtil {
         }
 
         return treeSet;
+    }
+
+    public static <K, V> void toMapWithClassKeys(final Map<String, V> mapAsStrings, final Map<Class<? extends K>, V> map) throws ClassNotFoundException {
+        for (final Map.Entry<String, V> entry : mapAsStrings.entrySet()) {
+            map.put(
+                    (Class) Class.forName(entry.getKey()),
+                    entry.getValue()
+            );
+        }
+    }
+
+    public static <K, V> Map<Class<? extends K>, V> toMapWithClassKeys(final Map<String, V> mapAsStrings) throws ClassNotFoundException {
+        final Map<Class<? extends K>, V> map = new HashMap<>(mapAsStrings.size());
+        toMapWithClassKeys(mapAsStrings, map);
+        return map;
+    }
+
+    public static <K, V> void toMapWithStringKeys(final Map<Class<? extends K>, V> map, final Map<String, V> mapAsStrings) {
+        for (final Map.Entry<Class<? extends K>, V> entry : map.entrySet()) {
+            mapAsStrings.put(
+                    entry.getKey().getName(),
+                    entry.getValue()
+            );
+        }
+    }
+
+    public static <K, V> Map<String, V> toMapWithStringKeys(final Map<Class<? extends K>, V> map) {
+        final Map<String, V> mapAsStrings = new HashMap<>();
+        toMapWithStringKeys(map, mapAsStrings);
+        return mapAsStrings;
+    }
+
+    public static boolean containsAny(final Collection collection, final Object[] objects) {
+        boolean result = false;
+        if (null != collection && null != objects) {
+            for (final Object object : objects) {
+                if (collection.contains(object)) {
+                    result = true;
+                    break;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public static boolean anyMissing(final Collection collection, final Object[] objects) {
+        boolean result = false;
+        if (null == collection || collection.isEmpty()) {
+            if (null != objects && objects.length > 0) {
+                result = true;
+            }
+        } else if (null != objects) {
+            for (final Object object : objects) {
+                if (!collection.contains(object)) {
+                    result = true;
+                    break;
+                }
+            }
+        }
+
+        return result;
     }
 }

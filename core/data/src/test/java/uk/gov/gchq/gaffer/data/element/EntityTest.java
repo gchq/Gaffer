@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.data.element;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -36,10 +37,10 @@ public class EntityTest extends ElementTest {
     @Test
     public void shouldSetAndGetFields() {
         // Given
-        final Entity entity = new Entity("group");
-
-        // When
-        entity.setVertex("identifier");
+        final Entity entity = new Entity.Builder()
+                .group("group")
+                .vertex("identifier")
+                .build();
 
         // Then
         assertEquals("group", entity.getGroup());
@@ -189,14 +190,13 @@ public class EntityTest extends ElementTest {
         final Entity entity = newElement("group");
         entity.setVertex(1L);
 
-        final JSONSerialiser serialiser = new JSONSerialiser();
-
         // When
-        final byte[] serialisedElement = serialiser.serialise(entity);
-        final Entity deserialisedElement = serialiser.deserialise(serialisedElement, entity.getClass());
+        final byte[] serialisedElement = JSONSerialiser.serialise(entity);
+        final Entity deserialisedElement = JSONSerialiser.deserialise(serialisedElement, entity.getClass());
 
         // Then
         assertEquals(entity, deserialisedElement);
+        assertTrue(StringUtil.toString(serialisedElement).contains("{\"java.lang.Long\":1}"));
     }
 
     @Override
@@ -206,7 +206,7 @@ public class EntityTest extends ElementTest {
 
     @Override
     protected Entity newElement() {
-        return new Entity();
+        return new Entity.Builder().build();
     }
 
     private Entity cloneCoreFields(final Entity entity) {

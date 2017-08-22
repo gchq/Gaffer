@@ -15,20 +15,20 @@
  */
 package uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import com.yahoo.sketches.sampling.ReservoirLongsUnion;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.sketches.serialisation.ViaCalculatedArrayValueSerialiserTest;
+import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.ViaCalculatedArrayValueSerialiserTest;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class ReservoirLongsUnionSerialiserTest extends ViaCalculatedArrayValueSerialiserTest<ReservoirLongsUnion, Long> {
 
     @Override
     protected ReservoirLongsUnion getEmptyExampleOutput() {
-        return ReservoirLongsUnion.getInstance(20);
+        return ReservoirLongsUnion.newInstance(20);
     }
 
     public Serialiser<ReservoirLongsUnion, byte[]> getSerialisation() {
@@ -42,7 +42,7 @@ public class ReservoirLongsUnionSerialiserTest extends ViaCalculatedArrayValueSe
 
     @Override
     protected ReservoirLongsUnion getExampleOutput() {
-        final ReservoirLongsUnion union = ReservoirLongsUnion.getInstance(20);
+        final ReservoirLongsUnion union = ReservoirLongsUnion.newInstance(20);
         union.update(1L);
         union.update(2L);
         union.update(3L);
@@ -50,10 +50,10 @@ public class ReservoirLongsUnionSerialiserTest extends ViaCalculatedArrayValueSe
     }
 
     protected Long[] getTestValue(final ReservoirLongsUnion object) {
-        long[] samples = object.getResult().getSamples();
+        final long[] samples = object.getResult().getSamples();
 
-        //Not ideal but this is test code, performance not important.
-        Long[] longs = new Long[samples.length];
+        // Not ideal but this is test code, performance not important.
+        final Long[] longs = new Long[samples.length];
         for (int i = 0; i < longs.length; i++) {
             longs[i] = samples[i];
         }

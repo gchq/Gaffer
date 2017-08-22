@@ -121,17 +121,6 @@ accumulo.zookeepers=aZookeeper
 ################################################################################
 
 ################################################################################
-# accumulo store property - accumulo.table
-# description - the accumulo store table to read/write gaffer data from/to
-# notes
-#   - property is required
-#   - no default value is provided
-
-accumulo.table=table1
-
-################################################################################
-
-################################################################################
 # accumulo store property - accumulo.user
 # description - the user that will be used to connect to accumulo
 # notes
@@ -191,11 +180,9 @@ accumulo.password=password
 # description - sets the the max size in bytes of buffered writes.
 # notes
 #   - property is not required
-#   - default value is provided of 1000000
+#   - default value is provided of 100000000
 # Examples:
-# accumulo.maxBufferSizeForBatchWriterInBytes=1000000
-
-# accumulo.maxBufferSizeForBatchWriterInBytes=1000000
+# accumulo.maxBufferSizeForBatchWriterInBytes=100000000
 
 ################################################################################
 

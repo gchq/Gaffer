@@ -18,25 +18,29 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.SparkConf;
-import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
+import org.apache.spark.sql.SparkSession;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.spark.SparkConstants;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,28 +57,37 @@ public class GetRDDOfElementsHandlerTest {
     @Test
     public void checkGetCorrectElementsInRDDForEntityId() throws OperationException, IOException {
         final Graph graph1 = new Graph.Builder()
-                .addSchema(getClass().getResourceAsStream("/schema/dataSchema.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/dataTypes.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/storeTypes.json"))
+                .config(new GraphConfig.Builder()
+                        .graphId("graphId")
+                        .build())
+                .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/types.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
                 .build();
 
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            final Entity entity = new Entity(ENTITY_GROUP);
-            entity.setVertex("" + i);
+            final Entity entity = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex("" + i)
+                    .build();
 
-            final Edge edge1 = new Edge(EDGE_GROUP);
-            edge1.setSource("" + i);
-            edge1.setDestination("B");
-            edge1.setDirected(false);
-            edge1.putProperty("count", 2);
+            final Edge edge1 = new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("" + i)
+                    .dest("B")
+                    .directed(false)
+                    .property("count", 2)
+                    .build();
 
-            final Edge edge2 = new Edge(EDGE_GROUP);
-            edge2.setSource("" + i);
-            edge2.setDestination("C");
-            edge2.setDirected(false);
-            edge2.putProperty("count", 4);
+            final Edge edge2 = new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("" + i)
+                    .dest("C")
+                    .directed(false)
+                    .property("count", 4)
+                    .build();
 
             elements.add(edge1);
             elements.add(edge2);
@@ -86,10 +99,10 @@ public class GetRDDOfElementsHandlerTest {
         final SparkConf sparkConf = new SparkConf()
                 .setMaster("local")
                 .setAppName("testCheckGetCorrectElementsInRDDForEntityId")
-                .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-                .set("spark.kryo.registrator", "uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator")
-                .set("spark.driver.allowMultipleContexts", "true");
-        final SparkContext sparkContext = new SparkContext(sparkConf);
+                .set(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
+                .set(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
+                .set(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true");
+        final SparkSession sparkSession = SparkSession.builder().config(sparkConf).getOrCreate();
 
         // Create Hadoop configuration and serialise to a string
         final Configuration configuration = new Configuration();
@@ -99,7 +112,7 @@ public class GetRDDOfElementsHandlerTest {
 
         // Check get correct edges for "1"
         GetRDDOfElements rddQuery = new GetRDDOfElements.Builder()
-                .sparkContext(sparkContext)
+                .sparkSession(sparkSession)
                 .input(new EntitySeed("1"))
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
@@ -115,18 +128,24 @@ public class GetRDDOfElementsHandlerTest {
         }
 
         final Set<Element> expectedElements = new HashSet<>();
-        final Entity entity1 = new Entity(ENTITY_GROUP);
-        entity1.setVertex("1");
-        final Edge edge1B = new Edge(EDGE_GROUP);
-        edge1B.setSource("1");
-        edge1B.setDestination("B");
-        edge1B.setDirected(false);
-        edge1B.putProperty("count", 2);
-        final Edge edge1C = new Edge(EDGE_GROUP);
-        edge1C.setSource("1");
-        edge1C.setDestination("C");
-        edge1C.setDirected(false);
-        edge1C.putProperty("count", 4);
+        final Entity entity1 = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex("1")
+                .build();
+        final Edge edge1B = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("1")
+                .dest("B")
+                .directed(false)
+                .property("count", 2)
+                .build();
+        final Edge edge1C = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("1")
+                .dest("C")
+                .directed(false)
+                .property("count", 4)
+                .build();
         expectedElements.add(entity1);
         expectedElements.add(edge1B);
         expectedElements.add(edge1C);
@@ -134,7 +153,7 @@ public class GetRDDOfElementsHandlerTest {
 
         // Check get correct edges for "1" when specify entities only
         rddQuery = new GetRDDOfElements.Builder()
-                .sparkContext(sparkContext)
+                .sparkSession(sparkSession)
                 .input(new EntitySeed("1"))
                 .view(new View.Builder()
                         .entity(ENTITY_GROUP)
@@ -157,7 +176,7 @@ public class GetRDDOfElementsHandlerTest {
 
         // Check get correct edges for "1" when specify edges only
         rddQuery = new GetRDDOfElements.Builder()
-                .sparkContext(sparkContext)
+                .sparkSession(sparkSession)
                 .input(new EntitySeed("1"))
                 .view(new View.Builder()
                         .edge(EDGE_GROUP)
@@ -184,7 +203,7 @@ public class GetRDDOfElementsHandlerTest {
         seeds.add(new EntitySeed("1"));
         seeds.add(new EntitySeed("5"));
         rddQuery = new GetRDDOfElements.Builder()
-                .sparkContext(sparkContext)
+                .sparkSession(sparkSession)
                 .input(seeds)
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
@@ -195,21 +214,25 @@ public class GetRDDOfElementsHandlerTest {
 
         results.clear();
         returnedElements = (Element[]) rdd.collect();
-        for (int i = 0; i < returnedElements.length; i++) {
-            results.add(returnedElements[i]);
-        }
-        final Entity entity5 = new Entity(ENTITY_GROUP);
-        entity5.setVertex("5");
-        final Edge edge5B = new Edge(EDGE_GROUP);
-        edge5B.setSource("5");
-        edge5B.setDestination("B");
-        edge5B.setDirected(false);
-        edge5B.putProperty("count", 2);
-        final Edge edge5C = new Edge(EDGE_GROUP);
-        edge5C.setSource("5");
-        edge5C.setDestination("C");
-        edge5C.setDirected(false);
-        edge5C.putProperty("count", 4);
+        results.addAll(Arrays.asList(returnedElements));
+        final Entity entity5 = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex("5")
+                .build();
+        final Edge edge5B = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("5")
+                .dest("B")
+                .directed(false)
+                .property("count", 2)
+                .build();
+        final Edge edge5C = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("5")
+                .dest("C")
+                .directed(false)
+                .property("count", 4)
+                .build();
         expectedElements.clear();
         expectedElements.add(entity1);
         expectedElements.add(edge1B);
@@ -219,34 +242,43 @@ public class GetRDDOfElementsHandlerTest {
         expectedElements.add(edge5C);
         assertEquals(expectedElements, results);
 
-        sparkContext.stop();
+        sparkSession.stop();
     }
 
     @Test
     public void checkGetCorrectElementsInRDDForEdgeId() throws OperationException, IOException {
         final Graph graph1 = new Graph.Builder()
-                .addSchema(getClass().getResourceAsStream("/schema/dataSchema.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/dataTypes.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/storeTypes.json"))
+                .config(new GraphConfig.Builder()
+                        .graphId("graphId")
+                        .build())
+                .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/types.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
                 .build();
 
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            final Entity entity = new Entity(ENTITY_GROUP);
-            entity.setVertex("" + i);
+            final Entity entity = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex("" + i)
+                    .build();
 
-            final Edge edge1 = new Edge(EDGE_GROUP);
-            edge1.setSource("" + i);
-            edge1.setDestination("B");
-            edge1.setDirected(false);
-            edge1.putProperty("count", 2);
+            final Edge edge1 = new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("" + i)
+                    .dest("B")
+                    .directed(false)
+                    .property("count", 2)
+                    .build();
 
-            final Edge edge2 = new Edge(EDGE_GROUP);
-            edge2.setSource("" + i);
-            edge2.setDestination("C");
-            edge2.setDirected(false);
-            edge2.putProperty("count", 4);
+            final Edge edge2 = new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("" + i)
+                    .dest("C")
+                    .directed(false)
+                    .property("count", 4)
+                    .build();
 
             elements.add(edge1);
             elements.add(edge2);
@@ -258,10 +290,10 @@ public class GetRDDOfElementsHandlerTest {
         final SparkConf sparkConf = new SparkConf()
                 .setMaster("local")
                 .setAppName("testCheckGetCorrectElementsInRDDForEdgeId")
-                .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-                .set("spark.kryo.registrator", "uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator")
-                .set("spark.driver.allowMultipleContexts", "true");
-        final SparkContext sparkContext = new SparkContext(sparkConf);
+                .set(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
+                .set(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
+                .set(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true");
+        final SparkSession sparkSession = SparkSession.builder().config(sparkConf).getOrCreate();
 
         // Create Hadoop configuration and serialise to a string
         final Configuration configuration = new Configuration();
@@ -271,7 +303,7 @@ public class GetRDDOfElementsHandlerTest {
 
         // Check get correct edges for EdgeSeed 1 -> B
         GetRDDOfElements rddQuery = new GetRDDOfElements.Builder()
-                .sparkContext(sparkContext)
+                .sparkSession(sparkSession)
                 .input(new EdgeSeed("1", "B", false))
                 .view(new View.Builder()
                         .edge(EDGE_GROUP)
@@ -290,17 +322,19 @@ public class GetRDDOfElementsHandlerTest {
         }
 
         final Set<Element> expectedElements = new HashSet<>();
-        final Edge edge1B = new Edge(EDGE_GROUP);
-        edge1B.setSource("1");
-        edge1B.setDestination("B");
-        edge1B.setDirected(false);
-        edge1B.putProperty("count", 2);
+        final Edge edge1B = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("1")
+                .dest("B")
+                .directed(false)
+                .property("count", 2)
+                .build();
         expectedElements.add(edge1B);
         assertEquals(expectedElements, results);
 
         // Check get entity for 1 when query for 1 -> B and specify entities only
         rddQuery = new GetRDDOfElements.Builder()
-                .sparkContext(sparkContext)
+                .sparkSession(sparkSession)
                 .input(new EdgeSeed("1", "B", false))
                 .view(new View.Builder()
                         .entity(ENTITY_GROUP)
@@ -318,14 +352,16 @@ public class GetRDDOfElementsHandlerTest {
             results.add(returnedElements[i]);
         }
         expectedElements.clear();
-        final Entity entity1 = new Entity(ENTITY_GROUP);
-        entity1.setVertex("1");
+        final Entity entity1 = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex("1")
+                .build();
         expectedElements.add(entity1);
         assertEquals(expectedElements, results);
 
         // Check get correct edges for 1 -> B when specify edges only
         rddQuery = new GetRDDOfElements.Builder()
-                .sparkContext(sparkContext)
+                .sparkSession(sparkSession)
                 .input(new EdgeSeed("1", "B", false))
                 .view(new View.Builder()
                         .edge(EDGE_GROUP)
@@ -348,7 +384,7 @@ public class GetRDDOfElementsHandlerTest {
 
         // Check get correct edges for 1 -> B and 5 -> C
         rddQuery = new GetRDDOfElements.Builder()
-                .sparkContext(sparkContext)
+                .sparkSession(sparkSession)
                 .view(new View.Builder()
                         .edge(EDGE_GROUP)
                         .build())
@@ -362,28 +398,31 @@ public class GetRDDOfElementsHandlerTest {
 
         results.clear();
         returnedElements = (Element[]) rdd.collect();
-        for (int i = 0; i < returnedElements.length; i++) {
-            results.add(returnedElements[i]);
-        }
-        final Edge edge5C = new Edge(EDGE_GROUP);
-        edge5C.setSource("5");
-        edge5C.setDestination("C");
-        edge5C.setDirected(false);
-        edge5C.putProperty("count", 4);
+        results.addAll(Arrays.asList(returnedElements));
+        final Edge edge5C = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("5")
+                .dest("C")
+                .directed(false)
+                .property("count", 4)
+                .build();
         expectedElements.clear();
         expectedElements.add(edge1B);
         expectedElements.add(edge5C);
         assertEquals(expectedElements, results);
 
-        sparkContext.stop();
+        sparkSession.stop();
     }
 
     @Test
-    public void testNoSparkContext() throws OperationException {
+    public void testNoSparkSession() throws OperationException {
         final Graph graph1 = new Graph.Builder()
-                .addSchema(getClass().getResourceAsStream("/schema/dataSchema.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/dataTypes.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/storeTypes.json"))
+                .config(new GraphConfig.Builder()
+                        .graphId("graphId")
+                        .build())
+                .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/types.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
                 .build();
         final User user = new User();

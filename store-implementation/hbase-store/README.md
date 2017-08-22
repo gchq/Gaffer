@@ -28,6 +28,7 @@ HBase Store
 9. [Timestamp](#timestamp)
 10. [Validation and age-off of data](#validation-and-age-off-of-data)
 13. [Implementation details](#implementation-details)
+14. [Migration](#migration)
 
 Introduction
 -----------------------------------------------
@@ -89,9 +90,6 @@ gaffer.store.properties.class=uk.gov.gchq.gaffer.hbasestore.HBaseProperties
 # In AWS it will just be something like: ec2-xx-xx-xx-xx.location.compute.amazonaws.com
 hbase.zookeepers=localhost:2181
 
-# Name of table to store the Gaffer elements
-hbase.table=table1
-
 # Add the hbase-store-[version]-deploy.jar to the cluster - either local file system or hdfs.
 # e.g /user/hbase/gaffer/jars/hbase-store-0.7.0-deploy.jar
 hbase.hdfs.jars.path=[path to jar folder]/hbase-store-[version]-deploy.jar
@@ -104,6 +102,9 @@ See [Getting Started](Getting-Started.md) for details of how to write a schema t
 
 ```java
 Graph graph = new Graph.Builder()
+      .config(new GraphConfig.Builder()
+          .graphId(uniqueNameOfYourGraph)
+          .build())
       .addSchemas(schemas)
       .storeProperties(storeProperties)
       .build();
@@ -273,3 +274,76 @@ The following HBase key-value pairs are created for an `Edge`:
 If the `Edge` is undirected then both `x` and `y` are 4. If the `Edge` is directed then `x` is 2 and `y` is 3.
 
 The flag is repeated twice to allow filters that need to know whether the key corresponds to a `Entity` or an `Edge` to avoid having to fully deserialise the row ID. For a query such as find all out-going edges from this vertex, the flag that is directly after the source vertex can be used to restrict the range of row IDs queried for.
+
+## Migration
+
+The HBase Store also provides a utility [TableUtils](https://github.com/gchq/Gaffer/blob/master/store-implementation/hbase-store/src/main/java/uk/gov/gchq/gaffer/hbasestore/utils/TableUtils.java)
+to help with migrations - updating to new versions of Gaffer or updating your schema.
+
+The following changes to your schema are allowed:
+- add new groups
+- add new non-groupBy properties (including visibility and timestamp), but they must go after the other properties
+- rename properties
+- change aggregators (your data may become inconsistent as any elements that were aggregated on ingest will not be updated.)
+- change validators
+- change descriptions
+
+But, you cannot do the following:
+- rename groups
+- remove any properties (groupBy, non-groupBy, visibility or timestamp)
+- add new groupBy properties
+- reorder any of the properties. In the HBase store we don't use any property names, we just rely on the order the properties are defined in the schema.
+- change the way properties or vertices are serialised - i.e don't change the serialisers.
+- change which properties are groupBy
+
+Please note, that the validation functions in the schema can be a bit dangerous. 
+If an element is found to be invalid then the element will be permanently deleted from the table. 
+So, be very careful when making changes to your schema that you don't accidentally make all your existing elements invalid as you will quickly realise all your data has been deleted. 
+For example, if you add a new property 'prop1' and set the validateFunctions to be a single Exists predicate. 
+Then when that Exists predicate is applied to all of your existing elements, those old elements will fail validation and be removed.
+
+To carry out the migration you will need the following:
+
+- your schema in 1 or more json files.
+- store.properties file contain your HBase store properties
+- a jar-with-dependencies containing the HBase Store classes and any of your custom classes. 
+If you don't have any custom classes then you can just use the hbase-store-[version]-utility.jar. 
+Otherwise you can create one by adding a build profile to your maven pom:
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <artifactId>maven-shade-plugin</artifactId>
+            <version>${shade.plugin.version}</version>
+            <executions>
+                <execution>
+                    <id>utility</id>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>shade</goal>
+                    </goals>
+                    <configuration>
+                        <shadedArtifactAttached>true
+                        </shadedArtifactAttached>
+                        <shadedClassifierName>utility
+                        </shadedClassifierName>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
+```
+
+
+If you have existing data, then before doing any form of upgrade or change to your table we strongly recommend cloning the table so you have a backup so you can easily restore to that version if things go wrong. 
+Even if you have an error like the one above where all your data is deleted in your table you will still be able to quickly revert back to your backup. 
+Cloning a table in HBase is very simple and fast (it doesn't actually copy the data).
+
+
+You will need to run the TableUtils utility providing it with your graphId, schema and store properties.
+If you run it without any arguments it will tell you how to use it.
+
+```bash
+java -cp [path to your jar-with-dependencies].jar uk.gov.gchq.gaffer.hbasestore.utils.TableUtils
+```

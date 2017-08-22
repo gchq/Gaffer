@@ -22,41 +22,34 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 
-public class ValidateTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return Validate.class;
-    }
-
+public class ValidateTest extends OperationTest<Validate> {
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
-        final List<Element> elements = new ArrayList<>();
-        {
-            final Entity elm1 = new Entity("entity type 1", "vertex 1");
-            elm1.putProperty("property 1", "property 1 value");
-            elements.add(elm1);
-
-        }
-        {
-            final Edge elm2 = new Edge("edge type 2", "source vertex 1", "dest vertex 1", true);
-            elm2.putProperty("property 2", "property 2 value");
-            elements.add(elm2);
-        }
+        final List<Element> elements = Arrays.asList(
+                new Entity.Builder()
+                        .group("entity type 1")
+                        .vertex("vertex 1")
+                        .property("property 1", "property 1 value")
+                        .build(),
+                new Edge.Builder().group("edge type 2")
+                        .source("source vertex 1")
+                        .dest("dest vertex 1")
+                        .directed(true)
+                        .property("property 2", "property 2 value")
+                        .build()
+        );
 
         final Validate op = new Validate.Builder()
                 .validate(true)
@@ -65,8 +58,8 @@ public class ValidateTest extends OperationTest {
         op.setInput(elements);
 
         // When
-        byte[] json = serialiser.serialise(op, true);
-        final Validate deserialisedOp = serialiser.deserialise(json, Validate.class);
+        byte[] json = JSONSerialiser.serialise(op, true);
+        final Validate deserialisedOp = JSONSerialiser.deserialise(json, Validate.class);
 
         // Then
         final Iterator<? extends Element> itr = deserialisedOp.getInput().iterator();
@@ -91,12 +84,40 @@ public class ValidateTest extends OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        Element edge = new Edge("testGroup");
-        Validate validate = new Validate.Builder()
+        final Element edge = new Edge.Builder()
+                .group("testGroup")
+                .build();
+        final Validate validate = new Validate.Builder()
                 .input(edge)
                 .skipInvalidElements(true)
                 .build();
         assertTrue(validate.isSkipInvalidElements());
         assertEquals(edge, validate.getInput().iterator().next());
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final Element input = new Edge.Builder()
+                .group("testGroup")
+                .build();
+        final Validate validate = new Validate.Builder()
+                .input(input)
+                .skipInvalidElements(true)
+                .validate(true)
+                .build();
+
+        // When
+        final Validate clone = validate.shallowClone();
+
+        // Then
+        assertNotSame(validate, clone);
+        assertTrue(clone.isSkipInvalidElements());
+        assertTrue(clone.isValidate());
+        assertEquals(input, clone.getInput().iterator().next());
+    }
+
+    protected Validate getTestObject() {
+        return new Validate();
     }
 }

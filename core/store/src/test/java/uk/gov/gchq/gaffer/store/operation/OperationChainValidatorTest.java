@@ -16,8 +16,11 @@
 
 package uk.gov.gchq.gaffer.store.operation;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.mockito.Mockito;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -52,6 +55,36 @@ public class OperationChainValidatorTest {
                 new ToVertices(),
                 new GetAdjacentIds()
         )), true);
+    }
+
+    @Test
+    public void shouldInValidateNullElementDef() {
+        // Given
+        final ViewValidator viewValidator = mock(ViewValidator.class);
+        final OperationChainValidator validator = new OperationChainValidator(viewValidator);
+        final Store store = mock(Store.class);
+        Schema mock = mock(Schema.class);
+        given(store.getSchema()).willReturn(mock);
+        given(mock.getElement(Mockito.anyString())).willReturn(null);
+
+        final User user = mock(User.class);
+        Max max = new Max();
+        max.setComparators(Lists.newArrayList(new ElementPropertyComparator.Builder()
+                .groups(TestGroups.ENTITY)
+                .property("property")
+                .build()));
+
+        ValidationResult validationResult = new ValidationResult();
+
+        // When
+        validator.validateComparables(max, validationResult, store);
+
+        // Then
+        assertEquals(false, validationResult.isValid());
+        Set<String> errors = validationResult.getErrors();
+        assertEquals(1, errors.size());
+        errors.contains(Max.class.getName()
+                + " references BasicEntity group that does not exist in the schema");
     }
 
     @Test

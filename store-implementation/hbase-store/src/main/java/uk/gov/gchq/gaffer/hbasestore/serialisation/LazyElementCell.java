@@ -19,6 +19,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
@@ -27,19 +28,14 @@ public class LazyElementCell {
     private Cell cell;
     private Element element;
     private String group;
-
-    public LazyElementCell(final Cell cell,
-                           final ElementSerialisation serialisation) {
-        this.cell = cell;
-        this.serialisation = serialisation;
-    }
+    private boolean includeMatchedVertex;
 
     public LazyElementCell(final Cell cell,
                            final ElementSerialisation serialisation,
-                           final Element element) {
+                           final boolean includeMatchedVertex) {
         this.cell = cell;
         this.serialisation = serialisation;
-        setElement(element);
+        this.includeMatchedVertex = includeMatchedVertex;
     }
 
     public Cell getCell() {
@@ -61,7 +57,7 @@ public class LazyElementCell {
                 throw new IllegalStateException("Element has been marked for deletion it should not be used");
             }
             try {
-                setElement(serialisation.getElement(cell));
+                setElement(serialisation.getElement(cell, includeMatchedVertex));
             } catch (final SerialisationException e) {
                 throw new RuntimeException(e);
             }
@@ -102,16 +98,16 @@ public class LazyElementCell {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (null == o || !getClass().equals(o.getClass())) {
+        if (null == obj || !getClass().equals(obj.getClass())) {
             return false;
         }
 
-        final LazyElementCell otherCell = (LazyElementCell) o;
+        final LazyElementCell otherCell = (LazyElementCell) obj;
         return new EqualsBuilder()
                 .append(group, otherCell.group)
                 .append(cell, otherCell.cell)
@@ -121,10 +117,19 @@ public class LazyElementCell {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(17, 67)
                 .append(group)
                 .append(cell)
                 .append(element)
                 .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("group", group)
+                .append("cell", cell)
+                .append("element", element)
+                .toString();
     }
 }

@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.serialisation;
 
-import com.yahoo.memory.NativeMemory;
+import com.yahoo.memory.WritableMemory;
 import com.yahoo.sketches.quantiles.DoublesUnion;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
@@ -40,7 +40,7 @@ public class DoublesUnionSerialiser implements ToBytesSerialiser<DoublesUnion> {
     @Override
     public DoublesUnion deserialise(final byte[] bytes) throws SerialisationException {
         final DoublesUnion union = DoublesUnion.builder().build();
-        union.update(new NativeMemory(bytes));
+        union.update(WritableMemory.wrap(bytes));
         return union;
     }
 
@@ -51,6 +51,11 @@ public class DoublesUnionSerialiser implements ToBytesSerialiser<DoublesUnion> {
 
     @Override
     public boolean preservesObjectOrdering() {
+        return false;
+    }
+
+    @Override
+    public boolean isConsistent() {
         return false;
     }
 }

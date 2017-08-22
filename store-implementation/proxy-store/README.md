@@ -25,6 +25,7 @@ root. This can be done via the `ProxyStore.Builder`:
 ```java
 Graph graph = new Graph.Builder()
     .store(new ProxyStore.Builder()
+            .graphId(uniqueNameOfYourGraph)
             .host("localhost")
             .port(8080)
             .contextRoot("rest/v1")

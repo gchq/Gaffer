@@ -45,7 +45,9 @@ public class AndExample extends PredicateExample {
         );
         // ---------------------------------------------------------
 
-        runExample(function, 0, 1, 2, 3, 1L, 2L);
+        runExample(function,
+                null,
+                0, 1, 2, 3, 1L, 2L);
     }
 
     public void firstItemIsLessThan2AndSecondItemIsMoreThan5() {
@@ -59,6 +61,7 @@ public class AndExample extends PredicateExample {
         // ---------------------------------------------------------
 
         runExample(function,
+                null,
                 new Tuple2<>(1, 10),
                 new Tuple2<>(1, 1),
                 new Tuple2<>(10, 10),

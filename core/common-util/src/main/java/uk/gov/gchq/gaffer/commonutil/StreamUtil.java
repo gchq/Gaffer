@@ -34,20 +34,20 @@ public abstract class StreamUtil {
     public static final String VIEW = "/view.json";
     public static final String SCHEMA_FOLDER = "/schema/";
     public static final String SCHEMA = SCHEMA_FOLDER + "schema.json";
-    public static final String DATA_SCHEMA = SCHEMA_FOLDER + "dataSchema.json";
-    public static final String DATA_TYPES = SCHEMA_FOLDER + "dataTypes.json";
-    public static final String STORE_SCHEMA = SCHEMA_FOLDER + "storeSchema.json";
-    public static final String STORE_TYPES = SCHEMA_FOLDER + "storeTypes.json";
+    public static final String ELEMENTS_SCHEMA = SCHEMA_FOLDER + "elements.json";
+    public static final String TYPES_SCHEMA = SCHEMA_FOLDER + "types.json";
     public static final String STORE_PROPERTIES = "/store.properties";
-    public static final String OP_AUTHS = "/opAuths.properties";
-    public static final String OP_SCORES = "/opScores.properties";
-    public static final String AUTH_SCORES = "/authScores.properties";
+    public static final String GRAPH_CONFIG = "/graphConfig.json";
     public static final String FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH = "Failed to create input stream for path: ";
     public static final String LOG_FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH = FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH + "{}";
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamUtil.class);
 
     private StreamUtil() {
         // this class should not be instantiated - it contains only util methods and constants.
+    }
+
+    public static InputStream graphConfig(final Class clazz) {
+        return openStream(clazz, GRAPH_CONFIG);
     }
 
     public static InputStream view(final Class clazz) {
@@ -62,36 +62,16 @@ public abstract class StreamUtil {
         return openStream(clazz, SCHEMA);
     }
 
-    public static InputStream dataSchema(final Class clazz) {
-        return openStream(clazz, DATA_SCHEMA);
+    public static InputStream elementsSchema(final Class clazz) {
+        return openStream(clazz, ELEMENTS_SCHEMA);
     }
 
-    public static InputStream dataTypes(final Class clazz) {
-        return openStream(clazz, DATA_TYPES);
-    }
-
-    public static InputStream storeSchema(final Class clazz) {
-        return openStream(clazz, STORE_SCHEMA);
-    }
-
-    public static InputStream storeTypes(final Class clazz) {
-        return openStream(clazz, STORE_TYPES);
+    public static InputStream typesSchema(final Class clazz) {
+        return openStream(clazz, TYPES_SCHEMA);
     }
 
     public static InputStream storeProps(final Class clazz) {
         return openStream(clazz, STORE_PROPERTIES);
-    }
-
-    public static InputStream opAuths(final Class clazz) {
-        return openStream(clazz, OP_AUTHS);
-    }
-
-    public static InputStream opScores(final Class clazz) {
-        return openStream(clazz, OP_SCORES);
-    }
-
-    public static InputStream authScores(final Class clazz) {
-        return openStream(clazz, AUTH_SCORES);
     }
 
     public static InputStream[] openStreams(final Class clazz, final String folderPath) {
@@ -119,6 +99,10 @@ public abstract class StreamUtil {
                             }
                         }
                 );
+
+        if (schemas.isEmpty()) {
+            throw new IllegalArgumentException("No schemas could be found in path: " + folderPath);
+        }
 
         return schemas.toArray(new InputStream[schemas.size()]);
     }

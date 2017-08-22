@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewUtil;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -72,11 +73,14 @@ public class GetElementsHandler
         @Override
         public CloseableIterator<Element> iterator() {
             Stream<Element> elements = Streams.toStream(getElements.getInput())
-                    .flatMap(elementId -> GetElementsUtil.getRelevantElements(mapImpl, elementId, getElements.getView(), getElements.getIncludeIncomingOutGoing(), getElements.getSeedMatching()).stream());
-            elements = GetElementsUtil.applyDirectedTypeFilter(elements, getElements.getView().hasEdges(), getElements.getDirectedType());
+                    .flatMap(elementId -> GetElementsUtil.getRelevantElements(mapImpl, elementId, getElements.getView(), getElements.getDirectedType(), getElements.getIncludeIncomingOutGoing(), getElements.getSeedMatching()).stream());
             elements = elements.flatMap(e -> Streams.toStream(mapImpl.getElements(e)));
             elements = GetElementsUtil.applyView(elements, schema, getElements.getView());
             elements = elements.map(element -> mapImpl.cloneElement(element, schema));
+            elements = elements.map(element -> {
+                ViewUtil.removeProperties(getElements.getView(), element);
+                return element;
+            });
             return new WrappedCloseableIterator<>(elements.iterator());
         }
     }

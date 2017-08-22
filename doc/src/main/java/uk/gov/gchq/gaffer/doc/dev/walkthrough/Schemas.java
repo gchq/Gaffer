@@ -24,7 +24,7 @@ import java.io.UnsupportedEncodingException;
 
 public class Schemas extends DevWalkthrough {
     public Schemas() {
-        super("Schemas", "RoadAndRoadUseWithTimesAndCardinalities");
+        super("Schemas", "SchemaExample");
     }
 
     @Override
@@ -32,7 +32,8 @@ public class Schemas extends DevWalkthrough {
         /// [graph] create a graph using our schema and store properties
         // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
-                .addSchemas(StreamUtil.openStreams(getClass(), "RoadAndRoadUseWithTimesAndCardinalities/schema"))
+                .config(StreamUtil.graphConfig(getClass()))
+                .addSchemas(StreamUtil.openStreams(getClass(), "SchemaExample/schema"))
                 .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();
         // ---------------------------------------------------------

@@ -15,12 +15,6 @@
  */
 package uk.gov.gchq.gaffer.hbasestore.serialisation;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
-
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.binaryoperator.FreqMapAggregator;
@@ -29,11 +23,13 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.EdgeDirection;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hbasestore.util.HBasePropertyNames;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.serialisation.FreqMapSerialiser;
@@ -45,6 +41,12 @@ import uk.gov.gchq.gaffer.types.FreqMap;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 /**
  * Copied and adapted from the AcummuloStore ElementConverterTests
@@ -62,16 +64,18 @@ public class ElementSerialisationTest {
     @Test
     public void shouldReturnHBaseKeySerialisationFromBasicEdge() throws SchemaException, IOException {
         // Given
-        final Edge edge = new Edge(TestGroups.EDGE);
-        edge.setDestination("2");
-        edge.setSource("1");
-        edge.setDirected(true);
+        final Edge edge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .dest("2")
+                .source("1")
+                .directed(true)
+                .build();
 
         // When
         final Pair<byte[], byte[]> keys = serialisation.getRowKeys(edge);
 
         // Then
-        final Edge newEdge = (Edge) serialisation.getPartialElement(TestGroups.EDGE, keys.getFirst());
+        final Edge newEdge = (Edge) serialisation.getPartialElement(TestGroups.EDGE, keys.getFirst(), false);
         assertEquals("1", newEdge.getSource());
         assertEquals("2", newEdge.getDestination());
         assertEquals(true, newEdge.isDirected());
@@ -80,22 +84,26 @@ public class ElementSerialisationTest {
     @Test
     public void shouldReturnHBaseKeySerialisationFromBasicEntity() throws SchemaException, IOException {
         // Given
-        final Entity entity = new Entity(TestGroups.ENTITY);
-        entity.setVertex("3");
+        final Entity entity = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex("3")
+                .build();
 
         // When
         final byte[] key = serialisation.getRowKey(entity);
 
         // Then
-        final Entity newEntity = (Entity) serialisation.getPartialElement(TestGroups.ENTITY, key);
+        final Entity newEntity = (Entity) serialisation.getPartialElement(TestGroups.ENTITY, key, false);
         assertEquals("3", newEntity.getVertex());
     }
 
     @Test
     public void shouldReturnHBaseKeySerialisationFromCFCQPropertyEdge() throws SchemaException, IOException {
         // Given
-        final Edge edge = new Edge(TestGroups.EDGE);
-        edge.putProperty(HBasePropertyNames.COLUMN_QUALIFIER, 100);
+        final Edge edge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .property(HBasePropertyNames.COLUMN_QUALIFIER, 100)
+                .build();
 
         // When
         final byte[] columnQualifier = serialisation.getColumnQualifier(edge);
@@ -121,11 +129,13 @@ public class ElementSerialisationTest {
     @Test
     public void shouldReturnHBaseKeySerialisationMultipleCQPropertyEdge() throws SchemaException, IOException {
         // Given
-        final Edge edge = new Edge(TestGroups.EDGE);
-        edge.setDestination("2");
-        edge.setSource("1");
-        edge.setDirected(true);
-        edge.putProperty(HBasePropertyNames.COLUMN_QUALIFIER, 100);
+        final Edge edge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("1")
+                .dest("2")
+                .directed(true)
+                .property(HBasePropertyNames.COLUMN_QUALIFIER, 100)
+                .build();
 
         // When
         final byte[] columnQualifier = serialisation.getColumnQualifier(edge);
@@ -138,9 +148,11 @@ public class ElementSerialisationTest {
     @Test
     public void shouldReturnHBaseKeySerialisationMultipleCQPropertiesEntity() throws SchemaException, IOException {
         // Given
-        final Entity entity = new Entity(TestGroups.ENTITY);
-        entity.setVertex("3");
-        entity.putProperty(HBasePropertyNames.COLUMN_QUALIFIER, 100);
+        final Entity entity = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex("3")
+                .property(HBasePropertyNames.COLUMN_QUALIFIER, 100)
+                .build();
 
         // When
         final byte[] columnQualifier = serialisation.getColumnQualifier(entity);
@@ -153,16 +165,18 @@ public class ElementSerialisationTest {
     @Test
     public void shouldGetOriginalEdgeWithMatchAsSourceNotSet() throws SchemaException, IOException {
         // Given
-        final Edge edge = new Edge(TestGroups.EDGE);
-        edge.setDestination("2");
-        edge.setSource("1");
-        edge.setDirected(true);
+        final Edge edge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .dest("2")
+                .source("1")
+                .directed(true)
+                .build();
 
         final Pair<byte[], byte[]> keys = serialisation.getRowKeys(edge);
         final Map<String, String> options = new HashMap<>();
 
         // When
-        final Edge newEdge = (Edge) serialisation.getPartialElement(TestGroups.EDGE, keys.getSecond(), options);
+        final Edge newEdge = (Edge) serialisation.getPartialElement(TestGroups.EDGE, keys.getSecond(), false);
 
         // Then
         assertEquals("1", newEdge.getSource());
@@ -171,34 +185,15 @@ public class ElementSerialisationTest {
     }
 
     @Test
-    public void shouldGetFlippedEdgeWithMatchAsSourceFalse() throws SchemaException, IOException {
-        // Given
-        final Edge edge = new Edge(TestGroups.EDGE);
-        edge.setDestination("2");
-        edge.setSource("1");
-        edge.setDirected(true);
-
-        final Pair<byte[], byte[]> keys = serialisation.getRowKeys(edge);
-        final Map<String, String> options = new HashMap<>();
-        options.put(HBaseStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE, "true");
-
-        // When
-        final Edge newEdge = (Edge) serialisation.getPartialElement(TestGroups.EDGE, keys.getSecond(), options);
-
-        // Then
-        assertEquals("2", newEdge.getSource());
-        assertEquals("1", newEdge.getDestination());
-        assertEquals(true, newEdge.isDirected());
-    }
-
-    @Test
     public void shouldSkipNullPropertyValuesWhenCreatingHBaseKey() throws SchemaException, IOException {
         // Given
-        final Edge edge = new Edge(TestGroups.EDGE);
-        edge.setSource("1");
-        edge.setDestination("2");
-        edge.setDirected(true);
-        edge.putProperty(HBasePropertyNames.COLUMN_QUALIFIER, null);
+        final Edge edge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("1")
+                .dest("2")
+                .directed(true)
+                .property(HBasePropertyNames.COLUMN_QUALIFIER, null)
+                .build();
 
         // When
         final byte[] columnQualifier = serialisation.getColumnQualifier(edge);
@@ -488,10 +483,10 @@ public class ElementSerialisationTest {
         // Given 
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                                .vertex("string")
-                                .property(HBasePropertyNames.PROP_1, "map")
-                                .property(HBasePropertyNames.PROP_2, "map")
-                                .build()
+                        .vertex("string")
+                        .property(HBasePropertyNames.PROP_1, "map")
+                        .property(HBasePropertyNames.PROP_2, "map")
+                        .build()
                 )
                 .type("string", String.class)
                 .type("map", new TypeDefinition.Builder()
@@ -550,7 +545,7 @@ public class ElementSerialisationTest {
 
         // When
         final byte[] keyMax = serialisation.getRowKey(entityMax);
-        Object deserialisedVertex = serialisation.getPartialElement(TestGroups.ENTITY, expectedBytes).getIdentifier(IdentifierType.VERTEX);
+        Object deserialisedVertex = serialisation.getPartialElement(TestGroups.ENTITY, expectedBytes, false).getIdentifier(IdentifierType.VERTEX);
 
         // Then
         assertArrayEquals(expectedBytes, keyMax);
@@ -575,6 +570,65 @@ public class ElementSerialisationTest {
             assertArrayEquals(pair.getSecond(), columnQualifier);
             assertEquals(pair.getFirst().getProperties(), propertiesFromColumnQualifier);
         }
+    }
+
+    @Test
+    public void shouldDeserialiseSourceDestinationValuesCorrectWayRound() throws SerialisationException {
+        // Given 
+        final Edge edge = new Edge.Builder()
+                .source("1")
+                .dest("2")
+                .directed(true)
+                .group(TestGroups.ENTITY)
+                .build();
+
+        final byte[] rowKey = serialisation.getRowKeys(edge).getFirst();
+        final byte[][] sourceDestValues = new byte[2][];
+
+        // When
+        final EdgeDirection direction = serialisation.getSourceAndDestination(rowKey, sourceDestValues);
+
+        // Then
+        assertEquals(EdgeDirection.DIRECTED, direction);
+    }
+
+    @Test
+    public void shouldDeserialiseSourceDestinationValuesIncorrectWayRound() throws SerialisationException {
+        // Given 
+        final Edge edge = new Edge.Builder()
+                .source("1")
+                .dest("2")
+                .directed(true)
+                .group(TestGroups.ENTITY)
+                .build();
+
+        final byte[] rowKey = serialisation.getRowKeys(edge).getSecond();
+        final byte[][] sourceDestValues = new byte[2][];
+
+        // When
+        final EdgeDirection direction = serialisation.getSourceAndDestination(rowKey, sourceDestValues);
+
+        // Then
+        assertEquals(EdgeDirection.DIRECTED_REVERSED, direction);
+    }
+
+    @Test
+    public void shouldDeserialiseSourceDestinationValuesUndirected() throws SerialisationException {
+        final Edge edge = new Edge.Builder()
+                .source("1")
+                .dest("2")
+                .directed(false)
+                .group(TestGroups.ENTITY)
+                .build();
+
+        final byte[] rowKey = serialisation.getRowKeys(edge).getFirst();
+        final byte[][] sourceDestValues = new byte[2][];
+
+        // When
+        final EdgeDirection direction = serialisation.getSourceAndDestination(rowKey, sourceDestValues);
+
+        // Then
+        assertEquals(EdgeDirection.UNDIRECTED, direction);
     }
 
     private Entity getExampleEntity(final int value) {

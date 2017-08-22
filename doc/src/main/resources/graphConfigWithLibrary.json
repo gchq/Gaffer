@@ -1,0 +1,7 @@
+{
+  "graphId": "graph1",
+  "library": {
+    "class": "uk.gov.gchq.gaffer.store.library.FileGraphLibrary",
+    "path": "target/graphLibrary"
+  }
+}

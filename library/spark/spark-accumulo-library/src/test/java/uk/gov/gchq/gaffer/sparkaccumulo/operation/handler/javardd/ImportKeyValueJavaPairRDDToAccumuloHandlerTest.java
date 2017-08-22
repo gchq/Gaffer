@@ -33,7 +33,9 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.spark.SparkConstants;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.javardd.ImportKeyValueJavaPairRDDToAccumulo;
@@ -55,29 +57,37 @@ public class ImportKeyValueJavaPairRDDToAccumuloHandlerTest {
     @Test
     public void checkImportKeyValueJavaPairRDD() throws OperationException, IOException, InterruptedException {
         final Graph graph1 = new Graph.Builder()
-                .addSchema(getClass().getResourceAsStream("/schema/dataSchema.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/dataTypes.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/storeSchema.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/storeTypes.json"))
+                .config(new GraphConfig.Builder()
+                        .graphId("graphId")
+                        .build())
+                .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/types.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
                 .build();
 
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            final Entity entity = new Entity(TestGroups.ENTITY);
-            entity.setVertex("" + i);
+            final Entity entity = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex("" + i)
+                    .build();
 
-            final Edge edge1 = new Edge(TestGroups.EDGE);
-            edge1.setSource("" + i);
-            edge1.setDestination("B");
-            edge1.setDirected(false);
-            edge1.putProperty(TestPropertyNames.COUNT, 2);
+            final Edge edge1 = new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("" + i)
+                    .dest("B")
+                    .directed(false)
+                    .property(TestPropertyNames.COUNT, 2)
+                    .build();
 
-            final Edge edge2 = new Edge(TestGroups.EDGE);
-            edge2.setSource("" + i);
-            edge2.setDestination("C");
-            edge2.setDirected(false);
-            edge2.putProperty(TestPropertyNames.COUNT, 4);
+            final Edge edge2 = new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("" + i)
+                    .dest("C")
+                    .directed(false)
+                    .property(TestPropertyNames.COUNT, 4)
+                    .build();
 
             elements.add(edge1);
             elements.add(edge2);
@@ -88,9 +98,9 @@ public class ImportKeyValueJavaPairRDDToAccumuloHandlerTest {
         final SparkConf sparkConf = new SparkConf()
                 .setMaster("local")
                 .setAppName("testCheckGetCorrectElementsInJavaRDDForEntityId")
-                .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-                .set("spark.kryo.registrator", "uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator")
-                .set("spark.driver.allowMultipleContexts", "true");
+                .set(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
+                .set(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
+                .set(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true");
         final JavaSparkContext sparkContext = new JavaSparkContext(sparkConf);
 
         // Create Hadoop configuration and serialise to a string

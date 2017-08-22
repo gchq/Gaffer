@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation;
 
-import com.yahoo.memory.NativeMemory;
+import com.yahoo.memory.WritableMemory;
 import com.yahoo.sketches.sampling.ReservoirLongsUnion;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
@@ -39,7 +39,7 @@ public class ReservoirLongsUnionSerialiser implements ToBytesSerialiser<Reservoi
 
     @Override
     public ReservoirLongsUnion deserialise(final byte[] bytes) throws SerialisationException {
-        return ReservoirLongsUnion.getInstance(new NativeMemory(bytes));
+        return ReservoirLongsUnion.heapify(WritableMemory.wrap(bytes));
     }
 
     @Override
@@ -49,6 +49,11 @@ public class ReservoirLongsUnionSerialiser implements ToBytesSerialiser<Reservoi
 
     @Override
     public boolean preservesObjectOrdering() {
+        return false;
+    }
+
+    @Override
+    public boolean isConsistent() {
         return false;
     }
 }

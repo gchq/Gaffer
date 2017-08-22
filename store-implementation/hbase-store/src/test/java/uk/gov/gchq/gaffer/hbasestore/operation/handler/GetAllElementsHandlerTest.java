@@ -42,7 +42,7 @@ public class GetAllElementsHandlerTest {
         final GetAllElements getElements = new GetAllElements();
 
         given(context.getUser()).willReturn(user);
-        given(store.createRetriever(getElements, user, null, ElementDedupeFilterProcessor.class)).willReturn(hbaseRetriever);
+        given(store.createRetriever(getElements, user, null, false, ElementDedupeFilterProcessor.class)).willReturn(hbaseRetriever);
 
         // When
         final HBaseRetriever<GetAllElements> result = (HBaseRetriever<GetAllElements>) handler.doOperation(getElements, context, store);

@@ -15,20 +15,20 @@
  */
 package uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import com.yahoo.sketches.sampling.ReservoirItemsUnion;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.sketches.serialisation.ViaCalculatedArrayValueSerialiserTest;
+import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.ViaCalculatedArrayValueSerialiserTest;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class ReservoirNumbersUnionSerialiserTest extends ViaCalculatedArrayValueSerialiserTest<ReservoirItemsUnion<Number>, Number> {
 
     @Override
     protected ReservoirItemsUnion<Number> getEmptyExampleOutput() {
-        return ReservoirItemsUnion.getInstance(20);
+        return ReservoirItemsUnion.newInstance(20);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class ReservoirNumbersUnionSerialiserTest extends ViaCalculatedArrayValue
 
     @Override
     protected ReservoirItemsUnion<Number> getExampleOutput() {
-        final ReservoirItemsUnion<Number> union = ReservoirItemsUnion.getInstance(20);
+        final ReservoirItemsUnion<Number> union = ReservoirItemsUnion.newInstance(20);
         union.update(1L);
         union.update(2L);
         union.update(3L);
@@ -55,7 +55,6 @@ public class ReservoirNumbersUnionSerialiserTest extends ViaCalculatedArrayValue
     protected Number[] getTestValue(final ReservoirItemsUnion<Number> object) {
         return object.getResult().getSamples();
     }
-
 
     @Test
     public void testCanHandleReservoirItemsUnion() {

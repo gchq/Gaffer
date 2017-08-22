@@ -33,11 +33,11 @@ public final class HBaseStoreConstants {
     public static final String SCHEMA = "Schema";
     public static final String EXTRA_PROCESSORS = "ExtraProcessors";
     public static final String DIRECTED_TYPE = "DirectedType";
+    public static final String INCLUDE_MATCHED_VERTEX = "IncludeMatchedVertex";
 
     // Operations options
     public static final String OPERATION_HDFS_STAGING_PATH = "hbasestore.operation.hdfs.staging.path";
     public static final String ADD_ELEMENTS_FROM_HDFS_SKIP_IMPORT = "hbasestore.operation.hdfs.skip_import";
-    public static final String OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE = "hbasestore.operation.return_matched_id_as_edge_source";
 
     // Bytes
     public static final byte[] EMPTY_BYTES = new byte[0];

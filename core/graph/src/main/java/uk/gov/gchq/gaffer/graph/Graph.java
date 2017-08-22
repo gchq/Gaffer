@@ -17,12 +17,19 @@
 package uk.gov.gchq.gaffer.graph;
 
 
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
+import uk.gov.gchq.gaffer.graph.hook.NamedOperationResolver;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -32,6 +39,8 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.library.GraphLibrary;
+import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
@@ -40,58 +49,54 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
+ * <p>
  * The Graph separates the user from the {@link Store}. It holds an instance of the {@link Store} and
  * acts as a proxy for the store, delegating {@link Operation}s to the store.
+ * </p>
  * <p>
  * The Graph provides users with a single point of entry for executing operations on a store.
  * This allows the underlying store to be swapped and the same operations can still be applied.
+ * </p>
  * <p>
  * Graphs also provides a view of the data with a instance of {@link View}. The view filters out unwanted information
  * and can transform {@link uk.gov.gchq.gaffer.data.element.Properties} into transient properties such as averages.
+ * </p>
  * <p>
  * When executing operations on a graph, an operation view would override the graph view.
+ * </p>
  *
  * @see uk.gov.gchq.gaffer.graph.Graph.Builder
  */
 public final class Graph {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Graph.class);
+
     /**
      * The instance of the store.
      */
     private final Store store;
 
-    /**
-     * The {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View} - by default this will just contain all the groups
-     * in the graph's {@link Schema}, however it can be set to a subview to
-     * allow multiple operations to be performed on the same subview.
-     */
-    private final View view;
-
-    /**
-     * List of {@link GraphHook}s to be triggered before and after operations are
-     * executed on the graph.
-     */
-    private List<GraphHook> graphHooks;
-
     private Schema schema;
+
+    private GraphConfig config;
 
     /**
      * Constructs a <code>Graph</code> with the given {@link uk.gov.gchq.gaffer.store.Store} and
      * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.
      *
-     * @param store      a {@link Store} used to store the elements and handle operations.
-     * @param schema     a {@link Schema} that defines the graph. Should be the copy of the schema that the store is initialised with.
-     * @param view       a {@link View} defining the view of the data for the graph.
-     * @param graphHooks a list of {@link GraphHook}s
+     * @param config a {@link GraphConfig} used to store the configuration for a Graph.
+     * @param schema a {@link Schema} that defines the graph. Should be the copy of the schema that the store is initialised with.
+     * @param store  a {@link Store} used to store the elements and handle operations.
      */
-    private Graph(final Store store, final Schema schema, final View view, final List<GraphHook> graphHooks) {
-        this.store = store;
-        this.view = view;
-        this.graphHooks = graphHooks;
+    private Graph(final GraphConfig config, final Schema schema, final Store store) {
+        this.config = config;
         this.schema = schema;
+        this.store = store;
     }
 
     /**
@@ -133,23 +138,24 @@ public final class Graph {
      * @throws OperationException thrown if the job fails to run.
      */
     public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
+        final OperationChain<?> clonedOpChain = operationChain.shallowClone();
         try {
-            updateOperationChainView(operationChain);
-
-            for (final GraphHook graphHook : graphHooks) {
-                graphHook.preExecute(operationChain, user);
+            for (final GraphHook graphHook : config.getHooks()) {
+                graphHook.preExecute(clonedOpChain, user);
             }
 
-            JobDetail result = store.executeJob(operationChain, user);
+            updateOperationChainView(clonedOpChain);
 
-            for (final GraphHook graphHook : graphHooks) {
-                result = graphHook.postExecute(result, operationChain, user);
+            JobDetail result = store.executeJob(clonedOpChain, user);
+
+            for (final GraphHook graphHook : config.getHooks()) {
+                result = graphHook.postExecute(result, clonedOpChain, user);
             }
 
             return result;
 
         } catch (final Exception e) {
-            CloseableUtil.close(operationChain);
+            CloseableUtil.close(clonedOpChain);
             throw e;
         }
     }
@@ -166,21 +172,26 @@ public final class Graph {
      * @throws OperationException if an operation fails
      */
     public <O> O execute(final OperationChain<O> operationChain, final User user) throws OperationException {
+        if (null == operationChain) {
+            throw new IllegalArgumentException("operationChain is required");
+        }
+
+        final OperationChain<O> clonedOpChain = operationChain.shallowClone();
         O result = null;
         try {
-            updateOperationChainView(operationChain);
-
-            for (final GraphHook graphHook : graphHooks) {
-                graphHook.preExecute(operationChain, user);
+            for (final GraphHook graphHook : config.getHooks()) {
+                graphHook.preExecute(clonedOpChain, user);
             }
 
-            result = store.execute(operationChain, user);
+            updateOperationChainView(clonedOpChain);
 
-            for (final GraphHook graphHook : graphHooks) {
-                result = graphHook.postExecute(result, operationChain, user);
+            result = store.execute(clonedOpChain, user);
+
+            for (final GraphHook graphHook : config.getHooks()) {
+                result = graphHook.postExecute(result, clonedOpChain, user);
             }
         } catch (final Exception e) {
-            CloseableUtil.close(operationChain);
+            CloseableUtil.close(clonedOpChain);
             CloseableUtil.close(result);
 
             throw e;
@@ -196,10 +207,10 @@ public final class Graph {
                 final OperationView operationView = (OperationView) operation;
                 final View opView;
                 if (null == operationView.getView()) {
-                    opView = view;
+                    opView = config.getView();
                 } else if (!operationView.getView().hasGroups()) {
                     opView = new View.Builder()
-                            .merge(view)
+                            .merge(config.getView())
                             .merge(operationView.getView())
                             .build();
                 } else {
@@ -242,7 +253,7 @@ public final class Graph {
      * @return the graph view.
      */
     public View getView() {
-        return view;
+        return config.getView();
     }
 
     /**
@@ -250,6 +261,13 @@ public final class Graph {
      */
     public Schema getSchema() {
         return schema;
+    }
+
+    /**
+     * @return the description held in the {@link GraphConfig}
+     */
+    public String getDescription() {
+        return config.getDescription();
     }
 
     /**
@@ -270,45 +288,172 @@ public final class Graph {
     }
 
     /**
+     * @return the graphId for this Graph.
+     */
+    public String getGraphId() {
+        return store.getGraphId();
+    }
+
+    /**
+     * @return the StoreProperties for this Graph.
+     */
+    public StoreProperties getStoreProperties() {
+        return store.getProperties();
+    }
+
+    public List<Class<? extends GraphHook>> getGraphHooks() {
+        if (config.getHooks().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return (List) config.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList());
+    }
+
+    public GraphLibrary getGraphLibrary() {
+        return store.getGraphLibrary();
+    }
+
+    /**
+     * <p>
      * Builder for {@link Graph}.
+     * </p>
+     * We recommend instantiating a Graph from a graphConfig.json file, a schema directory and a store.properties file.
+     * For example:
+     * <pre>
+     * new Graph.Builder()
+     *     .config(Paths.get("graphConfig.json"))
+     *     .addSchemas(Paths.get("schema"))
+     *     .storeProperties(Paths.get("store.properties"))
+     *     .build();
+     * </pre>
      */
     public static class Builder {
         public static final String UNABLE_TO_READ_SCHEMA_FROM_URI = "Unable to read schema from URI";
+        private final GraphConfig.Builder configBuilder = new GraphConfig.Builder();
         private final List<byte[]> schemaBytesList = new ArrayList<>();
         private Store store;
         private StoreProperties properties;
         private Schema schema;
-        private View view;
-        private List<GraphHook> graphHooks = new ArrayList<>();
+        private String[] parentSchemaIds;
+        private String parentStorePropertiesId;
 
+        /**
+         * @param graphId the graph id to set
+         * @return this Builder
+         * @deprecated use Builder.config instead.
+         */
+        @Deprecated
+        public Builder graphId(final String graphId) {
+            configBuilder.graphId(graphId);
+            return this;
+        }
+
+        public Builder config(final Path path) {
+            configBuilder.json(path);
+            return this;
+        }
+
+        public Builder config(final URI uri) {
+            configBuilder.json(uri);
+            return this;
+        }
+
+        public Builder config(final InputStream stream) {
+            configBuilder.json(stream);
+            return this;
+        }
+
+        public Builder config(final byte[] bytes) {
+            configBuilder.json(bytes);
+            return this;
+        }
+
+        public Builder config(final GraphConfig config) {
+            configBuilder.merge(config);
+            return this;
+        }
+
+        /**
+         * @param library the graph library to set
+         * @return this Builder
+         * @deprecated use Builder.config instead.
+         */
+        @Deprecated
+        public Builder library(final GraphLibrary library) {
+            configBuilder.library(library);
+            return this;
+        }
+
+        /**
+         * @param view the graph view to set
+         * @return this Builder
+         * @deprecated use Builder.config instead.
+         */
+        @Deprecated
         public Builder view(final View view) {
-            this.view = view;
+            configBuilder.view(view);
             return this;
         }
 
+        /**
+         * @param view the graph view path to set
+         * @return this Builder
+         * @deprecated use Builder.config instead.
+         */
+        @Deprecated
         public Builder view(final Path view) {
-            return view(new View.Builder().json(view).build());
-        }
-
-        public Builder view(final InputStream view) {
-            return view(new View.Builder().json(view).build());
-        }
-
-        public Builder view(final URI view) {
-            try {
-                view(StreamUtil.openStream(view));
-            } catch (final IOException e) {
-                throw new SchemaException("Unable to read view from URI", e);
-            }
+            configBuilder.view(view);
             return this;
         }
 
+        /**
+         * @param view the graph view input stream to set
+         * @return this Builder
+         * @deprecated use Builder.config instead.
+         */
+        @Deprecated
+        public Builder view(final InputStream view) {
+            configBuilder.view(view);
+            return this;
+        }
+
+        /**
+         * @param view the graph view URI to set
+         * @return this Builder
+         * @deprecated use Builder.config instead.
+         */
+        @Deprecated
+        public Builder view(final URI view) {
+            configBuilder.view(view);
+            return this;
+        }
+
+        /**
+         * @param jsonBytes the graph view json bytes to set
+         * @return this Builder
+         * @deprecated use Builder.config instead.
+         */
+        @Deprecated
         public Builder view(final byte[] jsonBytes) {
-            return view(new View.Builder().json(jsonBytes).build());
+            configBuilder.view(jsonBytes);
+            return this;
+        }
+
+        public Builder description(final String description) {
+            configBuilder.description(description);
+            return this;
+        }
+
+        public Builder parentStorePropertiesId(final String parentStorePropertiesId) {
+            this.parentStorePropertiesId = parentStorePropertiesId;
+            return this;
         }
 
         public Builder storeProperties(final StoreProperties properties) {
             this.properties = properties;
+            if (null != properties) {
+                JSONSerialiser.update(properties.getJsonSerialiserClass(), properties.getJsonSerialiserModules());
+            }
             return this;
         }
 
@@ -328,9 +473,14 @@ public final class Graph {
             try {
                 storeProperties(StreamUtil.openStream(propertiesURI));
             } catch (final IOException e) {
-                throw new SchemaException("Unable to read storeProperties from URI", e);
+                throw new SchemaException("Unable to read storeProperties from URI: " + propertiesURI, e);
             }
 
+            return this;
+        }
+
+        public Builder addParentSchemaIds(final String... parentSchemaIds) {
+            this.parentSchemaIds = parentSchemaIds;
             return this;
         }
 
@@ -433,7 +583,7 @@ public final class Graph {
                     addSchema(Files.readAllBytes(schemaPath));
                 }
             } catch (final IOException e) {
-                throw new SchemaException("Unable to read schema from path", e);
+                throw new SchemaException("Unable to read schema from path: " + schemaPath, e);
             }
 
             return this;
@@ -449,20 +599,157 @@ public final class Graph {
             return this;
         }
 
+        /**
+         * @param hooksPath the graph hooks path
+         * @return this Builder
+         * @deprecated use Builder.config instead.
+         */
+        @Deprecated
+        public Builder addHooks(final Path hooksPath) {
+            if (null == hooksPath || !hooksPath.toFile().exists()) {
+                throw new IllegalArgumentException("Unable to find graph hooks file: " + hooksPath);
+            }
+            final GraphHook[] hooks;
+            try {
+                hooks = JSONSerialiser.deserialise(FileUtils.readFileToByteArray(hooksPath.toFile()), GraphHook[].class);
+            } catch (final IOException e) {
+                throw new IllegalArgumentException("Unable to load graph hooks file: " + hooksPath, e);
+            }
+            return addHooks(hooks);
+        }
+
+        /**
+         * @param hookPath the graph hook path
+         * @return this Builder
+         * @deprecated use Builder.config instead.
+         */
+        @Deprecated
+        public Builder addHook(final Path hookPath) {
+            if (null == hookPath || !hookPath.toFile().exists()) {
+                throw new IllegalArgumentException("Unable to find graph hook file: " + hookPath);
+            }
+
+            final GraphHook hook;
+            try {
+                hook = JSONSerialiser.deserialise(FileUtils.readFileToByteArray(hookPath.toFile()), GraphHook.class);
+            } catch (final IOException e) {
+                throw new IllegalArgumentException("Unable to load graph hook file: " + hookPath, e);
+            }
+            return addHook(hook);
+        }
+
+        /**
+         * @param graphHook the graph hook to add
+         * @return this Builder
+         * @deprecated use Builder.config instead.
+         */
+        @Deprecated
         public Builder addHook(final GraphHook graphHook) {
-            this.graphHooks.add(graphHook);
+            configBuilder.addHook(graphHook);
+            return this;
+        }
+
+        /**
+         * @param graphHooks the graph hooks to add
+         * @return this Builder
+         * @deprecated use Builder.config instead.
+         */
+        @Deprecated
+        public Builder addHooks(final GraphHook... graphHooks) {
+            configBuilder.addHooks(graphHooks);
             return this;
         }
 
         public Graph build() {
-            updateSchema();
-            updateStore();
-            updateView();
+            final GraphConfig config = configBuilder.build();
+            if (null == config.getLibrary()) {
+                config.setLibrary(new NoGraphLibrary());
+            }
 
-            return new Graph(store, schema, view, graphHooks);
+            if (null == config.getGraphId() && null != store) {
+                config.setGraphId(store.getGraphId());
+            }
+
+            if (null != config.getGraphId()) {
+                Pair<Schema, StoreProperties> parentGraph = config.getLibrary().get(config.getGraphId());
+
+                if (null != parentGraph) {
+                    if (null == parentGraph.getSecond()) {
+                        throw new IllegalArgumentException("GraphId " + config.getGraphId() + " found in GraphLibrary, but no store properties are associated with it.");
+                    }
+                    schema = parentGraph.getFirst();
+                    properties = parentGraph.getSecond();
+
+                    LOGGER.debug("Graph ID " + config.getGraphId() + " found in graph library. Ignoring any other additional schema/properties");
+                    parentSchemaIds = null;
+                    schemaBytesList.clear();
+                    parentStorePropertiesId = null;
+                    store = null;
+                }
+            }
+
+            updateSchema(config);
+            updateStore(config);
+            updateView(config);
+
+            if (null == config.getGraphId()) {
+                config.setGraphId(store.getGraphId());
+            }
+
+            if (null == config.getGraphId()) {
+                throw new IllegalArgumentException("graphId is required");
+            }
+
+            updateGraphHooks(config);
+            config.getLibrary().add(config.getGraphId(), schema, store.getProperties());
+            return new Graph(config, schema, store);
         }
 
-        private void updateSchema() {
+        private void updateGraphHooks(final GraphConfig config) {
+            if (store.isSupported(NamedOperation.class)) {
+                boolean hasNamedOpHook = false;
+                for (final GraphHook graphHook : config.getHooks()) {
+                    if (NamedOperationResolver.class.isAssignableFrom(graphHook.getClass())) {
+                        hasNamedOpHook = true;
+                        break;
+                    }
+                }
+                if (!hasNamedOpHook) {
+                    config.getHooks().add(0, new NamedOperationResolver());
+                }
+            }
+        }
+
+        private void updateSchema(final GraphConfig config) {
+            Schema mergedParentSchema = null;
+
+            if (null != parentSchemaIds) {
+                for (final String parentSchemaId : parentSchemaIds) {
+                    final Schema parentSchema = config.getLibrary().getSchema(parentSchemaId);
+                    if (null != parentSchema) {
+                        if (null == mergedParentSchema) {
+                            mergedParentSchema = parentSchema;
+                        } else {
+                            mergedParentSchema = new Schema.Builder()
+                                    .merge(mergedParentSchema)
+                                    .merge(parentSchema)
+                                    .build();
+                        }
+                    }
+                }
+            }
+
+            if (null != mergedParentSchema) {
+                if (null == schema) {
+                    schema = mergedParentSchema;
+                } else {
+                    schema = new Schema.Builder()
+                            .merge(mergedParentSchema)
+                            .merge(schema)
+                            .build();
+                }
+            }
+
             if (!schemaBytesList.isEmpty()) {
                 if (null == properties) {
                     throw new IllegalArgumentException("To load a schema from json, the store properties must be provided.");
@@ -476,63 +763,56 @@ public final class Graph {
             }
         }
 
-        private void updateStore() {
-            if (null == store) {
-                store = createStore(properties, cloneSchema(schema));
-            } else if (null != properties || null != schema) {
-                try {
-                    if (null == properties) {
-                        store.initialise(cloneSchema(schema), store.getProperties());
-                    } else if (null == schema) {
-                        store.initialise(store.getSchema(), properties);
-                    } else {
-                        store.initialise(cloneSchema(schema), properties);
-                    }
-                } catch (final StoreException e) {
-                    throw new IllegalArgumentException("Unable to initialise the store with the given schema and properties", e);
-                }
-            } else {
-                schema = store.getSchema();
-                store.optimiseSchema();
-                store.validateSchemas();
+        private void updateStore(final GraphConfig config) {
+            StoreProperties mergedStoreProperties = null;
+            if (null != parentStorePropertiesId) {
+                mergedStoreProperties = config.getLibrary().getProperties(parentStorePropertiesId);
             }
+
+            if (null != properties) {
+                if (null == mergedStoreProperties) {
+                    mergedStoreProperties = properties;
+                } else {
+                    mergedStoreProperties.getProperties().putAll(properties.getProperties());
+                }
+            }
+
+            if (null == store) {
+                store = Store.createStore(config.getGraphId(), cloneSchema(schema), mergedStoreProperties);
+            } else if ((null != config.getGraphId() && !config.getGraphId().equals(store.getGraphId()))
+                    || (null != schema)
+                    || (null != mergedStoreProperties && !mergedStoreProperties.equals(store.getProperties()))) {
+                if (null == config.getGraphId()) {
+                    config.setGraphId(store.getGraphId());
+                }
+                if (null == schema) {
+                    schema = store.getSchema();
+                }
+
+                if (null == mergedStoreProperties) {
+                    mergedStoreProperties = store.getProperties();
+                }
+
+                try {
+                    store.initialise(config.getGraphId(), cloneSchema(schema), mergedStoreProperties);
+                } catch (final StoreException e) {
+                    throw new IllegalArgumentException("Unable to initialise the store with the given graphId, schema and properties", e);
+                }
+            }
+
+            store.setGraphLibrary(config.getLibrary());
 
             if (null == schema) {
                 schema = store.getSchema();
             }
         }
 
-        private Store createStore(final StoreProperties storeProperties, final Schema schema) {
-            if (null == storeProperties) {
-                throw new IllegalArgumentException("Store properties are required to create a store");
-            }
-
-            final String storeClass = storeProperties.getStoreClass();
-            if (null == storeClass) {
-                throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS);
-            }
-
-            final Store newStore;
-            try {
-                newStore = Class.forName(storeClass).asSubclass(Store.class).newInstance();
-            } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-                throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
-            }
-
-            try {
-                newStore.initialise(schema, storeProperties);
-            } catch (final StoreException e) {
-                throw new IllegalArgumentException("Could not initialise the store with provided arguments.", e);
-            }
-            return newStore;
-        }
-
-        private void updateView() {
-            if (null == view) {
-                this.view = new View.Builder()
-                        .entities(schema.getEntityGroups())
-                        .edges(schema.getEdgeGroups())
-                        .build();
+        private void updateView(final GraphConfig config) {
+            if (null == config.getView()) {
+                config.setView(new View.Builder()
+                        .entities(store.getSchema().getEntityGroups())
+                        .edges(store.getSchema().getEdgeGroups())
+                        .build());
             }
         }
 

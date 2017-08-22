@@ -24,6 +24,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -61,6 +62,8 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 @RunWith(MockitoJUnitRunner.class)
 public class GraphConfigurationServiceTest {
 
+    private static final String GRAPH_ID = "graphId";
+
     @InjectMocks
     private GraphConfigurationService service;
 
@@ -73,14 +76,17 @@ public class GraphConfigurationServiceTest {
     @Mock
     private Store store;
 
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @Before
     public void setup() {
         final Schema schema = mock(Schema.class);
         final Set<StoreTrait> traits = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, POST_AGGREGATION_FILTERING, TRANSFORMATION, STORE_VALIDATION));
         given(store.getSchema()).willReturn(schema);
-        final Graph graph = new Graph.Builder().store(store).build();
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .store(store)
+                .build();
         final Set<Class<? extends Operation>> operations = new HashSet<>();
         operations.add(AddElements.class);
         given(graphFactory.getGraph()).willReturn(graph);
@@ -246,8 +252,8 @@ public class GraphConfigurationServiceTest {
     @Test
     public void shouldSerialiseAndDeserialiseGetStoreTraits() throws IOException {
         // When
-        byte[] bytes = serialiser.serialise(service.getStoreTraits());
-        final Set<StoreTrait> traits = serialiser.deserialise(bytes, Set.class);
+        byte[] bytes = JSONSerialiser.serialise(service.getStoreTraits());
+        final Set<StoreTrait> traits = JSONSerialiser.deserialise(bytes, Set.class);
 
         // Then
         assertNotNull(traits);

@@ -27,6 +27,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * @param <T> The type of object in the reservoir.
  */
 public class ReservoirItemsUnionAggregator<T> extends KorypheBinaryOperator<ReservoirItemsUnion<T>> {
+
     @Override
     public ReservoirItemsUnion<T> _apply(final ReservoirItemsUnion<T> a, final ReservoirItemsUnion<T> b) {
         a.update(b.getResult());

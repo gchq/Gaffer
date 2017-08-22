@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.ValidatedElements;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
@@ -45,7 +46,12 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
 
     @Override
     public Void doOperation(final AddElements addElements, final Context context, final Store store) throws OperationException {
-        addElements(addElements.getInput(), (MapStore) store);
+        Iterable<? extends Element> elements = addElements.getInput();
+        if (addElements.isValidate()) {
+            elements = new ValidatedElements(elements, store.getSchema(), addElements.isSkipInvalidElements());
+        }
+
+        addElements(elements, (MapStore) store);
         return null;
     }
 
@@ -138,10 +144,13 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             mapImpl.addIndex(entityId, element);
         } else {
             final Edge edge = (Edge) element;
+            edge.setIdentifiers(edge.getSource(), edge.getDestination(), edge.isDirected(), EdgeId.MatchedVertex.SOURCE);
             final EntityId sourceEntityId = new EntitySeed(edge.getSource());
+            mapImpl.addIndex(sourceEntityId, edge);
+
+            final Edge destMatchedEdge = new Edge(edge.getGroup(), edge.getSource(), edge.getDestination(), edge.isDirected(), EdgeId.MatchedVertex.DESTINATION, edge.getProperties());
             final EntityId destinationEntityId = new EntitySeed(edge.getDestination());
-            mapImpl.addIndex(sourceEntityId, element);
-            mapImpl.addIndex(destinationEntityId, element);
+            mapImpl.addIndex(destinationEntityId, destMatchedEdge);
 
             final EdgeId edgeId = new EdgeSeed(edge.getSource(), edge.getDestination(), edge.isDirected());
             mapImpl.addIndex(edgeId, edge);

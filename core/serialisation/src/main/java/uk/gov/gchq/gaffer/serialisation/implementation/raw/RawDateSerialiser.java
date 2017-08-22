@@ -83,4 +83,8 @@ public class RawDateSerialiser implements ToBytesSerialiser<Date> {
         return true;
     }
 
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

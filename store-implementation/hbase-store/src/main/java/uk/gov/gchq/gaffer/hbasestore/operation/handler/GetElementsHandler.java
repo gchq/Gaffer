@@ -21,6 +21,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -40,8 +41,12 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
             return new WrappedCloseableIterable<>();
         }
 
+        if (null != operation.getOption("hbasestore.operation.return_matched_id_as_edge_source")) {
+            throw new IllegalArgumentException("The hbasestore.operation.return_matched_id_as_edge_source option has been removed. " +
+                    "Instead of flipping the Edges around the result Edges will have a matchedVertex field set specifying if the SOURCE or DESTINATION was matched.");
+        }
         try {
-            return store.createRetriever(operation, user, operation.getInput());
+            return store.createRetriever(operation, user, operation.getInput(), SeedMatching.SeedMatchingType.EQUAL != operation.getSeedMatching());
         } catch (final StoreException e) {
             throw new OperationException("Unable to fetch elements", e);
         }

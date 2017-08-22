@@ -19,16 +19,13 @@ These properties have been added to the groupBy field.
 Properties in the groupBy will be used to determine whether elements should be aggregated together at ingest. 
 Property values in the groupBy are required to be identical for Gaffer to aggregate them at ingest.
 
-##### Data schema
-${DATA_SCHEMA_JSON}
+##### Elements schema
+${ELEMENTS_JSON}
 
-##### Data types
-${DATA_TYPES_JSON}
+##### Types schema
+${TYPES_JSON}
 
-##### Store types
-${STORE_TYPES_JSON}
-
-Once we have loaded the data into Gaffer, we can fetch all the edges using a GetAllElements operation. 
+Once we have loaded the data into Gaffer, we can fetch all the edges using a GetAllElements operation.
 Note this operation is not recommended for large Graphs as it will do a full scan of your database and could take a while to finish.
 ${GET_SNIPPET}
 
@@ -64,6 +61,32 @@ The time window summaries are:
 ${GET_ALL_EDGES_SUMMARISED_IN_TIME_WINDOW_RESULT}
 ```
 
-Now we have all the RoadUse edges that fall in the time window May 01 2000 to May 02 2000. This filtered out all edges apart from 2 occuring between junction 10 and 11. Therefore, the count is has been aggregated to just 2 (instead of 3 as seen previously).
+Now we have all the RoadUse edges that fall in the time window May 01 2000 to May 03 2000. This filtered out all edges apart from 2 occuring between junction 10 and 11. Therefore, the count is has been aggregated to just 2 (instead of 3 as seen previously).
 
 Aggregation also works nicely alongside visibilities. Data at different visibility levels is stored separately then at query time, the query time aggregation will summarise just the data that a given user can see.
+
+There is another more advanced feature to query time aggregation.
+When executing a query you can override the logic for how Gaffer aggregates properties together. 
+So by default the count property is aggregated with Sum. 
+At query time we could change that, to force the count property is aggregated with the Min aggregator, therefore finding the minimum daily count.
+This feature doesn't affect any of the persisted values and any store aggregation that has already occurred will not be modified.
+So in this example the Edges have been summarised into daily time buckets and the counts have been aggregated with Sum.
+Now at query time we are able to ask: What is the minimum daily count?
+
+Here is the java code:
+${GET_ALL_EDGES_SUMMARISED_IN_TIME_WINDOW_WITH_MIN_COUNT_SNIPPET}
+
+So, you can see we have just added an extra 'aggregator' block to the Operation view.
+This can be written in json like this:
+
+```json
+${GET_ALL_EDGES_SUMMARISED_IN_TIME_WINDOW_RESULT_WITH_MIN_COUNT_JSON}
+```
+ 
+We have increased the time window to 3 days just so there are multiple edges to demonstrate the query time aggregation.
+The result is:
+
+```
+${GET_ALL_EDGES_SUMMARISED_IN_TIME_WINDOW_RESULT_WITH_MIN_COUNT}
+```
+ 

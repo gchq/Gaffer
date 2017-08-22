@@ -15,14 +15,14 @@
  */
 package uk.gov.gchq.gaffer.sketches.datasketches.frequencies.serialisation;
 
-import com.yahoo.memory.NativeMemory;
+import com.yahoo.memory.WritableMemory;
 import com.yahoo.sketches.ArrayOfStringsSerDe;
 import com.yahoo.sketches.frequencies.ItemsSketch;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
 /**
- * A <code>StringsSketchSerialiser</code> serialises a {@link ItemsSketch} of {@link String}s using its
+ * A <code>StringsSketchSerialiser</code> serialises an {@link ItemsSketch} of {@link String}s using its
  * <code>toByteArray()</code> method.
  */
 public class StringsSketchSerialiser implements ToBytesSerialiser<ItemsSketch<String>> {
@@ -41,7 +41,7 @@ public class StringsSketchSerialiser implements ToBytesSerialiser<ItemsSketch<St
 
     @Override
     public ItemsSketch<String> deserialise(final byte[] bytes) throws SerialisationException {
-        return ItemsSketch.getInstance(new NativeMemory(bytes), SERIALISER);
+        return ItemsSketch.getInstance(WritableMemory.wrap(bytes), SERIALISER);
     }
 
     @Override
@@ -51,6 +51,11 @@ public class StringsSketchSerialiser implements ToBytesSerialiser<ItemsSketch<St
 
     @Override
     public boolean preservesObjectOrdering() {
+        return false;
+    }
+
+    @Override
+    public boolean isConsistent() {
         return false;
     }
 }

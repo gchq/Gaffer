@@ -73,49 +73,53 @@ public class InputFormatTest {
     private static final int NUM_ENTRIES = 1000;
     private static final List<Element> DATA = new ArrayList<>();
     private static final List<Element> DATA_WITH_VISIBILITIES = new ArrayList<>();
-    private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
-
     static {
         for (int i = 0; i < NUM_ENTRIES; i++) {
-            final Entity entity = new Entity(TestGroups.ENTITY);
-            entity.setVertex("" + i);
-            entity.putProperty("property1", 1);
+            final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
+                    .vertex("" + i)
+                    .property("property1", 1)
+                    .build();
 
-            final Edge edge = new Edge(TestGroups.EDGE);
-            edge.setSource("" + i);
-            edge.setDestination("B");
-            edge.setDirected(true);
-            edge.putProperty("property1", 2);
+            final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
+                    .source("" + i)
+                    .dest("B")
+                    .directed(true)
+                    .property("property1", 2)
+                    .build();
 
-            final Edge edge2 = new Edge(TestGroups.EDGE);
-            edge2.setSource("" + i);
-            edge2.setDestination("C");
-            edge2.setDirected(true);
-            edge2.putProperty("property2", 3);
+            final Edge edge2 = new Edge.Builder().group(TestGroups.EDGE)
+                    .source("" + i)
+                    .dest("C")
+                    .directed(true)
+                    .property("property2", 3)
+                    .build();
 
             DATA.add(edge);
             DATA.add(edge2);
             DATA.add(entity);
         }
         for (int i = 0; i < NUM_ENTRIES; i++) {
-            final Entity entity = new Entity(TestGroups.ENTITY);
-            entity.setVertex("" + i);
-            entity.putProperty("property1", 1);
-            entity.putProperty("visibility", "public");
+            final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
+                    .vertex("" + i)
+                    .property("property1", 1)
+                    .property("visibility", "public")
+                    .build();
 
-            final Edge edge = new Edge(TestGroups.EDGE);
-            edge.setSource("" + i);
-            edge.setDestination("B");
-            edge.setDirected(true);
-            edge.putProperty("property1", 2);
-            edge.putProperty("visibility", "private");
+            final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
+                    .source("" + i)
+                    .dest("B")
+                    .directed(true)
+                    .property("property1", 2)
+                    .property("visibility", "private")
+                    .build();
 
-            final Edge edge2 = new Edge(TestGroups.EDGE);
-            edge2.setSource("" + i);
-            edge2.setDestination("C");
-            edge2.setDirected(true);
-            edge2.putProperty("property2", 3);
-            edge2.putProperty("visibility", "public");
+            final Edge edge2 = new Edge.Builder().group(TestGroups.EDGE)
+                    .source("" + i)
+                    .dest("C")
+                    .directed(true)
+                    .property("property2", 3)
+                    .property("visibility", "public")
+                    .build();
 
             DATA_WITH_VISIBILITIES.add(edge);
             DATA_WITH_VISIBILITIES.add(edge2);
@@ -126,8 +130,8 @@ public class InputFormatTest {
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
-    private static String getJsonString(final Object o) throws SerialisationException {
-        return new String(JSON_SERIALISER.serialise(o));
+    private static String getJsonString(final Object obj) throws SerialisationException {
+        return new String(JSONSerialiser.serialise(obj));
     }
 
     @Test
@@ -247,17 +251,20 @@ public class InputFormatTest {
             throws Exception {
         final AccumuloStore store = new SingleUseMockAccumuloStore();
         final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
+        String graphId = null;
         switch (kp) {
             case BYTE_ENTITY_KEY_PACKAGE:
                 properties.setKeyPackageClass(ByteEntityKeyPackage.class.getName());
                 properties.setInstance(instanceName + "_BYTE_ENTITY");
+                graphId = "byteEntityGraph";
                 break;
             case CLASSIC_KEY_PACKAGE:
+                graphId = "gaffer1Graph";
                 properties.setKeyPackageClass(ClassicKeyPackage.class.getName());
                 properties.setInstance(instanceName + "_CLASSIC");
         }
         try {
-            store.initialise(schema, properties);
+            store.initialise(graphId, schema, properties);
         } catch (final StoreException e) {
             fail("StoreException thrown: " + e);
         }
@@ -304,12 +311,7 @@ public class InputFormatTest {
     }
 
     private Schema getSchemaWithVisibilities() {
-        final Schema schema = Schema.fromJson(
-                this.getClass().getResourceAsStream("/schemaWithVisibilities/dataSchemaWithVisibilities.json"),
-                this.getClass().getResourceAsStream("/schemaWithVisibilities/dataTypes.json"),
-                this.getClass().getResourceAsStream("/schemaWithVisibilities/storeSchema.json"),
-                this.getClass().getResourceAsStream("/schemaWithVisibilities/storeTypes.json"));
-        return schema;
+        return Schema.fromJson(StreamUtil.openStreams(getClass(), "schemaWithVisibilities"));
     }
 
     private class Driver extends Configured implements Tool {

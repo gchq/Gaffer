@@ -21,10 +21,14 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
@@ -33,30 +37,45 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * A <code>StoreProperties</code> contains specific configuration information for the store, such as database
  * connection strings. It wraps {@link Properties} and lazy loads the all properties from a file when first used.
+ * <p>
+ * All StoreProperties classes must be JSON serialisable.
+ * </p>
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "storePropertiesClassName")
 public class StoreProperties implements Cloneable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(StoreProperties.class);
     public static final String STORE_CLASS = "gaffer.store.class";
     public static final String SCHEMA_CLASS = "gaffer.store.schema.class";
+    public static final String ID = "gaffer.store.id";
     public static final String STORE_PROPERTIES_CLASS = "gaffer.store.properties.class";
     public static final String OPERATION_DECLARATIONS = "gaffer.store.operation.declarations";
 
     public static final String JOB_TRACKER_ENABLED = "gaffer.store.job.tracker.enabled";
 
     public static final String EXECUTOR_SERVICE_THREAD_COUNT = "gaffer.store.job.executor.threads";
-    private static final String EXECUTOR_SERVICE_THREAD_COUNT_DEFAULT = "50";
+    public static final String EXECUTOR_SERVICE_THREAD_COUNT_DEFAULT = "50";
 
+    public static final String JSON_SERIALISER_CLASS = JSONSerialiser.JSON_SERIALISER_CLASS_KEY;
+    public static final String JSON_SERIALISER_MODULES = JSONSerialiser.JSON_SERIALISER_MODULES;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(StoreProperties.class);
 
     private Properties props = new Properties();
 
     // Required for loading by reflection.
     public StoreProperties() {
+    }
+
+    public StoreProperties(final String id) {
+        if (null != id) {
+            setId(id);
+        }
     }
 
     public StoreProperties(final Path propFileLocation) {
@@ -100,6 +119,15 @@ public class StoreProperties implements Cloneable {
      */
     public void set(final String key, final String value) {
         props.setProperty(key, value);
+    }
+
+
+    public String getId() {
+        return get(ID);
+    }
+
+    public void setId(final String id) {
+        set(ID, id);
     }
 
     /**
@@ -221,6 +249,36 @@ public class StoreProperties implements Cloneable {
         setOperationDeclarationPaths(combinedPaths);
     }
 
+    public String getJsonSerialiserClass() {
+        return get(JSON_SERIALISER_CLASS);
+    }
+
+    @JsonIgnore
+    public void setJsonSerialiserClass(final Class<? extends JSONSerialiser> jsonSerialiserClass) {
+        setJsonSerialiserClass(jsonSerialiserClass.getName());
+    }
+
+    public void setJsonSerialiserClass(final String jsonSerialiserClass) {
+        set(JSON_SERIALISER_CLASS, jsonSerialiserClass);
+    }
+
+    public String getJsonSerialiserModules() {
+        return get(JSON_SERIALISER_MODULES, "");
+    }
+
+    @JsonIgnore
+    public void setJsonSerialiserModules(final Set<Class<? extends JSONSerialiserModules>> modules) {
+        final Set<String> moduleNames = new HashSet<>(modules.size());
+        for (final Class module : modules) {
+            moduleNames.add(module.getName());
+        }
+        setJsonSerialiserModules(StringUtils.join(moduleNames, ","));
+    }
+
+    public void setJsonSerialiserModules(final String modules) {
+        set(JSON_SERIALISER_MODULES, modules);
+    }
+
     public void setProperties(final Properties properties) {
         if (null == properties) {
             this.props = new Properties();
@@ -282,6 +340,29 @@ public class StoreProperties implements Cloneable {
     @Override
     public StoreProperties clone() {
         return StoreProperties.loadStoreProperties((Properties) getProperties().clone());
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final StoreProperties properties = (StoreProperties) obj;
+        return new EqualsBuilder()
+                .append(props, properties.props)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(5, 7)
+                .append(props)
+                .toHashCode();
     }
 
     public static StoreProperties loadStoreProperties(final Properties props) {

@@ -50,8 +50,16 @@ public abstract class Element implements ElementId {
     }
 
     Element(final String group) {
+        this(group, new Properties());
+    }
+
+    Element(final String group, final Properties properties) {
         this.group = group;
-        properties = new Properties();
+        if (null == properties) {
+            this.properties = new Properties();
+        } else {
+            this.properties = properties;
+        }
     }
 
     public void putProperty(final String name, final Object value) {
@@ -81,7 +89,7 @@ public abstract class Element implements ElementId {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(13, 17)
+        return new HashCodeBuilder(53, 17)
                 .append(group)
                 .append(properties)
                 .toHashCode();
@@ -102,16 +110,28 @@ public abstract class Element implements ElementId {
 
     @Override
     public boolean equals(final Object obj) {
-        return null != obj
-                && (obj instanceof Element)
-                && equals((Element) obj);
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final Element element = (Element) obj;
+
+        return new EqualsBuilder()
+                .append(group, element.group)
+                .append(properties, element.properties)
+                .isEquals();
     }
 
-    public boolean equals(final Element element) {
-        return null != element
-                && new EqualsBuilder()
-                .append(group, element.getGroup())
-                .isEquals() && getProperties().equals(element.getProperties());
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("group", group)
+                .append("properties", properties)
+                .build();
     }
 
     @JsonIgnore
@@ -120,7 +140,7 @@ public abstract class Element implements ElementId {
     @JsonIgnore
     public abstract Object getIdentifier(final IdentifierType identifierType);
 
-    public abstract void putIdentifier(final IdentifierType identifierType, final Object propertyToBeSet);
+    abstract void putIdentifier(final IdentifierType identifierType, final Object value);
 
     @JsonIgnore
     public Element getElement() {
@@ -143,14 +163,6 @@ public abstract class Element implements ElementId {
      */
     void setProperties(final Properties properties) {
         this.properties = properties;
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("group", group)
-                .append("properties", properties)
-                .build();
     }
 }
 

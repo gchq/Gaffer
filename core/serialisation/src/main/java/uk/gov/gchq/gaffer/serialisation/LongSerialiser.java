@@ -60,4 +60,9 @@ public class LongSerialiser implements ToBytesSerialiser<Long> {
     public boolean preservesObjectOrdering() {
         return true;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

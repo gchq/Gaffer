@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.rest.factory;
 
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.graph.hook.OperationAuthoriser;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 
 /**
@@ -38,8 +37,6 @@ public interface GraphFactory {
     }
 
     Graph.Builder createGraphBuilder();
-
-    OperationAuthoriser createOpAuthoriser();
 
     Graph createGraph();
 

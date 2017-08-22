@@ -115,18 +115,25 @@ public class BloomFilterIT {
         final HashSet<Key> keysSet = new HashSet<>();
         final HashSet<Entity> dataSet = new HashSet<>();
         for (int i = 0; i < 100000; i++) {
-            final Entity source = new Entity(TestGroups.ENTITY);
-            source.setVertex("type" + random.nextInt(Integer.MAX_VALUE));
+            final Entity source = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex("type" + random.nextInt(Integer.MAX_VALUE))
+                    .build();
             final Entity destination = new Entity(TestGroups.ENTITY);
             destination.setVertex("type" + random.nextInt(Integer.MAX_VALUE));
             dataSet.add(source);
             dataSet.add(destination);
-            final Entity sourceEntity = new Entity(source.getGroup());
-            sourceEntity.setVertex(source.getVertex());
+            final Entity sourceEntity = new Entity.Builder()
+                    .group(source.getGroup())
+                    .vertex(source.getVertex())
+                    .build();
             final Entity destinationEntity = new Entity(destination.getGroup());
             destinationEntity.setVertex(destination.getVertex());
-            final Edge edge = new Edge(TestGroups.EDGE, source.getVertex(), destination
-                    .getVertex(), true);
+            final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
+                    .source(source.getVertex())
+                    .dest(destination.getVertex())
+                    .directed(true)
+                    .build();
             keysSet.add(elementConverter.getKeyFromEntity(sourceEntity));
             keysSet.add(elementConverter.getKeyFromEntity(destinationEntity));
             final Pair<Key, Key> edgeKeys = elementConverter.getKeysFromEdge(edge);
@@ -168,7 +175,7 @@ public class BloomFilterIT {
             // Write data to file
             writer.startDefaultLocalityGroup();
             for (final Key key : keys) {
-                if (elementConverter.getElementFromKey(key)
+                if (elementConverter.getElementFromKey(key, false)
                         .getGroup()
                         .equals(TestGroups.ENTITY)) {
                     writer.append(key, value);
@@ -213,7 +220,7 @@ public class BloomFilterIT {
     }
 
     private double calculateRandomLookUpRate(final FileSKVIterator reader, final HashSet<Entity> dataSet, final Random random, final RangeFactory rangeFactory) throws IOException, RangeFactoryException {
-        final EntityId[] randomData = new EntityId[5000];
+        final EntityId[] randomData = new EntitySeed[5000];
         for (int i = 0; i < 5000; i++) {
             randomData[i] = new EntitySeed("type" + random.nextInt(Integer.MAX_VALUE));
         }
@@ -248,13 +255,11 @@ public class BloomFilterIT {
     }
 
     private void seek(final FileSKVIterator reader, final EntityId seed, final RangeFactory rangeFactory) throws IOException, RangeFactoryException {
-        final View view = new View.Builder()
-                .edge(TestGroups.EDGE)
-                .entity(TestGroups.ENTITY)
-                .build();
-
         final GetElements operation = new GetElements.Builder()
-                .view(view)
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE)
+                        .entity(TestGroups.ENTITY)
+                        .build())
                 .build();
         final List<Range> range = rangeFactory.getRange(seed, operation);
         for (final Range ran : range) {

@@ -35,7 +35,7 @@ import java.util.Set;
 
 public class DoublesUnion extends PropertiesWalkthrough {
     public DoublesUnion() {
-        super("Using DoublesUnion to estimate the quantiles of doubles seen on an Element", "properties/doublesUnion", DoubleUnionElementGenerator.class);
+        super(com.yahoo.sketches.quantiles.DoublesUnion.class, "properties/doublesUnion", DoubleUnionElementGenerator.class);
     }
 
     public static void main(final String[] args) throws OperationException {
@@ -47,6 +47,7 @@ public class DoublesUnion extends PropertiesWalkthrough {
         /// [graph] create a graph using our schema and store properties
         // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
+                .config(StreamUtil.graphConfig(getClass()))
                 .addSchemas(StreamUtil.openStreams(getClass(), "properties/doublesUnion/schema"))
                 .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();

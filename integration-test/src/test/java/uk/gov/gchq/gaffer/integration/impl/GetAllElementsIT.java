@@ -40,6 +40,7 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.function.Concat;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import uk.gov.gchq.koryphe.impl.predicate.IsIn;
@@ -235,7 +236,12 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 if (edge.isDirected()) {
                     assertTrue("Edge was not expected: " + edge, expectedElements.contains(edge));
                 } else {
-                    final Edge edgeReversed = new Edge(TestGroups.EDGE, edge.getDestination(), edge.getSource(), edge.isDirected());
+                    final Edge edgeReversed = new Edge.Builder()
+                            .group(TestGroups.EDGE)
+                            .source(edge.getDestination())
+                            .dest(edge.getSource())
+                            .directed(edge.isDirected())
+                            .build();
                     expectedElementsCopy.remove(edgeReversed);
                     assertTrue("Edge was not expected: " + seed, expectedElements.contains(result) || expectedElements.contains(edgeReversed));
                 }
@@ -245,5 +251,51 @@ public class GetAllElementsIT extends AbstractStoreIT {
 
         assertEquals("The number of elements returned was not as expected. Missing elements: " + expectedElementsCopy, expectedElements.size(),
                 Lists.newArrayList(results).size());
+    }
+
+    @Test
+    public void shouldGetAllElementsWithProvidedProperties() throws Exception {
+        // Given
+        final User user = new User();
+
+        final GetAllElements op = new GetAllElements.Builder()
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .properties(TestPropertyNames.COUNT)
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        final CloseableIterable<? extends Element> results = graph.execute(op, user);
+
+        // Then
+        for (final Element result : results) {
+            assertEquals(1, result.getProperties().size());
+            assertEquals(1L, result.getProperties().get(TestPropertyNames.COUNT));
+        }
+    }
+
+    @Test
+    public void shouldGetAllElementsWithExcludedProperties() throws Exception {
+        // Given
+        final User user = new User();
+
+        final GetAllElements op = new GetAllElements.Builder()
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .properties(TestPropertyNames.COUNT)
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        final CloseableIterable<? extends Element> results = graph.execute(op, user);
+
+        // Then
+        for (final Element result : results) {
+            assertEquals(1, result.getProperties().size());
+            assertEquals(1L, result.getProperties().get(TestPropertyNames.COUNT));
+        }
     }
 }

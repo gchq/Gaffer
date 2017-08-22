@@ -60,4 +60,9 @@ public class BooleanSerialiser implements ToBytesSerialiser<Boolean> {
     public boolean preservesObjectOrdering() {
         return true;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

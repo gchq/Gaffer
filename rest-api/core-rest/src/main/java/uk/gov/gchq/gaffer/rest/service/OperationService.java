@@ -155,7 +155,7 @@ public class OperationService implements IOperationService {
             result = graphFactory.getGraph().execute(opChain, user);
         } catch (final OperationException e) {
             CloseableUtil.close(opChain);
-            throw new RuntimeException("Error executing opChain", e);
+            throw new RuntimeException("Error executing operation chain: " + e.getMessage(), e);
         } finally {
             try {
                 postOperationHook(opChain, user);

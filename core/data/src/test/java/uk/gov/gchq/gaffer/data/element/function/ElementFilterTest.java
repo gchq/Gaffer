@@ -17,40 +17,32 @@
 package uk.gov.gchq.gaffer.data.element.function;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.impl.predicate.Not;
 import uk.gov.gchq.koryphe.impl.predicate.Or;
 import uk.gov.gchq.koryphe.tuple.predicate.KoryphePredicate2;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
+import java.util.List;
 import java.util.function.Predicate;
 
 import static junit.framework.TestCase.assertSame;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
-public class ElementFilterTest {
+public class ElementFilterTest extends JSONSerialisationTest<ElementFilter> {
 
-    @Test
-    public void shouldSerialiseAndDeserialiseIdentifiers() throws SerialisationException {
-        // Given
-        final ElementFilter filter = new ElementFilter();
-
-        final JSONSerialiser serialiser = new JSONSerialiser();
-
-        // When
-        final byte[] serialisedElement = serialiser.serialise(filter);
-        final ElementFilter deserialisedElement = serialiser.deserialise(serialisedElement, filter.getClass());
-
-        // Then
-        assertEquals(filter, deserialisedElement);
+    @Override
+    protected ElementFilter getTestObject() {
+        return new ElementFilter();
     }
 
     public static class MockPredicate implements Predicate<Element> {
@@ -303,5 +295,35 @@ public class ElementFilterTest {
         assertFalse(result2);
         assertFalse(result3);
         assertTrue(result4);
+    }
+
+    @Test
+    public void shouldReturnUnmodifiableComponentsWhenLocked() {
+        // Given
+        final ElementFilter filter = getTestObject();
+
+        // When
+        filter.lock();
+        final List<TupleAdaptedPredicate<String, ?>> components = filter.getComponents();
+
+        // Then
+        try {
+            components.add(null);
+            fail("Exception expected");
+        } catch (final UnsupportedOperationException e) {
+            assertNotNull(e);
+        }
+    }
+
+    @Test
+    public void shouldReturnModifiableComponentsWhenNotLocked() {
+        // Given
+        final ElementFilter filter = getTestObject();
+
+        // When
+        final List<TupleAdaptedPredicate<String, ?>> components = filter.getComponents();
+
+        // Then - no exceptions
+        components.add(null);
     }
 }

@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
@@ -37,6 +38,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.koryphe.impl.binaryoperator.Product;
 import uk.gov.gchq.koryphe.impl.predicate.IsIn;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
@@ -45,6 +47,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static uk.gov.gchq.gaffer.commonutil.TestGroups.ENTITY_2;
 
 public class AggregationIT extends AbstractStoreIT {
     private final String AGGREGATED_SOURCE = SOURCE + 6;
@@ -71,7 +74,11 @@ public class AggregationIT extends AbstractStoreIT {
 
         // Edge with existing ids but directed
         graph.execute(new AddElements.Builder()
-                .input(new Edge(TestGroups.EDGE, NON_AGGREGATED_SOURCE, NON_AGGREGATED_DEST, true))
+                .input(new Edge.Builder().group(TestGroups.EDGE)
+                        .source(NON_AGGREGATED_SOURCE)
+                        .dest(NON_AGGREGATED_DEST)
+                        .directed(true)
+                        .build())
                 .build(), getUser());
     }
 
@@ -93,22 +100,82 @@ public class AggregationIT extends AbstractStoreIT {
         final Entity expectedEntity = new Entity(TestGroups.ENTITY, AGGREGATED_SOURCE);
         expectedEntity.putProperty(TestPropertyNames.STRING, "3,3,3");
 
-        final Edge expectedEdge = new Edge(TestGroups.EDGE, AGGREGATED_SOURCE, AGGREGATED_DEST, false);
+        final Edge expectedEdge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source(AGGREGATED_SOURCE)
+                .dest(AGGREGATED_DEST)
+                .directed(false)
+                .build();
         expectedEdge.putProperty(TestPropertyNames.INT, 1);
         expectedEdge.putProperty(TestPropertyNames.COUNT, 2L);
 
         assertThat(results, IsCollectionContaining.hasItems(
                 expectedEdge,
                 expectedEntity));
+    }
 
-        for (final Element result : results) {
-            if (result instanceof Entity) {
-                assertEquals("3,3,3", result.getProperty(TestPropertyNames.STRING));
-            } else {
-                assertEquals(1, result.getProperty(TestPropertyNames.INT));
-                assertEquals(2L, result.getProperty(TestPropertyNames.COUNT));
-            }
-        }
+    @Test
+    @TraitRequirement(StoreTrait.INGEST_AGGREGATION)
+    public void shouldAggregateElementsWithNoGroupBy() throws OperationException, UnsupportedEncodingException {
+        // Given
+        final String vertex = "testVertex1";
+        final long timestamp = System.currentTimeMillis();
+
+        graph.execute(new AddElements.Builder()
+                .input(new Entity.Builder()
+                                .group(ENTITY_2)
+                                .vertex(vertex)
+                                .property(TestPropertyNames.INT, 1)
+                                .property(TestPropertyNames.TIMESTAMP, timestamp)
+                                .build(),
+                        new Entity.Builder()
+                                .group(ENTITY_2)
+                                .vertex(vertex)
+                                .property(TestPropertyNames.INT, 2)
+                                .property(TestPropertyNames.TIMESTAMP, timestamp)
+                                .build())
+                .build(), getUser());
+
+        graph.execute(new AddElements.Builder()
+                .input(new Entity.Builder()
+                                .group(ENTITY_2)
+                                .vertex(vertex)
+                                .property(TestPropertyNames.INT, 2)
+                                .property(TestPropertyNames.TIMESTAMP, timestamp)
+                                .build(),
+                        new Entity.Builder()
+                                .group(ENTITY_2)
+                                .vertex(vertex)
+                                .property(TestPropertyNames.INT, 3)
+                                .property(TestPropertyNames.TIMESTAMP, timestamp)
+                                .build(),
+                        new Entity.Builder()
+                                .group(ENTITY_2)
+                                .vertex(vertex)
+                                .property(TestPropertyNames.INT, 9)
+                                .property(TestPropertyNames.TIMESTAMP, timestamp)
+                                .build())
+                .build(), getUser());
+
+        final GetElements getElements = new GetElements.Builder()
+                .input(new EntitySeed(vertex))
+                .build();
+
+        // When
+        final List<Element> results = Lists.newArrayList(graph.execute(getElements, getUser()));
+
+        // Then
+        assertNotNull(results);
+        assertEquals(1, results.size());
+
+        final Entity expectedEntity2 = new Entity.Builder()
+                .group(ENTITY_2)
+                .vertex(vertex)
+                .property(TestPropertyNames.INT, 9)
+                .property(TestPropertyNames.TIMESTAMP, timestamp)
+                .build();
+
+        assertThat(results, IsCollectionContaining.hasItems(expectedEntity2));
     }
 
     @Test
@@ -130,7 +197,11 @@ public class AggregationIT extends AbstractStoreIT {
         assertEquals(2, results.size());
         assertThat(results, IsCollectionContaining.hasItems(
                 getEdge(NON_AGGREGATED_SOURCE, NON_AGGREGATED_DEST, false),
-                new Edge(TestGroups.EDGE, NON_AGGREGATED_SOURCE, NON_AGGREGATED_DEST, true)
+                new Edge.Builder().group(TestGroups.EDGE)
+                        .source(NON_AGGREGATED_SOURCE)
+                        .dest(NON_AGGREGATED_DEST)
+                        .directed(true)
+                        .build()
         ));
     }
 
@@ -152,10 +223,14 @@ public class AggregationIT extends AbstractStoreIT {
         final GetAllElements op = new GetAllElements.Builder()
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
-                                .groupBy()
                                 .preAggregationFilter(new ElementFilter.Builder()
                                         .select(TestPropertyNames.INT)
-                                        .execute(new IsIn(Arrays.asList((Object) 100, 101)))
+                                        .execute(new IsIn(Arrays.asList(100, 101)))
+                                        .build())
+                                .groupBy()
+                                .aggregator(new ElementAggregator.Builder()
+                                        .select(TestPropertyNames.INT)
+                                        .execute(new Product())
                                         .build())
                                 .build())
                         .build())
@@ -168,7 +243,7 @@ public class AggregationIT extends AbstractStoreIT {
         final List<Element> resultList = Lists.newArrayList(results);
 
         assertEquals(1, resultList.size());
-        // aggregation is 'Max'
-        assertEquals(101, resultList.get(0).getProperty(TestPropertyNames.INT));
+        // aggregation is has been replaced with Product
+        assertEquals(10100, resultList.get(0).getProperty(TestPropertyNames.INT));
     }
 }

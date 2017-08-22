@@ -63,8 +63,16 @@ public class GafferScannerTest {
             .build();
 
     private static final List<Element> ELEMENTS = Arrays.asList(
-            new Entity(TestGroups.ENTITY, "a"),
-            new Edge(TestGroups.EDGE, "b", "c", true)
+            new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex("a")
+                    .build(),
+            new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("b")
+                    .dest("c")
+                    .directed(true)
+                    .build()
     );
 
     private final ElementSerialisation serialisation = new ElementSerialisation(SCHEMA);
@@ -98,7 +106,7 @@ public class GafferScannerTest {
 
         final GafferScannerProcessor processor1 = mock(GafferScannerProcessor.class);
         final GafferScannerProcessor processor2 = mock(GafferScannerProcessor.class);
-        final GafferScanner scanner = new GafferScanner(internalScanner, serialisation, processor1, processor2) {
+        final GafferScanner scanner = new GafferScanner(internalScanner, serialisation, Arrays.asList(processor1, processor2), false) {
         };
         final List<LazyElementCell> processedCells1 = mock(List.class);
         given(processor1.process(Mockito.anyList())).willReturn(processedCells1);
@@ -123,7 +131,7 @@ public class GafferScannerTest {
     public void shouldCloseScanner() throws IOException {
         // Given
         final InternalScanner internalScanner = mock(InternalScanner.class);
-        final GafferScanner scanner = new GafferScanner(internalScanner, serialisation) {
+        final GafferScanner scanner = new GafferScanner(internalScanner, serialisation, null, false) {
         };
 
         // When

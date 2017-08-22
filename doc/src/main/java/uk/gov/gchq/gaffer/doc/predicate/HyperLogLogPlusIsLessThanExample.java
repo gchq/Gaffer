@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.doc.predicate;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
-import uk.gov.gchq.gaffer.sketches.predicate.HyperLogLogPlusIsLessThan;
+import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.predicate.HyperLogLogPlusIsLessThan;
 
 public class HyperLogLogPlusIsLessThanExample extends PredicateExample {
     private final HyperLogLogPlus hllp1 = new HyperLogLogPlus(15);
@@ -49,7 +49,9 @@ public class HyperLogLogPlusIsLessThanExample extends PredicateExample {
         final HyperLogLogPlusIsLessThan function = new HyperLogLogPlusIsLessThan(2);
         // ---------------------------------------------------------
 
-        runExample(function, hllp1, hllp2, hllp3);
+        runExample(function,
+                null,
+                hllp1, hllp2, hllp3);
     }
 
     public void hyperLogLogPlusIsLessThanOrEqualTo2() {
@@ -57,6 +59,8 @@ public class HyperLogLogPlusIsLessThanExample extends PredicateExample {
         final HyperLogLogPlusIsLessThan function = new HyperLogLogPlusIsLessThan(2, true);
         // ---------------------------------------------------------
 
-        runExample(function, hllp1, hllp2, hllp3);
+        runExample(function,
+                null,
+                hllp1, hllp2, hllp3);
     }
 }

@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.operation.job;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.export.Export;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
@@ -27,28 +26,22 @@ import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 
-public class GetJobResultsTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return GetJobResults.class;
-    }
-
+public class GetJobResultsTest extends OperationTest<GetJobResults> {
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final GetJobResults operation = new GetJobResults.Builder()
                 .jobId("jobId")
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(operation, true);
-        final GetJobResults deserialisedOp = serialiser.deserialise(json, GetJobResults.class);
+        byte[] json = JSONSerialiser.serialise(operation, true);
+        final GetJobResults deserialisedOp = JSONSerialiser.deserialise(json, GetJobResults.class);
 
         // Then
         assertEquals("jobId", deserialisedOp.getJobId());
@@ -76,5 +69,25 @@ public class GetJobResultsTest extends OperationTest {
 
         // Then
         assertEquals("jobId", op.getJobId());
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final GetJobResults getJobResults = new GetJobResults.Builder()
+                .jobId("id1")
+                .build();
+
+        // When
+        final GetJobResults clone = getJobResults.shallowClone();
+
+        // Then
+        assertNotSame(getJobResults, clone);
+        assertNotNull(clone);
+        assertEquals(getJobResults.getJobId(), clone.getJobId());
+    }
+
+    protected GetJobResults getTestObject() {
+        return new GetJobResults();
     }
 }

@@ -28,14 +28,12 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawIntegerSerialiser;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -68,10 +66,10 @@ public abstract class AbstractStoreIT {
     protected static final long AGE_OFF_TIME = 4L * 1000; // 4 seconds;
 
     // Identifier prefixes
-    public static final String SOURCE = "source";
-    public static final String DEST = "dest";
-    public static final String SOURCE_DIR = "sourceDir";
-    public static final String DEST_DIR = "destDir";
+    public static final String SOURCE = "1-Source";
+    public static final String DEST = "2-Dest";
+    public static final String SOURCE_DIR = "1-SourceDir";
+    public static final String DEST_DIR = "2-DestDir";
     public static final String A = "A";
     public static final String B = "B";
     public static final String C = "C";
@@ -165,6 +163,9 @@ public abstract class AbstractStoreIT {
         assumeTrue("Skipping test. Justification: " + skippedTests.get(getClass()), !skippedTests.containsKey(getClass()));
 
         graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("integrationTestGraph")
+                        .build())
                 .storeProperties(storeProperties)
                 .addSchema(createSchema())
                 .addSchema(storeSchema)
@@ -190,33 +191,27 @@ public abstract class AbstractStoreIT {
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
                         .aggregateFunction(new StringConcat())
-                        .serialiser(new StringSerialiser())
                         .build())
                 .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
                         .clazz(Integer.class)
                         .aggregateFunction(new Max())
-                        .serialiser(new RawIntegerSerialiser())
                         .build())
                 .type(TestTypes.PROP_COUNT, new TypeDefinition.Builder()
                         .clazz(Long.class)
                         .aggregateFunction(new Sum())
-                        .serialiser(new CompactRawLongSerialiser())
                         .build())
                 .type(TestTypes.TIMESTAMP, new TypeDefinition.Builder()
                         .clazz(Long.class)
                         .aggregateFunction(new Max())
-                        .serialiser(new CompactRawLongSerialiser())
                         .build())
                 .type(TestTypes.TIMESTAMP_2, new TypeDefinition.Builder()
                         .clazz(Long.class)
                         .aggregateFunction(new Max())
-                        .serialiser(new CompactRawLongSerialiser())
                         .validateFunctions(new AgeOff(AGE_OFF_TIME))
                         .build())
                 .type(TestTypes.PROP_INTEGER_2, new TypeDefinition.Builder()
                         .clazz(Integer.class)
                         .aggregateFunction(new Max())
-                        .serialiser(new RawIntegerSerialiser())
                         .validateFunctions(new IsLessThan(10))
                         .build())
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
@@ -233,10 +228,10 @@ public abstract class AbstractStoreIT {
                         .groupBy(TestPropertyNames.INT)
                         .build())
                 .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
+                        .vertex(TestTypes.ID_STRING)
                         .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP_2)
                         .property(TestPropertyNames.INT, TestTypes.PROP_INTEGER_2)
                         .build())
-                .vertexSerialiser(new StringSerialiser())
                 .build();
     }
 
@@ -279,23 +274,43 @@ public abstract class AbstractStoreIT {
         final Map<EdgeId, Edge> edges = new HashMap<>();
         for (int i = 0; i <= 10; i++) {
             for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
-                final Edge edge = new Edge(TestGroups.EDGE, VERTEX_PREFIXES[0] + i, VERTEX_PREFIXES[j] + i, false);
-                edge.putProperty(TestPropertyNames.INT, 1);
-                edge.putProperty(TestPropertyNames.COUNT, 1L);
+                final Edge edge = new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source(VERTEX_PREFIXES[0] + i)
+                        .dest(VERTEX_PREFIXES[j] + i)
+                        .directed(false)
+                        .property(TestPropertyNames.INT, 1)
+                        .property(TestPropertyNames.COUNT, 1L)
+                        .build();
                 addToMap(edge, edges);
 
-                final Edge edgeDir = new Edge(TestGroups.EDGE, VERTEX_PREFIXES[0] + i, VERTEX_PREFIXES[j] + i, true);
-                edgeDir.putProperty(TestPropertyNames.INT, 1);
-                edgeDir.putProperty(TestPropertyNames.COUNT, 1L);
+                final Edge edgeDir = new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source(VERTEX_PREFIXES[0] + i)
+                        .dest(VERTEX_PREFIXES[j] + i)
+                        .directed(true)
+                        .property(TestPropertyNames.INT, 1)
+                        .property(TestPropertyNames.COUNT, 1L)
+                        .build();
                 addToMap(edgeDir, edges);
             }
 
-            final Edge edge = new Edge(TestGroups.EDGE, SOURCE + i, DEST + i, false);
-            edge.putProperty(TestPropertyNames.INT, 1);
-            edge.putProperty(TestPropertyNames.COUNT, 1L);
+            final Edge edge = new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source(SOURCE + i)
+                    .dest(DEST + i)
+                    .directed(false)
+                    .property(TestPropertyNames.INT, 1)
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .build();
             addToMap(edge, edges);
 
-            final Edge edgeDir = new Edge(TestGroups.EDGE, SOURCE_DIR + i, DEST_DIR + i, true);
+            final Edge edgeDir = new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source(SOURCE_DIR + i)
+                    .dest(DEST_DIR + i)
+                    .directed(true)
+                    .build();
             edgeDir.putProperty(TestPropertyNames.INT, 1);
             edgeDir.putProperty(TestPropertyNames.COUNT, 1L);
             addToMap(edgeDir, edges);

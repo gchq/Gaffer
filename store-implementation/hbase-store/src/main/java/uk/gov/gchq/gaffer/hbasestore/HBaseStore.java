@@ -23,7 +23,7 @@ import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
-import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
@@ -39,7 +39,6 @@ import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.handler.AddElementsFromHdfsH
 import uk.gov.gchq.gaffer.hbasestore.retriever.HBaseRetriever;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -48,7 +47,6 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
-import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -56,10 +54,13 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.ValidationResult;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
@@ -98,22 +99,33 @@ public class HBaseStore extends Store {
     private Connection connection;
 
     @Override
-    public void initialise(final Schema schema, final StoreProperties properties)
+    public void initialise(final String graphId, final Schema schema, final StoreProperties properties)
             throws StoreException {
-        preInitialise(schema, properties);
+        preInitialise(graphId, schema, properties);
         TableUtils.ensureTableExists(this);
     }
 
     /**
      * Performs general initialisation without creating the table.
      *
+     * @param graphId    the graph ID
      * @param schema     the gaffer Schema
      * @param properties the hbase store properties
      * @throws StoreException the store could not be initialised.
      */
-    public void preInitialise(final Schema schema, final StoreProperties properties)
+    public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties)
             throws StoreException {
-        super.initialise(schema, properties);
+        final String deprecatedTableName = ((HBaseProperties) properties).getTableName();
+        if (null == graphId && null != deprecatedTableName) {
+            // Deprecated
+            super.initialise(deprecatedTableName, schema, properties);
+        } else if (null != deprecatedTableName && !deprecatedTableName.equals(graphId)) {
+            throw new IllegalArgumentException(
+                    "The table in store.properties should no longer be used. " +
+                            "Please use a graphId instead or for now just set the graphId to be the same value as the store.properties table.");
+        } else {
+            super.initialise(graphId, schema, properties);
+        }
     }
 
     public Configuration getConfiguration() {
@@ -136,20 +148,20 @@ public class HBaseStore extends Store {
     }
 
     public TableName getTableName() {
-        return getProperties().getTable();
+        return TableName.valueOf(getGraphId());
     }
 
     /**
-     * Gets the HBase table.
+     * Gets the table.
      *
-     * @return the HBase table
+     * @return the table.
      * @throws StoreException if a reference to the table could not be created.
      */
-    public HTable getTable() throws StoreException {
+    public Table getTable() throws StoreException {
         final TableName tableName = getTableName();
         final Connection connection = getConnection();
         try {
-            return (HTable) connection.getTable(tableName);
+            return connection.getTable(tableName);
         } catch (final IOException e) {
             CloseableUtil.close(connection);
             throw new StoreException(e);
@@ -160,8 +172,9 @@ public class HBaseStore extends Store {
     createRetriever(final OP operation,
                     final User user,
                     final Iterable<? extends ElementId> ids,
+                    final boolean includeMatchedVertex,
                     final Class<?>... extraProcessors) throws StoreException {
-        return new HBaseRetriever<>(this, operation, user, ids, extraProcessors);
+        return new HBaseRetriever<>(this, operation, user, ids, includeMatchedVertex, extraProcessors);
     }
 
     @Override
@@ -170,13 +183,20 @@ public class HBaseStore extends Store {
     }
 
     @Override
-    public Set<StoreTrait> getTraits() {
-        return TRAITS;
+    public void validateSchemas() {
+        super.validateSchemas();
+        validateConsistentVertex();
     }
 
     @Override
-    public boolean isValidationRequired() {
-        return false;
+    protected void validateSchemaElementDefinition(final Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry, final ValidationResult validationResult) {
+        super.validateSchemaElementDefinition(schemaElementDefinitionEntry, validationResult);
+        validateConsistentGroupByProperties(schemaElementDefinitionEntry, validationResult);
+    }
+
+    @Override
+    public Set<StoreTrait> getTraits() {
+        return TRAITS;
     }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be HBaseProperties")
@@ -218,10 +238,4 @@ public class HBaseStore extends Store {
             LOGGER.warn("Unable to added handler for {} due to missing classes on the classpath", AddElementsFromHdfs.class.getSimpleName(), e);
         }
     }
-
-    @Override
-    protected Object doUnhandledOperation(final Operation operation, final Context context) {
-        throw new UnsupportedOperationException("Operation: " + operation.getClass() + " is not supported");
-    }
-
 }

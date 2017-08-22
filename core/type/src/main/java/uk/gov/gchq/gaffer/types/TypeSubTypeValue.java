@@ -15,9 +15,16 @@
  */
 package uk.gov.gchq.gaffer.types;
 
-public class TypeSubTypeValue {
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import java.util.Comparator;
 
-    private static final int PRIME = 31;
+public class TypeSubTypeValue implements Comparable<TypeSubTypeValue> {
+
+    private static Comparator<String> stringComparator = Comparator
+            .nullsFirst(String::compareTo);
+
     private String type;
     private String subType;
     private String value;
@@ -58,44 +65,54 @@ public class TypeSubTypeValue {
 
     @Override
     public int hashCode() {
-        int result = 1;
-        result = PRIME * result + ((value == null) ? 0 : value.hashCode());
-        result = PRIME * result + ((type == null) ? 0 : type.hashCode());
-        result = PRIME * result + ((subType == null) ? 0 : subType.hashCode());
-        return result;
+        return new HashCodeBuilder(13, 89)
+                .append(type)
+                .append(subType)
+                .append(value)
+                .toHashCode();
     }
 
     @Override
     public boolean equals(final Object object) {
-        if (TypeSubTypeValue.class.isInstance(object)) {
-            return this.equals((TypeSubTypeValue) object);
-        } else {
+        if (this == object) {
+            return true;
+        }
+
+        if (object == null || getClass() != object.getClass()) {
             return false;
         }
+
+        final TypeSubTypeValue tstv = (TypeSubTypeValue) object;
+
+        return new EqualsBuilder()
+                .append(type, tstv.type)
+                .append(subType, tstv.subType)
+                .append(value, tstv.value)
+                .isEquals();
     }
 
-    public boolean equals(final TypeSubTypeValue typeSubTypeValue) {
-        if (this.type == null) {
-            if (null != typeSubTypeValue.getType()) {
-                return false;
-            }
-        } else if (!this.type.equals(typeSubTypeValue.getType())) {
-            return false;
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("type", type)
+                .append("subType", subType)
+                .append("value", value)
+                .toString();
+    }
+
+    @Override
+    public int compareTo(final TypeSubTypeValue typeSubTypeValue) {
+        if (typeSubTypeValue == null) {
+            return 1;
         }
-        if (this.subType == null) {
-            if (null != typeSubTypeValue.getSubType()) {
-                return false;
-            }
-        } else if (!this.subType.equals(typeSubTypeValue.getSubType())) {
-            return false;
+        int i = stringComparator.compare(type, typeSubTypeValue.getType());
+        if (i != 0) {
+            return i;
         }
-        if (this.value == null) {
-            if (null != typeSubTypeValue.getValue()) {
-                return false;
-            }
-        } else if (!this.value.equals(typeSubTypeValue.getValue())) {
-            return false;
+        i = stringComparator.compare(subType, typeSubTypeValue.getSubType());
+        if (i != 0) {
+            return i;
         }
-        return true;
+        return stringComparator.compare(value, typeSubTypeValue.getValue());
     }
 }

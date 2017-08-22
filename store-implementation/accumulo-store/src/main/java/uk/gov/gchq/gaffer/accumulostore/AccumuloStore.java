@@ -68,7 +68,6 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.SplitStore;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -76,7 +75,6 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
-import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -84,11 +82,14 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.ValidationResult;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -131,20 +132,31 @@ public class AccumuloStore extends Store {
     private Connector connection = null;
 
     @Override
-    public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
-        preInitialise(schema, properties);
+    public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
+        preInitialise(graphId, schema, properties);
         TableUtils.ensureTableExists(this);
     }
 
     /**
      * Performs general initialisation without creating the table.
      *
+     * @param graphId    the graph ID
      * @param schema     the gaffer Schema
      * @param properties the accumulo store properties
      * @throws StoreException the store could not be initialised.
      */
-    public void preInitialise(final Schema schema, final StoreProperties properties) throws StoreException {
-        super.initialise(schema, properties);
+    public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
+        final String deprecatedTableName = ((AccumuloProperties) properties).getTable();
+        if (null == graphId && null != deprecatedTableName) {
+            // Deprecated
+            super.initialise(deprecatedTableName, schema, properties);
+        } else if (null != deprecatedTableName && !deprecatedTableName.equals(graphId)) {
+            throw new IllegalArgumentException(
+                    "The table in store.properties should no longer be used. " +
+                            "Please use a graphId instead or for now just set the graphId to be the same value as the store.properties table.");
+        } else {
+            super.initialise(graphId, schema, properties);
+        }
         final String keyPackageClass = getProperties().getKeyPackageClass();
         try {
             this.keyPackage = Class.forName(keyPackageClass).asSubclass(AccumuloKeyPackage.class).newInstance();
@@ -171,7 +183,7 @@ public class AccumuloStore extends Store {
     }
 
     public String getTableName() {
-        return getProperties().getTable();
+        return getGraphId();
     }
 
     /**
@@ -249,6 +261,18 @@ public class AccumuloStore extends Store {
     }
 
     @Override
+    public void validateSchemas() {
+        super.validateSchemas();
+        validateConsistentVertex();
+    }
+
+    @Override
+    protected void validateSchemaElementDefinition(final Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry, final ValidationResult validationResult) {
+        super.validateSchemaElementDefinition(schemaElementDefinitionEntry, validationResult);
+        validateConsistentGroupByProperties(schemaElementDefinitionEntry, validationResult);
+    }
+
+    @Override
     protected Class<? extends ToBytesSerialiser> getRequiredParentSerialiserClass() {
         return ToBytesSerialiser.class;
     }
@@ -266,11 +290,6 @@ public class AccumuloStore extends Store {
                 new ClientConfiguration()
                         .withInstance(getProperties().getInstance())
                         .withZkHosts(getProperties().getZookeepers()));
-    }
-
-    @Override
-    public Object doUnhandledOperation(final Operation operation, final Context context) {
-        throw new UnsupportedOperationException("Operation: " + operation.getClass() + " is not supported");
     }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be AccumuloProperties")
@@ -402,11 +421,6 @@ public class AccumuloStore extends Store {
      */
     public AccumuloKeyPackage getKeyPackage() {
         return keyPackage;
-    }
-
-    @Override
-    public boolean isValidationRequired() {
-        return false;
     }
 
     public List<String> getTabletServers() throws StoreException {

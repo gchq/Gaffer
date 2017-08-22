@@ -32,6 +32,7 @@ Accumulo Store
 13. [Implementation details](#implementation-details)
 14. [Tests](#tests)
 15. [Accumulo 1.8.0 Support](#accumulo-1.8.0-support)
+16. [Migration](#migration)
 
 
 Introduction
@@ -80,7 +81,6 @@ The next stage is to create a properties file that Gaffer will use to instantiat
 - `gaffer.store.properties.class`: This is the name of the Gaffer class that contains the properties for this store. This should always be `gaffer.accumulostore.AccumuloProperties`.
 - `accumulo.instance`: The instance name of your Accumulo cluster.
 - `accumulo.zookeepers`: A comma separated list of the Zookeeper servers that your Accumulo cluster is using. Each server should specify the hostname and port separated by a colon, i.e. host:port.
-- `accumulo.table`: The name of the Accumulo table to use.
 - `accumulo.user`: The name of your Accumulo user.
 - `accumulo.password`: The password for the above Accumulo user.
 
@@ -91,7 +91,6 @@ gaffer.store.class=gaffer.accumulostore.AccumuloStore
 gaffer.store.properties.class=gaffer.accumulostore.AccumuloProperties
 accumulo.instance=myInstance
 accumulo.zookeepers=server1.com:2181,server2.com:2181,server3.com:2181
-accumulo.table=gafferTable
 accumulo.user=myUser
 accumulo.password=myPassword
 ```
@@ -107,6 +106,9 @@ See [Getting Started](Getting-Started.md) for details of how to write a schema t
 
 ```java
 Graph graph = new Graph.Builder()
+      .config(new GraphConfig.Builder()
+            .graphId(uniqueNameOfYourGraph)
+            .build())
       .addSchemas(schemas)
       .storeProperties(storeProperties)
       .build();
@@ -264,7 +266,7 @@ In Gaffer's `AccumuloStore` a key-package contains all the logic for:
 
 A key-package is an implementation of the `AccumuloKeyPackage` interface. Gaffer provides two implementations: `ByteEntityKeyPackage` and `ClassicKeyPackage`. These names are essentially meaningless. The "classic" in `ClassicKeyPackage` refers to the fact that it is similar to the implementation in the first version of Gaffer (known as "Gaffer1").
 
-Both key-packages should provide good performance for most use-cases. There will be slight differences in performance between the two for different types of query. The `ByteEntityKeyPackage` will be slightly faster if the query specifies that only out-going or in-coming edges are required. The `ClassicKeyPackage` will be faster when querying for all edges involving a pair of vertices. See the [Key-packages](Implementation-details#Key-packages) part of the [Implementation details](Implementation-details) section of this guide for more information about these key-packages.
+Both key-packages should provide good performance for most use-cases. There will be slight differences in performance between the two for different types of query. The `ByteEntityKeyPackage` will be slightly faster if the query specifies that only out-going or in-coming edges are required. The `ClassicKeyPackage` will be faster when querying for all edges involving a pair of vertices. See the Key-Packages part of the [Implementation details](#implementation-details) section of this guide for more information about these key-packages.
 
 Advanced properties
 -----------------------------------------------
@@ -314,7 +316,7 @@ This section contains brief details on the implementation of the `AccumuloStore`
 
 **Key-packages**
 
-As noted in the [Key-packages](Key-packages) section above, key-packages are responsible for converting `Element`s to and from key-value pairs, for creating ranges of keys containing all data relevant to a particular query, and for configuring the iterators. Gaffer provides two key-packages: `ByteEntityKeyPackage` and `ClassicKeyPackage`. Advanced users are able to create their own key-packages if they wish --- see [Options for future key-packages](Options for future key-packages) for some ideas.
+As noted in the [Key-packages](#key-packages) section above, key-packages are responsible for converting `Element`s to and from key-value pairs, for creating ranges of keys containing all data relevant to a particular query, and for configuring the iterators. Gaffer provides two key-packages: `ByteEntityKeyPackage` and `ClassicKeyPackage`. Advanced users are able to create their own key-packages if they wish --- see [Options for future key-packages](Options for future key-packages) for some ideas.
 
 Before these key-packages are described, we review the main design goals:
 
@@ -344,15 +346,14 @@ The `ClassicKeyPackage` constructs the following Accumulo key-value pair for an 
     <th>Value</th>
 </tr>
 <tr>
-    <td>(serialised_vertex)01</td>
+    <td>(serialised_vertex)</td>
     <td>group</td>
     <td>group by properties</td>
     <td>visibility property</td>
+    <td>timestamp</td>
     <td>all other properties</td>
 </tr>
 </table>
-
-In the row ID the 0 is a delimiter to split the serialised vertex from the 1. The 1 indicates that this is an `Entity`. By having this flag at the end of the row id it is easy to determine if the key relates to an `Entity` or an `Edge`.
 
 The following Accumulo key-value pairs are created for an `Edge`:
 
@@ -535,4 +536,93 @@ Gaffer can be compiled with support for Accumulo 1.8.0. Clear your Maven reposit
 
 ```
 mvn clean install -Paccumulo-1.8
+```
+
+## Migration
+
+The Accumulo Store also provides a utility [AddUpdateTableIterator](https://github.com/gchq/Gaffer/blob/master/store-implementation/accumulo-store/src/main/java/uk/gov/gchq/gaffer/accumulostore/utils/AddUpdateTableIterator.java)
+to help with migrations - updating to new versions of Gaffer or updating your schema.
+
+The following changes to your schema are allowed:
+- add new groups
+- add new non-groupBy properties (including visibility and timestamp), but they must go after the other properties
+- rename properties
+- change aggregators (your data may become inconsistent as any elements that were aggregated on ingest will not be updated.)
+- change validators
+- change descriptions
+
+But, you cannot do the following:
+- rename groups
+- remove any properties (groupBy, non-groupBy, visibility or timestamp)
+- add new groupBy properties
+- reorder any of the properties. In the Accumulo store we don't use any property names, we just rely on the order the properties are defined in the schema.
+- change the way properties or vertices are serialised - i.e don't change the serialisers.
+- change which properties are groupBy
+
+Please note, that the validation functions in the schema can be a bit dangerous. 
+If an element is found to be invalid then the element will be permanently deleted from the table. 
+So, be very careful when making changes to your schema that you don't accidentally make all your existing elements invalid as you will quickly realise all your data has been deleted. 
+For example, if you add a new property 'prop1' and set the validateFunctions to be a single Exists predicate. 
+Then when that Exists predicate is applied to all of your existing elements, those old elements will fail validation and be removed.
+
+To carry out the migration you will need the following:
+
+- your schema in 1 or more json files.
+- store.properties file contain your accumulo store properties
+- a jar-with-dependencies containing the Accumulo Store classes and any of your custom classes. 
+If you don't have any custom classes then you can just use the accumulo-store-[version]-utility.jar. 
+Otherwise you can create one by adding a build profile to your maven pom:
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <artifactId>maven-shade-plugin</artifactId>
+            <version>${shade.plugin.version}</version>
+            <executions>
+                <execution>
+                    <id>utility</id>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>shade</goal>
+                    </goals>
+                    <configuration>
+                        <shadedArtifactAttached>true
+                        </shadedArtifactAttached>
+                        <shadedClassifierName>utility
+                        </shadedClassifierName>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
+```
+
+
+If you have existing data, then before doing any form of upgrade or change to your table we strongly recommend using the accumulo shell to clone the table so you have a backup so you can easily restore to that version if things go wrong. 
+Even if you have an error like the one above where all your data is deleted in your table you will still be able to quickly revert back to your backup. 
+Cloning a table in Accumulo is very simple and fast (it doesn't actually copy the data). If you have a table called 'table1', you can do something like the following in the Accumulo shell:
+
+```bash
+> offline -t table1
+> clone table table1 table1-backup
+> offline -t table1-backup
+
+# Do your upgrades
+#   - deploy new gaffer jars to Accumulo's class path on each node in your cluster
+#   - run the AddUpdateTableIterator class to update table1
+
+> online -t table1
+
+# Check table1 is still healthy:
+#   - run a query and check the iterators are successfully aggregating and filtering elements correctly.
+
+> droptable -t table1-backup
+```
+
+You will need to run the AddUpdateTableIterator utility providing it with your graphId, schema and store properties.
+If you run it without any arguments it will tell you how to use it.
+
+```bash
+java -cp [path to your jar-with-dependencies].jar uk.gov.gchq.gaffer.accumulostore.utils.AddUpdateTableIterator
 ```

@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
@@ -33,12 +34,15 @@ public final class GafferResultCacheUtil {
     private GafferResultCacheUtil() {
     }
 
-    public static Graph createGraph(final String cacheStorePropertiesPath, final Long timeToLive) {
+    public static Graph createGraph(final String graphId, final String cacheStorePropertiesPath, final Long timeToLive) {
         if (null == cacheStorePropertiesPath) {
             throw new IllegalArgumentException("Gaffer result cache Store properties are required");
         }
 
         final Graph.Builder graphBuilder = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(graphId)
+                        .build())
                 .storeProperties(cacheStorePropertiesPath)
                 .addSchema(createSchema(timeToLive));
 

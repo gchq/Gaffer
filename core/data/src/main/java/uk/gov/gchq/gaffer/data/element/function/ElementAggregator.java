@@ -18,15 +18,19 @@ package uk.gov.gchq.gaffer.data.element.function;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperatorComposite;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.BinaryOperator;
 
 public class ElementAggregator extends TupleAdaptedBinaryOperatorComposite<String> {
     private final PropertiesTuple stateTuple = new PropertiesTuple();
     private final PropertiesTuple propertiesTuple = new PropertiesTuple();
+    private boolean readOnly;
 
     /**
      * Aggregates the element. Note - only the element properties are aggregated.
@@ -57,6 +61,19 @@ public class ElementAggregator extends TupleAdaptedBinaryOperatorComposite<Strin
     }
 
     @Override
+    public List<TupleAdaptedBinaryOperator<String, ?>> getComponents() {
+        if (readOnly) {
+            return Collections.unmodifiableList(super.getComponents());
+        }
+
+        return super.getComponents();
+    }
+
+    public void lock() {
+        readOnly = true;
+    }
+
+    @Override
     public boolean equals(final Object obj) {
         if (this == obj) {
             return true;
@@ -77,11 +94,19 @@ public class ElementAggregator extends TupleAdaptedBinaryOperatorComposite<Strin
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(59, 13)
                 .appendSuper(super.hashCode())
                 .append(stateTuple)
                 .append(propertiesTuple)
                 .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("stateTuple", stateTuple)
+                .append("propertiesTuple", propertiesTuple)
+                .toString();
     }
 
     public static class Builder {

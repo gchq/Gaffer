@@ -15,8 +15,7 @@
  */
 package uk.gov.gchq.gaffer.sketches.datasketches.theta.serialisation;
 
-import com.yahoo.memory.NativeMemory;
-import com.yahoo.sketches.theta.Sketch;
+import com.yahoo.memory.WritableMemory;
 import com.yahoo.sketches.theta.Sketches;
 import com.yahoo.sketches.theta.Union;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -42,7 +41,7 @@ public class UnionSerialiser implements ToBytesSerialiser<Union> {
     @Override
     public Union deserialise(final byte[] bytes) throws SerialisationException {
         final Union union = Sketches.setOperationBuilder().buildUnion();
-        union.update(Sketch.heapify(new NativeMemory(bytes)));
+        union.update(WritableMemory.wrap(bytes));
         return union;
     }
 
@@ -53,6 +52,11 @@ public class UnionSerialiser implements ToBytesSerialiser<Union> {
 
     @Override
     public boolean preservesObjectOrdering() {
+        return false;
+    }
+
+    @Override
+    public boolean isConsistent() {
         return false;
     }
 }

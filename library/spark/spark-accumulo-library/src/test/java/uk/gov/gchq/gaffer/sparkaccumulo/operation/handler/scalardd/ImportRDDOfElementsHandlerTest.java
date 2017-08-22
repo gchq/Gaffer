@@ -19,8 +19,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.SparkConf;
-import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
+import org.apache.spark.sql.SparkSession;
 import org.junit.Test;
 import scala.collection.mutable.ArrayBuffer;
 import scala.reflect.ClassTag;
@@ -31,7 +31,9 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.spark.SparkConstants;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
@@ -52,28 +54,37 @@ public class ImportRDDOfElementsHandlerTest {
     @Test
     public void checkImportRDDOfElements() throws OperationException, IOException {
         final Graph graph1 = new Graph.Builder()
-                .addSchema(getClass().getResourceAsStream("/schema/dataSchema.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/dataTypes.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/storeTypes.json"))
+                .config(new GraphConfig.Builder()
+                        .graphId("graphId")
+                        .build())
+                .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/types.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
                 .build();
 
         final ArrayBuffer<Element> elements = new ArrayBuffer<>();
         for (int i = 0; i < 10; i++) {
-            final Entity entity = new Entity(TestGroups.ENTITY);
-            entity.setVertex("" + i);
+            final Entity entity = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex("" + i)
+                    .build();
 
-            final Edge edge1 = new Edge(TestGroups.EDGE);
-            edge1.setSource("" + i);
-            edge1.setDestination("B");
-            edge1.setDirected(false);
-            edge1.putProperty(TestPropertyNames.COUNT, 2);
+            final Edge edge1 = new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("" + i)
+                    .dest("B")
+                    .directed(false)
+                    .property(TestPropertyNames.COUNT, 2)
+                    .build();
 
-            final Edge edge2 = new Edge(TestGroups.EDGE);
-            edge2.setSource("" + i);
-            edge2.setDestination("C");
-            edge2.setDirected(false);
-            edge2.putProperty(TestPropertyNames.COUNT, 4);
+            final Edge edge2 = new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("" + i)
+                    .dest("C")
+                    .directed(false)
+                    .property(TestPropertyNames.COUNT, 4)
+                    .build();
 
             elements.$plus$eq(edge1);
             elements.$plus$eq(edge2);
@@ -84,10 +95,10 @@ public class ImportRDDOfElementsHandlerTest {
         final SparkConf sparkConf = new SparkConf()
                 .setMaster("local")
                 .setAppName("tests")
-                .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-                .set("spark.kryo.registrator", "uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator")
-                .set("spark.driver.allowMultipleContexts", "true");
-        final SparkContext sparkContext = new SparkContext(sparkConf);
+                .set(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
+                .set(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
+                .set(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true");
+        final SparkSession sparkSession = SparkSession.builder().config(sparkConf).getOrCreate();
 
         // Create Hadoop configuration and serialise to a string
         final Configuration configuration = new Configuration();
@@ -101,9 +112,9 @@ public class ImportRDDOfElementsHandlerTest {
             FileUtils.forceDelete(file);
         }
 
-        final RDD<Element> elementRDD = sparkContext.parallelize(elements, 8, ELEMENT_CLASS_TAG);
+        final RDD<Element> elementRDD = sparkSession.sparkContext().parallelize(elements, 8, ELEMENT_CLASS_TAG);
         final ImportRDDOfElements addRdd = new ImportRDDOfElements.Builder()
-                .sparkContext(sparkContext)
+                .sparkSession(sparkSession)
                 .input(elementRDD)
                 .option("outputPath", outputPath)
                 .option("failurePath", failurePath)
@@ -113,7 +124,7 @@ public class ImportRDDOfElementsHandlerTest {
 
         // Check all elements were added
         final GetRDDOfAllElements rddQuery = new GetRDDOfAllElements.Builder()
-                .sparkContext(sparkContext)
+                .sparkSession(sparkSession)
                 .option(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString)
                 .build();
 
@@ -128,6 +139,6 @@ public class ImportRDDOfElementsHandlerTest {
             results.add(returnedElements[i]);
         }
         assertEquals(elements.size(), results.size());
-        sparkContext.stop();
+        sparkSession.stop();
     }
 }

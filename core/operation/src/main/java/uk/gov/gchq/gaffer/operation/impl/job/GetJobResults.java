@@ -36,6 +36,13 @@ public class GetJobResults extends GetGafferResultCacheExport {
         }
     }
 
+    @Override
+    public GetJobResults shallowClone() {
+        return new GetJobResults.Builder()
+                .jobId(getJobId())
+                .build();
+    }
+
     public static class Builder
             extends Operation.BaseBuilder<GetJobResults, Builder>
             implements GetExport.Builder<GetJobResults, Builder> {

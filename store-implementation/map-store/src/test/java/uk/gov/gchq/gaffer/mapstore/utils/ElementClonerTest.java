@@ -32,7 +32,7 @@ public class ElementClonerTest {
         // Given
         final ElementCloner cloner = new ElementCloner();
         final MapStore mapStore = new MapStore();
-        mapStore.initialise(GetAllElementsHandlerTest.getSchema(), new MapStoreProperties());
+        mapStore.initialise("graphId", GetAllElementsHandlerTest.getSchema(), new MapStoreProperties());
 
         // Then
         Streams.toStream(GetAllElementsHandlerTest.getElements())

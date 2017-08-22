@@ -23,9 +23,11 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 public class SingleUseMapStore extends MapStore {
     @SuppressFBWarnings(value = "DE_MIGHT_IGNORE", justification = "Exception ignored while clearing previous maps before reinitialising.")
     @Override
-    public void initialise(final Schema schema, final StoreProperties storeProperties) throws StoreException {
+    public void initialise(final String graphId, final Schema schema, final StoreProperties storeProperties) throws StoreException {
+        MapStore.resetStaticMap();
+
         try {
-            super.initialise(schema, storeProperties);
+            super.initialise(graphId, schema, storeProperties);
         } catch (final Exception e) {
             // Ignore errors as it will be reinitialised just below.
         }
@@ -34,6 +36,6 @@ public class SingleUseMapStore extends MapStore {
             getMapImpl().clear();
         }
 
-        super.initialise(schema, storeProperties);
+        super.initialise(graphId, schema, storeProperties);
     }
 }

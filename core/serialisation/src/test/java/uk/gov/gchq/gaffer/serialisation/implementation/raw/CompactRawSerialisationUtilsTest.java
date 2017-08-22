@@ -15,13 +15,13 @@
  */
 package uk.gov.gchq.gaffer.serialisation.implementation.raw;
 
+import org.junit.Before;
+import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawSerialisationUtils.decodeVIntSize;
 import static uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawSerialisationUtils.writeLong;
-
-import org.junit.Before;
-import org.junit.Test;
 
 public class CompactRawSerialisationUtilsTest {
 

@@ -60,4 +60,9 @@ public class FloatSerialiser implements ToBytesSerialiser<Float> {
     public boolean preservesObjectOrdering() {
         return true;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

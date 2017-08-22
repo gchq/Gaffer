@@ -115,18 +115,25 @@ public class BloomFilter18IT {
         final HashSet<Key> keysSet = new HashSet<>();
         final HashSet<Entity> dataSet = new HashSet<>();
         for (int i = 0; i < 100000; i++) {
-            final Entity source = new Entity(TestGroups.ENTITY);
-            source.setVertex("type" + random.nextInt(Integer.MAX_VALUE));
+            final Entity source = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex("type" + random.nextInt(Integer.MAX_VALUE))
+                    .build();
             final Entity destination = new Entity(TestGroups.ENTITY);
             destination.setVertex("type" + random.nextInt(Integer.MAX_VALUE));
             dataSet.add(source);
             dataSet.add(destination);
-            final Entity sourceEntity = new Entity(source.getGroup());
-            sourceEntity.setVertex(source.getVertex());
+            final Entity sourceEntity = new Entity.Builder()
+                    .group(source.getGroup())
+                    .vertex(source.getVertex())
+                    .build();
             final Entity destinationEntity = new Entity(destination.getGroup());
             destinationEntity.setVertex(destination.getVertex());
-            final Edge edge = new Edge(TestGroups.EDGE, source.getVertex(), destination
-                    .getVertex(), true);
+            final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
+                    .source(source.getVertex())
+                    .dest(destination.getVertex())
+                    .directed(true)
+                    .build();
             keysSet.add(elementConverter.getKeyFromEntity(sourceEntity));
             keysSet.add(elementConverter.getKeyFromEntity(destinationEntity));
             final Pair<Key, Key> edgeKeys = elementConverter.getKeysFromEdge(edge);
@@ -173,7 +180,7 @@ public class BloomFilter18IT {
             // Write data to file
             writer.startDefaultLocalityGroup();
             for (final Key key : keys) {
-                if (elementConverter.getElementFromKey(key)
+                if (elementConverter.getElementFromKey(key, false, null)
                         .getGroup()
                         .equals(TestGroups.ENTITY)) {
                     writer.append(key, value);

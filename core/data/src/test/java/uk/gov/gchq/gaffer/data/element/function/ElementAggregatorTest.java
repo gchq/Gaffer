@@ -20,14 +20,18 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
+import uk.gov.gchq.gaffer.function.ExampleTuple2BinaryOperator;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.n.Tuple3;
+import java.util.List;
 import java.util.function.BinaryOperator;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -221,8 +225,8 @@ public class ElementAggregatorTest {
     public void shouldAggregateWithNoPropertiesOrFunctions() {
         // Given
         final ElementAggregator aggregator = new ElementAggregator();
-        final Edge edge1 = new Edge("group");
-        final Edge edge2 = new Edge("group");
+        final Edge edge1 = new Edge.Builder().group("group").build();
+        final Edge edge2 = new Edge.Builder().group("group").build();
 
         // When - aggregate and set state
         final Element result = aggregator.apply(edge1, edge2);
@@ -274,5 +278,67 @@ public class ElementAggregatorTest {
         assertEquals(property3, adaptedFunction.getSelection()[0]);
 
         assertEquals(i, aggregator.getComponents().size());
+    }
+
+    @Test
+    public void shouldAggregateWithTuple2BinaryOperator() {
+        // Given
+        final String property1 = "property 1";
+        final String property2 = "property 2";
+        final BinaryOperator func1 = new ExampleTuple2BinaryOperator();
+        final ElementAggregator aggregator = new ElementAggregator.Builder()
+                .select(property1, property2)
+                .execute(func1)
+                .build();
+
+        final Properties props1 = new Properties();
+        props1.put(property1, 1);
+        props1.put(property2, "value1");
+
+        final Properties props2 = new Properties();
+        props2.put(property1, 10);
+        props2.put(property2, "value10");
+
+        final Properties props3 = new Properties();
+        props3.put(property1, 5);
+        props3.put(property2, "value5");
+
+        // When
+        Properties state = props1;
+        state = aggregator.apply(state, props2);
+        state = aggregator.apply(state, props3);
+
+        // Then
+        assertEquals(props2, state);
+    }
+
+    @Test
+    public void shouldReturnUnmodifiableComponentsWhenLocked() {
+        // Given
+        final ElementAggregator aggregator = new ElementAggregator();
+
+        // When
+        aggregator.lock();
+        final List<TupleAdaptedBinaryOperator<String, ?>> components = aggregator.getComponents();
+
+        // Then
+        try {
+            components.add(null);
+            fail("Exception expected");
+        } catch (final UnsupportedOperationException e) {
+            assertNotNull(e);
+        }
+    }
+
+    @Test
+    public void shouldReturnModifiableComponentsWhenNotLocked() {
+        // Given
+        final ElementAggregator aggregator = new ElementAggregator();
+
+        // When
+        final List<TupleAdaptedBinaryOperator<String, ?>> components = aggregator.getComponents();
+
+        // Then - no exceptions
+        components.add(null);
     }
 }

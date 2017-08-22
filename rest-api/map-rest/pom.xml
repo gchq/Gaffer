@@ -20,7 +20,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>rest-api</artifactId>
-        <version>0.7.6-SNAPSHOT</version>
+        <version>0.7.9-SNAPSHOT</version>
     </parent>
 
     <artifactId>map-rest</artifactId>
@@ -31,6 +31,28 @@
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>map-store</artifactId>
             <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>core-rest</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+            <classifier>classes</classifier>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>core-rest</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>common-util</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+            <type>test-jar</type>
         </dependency>
     </dependencies>
 

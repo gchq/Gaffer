@@ -23,14 +23,12 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
-import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -57,7 +55,7 @@ public class StoreIT {
         final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
 
         // When
-        testStore.initialise(schema, new StoreProperties());
+        testStore.initialise("graphId", schema, new StoreProperties());
 
         // Then
         assertTrue(testStore.getSchema().getEdges().containsKey(TestGroups.EDGE));
@@ -105,16 +103,6 @@ public class StoreIT {
         @Override
         protected OperationHandler<? extends AddElements> getAddElementsHandler() {
             return null;
-        }
-
-        @Override
-        protected Object doUnhandledOperation(final Operation operation, final Context context) {
-            return null;
-        }
-
-        @Override
-        public boolean isValidationRequired() {
-            return false;
         }
 
         @Override

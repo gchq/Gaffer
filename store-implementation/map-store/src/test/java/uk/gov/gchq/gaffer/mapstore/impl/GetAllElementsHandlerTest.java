@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -101,16 +102,31 @@ public class GetAllElementsHandlerTest {
         entity.putProperty(PROPERTY1, "p");
         entity.putProperty(COUNT, NUM_LOOPS);
         expectedResults.add(entity);
-        final Edge edge1 = new Edge(BASIC_EDGE1, "A", "B", true);
+        final Edge edge1 = new Edge.Builder()
+                .group(BASIC_EDGE1)
+                .source("A")
+                .dest("B")
+                .directed(true)
+                .build();
         edge1.putProperty(PROPERTY1, "q");
         edge1.putProperty(COUNT, 2 * NUM_LOOPS);
         expectedResults.add(edge1);
-        final Edge edge2 = new Edge(BASIC_EDGE2, "X", "Y", false);
+        final Edge edge2 = new Edge.Builder()
+                .group(BASIC_EDGE2)
+                .source("X")
+                .dest("Y")
+                .directed(false)
+                .build();
         edge2.putProperty(PROPERTY1, "r");
         edge2.putProperty(PROPERTY2, "s");
         edge2.putProperty(COUNT, 3 * (NUM_LOOPS / 2));
         expectedResults.add(edge2);
-        final Edge edge3 = new Edge(BASIC_EDGE2, "X", "Y", false);
+        final Edge edge3 = new Edge.Builder()
+                .group(BASIC_EDGE2)
+                .source("X")
+                .dest("Y")
+                .directed(false)
+                .build();
         edge3.putProperty(PROPERTY1, "r");
         edge3.putProperty(PROPERTY2, "t");
         edge3.putProperty(COUNT, 3 * (NUM_LOOPS / 2));
@@ -340,6 +356,9 @@ public class GetAllElementsHandlerTest {
     public static Graph getGraph() {
         final MapStoreProperties storeProperties = new MapStoreProperties();
         return new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("graph1")
+                        .build())
                 .addSchema(getSchema())
                 .storeProperties(storeProperties)
                 .build();
@@ -348,6 +367,9 @@ public class GetAllElementsHandlerTest {
     static Graph getGraphNoAggregation() {
         final MapStoreProperties storeProperties = new MapStoreProperties();
         return new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("graph1")
+                        .build())
                 .addSchema(getSchemaNoAggregation())
                 .storeProperties(storeProperties)
                 .build();
@@ -357,6 +379,9 @@ public class GetAllElementsHandlerTest {
         final MapStoreProperties storeProperties = new MapStoreProperties();
         storeProperties.setCreateIndex(false);
         return new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("graphWithNoIndices")
+                        .build())
                 .addSchema(getSchema())
                 .storeProperties(storeProperties)
                 .build();
@@ -374,19 +399,31 @@ public class GetAllElementsHandlerTest {
         final List<Element> elements = new ArrayList<>();
         IntStream.range(0, NUM_LOOPS)
                 .forEach(i -> {
-                    final Entity entity = new Entity(BASIC_ENTITY, "" + i);
-                    entity.putProperty(PROPERTY1, "p");
-                    entity.putProperty(COUNT, 1);
-                    elements.add(entity);
-                    final Edge edge1 = new Edge(BASIC_EDGE1, "A", "B" + i, true);
-                    edge1.putProperty(PROPERTY1, "q");
-                    edge1.putProperty(COUNT, i);
-                    elements.add(edge1);
-                    final Edge edge2 = new Edge(BASIC_EDGE2, "X", "Y" + i, false);
-                    edge2.putProperty(PROPERTY1, "r");
-                    edge2.putProperty(PROPERTY2, "s");
-                    edge2.putProperty(COUNT, 3);
-                    elements.add(edge2);
+                    elements.add(new Entity.Builder()
+                            .group(BASIC_ENTITY)
+                            .vertex("" + i)
+                            .property(PROPERTY1, "p")
+                            .property(COUNT, 1)
+                            .build());
+
+                    elements.add(new Edge.Builder()
+                            .group(BASIC_EDGE1)
+                            .source("A")
+                            .dest("B" + i)
+                            .directed(true)
+                            .property(PROPERTY1, "q")
+                            .property(COUNT, i)
+                            .build());
+
+                    elements.add(new Edge.Builder()
+                            .group(BASIC_EDGE2)
+                            .source("X")
+                            .dest("Y" + i)
+                            .directed(false)
+                            .property(PROPERTY1, "r")
+                            .property(PROPERTY2, "s")
+                            .property(COUNT, 3)
+                            .build());
                 });
         return elements;
     }
@@ -395,25 +432,38 @@ public class GetAllElementsHandlerTest {
         final List<Element> elements = new ArrayList<>();
         IntStream.range(0, NUM_LOOPS)
                 .forEach(i -> {
-                    final Entity entity = new Entity(BASIC_ENTITY, "0");
-                    entity.putProperty(PROPERTY1, "p");
-                    entity.putProperty(COUNT, 1);
-                    elements.add(entity);
-                    final Edge edge1 = new Edge(BASIC_EDGE1, "A", "B", true);
-                    edge1.putProperty(PROPERTY1, "q");
-                    edge1.putProperty(COUNT, 2);
-                    elements.add(edge1);
-                    final Edge edge2 = new Edge(BASIC_EDGE2, "X", "Y", false);
-                    edge2.putProperty(PROPERTY1, "r");
+                    elements.add(new Entity.Builder()
+                            .group(BASIC_ENTITY)
+                            .vertex("0")
+                            .property(PROPERTY1, "p")
+                            .property(COUNT, 1)
+                            .build());
+
+                    elements.add(new Edge.Builder()
+                            .group(BASIC_EDGE1)
+                            .source("A")
+                            .dest("B")
+                            .directed(true)
+                            .property(PROPERTY1, "q")
+                            .property(COUNT, 2)
+                            .build());
+
                     String property2;
                     if (i % 2 == 0) {
                         property2 = "s";
                     } else {
                         property2 = "t";
                     }
-                    edge2.putProperty(PROPERTY2, property2);
-                    edge2.putProperty(COUNT, 3);
-                    elements.add(edge2);
+
+                    elements.add(new Edge.Builder()
+                            .group(BASIC_EDGE2)
+                            .source("X")
+                            .dest("Y")
+                            .directed(false)
+                            .property(PROPERTY1, "r")
+                            .property(PROPERTY2, property2)
+                            .property(COUNT, 3)
+                            .build());
                 });
         return elements;
     }
@@ -422,19 +472,31 @@ public class GetAllElementsHandlerTest {
         final List<Element> elements = new ArrayList<>();
         IntStream.range(0, NUM_LOOPS)
                 .forEach(i -> {
-                    final Entity entity = new Entity(BASIC_ENTITY, "0");
-                    entity.putProperty(PROPERTY1, "p");
-                    entity.putProperty(COUNT, 1);
-                    elements.add(entity);
-                    final Edge edge1 = new Edge(BASIC_EDGE1, "A", "B", true);
-                    edge1.putProperty(PROPERTY1, "q");
-                    edge1.putProperty(COUNT, 2);
-                    elements.add(edge1);
-                    final Edge edge2 = new Edge(BASIC_EDGE2, "X", "Y", false);
-                    edge2.putProperty(PROPERTY1, "r");
-                    edge2.putProperty(PROPERTY2, "s");
-                    edge2.putProperty(COUNT, 3);
-                    elements.add(edge2);
+                    elements.add(new Entity.Builder()
+                            .group(BASIC_ENTITY)
+                            .vertex("0")
+                            .property(PROPERTY1, "p")
+                            .property(COUNT, 1)
+                            .build());
+
+                    elements.add(new Edge.Builder()
+                            .group(BASIC_EDGE1)
+                            .source("A")
+                            .dest("B")
+                            .directed(true)
+                            .property(PROPERTY1, "q")
+                            .property(COUNT, 2)
+                            .build());
+
+                    elements.add(new Edge.Builder()
+                            .group(BASIC_EDGE2)
+                            .source("X")
+                            .dest("Y")
+                            .directed(false)
+                            .property(PROPERTY1, "r")
+                            .property(PROPERTY2, "s")
+                            .property(COUNT, 3)
+                            .build());
                 });
         return elements;
     }

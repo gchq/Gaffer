@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.operation.export.resultcache.handler;
 
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.export.resultcache.GafferResultCacheExporter;
 import uk.gov.gchq.gaffer.operation.export.resultcache.handler.util.GafferResultCacheUtil;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
@@ -26,6 +25,8 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.export.GetExportHandler;
 
 public class GetGafferResultCacheExportHandler extends GetExportHandler<GetGafferResultCacheExport, GafferResultCacheExporter> {
+    private String graphId = "gafferResultCache";
+
     /**
      * Time to live in milliseconds.
      */
@@ -34,8 +35,6 @@ public class GetGafferResultCacheExportHandler extends GetExportHandler<GetGaffe
     private String visibility;
 
     private String cacheStorePropertiesPath;
-
-    private JSONSerialiser jsonSerialiser = new JSONSerialiser();
 
     @Override
     protected Class<GafferResultCacheExporter> getExporterClass() {
@@ -47,11 +46,19 @@ public class GetGafferResultCacheExportHandler extends GetExportHandler<GetGaffe
         final String jobId = null != export.getJobId() ? export.getJobId() : context.getJobId();
         return new GafferResultCacheExporter(
                 context.getUser(), jobId, createGraph(store),
-                jsonSerialiser, visibility, null);
+                visibility, null);
     }
 
     protected Graph createGraph(final Store store) {
-        return GafferResultCacheUtil.createGraph(cacheStorePropertiesPath, timeToLive);
+        return GafferResultCacheUtil.createGraph(graphId, cacheStorePropertiesPath, timeToLive);
+    }
+
+    public String getGraphId() {
+        return graphId;
+    }
+
+    public void setGraphId(final String graphId) {
+        this.graphId = graphId;
     }
 
     public Long getTimeToLive() {
@@ -76,17 +83,5 @@ public class GetGafferResultCacheExportHandler extends GetExportHandler<GetGaffe
 
     public void setStorePropertiesPath(final String cacheStorePropertiesPath) {
         this.cacheStorePropertiesPath = cacheStorePropertiesPath;
-    }
-
-    public String getJsonSerialiserClass() {
-        return null != jsonSerialiser ? jsonSerialiser.getClass().getName() : JSONSerialiser.class.getName();
-    }
-
-    public void setJsonSerialiser(final JSONSerialiser jsonSerialiser) {
-        this.jsonSerialiser = jsonSerialiser;
-    }
-
-    public void setJsonSerialiserClass(final String jsonSerialiserClass) {
-        this.jsonSerialiser = JSONSerialiser.fromClass(jsonSerialiserClass);
     }
 }
