@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.binaryoperator;
 
+import uk.gov.gchq.gaffer.commonutil.exception.LimitExceededException;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 import java.util.Map.Entry;
@@ -26,13 +27,24 @@ import java.util.Map.Entry;
 public class FreqMapAggregator extends KorypheBinaryOperator<FreqMap> {
     @Override
     protected FreqMap _apply(final FreqMap a, final FreqMap b) {
-        for (final Entry<String, Long> entry : b.entrySet()) {
-            if (a.containsKey(entry.getKey())) {
-                a.put(entry.getKey(), a.get(entry.getKey()) + entry.getValue());
-            } else {
-                a.put(entry.getKey(), entry.getValue());
+        return _apply(a, b, true);
+    }
+
+    protected FreqMap _apply(final FreqMap a, final FreqMap b, final boolean truncate) {
+        final int maxSize = 1000;
+        if (a.size() + b.size() < maxSize && truncate) {
+            for (final Entry<String, Long> entry : b.entrySet()) {
+                if (a.size() < maxSize && a.containsKey(entry.getKey())) {
+                    a.put(entry.getKey(), a.get(entry.getKey()) + entry.getValue());
+                } else if (a.size() < maxSize) {
+                    a.put(entry.getKey(), entry.getValue());
+                } else {
+                    return a;
+                }
             }
+            return a;
+        } else {
+            throw new LimitExceededException("Result too large - potential to breach limits of the row size.");
         }
-        return a;
     }
 }

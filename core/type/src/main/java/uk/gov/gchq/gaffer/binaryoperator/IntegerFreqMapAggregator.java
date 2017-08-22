@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.binaryoperator;
 
+import uk.gov.gchq.gaffer.commonutil.exception.LimitExceededException;
 import uk.gov.gchq.gaffer.types.IntegerFreqMap;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 import java.util.Map.Entry;
@@ -29,14 +30,24 @@ import java.util.Map.Entry;
 public class IntegerFreqMapAggregator extends KorypheBinaryOperator<IntegerFreqMap> {
     @Override
     public IntegerFreqMap _apply(final IntegerFreqMap a, final IntegerFreqMap b) {
-        for (final Entry<String, Integer> entry : b.entrySet()) {
-            if (a.containsKey(entry.getKey())) {
-                a.put(entry.getKey(), a.get(entry.getKey()) + entry.getValue());
-            } else {
-                a.put(entry.getKey(), entry.getValue());
-            }
-        }
+       return _apply(a, b, true);
+    }
 
-        return a;
+    public IntegerFreqMap _apply(final IntegerFreqMap a, final IntegerFreqMap b, final boolean truncate) {
+        final int maxSize = 1000;
+        if (a.size() + b.size() < maxSize && truncate) {
+            for (final Entry<String, Integer> entry : b.entrySet()) {
+                if (a.size() < maxSize && a.containsKey(entry.getKey())) {
+                    a.put(entry.getKey(), a.get(entry.getKey()) + entry.getValue());
+                } else if (a.size() < maxSize) {
+                    a.put(entry.getKey(), entry.getValue());
+                } else {
+                    return a;
+                }
+            }
+            return a;
+        } else {
+            throw new LimitExceededException("Result too large - potential to breach limits of the store row size.");
+        }
     }
 }
