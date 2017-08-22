@@ -43,7 +43,9 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
                                                             final Store store) throws OperationException {
         final CloseableIterable<? extends Element> result;
         final Iterable<? extends ElementId> input = operation.getInput();
-        if (input != null) {
+        if (null == input) {
+            throw new OperationException("Operation input is undefined - please specify an input.");
+        } else {
             final Iterator<? extends ElementId> inputIter = input.iterator();
             if (inputIter.hasNext()) {
                 result = doOperation(operation, (ParquetStore) store);
@@ -53,8 +55,6 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
             if (inputIter instanceof CloseableIterator) {
                 ((CloseableIterator) inputIter).close();
             }
-        } else {
-            result = new EmptyClosableIterable<>();
         }
         if (input instanceof CloseableIterable) {
             ((CloseableIterable) input).close();

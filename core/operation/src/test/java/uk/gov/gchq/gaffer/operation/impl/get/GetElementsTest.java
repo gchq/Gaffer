@@ -125,6 +125,7 @@ public class GetElementsTest extends OperationTest<GetElements> {
         // When
         final GetElements op = new GetElements.Builder()
                 .directedType(DirectedType.EITHER)
+                .input(new EntitySeed())
                 .build();
 
         // Then
@@ -136,6 +137,7 @@ public class GetElementsTest extends OperationTest<GetElements> {
         // When
         final GetElements op = new GetElements.Builder()
                 .option("key", "value")
+                .input(new EntitySeed())
                 .build();
 
         // Then
@@ -180,6 +182,8 @@ public class GetElementsTest extends OperationTest<GetElements> {
     }
 
     protected GetElements getTestObject() {
-        return new GetElements();
+        return new GetElements.Builder()
+                .input(new EntitySeed())
+                .build();
     }
 }
