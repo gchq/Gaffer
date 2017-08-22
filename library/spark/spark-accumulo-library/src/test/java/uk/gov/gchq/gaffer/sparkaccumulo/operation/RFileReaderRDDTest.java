@@ -44,6 +44,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -107,7 +108,7 @@ public class RFileReaderRDDTest {
         InputConfigurator.fetchColumns(AccumuloInputFormat.class, conf,
                 Sets.newHashSet(new Pair<>(new Text("CF"), new Text("CQ"))));
         final RFileReaderRDD rdd = new RFileReaderRDD(sparkConf,
-                cluster.getInstanceName(), cluster.getZooKeepers(), USER, PASSWORD, TABLE,
+                cluster.getInstanceName(), cluster.getZooKeepers(), USER, PASSWORD, TABLE, new HashSet<>(),
                 serialiseConfiguration(conf));
         final long count = rdd.count();
 
@@ -165,14 +166,14 @@ public class RFileReaderRDDTest {
         options.put("term", "val");
         final Configuration conf = new Configuration();
         final Job job = Job.getInstance(conf);
-        AccumuloInputFormat.addIterator(job, new IteratorSetting(1, "NAME", GrepIterator.class.getName(), options));
+        AccumuloInputFormat.addIterator(job, new IteratorSetting(2, "NAME", GrepIterator.class.getName(), options));
         InputConfigurator.fetchColumns(AccumuloInputFormat.class, job.getConfiguration(),
                 Sets.newHashSet(new Pair<>(new Text("CF"), new Text("CQ"))));
 
         // When
         final SparkConf sparkConf = getSparkConf("testRFileReaderRDDAppliesIteratorCorrectly");
         final RFileReaderRDD rdd = new RFileReaderRDD(sparkConf,
-                cluster.getInstanceName(), cluster.getZooKeepers(), USER, PASSWORD, TABLE,
+                cluster.getInstanceName(), cluster.getZooKeepers(), USER, PASSWORD, TABLE, new HashSet<>(),
                 serialiseConfiguration(job.getConfiguration()));
         final long count = rdd.count();
 

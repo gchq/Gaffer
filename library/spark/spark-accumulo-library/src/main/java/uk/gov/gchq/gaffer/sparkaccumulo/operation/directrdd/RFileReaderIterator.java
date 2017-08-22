@@ -30,6 +30,8 @@ import org.apache.accumulo.core.file.blockfile.impl.CachableBlockFile;
 import org.apache.accumulo.core.file.rfile.RFile;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.apache.accumulo.core.iterators.system.MultiIterator;
+import org.apache.accumulo.core.iterators.system.VisibilityFilter;
+import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.util.Pair;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -66,13 +68,16 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
     private SortedKeyValueIterator<Key, Value> mergedIterator = null;
     private SortedKeyValueIterator<Key, Value> iteratorAfterIterators = null;
     private Configuration configuration;
+    private Set<String> auths;
 
     public RFileReaderIterator(final Partition partition,
                                final TaskContext taskContext,
-                               final Configuration configuration) {
+                               final Configuration configuration,
+                               final Set<String> auths) {
         this.partition = partition;
         this.taskContext = taskContext;
         this.configuration = configuration;
+        this.auths = auths;
         try {
             init();
         } catch (final IOException e) {
@@ -123,10 +128,21 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
         }
         mergedIterator = new MultiIterator(iterators, true);
 
+        // Apply visibility filtering iterator
+        if (null != auths) {
+            final Authorizations authorizations = new Authorizations(auths.toArray(new String[auths.size()]));
+            final VisibilityFilter visibilityFilter = new VisibilityFilter(mergedIterator, authorizations, new byte[]{});
+            final IteratorSetting visibilityIteratorSetting = new IteratorSetting(1, "auth", VisibilityFilter.class);
+            visibilityFilter.init(mergedIterator, visibilityIteratorSetting.getOptions(), null);
+            iteratorAfterIterators = visibilityFilter;
+            LOGGER.info("Set authorizations to {}", authorizations);
+        } else {
+            iteratorAfterIterators = mergedIterator;
+        }
+
         // Apply iterator stack
         final List<IteratorSetting> iteratorSettings = getIteratorSettings();
         iteratorSettings.sort((is1, is2) -> is1.getPriority() - is2.getPriority());
-        iteratorAfterIterators = mergedIterator;
         for (final IteratorSetting is : iteratorSettings) {
             iteratorAfterIterators = applyIterator(iteratorAfterIterators, is);
         }
@@ -164,7 +180,6 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
             LOGGER.info("Found no iterators on configuration");
             return new ArrayList<>();
         }
-        LOGGER.info("Found {} iterators in configuration", iterators.length());
 
         // Compose the set of iterators encoded in the job configuration
         final StringTokenizer tokens = new StringTokenizer(iterators, org.apache.hadoop.util.StringUtils.COMMA_STR);
@@ -178,6 +193,7 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
                 bais.close();
                 LOGGER.info("Added iterator {}", list.get(list.size() - 1));
             }
+            LOGGER.info("Found {} iterators in configuration", list.size());
         } catch (final IOException e) {
             throw new IllegalArgumentException("couldn't decode iterator settings");
         }

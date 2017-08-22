@@ -17,14 +17,12 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd;
 
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.Function1;
 import scala.Tuple2;
 import scala.collection.Iterator;
 import scala.runtime.AbstractFunction1;
@@ -38,19 +36,16 @@ import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.spark.operation.dataframe.ClassTagConstants;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.directrdd.RFileReaderRDD;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.directrdd.Utils;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 import static uk.gov.gchq.gaffer.accumulostore.inputformat.ElementInputFormat.KEY_PACKAGE;
@@ -111,6 +106,7 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
                     accumuloStore.getProperties().getUser(),
                     accumuloStore.getProperties().getPassword(),
                     accumuloStore.getTableName(),
+                    context.getUser().getDataAuths(),
                     serialisedConf);
             return rdd.mapPartitions(new EntryIteratorToElementIterator(serialisedConf), true, ELEMENT_CLASS_TAG);
         } catch (final IOException e) {
