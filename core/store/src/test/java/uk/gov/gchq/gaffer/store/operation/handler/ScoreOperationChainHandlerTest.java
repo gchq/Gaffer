@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -26,6 +25,7 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.ScoreOperationChain;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -49,7 +49,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-
 
 public class ScoreOperationChainHandlerTest {
     @Rule
@@ -80,6 +79,43 @@ public class ScoreOperationChainHandlerTest {
         final GetElements op2 = mock(GetElements.class);
         final OperationChain opChain = new OperationChain(Arrays.asList(op1, op2));
         final Integer expectedResult = 2;
+
+        given(context.getUser()).willReturn(user);
+        Set<String> opAuths = new HashSet<>();
+        opAuths.add("TEST_USER");
+        given(user.getOpAuths()).willReturn(opAuths);
+        given(scoreOperationChain.getOperationChain()).willReturn(opChain);
+        given(store.getProperties()).willReturn(storeProperties);
+
+        // When
+        final Object result = operationHandler.doOperation(
+                new ScoreOperationChain.Builder()
+                        .operationChain(opChain)
+                        .build(),
+                context, store);
+
+        // Then
+        assertSame(expectedResult, result);
+    }
+
+    @Test
+    public void shouldExecuteScoreChainOperationForNestedOperationChain() throws OperationException {
+        // Given
+        final ScoreOperationChainHandler operationHandler = new ScoreOperationChainHandler();
+
+        final Context context = mock(Context.class);
+        final Store store = mock(Store.class);
+        final User user = mock(User.class);
+        final ScoreOperationChain scoreOperationChain = mock(ScoreOperationChain.class);
+
+        StoreProperties storeProperties = new StoreProperties();
+
+        final GetAdjacentIds op1 = mock(GetAdjacentIds.class);
+        final GetElements op2 = mock(GetElements.class);
+        final Limit op3 = mock(Limit.class);
+        final OperationChain opChain1 = new OperationChain(Arrays.asList(op1, op2));
+        final OperationChain opChain = new OperationChain(Arrays.asList(opChain1, op3));
+        final Integer expectedResult = 3;
 
         given(context.getUser()).willReturn(user);
         Set<String> opAuths = new HashSet<>();
