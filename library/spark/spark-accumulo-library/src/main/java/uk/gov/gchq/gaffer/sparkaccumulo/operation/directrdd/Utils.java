@@ -21,7 +21,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class Utils {
+public final class Utils {
+
+    private Utils() {
+        // Empty
+    }
 
     public static byte[] serialiseConfiguration(final Configuration configuration) throws IOException {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();

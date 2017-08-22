@@ -21,7 +21,11 @@ import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
 import org.apache.accumulo.core.conf.AccumuloConfiguration;
 import org.apache.accumulo.core.conf.DefaultConfiguration;
 import org.apache.accumulo.core.conf.SiteConfiguration;
-import org.apache.accumulo.core.data.*;
+import org.apache.accumulo.core.data.ArrayByteSequence;
+import org.apache.accumulo.core.data.ByteSequence;
+import org.apache.accumulo.core.data.Key;
+import org.apache.accumulo.core.data.Range;
+import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.file.blockfile.impl.CachableBlockFile;
 import org.apache.accumulo.core.file.rfile.RFile;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
@@ -30,7 +34,6 @@ import org.apache.accumulo.core.util.Pair;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.spark.Partition;
 import org.apache.spark.TaskContext;
@@ -41,15 +44,14 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -156,7 +158,8 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
         LOGGER.info("Initialised iterator");
     }
 
-    private SortedKeyValueIterator<Key, Value> applyIterator(SortedKeyValueIterator<Key, Value> source, IteratorSetting is) {
+    private SortedKeyValueIterator<Key, Value> applyIterator(final SortedKeyValueIterator<Key, Value> source,
+                                                             final IteratorSetting is) {
         try {
             SortedKeyValueIterator<Key, Value> result = Class.forName(is.getIteratorClass())
                     .asSubclass(SortedKeyValueIterator.class).newInstance();
@@ -196,7 +199,7 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
         return list;
     }
 
-    protected static String enumToConfKey(Class<?> implementingClass, Enum<?> e) {
+    protected static String enumToConfKey(final Class<?> implementingClass, final Enum<?> e) {
         return implementingClass.getSimpleName() + "." + e.getDeclaringClass().getSimpleName() + "." + StringUtils.camelize(e.name().toLowerCase());
     }
 
