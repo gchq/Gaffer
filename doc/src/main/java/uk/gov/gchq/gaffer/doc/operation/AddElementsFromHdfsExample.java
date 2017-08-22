@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.doc.operation;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.doc.operation.generator.TextMapperGeneratorImpl;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
@@ -77,13 +78,12 @@ public class AddElementsFromHdfsExample extends OperationExample {
                     .build();
 
             final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
-                    .addInputPath(inputPath)
+                    .addinputMapperPair(new Pair(inputPath, TextMapperGeneratorImpl.class))
                     .outputPath(outputPath)
                     .failurePath(failurePath)
                     .splitsFilePath("/tmp/splits")
                     .workingPath("/tmp/workingDir")
                     .useProvidedSplits(false)
-                    .mapperGenerator(TextMapperGeneratorImpl.class)
                     .jobInitialiser(new TextJobInitialiser())
                     .minReducers(10)
                     .maxReducers(100)
@@ -102,13 +102,12 @@ public class AddElementsFromHdfsExample extends OperationExample {
     public void addElementsFromHdfs() {
         // ---------------------------------------------------------
         final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
-                .addInputPath("/path/to/input/fileOrFolder")
+                .addinputMapperPair(new Pair("/path/to/input/fileOrFolder", TextMapperGeneratorImpl.class))
                 .outputPath("/path/to/output/folder")
                 .failurePath("/path/to/failure/folder")
                 .splitsFilePath("/path/to/splits/file")
                 .workingPath("/tmp/workingDir")
                 .useProvidedSplits(false)
-                .mapperGenerator(TextMapperGeneratorImpl.class)
                 .jobInitialiser(new TextJobInitialiser())
                 .minReducers(10)
                 .maxReducers(100)

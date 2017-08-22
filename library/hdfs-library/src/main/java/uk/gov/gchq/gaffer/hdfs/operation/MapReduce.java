@@ -19,9 +19,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Lists;
 import org.apache.hadoop.mapreduce.Partitioner;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -39,23 +39,23 @@ import java.util.List;
  * @see Builder
  */
 public interface MapReduce {
-    List<String> getInputPaths();
+    List<Pair<String, String>> getInputMapperPairs();
 
-    void setInputPaths(final List<String> inputPaths);
+    void setInputMapperPairs(final List<Pair<String, String>> inputMapperPairs);
 
-    default void addInputPaths(final List<String> inputPaths) {
-        if (null == getInputPaths()) {
-            setInputPaths(new ArrayList<>(inputPaths));
+    default void addInputMapperPairs(final List<Pair<String, String>> inputMapperPairs) {
+        if (null == getInputMapperPairs()) {
+            setInputMapperPairs(Lists.newArrayList(inputMapperPairs));
         } else {
-            getInputPaths().addAll(inputPaths);
+            getInputMapperPairs().addAll(inputMapperPairs);
         }
     }
 
-    default void addInputPath(final String inputPath) {
-        if (null == getInputPaths()) {
-            setInputPaths(Lists.newArrayList(inputPath));
+    default void addInputMapperPair(final Pair<String, String> inputPath) {
+        if (null == getInputMapperPairs()) {
+            setInputMapperPairs(Lists.newArrayList(inputPath));
         } else {
-            getInputPaths().add(inputPath);
+            getInputMapperPairs().add(inputPath);
         }
     }
 
@@ -116,18 +116,18 @@ public interface MapReduce {
     void setPartitioner(final Class<? extends Partitioner> partitioner);
 
     interface Builder<OP extends MapReduce, B extends Builder<OP, ?>> extends Operation.Builder<OP, B> {
-        default B inputPaths(final List<String> inputPaths) {
-            _getOp().setInputPaths(inputPaths);
+        default B inputMapperPairs(final List<Pair<String, String>> inputMapperPairs) {
+            _getOp().setInputMapperPairs(inputMapperPairs);
             return _self();
         }
 
-        default B addInputPaths(final List<String> inputPaths) {
-            _getOp().addInputPaths(inputPaths);
+        default B addInputMapperPairs(final List<Pair<String, String>> inputMapperPairs) {
+            _getOp().addInputMapperPairs(inputMapperPairs);
             return _self();
         }
 
-        default B addInputPath(final String inputPath) {
-            _getOp().addInputPath(inputPath);
+        default B addinputMapperPair(final Pair<String, String> inputMapperPair) {
+            _getOp().addInputMapperPair(inputMapperPair);
             return _self();
         }
 

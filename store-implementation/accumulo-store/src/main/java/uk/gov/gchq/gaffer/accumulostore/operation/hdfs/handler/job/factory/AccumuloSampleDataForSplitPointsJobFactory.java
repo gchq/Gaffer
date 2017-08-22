@@ -35,11 +35,16 @@ import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.mapper.SampleDataForSplit
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.reducer.AccumuloKeyValueReducer;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.SampleDataForSplitPointsJobFactory;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class AccumuloSampleDataForSplitPointsJobFactory implements SampleDataForSplitPointsJobFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloSampleDataForSplitPointsJobFactory.class);
@@ -54,18 +59,27 @@ public class AccumuloSampleDataForSplitPointsJobFactory implements SampleDataFor
      * @throws IOException for IO issues
      */
     @Override
-    public Job createJob(final SampleDataForSplitPoints operation, final Store store) throws IOException {
-        final JobConf jobConf = createJobConf(operation, store);
-
-        final Job job = Job.getInstance(jobConf);
-        setupJob(job, operation, store);
-
-        // Apply Operation Specific Job Configuration
-        if (null != operation.getJobInitialiser()) {
-            operation.getJobInitialiser().initialiseJob(job, operation, store);
+    public List<Job> createJobs(final SampleDataForSplitPoints operation, final Store store) throws IOException {
+        final List<Job> jobs = new ArrayList<>();
+        Map<String, List<String>> mapperGenerators = new HashMap<>();
+        for (final Pair<String, String> pair : operation.getInputMapperPairs()) {
+            if (mapperGenerators.keySet().contains(pair.getSecond())) {
+                mapperGenerators.get(pair.getSecond()).add(pair.getFirst());
+            }
         }
 
-        return job;
+        for (final String mapperGeneratorClassName : mapperGenerators.keySet()) {
+            final JobConf jobConf = createJobConf(operation, mapperGeneratorClassName, store);
+            final Job job = Job.getInstance(jobConf);
+            setupJob(job, operation, store);
+
+            if (null != operation.getJobInitialiser()) {
+                operation.getJobInitialiser().initialiseJob(job, operation, store);
+            }
+            jobs.add(job);
+        }
+        return jobs;
+
     }
 
     @Override
@@ -100,10 +114,10 @@ public class AccumuloSampleDataForSplitPointsJobFactory implements SampleDataFor
         return numberTabletServers - 1;
     }
 
-    protected JobConf createJobConf(final SampleDataForSplitPoints operation, final Store store) throws IOException {
+    protected JobConf createJobConf(final SampleDataForSplitPoints operation, final String mapperGeneratorClassName, final Store store) throws IOException {
         final JobConf jobConf = new JobConf(new Configuration());
         jobConf.set(SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
-        jobConf.set(MAPPER_GENERATOR, operation.getMapperGeneratorClassName());
+        jobConf.set(MAPPER_GENERATOR, mapperGeneratorClassName);
         jobConf.set(VALIDATE, String.valueOf(operation.isValidate()));
         jobConf.set(PROPORTION_TO_SAMPLE, String.valueOf(operation.getProportionToSample()));
         final Integer numTasks = operation.getNumMapTasks();
@@ -120,7 +134,7 @@ public class AccumuloSampleDataForSplitPointsJobFactory implements SampleDataFor
 
     protected void setupJob(final Job job, final SampleDataForSplitPoints operation, final Store store) throws IOException {
         job.setJarByClass(getClass());
-        job.setJobName(getJobName(operation.getMapperGeneratorClassName(), new Path(operation.getOutputPath())));
+        job.setJobName(getJobName(operation.getInputMapperPairs().get(0).getSecond(), new Path(operation.getOutputPath())));
 
         setupMapper(job);
         setupReducer(job);

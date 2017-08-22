@@ -34,12 +34,17 @@ import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.IngestUtils;
 import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AddElementsFromHdfsJobFactory;
 import uk.gov.gchq.gaffer.hdfs.operation.partitioner.NoPartitioner;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdfsJobFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloAddElementsFromHdfsJobFactory.class);
@@ -54,17 +59,26 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
      * @throws IOException for IO issues
      */
     @Override
-    public Job createJob(final AddElementsFromHdfs operation, final Store store) throws IOException {
-        final JobConf jobConf = createJobConf(operation, store);
-        final Job job = Job.getInstance(jobConf);
-        setupJob(job, operation, store);
-
-        // Apply Operation Specific Job Configuration
-        if (null != operation.getJobInitialiser()) {
-            operation.getJobInitialiser().initialiseJob(job, operation, store);
+    public List<Job> createJobs(final AddElementsFromHdfs operation, final Store store) throws IOException {
+        final List<Job> jobs = new ArrayList<>();
+        final Map<String, List<String>> mapperGenerators = new HashMap<>();
+        for (final Pair<String, String> pair : operation.getInputMapperPairs()) {
+            if (mapperGenerators.keySet().contains(pair.getSecond())) {
+                mapperGenerators.get(pair.getSecond()).add(pair.getFirst());
+            }
         }
 
-        return job;
+        for (final String mapperGeneratorClassName : mapperGenerators.keySet()) {
+            final JobConf jobConf = createJobConf(operation, mapperGeneratorClassName, store);
+            final Job job = Job.getInstance(jobConf);
+            setupJob(job, operation, mapperGeneratorClassName, store);
+
+            if (null != operation.getJobInitialiser()) {
+                operation.getJobInitialiser().initialiseJob(job, operation, store);
+            }
+            jobs.add(job);
+        }
+        return jobs;
     }
 
     @Override
@@ -72,14 +86,14 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
         TableUtils.ensureTableExists(((AccumuloStore) store));
     }
 
-    protected JobConf createJobConf(final AddElementsFromHdfs operation, final Store store) throws IOException {
+    protected JobConf createJobConf(final AddElementsFromHdfs operation, final String mapperGenerator, final Store store) throws IOException {
         final JobConf jobConf = new JobConf(new Configuration());
 
         LOGGER.info("Setting up job conf");
         jobConf.set(SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
         LOGGER.info("Added {} {} to job conf", SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
-        jobConf.set(MAPPER_GENERATOR, operation.getMapperGeneratorClassName());
-        LOGGER.info("Added {} of {} to job conf", MAPPER_GENERATOR, operation.getMapperGeneratorClassName());
+        jobConf.set(MAPPER_GENERATOR, mapperGenerator);
+        LOGGER.info("Added {} of {} to job conf", MAPPER_GENERATOR, mapperGenerator);
         jobConf.set(VALIDATE, String.valueOf(operation.isValidate()));
         LOGGER.info("Added {} option of {} to job conf", VALIDATE, operation.isValidate());
         Integer numTasks = operation.getNumMapTasks();
@@ -102,9 +116,9 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
         return "Ingest HDFS data: Generator=" + mapperGenerator + ", output=" + outputPath;
     }
 
-    protected void setupJob(final Job job, final AddElementsFromHdfs operation, final Store store) throws IOException {
+    protected void setupJob(final Job job, final AddElementsFromHdfs operation, final String mapperGenerator, final Store store) throws IOException {
         job.setJarByClass(getClass());
-        job.setJobName(getJobName(operation.getMapperGeneratorClassName(), operation.getOutputPath()));
+        job.setJobName(getJobName(mapperGenerator, operation.getOutputPath()));
 
         setupMapper(job);
         setupCombiner(job);

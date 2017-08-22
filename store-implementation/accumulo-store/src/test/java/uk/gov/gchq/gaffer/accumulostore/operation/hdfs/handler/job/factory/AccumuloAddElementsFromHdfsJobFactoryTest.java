@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.mapper.AddElementsFromHdf
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.reducer.AccumuloKeyValueReducer;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
@@ -51,12 +52,14 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
+    public String inputDir;
     public String outputDir;
     public String splitsDir;
     public String splitsFile;
 
     @Before
     public void setup() {
+        inputDir = testFolder.getRoot().getAbsolutePath() + "inputDir";
         outputDir = testFolder.getRoot().getAbsolutePath() + "/outputDir";
         splitsDir = testFolder.getRoot().getAbsolutePath() + "/splitsDir";
         splitsFile = splitsDir + "/splits";
@@ -77,7 +80,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         final Job job = mock(Job.class);
         final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
                 .outputPath(outputDir)
-                .mapperGenerator(TextMapperGeneratorImpl.class)
+                .addinputMapperPair(new Pair(inputDir, TextMapperGeneratorImpl.class))
                 .useProvidedSplits(true)
                 .splitsFilePath(splitsFile)
                 .build();
@@ -86,7 +89,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         given(job.getConfiguration()).willReturn(localConf);
 
         // When
-        factory.setupJob(job, operation, store);
+        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), store);
 
         // Then
         verify(job).setJarByClass(factory.getClass());
@@ -152,11 +155,11 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         // When
         AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
                 .outputPath(outputDir)
-                .mapperGenerator(TextMapperGeneratorImpl.class)
+                .addinputMapperPair(new Pair(inputDir, TextMapperGeneratorImpl.class))
                 .maxReducers(10)
                 .splitsFilePath("target/data/splits.txt")
                 .build();
-        factory.setupJob(job, operation, store);
+        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), store);
 
         // Then
         assertTrue(job.getNumReduceTasks() <= 10);
@@ -164,11 +167,11 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         // When
         operation = new AddElementsFromHdfs.Builder()
                 .outputPath(outputDir)
-                .mapperGenerator(TextMapperGeneratorImpl.class)
+                .addinputMapperPair(new Pair(inputDir, TextMapperGeneratorImpl.class))
                 .maxReducers(100)
                 .splitsFilePath("target/data/splits.txt")
                 .build();
-        factory.setupJob(job, operation, store);
+        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), store);
 
         // Then
         assertTrue(job.getNumReduceTasks() <= 100);
@@ -176,11 +179,11 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         // When
         operation = new AddElementsFromHdfs.Builder()
                 .outputPath(outputDir)
-                .mapperGenerator(TextMapperGeneratorImpl.class)
+                .addinputMapperPair(new Pair(inputDir, TextMapperGeneratorImpl.class))
                 .maxReducers(1000)
                 .splitsFilePath("target/data/splits.txt")
                 .build();
-        factory.setupJob(job, operation, store);
+        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), store);
 
         // Then
         assertTrue(job.getNumReduceTasks() <= 1000);
@@ -213,11 +216,11 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         // When
         AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
                 .outputPath(outputDir)
-                .mapperGenerator(TextMapperGeneratorImpl.class)
+                .addinputMapperPair(new Pair(inputDir, TextMapperGeneratorImpl.class))
                 .minReducers(10)
                 .splitsFilePath("target/data/splits.txt")
                 .build();
-        factory.setupJob(job, operation, store);
+        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), store);
 
         // Then
         assertTrue(job.getNumReduceTasks() >= 10);
@@ -225,11 +228,11 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         // When
         operation = new AddElementsFromHdfs.Builder()
                 .outputPath(outputDir)
-                .mapperGenerator(TextMapperGeneratorImpl.class)
+                .addinputMapperPair(new Pair(inputDir, TextMapperGeneratorImpl.class))
                 .minReducers(100)
                 .splitsFilePath("target/data/splits.txt")
                 .build();
-        factory.setupJob(job, operation, store);
+        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), store);
 
         // Then
         assertTrue(job.getNumReduceTasks() >= 100);
@@ -237,11 +240,11 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         // When
         operation = new AddElementsFromHdfs.Builder()
                 .outputPath(outputDir)
-                .mapperGenerator(TextMapperGeneratorImpl.class)
+                .addinputMapperPair(new Pair(inputDir, TextMapperGeneratorImpl.class))
                 .minReducers(1000)
                 .splitsFilePath("target/data/splits.txt")
                 .build();
-        factory.setupJob(job, operation, store);
+        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), store);
 
         // Then
         assertTrue(job.getNumReduceTasks() >= 1000);
@@ -274,12 +277,12 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         // When
         AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
                 .outputPath(outputDir)
-                .mapperGenerator(TextMapperGeneratorImpl.class)
+                .addinputMapperPair(new Pair(inputDir, TextMapperGeneratorImpl.class))
                 .minReducers(10)
                 .maxReducers(20)
                 .splitsFilePath("target/data/splits.txt")
                 .build();
-        factory.setupJob(job, operation, store);
+        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), store);
 
         // Then
         assertTrue(job.getNumReduceTasks() >= 10);
@@ -288,12 +291,12 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         // When
         operation = new AddElementsFromHdfs.Builder()
                 .outputPath(outputDir)
-                .mapperGenerator(TextMapperGeneratorImpl.class)
+                .addinputMapperPair(new Pair(inputDir, TextMapperGeneratorImpl.class))
                 .minReducers(100)
                 .maxReducers(200)
                 .splitsFilePath("target/data/splits.txt")
                 .build();
-        factory.setupJob(job, operation, store);
+        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), store);
 
         // Then
         assertTrue(job.getNumReduceTasks() >= 100);
@@ -302,12 +305,12 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         // When
         operation = new AddElementsFromHdfs.Builder()
                 .outputPath(outputDir)
-                .mapperGenerator(TextMapperGeneratorImpl.class)
+                .addinputMapperPair(new Pair(inputDir, TextMapperGeneratorImpl.class))
                 .minReducers(1000)
                 .maxReducers(2000)
                 .splitsFilePath("target/data/splits.txt")
                 .build();
-        factory.setupJob(job, operation, store);
+        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), store);
 
         // Then
         assertTrue(job.getNumReduceTasks() >= 1000);
@@ -336,7 +339,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         given(job.getConfiguration()).willReturn(localConf);
 
         // When
-        factory.setupJob(job, operation, store);
+        factory.setupJob(job, operation, TextMapperGeneratorImpl.class.getName(), store);
 
         // Then
         if (NoPartitioner.class.equals(partitioner)) {

@@ -20,6 +20,7 @@ import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import java.io.IOException;
+import java.util.List;
 
 
 public interface AddElementsFromHdfsJobFactory extends JobFactory<AddElementsFromHdfs> {
@@ -33,7 +34,7 @@ public interface AddElementsFromHdfsJobFactory extends JobFactory<AddElementsFro
      * @throws IOException for IO issues
      */
     @Override
-    Job createJob(final AddElementsFromHdfs operation, final Store store) throws IOException;
+    List<Job> createJobs(final AddElementsFromHdfs operation, final Store store) throws IOException;
 
     /**
      * Prepares the store for the add from hdfs.

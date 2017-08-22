@@ -3,6 +3,7 @@ package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.impl;
 
 import com.google.common.collect.Sets;
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -23,11 +24,10 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
     @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet(
-                "splitsFilePath",
-                "mapperGeneratorClassName",
-                "inputPaths",
+                "jobInitialiser",
                 "outputPath",
-                "jobInitialiser"
+                "splitsFilePath",
+                "inputMapperPairs"
         );
     }
 
@@ -36,8 +36,7 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
         // Given
         final String resultPath = "/result";
         final SampleDataForSplitPoints op = new SampleDataForSplitPoints();
-        op.setInputPaths(Arrays.asList(INPUT_DIRECTORY));
-        op.setMapperGeneratorClassName("Test");
+        op.setInputMapperPairs(Arrays.asList(new Pair(INPUT_DIRECTORY, "Test")));
         op.setValidate(true);
         op.setProportionToSample(0.1f);
         op.setSplitsFilePath(resultPath);
@@ -48,9 +47,9 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
         final SampleDataForSplitPoints deserialisedOp = JSONSerialiser.deserialise(json, SampleDataForSplitPoints.class);
 
         // Then
-        assertEquals(INPUT_DIRECTORY, deserialisedOp.getInputPaths().get(0));
+        assertEquals(INPUT_DIRECTORY, deserialisedOp.getInputMapperPairs().get(0).getFirst());
         assertEquals(resultPath, deserialisedOp.getSplitsFilePath());
-        assertEquals("Test", deserialisedOp.getMapperGeneratorClassName());
+        assertEquals("Test", deserialisedOp.getInputMapperPairs().get(0).getSecond());
         assertTrue(deserialisedOp.isValidate());
         assertEquals(0.1f, deserialisedOp.getProportionToSample(), 1);
         assertEquals(new Integer(5), deserialisedOp.getNumMapTasks());
@@ -62,14 +61,14 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
     @Override
     public void builderShouldCreatePopulatedOperation() {
         final SampleDataForSplitPoints sampleDataForSplitPoints = new SampleDataForSplitPoints.Builder()
-                .addInputPath(INPUT_DIRECTORY)
+                .addinputMapperPair(new Pair(INPUT_DIRECTORY, "test"))
                 .splitsFilePath("/test")
                 .proportionToSample(0.1f)
                 .mappers(5)
                 .validate(true)
                 .option(TEST_OPTION_KEY, "true")
                 .build();
-        assertEquals(INPUT_DIRECTORY, sampleDataForSplitPoints.getInputPaths().get(0));
+        assertEquals(INPUT_DIRECTORY, sampleDataForSplitPoints.getInputMapperPairs().get(0).getFirst());
         assertEquals("true", sampleDataForSplitPoints.getOption(TEST_OPTION_KEY));
         assertEquals("/test", sampleDataForSplitPoints.getSplitsFilePath());
         assertTrue(sampleDataForSplitPoints.isValidate());
@@ -92,7 +91,7 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
     public void shouldShallowCloneOperation() {
         // Given
         final SampleDataForSplitPoints sampleDataForSplitPoints = new SampleDataForSplitPoints.Builder()
-                .addInputPath(INPUT_DIRECTORY)
+                .addinputMapperPair(new Pair(INPUT_DIRECTORY, "test"))
                 .splitsFilePath("/test")
                 .proportionToSample(0.1f)
                 .mappers(5)
@@ -105,7 +104,7 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
 
         // Then
         assertNotSame(sampleDataForSplitPoints, clone);
-        assertEquals(INPUT_DIRECTORY, clone.getInputPaths().get(0));
+        assertEquals(INPUT_DIRECTORY, clone.getInputMapperPairs().get(0).getFirst());
         assertEquals("true", clone.getOption(TEST_OPTION_KEY));
         assertEquals("/test", clone.getSplitsFilePath());
         assertTrue(clone.isValidate());
@@ -117,7 +116,7 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
     public void shouldShallowCloneOperationWithMinAndMaxMappers() {
         // Given
         final SampleDataForSplitPoints sampleDataForSplitPoints = new SampleDataForSplitPoints.Builder()
-                .addInputPath(INPUT_DIRECTORY)
+                .addinputMapperPair(new Pair(INPUT_DIRECTORY, "test"))
                 .splitsFilePath("/test")
                 .proportionToSample(0.1f)
                 .maxMappers(10)
@@ -130,7 +129,7 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
         SampleDataForSplitPoints clone = sampleDataForSplitPoints.shallowClone();
 
         // Then
-        assertEquals(INPUT_DIRECTORY, clone.getInputPaths().get(0));
+        assertEquals(INPUT_DIRECTORY, clone.getInputMapperPairs().get(0).getFirst());
         assertEquals("true", clone.getOption(TEST_OPTION_KEY));
         assertEquals("/test", clone.getSplitsFilePath());
         assertTrue(clone.isValidate());

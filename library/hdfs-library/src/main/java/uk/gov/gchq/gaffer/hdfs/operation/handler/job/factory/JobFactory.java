@@ -19,6 +19,7 @@ import org.apache.hadoop.mapreduce.Job;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.Store;
 import java.io.IOException;
+import java.util.List;
 
 
 public interface JobFactory<O extends Operation> {
@@ -35,5 +36,5 @@ public interface JobFactory<O extends Operation> {
      * @return the created job
      * @throws IOException for IO issues
      */
-    Job createJob(final O operation, final Store store) throws IOException;
+    List<Job> createJobs(final O operation, final Store store) throws IOException;
 }

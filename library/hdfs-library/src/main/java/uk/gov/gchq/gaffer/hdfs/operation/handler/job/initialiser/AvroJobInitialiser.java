@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.hdfs.operation.MapReduce;
 import uk.gov.gchq.gaffer.store.Store;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -55,7 +56,8 @@ public class AvroJobInitialiser implements JobInitialiser {
         final Schema schema = new Parser().parse(new File(avroSchemaFilePath));
         AvroJob.setInputKeySchema(job, schema);
         job.setInputFormatClass(AvroKeyInputFormat.class);
-        List<String> paths = operation.getInputPaths();
+        List<String> paths = new ArrayList<>();
+        operation.getInputMapperPairs().forEach(pair -> paths.add(pair.getFirst()));
         for (final String path : paths) {
             AvroKeyInputFormat.addInputPath(job, new Path(path));
         }

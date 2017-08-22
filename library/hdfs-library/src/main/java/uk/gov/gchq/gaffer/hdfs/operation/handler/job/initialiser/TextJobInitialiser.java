@@ -21,6 +21,7 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import uk.gov.gchq.gaffer.hdfs.operation.MapReduce;
 import uk.gov.gchq.gaffer.store.Store;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -40,7 +41,8 @@ public class TextJobInitialiser implements JobInitialiser {
 
     private void initialiseInput(final Job job, final MapReduce operation) throws IOException {
         job.setInputFormatClass(TextInputFormat.class);
-        List<String> paths = operation.getInputPaths();
+        List<String> paths = new ArrayList<>();
+        operation.getInputMapperPairs().forEach(pair -> paths.add(pair.getFirst()));
         for (final String path : paths) {
             TextInputFormat.addInputPath(job, new Path(path));
         }
