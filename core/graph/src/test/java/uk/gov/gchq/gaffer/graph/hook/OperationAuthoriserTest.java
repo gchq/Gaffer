@@ -160,19 +160,6 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
         assertSame(result, returnedResult);
     }
 
-    @Override
-    public void shouldJsonSerialiseAndDeserialise() {
-        // Given
-        final OperationAuthoriser hook = fromJson(OP_AUTHS_PATH);
-
-        // When
-        final byte[] json = toJson(hook);
-        final OperationAuthoriser deserialisedHook = fromJson(json);
-
-        // Then
-        assertNotNull(deserialisedHook);
-    }
-
     @Test
     public void shouldSetAndGetAuths() {
         // Given
@@ -213,5 +200,13 @@ public class OperationAuthoriserTest extends GraphHookTest<OperationAuthoriser> 
                 Sets.newHashSet("auth1", "auth2", "auth3", "auth4"),
                 hook.getAllAuths()
         );
+    }
+
+    @Test
+    public void shouldHandleNestedOperationChain(){}
+
+    @Override
+    protected OperationAuthoriser getTestObject() {
+        return fromJson(OP_AUTHS_PATH);
     }
 }

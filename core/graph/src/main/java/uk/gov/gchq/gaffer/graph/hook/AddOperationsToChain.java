@@ -120,7 +120,7 @@ public class AddOperationsToChain implements GraphHook {
         if (opChain != null && !opChain.getOperations().isEmpty()) {
             for (final Operation originalOp : opChain.getOperations()) {
                 if (originalOp instanceof OperationChain) {
-                    addOperationsToChain(((OperationChain) originalOp), additionalOperations);
+                    newOpList.addAll(addOperationsToChain((OperationChain) originalOp, additionalOperations));
                 }
                 final List<Operation> beforeOps = additionalOperations.getBefore()
                                                                 .get(originalOp.getClass()
