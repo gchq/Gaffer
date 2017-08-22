@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -90,6 +91,7 @@ public class GetElementsHandlerTest {
 
         // When
         final GetElements getElements = new GetElements.Builder()
+                .input(new EmptyClosableIterable<>())
                 .build();
         final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
 
@@ -131,6 +133,7 @@ public class GetElementsHandlerTest {
 
         // When
         final GetElements getElements = new GetElements.Builder()
+                .input(new EmptyClosableIterable<>())
                 .build();
         final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
 
