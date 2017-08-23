@@ -61,14 +61,14 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
     @Override
     public List<Job> createJobs(final AddElementsFromHdfs operation, final Store store) throws IOException {
         final List<Job> jobs = new ArrayList<>();
-        final Map<String, List<String>> mapperGenerators = new HashMap<>();
+        final Map<String, List<String>> mapperGeneratorsToInputPathsList = new HashMap<>();
         for (final Pair<String, String> pair : operation.getInputMapperPairs()) {
-            if (mapperGenerators.keySet().contains(pair.getSecond())) {
-                mapperGenerators.get(pair.getSecond()).add(pair.getFirst());
+            if (mapperGeneratorsToInputPathsList.keySet().contains(pair.getSecond())) {
+                mapperGeneratorsToInputPathsList.get(pair.getSecond()).add(pair.getFirst());
             }
         }
 
-        for (final String mapperGeneratorClassName : mapperGenerators.keySet()) {
+        for (final String mapperGeneratorClassName : mapperGeneratorsToInputPathsList.keySet()) {
             final JobConf jobConf = createJobConf(operation, mapperGeneratorClassName, store);
             final Job job = Job.getInstance(jobConf);
             setupJob(job, operation, mapperGeneratorClassName, store);

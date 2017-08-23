@@ -35,8 +35,10 @@ import java.util.Map;
  * The <code>SampleDataForSplitPoints</code> operation is for creating a splits file, either for use in a {@link uk.gov.gchq.gaffer.operation.impl.SplitStore} operation or an
  * {@link uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs} operation.
  * This operation requires an input and output path as well as a path to a file to use as the resultingSplitsFile.
- * It order to be generic and deal with any type of input file you also need to provide a
- * A {@link uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator} class name must be included within the Pair of inputFile and MapperGenerator.
+ * For each input file you must also provide a {@link uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator} class name
+ * as part of a pair (input, mapperGeneratorClassName).
+ * In order to be generic and deal with any type of input file you also need to provide a
+ * {@link uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser}.
  * {@link uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser}.
  * <b>NOTE</b> - currently this job has to be run as a hadoop job.
  *
