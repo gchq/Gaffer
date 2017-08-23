@@ -20,10 +20,7 @@ import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.client.admin.CompactionConfig;
-import org.apache.accumulo.core.client.security.tokens.PasswordToken;
-import org.apache.accumulo.core.security.SystemPermission;
 import org.apache.accumulo.minicluster.MiniAccumuloCluster;
-import org.apache.accumulo.minicluster.MiniAccumuloConfig;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.rdd.RDD;
@@ -51,6 +48,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.spark.SparkConstants;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.MiniAccumuloClusterProvider;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.function.Concat;
 
@@ -63,35 +61,32 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class GetRDDOfAllElementsHandlerTest {
-    private final String USER_NAME = "user";
-    private final String PASSWORD = "password";
     private final User USER = new User();
     private final User USER_WITH_PUBLIC = new User("user1", Sets.newHashSet("public"));
     private final User USER_WITH_PUBLIC_AND_PRIVATE = new User("user2", Sets.newHashSet("public", "private"));
     private final String GRAPH_ID = "graphId";
 
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
     @Test
     public void testGetAllElementsInRDD() throws OperationException, IOException, InterruptedException,
             AccumuloSecurityException, AccumuloException, TableNotFoundException {
         testGetAllElementsInRDD(getGraphForMockAccumulo(), getOperation());
-        testGetAllElementsInRDD(getGraphForDirectRDD(), getOperationWithDirectRDDOption());
+        testGetAllElementsInRDD(getGraphForDirectRDD("testGetAllElementsInRDD"), getOperationWithDirectRDDOption());
     }
 
     @Test
     public void testGetAllElementsInRDDWithView() throws OperationException, IOException, InterruptedException,
             AccumuloSecurityException, AccumuloException, TableNotFoundException {
         testGetAllElementsInRDDWithView(getGraphForMockAccumulo(), getOperation());
-        testGetAllElementsInRDDWithView(getGraphForDirectRDD(), getOperationWithDirectRDDOption());
+        testGetAllElementsInRDDWithView(getGraphForDirectRDD("testGetAllElementsInRDDWithView"), getOperationWithDirectRDDOption());
     }
 
     @Test
     public void testGetAllElementsInRDDWithVisibilityFilteringApplied() throws OperationException, IOException,
             InterruptedException, AccumuloSecurityException, AccumuloException, TableNotFoundException {
         testGetAllElementsInRDDWithVisibilityFilteringApplied(getGraphForMockAccumuloWithVisibility(), getOperation());
-        testGetAllElementsInRDDWithVisibilityFilteringApplied(getGraphForDirectRDDWithVisibility(), getOperationWithDirectRDDOption());
+        testGetAllElementsInRDDWithVisibilityFilteringApplied(
+                getGraphForDirectRDDWithVisibility("testGetAllElementsInRDDWithVisibilityFilteringApplied"),
+                getOperationWithDirectRDDOption());
     }
 
     private void testGetAllElementsInRDD(final Graph graph, final GetRDDOfAllElements getRDD) throws OperationException,
@@ -222,12 +217,12 @@ public class GetRDDOfAllElementsHandlerTest {
         return graph;
     }
 
-    private Graph getGraphForDirectRDD() throws InterruptedException, AccumuloException, AccumuloSecurityException,
+    private Graph getGraphForDirectRDD(final String tableName) throws InterruptedException, AccumuloException, AccumuloSecurityException,
             IOException, OperationException, TableNotFoundException {
-        final MiniAccumuloCluster cluster = setUpMiniAccumulo();
+        final MiniAccumuloCluster cluster = MiniAccumuloClusterProvider.getMiniAccumuloCluster();
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
-                        .graphId(GRAPH_ID)
+                        .graphId(tableName)
                         .build())
                 .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/types.json"))
@@ -236,17 +231,19 @@ public class GetRDDOfAllElementsHandlerTest {
                 .build();
         final User user = new User();
         graph.execute(new AddElements.Builder().input(getElements()).build(), user);
-        cluster.getConnector("root", PASSWORD).tableOperations().compact(GRAPH_ID, new CompactionConfig());
+        cluster.getConnector("root", MiniAccumuloClusterProvider.PASSWORD)
+                .tableOperations()
+                .compact(tableName, new CompactionConfig());
         Thread.sleep(1000L);
         return graph;
     }
 
-    private Graph getGraphForDirectRDDWithVisibility() throws InterruptedException, AccumuloException,
+    private Graph getGraphForDirectRDDWithVisibility(final String tableName) throws InterruptedException, AccumuloException,
             AccumuloSecurityException, IOException, OperationException, TableNotFoundException {
-        final MiniAccumuloCluster cluster = setUpMiniAccumulo();
+        final MiniAccumuloCluster cluster = MiniAccumuloClusterProvider.getMiniAccumuloCluster();
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
-                        .graphId(GRAPH_ID)
+                        .graphId(tableName)
                         .build())
                 .addSchema(getClass().getResourceAsStream("/schema/elementsWithVisibility.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/types.json"))
@@ -255,7 +252,9 @@ public class GetRDDOfAllElementsHandlerTest {
                 .build();
         final User user = new User();
         graph.execute(new AddElements.Builder().input(getElementsWithVisibilities()).build(), user);
-        cluster.getConnector("root", PASSWORD).tableOperations().compact(GRAPH_ID, new CompactionConfig());
+        cluster.getConnector("root", MiniAccumuloClusterProvider.PASSWORD)
+                .tableOperations()
+                .compact(tableName, new CompactionConfig());
         Thread.sleep(1000L);
         return graph;
     }
@@ -327,35 +326,13 @@ public class GetRDDOfAllElementsHandlerTest {
         return op;
     }
 
-    private MiniAccumuloCluster setUpMiniAccumulo() throws IOException, InterruptedException, AccumuloSecurityException,
-            AccumuloException {
-        // Create MiniAccumuloCluster
-        final MiniAccumuloConfig miniAccumuloConfig = new MiniAccumuloConfig(tempFolder.newFolder(), PASSWORD);
-        final MiniAccumuloCluster cluster = new MiniAccumuloCluster(miniAccumuloConfig);
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                try {
-                    cluster.stop();
-                } catch (final IOException | InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-        cluster.start();
-        // Create user USER_NAME with permissions to create a table
-        cluster.getConnector("root", PASSWORD).securityOperations().createLocalUser(USER_NAME, new PasswordToken(PASSWORD));
-        cluster.getConnector("root", PASSWORD).securityOperations().grantSystemPermission(USER_NAME, SystemPermission.CREATE_TABLE);
-        return cluster;
-    }
-
     private AccumuloProperties getAccumuloProperties(final MiniAccumuloCluster cluster) {
         final AccumuloProperties properties = new AccumuloProperties();
         properties.setStoreClass(AccumuloStore.class);
         properties.setInstance(cluster.getInstanceName());
         properties.setZookeepers(cluster.getZooKeepers());
-        properties.setUser(USER_NAME);
-        properties.setPassword(PASSWORD);
+        properties.setUser(MiniAccumuloClusterProvider.USER);
+        properties.setPassword(MiniAccumuloClusterProvider.PASSWORD);
         properties.setOperationDeclarationPaths("sparkAccumuloOperationsDeclarations.json");
         return properties;
     }

@@ -20,13 +20,10 @@ import org.apache.accumulo.core.client.*;
 import org.apache.accumulo.core.client.admin.CompactionConfig;
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
 import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
-import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.iterators.user.GrepIterator;
-import org.apache.accumulo.core.security.SystemPermission;
 import org.apache.accumulo.core.util.Pair;
 import org.apache.accumulo.minicluster.MiniAccumuloCluster;
-import org.apache.accumulo.minicluster.MiniAccumuloConfig;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
@@ -34,10 +31,9 @@ import org.apache.spark.SparkConf;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.directrdd.RFileReaderRDD;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.MiniAccumuloClusterProvider;
 import uk.gov.gchq.gaffer.store.StoreException;
 
 import java.io.ByteArrayOutputStream;
@@ -50,10 +46,6 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 
 public class RFileReaderRDDTest {
-    private final String USER = "user";
-    private final String PASSWORD = "password";
-    private final String TABLE = "table";
-
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
@@ -62,35 +54,13 @@ public class RFileReaderRDDTest {
             InterruptedException, AccumuloSecurityException, AccumuloException, TableNotFoundException,
             TableExistsException, StoreException {
         // Given
-        //  - Create MiniAccumuloCluster
-        final MiniAccumuloConfig miniAccumuloConfig = new MiniAccumuloConfig(tempFolder.newFolder(), PASSWORD);
-        final MiniAccumuloCluster cluster = new MiniAccumuloCluster(miniAccumuloConfig);
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                try {
-                    cluster.stop();
-                } catch (final IOException | InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-        cluster.start();
-        //  - Create user USER with permissions to create a table
-        cluster.getConnector("root", PASSWORD).securityOperations().createLocalUser(USER, new PasswordToken(PASSWORD));
-        cluster.getConnector("root", PASSWORD).securityOperations().grantSystemPermission(USER, SystemPermission.CREATE_TABLE);
-        //  - Create AccumuloProperties
-        final AccumuloProperties properties = new AccumuloProperties();
-        properties.setStoreClass(AccumuloStore.class);
-        properties.setInstance(cluster.getInstanceName());
-        properties.setZookeepers(cluster.getZooKeepers());
-        properties.setTable(TABLE);
-        properties.setUser(USER);
-        properties.setPassword(PASSWORD);
-        //  - Add some data
-        final Connector connector = cluster.getConnector(USER, PASSWORD);
-        connector.tableOperations().create(TABLE);
-        final BatchWriter bw = connector.createBatchWriter(TABLE, new BatchWriterConfig());
+        final String table = "table1";
+        final MiniAccumuloCluster cluster = MiniAccumuloClusterProvider.getMiniAccumuloCluster();
+        // Add some data
+        final Connector connector = cluster.getConnector(MiniAccumuloClusterProvider.USER,
+                MiniAccumuloClusterProvider.PASSWORD);
+        connector.tableOperations().create(table);
+        final BatchWriter bw = connector.createBatchWriter(table, new BatchWriterConfig());
         final Mutation m1 = new Mutation("row");
         m1.put("CF", "CQ", "value");
         bw.addMutation(m1);
@@ -98,8 +68,8 @@ public class RFileReaderRDDTest {
         m2.put("CF", "CQ", "not");
         bw.addMutation(m2);
         bw.close();
-        //  - Compact to ensure an RFile is created, sleep to give it a little time to do it
-        connector.tableOperations().compact(TABLE, new CompactionConfig());
+        // Compact to ensure an RFile is created, sleep to give it a little time to do it
+        connector.tableOperations().compact(table, new CompactionConfig());
         Thread.sleep(1000L);
 
         // When
@@ -108,13 +78,13 @@ public class RFileReaderRDDTest {
         InputConfigurator.fetchColumns(AccumuloInputFormat.class, conf,
                 Sets.newHashSet(new Pair<>(new Text("CF"), new Text("CQ"))));
         final RFileReaderRDD rdd = new RFileReaderRDD(sparkConf,
-                cluster.getInstanceName(), cluster.getZooKeepers(), USER, PASSWORD, TABLE, new HashSet<>(),
+                cluster.getInstanceName(), cluster.getZooKeepers(), MiniAccumuloClusterProvider.USER,
+                MiniAccumuloClusterProvider.PASSWORD, table, new HashSet<>(),
                 serialiseConfiguration(conf));
         final long count = rdd.count();
 
         // Then
         assertEquals(2L, count);
-        cluster.stop();
     }
 
     @Test
@@ -122,35 +92,13 @@ public class RFileReaderRDDTest {
             InterruptedException, AccumuloSecurityException, AccumuloException, TableNotFoundException,
             TableExistsException, StoreException {
         // Given
-        //  - Create MiniAccumuloCluster
-        final MiniAccumuloConfig miniAccumuloConfig = new MiniAccumuloConfig(tempFolder.newFolder(), PASSWORD);
-        final MiniAccumuloCluster cluster = new MiniAccumuloCluster(miniAccumuloConfig);
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                try {
-                    cluster.stop();
-                } catch (final IOException | InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-        cluster.start();
-        //  - Create user USER with permissions to create a table
-        cluster.getConnector("root", PASSWORD).securityOperations().createLocalUser(USER, new PasswordToken(PASSWORD));
-        cluster.getConnector("root", PASSWORD).securityOperations().grantSystemPermission(USER, SystemPermission.CREATE_TABLE);
-        //  - Create AccumuloProperties
-        final AccumuloProperties properties = new AccumuloProperties();
-        properties.setStoreClass(AccumuloStore.class);
-        properties.setInstance(cluster.getInstanceName());
-        properties.setZookeepers(cluster.getZooKeepers());
-        properties.setTable(TABLE);
-        properties.setUser(USER);
-        properties.setPassword(PASSWORD);
-        //  - Add some data
-        final Connector connector = cluster.getConnector(USER, PASSWORD);
-        connector.tableOperations().create(TABLE);
-        final BatchWriter bw = connector.createBatchWriter(TABLE, new BatchWriterConfig());
+        final String table = "table2";
+        final MiniAccumuloCluster cluster = MiniAccumuloClusterProvider.getMiniAccumuloCluster();
+        // Add some data
+        final Connector connector = cluster.getConnector(MiniAccumuloClusterProvider.USER,
+                MiniAccumuloClusterProvider.PASSWORD);
+        connector.tableOperations().create(table);
+        final BatchWriter bw = connector.createBatchWriter(table, new BatchWriterConfig());
         final Mutation m1 = new Mutation("row");
         m1.put("CF", "CQ", "value");
         bw.addMutation(m1);
@@ -158,10 +106,10 @@ public class RFileReaderRDDTest {
         m2.put("CF", "CQ", "not");
         bw.addMutation(m2);
         bw.close();
-        //  - Compact to ensure an RFile is created, sleep to give it a little time to do it
-        connector.tableOperations().compact(TABLE, new CompactionConfig());
+        // Compact to ensure an RFile is created, sleep to give it a little time to do it
+        connector.tableOperations().compact(table, new CompactionConfig());
         Thread.sleep(1000L);
-        //  - Create an iterator and an option to grep for "val"
+        // Create an iterator and an option to grep for "val"
         final Map<String, String> options = new HashMap<>();
         options.put("term", "val");
         final Configuration conf = new Configuration();
@@ -173,13 +121,13 @@ public class RFileReaderRDDTest {
         // When
         final SparkConf sparkConf = getSparkConf("testRFileReaderRDDAppliesIteratorCorrectly");
         final RFileReaderRDD rdd = new RFileReaderRDD(sparkConf,
-                cluster.getInstanceName(), cluster.getZooKeepers(), USER, PASSWORD, TABLE, new HashSet<>(),
+                cluster.getInstanceName(), cluster.getZooKeepers(), MiniAccumuloClusterProvider.USER,
+                MiniAccumuloClusterProvider.PASSWORD, table, new HashSet<>(),
                 serialiseConfiguration(job.getConfiguration()));
         final long count = rdd.count();
 
         // Then
         assertEquals(1L, count);
-        cluster.stop();
     }
 
     private SparkConf getSparkConf(final String name) {

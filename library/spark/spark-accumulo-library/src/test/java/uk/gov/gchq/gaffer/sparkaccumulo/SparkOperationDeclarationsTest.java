@@ -91,7 +91,5 @@ public class SparkOperationDeclarationsTest {
         final OperationDeclaration od8 = deserialised.getOperations().get(8);
         assertEquals(ImportRDDOfElements.class, od8.getOperation());
         assertTrue(od8.getHandler() instanceof ImportRDDOfElementsHandler);
-
-
     }
 }
