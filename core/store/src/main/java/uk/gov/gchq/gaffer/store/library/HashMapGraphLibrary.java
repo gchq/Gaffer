@@ -22,6 +22,9 @@ import uk.gov.gchq.gaffer.store.exception.OverwritingException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A <code>HashMapGraphLibrary</code> stores a {@link GraphLibrary} within three HashMaps.
+ */
 public class HashMapGraphLibrary extends GraphLibrary {
     private static final Map<String, Pair<String, String>> GRAPHS = new HashMap<>();
     private static final Map<String, byte[]> SCHEMAS = new HashMap<>();

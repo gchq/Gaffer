@@ -24,11 +24,22 @@ import uk.gov.gchq.gaffer.store.exception.OverwritingException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.regex.Pattern;
 
+/**
+ * A <code>GraphLibrary</code> stores a graphId and its related Schema and StoreProperties.
+ */
 public abstract class GraphLibrary {
     protected static final Pattern ID_ALLOWED_CHARACTERS = Pattern.compile("[a-zA-Z0-9_]*");
 
     public abstract void initialise(final String path);
 
+    /**
+     * Add a new relationship between a graphId, Schema and StoreProperties.
+     *
+     * @param graphId    The graphId to relate to.
+     * @param schema     The schema that relates to the graphId.
+     * @param properties The StoreProperties that relate to the graphId.
+     * @throws OverwritingException If the graphId already has a related Schema and/or StoreProperties.
+     */
     public void add(final String graphId, final Schema schema, final StoreProperties properties) throws OverwritingException {
         validateId(graphId);
 
@@ -44,6 +55,14 @@ public abstract class GraphLibrary {
         _addProperties(propertiesId, properties);
     }
 
+    /**
+     * Adds a new relationship between a graphId, Schema and StoreProperties.
+     * If there is already a relationship using the graphId, it will update it.
+     *
+     * @param graphId    The graphId to relate to.
+     * @param schema     The schema that relates to the graphId.
+     * @param properties The StoreProperties that relate to the graphId.
+     */
     public void addOrUpdate(final String graphId, final Schema schema, final StoreProperties properties) {
         validateId(graphId);
 
@@ -62,7 +81,13 @@ public abstract class GraphLibrary {
         }
     }
 
-
+    /**
+     * Gets the Schema and StoreProperties related to the graphId.
+     *
+     * @param graphId The graphId.
+     * @return a {@link uk.gov.gchq.gaffer.commonutil.pair} containing
+     * related Schema and StoreProperties.
+     */
     public Pair<Schema, StoreProperties> get(final String graphId) {
         validateId(graphId);
 
@@ -77,8 +102,21 @@ public abstract class GraphLibrary {
         return new Pair<>(schema, _getProperties(schemaAndPropsId.getSecond()));
     }
 
+    /**
+     * Gets the Schema Id and StoreProperties Id related to the graphId.
+     *
+     * @param graphId The graphId.
+     * @return A {@link uk.gov.gchq.gaffer.commonutil.pair} containing
+     * related Schema Id and StoreProperties Id.
+     */
     public abstract Pair<String, String> getIds(final String graphId);
 
+    /**
+     * Gets the Schema given the schemaId.
+     *
+     * @param schemaId The schemaId.
+     * @return The {@link Schema} related to the schemaId.
+     */
     public Schema getSchema(final String schemaId) {
         validateId(schemaId);
 
@@ -86,16 +124,35 @@ public abstract class GraphLibrary {
         return null != schemaBytes ? Schema.fromJson(schemaBytes) : null;
     }
 
+    /**
+     * Gets the StoreProperties given the storePropertiesId.
+     *
+     * @param propertiesId The storePropertiesId
+     * @return The {@link StoreProperties} related to the storePropertiesId.
+     */
     public StoreProperties getProperties(final String propertiesId) {
         validateId(propertiesId);
 
         return _getProperties(propertiesId);
     }
 
+    /**
+     * Checks if the graphId with a relationship already exists.
+     *
+     * @param graphId The GraphId.
+     * @return True if a relationship exists.
+     */
     public boolean exists(final String graphId) {
         return getIds(graphId) != null;
     }
 
+    /**
+     * Adds a new relationship between a Schema and a schemaId.
+     *
+     * @param schemaId The schemaId.
+     * @param schema   The Schema.
+     * @throws OverwritingException If there is already a relationship.
+     */
     public void addSchema(final String schemaId, final Schema schema) throws OverwritingException {
         if (null != schema) {
             final byte[] schemaJson = schema.toJson(false);
@@ -104,6 +161,13 @@ public abstract class GraphLibrary {
         }
     }
 
+    /**
+     * Adds a new relationship between a StoreProperties and a storePropertiesId.
+     *
+     * @param propertiesId The storePropertiesId.
+     * @param properties   The StoreProperties.
+     * @throws OverwritingException If there is already a relationship.
+     */
     public void addProperties(final String propertiesId, final StoreProperties properties) {
         if (properties != null) {
             validateId(propertiesId);
