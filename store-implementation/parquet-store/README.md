@@ -30,7 +30,7 @@ This store is experimental, the API is unstable and may require breaking changes
 
 ## Introduction
 
-Gaffer contains a store implemented using [Apache Parquet](https://parquet.apache.org/) version 1.8.1. Graph elements are stored in Parquet files (typically in HDFS). This offers the following functionality:
+Gaffer contains a store implemented using [Apache Parquet](https://parquet.apache.org/) version 1.8.2. Graph elements are stored in Parquet files (typically in HDFS). This offers the following functionality:
 - A scalable data store of entities and edges;
 - A very compact data store using a columnar file format;
 - Fast full scan and random access queries on the same store;
