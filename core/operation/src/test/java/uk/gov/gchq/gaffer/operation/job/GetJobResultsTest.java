@@ -32,8 +32,6 @@ import static org.junit.Assert.assertThat;
 
 
 public class GetJobResultsTest extends OperationTest<GetJobResults> {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -42,8 +40,8 @@ public class GetJobResultsTest extends OperationTest<GetJobResults> {
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(operation, true);
-        final GetJobResults deserialisedOp = serialiser.deserialise(json, GetJobResults.class);
+        byte[] json = JSONSerialiser.serialise(operation, true);
+        final GetJobResults deserialisedOp = JSONSerialiser.deserialise(json, GetJobResults.class);
 
         // Then
         assertEquals("jobId", deserialisedOp.getJobId());
@@ -77,6 +75,7 @@ public class GetJobResultsTest extends OperationTest<GetJobResults> {
     public void shouldShallowCloneOperation() {
         // Given
         final GetJobResults getJobResults = new GetJobResults.Builder()
+                .jobId("id1")
                 .build();
 
         // When
@@ -85,6 +84,7 @@ public class GetJobResultsTest extends OperationTest<GetJobResults> {
         // Then
         assertNotSame(getJobResults, clone);
         assertNotNull(clone);
+        assertEquals(getJobResults.getJobId(), clone.getJobId());
     }
 
     protected GetJobResults getTestObject() {

@@ -17,7 +17,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSplitPoints> {
-    private static final JSONSerialiser SERIALISER = new JSONSerialiser();
     private static final String INPUT_DIRECTORY = "/input";
     private static final String TEST_OPTION_KEY = "testOption";
 
@@ -45,8 +44,8 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
         op.setNumMapTasks(5);
 
         // When
-        byte[] json = SERIALISER.serialise(op, true);
-        final SampleDataForSplitPoints deserialisedOp = SERIALISER.deserialise(json, SampleDataForSplitPoints.class);
+        byte[] json = JSONSerialiser.serialise(op, true);
+        final SampleDataForSplitPoints deserialisedOp = JSONSerialiser.deserialise(json, SampleDataForSplitPoints.class);
 
         // Then
         assertEquals(INPUT_DIRECTORY, deserialisedOp.getInputPaths().get(0));

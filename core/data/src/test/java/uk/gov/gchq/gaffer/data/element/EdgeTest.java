@@ -375,11 +375,9 @@ public class EdgeTest extends ElementTest {
                 .directed(true)
                 .build();
 
-        final JSONSerialiser serialiser = new JSONSerialiser();
-
         // When
-        final byte[] serialisedElement = serialiser.serialise(edge);
-        final Edge deserialisedElement = serialiser.deserialise(serialisedElement, edge
+        final byte[] serialisedElement = JSONSerialiser.serialise(edge);
+        final Edge deserialisedElement = JSONSerialiser.deserialise(serialisedElement, edge
                 .getClass());
 
         // Then

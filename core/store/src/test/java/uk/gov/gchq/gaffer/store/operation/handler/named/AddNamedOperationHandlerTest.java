@@ -50,7 +50,6 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 
 public class AddNamedOperationHandlerTest {
-    private final JSONSerialiser json = new JSONSerialiser();
     private final NamedOperationCache mockCache = mock(NamedOperationCache.class);
     private final AddNamedOperationHandler handler = new AddNamedOperationHandler(mockCache);
 
@@ -200,7 +199,7 @@ public class AddNamedOperationHandlerTest {
                 "}";
 
         exception.expect(SerialisationException.class);
-        json.deserialise(opChainJSON.getBytes("UTF-8"), OperationChain.class);
+        JSONSerialiser.deserialise(opChainJSON.getBytes("UTF-8"), OperationChain.class);
     }
 
     private boolean cacheContains(final String opName) {

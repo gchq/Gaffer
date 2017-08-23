@@ -45,6 +45,7 @@ public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
         assertEquals(obj.getGraphId(), deserialisedObj.getGraphId());
         assertEquals(obj.getView(), deserialisedObj.getView());
         assertEquals(obj.getLibrary().getClass(), deserialisedObj.getLibrary().getClass());
+        assertEquals(obj.getDescription(), deserialisedObj.getDescription());
         assertEquals((List) obj.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList()), (List) deserialisedObj.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList()));
     }
 
@@ -66,6 +67,7 @@ public class GraphConfigTest extends JSONSerialisationTest<GraphConfig> {
         return new GraphConfig.Builder()
                 .graphId(graphId)
                 .library(library)
+                .description("testGraphConfig")
                 .addHook(hook1)
                 .addHook(hook2)
                 .view(view)

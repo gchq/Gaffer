@@ -68,14 +68,14 @@ public class HyperLogLogPlusAggregatorTest extends BinaryOperatorTest {
         final HyperLogLogPlusAggregator aggregator = new HyperLogLogPlusAggregator();
 
         // When 1
-        final String json = new String(new JSONSerialiser().serialise(aggregator, true));
+        final String json = new String(JSONSerialiser.serialise(aggregator, true));
         // Then 1
         JsonAssert.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.sketches.clearspring.cardinality.binaryoperator.HyperLogLogPlusAggregator\"%n" +
                 "}"), json);
 
         // When 2
-        final HyperLogLogPlusAggregator deserialisedAggregator = new JSONSerialiser()
+        final HyperLogLogPlusAggregator deserialisedAggregator = JSONSerialiser
                 .deserialise(json.getBytes(), HyperLogLogPlusAggregator.class);
         // Then 2
         assertNotNull(deserialisedAggregator);

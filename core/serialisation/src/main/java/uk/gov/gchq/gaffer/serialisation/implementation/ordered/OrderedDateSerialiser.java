@@ -46,6 +46,11 @@ public class OrderedDateSerialiser implements ToBytesSerialiser<Date> {
     }
 
     @Override
+    public boolean isConsistent() {
+        return true;
+    }
+
+    @Override
     public boolean canHandle(final Class clazz) {
         return Date.class.equals(clazz);
     }

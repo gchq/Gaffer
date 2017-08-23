@@ -53,4 +53,9 @@ public class ReservoirStringsUnionSerialiser implements ToBytesSerialiser<Reserv
     public boolean preservesObjectOrdering() {
         return false;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return false;
+    }
 }

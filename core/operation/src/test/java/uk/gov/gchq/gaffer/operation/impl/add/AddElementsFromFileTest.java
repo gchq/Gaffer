@@ -22,6 +22,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Set;
 
@@ -47,8 +48,8 @@ public class AddElementsFromFileTest extends OperationTest<AddElementsFromFile> 
                 .build();
 
         // When
-        final byte[] json = JSON_SERIALISER.serialise(op, true);
-        final AddElementsFromFile deserialisedOp = JSON_SERIALISER.deserialise(json, AddElementsFromFile.class);
+        final byte[] json = JSONSerialiser.serialise(op, true);
+        final AddElementsFromFile deserialisedOp = JSONSerialiser.deserialise(json, AddElementsFromFile.class);
 
         // Then
         JsonAssert.assertEquals(String.format("{%n" +

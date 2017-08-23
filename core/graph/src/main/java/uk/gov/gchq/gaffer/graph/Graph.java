@@ -74,7 +74,6 @@ import java.util.stream.Collectors;
  * @see uk.gov.gchq.gaffer.graph.Graph.Builder
  */
 public final class Graph {
-    private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
     private static final Logger LOGGER = LoggerFactory.getLogger(Graph.class);
 
     /**
@@ -82,35 +81,22 @@ public final class Graph {
      */
     private final Store store;
 
-    /**
-     * The {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View} - by default this will just contain all the groups
-     * in the graph's {@link Schema}, however it can be set to a subview to
-     * allow multiple operations to be performed on the same subview.
-     */
-    private final View view;
-
-    /**
-     * List of {@link GraphHook}s to be triggered before and after operations are
-     * executed on the graph.
-     */
-    private List<GraphHook> graphHooks;
-
     private Schema schema;
+
+    private GraphConfig config;
 
     /**
      * Constructs a <code>Graph</code> with the given {@link uk.gov.gchq.gaffer.store.Store} and
      * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.
      *
-     * @param schema     a {@link Schema} that defines the graph. Should be the copy of the schema that the store is initialised with.
-     * @param store      a {@link Store} used to store the elements and handle operations.
-     * @param view       a {@link View} defining the view of the data for the graph.
-     * @param graphHooks a list of {@link GraphHook}s
+     * @param config a {@link GraphConfig} used to store the configuration for a Graph.
+     * @param schema a {@link Schema} that defines the graph. Should be the copy of the schema that the store is initialised with.
+     * @param store  a {@link Store} used to store the elements and handle operations.
      */
-    private Graph(final Schema schema, final Store store, final View view, final List<GraphHook> graphHooks) {
+    private Graph(final GraphConfig config, final Schema schema, final Store store) {
+        this.config = config;
         this.schema = schema;
         this.store = store;
-        this.view = view;
-        this.graphHooks = graphHooks;
     }
 
     /**
@@ -152,23 +138,24 @@ public final class Graph {
      * @throws OperationException thrown if the job fails to run.
      */
     public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
+        final OperationChain<?> clonedOpChain = operationChain.shallowClone();
         try {
-            for (final GraphHook graphHook : graphHooks) {
-                graphHook.preExecute(operationChain, user);
+            for (final GraphHook graphHook : config.getHooks()) {
+                graphHook.preExecute(clonedOpChain, user);
             }
 
-            updateOperationChainView(operationChain);
+            updateOperationChainView(clonedOpChain);
 
-            JobDetail result = store.executeJob(operationChain, user);
+            JobDetail result = store.executeJob(clonedOpChain, user);
 
-            for (final GraphHook graphHook : graphHooks) {
-                result = graphHook.postExecute(result, operationChain, user);
+            for (final GraphHook graphHook : config.getHooks()) {
+                result = graphHook.postExecute(result, clonedOpChain, user);
             }
 
             return result;
 
         } catch (final Exception e) {
-            CloseableUtil.close(operationChain);
+            CloseableUtil.close(clonedOpChain);
             throw e;
         }
     }
@@ -185,21 +172,26 @@ public final class Graph {
      * @throws OperationException if an operation fails
      */
     public <O> O execute(final OperationChain<O> operationChain, final User user) throws OperationException {
+        if (null == operationChain) {
+            throw new IllegalArgumentException("operationChain is required");
+        }
+
+        final OperationChain<O> clonedOpChain = operationChain.shallowClone();
         O result = null;
         try {
-            for (final GraphHook graphHook : graphHooks) {
-                graphHook.preExecute(operationChain, user);
+            for (final GraphHook graphHook : config.getHooks()) {
+                graphHook.preExecute(clonedOpChain, user);
             }
 
-            updateOperationChainView(operationChain);
+            updateOperationChainView(clonedOpChain);
 
-            result = store.execute(operationChain, user);
+            result = store.execute(clonedOpChain, user);
 
-            for (final GraphHook graphHook : graphHooks) {
-                result = graphHook.postExecute(result, operationChain, user);
+            for (final GraphHook graphHook : config.getHooks()) {
+                result = graphHook.postExecute(result, clonedOpChain, user);
             }
         } catch (final Exception e) {
-            CloseableUtil.close(operationChain);
+            CloseableUtil.close(clonedOpChain);
             CloseableUtil.close(result);
 
             throw e;
@@ -215,10 +207,10 @@ public final class Graph {
                 final OperationView operationView = (OperationView) operation;
                 final View opView;
                 if (null == operationView.getView()) {
-                    opView = view;
+                    opView = config.getView();
                 } else if (!operationView.getView().hasGroups()) {
                     opView = new View.Builder()
-                            .merge(view)
+                            .merge(config.getView())
                             .merge(operationView.getView())
                             .build();
                 } else {
@@ -261,7 +253,7 @@ public final class Graph {
      * @return the graph view.
      */
     public View getView() {
-        return view;
+        return config.getView();
     }
 
     /**
@@ -269,6 +261,13 @@ public final class Graph {
      */
     public Schema getSchema() {
         return schema;
+    }
+
+    /**
+     * @return the description held in the {@link GraphConfig}
+     */
+    public String getDescription() {
+        return config.getDescription();
     }
 
     /**
@@ -303,11 +302,11 @@ public final class Graph {
     }
 
     public List<Class<? extends GraphHook>> getGraphHooks() {
-        if (graphHooks.isEmpty()) {
+        if (config.getHooks().isEmpty()) {
             return Collections.emptyList();
         }
 
-        return (List) graphHooks.stream().map(GraphHook::getClass).collect(Collectors.toList());
+        return (List) config.getHooks().stream().map(GraphHook::getClass).collect(Collectors.toList());
     }
 
     public GraphLibrary getGraphLibrary() {
@@ -440,6 +439,11 @@ public final class Graph {
             return this;
         }
 
+        public Builder description(final String description) {
+            configBuilder.description(description);
+            return this;
+        }
+
         public Builder parentStorePropertiesId(final String parentStorePropertiesId) {
             this.parentStorePropertiesId = parentStorePropertiesId;
             return this;
@@ -447,6 +451,9 @@ public final class Graph {
 
         public Builder storeProperties(final StoreProperties properties) {
             this.properties = properties;
+            if (null != properties) {
+                JSONSerialiser.update(properties.getJsonSerialiserClass(), properties.getJsonSerialiserModules());
+            }
             return this;
         }
 
@@ -604,7 +611,7 @@ public final class Graph {
             }
             final GraphHook[] hooks;
             try {
-                hooks = JSON_SERIALISER.deserialise(FileUtils.readFileToByteArray(hooksPath.toFile()), GraphHook[].class);
+                hooks = JSONSerialiser.deserialise(FileUtils.readFileToByteArray(hooksPath.toFile()), GraphHook[].class);
             } catch (final IOException e) {
                 throw new IllegalArgumentException("Unable to load graph hooks file: " + hooksPath, e);
             }
@@ -624,7 +631,7 @@ public final class Graph {
 
             final GraphHook hook;
             try {
-                hook = JSON_SERIALISER.deserialise(FileUtils.readFileToByteArray(hookPath.toFile()), GraphHook.class);
+                hook = JSONSerialiser.deserialise(FileUtils.readFileToByteArray(hookPath.toFile()), GraphHook.class);
             } catch (final IOException e) {
                 throw new IllegalArgumentException("Unable to load graph hook file: " + hookPath, e);
             }
@@ -689,7 +696,7 @@ public final class Graph {
 
             updateGraphHooks(config);
             config.getLibrary().add(config.getGraphId(), schema, store.getProperties());
-            return new Graph(schema, store, config.getView(), config.getHooks());
+            return new Graph(config, schema, store);
         }
 
         private void updateGraphHooks(final GraphConfig config) {

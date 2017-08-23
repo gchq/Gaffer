@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -50,8 +51,8 @@ public class ExportToOtherGraphTest extends OperationTest<ExportToOtherGraph> {
                 .build();
 
         // When
-        final byte[] json = JSON_SERIALISER.serialise(op);
-        final ExportToOtherGraph deserialisedOp = JSON_SERIALISER.deserialise(json, op.getClass());
+        final byte[] json = JSONSerialiser.serialise(op);
+        final ExportToOtherGraph deserialisedOp = JSONSerialiser.deserialise(json, op.getClass());
 
         // Then
         assertEquals("graphId", deserialisedOp.getGraphId());

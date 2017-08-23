@@ -22,6 +22,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Set;
 
@@ -52,8 +53,8 @@ public class AddElementsFromKafkaTest extends OperationTest<AddElementsFromKafka
                 .build();
 
         // When
-        final byte[] json = JSON_SERIALISER.serialise(op, true);
-        final AddElementsFromKafka deserialisedOp = JSON_SERIALISER.deserialise(json, AddElementsFromKafka.class);
+        final byte[] json = JSONSerialiser.serialise(op, true);
+        final AddElementsFromKafka deserialisedOp = JSONSerialiser.deserialise(json, AddElementsFromKafka.class);
 
         // Then
         JsonAssert.assertEquals(String.format("{%n" +
