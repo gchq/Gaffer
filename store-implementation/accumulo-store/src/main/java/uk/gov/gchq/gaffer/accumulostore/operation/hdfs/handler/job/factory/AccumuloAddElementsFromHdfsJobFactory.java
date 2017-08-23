@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory;
 
+import com.beust.jcommander.internal.Lists;
 import org.apache.accumulo.core.client.mapreduce.AccumuloFileOutputFormat;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -65,6 +66,8 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
         for (final Pair<String, String> pair : operation.getInputMapperPairs()) {
             if (mapperGeneratorsToInputPathsList.keySet().contains(pair.getSecond())) {
                 mapperGeneratorsToInputPathsList.get(pair.getSecond()).add(pair.getFirst());
+            } else {
+                mapperGeneratorsToInputPathsList.put(pair.getSecond(), Lists.newArrayList(pair.getFirst()));
             }
         }
 

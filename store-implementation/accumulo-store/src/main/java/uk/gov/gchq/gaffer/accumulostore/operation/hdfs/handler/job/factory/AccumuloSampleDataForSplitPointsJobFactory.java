@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory;
 
+import com.beust.jcommander.internal.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -55,23 +56,26 @@ public class AccumuloSampleDataForSplitPointsJobFactory implements SampleDataFor
      *
      * @param operation the add elements from hdfs operation
      * @param store     the store executing the operation
-     * @return the created job
+     * @return the created jobs
      * @throws IOException for IO issues
      */
     @Override
     public List<Job> createJobs(final SampleDataForSplitPoints operation, final Store store) throws IOException {
         final List<Job> jobs = new ArrayList<>();
-        Map<String, List<String>> mapperGenerators = new HashMap<>();
+        Map<String, List<String>> mapperGeneratorsToInputPathsList = new HashMap<>();
         for (final Pair<String, String> pair : operation.getInputMapperPairs()) {
-            if (mapperGenerators.keySet().contains(pair.getSecond())) {
-                mapperGenerators.get(pair.getSecond()).add(pair.getFirst());
+            System.out.println(pair);
+            if (mapperGeneratorsToInputPathsList.keySet().contains(pair.getSecond())) {
+                mapperGeneratorsToInputPathsList.get(pair.getSecond()).add(pair.getFirst());
+            } else {
+                mapperGeneratorsToInputPathsList.put(pair.getSecond(), Lists.newArrayList(pair.getFirst()));
             }
         }
 
-        for (final String mapperGeneratorClassName : mapperGenerators.keySet()) {
+        for (final String mapperGeneratorClassName : mapperGeneratorsToInputPathsList.keySet()) {
             final JobConf jobConf = createJobConf(operation, mapperGeneratorClassName, store);
             final Job job = Job.getInstance(jobConf);
-            setupJob(job, operation, store);
+            setupJob(job, operation, mapperGeneratorClassName, store);
 
             if (null != operation.getJobInitialiser()) {
                 operation.getJobInitialiser().initialiseJob(job, operation, store);
@@ -132,9 +136,9 @@ public class AccumuloSampleDataForSplitPointsJobFactory implements SampleDataFor
         return jobConf;
     }
 
-    protected void setupJob(final Job job, final SampleDataForSplitPoints operation, final Store store) throws IOException {
+    protected void setupJob(final Job job, final SampleDataForSplitPoints operation, String mapperGeneratorClassName, final Store store) throws IOException {
         job.setJarByClass(getClass());
-        job.setJobName(getJobName(operation.getInputMapperPairs().get(0).getSecond(), new Path(operation.getOutputPath())));
+        job.setJobName(getJobName(mapperGeneratorClassName, new Path(operation.getOutputPath())));
 
         setupMapper(job);
         setupReducer(job);

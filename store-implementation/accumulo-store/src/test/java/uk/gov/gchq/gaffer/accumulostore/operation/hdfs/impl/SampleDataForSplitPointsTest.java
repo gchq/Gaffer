@@ -36,7 +36,7 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
         // Given
         final String resultPath = "/result";
         final SampleDataForSplitPoints op = new SampleDataForSplitPoints();
-        op.setInputMapperPairs(Arrays.asList(new Pair(INPUT_DIRECTORY, "Test")));
+        op.setInputMapperPairs(Arrays.asList(new Pair(INPUT_DIRECTORY, "TestMapper")));
         op.setValidate(true);
         op.setProportionToSample(0.1f);
         op.setSplitsFilePath(resultPath);
@@ -49,7 +49,7 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
         // Then
         assertEquals(INPUT_DIRECTORY, deserialisedOp.getInputMapperPairs().get(0).getFirst());
         assertEquals(resultPath, deserialisedOp.getSplitsFilePath());
-        assertEquals("Test", deserialisedOp.getInputMapperPairs().get(0).getSecond());
+        assertEquals("TestMapper", deserialisedOp.getInputMapperPairs().get(0).getSecond());
         assertTrue(deserialisedOp.isValidate());
         assertEquals(0.1f, deserialisedOp.getProportionToSample(), 1);
         assertEquals(new Integer(5), deserialisedOp.getNumMapTasks());
