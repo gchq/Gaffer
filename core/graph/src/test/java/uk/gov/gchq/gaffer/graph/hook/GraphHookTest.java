@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
-import org.junit.Test;
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
