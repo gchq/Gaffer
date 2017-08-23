@@ -168,7 +168,6 @@ public class RFileReaderRDD extends RDD<Map.Entry<Key, Value>> {
         scanner.setRange(new Range(new Text(tableId), true, new Text(tableId + "<"), true));
         scanner.fetchColumnFamily(new Text("file"));
 
-
         final Map<String, AccumuloTablet> tabletMap = new HashMap<>();
         final Iterator<Map.Entry<Key, Value>> iterator = scanner.iterator();
         int idx = 0;

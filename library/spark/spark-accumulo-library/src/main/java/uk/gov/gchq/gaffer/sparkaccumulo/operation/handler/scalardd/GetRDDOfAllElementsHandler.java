@@ -15,6 +15,9 @@
  */
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd;
 
+import org.apache.accumulo.core.client.IteratorSetting;
+import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
+import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.conf.Configuration;
@@ -94,6 +97,10 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
                                                         final AccumuloStore accumuloStore)
             throws OperationException {
         final Configuration conf = getConfiguration(operation);
+        // Need to add validation iterator manually (it's not added by the addIterators method as normally the iterator
+        // is present on the table and therefore applied to all scans - here we're bypassing the normal table access
+        // method so it needs to be applied manually)
+        addValidationIterator(accumuloStore, conf);
         addIterators(accumuloStore, conf, context.getUser(), operation);
         try {
             // Add view to conf so that any transformations can be applied
@@ -111,6 +118,19 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
             return rdd.mapPartitions(new EntryIteratorToElementIterator(serialisedConf), true, ELEMENT_CLASS_TAG);
         } catch (final IOException e) {
             throw new OperationException("IOException serialising configuration", e);
+        }
+    }
+
+    private void addValidationIterator(final AccumuloStore accumuloStore, final Configuration conf) {
+        if (accumuloStore.getProperties().getEnableValidatorIterator()) {
+            final IteratorSetting itrSetting = accumuloStore
+                    .getKeyPackage().getIteratorFactory().getValidatorIteratorSetting(accumuloStore);
+            if (null == itrSetting) {
+                LOGGER.info("Not adding validation iterator as no validation functions are defined in the schema");
+            } else {
+                LOGGER.info("Adding validation iterator");
+                InputConfigurator.addIterator(AccumuloInputFormat.class, conf, itrSetting);
+            }
         }
     }
 

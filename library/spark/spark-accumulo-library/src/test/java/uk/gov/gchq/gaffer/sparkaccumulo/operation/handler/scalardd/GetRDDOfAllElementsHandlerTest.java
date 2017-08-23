@@ -45,10 +45,14 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.spark.SparkConstants;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.MiniAccumuloClusterProvider;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.function.Concat;
 
@@ -65,6 +69,7 @@ public class GetRDDOfAllElementsHandlerTest {
     private final User USER_WITH_PUBLIC = new User("user1", Sets.newHashSet("public"));
     private final User USER_WITH_PUBLIC_AND_PRIVATE = new User("user2", Sets.newHashSet("public", "private"));
     private final String GRAPH_ID = "graphId";
+    private Entity entityRetainedAfterValidation;
 
     @Test
     public void testGetAllElementsInRDD() throws OperationException, IOException, InterruptedException,
@@ -86,6 +91,15 @@ public class GetRDDOfAllElementsHandlerTest {
         testGetAllElementsInRDDWithVisibilityFilteringApplied(getGraphForMockAccumuloWithVisibility(), getOperation());
         testGetAllElementsInRDDWithVisibilityFilteringApplied(
                 getGraphForDirectRDDWithVisibility("testGetAllElementsInRDDWithVisibilityFilteringApplied"),
+                getOperationWithDirectRDDOption());
+    }
+
+    @Test
+    public void testGetAllElementsInRDDWithValidationApplied() throws InterruptedException, IOException,
+            OperationException, AccumuloSecurityException, TableNotFoundException, AccumuloException {
+        testGetAllElementsInRDDWithValidationApplied(getGraphForMockAccumuloForValidationChecking(), getOperation());
+        testGetAllElementsInRDDWithValidationApplied(
+                getGraphForDirectRDDForValidationChecking("testGetAllElementsInRDDWithValidationApplied"),
                 getOperationWithDirectRDDOption());
     }
 
@@ -187,6 +201,25 @@ public class GetRDDOfAllElementsHandlerTest {
         getRDD.getSparkSession().stop();
     }
 
+    private void testGetAllElementsInRDDWithValidationApplied(final Graph graph, final GetRDDOfAllElements getRDD)
+            throws InterruptedException, IOException, OperationException {
+        // Sleep for 1 second to give chance for Entity A to age off
+        Thread.sleep(1000L);
+
+        final RDD<Element> rdd = graph.execute(getRDD, USER);
+        if (rdd == null) {
+            fail("No RDD returned");
+        }
+
+        // Should get Entity B but not Entity A
+        final Element[] returnedElements = (Element[]) rdd.collect();
+        assertEquals(1, returnedElements.length);
+
+        assertEquals(entityRetainedAfterValidation, returnedElements[0]);
+
+        getRDD.getSparkSession().stop();
+    }
+
     private Graph getGraphForMockAccumulo() throws OperationException {
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -214,6 +247,21 @@ public class GetRDDOfAllElementsHandlerTest {
                 .build();
         final User user = new User();
         graph.execute(new AddElements.Builder().input(getElementsWithVisibilities()).build(), user);
+        return graph;
+    }
+
+    private Graph getGraphForMockAccumuloForValidationChecking() throws OperationException {
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .addSchema(getClass().getResourceAsStream("/schema/elementsForValidationChecking.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/typesForValidationChecking.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
+                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .build();
+        final User user = new User();
+        graph.execute(new AddElements.Builder().input(getElementsForValidationChecking()).build(), user);
         return graph;
     }
 
@@ -252,6 +300,27 @@ public class GetRDDOfAllElementsHandlerTest {
                 .build();
         final User user = new User();
         graph.execute(new AddElements.Builder().input(getElementsWithVisibilities()).build(), user);
+        cluster.getConnector("root", MiniAccumuloClusterProvider.PASSWORD)
+                .tableOperations()
+                .compact(tableName, new CompactionConfig());
+        Thread.sleep(1000L);
+        return graph;
+    }
+
+    private Graph getGraphForDirectRDDForValidationChecking(final String tableName) throws InterruptedException,
+            AccumuloException, AccumuloSecurityException, IOException, OperationException, TableNotFoundException {
+        final MiniAccumuloCluster cluster = MiniAccumuloClusterProvider.getMiniAccumuloCluster();
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(tableName)
+                        .build())
+                .addSchema(getClass().getResourceAsStream("/schema/elementsForValidationChecking.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/typesForValidationChecking.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
+                .storeProperties(getAccumuloProperties(cluster))
+                .build();
+        final User user = new User();
+        graph.execute(new AddElements.Builder().input(getElementsForValidationChecking()).build(), user);
         cluster.getConnector("root", MiniAccumuloClusterProvider.PASSWORD)
                 .tableOperations()
                 .compact(tableName, new CompactionConfig());
@@ -303,6 +372,24 @@ public class GetRDDOfAllElementsHandlerTest {
                     return e;
                 })
                 .collect(Collectors.toList());
+    }
+
+    private List<Element> getElementsForValidationChecking() {
+        final List<Element> elements = new ArrayList<>();
+        final Entity entity1 = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex("A")
+                .property("timestamp", System.currentTimeMillis())
+                .build();
+        final Entity entity2 = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex("B")
+                .property("timestamp", System.currentTimeMillis() + 1000000L)
+                .build();
+        entityRetainedAfterValidation = entity2;
+        elements.add(entity1);
+        elements.add(entity2);
+        return elements;
     }
 
     private GetRDDOfAllElements getOperation() throws IOException {
