@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.doc.operation;
 
+import com.beust.jcommander.internal.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.doc.operation.generator.TextMapperGeneratorImpl;
@@ -55,6 +56,7 @@ public class AddElementsFromHdfsExample extends OperationExample {
     public void runExamples() {
         addElementsFromHdfs();
         addElementsFromHdfsMainMethod();
+        addElementsFromHdfsWithMultipleInput();
     }
 
     @SuppressFBWarnings("REC_CATCH_EXCEPTION")
@@ -103,6 +105,27 @@ public class AddElementsFromHdfsExample extends OperationExample {
         // ---------------------------------------------------------
         final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
                 .addinputMapperPair(new Pair("/path/to/input/fileOrFolder", TextMapperGeneratorImpl.class))
+                .outputPath("/path/to/output/folder")
+                .failurePath("/path/to/failure/folder")
+                .splitsFilePath("/path/to/splits/file")
+                .workingPath("/tmp/workingDir")
+                .useProvidedSplits(false)
+                .jobInitialiser(new TextJobInitialiser())
+                .minReducers(10)
+                .maxReducers(100)
+                .build();
+        // ---------------------------------------------------------
+
+        showJavaExample(null);
+    }
+
+    @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
+    public void addElementsFromHdfsWithMultipleInput() {
+        // ---------------------------------------------------------
+        final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
+                .inputMapperPairs(Lists.newArrayList(new Pair("/path/to/first/inputFileOrFolder", TextMapperGeneratorImpl.class),
+                        new Pair("/path/to/second/inputFileOrFolder", TextMapperGeneratorImpl.class)))
+                .addinputMapperPair(new Pair("/path/to/third/inputFileOrFolder", TextMapperGeneratorImpl.class))
                 .outputPath("/path/to/output/folder")
                 .failurePath("/path/to/failure/folder")
                 .splitsFilePath("/path/to/splits/file")

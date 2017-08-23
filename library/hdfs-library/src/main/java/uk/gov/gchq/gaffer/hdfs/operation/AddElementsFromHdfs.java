@@ -27,8 +27,9 @@ import java.util.Map;
 /**
  * An <code>AddElementsFromHdfs</code> operation is for adding {@link uk.gov.gchq.gaffer.data.element.Element}s from HDFS.
  * This operation requires an input, output and failure path.
- * It order to be generic and deal with any type of input file you also need to provide a
- * {@link uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator} class name and a
+ * For each input file you must also provide a {@link uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator} class name
+ * as part of a pair (input, mapperGeneratorClassName).
+ * In order to be generic and deal with any type of input file you also need to provide a
  * {@link uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser}.
  * You will need to write your own {@link uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator} to convert the input
  * data into gaffer {@link uk.gov.gchq.gaffer.data.element.Element}s. This can

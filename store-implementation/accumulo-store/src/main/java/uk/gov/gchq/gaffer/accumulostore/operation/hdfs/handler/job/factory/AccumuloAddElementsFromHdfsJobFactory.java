@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory;
 
+import com.beust.jcommander.internal.Lists;
 import org.apache.accumulo.core.client.mapreduce.AccumuloFileOutputFormat;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -50,25 +51,29 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloAddElementsFromHdfsJobFactory.class);
 
     /**
-     * Creates a job with the store specific job initialisation and then applies the operation specific
-     * {@link uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser}.
+     * Creates a list of jobs with the store specific job initialisation and then applies the operation specific
+     * {@link uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser}.  The list is created using
+     * each Pair of InputMappers and creates a single Job for each MapperGenerator with all the inputs for a
+     * matching MapperGenerator in the same Job.
      *
      * @param operation the add elements from hdfs operation
      * @param store     the store executing the operation
-     * @return the created job
+     * @return the created jobs
      * @throws IOException for IO issues
      */
     @Override
     public List<Job> createJobs(final AddElementsFromHdfs operation, final Store store) throws IOException {
         final List<Job> jobs = new ArrayList<>();
-        final Map<String, List<String>> mapperGenerators = new HashMap<>();
+        final Map<String, List<String>> mapperGeneratorsToInputPathsList = new HashMap<>();
         for (final Pair<String, String> pair : operation.getInputMapperPairs()) {
-            if (mapperGenerators.keySet().contains(pair.getSecond())) {
-                mapperGenerators.get(pair.getSecond()).add(pair.getFirst());
+            if (mapperGeneratorsToInputPathsList.keySet().contains(pair.getSecond())) {
+                mapperGeneratorsToInputPathsList.get(pair.getSecond()).add(pair.getFirst());
+            } else {
+                mapperGeneratorsToInputPathsList.put(pair.getSecond(), Lists.newArrayList(pair.getFirst()));
             }
         }
 
-        for (final String mapperGeneratorClassName : mapperGenerators.keySet()) {
+        for (final String mapperGeneratorClassName : mapperGeneratorsToInputPathsList.keySet()) {
             final JobConf jobConf = createJobConf(operation, mapperGeneratorClassName, store);
             final Job job = Job.getInstance(jobConf);
             setupJob(job, operation, mapperGeneratorClassName, store);
@@ -86,26 +91,31 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
         TableUtils.ensureTableExists(((AccumuloStore) store));
     }
 
-    protected JobConf createJobConf(final AddElementsFromHdfs operation, final String mapperGenerator, final Store store) throws IOException {
+    protected JobConf createJobConf(final AddElementsFromHdfs operation, final String mapperGeneratorClassName, final Store store) throws IOException {
         final JobConf jobConf = new JobConf(new Configuration());
 
         LOGGER.info("Setting up job conf");
         jobConf.set(SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
         LOGGER.info("Added {} {} to job conf", SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
-        jobConf.set(MAPPER_GENERATOR, mapperGenerator);
-        LOGGER.info("Added {} of {} to job conf", MAPPER_GENERATOR, mapperGenerator);
+        jobConf.set(MAPPER_GENERATOR, mapperGeneratorClassName);
+        LOGGER.info("Added {} of {} to job conf", MAPPER_GENERATOR, mapperGeneratorClassName);
         jobConf.set(VALIDATE, String.valueOf(operation.isValidate()));
         LOGGER.info("Added {} option of {} to job conf", VALIDATE, operation.isValidate());
+
         Integer numTasks = operation.getNumMapTasks();
+
         if (null != numTasks) {
             jobConf.setNumMapTasks(numTasks);
             LOGGER.info("Set number of map tasks to {} on job conf", numTasks);
         }
+
         numTasks = operation.getNumReduceTasks();
+
         if (null != numTasks) {
             jobConf.setNumReduceTasks(numTasks);
             LOGGER.info("Set number of reduce tasks to {} on job conf", numTasks);
         }
+
         jobConf.set(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
                 ((AccumuloStore) store).getKeyPackage().getKeyConverter().getClass().getName());
 

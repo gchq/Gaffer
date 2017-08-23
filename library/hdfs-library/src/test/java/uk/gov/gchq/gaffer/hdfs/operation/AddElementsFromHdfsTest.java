@@ -39,8 +39,8 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
     private static final String ADD_ELEMENTS_FROM_HDFS_JSON = String.format("{%n" +
             "  \"class\" : \"uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs\",%n" +
             "  \"validate\" : true%n" +
-            "  \"inputMapperPairs\" : [ {%n   \"first\" : \"TestInput\",%n   \"second\" : {%n      \"java.lang.Class\" : \"uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator\"%n    }%n  } ],%n" +
-            "  \"outputPath\" : \"TestOutput\",%n" +
+            "  \"inputMapperPairs\" : [ {%n    \"first\" : \"TestInput\",%n    \"second\" : \"uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator\"%n  } ],%n" +
+            "  \"outputPath\" : \"TestOutput\"%n" +
             "}");
 
     @Override
@@ -53,11 +53,11 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
         );
     }
 
-    //@Test
+    @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final AddElementsFromHdfs addElements = new AddElementsFromHdfs.Builder()
-                .inputMapperPairs(Lists.newArrayList(new Pair("inputPath", MapperGenerator.class)))
+                .inputMapperPairs(Lists.newArrayList(new Pair("inputPath", MapperGenerator.class.getName())))
                 .outputPath("outputPath")
                 .failurePath("failurePath")
                 .jobInitialiser(new TextJobInitialiser())
@@ -76,7 +76,7 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
                 "  \"class\" : \"uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs\",%n" +
                 "  \"failurePath\" : \"failurePath\",%n" +
                 "  \"validate\" : true,%n" +
-                "  \"inputMapperPairs\" : [{ first=inputPath, second={java.lang.Class=uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator}}],%n" +
+                "  \"inputMapperPairs\" : [{ \"first\":\"inputPath\", \"second\":\"uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator\"}],%n" +
                 "  \"outputPath\" : \"outputPath\",%n" +
                 "  \"jobInitialiser\" : {%n" +
                 "    \"class\" : \"uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser\"%n" +
@@ -84,8 +84,7 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
                 "  \"numMapTasks\" : 5,%n" +
                 "  \"numReduceTasks\" : 10,%n" +
                 "  \"splitsFilePath\" : \"/path/to/splits/file\",%n" +
-                "  \"partitioner\" : \"org.apache.hadoop.mapreduce.Partitioner\",%n" +
-                "  \"mapperGeneratorClassName\" : \"uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator\"%n" +
+                "  \"partitioner\" : \"org.apache.hadoop.mapreduce.Partitioner\"%n" +
                 "}"), json);
     }
 
@@ -93,7 +92,7 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
     @Override
     public void builderShouldCreatePopulatedOperation() {
         final AddElementsFromHdfs addElements = new AddElementsFromHdfs.Builder()
-                .inputMapperPairs(Lists.newArrayList(new Pair("input", MapperGenerator.class)))
+                .inputMapperPairs(Lists.newArrayList(new Pair("input", MapperGenerator.class.getName())))
                 .outputPath("output")
                 .failurePath("fail")
                 .mappers(10)
@@ -107,14 +106,16 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
         assertEquals(new Integer(10), addElements.getNumMapTasks());
         assertEquals(new Integer(20), addElements.getNumReduceTasks());
         assertEquals("output", addElements.getOutputPath());
-        assertEquals(new Pair("input", MapperGenerator.class), addElements.getInputMapperPairs().get(0));
+        assertEquals(new Pair("input", MapperGenerator.class.getName()), addElements.getInputMapperPairs().get(0));
     }
 
     @Override
     public void shouldShallowCloneOperation() {
         // Given
         final AddElementsFromHdfs addElements = new AddElementsFromHdfs.Builder()
-                .inputMapperPairs(Lists.newArrayList(new Pair("input", MapperGenerator.class)))
+                .inputMapperPairs(Lists.newArrayList(new Pair("input", MapperGenerator.class.getName()),
+                        new Pair("input1", MapperGenerator.class.getName())))
+                .addinputMapperPair(new Pair("input2", MapperGenerator.class.getName()))
                 .outputPath("output")
                 .failurePath("fail")
                 .mappers(10)
@@ -134,14 +135,16 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
         assertEquals(new Integer(10), clone.getNumMapTasks());
         assertEquals(new Integer(20), clone.getNumReduceTasks());
         assertEquals("output", clone.getOutputPath());
-        assertEquals(new Pair("input", MapperGenerator.class), clone.getInputMapperPairs().get(0));
+        assertEquals(new Pair("input", MapperGenerator.class.getName()), clone.getInputMapperPairs().get(0));
+        assertEquals(new Pair("input1", MapperGenerator.class.getName()), clone.getInputMapperPairs().get(1));
+        assertEquals(new Pair("input2", MapperGenerator.class.getName()), clone.getInputMapperPairs().get(2));
     }
 
     //@Test
     public void shouldSerialisePopulatedAddElementsFromHdfsOperation() throws IOException {
         // Given
         final AddElementsFromHdfs addElementsFromHdfs = getTestObject();
-        addElementsFromHdfs.setInputMapperPairs(Lists.newArrayList(new Pair("TestInput", MapperGenerator.class)));
+        addElementsFromHdfs.setInputMapperPairs(Lists.newArrayList(new Pair("TestInput", MapperGenerator.class.getName())));
         addElementsFromHdfs.setOutputPath("TestOutput");
 
         // When
