@@ -45,7 +45,7 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
-
+//todo: rewrite op chain stuff
 public class OperationServiceV2 implements IOperationServiceV2 {
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationServiceV2.class);
     public final ObjectMapper mapper = createDefaultMapper();
@@ -76,7 +76,8 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         if (operation instanceof OperationChain) {
             return executeChunkedChain((OperationChain) operation);
         }
-        return executeChunked(new OperationChain(operation));
+
+        return executeChunkedChain(new OperationChain(operation));
     }
 
     @SuppressFBWarnings
@@ -184,15 +185,18 @@ public class OperationServiceV2 implements IOperationServiceV2 {
                        .build();
     }
 
-    protected <O> O _execute(final Operation operation) {
-        if (operation instanceof OperationChain) {
-            return _execute((OperationChain<O>) operation);
-        }
-        return _execute(new OperationChain<>(operation));
-    }
-
     @SuppressWarnings("ThrowFromFinallyBlock")
-    protected <O> O _execute(final OperationChain<O> opChain) {
+    protected <O> O _execute(final Operation operation) {
+
+        OperationChain<O> opChain;
+
+        if (!(operation instanceof OperationChain)) {
+            opChain = new OperationChain(operation);
+        } else {
+            opChain = (OperationChain) operation;
+        }
+
+
         final User user = userFactory.createUser();
         preOperationHook(opChain, user);
 
@@ -200,13 +204,13 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         try {
             result = graphFactory.getGraph().execute(opChain, user);
         } catch (final OperationException e) {
-            CloseableUtil.close(opChain);
+            CloseableUtil.close(operation);
             throw new RuntimeException("Error executing opChain", e);
         } finally {
             try {
                 postOperationHook(opChain, user);
             } catch (final Exception e) {
-                CloseableUtil.close(opChain);
+                CloseableUtil.close(operation);
                 throw e;
             }
         }
@@ -290,7 +294,6 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             try {
                 this.exampleJson = OperationServiceV2.this.getExampleJson(opClass);
             } catch (final ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-
                 throw new GafferRuntimeException("Could not get operation details for class: " + name, e, Status.BAD_REQUEST);
             }
         }

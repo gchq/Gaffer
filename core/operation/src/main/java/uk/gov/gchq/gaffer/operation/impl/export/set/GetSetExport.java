@@ -37,11 +37,11 @@ public class GetSetExport implements
     private int start = 0;
     private Integer end = null;
 
-    public Integer getStart() {
+    public int getStart() {
         return start;
     }
 
-    public void setStart(final Integer start) {
+    public void setStart(final int start) {
         this.start = start;
     }
 

@@ -39,7 +39,7 @@ import java.io.OutputStream;
 import java.net.URI;
 
 public abstract class RestApiTestClient {
-    protected final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
+    protected final JSONSerialiser JSON_SERIALISER = JSONSerialiser.getInstance();
     protected final Client client = ClientBuilder.newClient();
     protected final ResourceConfig config;
     protected String uri;
