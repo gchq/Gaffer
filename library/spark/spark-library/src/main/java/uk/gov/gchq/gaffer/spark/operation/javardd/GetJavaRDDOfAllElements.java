@@ -95,6 +95,16 @@ public class GetJavaRDDOfAllElements implements
         this.directedType = directedType;
     }
 
+    @Override
+    public GetJavaRDDOfAllElements shallowClone() {
+        return new GetJavaRDDOfAllElements.Builder()
+                .options(options)
+                .javaSparkContext(sparkContext)
+                .view(view)
+                .directedType(directedType)
+                .build();
+    }
+
     public static class Builder extends BaseBuilder<GetJavaRDDOfAllElements, Builder>
             implements Output.Builder<GetJavaRDDOfAllElements, JavaRDD<Element>, Builder>,
             GraphFilters.Builder<GetJavaRDDOfAllElements, Builder>,

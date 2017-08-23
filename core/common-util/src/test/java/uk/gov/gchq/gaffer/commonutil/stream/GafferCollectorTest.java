@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.commonutil.stream;
 
 import com.google.common.collect.Iterables;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.collection.LimitedSortedSet;
+import uk.gov.gchq.gaffer.commonutil.iterable.LimitedInMemorySortedIterable;
 import java.util.LinkedHashSet;
 import java.util.stream.IntStream;
 
@@ -25,7 +25,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertEquals;
-import static uk.gov.gchq.gaffer.commonutil.stream.GafferCollectors.toLimitedSortedSet;
+import static uk.gov.gchq.gaffer.commonutil.stream.GafferCollectors.toLimitedInMemorySortedIterable;
 import static uk.gov.gchq.gaffer.commonutil.stream.GafferCollectors.toLinkedHashSet;
 
 public class GafferCollectorTest {
@@ -49,10 +49,11 @@ public class GafferCollectorTest {
         // Given
         final IntStream stream = IntStream.range(0, 100);
         final int limit = 50;
+        final boolean deduplicate = true;
 
         // When
-        final LimitedSortedSet<Integer> result = stream.mapToObj(i -> i)
-                .collect(toLimitedSortedSet(Integer::compareTo, limit));
+        final LimitedInMemorySortedIterable<Integer> result = stream.mapToObj(i -> i)
+                .collect(toLimitedInMemorySortedIterable(Integer::compareTo, limit, deduplicate));
 
         // Then
         assertEquals(50, result.size());

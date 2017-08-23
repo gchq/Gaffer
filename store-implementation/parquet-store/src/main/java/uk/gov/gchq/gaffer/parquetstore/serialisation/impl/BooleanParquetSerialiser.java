@@ -67,4 +67,9 @@ public class BooleanParquetSerialiser implements ParquetSerialiser<Boolean> {
     public boolean canHandle(final Class clazz) {
         return Boolean.class.equals(clazz);
     }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

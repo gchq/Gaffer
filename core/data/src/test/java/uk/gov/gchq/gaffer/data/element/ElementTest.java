@@ -166,11 +166,9 @@ public abstract class ElementTest {
         properties.put("property5", new Date(5L));
         element.setProperties(properties);
 
-        final JSONSerialiser serialiser = new JSONSerialiser();
-
         // When
-        final byte[] serialisedElement = serialiser.serialise(element);
-        final Element deserialisedElement = serialiser.deserialise(serialisedElement, element.getClass());
+        final byte[] serialisedElement = JSONSerialiser.serialise(element);
+        final Element deserialisedElement = JSONSerialiser.deserialise(serialisedElement, element.getClass());
 
         // Then
         assertTrue(StringUtil.toString(serialisedElement).contains("{\"java.util.Date\":5}"));

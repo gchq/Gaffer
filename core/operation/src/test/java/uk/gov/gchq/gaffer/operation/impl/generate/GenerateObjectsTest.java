@@ -32,12 +32,11 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 
 public class GenerateObjectsTest extends OperationTest<GenerateObjects> {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet("elementGenerator");
@@ -68,8 +67,8 @@ public class GenerateObjectsTest extends OperationTest<GenerateObjects> {
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(op, true);
-        final GenerateObjects<String> deserialisedOp = serialiser.deserialise(json, GenerateObjects.class);
+        byte[] json = JSONSerialiser.serialise(op, true);
+        final GenerateObjects<String> deserialisedOp = JSONSerialiser.deserialise(json, GenerateObjects.class);
 
         // Then
         final Iterator<? extends Element> itr = deserialisedOp.getInput().iterator();
@@ -104,6 +103,24 @@ public class GenerateObjectsTest extends OperationTest<GenerateObjects> {
     }
 
     @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        Element input = new Entity("testEntityGroup", "A");
+        ObjectGeneratorImpl generator = new ObjectGeneratorImpl();
+        GenerateObjects generateObjects = new GenerateObjects.Builder<String>()
+                .input(input)
+                .generator(generator)
+                .build();
+
+        // When
+        GenerateObjects clone = generateObjects.shallowClone();
+
+        // Then
+        assertNotSame(generateObjects, clone);
+        assertEquals(input, clone.getInput().iterator().next());
+        assertEquals(generator, clone.getElementGenerator());
+    }
+
     protected GenerateObjects getTestObject() {
         return new GenerateObjects();
     }

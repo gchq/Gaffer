@@ -57,4 +57,9 @@ public class StringsUnionSerialiser implements ToBytesSerialiser<ItemsUnion<Stri
     public boolean preservesObjectOrdering() {
         return false;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return false;
+    }
 }

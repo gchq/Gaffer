@@ -16,6 +16,8 @@
 package uk.gov.gchq.gaffer.commonutil.stream;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
+import uk.gov.gchq.gaffer.commonutil.iterable.StreamIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.StreamIterator;
 import java.util.Iterator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -34,6 +36,10 @@ public final class Streams {
      * @return a stream containing the contents of the iterable
      */
     public static <T> Stream<T> toStream(final Iterable<T> iterable) {
+        if (iterable instanceof StreamIterable) {
+            return ((StreamIterable<T>) iterable).getStream();
+        }
+
         return StreamSupport.stream(iterable.spliterator(), false)
                 .onClose(() -> CloseableUtil.close(iterable));
     }
@@ -47,6 +53,10 @@ public final class Streams {
      * @return a stream containing the contents of the iterator
      */
     public static <T> Stream<T> toStream(final Iterator<T> iterator) {
+        if (iterator instanceof StreamIterator) {
+            return ((StreamIterator<T>) iterator).getStream();
+        }
+
         final Iterable<T> iterable = () -> iterator;
         return StreamSupport.stream(iterable.spliterator(), false)
                 .onClose(() -> CloseableUtil.close(iterator));
@@ -61,6 +71,10 @@ public final class Streams {
      * @return a stream containing the contents of the iterable
      */
     public static <T> Stream<T> toParallelStream(final Iterable<T> iterable) {
+        if (iterable instanceof StreamIterable) {
+            return ((StreamIterable<T>) iterable).getStream().parallel();
+        }
+
         return StreamSupport.stream(iterable.spliterator(), true)
                 .onClose(() -> CloseableUtil.close(iterable));
     }
@@ -74,6 +88,10 @@ public final class Streams {
      * @return a stream containing the contents of the iterator
      */
     public static <T> Stream<T> toParallelStream(final Iterator<T> iterator) {
+        if (iterator instanceof StreamIterator) {
+            return ((StreamIterator<T>) iterator).getStream().parallel();
+        }
+
         final Iterable<T> iterable = () -> iterator;
         return StreamSupport.stream(iterable.spliterator(), true)
                 .onClose(() -> CloseableUtil.close(iterator));

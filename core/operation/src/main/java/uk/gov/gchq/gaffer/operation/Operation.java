@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.apache.commons.lang3.exception.CloneFailedException;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.koryphe.ValidationResult;
 import java.io.Closeable;
@@ -76,12 +77,22 @@ import java.security.PrivilegedAction;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
 public interface Operation extends Closeable {
+    /**
+     * Operation implementations should ensure a ShallowClone method is implemented.
+     * Performs a shallow clone. Creates a new instance and copies the fields across.
+     * It does not clone the fields.
+     *
+     * @return shallow clone
+     * @throws CloneFailedException if a Clone error occurs
+     */
+    Operation shallowClone() throws CloneFailedException;
 
     /**
      * Operation implementations should ensure that all closeable fields are closed in this method.
      *
      * @throws IOException if an I/O error occurs
      */
+    @Override
     default void close() throws IOException {
         // do nothing by default
     }
@@ -98,30 +109,28 @@ public interface Operation extends Closeable {
             final Required[] annotations = field.getAnnotationsByType(Required.class);
             if (null != annotations && annotations.length > 0) {
                 if (field.isAccessible()) {
-                    final String name = field.getName();
                     final Object value;
                     try {
                         value = field.get(this);
-                    } catch (IllegalAccessException e) {
+                    } catch (final IllegalAccessException e) {
                         throw new RuntimeException(e);
                     }
 
                     if (null == value) {
-                        result.addError(name + " is required");
+                        result.addError(field.getName() + " is required");
                     }
                 } else {
                     AccessController.doPrivileged((PrivilegedAction<Operation>) () -> {
                         field.setAccessible(true);
-                        final String name = field.getName();
                         final Object value;
                         try {
                             value = field.get(this);
-                        } catch (IllegalAccessException e) {
+                        } catch (final IllegalAccessException e) {
                             throw new RuntimeException(e);
                         }
 
                         if (null == value) {
-                            result.addError(name + " is required");
+                            result.addError(field.getName() + " is required");
                         }
                         return null;
                     });
@@ -130,6 +139,14 @@ public interface Operation extends Closeable {
         }
 
         return result;
+    }
+
+    static <O> OperationChain<O> asOperationChain(final Operation operation) {
+        if (operation instanceof OperationChain<?>) {
+            return (OperationChain<O>) operation;
+        } else {
+            return new OperationChain<>(operation);
+        }
     }
 
     interface Builder<OP, B extends Builder<OP, ?>> {

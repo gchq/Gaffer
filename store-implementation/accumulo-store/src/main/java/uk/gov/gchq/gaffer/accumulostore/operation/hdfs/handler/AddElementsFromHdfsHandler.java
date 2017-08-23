@@ -48,14 +48,14 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
 
     @Override
     public Void doOperation(final AddElementsFromHdfs operation,
-                            final Context context, final Store store)
+            final Context context, final Store store)
             throws OperationException {
         doOperation(operation, context, (AccumuloStore) store);
         return null;
     }
 
     public void doOperation(final AddElementsFromHdfs operation,
-                            final Context context, final AccumuloStore store)
+            final Context context, final AccumuloStore store)
             throws OperationException {
         validateOperation(operation);
 

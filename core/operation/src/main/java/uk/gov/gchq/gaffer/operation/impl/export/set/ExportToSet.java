@@ -58,6 +58,14 @@ public class ExportToSet<T> implements
         return (TypeReference) new TypeReferenceImpl.Object();
     }
 
+    @Override
+    public ExportToSet<T> shallowClone() {
+        return new ExportToSet.Builder<T>()
+                .key(key)
+                .input(input)
+                .build();
+    }
+
     public static final class Builder<T> extends Operation.BaseBuilder<ExportToSet<T>, Builder<T>>
             implements ExportTo.Builder<ExportToSet<T>, T, Builder<T>> {
         public Builder() {

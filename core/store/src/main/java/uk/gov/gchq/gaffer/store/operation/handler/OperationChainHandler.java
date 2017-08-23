@@ -30,11 +30,6 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
     private final OperationChainValidator opChainValidator;
     private final List<OperationChainOptimiser> opChainOptimisers;
 
-    public OperationChainHandler(final OperationChainValidator opChainValidator, final List<OperationChainOptimiser> opChainOptimisers) {
-        this.opChainValidator = opChainValidator;
-        this.opChainOptimisers = opChainOptimisers;
-    }
-
     @Override
     public OUT doOperation(final OperationChain<OUT> operationChain, final Context context, final Store store) throws OperationException {
 
@@ -65,16 +60,27 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
     }
 
     protected void updateOperationInput(final Operation op, final Object result) {
-        if (null != result && op instanceof Input && null == ((Input) op).getInput()) {
-            try {
-                ((Input) op).setInput(result);
-            } catch (final ClassCastException e) {
-                throw new UnsupportedOperationException("Operation chain is not compatible. "
-                        + op.getClass().getName()
-                        + " cannot take " + result.getClass().getName()
-                        + " as an input", e);
+        if (null != result) {
+            if (op instanceof OperationChain) {
+                final Operation firstOp = (Operation) ((OperationChain) op).getOperations()
+                                                                           .get(0);
+                if (firstOp instanceof Input) {
+                    setOperationInput(firstOp, result);
+                }
+            } else if (op instanceof Input) {
+                setOperationInput(op, result);
             }
         }
     }
 
+    public OperationChainHandler(final OperationChainValidator opChainValidator, final List<OperationChainOptimiser> opChainOptimisers) {
+        this.opChainValidator = opChainValidator;
+        this.opChainOptimisers = opChainOptimisers;
+    }
+
+    private void setOperationInput(final Operation op, final Object result) {
+        if (null == ((Input) op).getInput()) {
+            ((Input) op).setInput(result);
+        }
+    }
 }

@@ -100,7 +100,7 @@ public class ExportToOtherGraphHandlerTest {
         try {
             handler.createGraph(export, store);
             fail("Exception expected");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("same graph"));
         }
     }

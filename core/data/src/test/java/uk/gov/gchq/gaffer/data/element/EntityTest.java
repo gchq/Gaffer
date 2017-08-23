@@ -190,11 +190,9 @@ public class EntityTest extends ElementTest {
         final Entity entity = newElement("group");
         entity.setVertex(1L);
 
-        final JSONSerialiser serialiser = new JSONSerialiser();
-
         // When
-        final byte[] serialisedElement = serialiser.serialise(entity);
-        final Entity deserialisedElement = serialiser.deserialise(serialisedElement, entity.getClass());
+        final byte[] serialisedElement = JSONSerialiser.serialise(entity);
+        final Entity deserialisedElement = JSONSerialiser.deserialise(serialisedElement, entity.getClass());
 
         // Then
         assertEquals(entity, deserialisedElement);

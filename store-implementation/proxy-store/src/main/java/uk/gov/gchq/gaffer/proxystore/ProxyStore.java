@@ -36,7 +36,6 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
-import uk.gov.gchq.gaffer.proxystore.operation.handler.ProxyStoreOperationChainHandler;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
@@ -55,7 +54,6 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status.Family;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.Collections;
@@ -63,9 +61,9 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
+
 public class ProxyStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyStore.class);
-    private JSONSerialiser jsonSerialiser;
     private Client client;
     private Set<StoreTrait> traits;
     private Schema schema;
@@ -74,9 +72,12 @@ public class ProxyStore extends Store {
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "The properties should always be ProxyProperties")
     @Override
     public void initialise(final String graphId, final Schema unusedSchema, final StoreProperties properties) throws StoreException {
-        final ProxyProperties proxyProps = (ProxyProperties) properties;
-        jsonSerialiser = proxyProps.getJsonSerialiser();
+        final String jsonSerialiserClass = properties.getJsonSerialiserClass();
+        if (null != jsonSerialiserClass) {
+            JSONSerialiser.update(jsonSerialiserClass, properties.getJsonSerialiserModules());
+        }
 
+        final ProxyProperties proxyProps = (ProxyProperties) properties;
         client = createClient(proxyProps);
         schema = fetchSchema(proxyProps);
         traits = fetchTraits(proxyProps);
@@ -87,7 +88,7 @@ public class ProxyStore extends Store {
     }
 
     protected void checkDelegateStoreStatus(final ProxyProperties proxyProps) throws StoreException {
-        final URL url = proxyProps.getGafferUrl("graph/status");
+        final URL url = proxyProps.getGafferUrl("status");
         final LinkedHashMap status = doGet(url, new TypeReferenceImpl.Map(), null);
         LOGGER.info("Delegate REST API status: {}", status.get("description"));
     }
@@ -110,7 +111,7 @@ public class ProxyStore extends Store {
     }
 
     protected Set<StoreTrait> fetchTraits(final ProxyProperties proxyProps) throws StoreException {
-        final URL url = proxyProps.getGafferUrl("graph/config/storeTraits");
+        final URL url = proxyProps.getGafferUrl("graph/storeTraits");
         Set<StoreTrait> newTraits = doGet(url, new TypeReferenceStoreImpl.StoreTraits(), null);
         if (null == newTraits) {
             newTraits = new HashSet<>(0);
@@ -123,7 +124,7 @@ public class ProxyStore extends Store {
 
     protected Schema fetchSchema(final ProxyProperties proxyProps) throws
             StoreException {
-        final URL url = proxyProps.getGafferUrl("graph/config/schema");
+        final URL url = proxyProps.getGafferUrl("graph/schema");
         return doGet(url, new TypeReferenceStoreImpl.Schema(), null);
     }
 
@@ -134,7 +135,7 @@ public class ProxyStore extends Store {
 
     @Override
     public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
-        final URL url = getProperties().getGafferUrl("graph/jobs");
+        final URL url = getProperties().getGafferUrl("graph/jobs/doOperation");
         try {
             return doPost(url, operationChain, new TypeReferenceImpl.JobDetail(), new Context(user));
         } catch (final StoreException e) {
@@ -142,19 +143,18 @@ public class ProxyStore extends Store {
         }
     }
 
-    public <O> O executeOpChainViaUrl(
-            final OperationChain<O> operationChain, final Context context)
+    public <O> O executeOpChainViaUrl(final OperationChain<O> opChain, final Context context)
             throws OperationException {
         final String opChainJson;
         try {
-            opChainJson = new String(jsonSerialiser.serialise(operationChain), CommonConstants.UTF_8);
+            opChainJson = new String(JSONSerialiser.serialise(opChain), CommonConstants.UTF_8);
         } catch (final UnsupportedEncodingException | SerialisationException e) {
             throw new OperationException("Unable to serialise operation chain into JSON.", e);
         }
 
-        final URL url = getProperties().getGafferUrl("graph/operations");
+        final URL url = getProperties().getGafferUrl("graph/doOperation");
         try {
-            return doPost(url, opChainJson, operationChain.getOutputTypeReference(), context);
+            return doPost(url, opChainJson, opChain.getOutputTypeReference(), context);
         } catch (final StoreException e) {
             throw new OperationException(e.getMessage(), e);
         }
@@ -164,7 +164,7 @@ public class ProxyStore extends Store {
                            final TypeReference<O> outputType,
                            final Context context) throws StoreException {
         try {
-            return doPost(url, new String(jsonSerialiser.serialise(body), CommonConstants.UTF_8), outputType, context);
+            return doPost(url, new String(JSONSerialiser.serialise(body), CommonConstants.UTF_8), outputType, context);
         } catch (final SerialisationException | UnsupportedEncodingException e) {
             throw new StoreException("Unable to serialise body of request into json.", e);
         }
@@ -206,7 +206,7 @@ public class ProxyStore extends Store {
                                    final TypeReference<O> outputTypeReference)
             throws StoreException {
         final String outputJson = response.hasEntity() ? response.readEntity(String.class) : null;
-        if (Family.SUCCESSFUL != response.getStatusInfo().getFamily()) {
+        if (200 != response.getStatus() && 204 != response.getStatus()) {
             LOGGER.warn("Gaffer bad status {}", response.getStatus());
             LOGGER.warn("Detail: {}", outputJson);
             throw new StoreException("Delegate Gaffer store returned status: " + response.getStatus() + ". Response content was: " + outputJson);
@@ -245,7 +245,7 @@ public class ProxyStore extends Store {
                     "Unable to deserialise JSON: " + jsonString, e);
         }
 
-        return jsonSerialiser.deserialise(jsonBytes, outputTypeReference);
+        return JSONSerialiser.deserialise(jsonBytes, outputTypeReference);
     }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be ProxyProperties")
@@ -256,7 +256,8 @@ public class ProxyStore extends Store {
 
     @Override
     protected void addAdditionalOperationHandlers() {
-        addOperationHandler(OperationChain.class, new ProxyStoreOperationChainHandler());
+        // no operation handlers to add.
+//        addOperationHandler(OperationChain.class, new OperationChainHandler());
     }
 
     @Override
@@ -287,6 +288,11 @@ public class ProxyStore extends Store {
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
         return null;
+    }
+
+    @Override
+    protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
+        return new uk.gov.gchq.gaffer.proxystore.operation.handler.OperationChainHandler<>();
     }
 
     protected Client createClient(final ProxyProperties proxyProps) {

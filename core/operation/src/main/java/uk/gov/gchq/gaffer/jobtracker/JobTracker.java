@@ -35,7 +35,7 @@ public class JobTracker {
 
         try {
             CacheServiceLoader.getService().putInCache(CACHE_NAME, jobDetail.getJobId(), jobDetail);
-        } catch (CacheOperationException e) {
+        } catch (final CacheOperationException e) {
             throw new RuntimeException("Failed to add jobDetail " + jobDetail.toString() + " to the cache", e);
         }
     }
@@ -63,7 +63,7 @@ public class JobTracker {
     public void clear() {
         try {
             CacheServiceLoader.getService().clearCache(CACHE_NAME);
-        } catch (CacheOperationException e) {
+        } catch (final CacheOperationException e) {
             throw new RuntimeException("Failed to clear job tracker cache", e);
         }
     }

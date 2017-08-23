@@ -32,8 +32,6 @@ import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertNotNull;
 
 public class ElementPropertyComparatorTest extends JSONSerialisationTest<ElementPropertyComparator> {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @Test
     public void shouldSerialiseAndDeserialisePopulatedComparator() throws SerialisationException, JsonProcessingException {
         // Given
@@ -44,13 +42,13 @@ public class ElementPropertyComparatorTest extends JSONSerialisationTest<Element
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(comparator, true);
-        final ElementPropertyComparator deserialisedComparator = serialiser.deserialise(json, ElementPropertyComparator.class);
+        byte[] json = JSONSerialiser.serialise(comparator, true);
+        final ElementPropertyComparator deserialisedComparator = JSONSerialiser.deserialise(json, ElementPropertyComparator.class);
 
         // Then
         assertNotNull(deserialisedComparator);
     }
-    
+
     @Test
     public void shouldCompare() {
         // Given

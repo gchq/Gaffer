@@ -119,6 +119,17 @@ public class GetDataFrameOfElements implements
         this.directedType = directedType;
     }
 
+    @Override
+    public GetDataFrameOfElements shallowClone() {
+        return new GetDataFrameOfElements.Builder()
+                .sparkSession(sparkSession)
+                .converters(converters)
+                .options(options)
+                .directedType(directedType)
+                .view(view)
+                .build();
+    }
+
     public static class Builder extends Operation.BaseBuilder<GetDataFrameOfElements, Builder>
             implements Output.Builder<GetDataFrameOfElements, Dataset<Row>, Builder>,
             Options.Builder<GetDataFrameOfElements, Builder>,

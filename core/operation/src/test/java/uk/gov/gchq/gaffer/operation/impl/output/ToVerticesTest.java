@@ -25,17 +25,18 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices.EdgeVertices;
+import uk.gov.gchq.gaffer.operation.impl.output.ToVertices.UseMatchedVertex;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 
 public class ToVerticesTest extends OperationTest<ToVertices> {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException, JsonProcessingException {
         // Given
@@ -46,8 +47,8 @@ public class ToVerticesTest extends OperationTest<ToVertices> {
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(op, true);
-        final ToVertices deserialisedOp = serialiser.deserialise(json, ToVertices.class);
+        byte[] json = JSONSerialiser.serialise(op, true);
+        final ToVertices deserialisedOp = JSONSerialiser.deserialise(json, ToVertices.class);
 
         // Then
         assertNotNull(deserialisedOp);
@@ -61,8 +62,8 @@ public class ToVerticesTest extends OperationTest<ToVertices> {
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(op, true);
-        final ToVertices deserialisedOp = serialiser.deserialise(json, ToVertices.class);
+        byte[] json = JSONSerialiser.serialise(op, true);
+        final ToVertices deserialisedOp = JSONSerialiser.deserialise(json, ToVertices.class);
 
         // Then
         assertNotNull(deserialisedOp);
@@ -84,6 +85,25 @@ public class ToVerticesTest extends OperationTest<ToVertices> {
     }
 
     @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final Entity input = new Entity(TestGroups.ENTITY);
+        final ToVertices toVertices = new ToVertices.Builder()
+                .input(input)
+                .useMatchedVertex(UseMatchedVertex.EQUAL)
+                .edgeVertices(EdgeVertices.BOTH)
+                .build();
+
+        // When
+        final ToVertices clone = toVertices.shallowClone();
+
+        // Then
+        assertNotSame(toVertices, clone);
+        assertEquals(input, clone.getInput().iterator().next());
+        assertEquals(UseMatchedVertex.EQUAL, clone.getUseMatchedVertex());
+        assertEquals(EdgeVertices.BOTH, clone.getEdgeVertices());
+    }
+
     protected ToVertices getTestObject() {
         return new ToVertices();
     }

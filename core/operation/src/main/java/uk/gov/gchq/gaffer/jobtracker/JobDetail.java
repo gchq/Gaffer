@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.jobtracker;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
-import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import java.io.Serializable;
 
 public class JobDetail implements Serializable {
@@ -49,8 +49,8 @@ public class JobDetail implements Serializable {
         }
     }
 
-    public JobDetail(final String jobId, final String userId, final Operation operation, final JobStatus jobStatus, final String description) {
-        final String opChainString = null != operation ? operation.toString() : "";
+    public JobDetail(final String jobId, final String userId, final OperationChain opChain, final JobStatus jobStatus, final String description) {
+        final String opChainString = null != opChain ? opChain.toString() : "";
         this.jobId = jobId;
         this.userId = userId;
         this.startTime = System.currentTimeMillis();

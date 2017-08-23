@@ -66,7 +66,7 @@ public class DataLoader implements ServletContextListener {
         final Graph graph = GraphFactory.createGraphFactory().getGraph();
         try {
             graph.execute(populateChain, new User());
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             LOGGER.info("Unable to load data: " + e.getMessage());
             throw new RuntimeException("Unable to load data", e);
         }
@@ -89,7 +89,7 @@ public class DataLoader implements ServletContextListener {
         public Iterator<String> iterator() {
             try {
                 return FileUtils.lineIterator(new File(filePath), "UTF-8");
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 LOGGER.info("Unable to load data: " + e.getMessage());
                 throw new RuntimeException("Unable to load data", e);
             }

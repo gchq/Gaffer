@@ -23,11 +23,10 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 
 public class GetGafferResultCacheExportTest extends OperationTest<GetGafferResultCacheExport> {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -37,8 +36,8 @@ public class GetGafferResultCacheExportTest extends OperationTest<GetGafferResul
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(op, true);
-        final GetGafferResultCacheExport deserialisedOp = serialiser.deserialise(json, GetGafferResultCacheExport.class);
+        byte[] json = JSONSerialiser.serialise(op, true);
+        final GetGafferResultCacheExport deserialisedOp = JSONSerialiser.deserialise(json, GetGafferResultCacheExport.class);
 
         // Then
         assertEquals(key, deserialisedOp.getKey());
@@ -58,6 +57,24 @@ public class GetGafferResultCacheExportTest extends OperationTest<GetGafferResul
     }
 
     @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final String key = "key";
+        final String jobId = "jobId";
+        final GetGafferResultCacheExport getGafferResultCacheExport = new GetGafferResultCacheExport.Builder()
+                .key(key)
+                .jobId(jobId)
+                .build();
+
+        // When
+        GetGafferResultCacheExport clone = getGafferResultCacheExport.shallowClone();
+
+        // Then
+        assertNotSame(getGafferResultCacheExport, clone);
+        assertEquals(key, clone.getKey());
+        assertEquals(jobId, clone.getJobId());
+    }
+
     protected GetGafferResultCacheExport getTestObject() {
         return new GetGafferResultCacheExport();
     }

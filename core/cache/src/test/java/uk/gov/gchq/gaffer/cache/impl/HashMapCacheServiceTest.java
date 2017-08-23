@@ -91,7 +91,7 @@ public class HashMapCacheServiceTest {
         try {
             service.putSafeInCache(CACHE_NAME, "test", 2);
             Assert.fail("Expected an exception");
-        } catch (CacheOperationException e) {
+        } catch (final CacheOperationException e) {
             assertEquals((Integer) 1, service.getFromCache(CACHE_NAME, "test"));
         }
 

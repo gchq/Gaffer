@@ -27,6 +27,8 @@ import java.util.regex.Pattern;
 public abstract class GraphLibrary {
     protected static final Pattern ID_ALLOWED_CHARACTERS = Pattern.compile("[a-zA-Z0-9_]*");
 
+    public abstract void initialise(final String path);
+
     public void add(final String graphId, final Schema schema, final StoreProperties properties) throws OverwritingException {
         validateId(graphId);
 

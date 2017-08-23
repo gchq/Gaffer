@@ -1124,6 +1124,124 @@ public class SchemaTest {
         assertFalse(result);
     }
 
+    @Test
+    public void shouldThrowExceptionWhenEdgeGroupIsInvalid() {
+        // Given
+        final SchemaEdgeDefinition edgeDef = new SchemaEdgeDefinition();
+        final String invalidGroupString = "invalidGroup-@?";
+
+        // When / Then
+        try {
+            new Schema.Builder()
+                    .edge(invalidGroupString, edgeDef)
+                    .build();
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Group is invalid"));
+        }
+    }
+
+    @Test
+    public void shouldBuildSchemaWhenEdgeGroupIsValid() {
+        // Given
+        final SchemaEdgeDefinition edgeDef = new SchemaEdgeDefinition();
+        final String validGroupString = "val1dGr0up||";
+
+        // When
+        new Schema.Builder()
+                .edge(validGroupString, edgeDef)
+                .build();
+
+        // Then - no exceptions
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenEntityGroupIsInvalid() {
+        // Given
+        final SchemaEntityDefinition entityDef = new SchemaEntityDefinition();
+        final String invalidGroupString = "invalidGroup-@?";
+
+        // When / Then
+        try {
+            new Schema.Builder()
+                    .entity(invalidGroupString, entityDef)
+                    .build();
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Group is invalid"));
+        }
+    }
+
+    @Test
+    public void shouldBuildSchemaWhenEntityGroupIsValid() {
+        // Given
+        final SchemaEntityDefinition entityDef = new SchemaEntityDefinition();
+        final String validGroupString = "val1dGr0up||";
+
+        // When
+        new Schema.Builder()
+                .entity(validGroupString, entityDef)
+                .build();
+
+        // Then - no exceptions
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenEdgePropertyIsInvalid() {
+        // When / Then
+        try {
+            new Schema.Builder()
+                    .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                            .property("invalidPropName{@3#", "str")
+                            .build());
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Property is invalid"));
+        }
+    }
+
+    @Test
+    public void shouldBuildSchemaWhenEdgePropertyisValid() {
+        // Given
+        final SchemaEdgeDefinition edgeDef = new SchemaEdgeDefinition.Builder()
+                .property("val1dPr0perty||", "str")
+                .build();
+
+        // When
+        new Schema.Builder()
+                .edge(TestGroups.EDGE, edgeDef);
+
+        // Then - no exceptions
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenEntityPropertyIsInvalid() {
+        // When / Then
+        try {
+            new Schema.Builder()
+                    .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                            .property("invalidPropName{@3#", "str")
+                            .build());
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Property is invalid"));
+        }
+    }
+
+    @Test
+    public void shouldBuildSchemaWhenEntityPropertyIsValid() {
+        // Given
+        final SchemaEntityDefinition entityDef = new SchemaEntityDefinition.Builder()
+                .property("val1dPr0perty||", "str")
+                .build();
+
+        // When
+        new Schema.Builder()
+                .entity(TestGroups.ENTITY, entityDef);
+
+        // Then - no exceptions
+    }
+
 
     private class SerialisationImpl implements ToBytesSerialiser<Object> {
         private static final long serialVersionUID = 5055359689222968046L;
@@ -1150,6 +1268,11 @@ public class SchemaTest {
 
         @Override
         public boolean preservesObjectOrdering() {
+            return true;
+        }
+
+        @Override
+        public boolean isConsistent() {
             return true;
         }
     }

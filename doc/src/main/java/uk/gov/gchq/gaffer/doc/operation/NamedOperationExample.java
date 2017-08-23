@@ -38,7 +38,7 @@ public class NamedOperationExample extends OperationExample {
     }
 
     public NamedOperationExample() {
-        super(NamedOperation.class);
+        super(NamedOperation.class, "See [Named Operations](https://github.com/gchq/Gaffer/wiki/Dev-Guide#namedoperations) for information on configuring named operations for your Gaffer graph.");
     }
 
     @Override
@@ -46,7 +46,7 @@ public class NamedOperationExample extends OperationExample {
         // Clear the cache
         try {
             CacheServiceLoader.getService().clearCache("NamedOperation");
-        } catch (CacheOperationException e) {
+        } catch (final CacheOperationException e) {
             throw new RuntimeException(e);
         }
 

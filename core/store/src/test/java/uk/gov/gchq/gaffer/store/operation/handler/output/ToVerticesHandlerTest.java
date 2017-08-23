@@ -27,11 +27,13 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToVertices.EdgeVertices;
 import uk.gov.gchq.gaffer.store.Context;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -56,6 +58,30 @@ public class ToVerticesHandlerTest {
 
         //Then
         assertThat(results, containsInAnyOrder(vertex1, vertex2));
+    }
+
+    @Test
+    public void shouldBeAbleToIterableOverTheResultsMultipleTimes() throws OperationException {
+        // Given
+        final Object vertex1 = "vertex1";
+        final Object vertex2 = "vertex2";
+
+        final List elementIds = Arrays.asList(new EntitySeed(vertex1), new EntitySeed(vertex2));
+
+        final ToVerticesHandler handler = new ToVerticesHandler();
+        final ToVertices operation = mock(ToVertices.class);
+
+        given(operation.getInput()).willReturn(elementIds);
+        given(operation.getEdgeVertices()).willReturn(EdgeVertices.NONE);
+
+        //When
+        final Iterable<Object> results = handler.doOperation(operation, new Context(), null);
+
+        //Then
+        final Set<Object> set1 = Sets.newHashSet(results);
+        final Set<Object> set2 = Sets.newHashSet(results);
+        assertEquals(Sets.newHashSet(vertex1, vertex2), set1);
+        assertEquals(set1, set2);
     }
 
     @Test

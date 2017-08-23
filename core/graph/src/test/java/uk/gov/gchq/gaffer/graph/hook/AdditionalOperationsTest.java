@@ -46,12 +46,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 
 public class AdditionalOperationsTest extends JSONSerialisationTest<AdditionalOperations> {
-    private static final JSONSerialiser SERIALISER = new JSONSerialiser();
-
     @Test
     public void shouldReturnClonedOperations() throws IOException {
         //Given
-        final AdditionalOperations additionalOperations = SERIALISER.deserialise(StreamUtil.openStream(getClass(), "additionalOperations.json"), AdditionalOperations.class);
+        final AdditionalOperations additionalOperations = JSONSerialiser.deserialise(StreamUtil.openStream(getClass(), "additionalOperations.json"), AdditionalOperations.class);
 
         // When / Then
         assertClonedOperations(additionalOperations.getStart(), additionalOperations.getStart());
@@ -77,8 +75,8 @@ public class AdditionalOperationsTest extends JSONSerialisationTest<AdditionalOp
         before.put(ToMap.class.getName(), Arrays.asList(new AddElements(), new GetAllJobDetails()));
         original.setBefore(before);
 
-        final byte[] json = SERIALISER.serialise(original);
-        final AdditionalOperations cloned = SERIALISER.deserialise(json, AdditionalOperations.class);
+        final byte[] json = JSONSerialiser.serialise(original);
+        final AdditionalOperations cloned = JSONSerialiser.deserialise(json, AdditionalOperations.class);
 
         // Then
         assertClonedOperations(original.getStart(), cloned.getStart());
@@ -88,7 +86,7 @@ public class AdditionalOperationsTest extends JSONSerialisationTest<AdditionalOp
     }
 
     public void assertClonedOperations(final Map<String, List<Operation>> after1, final Map<String, List<Operation>> after2) {
-        for (Map.Entry<String, List<Operation>> entry1 : after1.entrySet()) {
+        for (final Map.Entry<String, List<Operation>> entry1 : after1.entrySet()) {
             final List<Operation> ops1 = entry1.getValue();
             final List<Operation> ops2 = after2.get(entry1.getKey());
             assertClonedOperations(ops1, ops2);

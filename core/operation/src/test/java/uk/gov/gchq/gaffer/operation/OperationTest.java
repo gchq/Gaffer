@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.operation;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.Collections;
 import java.util.Set;
@@ -27,14 +26,15 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 
 public abstract class OperationTest<T extends Operation> extends JSONSerialisationTest<T> {
-    protected static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
-
     protected Set<String> getRequiredFields() {
         return Collections.emptySet();
     }
 
     @Test
     public abstract void builderShouldCreatePopulatedOperation();
+
+    @Test
+    public abstract void shouldShallowCloneOperation();
 
     @Test
     public void shouldValidateRequiredFields() throws Exception {

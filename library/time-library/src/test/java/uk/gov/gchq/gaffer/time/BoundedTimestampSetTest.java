@@ -37,7 +37,6 @@ public class BoundedTimestampSetTest extends JSONSerialisationTest<BoundedTimest
     @Test
     public void shouldSerialiseAndDeserialise() throws SerialisationException {
         // Given
-        final JSONSerialiser serialiser = new JSONSerialiser();
         final BoundedTimestampSet boundedTimestampSet = getTestObject();
         IntStream.range(0, 20)
                 .forEach(i -> {
@@ -51,8 +50,8 @@ public class BoundedTimestampSetTest extends JSONSerialisationTest<BoundedTimest
 
 
         // When
-        final byte[] json = serialiser.serialise(boundedTimestampSet, true);
-        final BoundedTimestampSet deserialisedObj = serialiser.deserialise(json, BoundedTimestampSet.class);
+        final byte[] json = JSONSerialiser.serialise(boundedTimestampSet, true);
+        final BoundedTimestampSet deserialisedObj = JSONSerialiser.deserialise(json, BoundedTimestampSet.class);
 
         // Then
         assertEquals(boundedTimestampSet, deserialisedObj);

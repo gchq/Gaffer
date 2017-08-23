@@ -50,4 +50,9 @@ public class HllSketchSerialiser implements ToBytesSerialiser<HllSketch> {
     public boolean preservesObjectOrdering() {
         return false;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return false;
+    }
 }

@@ -31,15 +31,36 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class FileGraphLibrary extends GraphLibrary {
-    private static final Pattern PATH_ALLOWED_CHARACTERS = Pattern.compile("[a-zA-Z0-9_/\\\\]*");
+    private static final Pattern PATH_ALLOWED_CHARACTERS = Pattern.compile("[a-zA-Z0-9_/\\\\\\-]*");
+    private static final String DEFAULT_PATH = "graphLibrary";
+    private String path;
 
-    private final String path;
+    public FileGraphLibrary() {
+        this(DEFAULT_PATH);
+    }
 
     public FileGraphLibrary(final String path) {
-        if (!PATH_ALLOWED_CHARACTERS.matcher(path).matches()) {
-            throw new IllegalArgumentException("path is invalid: " + path + " it must match the regex: " + PATH_ALLOWED_CHARACTERS);
+        setPath(path);
+    }
+
+    @Override
+    public void initialise(final String path) {
+        setPath(path);
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(final String path) {
+        if (null == path) {
+            this.path = DEFAULT_PATH;
+        } else {
+            if (!PATH_ALLOWED_CHARACTERS.matcher(path).matches()) {
+                throw new IllegalArgumentException("path is invalid: " + path + " it must match the regex: " + PATH_ALLOWED_CHARACTERS);
+            }
+            this.path = path;
         }
-        this.path = path;
     }
 
     @Override
@@ -54,7 +75,7 @@ public class FileGraphLibrary extends GraphLibrary {
                     return null;
                 }
                 ids = new Pair<>(split[0], split[1]);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new IllegalArgumentException("Could not read graphs file: " + getGraphsPath(graphId), e);
             }
         } else {
@@ -68,7 +89,7 @@ public class FileGraphLibrary extends GraphLibrary {
         String schemaAndPropsIdsString = new String(schemaAndPropsIds.getFirst() + "," + schemaAndPropsIds.getSecond());
         try {
             FileUtils.writeStringToFile(getGraphsPath(graphId).toFile(), schemaAndPropsIdsString);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new IllegalArgumentException("Could not write Graphs to path: " + getSchemaPath(graphId), e);
         }
     }
@@ -93,7 +114,7 @@ public class FileGraphLibrary extends GraphLibrary {
         if (properties != null) {
             try (FileOutputStream propertiesFileOutputStream = new FileOutputStream(getPropertiesPath(propertiesId).toFile())) {
                 properties.getProperties().store(propertiesFileOutputStream, null);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new IllegalArgumentException("Could not write properties to path: " + getSchemaPath(propertiesId), e);
             }
         } else {
@@ -107,7 +128,7 @@ public class FileGraphLibrary extends GraphLibrary {
         final Path path = getSchemaPath(graphId);
         try {
             return path.toFile().exists() ? Files.readAllBytes(path) : null;
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SchemaException("Unable to read schema bytes from file: " + getSchemaPath(graphId));
         }
     }

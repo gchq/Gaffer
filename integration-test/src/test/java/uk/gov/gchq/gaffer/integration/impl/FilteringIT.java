@@ -48,8 +48,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 public class FilteringIT extends AbstractStoreIT {
-    private static final JSONSerialiser SERIALISER = new JSONSerialiser();
-
     @Override
     @Before
     public void setup() throws Exception {
@@ -372,8 +370,8 @@ public class FilteringIT extends AbstractStoreIT {
     private Comparator<Element> getJsonSort() {
         return Comparator.comparing(a -> {
             try {
-                return new String(SERIALISER.serialise(a));
-            } catch (SerialisationException e) {
+                return new String(JSONSerialiser.serialise(a));
+            } catch (final SerialisationException e) {
                 throw new RuntimeException(e);
             }
         });

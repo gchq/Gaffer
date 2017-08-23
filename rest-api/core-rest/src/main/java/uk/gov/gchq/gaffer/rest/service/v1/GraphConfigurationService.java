@@ -74,6 +74,11 @@ public class GraphConfigurationService implements IGraphConfigurationService {
     }
 
     @Override
+    public String getDescription() {
+        return graphFactory.getGraph().getDescription();
+    }
+
+    @Override
     public Set<Class> getFilterFunctions() {
         return FILTER_FUNCTIONS;
     }

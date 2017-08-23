@@ -59,4 +59,9 @@ public class DoubleSerialiser extends ToBytesViaStringDeserialiser<Double> {
     public boolean preservesObjectOrdering() {
         return true;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

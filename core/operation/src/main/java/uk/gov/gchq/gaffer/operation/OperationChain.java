@@ -19,8 +19,10 @@ package uk.gov.gchq.gaffer.operation;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.exception.CloneFailedException;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.operation.io.Input;
@@ -29,14 +31,17 @@ import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
+ * <p>
  * An <code>OperationChain</code> holds a list of {@link uk.gov.gchq.gaffer.operation.Operation}s that are chained together -
  * ie. the output of one operation is passed to the input of the next. For the chaining to be successful the operations
  * must be ordered correctly so the O and I types are compatible. The safest way to ensure they will be
  * compatible is to use the OperationChain.Builder to construct the chain.
- * <p>
+ * </p>
  * A couple of special cases:
  * <ul>
  * <li>An operation with no output can come before any operation.</li>
@@ -48,6 +53,7 @@ import java.util.List;
  *              {@link uk.gov.gchq.gaffer.operation.Operation} in the chain.
  * @see uk.gov.gchq.gaffer.operation.OperationChain.Builder
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
 public class OperationChain<OUT> implements Operation, Output<OUT> {
     private List<Operation> operations;
 
@@ -73,11 +79,12 @@ public class OperationChain<OUT> implements Operation, Output<OUT> {
         this.operations = new ArrayList<>(operations);
 
         if (flatten) {
-            this.operations = flatten(this).getOperations();
+            this.operations = flatten();
         }
     }
 
     @JsonIgnore
+    @Override
     public TypeReference<OUT> getOutputTypeReference() {
         if (null != operations && !operations.isEmpty()) {
             final Operation lastOp = operations.get(operations.size() - 1);
@@ -103,8 +110,19 @@ public class OperationChain<OUT> implements Operation, Output<OUT> {
         if (null != operations) {
             this.operations = Lists.newArrayList(operations);
         } else {
-            this.operations = null;
+            this.operations = new ArrayList<>();
         }
+    }
+
+    public OperationChain<OUT> shallowClone() throws CloneFailedException {
+        if (null == operations) {
+            return new OperationChain<>();
+        }
+
+        final List<Operation> clonedOps = operations.stream()
+                .map(Operation::shallowClone)
+                .collect(Collectors.toList());
+        return new OperationChain<>(clonedOps);
     }
 
     @Override
@@ -123,21 +141,22 @@ public class OperationChain<OUT> implements Operation, Output<OUT> {
         }
     }
 
-    public static OperationChain<?> flatten(final OperationChain<?> operationChain) {
+    public List<Operation> flatten() {
         final List<Operation> tmp = new ArrayList<>(1);
 
-        for (final Operation operation: operationChain.getOperations()) {
+        for (final Operation operation : getOperations()) {
             if (operation instanceof OperationChain) {
-                tmp.addAll(flatten((OperationChain) operation).getOperations());
+                tmp.addAll(((OperationChain) operation).flatten());
             } else {
                 tmp.add(operation);
             }
         }
 
-        return new OperationChain<>(tmp);
+        return Collections.unmodifiableList(tmp);
     }
 
     /**
+     * <p>
      * A <code>Builder</code> is a type safe way of building an {@link uk.gov.gchq.gaffer.operation.OperationChain}.
      * The builder instance is updated after each method call so it is best to chain the method calls together.
      * Usage:<br>
@@ -151,7 +170,7 @@ public class OperationChain<OUT> implements Operation, Output<OUT> {
      * &nbsp;&nbsp;.build()<br>
      * &nbsp;)<br>
      * &nbsp;.build();
-     * <p>
+     * </p>
      * For a full example see the Example module.
      */
     public static class Builder {

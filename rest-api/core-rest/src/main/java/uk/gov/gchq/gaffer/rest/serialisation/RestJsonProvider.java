@@ -18,44 +18,22 @@ package uk.gov.gchq.gaffer.rest.serialisation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.rest.SystemProperty;
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 
 /**
- * A {@link javax.ws.rs.ext.ContextResolver} implementation to provide a default
- * {@link com.fasterxml.jackson.databind.ObjectMapper} for converting objects to
- * JSON.
+ * A {@link javax.ws.rs.ext.ContextResolver} implementation to provide the
+ * {@link ObjectMapper} from {@link JSONSerialiser}. The JSONSerialiser and
+ * ObjectMapper can be configured by System Properties, see {@link JSONSerialiser}
  */
 @Provider
 public class RestJsonProvider implements ContextResolver<ObjectMapper> {
-    public final ObjectMapper mapper;
-
     public RestJsonProvider() {
-        this.mapper = createMapper();
+        JSONSerialiser.update();
     }
 
     @Override
     public ObjectMapper getContext(final Class<?> aClass) {
-        return mapper;
+        return JSONSerialiser.getMapper();
     }
-
-    protected ObjectMapper createMapper() {
-        return createJsonSerialiser().getMapper();
-    }
-
-    public static JSONSerialiser createJsonSerialiser() {
-        final String jsonSerialiserClass = System.getProperty(SystemProperty.JSON_SERIALISER_CLASS,
-                SystemProperty.JSON_SERIALISER_CLASS_DEFAULT);
-
-        try {
-            return Class.forName(jsonSerialiserClass)
-                        .asSubclass(JSONSerialiser.class)
-                        .newInstance();
-        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new IllegalArgumentException("Unable to create JSON serialiser from class: " + jsonSerialiserClass, e);
-        }
-    }
-
-
 }

@@ -36,7 +36,7 @@ public class JcsCacheTest {
             cache.put("test", 1);
             cache.putSafe("test", 1);
             fail();
-        } catch (CacheOperationException e) {
+        } catch (final CacheOperationException e) {
             assertEquals("Entry for key test already exists", e.getMessage());
         }
     }
@@ -46,7 +46,7 @@ public class JcsCacheTest {
         try {
             cache.put(null, 2);
             fail("Expected an exception");
-        } catch (CacheOperationException e) {
+        } catch (final CacheOperationException e) {
             assertNotNull(e.getMessage());
         }
     }
@@ -56,7 +56,7 @@ public class JcsCacheTest {
         try {
             cache.put("test", null);
             fail("Expected an exception");
-        } catch (CacheOperationException e) {
+        } catch (final CacheOperationException e) {
             assertNotNull(e.getMessage());
         }
     }

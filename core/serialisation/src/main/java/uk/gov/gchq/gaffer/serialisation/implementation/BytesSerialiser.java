@@ -45,4 +45,9 @@ public class BytesSerialiser implements ToBytesSerialiser<byte[]> {
     public boolean preservesObjectOrdering() {
         return true;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

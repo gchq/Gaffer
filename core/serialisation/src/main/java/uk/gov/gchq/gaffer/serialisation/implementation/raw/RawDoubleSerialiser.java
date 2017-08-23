@@ -78,4 +78,9 @@ public class RawDoubleSerialiser implements ToBytesSerialiser<Double> {
     public boolean preservesObjectOrdering() {
         return true;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

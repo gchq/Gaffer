@@ -24,11 +24,10 @@ import uk.gov.gchq.gaffer.operation.impl.export.GetExports;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 
 public class GetExportsTest extends OperationTest<GetExports> {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -42,8 +41,8 @@ public class GetExportsTest extends OperationTest<GetExports> {
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(op, true);
-        final GetExports deserialisedOp = serialiser.deserialise(json, GetExports.class);
+        byte[] json = JSONSerialiser.serialise(op, true);
+        final GetExports deserialisedOp = JSONSerialiser.deserialise(json, GetExports.class);
 
         // Then
         assertEquals("key1", deserialisedOp.getGetExports().get(0).getKey());
@@ -69,6 +68,24 @@ public class GetExportsTest extends OperationTest<GetExports> {
     }
 
     @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final GetSetExport getSetExport = new GetSetExport.Builder()
+                .key("key1")
+                .build();
+
+        final GetExports getExports = new GetExports.Builder()
+                .exports(getSetExport)
+                .build();
+
+        // When
+        final GetExports clone = getExports.shallowClone();
+
+        // Then
+        assertNotSame(getExports, clone);
+        assertEquals(getSetExport, clone.getGetExports().iterator().next());
+    }
+
     protected GetExports getTestObject() {
         return new GetExports();
     }
