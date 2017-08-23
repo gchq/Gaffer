@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.hbasestore.operation.hdfs.handler.job.factory;
 
+import com.google.common.collect.Lists;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.client.Put;
@@ -27,6 +28,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.mapper.AddElementsFromHdfsMapper;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
@@ -36,6 +38,10 @@ import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AddElementsFromHdfs
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class HBaseAddElementsFromHdfsJobFactory implements AddElementsFromHdfsJobFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(HBaseAddElementsFromHdfsJobFactory.class);
@@ -50,18 +56,31 @@ public class HBaseAddElementsFromHdfsJobFactory implements AddElementsFromHdfsJo
      * @throws IOException for IO issues
      */
     @Override
-    public Job createJob(final AddElementsFromHdfs operation, final Store store) throws IOException {
-        final JobConf jobConf = createJobConf(operation, store);
+    public List<Job> createJobs(final AddElementsFromHdfs operation, final Store store) throws IOException {
+        final List<Job> jobs = new ArrayList<>();
+        Map<String, List<String>> mapperGeneratorsToInputPathsList = new HashMap<>();
 
-        final Job job = Job.getInstance(jobConf);
-        setupJob(job, operation, store);
-
-        // Apply Operation Specific Job Configuration
-        if (null != operation.getJobInitialiser()) {
-            operation.getJobInitialiser().initialiseJob(job, operation, store);
+        for (final Pair<String, String> pair : operation.getInputMapperPairs()) {
+            if (mapperGeneratorsToInputPathsList.keySet().contains(pair.getSecond())) {
+                mapperGeneratorsToInputPathsList.get(pair.getSecond()).add(pair.getFirst());
+            } else {
+                mapperGeneratorsToInputPathsList.put(pair.getSecond(), Lists.newArrayList(pair.getFirst()));
+            }
         }
 
-        return job;
+        for (final String mapperGeneratorClassName : mapperGeneratorsToInputPathsList.keySet()) {
+            final JobConf jobConf = createJobConf(operation, mapperGeneratorClassName, store);
+            final Job job = Job.getInstance(jobConf);
+            setupJob(job, operation, mapperGeneratorClassName, store);
+
+            // Apply Operation Specific Job Configuration
+            if (null != operation.getJobInitialiser()) {
+                operation.getJobInitialiser().initialiseJob(job, operation, store);
+            }
+            jobs.add(job);
+        }
+        return jobs;
+
     }
 
     @Override
@@ -69,13 +88,13 @@ public class HBaseAddElementsFromHdfsJobFactory implements AddElementsFromHdfsJo
         TableUtils.ensureTableExists(((HBaseStore) store));
     }
 
-    protected JobConf createJobConf(final AddElementsFromHdfs operation, final Store store) throws IOException {
+    protected JobConf createJobConf(final AddElementsFromHdfs operation, final String mapperGeneratorClassName, final Store store) throws IOException {
         final JobConf jobConf = new JobConf(((HBaseStore) store).getConfiguration());
         LOGGER.info("Setting up job conf");
         jobConf.set(SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
         LOGGER.info("Added {} {} to job conf", SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
-        jobConf.set(MAPPER_GENERATOR, operation.getMapperGeneratorClassName());
-        LOGGER.info("Added {} of {} to job conf", MAPPER_GENERATOR, operation.getMapperGeneratorClassName());
+        jobConf.set(MAPPER_GENERATOR, mapperGeneratorClassName);
+        LOGGER.info("Added {} of {} to job conf", MAPPER_GENERATOR, mapperGeneratorClassName);
         jobConf.set(VALIDATE, String.valueOf(operation.isValidate()));
         LOGGER.info("Added {} option of {} to job conf", VALIDATE, operation.isValidate());
         Integer numTasks = operation.getNumMapTasks();
@@ -92,9 +111,9 @@ public class HBaseAddElementsFromHdfsJobFactory implements AddElementsFromHdfsJo
         return jobConf;
     }
 
-    protected void setupJob(final Job job, final AddElementsFromHdfs operation, final Store store) throws IOException {
+    protected void setupJob(final Job job, final AddElementsFromHdfs operation, final String mapperGeneratorClassName, final Store store) throws IOException {
         job.setJarByClass(getClass());
-        job.setJobName(getJobName(operation.getMapperGeneratorClassName(), operation.getOutputPath()));
+        job.setJobName(getJobName(mapperGeneratorClassName, operation.getOutputPath()));
 
         setupMapper(job);
         setupReducer(job);

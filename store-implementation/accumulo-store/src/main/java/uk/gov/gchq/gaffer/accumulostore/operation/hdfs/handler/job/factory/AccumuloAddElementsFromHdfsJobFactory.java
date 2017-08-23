@@ -56,7 +56,7 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
      *
      * @param operation the add elements from hdfs operation
      * @param store     the store executing the operation
-     * @return the created job
+     * @return the created jobs
      * @throws IOException for IO issues
      */
     @Override
@@ -89,26 +89,31 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
         TableUtils.ensureTableExists(((AccumuloStore) store));
     }
 
-    protected JobConf createJobConf(final AddElementsFromHdfs operation, final String mapperGenerator, final Store store) throws IOException {
+    protected JobConf createJobConf(final AddElementsFromHdfs operation, final String mapperGeneratorClassName, final Store store) throws IOException {
         final JobConf jobConf = new JobConf(new Configuration());
 
         LOGGER.info("Setting up job conf");
         jobConf.set(SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
         LOGGER.info("Added {} {} to job conf", SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
-        jobConf.set(MAPPER_GENERATOR, mapperGenerator);
-        LOGGER.info("Added {} of {} to job conf", MAPPER_GENERATOR, mapperGenerator);
+        jobConf.set(MAPPER_GENERATOR, mapperGeneratorClassName);
+        LOGGER.info("Added {} of {} to job conf", MAPPER_GENERATOR, mapperGeneratorClassName);
         jobConf.set(VALIDATE, String.valueOf(operation.isValidate()));
         LOGGER.info("Added {} option of {} to job conf", VALIDATE, operation.isValidate());
+
         Integer numTasks = operation.getNumMapTasks();
+
         if (null != numTasks) {
             jobConf.setNumMapTasks(numTasks);
             LOGGER.info("Set number of map tasks to {} on job conf", numTasks);
         }
+
         numTasks = operation.getNumReduceTasks();
+
         if (null != numTasks) {
             jobConf.setNumReduceTasks(numTasks);
             LOGGER.info("Set number of reduce tasks to {} on job conf", numTasks);
         }
+
         jobConf.set(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
                 ((AccumuloStore) store).getKeyPackage().getKeyConverter().getClass().getName());
 

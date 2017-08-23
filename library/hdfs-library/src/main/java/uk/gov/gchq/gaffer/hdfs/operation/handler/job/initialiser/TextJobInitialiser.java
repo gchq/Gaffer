@@ -29,6 +29,8 @@ import java.io.IOException;
  */
 public class TextJobInitialiser implements JobInitialiser {
 
+    private static final String MAPPER_GENERATOR = "mapperGenerator";
+
     public TextJobInitialiser() {
     }
 
@@ -42,12 +44,8 @@ public class TextJobInitialiser implements JobInitialiser {
         job.setInputFormatClass(TextInputFormat.class);
 
         for (final Pair<String, String> pair : operation.getInputMapperPairs()) {
-            try {
-                if (pair.getSecond().contains(job.getMapperClass().getSimpleName())) {
-                    TextInputFormat.addInputPath(job, new Path(pair.getFirst()));
-                }
-            } catch (ClassNotFoundException e) {
-                throw new IOException(e);
+            if (pair.getSecond().contains(job.getConfiguration().get(MAPPER_GENERATOR))) {
+                TextInputFormat.addInputPath(job, new Path(pair.getFirst()));
             }
         }
     }

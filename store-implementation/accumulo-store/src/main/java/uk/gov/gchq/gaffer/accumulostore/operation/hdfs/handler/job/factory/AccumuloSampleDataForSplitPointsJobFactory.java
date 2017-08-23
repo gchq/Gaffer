@@ -64,7 +64,6 @@ public class AccumuloSampleDataForSplitPointsJobFactory implements SampleDataFor
         final List<Job> jobs = new ArrayList<>();
         Map<String, List<String>> mapperGeneratorsToInputPathsList = new HashMap<>();
         for (final Pair<String, String> pair : operation.getInputMapperPairs()) {
-            System.out.println(pair);
             if (mapperGeneratorsToInputPathsList.keySet().contains(pair.getSecond())) {
                 mapperGeneratorsToInputPathsList.get(pair.getSecond()).add(pair.getFirst());
             } else {
@@ -83,7 +82,6 @@ public class AccumuloSampleDataForSplitPointsJobFactory implements SampleDataFor
             jobs.add(job);
         }
         return jobs;
-
     }
 
     @Override
@@ -120,15 +118,26 @@ public class AccumuloSampleDataForSplitPointsJobFactory implements SampleDataFor
 
     protected JobConf createJobConf(final SampleDataForSplitPoints operation, final String mapperGeneratorClassName, final Store store) throws IOException {
         final JobConf jobConf = new JobConf(new Configuration());
+
+        LOGGER.info("Setting up job conf");
         jobConf.set(SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
+        LOGGER.info("Added {} {} to job conf", SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
         jobConf.set(MAPPER_GENERATOR, mapperGeneratorClassName);
+        LOGGER.info("Added {} of {} to job conf", MAPPER_GENERATOR, mapperGeneratorClassName);
         jobConf.set(VALIDATE, String.valueOf(operation.isValidate()));
+        LOGGER.info("Added {} option of {} to job conf", VALIDATE, operation.isValidate());
         jobConf.set(PROPORTION_TO_SAMPLE, String.valueOf(operation.getProportionToSample()));
+        LOGGER.info("Added {} option of {} to job conf", PROPORTION_TO_SAMPLE, String.valueOf(operation.getProportionToSample()));
+
         final Integer numTasks = operation.getNumMapTasks();
+
         if (null != numTasks) {
             jobConf.setNumMapTasks(numTasks);
+            LOGGER.info("Set number of map tasks to {} on job conf", numTasks);
         }
+
         jobConf.setNumReduceTasks(1);
+        LOGGER.info("Set number of reduce tasks to 1 on job conf");
 
         jobConf.set(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
                 ((AccumuloStore) store).getKeyPackage().getKeyConverter().getClass().getName());
@@ -136,7 +145,7 @@ public class AccumuloSampleDataForSplitPointsJobFactory implements SampleDataFor
         return jobConf;
     }
 
-    protected void setupJob(final Job job, final SampleDataForSplitPoints operation, String mapperGeneratorClassName, final Store store) throws IOException {
+    protected void setupJob(final Job job, final SampleDataForSplitPoints operation, final String mapperGeneratorClassName, final Store store) throws IOException {
         job.setJarByClass(getClass());
         job.setJobName(getJobName(mapperGeneratorClassName, new Path(operation.getOutputPath())));
 
