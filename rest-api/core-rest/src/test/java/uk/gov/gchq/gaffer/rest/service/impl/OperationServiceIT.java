@@ -59,7 +59,7 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
         client.addElements(DEFAULT_ELEMENTS);
 
         // When
-        final Response response = client.executeOperationChainChunked(new OperationChain.Builder()
+        final Response response = client.executeOperationChunked(new OperationChain.Builder()
                 .first(new GetAllElements())
                 .then(new CountGroups())
                 .build());
@@ -142,11 +142,9 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
         client.addElements(DEFAULT_ELEMENTS);
 
         // When
-        final Response response = client.executeOperationChain(new OperationChain.Builder()
-                .first(new AddElements.Builder()
+        final Response response = client.executeOperation(new AddElements.Builder()
                         .input(new Entity("wrong_group", "object"))
-                        .build())
-                .build());
+                        .build());
 
         assertEquals(500, response.getStatus());
     }
@@ -168,7 +166,7 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
     private <T> List<T> readChunkedResults(final Response response, final GenericType<ChunkedInput<T>> genericType) {
         try {
             // Sleep for a short amount of time to ensure that all results are collected
-            Thread.sleep(1000);
+            Thread.sleep(2000);
         } catch (final InterruptedException e) {
             fail("Issue while waiting for chunked response.");
         }

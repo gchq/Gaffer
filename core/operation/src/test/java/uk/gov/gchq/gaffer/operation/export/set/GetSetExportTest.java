@@ -87,7 +87,7 @@ public class GetSetExportTest extends OperationTest<GetSetExport> {
         assertNotSame(getSetExport, clone);
         assertEquals(key, clone.getKey());
         assertEquals(jobId, clone.getJobId());
-        assertEquals(start, clone.getStart());
+        assertEquals(start, (int) clone.getStart());
         assertEquals(end, (int) clone.getEnd());
     }
 

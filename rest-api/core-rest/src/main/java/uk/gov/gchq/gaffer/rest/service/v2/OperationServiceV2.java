@@ -68,15 +68,16 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
     @Override
     public Response execute(final Operation operation) {
-        return _executeRest(operation);
+        return Response.ok(_execute(operation))
+                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                       .build();
     }
 
     @Override
     public ChunkedOutput<String> executeChunked(final Operation operation) {
-        if (operation instanceof OperationChain) {
-            return executeChunkedChain((OperationChain) operation);
-        }
-        return executeChunked(new OperationChain(operation));
+        return (operation instanceof OperationChain)
+                ? executeChunkedChain((OperationChain) operation)
+                : executeChunkedChain(new OperationChain(operation));
     }
 
     @SuppressFBWarnings
@@ -122,7 +123,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             throw new BadRequestException("Class name does not match message body.");
         }
 
-        return _executeRest(operation);
+        return _execute(operation);
     }
 
     @Override
@@ -171,28 +172,17 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         // no action by default
     }
 
-    private Response _executeRest(final Operation operation) {
-        if (operation instanceof OperationChain) {
-            return _executeRest((OperationChain<?>) operation);
-        }
-        return _executeRest(new OperationChain(operation));
-    }
-
-    private Response _executeRest(final OperationChain opChain) {
-        return Response.ok(_execute(opChain))
-                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                       .build();
-    }
-
-    protected <O> O _execute(final Operation operation) {
-        if (operation instanceof OperationChain) {
-            return _execute((OperationChain<O>) operation);
-        }
-        return _execute(new OperationChain<>(operation));
-    }
-
     @SuppressWarnings("ThrowFromFinallyBlock")
-    protected <O> O _execute(final OperationChain<O> opChain) {
+    protected <O> O _execute(final Operation operation) {
+
+        OperationChain<O> opChain;
+
+        if (!(operation instanceof OperationChain)) {
+            opChain = new OperationChain<>(operation);
+        } else {
+            opChain = (OperationChain<O>) operation;
+        }
+
         final User user = userFactory.createUser();
         preOperationHook(opChain, user);
 
@@ -200,13 +190,13 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         try {
             result = graphFactory.getGraph().execute(opChain, user);
         } catch (final OperationException e) {
-            CloseableUtil.close(opChain);
+            CloseableUtil.close(operation);
             throw new RuntimeException("Error executing opChain", e);
         } finally {
             try {
                 postOperationHook(opChain, user);
             } catch (final Exception e) {
-                CloseableUtil.close(opChain);
+                CloseableUtil.close(operation);
                 throw e;
             }
         }
@@ -290,7 +280,6 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             try {
                 this.exampleJson = OperationServiceV2.this.getExampleJson(opClass);
             } catch (final ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-
                 throw new GafferRuntimeException("Could not get operation details for class: " + name, e, Status.BAD_REQUEST);
             }
         }

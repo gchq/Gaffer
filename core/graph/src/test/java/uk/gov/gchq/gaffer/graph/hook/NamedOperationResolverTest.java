@@ -124,7 +124,6 @@ public class NamedOperationResolverTest {
         verify(op2, never()).setInput((Iterable) input);
     }
 
-
     @Test
     public void shouldResolveNamedOperationWithParameter() throws OperationException, CacheOperationFailedException {
         // Given
@@ -149,7 +148,8 @@ public class NamedOperationResolverTest {
         final NamedOperationDetail extendedNamedOperation = new NamedOperationDetail.Builder()
                 .operationName(opName)
                 .description("standard operation")
-                .operationChain("{ \"operations\": [ { \"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\" }, { \"class\":\"uk.gov.gchq.gaffer.operation.impl.Limit\", \"resultLimit\": \"${param1}\" } ] }")
+                .operationChain("{ \"class\" : \"uk.gov.gchq.gaffer.operation.OperationChain\"," +
+                        "\"operations\": [ { \"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\" }, { \"class\":\"uk.gov.gchq.gaffer.operation.impl.Limit\", \"resultLimit\": \"${param1}\" } ] }")
                 .parameters(paramDetailMap)
                 .build();
 
