@@ -128,6 +128,10 @@ public abstract class GraphLibrary {
         }
     }
 
+    public void checkExisting(final String graphId, final Schema schema, final StoreProperties properties) {
+        checkExisting(graphId, (schema == null) ? null : schema.toCompactJson(), properties);
+    }
+
     private void checkExisting(final String graphId, final byte[] schema, final StoreProperties properties) {
         final Pair<Schema, StoreProperties> existingPair = get(graphId);
         if (null != existingPair) {

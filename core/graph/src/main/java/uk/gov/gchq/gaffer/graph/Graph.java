@@ -663,26 +663,20 @@ public final class Graph {
                 config.setGraphId(store.getGraphId());
             }
 
-            if (null != config.getGraphId()) {
-                Pair<Schema, StoreProperties> parentGraph = config.getLibrary().get(config.getGraphId());
-
-                if (null != parentGraph) {
-                    if (null == parentGraph.getSecond()) {
-                        throw new IllegalArgumentException("GraphId " + config.getGraphId() + " found in GraphLibrary, but no store properties are associated with it.");
-                    }
-                    schema = parentGraph.getFirst();
-                    properties = parentGraph.getSecond();
-
-                    LOGGER.debug("Graph ID " + config.getGraphId() + " found in graph library. Ignoring any other additional schema/properties");
-                    parentSchemaIds = null;
-                    schemaBytesList.clear();
-                    parentStorePropertiesId = null;
-                    store = null;
-                }
+            if (config.getLibrary() != null && config.getLibrary().exists(config.getGraphId())) {
+                //Set Props & Schema if null.
+                final Pair<Schema, StoreProperties> pair = config.getLibrary().get(config.getGraphId());
+                properties = (properties == null) ? pair.getSecond() : properties;
+                schema = (schema == null) ? pair.getFirst() : schema;
             }
 
             updateSchema(config);
             updateStore(config);
+
+            if (null != config.getGraphId()) {
+                config.getLibrary().checkExisting(config.getGraphId(), schema, properties);
+            }
+
             updateView(config);
 
             if (null == config.getGraphId()) {
