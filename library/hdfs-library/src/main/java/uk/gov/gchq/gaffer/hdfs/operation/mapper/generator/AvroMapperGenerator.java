@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.function.Function;
 
 /**
- * An <code>AvroMapperGenerator</code> is an {@link MapperGenerator} that
+ * An <code>AvroMapperGenerator</code> is a {@link MapperGenerator} that
  * can handle Avro input data and convert it into an {@link Iterable} of {@link Element}s.
  */
 public class AvroMapperGenerator<OBJ> implements MapperGenerator<AvroKey<OBJ>, NullWritable> {

@@ -51,7 +51,9 @@ public class AccumuloSampleDataForSplitPointsJobFactory implements SampleDataFor
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloSampleDataForSplitPointsJobFactory.class);
 
     /**
-     * Creates a job with the store specific job initialisation and then applies the operation specific
+     * Creates a  list of jobs with the store specThe list is created using
+     * each Pair of InputMappers and creates a single Job for each MapperGenerator with all the inputs for a
+     * matching MapperGenerator in the same Job.ific job initialisation and then applies the operation specific
      * {@link uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser}.
      *
      * @param operation the add elements from hdfs operation

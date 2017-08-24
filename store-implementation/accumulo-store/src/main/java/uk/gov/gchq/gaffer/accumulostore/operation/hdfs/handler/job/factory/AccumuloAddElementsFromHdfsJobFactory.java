@@ -51,8 +51,10 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloAddElementsFromHdfsJobFactory.class);
 
     /**
-     * Creates a job with the store specific job initialisation and then applies the operation specific
-     * {@link uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser}.
+     * Creates a list of jobs with the store specific job initialisation and then applies the operation specific
+     * {@link uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser}.  The list is created using
+     * each Pair of InputMappers and creates a single Job for each MapperGenerator with all the inputs for a
+     * matching MapperGenerator in the same Job.
      *
      * @param operation the add elements from hdfs operation
      * @param store     the store executing the operation
