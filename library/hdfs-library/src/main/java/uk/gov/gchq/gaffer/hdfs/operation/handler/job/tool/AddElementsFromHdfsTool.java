@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.hdfs.operation.handler.job.tool;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -35,6 +36,7 @@ public class AddElementsFromHdfsTool extends Configured implements Tool {
     private final AddElementsFromHdfs operation;
     private final Store store;
     private final AddElementsFromHdfsJobFactory jobFactory;
+    private final Configuration config = new Configuration();
 
     public AddElementsFromHdfsTool(final AddElementsFromHdfsJobFactory jobFactory, final AddElementsFromHdfs operation, final Store store) {
         this.operation = operation;
@@ -58,9 +60,17 @@ public class AddElementsFromHdfsTool extends Configured implements Tool {
         return SUCCESS_RESPONSE;
     }
 
+    public Configuration getConfig() {
+        return config;
+    }
+
+    public void preComputeCheck(final AddElementsFromHdfs operation) throws IOException {
+        checkHdfsDirectories(operation);
+    }
+
     private void checkHdfsDirectories(final AddElementsFromHdfs operation) throws IOException {
         LOGGER.info("Checking that the correct HDFS directories exist");
-        final FileSystem fs = FileSystem.get(getConf());
+        final FileSystem fs = FileSystem.get(getConfig());
 
         final Path outputPath = new Path(operation.getOutputPath());
         LOGGER.info("Ensuring output directory {} doesn't exist", outputPath);

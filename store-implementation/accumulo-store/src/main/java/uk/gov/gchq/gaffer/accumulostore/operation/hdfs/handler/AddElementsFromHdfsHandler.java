@@ -59,6 +59,8 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
             throws OperationException {
         validateOperation(operation);
 
+        final AddElementsFromHdfsTool tool = new AddElementsFromHdfsTool(new AccumuloAddElementsFromHdfsJobFactory(), operation, store);
+
         if (null == operation.getSplitsFilePath()) {
             if (null == operation.getWorkingPath()) {
                 throw new IllegalArgumentException("splitsFilePath is required");
@@ -66,6 +68,12 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
             final String splitsFilePath = getPathWithSlashSuffix(operation.getWorkingPath()) + context.getJobId() + "/splits";
             LOGGER.info("Using working directory for splits files: " + splitsFilePath);
             operation.setSplitsFilePath(splitsFilePath);
+        }
+
+        try {
+            tool.preComputeCheck(operation);
+        } catch (IOException e) {
+            throw new OperationException("Operation failed due to filesystem error: " + e.getMessage());
         }
 
         if (!operation.isUseProvidedSplits() && needsSplitting(store)) {
@@ -190,7 +198,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         final int response;
         try {
             LOGGER.info("Running FetchElementsFromHdfsTool job");
-            response = ToolRunner.run(fetchTool, new String[0]);
+            response = ToolRunner.run(fetchTool.getConfig(), fetchTool, new String[0]);
             LOGGER.info("Finished running FetchElementsFromHdfsTool job");
         } catch (final Exception e) {
             LOGGER.error("Failed to fetch elements from HDFS: {}", e.getMessage());
