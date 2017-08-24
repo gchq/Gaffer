@@ -133,6 +133,20 @@ public class AddElementsFromHdfsIT {
     }
 
     @Test
+    public void shouldAddElementsWhenOutputDirectoryDoesNotExist() throws Exception {
+        final FileSystem fs = FileSystem.getLocal(createLocalConf());
+        if (fs.exists(new Path(outputDir))) {
+            fs.delete(new Path(outputDir));
+        }
+
+        try {
+            addElementsFromHdfs(ByteEntityKeyPackage.class);
+        } catch (final Exception e) {
+            fail("Error occured: " + e.getMessage());
+        }
+    }
+
+    @Test
     public void shouldThrowExceptionWhenAddElementsFromHdfsWhenFailureDirectoryContainsFiles() throws Exception {
         final FileSystem fs = FileSystem.getLocal(createLocalConf());
         fs.mkdirs(new Path(failureDir));
