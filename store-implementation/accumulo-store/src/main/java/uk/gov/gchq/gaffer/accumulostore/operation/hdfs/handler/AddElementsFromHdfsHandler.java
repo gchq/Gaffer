@@ -59,8 +59,6 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
             throws OperationException {
         validateOperation(operation);
 
-        final AddElementsFromHdfsTool tool = new AddElementsFromHdfsTool(new AccumuloAddElementsFromHdfsJobFactory(), operation, store);
-
         if (null == operation.getSplitsFilePath()) {
             if (null == operation.getWorkingPath()) {
                 throw new IllegalArgumentException("splitsFilePath is required");
@@ -71,7 +69,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         }
 
         try {
-            tool.preComputeCheck(operation);
+            checkHdfsDirectories(operation, store);
         } catch (IOException e) {
             throw new OperationException("Operation failed due to filesystem error: " + e.getMessage());
         }
@@ -228,6 +226,24 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         if (ImportElementsToAccumuloTool.SUCCESS_RESPONSE != response) {
             LOGGER.error("Failed to import elements into Accumulo. Response code was {}", response);
             throw new OperationException("Failed to import elements into Accumulo. Response code was: " + response);
+        }
+    }
+
+    private void checkHdfsDirectories(final AddElementsFromHdfs operation, final AccumuloStore store) throws IOException {
+        final AddElementsFromHdfsTool tool = new AddElementsFromHdfsTool(new AccumuloAddElementsFromHdfsJobFactory(), operation, store);
+
+        LOGGER.info("Checking that the correct HDFS directories exist");
+        final FileSystem fs = FileSystem.get(tool.getConfig());
+
+        final Path outputPath = new Path(operation.getOutputPath());
+        LOGGER.info("Ensuring output directory {} doesn't exist", outputPath);
+        if (fs.exists(outputPath)) {
+            if (fs.listFiles(outputPath, true).hasNext()) {
+                LOGGER.error("Output directory exists and is not empty: {}", outputPath);
+                throw new IllegalArgumentException("Output directory exists and is not empty: " + outputPath);
+            }
+            LOGGER.info("Output directory exists and is empty so deleting: {}", outputPath);
+            fs.delete(outputPath, true);
         }
     }
 }

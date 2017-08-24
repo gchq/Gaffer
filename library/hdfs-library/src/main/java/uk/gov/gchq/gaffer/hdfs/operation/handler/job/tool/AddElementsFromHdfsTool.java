@@ -17,8 +17,6 @@ package uk.gov.gchq.gaffer.hdfs.operation.handler.job.tool;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.Tool;
 import org.slf4j.Logger;
@@ -27,7 +25,6 @@ import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AddElementsFromHdfsJobFactory;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Store;
-import java.io.IOException;
 
 public class AddElementsFromHdfsTool extends Configured implements Tool {
     public static final int SUCCESS_RESPONSE = 1;
@@ -46,7 +43,6 @@ public class AddElementsFromHdfsTool extends Configured implements Tool {
 
     @Override
     public int run(final String[] strings) throws Exception {
-        checkHdfsDirectories(operation);
         jobFactory.prepareStore(store);
         LOGGER.info("Adding elements from HDFS");
         final Job job = jobFactory.createJob(operation, store);
@@ -62,25 +58,5 @@ public class AddElementsFromHdfsTool extends Configured implements Tool {
 
     public Configuration getConfig() {
         return config;
-    }
-
-    public void preComputeCheck(final AddElementsFromHdfs operation) throws IOException {
-        checkHdfsDirectories(operation);
-    }
-
-    private void checkHdfsDirectories(final AddElementsFromHdfs operation) throws IOException {
-        LOGGER.info("Checking that the correct HDFS directories exist");
-        final FileSystem fs = FileSystem.get(getConfig());
-
-        final Path outputPath = new Path(operation.getOutputPath());
-        LOGGER.info("Ensuring output directory {} doesn't exist", outputPath);
-        if (fs.exists(outputPath)) {
-            if (fs.listFiles(outputPath, true).hasNext()) {
-                LOGGER.error("Output directory exists and is not empty: {}", outputPath);
-                throw new IllegalArgumentException("Output directory exists and is not empty: " + outputPath);
-            }
-            LOGGER.info("Output directory exists and is empty so deleting: {}", outputPath);
-            fs.delete(outputPath, true);
-        }
     }
 }
