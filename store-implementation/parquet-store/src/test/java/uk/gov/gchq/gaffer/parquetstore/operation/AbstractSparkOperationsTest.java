@@ -34,6 +34,7 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
+import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.spark.SparkConstants;
 import uk.gov.gchq.gaffer.spark.SparkUser;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
@@ -51,21 +52,9 @@ public abstract class AbstractSparkOperationsTest {
 
     abstract void checkGetDataFrameOfElements(Dataset<Row> data);
 
-    static SparkSession spark = SparkSession.builder()
-            .appName("Parquet Gaffer Store tests")
-            .master(getParquetStoreProperties().getSparkMaster())
-            .config(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true")
-            .config(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
-            .config(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
-            .getOrCreate();
-    static JavaSparkContext javaSparkContext = JavaSparkContext.fromSparkContext(spark.sparkContext());
-    static User USER = new SparkUser(new User(), spark);
+    static JavaSparkContext javaSparkContext = JavaSparkContext.fromSparkContext(TestUtils.spark.sparkContext());
+    static User USER = new SparkUser(new User(), TestUtils.spark);
     Graph graph;
-
-    static ParquetStoreProperties getParquetStoreProperties() {
-        return (ParquetStoreProperties) StoreProperties.loadStoreProperties(
-                AbstractSparkOperationsTest.class.getResourceAsStream("/multiUseStore.properties"));
-    }
 
     static Graph getGraph(final Schema schema, final ParquetStoreProperties properties) throws StoreException {
         return new Graph.Builder()
@@ -100,7 +89,7 @@ public abstract class AbstractSparkOperationsTest {
     @Test
     public void getDataFrameOfElementsTest() throws OperationException {
         final Dataset<Row> data = graph.execute(new GetDataFrameOfElements.Builder()
-                .sparkSession(spark)
+                .sparkSession(TestUtils.spark)
                 .build(), USER);
         checkGetDataFrameOfElements(data);
     }
@@ -115,7 +104,7 @@ public abstract class AbstractSparkOperationsTest {
                 .build();
         try {
             graph.execute(new GetDataFrameOfElements.Builder()
-                    .sparkSession(spark)
+                    .sparkSession(TestUtils.spark)
                     .view(view).build(), USER);
             fail();
         } catch (final OperationException e) {

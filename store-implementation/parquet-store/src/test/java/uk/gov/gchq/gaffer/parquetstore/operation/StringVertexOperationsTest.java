@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
+import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -76,7 +77,7 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
     }
 
     protected static Schema getSchema() {
-        return Schema.fromJson(StreamUtil.openStreams(StringVertexOperationsTest.class, "schemaUsingStringVertexType"));
+        return TestUtils.gafferSchema("schemaUsingStringVertexType");
     }
 
     private static Iterable<? extends Element> getElements() {

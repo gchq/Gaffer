@@ -48,13 +48,8 @@ public class AggregateGafferRowsFunctionTest {
     @Before
     public void setUp() throws StoreException {
         Logger.getRootLogger().setLevel(Level.WARN);
-        final Schema schema = Schema.fromJson(
-                getClass().getResourceAsStream("/schemaUsingStringVertexType/dataSchema.json"),
-                getClass().getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
-                getClass().getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
-                getClass().getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
-        final SchemaOptimiser optimiser = new SchemaOptimiser(new SerialisationFactory(ParquetStoreConstants.SERIALISERS));
-        utils = new SchemaUtils(optimiser.optimise(schema, true));
+        final Schema schema = TestUtils.gafferSchema("schemaUsingStringVertexType");
+        utils = new SchemaUtils(schema);
     }
 
     @After

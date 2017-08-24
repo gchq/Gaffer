@@ -88,7 +88,7 @@ public class EdgeCasesTest {
 
     @Test
     public void addElementsToExistingFolderTest() throws StoreException, OperationException, IOException {
-        final Schema gafferSchema = Schema.fromJson(StreamUtil.openStreams(EdgeCasesTest.class, "schemaUsingStringVertexType"));
+        final Schema gafferSchema = TestUtils.gafferSchema("schemaUsingStringVertexType");
         final ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
         parquetStoreProperties.setSampleRate(1);
         parquetStoreProperties.setAddElementsOutputFilesPerGroup(1);
@@ -144,7 +144,7 @@ public class EdgeCasesTest {
 
     @Test
     public void indexOutOfRangeTest() throws IOException, StoreException, OperationException {
-        final Schema gafferSchema = Schema.fromJson(StreamUtil.openStreams(EdgeCasesTest.class, "schemaUsingStringVertexType"));
+        final Schema gafferSchema = TestUtils.gafferSchema("schemaUsingStringVertexType");
         final ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
         parquetStoreProperties.setAddElementsOutputFilesPerGroup(1);
         final Graph graph = new Graph.Builder()

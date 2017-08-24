@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * Generates the split points from the {@link GraphIndex} and uses the min values per file as the split points
@@ -77,7 +78,7 @@ public final class CalculateSplitPointsFromIndex {
 
     private static Map<String, Map<Integer, Object>> calculateSplitPointsFromIndex(final GraphIndex index, final SchemaUtils schemaUtils) throws SerialisationException {
         final Set<String> entityGroups = schemaUtils.getEntityGroups();
-        final Map<String, Map<Integer, Object>> groupToSplitPoints = new HashMap<>();
+        final Map<String, Map<Integer, Object>> groupToSplitPoints = new TreeMap<>();
         for (final String group : index.groupsIndexed()) {
             final GroupIndex groupIndex = index.getGroup(group);
             final GafferGroupObjectConverter converter = schemaUtils.getConverter(group);

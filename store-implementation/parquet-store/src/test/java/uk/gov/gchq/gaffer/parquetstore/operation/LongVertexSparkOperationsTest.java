@@ -45,7 +45,7 @@ public class LongVertexSparkOperationsTest extends AbstractSparkOperationsTest {
     @BeforeClass
     public static void genData() throws OperationException, StoreException {
         Logger.getRootLogger().setLevel(Level.WARN);
-        getGraph(getSchema(), getParquetStoreProperties())
+        getGraph(getSchema(), TestUtils.getParquetStoreProperties())
                 .execute(new ImportJavaRDDOfElements.Builder()
                         .input(getElements(javaSparkContext))
                         .javaSparkContext(javaSparkContext)
@@ -54,11 +54,11 @@ public class LongVertexSparkOperationsTest extends AbstractSparkOperationsTest {
 
     @Before
     public void setup() throws StoreException {
-        graph = getGraph(getSchema(), getParquetStoreProperties());
+        graph = getGraph(getSchema(), TestUtils.getParquetStoreProperties());
     }
 
     protected static Schema getSchema() {
-        return Schema.fromJson(StreamUtil.openStreams(LongVertexSparkOperationsTest.class, "schemaUsingLongVertexType"));
+        return TestUtils.gafferSchema("schemaUsingLongVertexType");
     }
 
     private static JavaRDD<Element> getElements(final JavaSparkContext spark) {

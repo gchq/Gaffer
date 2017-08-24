@@ -45,7 +45,7 @@ public class WriteUnsortedData {
     private final SchemaUtils schemaUtils;
     private final Map<String, Map<Integer, ParquetWriter<Element>>> groupSplitToWriter;
     private final Map<String, Map<Integer, Object>> groupToSplitPoints;
-    private final ComparableOrToStringComparator comparator;
+    private static final ComparableOrToStringComparator COMPARATOR = new ComparableOrToStringComparator();
 
     public WriteUnsortedData(final ParquetStore store, final Map<String, Map<Integer, Object>> groupToSplitPoints) {
         this(store.getTempFilesDir(), store.getSchemaUtils(), groupToSplitPoints);
@@ -56,7 +56,6 @@ public class WriteUnsortedData {
         this.tempFilesDir = tempFilesDir;
         this.schemaUtils = schemaUtils;
         this.groupToSplitPoints = groupToSplitPoints;
-        this.comparator = new ComparableOrToStringComparator();
         this.groupSplitToWriter = new HashMap<>();
     }
 
@@ -106,12 +105,12 @@ public class WriteUnsortedData {
         final int numOfSplits = splitPoints.size();
         for (int i = 1; i < numOfSplits; i++) {
             final Object splitPoint = splitPoints.get(i);
-            final int comparision = comparator.compare(gafferObject, splitPoint);
+            final int comparision = COMPARATOR.compare(gafferObject, splitPoint);
             if (comparision < 0) {
                 return _getWriter(splitToWriter, i - 1, group, column);
             }
         }
-        if (numOfSplits == 1 && comparator.compare(gafferObject, splitPoints.get(0)) == 0) {
+        if (numOfSplits == 1 && COMPARATOR.compare(gafferObject, splitPoints.get(0)) == 0) {
             return _getWriter(splitToWriter, 0, group, column);
         }
         return _getWriter(splitToWriter, numOfSplits - 1, group, column);

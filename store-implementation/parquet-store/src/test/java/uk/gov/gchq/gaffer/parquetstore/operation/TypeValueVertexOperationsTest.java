@@ -78,7 +78,7 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
     }
 
     protected static Schema getSchema() {
-        return Schema.fromJson(StreamUtil.openStreams(TypeValueVertexOperationsTest.class, "schemaUsingTypeValueVertexType"));
+        return TestUtils.gafferSchema("schemaUsingTypeValueVertexType");
     }
 
     private static Iterable<? extends Element> getElements() {

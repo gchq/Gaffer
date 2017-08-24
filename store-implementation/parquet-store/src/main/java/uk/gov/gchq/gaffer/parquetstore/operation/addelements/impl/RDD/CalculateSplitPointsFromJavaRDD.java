@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.RDD;
 import org.apache.spark.api.java.JavaRDD;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
+import uk.gov.gchq.gaffer.data.element.comparison.ComparableOrToStringComparator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,7 @@ import java.util.TreeMap;
  * then pulling out the relevant objects to act as the split points */
 public class CalculateSplitPointsFromJavaRDD {
 
+    private static final ComparableOrToStringComparator COMPARATOR = new ComparableOrToStringComparator();
     private final long sampleRate;
     private final int numOfSplits;
 
@@ -47,7 +49,7 @@ public class CalculateSplitPointsFromJavaRDD {
     }
 
     private Map<Integer, Object> calculateSplitsForColumn(final JavaRDD<Element> data, final IdentifierType colName) {
-        final Map<Integer, Object> splitPoints = new TreeMap<>();
+        final Map<Integer, Object> splitPoints = new TreeMap<>(COMPARATOR);
         final List<Object> splits = data.sample(false, 1.0 / sampleRate)
                 .map(element -> element.getIdentifier(colName))
                 .sortBy(obj -> obj, true, numOfSplits)

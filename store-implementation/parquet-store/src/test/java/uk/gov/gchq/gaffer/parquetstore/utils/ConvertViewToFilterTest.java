@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.parquetstore.index.ColumnIndex;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.index.GroupIndex;
 import uk.gov.gchq.gaffer.parquetstore.index.MinValuesWithPath;
+import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.types.TypeValue;
@@ -50,7 +51,7 @@ public class ConvertViewToFilterTest {
     @Before
     public void setUp() throws StoreException {
         Logger.getRootLogger().setLevel(Level.WARN);
-        final Schema schema = Schema.fromJson(StreamUtil.openStreams(ConvertViewToFilterTest.class, "schemaUsingTypeValueVertexType"));
+        final Schema schema = TestUtils.gafferSchema("schemaUsingTypeValueVertexType");
         final ParquetStore store = new ParquetStore();
         store.initialise("ConvertViewToFilterTest", schema, new ParquetStoreProperties());
         filterUtils = new ParquetFilterUtils(store);

@@ -79,7 +79,7 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
     }
 
     protected static Schema getSchema() {
-        return Schema.fromJson(StreamUtil.openStreams(LongVertexOperationsTest.class, "schemaUsingLongVertexType"));
+        return TestUtils.gafferSchema("schemaUsingLongVertexType");
     }
 
     private static Iterable<Element> getElements() {

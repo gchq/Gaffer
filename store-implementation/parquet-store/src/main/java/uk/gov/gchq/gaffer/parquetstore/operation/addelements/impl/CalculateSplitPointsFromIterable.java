@@ -20,9 +20,9 @@ import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.comparison.ComparableOrToStringComparator;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Generates the split points from an {@link Iterable} of {@link Element}s by selecting a sample of the data, sorting that sample and
@@ -30,14 +30,13 @@ import java.util.Map;
  */
 public class CalculateSplitPointsFromIterable {
 
+    private static final ComparableOrToStringComparator COMPARATOR = new ComparableOrToStringComparator();
     private final long sampleRate;
     private final int numOfSplits;
-    private final ComparableOrToStringComparator comparator;
 
     public CalculateSplitPointsFromIterable(final long sampleRate, final int numOfSplits) {
         this.sampleRate = sampleRate;
         this.numOfSplits = numOfSplits;
-        this.comparator = new ComparableOrToStringComparator();
     }
 
     public Map<Integer, Object> calculateSplitsForGroup(final Iterable<? extends Element> data, final String group, final boolean isEntity) {
@@ -60,11 +59,11 @@ public class CalculateSplitPointsFromIterable {
             }
         }
         if (sample.isEmpty()) {
-            return null;
+            return new TreeMap<>(COMPARATOR);
         } else {
-            sample.sort(comparator);
+            sample.sort(COMPARATOR);
             final int x = (sample.size() / (numOfSplits + 1)) + 1;
-            final Map<Integer, Object> splitPoints = new HashMap<>(numOfSplits);
+            final Map<Integer, Object> splitPoints = new TreeMap<>(COMPARATOR);
             if (x == 0) {
                 splitPoints.put(0, sample.get(0));
             } else {

@@ -39,7 +39,6 @@ public class WriteUnsortedDataFunction implements Serializable, VoidFunction<Ite
     private final String tempFilesDir;
     private final byte[] gafferSchema;
     private final Map<String, Map<Integer, Object>> groupToSplitPoints;
-    private final int numOfFilesPerGroup;
 
 
     public WriteUnsortedDataFunction(final String tempFilesDir, final SchemaUtils schemaUtils,
@@ -48,7 +47,6 @@ public class WriteUnsortedDataFunction implements Serializable, VoidFunction<Ite
         this.tempFilesDir = tempFilesDir;
         this.gafferSchema = schemaUtils.getGafferSchema().toCompactJson();
         this.groupToSplitPoints = groupToSplitPoints;
-        this.numOfFilesPerGroup = numOfFilesPerGroup;
     }
 
     @Override
