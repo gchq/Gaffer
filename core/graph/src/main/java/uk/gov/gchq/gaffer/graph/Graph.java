@@ -670,11 +670,11 @@ public final class Graph {
                 config.setGraphId(store.getGraphId());
             }
 
-            if (config.getLibrary() != null && config.getLibrary().exists(config.getGraphId())) {
+            if (null != config.getLibrary() && config.getLibrary().exists(config.getGraphId())) {
                 //Set Props & Schema if null.
                 final Pair<Schema, StoreProperties> pair = config.getLibrary().get(config.getGraphId());
-                properties = (properties == null) ? pair.getSecond() : properties;
-                schema = (schema == null) ? pair.getFirst() : schema;
+                properties = (null == properties) ? pair.getSecond() : properties;
+                schema = (null == schema) ? pair.getFirst() : schema;
             }
 
             updateSchema(config);
