@@ -140,7 +140,7 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
         assertEquals(new Pair("input2", MapperGenerator.class.getName()), clone.getInputMapperPairs().get(2));
     }
 
-    //@Test
+    @Test
     public void shouldSerialisePopulatedAddElementsFromHdfsOperation() throws IOException {
         // Given
         final AddElementsFromHdfs addElementsFromHdfs = getTestObject();
@@ -154,7 +154,7 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
         JsonAssert.assertEquals(ADD_ELEMENTS_FROM_HDFS_JSON, json);
     }
 
-    //@Test
+    @Test
     public void shouldDeserialiseAddElementsOperation() throws IOException {
         // When
         final AddElementsFromHdfs addElementsFromHdfs = JSONSerialiser.deserialise(ADD_ELEMENTS_FROM_HDFS_JSON.getBytes(), AddElementsFromHdfs.class);
