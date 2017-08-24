@@ -113,7 +113,9 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
     public void shouldShallowCloneOperation() {
         // Given
         final AddElementsFromHdfs addElements = new AddElementsFromHdfs.Builder()
-                .inputMapperPairs(Lists.newArrayList(new Pair("input", MapperGenerator.class.getName())))
+                .inputMapperPairs(Lists.newArrayList(new Pair("input", MapperGenerator.class.getName()),
+                        new Pair("input1", MapperGenerator.class.getName())))
+                .addinputMapperPair(new Pair("input2", MapperGenerator.class.getName()))
                 .outputPath("output")
                 .failurePath("fail")
                 .mappers(10)
@@ -134,6 +136,8 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
         assertEquals(new Integer(20), clone.getNumReduceTasks());
         assertEquals("output", clone.getOutputPath());
         assertEquals(new Pair("input", MapperGenerator.class.getName()), clone.getInputMapperPairs().get(0));
+        assertEquals(new Pair("input1", MapperGenerator.class.getName()), clone.getInputMapperPairs().get(1));
+        assertEquals(new Pair("input2", MapperGenerator.class.getName()), clone.getInputMapperPairs().get(2));
     }
 
     @Test
