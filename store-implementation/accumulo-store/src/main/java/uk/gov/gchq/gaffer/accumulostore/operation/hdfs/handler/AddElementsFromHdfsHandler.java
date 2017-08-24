@@ -70,7 +70,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
 
         try {
             checkHdfsDirectories(operation, store);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new OperationException("Operation failed due to filesystem error: " + e.getMessage());
         }
 
