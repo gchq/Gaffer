@@ -74,33 +74,37 @@ public class GetRDDOfAllElementsHandlerTest {
     @Test
     public void testGetAllElementsInRDD() throws OperationException, IOException, InterruptedException,
             AccumuloSecurityException, AccumuloException, TableNotFoundException {
-        testGetAllElementsInRDD(getGraphForMockAccumulo(), getOperation());
-        testGetAllElementsInRDD(getGraphForDirectRDD("testGetAllElementsInRDD"), getOperationWithDirectRDDOption());
+        testGetAllElementsInRDD(getGraphForMockAccumulo(), getOperation("testGetAllElementsInRDD2"));
+        testGetAllElementsInRDD(getGraphForDirectRDD("testGetAllElementsInRDD"),
+                getOperationWithDirectRDDOption("testGetAllElementsInRDD2"));
     }
 
     @Test
     public void testGetAllElementsInRDDWithView() throws OperationException, IOException, InterruptedException,
             AccumuloSecurityException, AccumuloException, TableNotFoundException {
-        testGetAllElementsInRDDWithView(getGraphForMockAccumulo(), getOperation());
-        testGetAllElementsInRDDWithView(getGraphForDirectRDD("testGetAllElementsInRDDWithView"), getOperationWithDirectRDDOption());
+        testGetAllElementsInRDDWithView(getGraphForMockAccumulo(), getOperation("testGetAllElementsInRDDWithView1"));
+        testGetAllElementsInRDDWithView(getGraphForDirectRDD("testGetAllElementsInRDDWithView"),
+                getOperationWithDirectRDDOption("testGetAllElementsInRDDWithView2"));
     }
 
     @Test
     public void testGetAllElementsInRDDWithVisibilityFilteringApplied() throws OperationException, IOException,
             InterruptedException, AccumuloSecurityException, AccumuloException, TableNotFoundException {
-        testGetAllElementsInRDDWithVisibilityFilteringApplied(getGraphForMockAccumuloWithVisibility(), getOperation());
+        testGetAllElementsInRDDWithVisibilityFilteringApplied(getGraphForMockAccumuloWithVisibility(),
+                getOperation("testGetAllElementsInRDDWithVisibilityFilteringApplied1"));
         testGetAllElementsInRDDWithVisibilityFilteringApplied(
                 getGraphForDirectRDDWithVisibility("testGetAllElementsInRDDWithVisibilityFilteringApplied"),
-                getOperationWithDirectRDDOption());
+                getOperationWithDirectRDDOption("testGetAllElementsInRDDWithVisibilityFilteringApplied2"));
     }
 
     @Test
     public void testGetAllElementsInRDDWithValidationApplied() throws InterruptedException, IOException,
             OperationException, AccumuloSecurityException, TableNotFoundException, AccumuloException {
-        testGetAllElementsInRDDWithValidationApplied(getGraphForMockAccumuloForValidationChecking(), getOperation());
+        testGetAllElementsInRDDWithValidationApplied(getGraphForMockAccumuloForValidationChecking(),
+                getOperation("testGetAllElementsInRDDWithVisibilityFilteringApplied1"));
         testGetAllElementsInRDDWithValidationApplied(
                 getGraphForDirectRDDForValidationChecking("testGetAllElementsInRDDWithValidationApplied"),
-                getOperationWithDirectRDDOption());
+                getOperationWithDirectRDDOption("testGetAllElementsInRDDWithVisibilityFilteringApplied2"));
     }
 
     private void testGetAllElementsInRDD(final Graph graph, final GetRDDOfAllElements getRDD) throws OperationException,
@@ -392,7 +396,7 @@ public class GetRDDOfAllElementsHandlerTest {
         return elements;
     }
 
-    private GetRDDOfAllElements getOperation() throws IOException {
+    private GetRDDOfAllElements getOperation(final String appName) throws IOException {
         // Create Hadoop configuration and serialise to a string
         final Configuration configuration = new Configuration();
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -401,14 +405,14 @@ public class GetRDDOfAllElementsHandlerTest {
 
         // Check get correct elements
         final GetRDDOfAllElements rddQuery = new GetRDDOfAllElements.Builder()
-                .sparkSession(getSparkSession())
+                .sparkSession(getSparkSession(appName))
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         return rddQuery;
     }
 
-    private GetRDDOfAllElements getOperationWithDirectRDDOption() throws IOException {
-        final GetRDDOfAllElements op = getOperation();
+    private GetRDDOfAllElements getOperationWithDirectRDDOption(final String appName) throws IOException {
+        final GetRDDOfAllElements op = getOperation(appName);
         op.addOption(AbstractGetRDDHandler.USE_RFILE_READER_RDD, "true");
         return op;
     }
@@ -424,10 +428,10 @@ public class GetRDDOfAllElementsHandlerTest {
         return properties;
     }
 
-    private SparkSession getSparkSession() {
+    private SparkSession getSparkSession(final String appName) {
         final SparkSession sparkSession = SparkSession.builder()
                 .master("local")
-                .appName("testGetAllElementsInRDD-" + System.currentTimeMillis())
+                .appName(appName)
                 .config(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
                 .config(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
                 .config(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, true)
