@@ -257,5 +257,10 @@ public final class GraphConfig {
 
             return config;
         }
+
+        @Override
+        public String toString() {
+            return config.toString();
+        }
     }
 }

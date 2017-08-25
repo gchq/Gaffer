@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -51,6 +52,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -479,6 +481,38 @@ public final class Graph {
             return this;
         }
 
+        public Builder addStoreProperties(final StoreProperties updateProperties) {
+            if (this.properties == null) {
+                storeProperties(updateProperties);
+            } else {
+                final Properties old = this.properties.getProperties();
+                old.putAll(updateProperties.getProperties());
+            }
+            return this;
+        }
+
+        public Builder addStoreProperties(final String updatePropertiesPath) {
+            return addStoreProperties(StoreProperties.loadStoreProperties(updatePropertiesPath));
+        }
+
+        public Builder addStoreProperties(final Path updatePropertiesPath) {
+            return addStoreProperties(StoreProperties.loadStoreProperties(updatePropertiesPath));
+        }
+
+        public Builder addStoreProperties(final InputStream updatePropertiesStream) {
+            return addStoreProperties(StoreProperties.loadStoreProperties(updatePropertiesStream));
+        }
+
+        public Builder addStoreProperties(final URI updatePropertiesURI) {
+            try {
+                addStoreProperties(StreamUtil.openStream(updatePropertiesURI));
+            } catch (final IOException e) {
+                throw new SchemaException("Unable to read storeProperties from URI: " + updatePropertiesURI, e);
+            }
+
+            return this;
+        }
+
         public Builder addParentSchemaIds(final String... parentSchemaIds) {
             this.parentSchemaIds = parentSchemaIds;
             return this;
@@ -812,6 +846,17 @@ public final class Graph {
 
         private Schema cloneSchema(final Schema schema) {
             return null != schema ? schema.clone() : null;
+        }
+
+        @Override
+        public String toString() {
+            updateSchema(configBuilder.build());
+
+            return new ToStringBuilder(this)
+                    .append("config", this.configBuilder)
+                    .append("schema", this.schema)
+                    .append("properties", this.properties)
+                    .build();
         }
     }
 }

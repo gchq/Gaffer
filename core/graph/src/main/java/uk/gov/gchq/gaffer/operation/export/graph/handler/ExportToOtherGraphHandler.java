@@ -138,15 +138,18 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
                         .graphId(graphId)
                         .library(graphLibrary)
                         .build())
+                .storeProperties(graphLibrary.get(graphId).getSecond())
+                .addSchema(graphLibrary.get(graphId).getFirst())
                 .build();
     }
 
     private Graph createGraphWithoutLibrary(final ExportToOtherGraph export, final Store store) {
         // No store graph library so we create a new Graph
-        final Schema exportSchema = export.getSchema();
-        final Schema schema = (null == exportSchema) ? store.getSchema() : exportSchema;
-        final StoreProperties exportStoreProperties = export.getStoreProperties();
-        final StoreProperties properties = (null == exportStoreProperties) ? store.getProperties() : exportStoreProperties;
+        Schema schema = export.getSchema();
+        schema = (null == schema) ? store.getSchema() : schema;
+        StoreProperties properties = export.getStoreProperties();
+        properties = (null == properties) ? store.getProperties() : properties;
+
         return new Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(export.getGraphId())

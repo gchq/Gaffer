@@ -117,7 +117,7 @@ public interface Operation extends Closeable {
                     }
 
                     if (null == value) {
-                        result.addError(name + " is required");
+                        result.addError(name + " is required for: " + this.getClass().getSimpleName());
                     }
                 } else {
                     AccessController.doPrivileged((PrivilegedAction<Operation>) () -> {
@@ -131,7 +131,7 @@ public interface Operation extends Closeable {
                         }
 
                         if (null == value) {
-                            result.addError(name + " is required");
+                            result.addError(name + " is required for: " + this.getClass().getSimpleName());
                         }
                         return null;
                     });

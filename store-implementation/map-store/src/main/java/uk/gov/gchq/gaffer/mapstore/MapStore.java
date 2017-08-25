@@ -58,13 +58,13 @@ import java.util.Set;
  * </p>
  */
 public class MapStore extends Store {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MapStore.class);
     public static final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(
             StoreTrait.INGEST_AGGREGATION,
             StoreTrait.PRE_AGGREGATION_FILTERING,
             StoreTrait.POST_AGGREGATION_FILTERING,
             StoreTrait.TRANSFORMATION,
             StoreTrait.POST_TRANSFORMATION_FILTERING));
+    private static final Logger LOGGER = LoggerFactory.getLogger(MapStore.class);
     private static MapImpl staticMapImpl;
     private MapImpl mapImpl;
 
@@ -75,7 +75,8 @@ public class MapStore extends Store {
     @Override
     public void initialise(final String graphId, final Schema schema, final StoreProperties storeProperties) throws StoreException {
         if (!(storeProperties instanceof MapStoreProperties)) {
-            throw new StoreException("storeProperties must be an instance of " + MapStoreProperties.class.getName());
+            throw new StoreException("storeProperties must be an instance of " + MapStoreProperties.class.getName()
+                    + ". found: " + storeProperties.getClass().getSimpleName());
         }
         // Initialise store
         final MapStoreProperties mapStoreProperties = (MapStoreProperties) storeProperties;
@@ -83,7 +84,6 @@ public class MapStore extends Store {
 
         // Initialise maps
         mapImpl = createMapImpl();
-        LOGGER.debug("Initialised MapStore");
     }
 
     public MapImpl getMapImpl() {
@@ -103,6 +103,7 @@ public class MapStore extends Store {
 
     protected MapImpl createMapImpl() {
         if (getProperties().isStaticMap()) {
+            LOGGER.debug("Using static map");
             if (null == staticMapImpl) {
                 staticMapImpl = new MapImpl(getSchema(), getProperties());
             }

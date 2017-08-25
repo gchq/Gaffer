@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
@@ -128,6 +130,26 @@ public class OperationChain<OUT> implements Closeable {
                 CloseableUtil.close(operation);
             }
         }
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        boolean isEqual = false;
+        if (obj != null && obj instanceof OperationChain) {
+            final OperationChain that = (OperationChain) obj;
+
+            isEqual = new EqualsBuilder()
+                    .append(this.getOperations(), that.getOperations())
+                    .isEquals();
+        }
+        return isEqual;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 21)
+                .append(operations)
+                .toHashCode();
     }
 
     /**

@@ -136,18 +136,15 @@ public abstract class Store {
     private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new LinkedHashMap<>();
     private final List<OperationChainOptimiser> opChainOptimisers = new ArrayList<>();
     private final OperationChainValidator opChainValidator;
-
+    private final SchemaOptimiser schemaOptimiser;
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to aggregate the elements.
      */
-    private Schema schema;
-
+    protected Schema schema;
     /**
      * The store properties - contains specific configuration information for the store - such as database connection strings.
      */
     private StoreProperties properties;
-
-    private final SchemaOptimiser schemaOptimiser;
     private GraphLibrary library;
 
     private JobTracker jobTracker;
@@ -171,7 +168,7 @@ public abstract class Store {
 
         final String storeClass = storeProperties.getStoreClass();
         if (null == storeClass) {
-            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS);
+            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS + ", GraphId: " + graphId);
         }
 
         final Store newStore;
@@ -437,12 +434,12 @@ public abstract class Store {
         return properties;
     }
 
-    public void setGraphLibrary(final GraphLibrary library) {
-        this.library = library;
-    }
-
     public GraphLibrary getGraphLibrary() {
         return library;
+    }
+
+    public void setGraphLibrary(final GraphLibrary library) {
+        this.library = library;
     }
 
     public void optimiseSchema() {
