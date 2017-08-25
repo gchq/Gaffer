@@ -17,12 +17,11 @@ package uk.gov.gchq.gaffer.hdfs.operation;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.google.common.collect.Lists;
 import org.apache.hadoop.mapreduce.Partitioner;
-import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -39,23 +38,25 @@ import java.util.List;
  * @see Builder
  */
 public interface MapReduce {
-    List<Pair<String, String>> getInputMapperPairs();
+    Map<String, String> getInputMapperPairs();
 
-    void setInputMapperPairs(final List<Pair<String, String>> inputMapperPairs);
+    void setInputMapperPairs(final Map<String, String> inputMapperPairs);
 
-    default void addInputMapperPairs(final List<Pair<String, String>> inputMapperPairs) {
+    default void addInputMapperPairs(final Map<String, String> inputMapperPairs) {
         if (null == getInputMapperPairs()) {
-            setInputMapperPairs(Lists.newArrayList(inputMapperPairs));
+            setInputMapperPairs(inputMapperPairs);
         } else {
-            getInputMapperPairs().addAll(inputMapperPairs);
+            getInputMapperPairs().putAll(inputMapperPairs);
         }
     }
 
-    default void addInputMapperPair(final Pair<String, String> inputPath) {
+    default void addInputMapperPair(final String inputPath, final String mapperGeneratorClassName) {
+        Map<String, String> inputMapperMap = new HashMap<>();
+        inputMapperMap.put(inputPath, mapperGeneratorClassName);
         if (null == getInputMapperPairs()) {
-            setInputMapperPairs(Lists.newArrayList(inputPath));
+            setInputMapperPairs(inputMapperMap);
         } else {
-            getInputMapperPairs().add(inputPath);
+            getInputMapperPairs().put(inputPath, mapperGeneratorClassName);
         }
     }
 
@@ -116,18 +117,18 @@ public interface MapReduce {
     void setPartitioner(final Class<? extends Partitioner> partitioner);
 
     interface Builder<OP extends MapReduce, B extends Builder<OP, ?>> extends Operation.Builder<OP, B> {
-        default B inputMapperPairs(final List<Pair<String, String>> inputMapperPairs) {
+        default B inputMapperPairs(final Map<String, String> inputMapperPairs) {
             _getOp().setInputMapperPairs(inputMapperPairs);
             return _self();
         }
 
-        default B addInputMapperPairs(final List<Pair<String, String>> inputMapperPairs) {
+        default B addInputMapperPairs(final Map<String, String> inputMapperPairs) {
             _getOp().addInputMapperPairs(inputMapperPairs);
             return _self();
         }
 
-        default B addinputMapperPair(final Pair<String, String> inputMapperPair) {
-            _getOp().addInputMapperPair(inputMapperPair);
+        default B addinputMapperPair(final String inputPath, final String mapperGeneratorClassName) {
+            _getOp().addInputMapperPair(inputPath, mapperGeneratorClassName);
             return _self();
         }
 

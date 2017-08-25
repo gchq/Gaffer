@@ -21,11 +21,11 @@ import org.apache.avro.mapreduce.AvroJob;
 import org.apache.avro.mapreduce.AvroKeyInputFormat;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
-import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.hdfs.operation.MapReduce;
 import uk.gov.gchq.gaffer.store.Store;
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * An <code>AvroJobInitialiser</code> is an {@link JobInitialiser} that
@@ -56,9 +56,9 @@ public class AvroJobInitialiser implements JobInitialiser {
         AvroJob.setInputKeySchema(job, schema);
         job.setInputFormatClass(AvroKeyInputFormat.class);
 
-        for (final Pair<String, String> pair : operation.getInputMapperPairs()) {
-            if (pair.getSecond().contains(job.getConfiguration().get(MAPPER_GENERATOR))) {
-                AvroKeyInputFormat.addInputPath(job, new Path(pair.getFirst()));
+        for (final Map.Entry<String, String> entry : operation.getInputMapperPairs().entrySet()) {
+            if (entry.getValue().contains(job.getConfiguration().get(MAPPER_GENERATOR))) {
+                AvroKeyInputFormat.addInputPath(job, new Path(entry.getKey()));
             }
         }
     }

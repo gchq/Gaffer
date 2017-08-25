@@ -28,7 +28,6 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
-import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.mapper.AddElementsFromHdfsMapper;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
@@ -59,12 +58,11 @@ public class HBaseAddElementsFromHdfsJobFactory implements AddElementsFromHdfsJo
     public List<Job> createJobs(final AddElementsFromHdfs operation, final Store store) throws IOException {
         final List<Job> jobs = new ArrayList<>();
         Map<String, List<String>> mapperGeneratorsToInputPathsList = new HashMap<>();
-
-        for (final Pair<String, String> pair : operation.getInputMapperPairs()) {
-            if (mapperGeneratorsToInputPathsList.keySet().contains(pair.getSecond())) {
-                mapperGeneratorsToInputPathsList.get(pair.getSecond()).add(pair.getFirst());
+        for (final Map.Entry<String, String> entry : operation.getInputMapperPairs().entrySet()) {
+            if (mapperGeneratorsToInputPathsList.containsKey(entry.getValue())) {
+                mapperGeneratorsToInputPathsList.get(entry.getValue()).add(entry.getKey());
             } else {
-                mapperGeneratorsToInputPathsList.put(pair.getSecond(), Lists.newArrayList(pair.getFirst()));
+                mapperGeneratorsToInputPathsList.put(entry.getValue(), Lists.newArrayList(entry.getKey()));
             }
         }
 

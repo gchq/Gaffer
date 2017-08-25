@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.accumulostore.integration;
 
-import com.beust.jcommander.internal.Lists;
 import com.google.common.collect.Sets;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -36,7 +35,6 @@ import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
@@ -53,8 +51,10 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -170,6 +170,9 @@ public class AddElementsFromHdfsIT {
         // Given
         String inputDir2 = testFolder.getRoot().getAbsolutePath() + "/inputDir2";
         String inputDir3 = testFolder.getRoot().getAbsolutePath() + "/inputDir3";
+        final Map<String, String> inputMappers = new HashMap<>();
+        inputMappers.put(new Path(inputDir).toString(), TextMapperGeneratorImpl.class.getName());
+        inputMappers.put(new Path(inputDir2).toString(), TextMapperGeneratorImpl.class.getName());
 
         createInputFile(inputDir, 0, 1000);
         createInputFile(inputDir2, 1000, 2000);
@@ -181,9 +184,8 @@ public class AddElementsFromHdfsIT {
 
         // When
         graph.execute(new AddElementsFromHdfs.Builder()
-                .inputMapperPairs(Lists.newArrayList(new Pair(new Path(inputDir).toString(), TextMapperGeneratorImpl.class.getName()),
-                        new Pair(new Path(inputDir2).toString(), TextMapperGeneratorImpl.class.getName())))
-                .addinputMapperPair(new Pair(new Path(inputDir3).toString(), TextMapperGeneratorImpl.class.getName()))
+                .inputMapperPairs(inputMappers)
+                .addinputMapperPair(new Path(inputDir3).toString(), TextMapperGeneratorImpl.class.getName())
                 .outputPath(outputDir)
                 .failurePath(failureDir)
                 .jobInitialiser(new TextJobInitialiser())
@@ -232,7 +234,7 @@ public class AddElementsFromHdfsIT {
 
         // When
         graph.execute(new AddElementsFromHdfs.Builder()
-                .addinputMapperPair(new Pair(new Path(inputDir).toString(), TextMapperGeneratorImpl.class.getName()))
+                .addinputMapperPair(new Path(inputDir).toString(), TextMapperGeneratorImpl.class.getName())
                 .outputPath(outputDir)
                 .failurePath(failureDir)
                 .jobInitialiser(new TextJobInitialiser())

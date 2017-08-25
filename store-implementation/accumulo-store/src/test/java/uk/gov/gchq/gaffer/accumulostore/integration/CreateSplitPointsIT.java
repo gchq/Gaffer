@@ -32,7 +32,6 @@ import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
@@ -95,7 +94,7 @@ public class CreateSplitPointsIT {
         graph.execute(new OperationChain.Builder()
                 .first(new SampleDataForSplitPoints.Builder()
                         .jobInitialiser(new TextJobInitialiser())
-                        .addinputMapperPair(new Pair(inputDir, TextMapperGeneratorImpl.class.getName()))
+                        .addinputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
                         .outputPath(outputDir)
                         .proportionToSample(1f)
                         .validate(true)

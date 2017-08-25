@@ -15,9 +15,7 @@
  */
 package uk.gov.gchq.gaffer.doc.operation;
 
-import com.beust.jcommander.internal.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.doc.operation.generator.TextMapperGeneratorImpl;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
@@ -27,6 +25,8 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.SplitStore;
 import uk.gov.gchq.gaffer.user.User;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AddElementsFromHdfsExample extends OperationExample {
     private final String[] args = new String[5];
@@ -80,7 +80,7 @@ public class AddElementsFromHdfsExample extends OperationExample {
                     .build();
 
             final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
-                    .addinputMapperPair(new Pair(inputPath, TextMapperGeneratorImpl.class))
+                    .addinputMapperPair(inputPath, TextMapperGeneratorImpl.class.getName())
                     .outputPath(outputPath)
                     .failurePath(failurePath)
                     .splitsFilePath("/tmp/splits")
@@ -104,7 +104,7 @@ public class AddElementsFromHdfsExample extends OperationExample {
     public void addElementsFromHdfs() {
         // ---------------------------------------------------------
         final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
-                .addinputMapperPair(new Pair("/path/to/input/fileOrFolder", TextMapperGeneratorImpl.class))
+                .addinputMapperPair("/path/to/input/fileOrFolder", TextMapperGeneratorImpl.class.getName())
                 .outputPath("/path/to/output/folder")
                 .failurePath("/path/to/failure/folder")
                 .splitsFilePath("/path/to/splits/file")
@@ -122,10 +122,13 @@ public class AddElementsFromHdfsExample extends OperationExample {
     @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
     public void addElementsFromHdfsWithMultipleInput() {
         // ---------------------------------------------------------
+        final Map<String, String> inputMapperMap = new HashMap<>();
+        inputMapperMap.put("/path/to/first/inputFileOrFolder", TextMapperGeneratorImpl.class.getName());
+        inputMapperMap.put("/path/to/second/inputFileOrFolder", TextMapperGeneratorImpl.class.getName());
+
         final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
-                .inputMapperPairs(Lists.newArrayList(new Pair("/path/to/first/inputFileOrFolder", TextMapperGeneratorImpl.class),
-                        new Pair("/path/to/second/inputFileOrFolder", TextMapperGeneratorImpl.class)))
-                .addinputMapperPair(new Pair("/path/to/third/inputFileOrFolder", TextMapperGeneratorImpl.class))
+                .inputMapperPairs(inputMapperMap)
+                .addinputMapperPair("/path/to/third/inputFileOrFolder", TextMapperGeneratorImpl.class.getName())
                 .outputPath("/path/to/output/folder")
                 .failurePath("/path/to/failure/folder")
                 .splitsFilePath("/path/to/splits/file")

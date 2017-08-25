@@ -36,7 +36,6 @@ import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.mapper.SampleDataForSplit
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.reducer.AccumuloKeyValueReducer;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
-import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.SampleDataForSplitPointsJobFactory;
 import uk.gov.gchq.gaffer.store.Store;
@@ -65,11 +64,11 @@ public class AccumuloSampleDataForSplitPointsJobFactory implements SampleDataFor
     public List<Job> createJobs(final SampleDataForSplitPoints operation, final Store store) throws IOException {
         final List<Job> jobs = new ArrayList<>();
         Map<String, List<String>> mapperGeneratorsToInputPathsList = new HashMap<>();
-        for (final Pair<String, String> pair : operation.getInputMapperPairs()) {
-            if (mapperGeneratorsToInputPathsList.keySet().contains(pair.getSecond())) {
-                mapperGeneratorsToInputPathsList.get(pair.getSecond()).add(pair.getFirst());
+        for (final Map.Entry<String, String> entry : operation.getInputMapperPairs().entrySet()) {
+            if (mapperGeneratorsToInputPathsList.containsKey(entry.getValue())) {
+                mapperGeneratorsToInputPathsList.get(entry.getValue()).add(entry.getKey());
             } else {
-                mapperGeneratorsToInputPathsList.put(pair.getSecond(), Lists.newArrayList(pair.getFirst()));
+                mapperGeneratorsToInputPathsList.put(entry.getValue(), Lists.newArrayList(entry.getKey()));
             }
         }
 

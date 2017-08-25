@@ -20,14 +20,12 @@ import org.apache.hadoop.io.compress.GzipCodec;
 import org.apache.hadoop.mapreduce.Partitioner;
 import uk.gov.gchq.gaffer.commonutil.FieldUtil;
 import uk.gov.gchq.gaffer.commonutil.Required;
-import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.tuple.n.Tuple3;
-import java.util.List;
 import java.util.Map;
 
 
@@ -64,7 +62,7 @@ public class SampleDataForSplitPoints implements
      * For Text data see {@link uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.TextMapperGenerator}.
      */
     @Required
-    private List<Pair<String, String>> inputMapperPairs;
+    private Map<String, String> inputMapperPairs;
     @Required
     private String outputPath;
     @Required
@@ -124,12 +122,12 @@ public class SampleDataForSplitPoints implements
     }
 
     @Override
-    public List<Pair<String, String>> getInputMapperPairs() {
+    public Map<String, String> getInputMapperPairs() {
         return inputMapperPairs;
     }
 
     @Override
-    public void setInputMapperPairs(final List<Pair<String, String>> inputMapperPairs) {
+    public void setInputMapperPairs(final Map<String, String> inputMapperPairs) {
         this.inputMapperPairs = inputMapperPairs;
     }
 
@@ -289,7 +287,7 @@ public class SampleDataForSplitPoints implements
             return _self();
         }
 
-        public Builder inputMapperPairs(final List<Pair<String, String>> inputMapperPairs) {
+        public Builder inputMapperPairs(final Map<String, String> inputMapperPairs) {
             _getOp().setInputMapperPairs(inputMapperPairs);
             return _self();
         }
