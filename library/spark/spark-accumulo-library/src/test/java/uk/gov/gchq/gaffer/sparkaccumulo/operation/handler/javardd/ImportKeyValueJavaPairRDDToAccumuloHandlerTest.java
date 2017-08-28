@@ -20,10 +20,10 @@ import org.apache.accumulo.core.data.Value;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.sql.SparkSession;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
@@ -35,9 +35,9 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.spark.SparkConstants;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.SparkSessionProvider;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.javardd.ImportKeyValueJavaPairRDDToAccumulo;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.java.ElementConverterFunction;
 import uk.gov.gchq.gaffer.user.User;
@@ -95,13 +95,7 @@ public class ImportKeyValueJavaPairRDDToAccumuloHandlerTest {
         }
         final User user = new User();
 
-        final SparkConf sparkConf = new SparkConf()
-                .setMaster("local")
-                .setAppName("testCheckGetCorrectElementsInJavaRDDForEntityId")
-                .set(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
-                .set(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
-                .set(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true");
-        final JavaSparkContext sparkContext = new JavaSparkContext(sparkConf);
+        final JavaSparkContext sparkContext = SparkSessionProvider.getJavaSparkContext();
 
         // Create Hadoop configuration and serialise to a string
         final Configuration configuration = new Configuration();
@@ -137,7 +131,5 @@ public class ImportKeyValueJavaPairRDDToAccumuloHandlerTest {
         }
         final Set<Element> results = new HashSet<>(rdd.collect());
         assertEquals(elements.size(), results.size());
-
-        sparkContext.stop();
     }
 }
