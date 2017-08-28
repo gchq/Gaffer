@@ -28,12 +28,14 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.spark.SparkConf;
+import org.apache.spark.sql.SparkSession;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.directrdd.RFileReaderRDD;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.MiniAccumuloClusterProvider;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.SparkSessionProvider;
 import uk.gov.gchq.gaffer.store.StoreException;
 
 import java.io.ByteArrayOutputStream;
@@ -73,11 +75,11 @@ public class RFileReaderRDDTest {
         Thread.sleep(1000L);
 
         // When
-        final SparkConf sparkConf = getSparkConf("testRFileReaderRDDCanBeCreatedAndIsNonEmpty");
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
         final Configuration conf = new Configuration();
         InputConfigurator.fetchColumns(AccumuloInputFormat.class, conf,
                 Sets.newHashSet(new Pair<>(new Text("CF"), new Text("CQ"))));
-        final RFileReaderRDD rdd = new RFileReaderRDD(sparkConf,
+        final RFileReaderRDD rdd = new RFileReaderRDD(sparkSession.sparkContext(),
                 cluster.getInstanceName(), cluster.getZooKeepers(), MiniAccumuloClusterProvider.USER,
                 MiniAccumuloClusterProvider.PASSWORD, table, new HashSet<>(),
                 serialiseConfiguration(conf));
@@ -119,8 +121,8 @@ public class RFileReaderRDDTest {
                 Sets.newHashSet(new Pair<>(new Text("CF"), new Text("CQ"))));
 
         // When
-        final SparkConf sparkConf = getSparkConf("testRFileReaderRDDAppliesIteratorCorrectly");
-        final RFileReaderRDD rdd = new RFileReaderRDD(sparkConf,
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
+        final RFileReaderRDD rdd = new RFileReaderRDD(sparkSession.sparkContext(),
                 cluster.getInstanceName(), cluster.getZooKeepers(), MiniAccumuloClusterProvider.USER,
                 MiniAccumuloClusterProvider.PASSWORD, table, new HashSet<>(),
                 serialiseConfiguration(job.getConfiguration()));
@@ -128,16 +130,6 @@ public class RFileReaderRDDTest {
 
         // Then
         assertEquals(1L, count);
-    }
-
-    private SparkConf getSparkConf(final String name) {
-        final SparkConf sparkConf = new SparkConf()
-                .setMaster("local")
-                .setAppName(name)
-                .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-                .set("spark.kryo.registrator", "uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator")
-                .set("spark.driver.allowMultipleContexts", "true");
-        return sparkConf;
     }
 
     private byte[] serialiseConfiguration(final Configuration configuration) throws IOException {

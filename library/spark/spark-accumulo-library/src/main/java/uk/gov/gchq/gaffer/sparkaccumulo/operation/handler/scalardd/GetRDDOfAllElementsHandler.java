@@ -107,7 +107,7 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
             conf.set(AbstractGetRDDHandler.VIEW, new String(operation.getView().toCompactJson(), CommonConstants.UTF_8));
             final byte[] serialisedConf = Utils.serialiseConfiguration(conf);
             final RDD<Map.Entry<Key, Value>> rdd = new RFileReaderRDD(
-                    operation.getSparkSession().sparkContext().getConf(),
+                    operation.getSparkSession().sparkContext(),
                     accumuloStore.getProperties().getInstance(),
                     accumuloStore.getProperties().getZookeepers(),
                     accumuloStore.getProperties().getUser(),

@@ -33,7 +33,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.spark.InterruptibleIterator;
 import org.apache.spark.Partition;
-import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
 import org.apache.spark.TaskContext;
 import org.apache.spark.rdd.RDD;
@@ -65,7 +64,7 @@ public class RFileReaderRDD extends RDD<Map.Entry<Key, Value>> {
     private final Set<String> auths;
     private final byte[] serialisedConfiguration;
 
-    public RFileReaderRDD(final SparkConf sparkConf,
+    public RFileReaderRDD(final SparkContext sparkContext,
                           final String instanceName,
                           final String zookeepers,
                           final String user,
@@ -73,7 +72,7 @@ public class RFileReaderRDD extends RDD<Map.Entry<Key, Value>> {
                           final String tableName,
                           final Set<String> auths,
                           final byte[] serialisedConfiguration) {
-        super(new SparkContext(sparkConf), JavaConversions.asScalaBuffer(new ArrayList<>()),
+        super(sparkContext, JavaConversions.asScalaBuffer(new ArrayList<>()),
                 ClassTag$.MODULE$.apply(Map.Entry.class));
         this.instanceName = instanceName;
         this.zookeepers = zookeepers;
