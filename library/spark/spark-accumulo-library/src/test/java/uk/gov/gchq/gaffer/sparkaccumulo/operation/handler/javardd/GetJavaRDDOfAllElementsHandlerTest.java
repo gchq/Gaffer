@@ -20,6 +20,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.sql.SparkSession;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -34,6 +35,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.spark.SparkConstants;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.SparkSessionProvider;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -95,13 +97,8 @@ public class GetJavaRDDOfAllElementsHandlerTest {
         final User user = new User();
         graph1.execute(new AddElements.Builder().input(elements).build(), user);
 
-        final SparkConf sparkConf = new SparkConf()
-                .setMaster("local")
-                .setAppName("testCheckGetCorrectElementsInJavaRDDForEntityId")
-                .set(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
-                .set(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
-                .set(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true");
-        final JavaSparkContext sparkContext = new JavaSparkContext(sparkConf);
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
+        final JavaSparkContext sparkContext = new JavaSparkContext(sparkSession.sparkContext());
 
         // Create Hadoop configuration and serialise to a string
         final Configuration configuration = new Configuration();
@@ -121,8 +118,6 @@ public class GetJavaRDDOfAllElementsHandlerTest {
         }
         final Set<Element> results = new HashSet<>(rdd.collect());
         assertEquals(expectedElements, results);
-
-        sparkContext.stop();
     }
 
     @Test
@@ -169,13 +164,8 @@ public class GetJavaRDDOfAllElementsHandlerTest {
         final User user = new User("user", Collections.singleton("public"));
         graph1.execute(new AddElements.Builder().input(elements).build(), user);
 
-        final SparkConf sparkConf = new SparkConf()
-                .setMaster("local")
-                .setAppName("testCheckGetCorrectElementsInJavaRDDForEntityId")
-                .set(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
-                .set(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
-                .set(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true");
-        final JavaSparkContext sparkContext = new JavaSparkContext(sparkConf);
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
+        final JavaSparkContext sparkContext = new JavaSparkContext(sparkSession.sparkContext());
 
         // Create Hadoop configuration and serialise to a string
         final Configuration configuration = new Configuration();
@@ -226,7 +216,5 @@ public class GetJavaRDDOfAllElementsHandlerTest {
         results.clear();
         results.addAll(rdd.collect());
         assertEquals(expectedElementsPrivate, results);
-
-        sparkContext.stop();
     }
 }

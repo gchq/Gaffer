@@ -24,14 +24,8 @@ import org.apache.accumulo.minicluster.MiniAccumuloCluster;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.rdd.RDD;
-import org.apache.spark.sql.SparkSession;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -45,14 +39,10 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
-import uk.gov.gchq.gaffer.spark.SparkConstants;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.MiniAccumuloClusterProvider;
-import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
-import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.SparkSessionProvider;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.function.Concat;
 
@@ -74,37 +64,37 @@ public class GetRDDOfAllElementsHandlerTest {
     @Test
     public void testGetAllElementsInRDD() throws OperationException, IOException, InterruptedException,
             AccumuloSecurityException, AccumuloException, TableNotFoundException {
-        testGetAllElementsInRDD(getGraphForMockAccumulo(), getOperation("testGetAllElementsInRDD2"));
+        testGetAllElementsInRDD(getGraphForMockAccumulo(), getOperation());
         testGetAllElementsInRDD(getGraphForDirectRDD("testGetAllElementsInRDD"),
-                getOperationWithDirectRDDOption("testGetAllElementsInRDD2"));
+                getOperationWithDirectRDDOption());
     }
 
     @Test
     public void testGetAllElementsInRDDWithView() throws OperationException, IOException, InterruptedException,
             AccumuloSecurityException, AccumuloException, TableNotFoundException {
-        testGetAllElementsInRDDWithView(getGraphForMockAccumulo(), getOperation("testGetAllElementsInRDDWithView1"));
+        testGetAllElementsInRDDWithView(getGraphForMockAccumulo(), getOperation());
         testGetAllElementsInRDDWithView(getGraphForDirectRDD("testGetAllElementsInRDDWithView"),
-                getOperationWithDirectRDDOption("testGetAllElementsInRDDWithView2"));
+                getOperationWithDirectRDDOption());
     }
 
     @Test
     public void testGetAllElementsInRDDWithVisibilityFilteringApplied() throws OperationException, IOException,
             InterruptedException, AccumuloSecurityException, AccumuloException, TableNotFoundException {
         testGetAllElementsInRDDWithVisibilityFilteringApplied(getGraphForMockAccumuloWithVisibility(),
-                getOperation("testGetAllElementsInRDDWithVisibilityFilteringApplied1"));
+                getOperation());
         testGetAllElementsInRDDWithVisibilityFilteringApplied(
                 getGraphForDirectRDDWithVisibility("testGetAllElementsInRDDWithVisibilityFilteringApplied"),
-                getOperationWithDirectRDDOption("testGetAllElementsInRDDWithVisibilityFilteringApplied2"));
+                getOperationWithDirectRDDOption());
     }
 
     @Test
     public void testGetAllElementsInRDDWithValidationApplied() throws InterruptedException, IOException,
             OperationException, AccumuloSecurityException, TableNotFoundException, AccumuloException {
         testGetAllElementsInRDDWithValidationApplied(getGraphForMockAccumuloForValidationChecking(),
-                getOperation("testGetAllElementsInRDDWithVisibilityFilteringApplied1"));
+                getOperation());
         testGetAllElementsInRDDWithValidationApplied(
                 getGraphForDirectRDDForValidationChecking("testGetAllElementsInRDDWithValidationApplied"),
-                getOperationWithDirectRDDOption("testGetAllElementsInRDDWithVisibilityFilteringApplied2"));
+                getOperationWithDirectRDDOption());
     }
 
     private void testGetAllElementsInRDD(final Graph graph, final GetRDDOfAllElements getRDD) throws OperationException,
@@ -120,8 +110,6 @@ public class GetRDDOfAllElementsHandlerTest {
             results.add(returnedElements[i]);
         }
         assertEquals(expectedElements, results);
-
-        getRDD.getSparkSession().stop();
     }
 
     private void testGetAllElementsInRDDWithView(final Graph graph, final GetRDDOfAllElements getRDD) throws OperationException,
@@ -155,8 +143,6 @@ public class GetRDDOfAllElementsHandlerTest {
             results.add(returnedElements[i]);
         }
         assertEquals(expectedElements, results);
-
-        getRDD.getSparkSession().stop();
     }
 
     private void testGetAllElementsInRDDWithVisibilityFilteringApplied(final Graph graph,
@@ -201,8 +187,6 @@ public class GetRDDOfAllElementsHandlerTest {
         results.clear();
         returnedElements = (Element[]) rdd.collect();
         assertEquals(0, returnedElements.length);
-
-        getRDD.getSparkSession().stop();
     }
 
     private void testGetAllElementsInRDDWithValidationApplied(final Graph graph, final GetRDDOfAllElements getRDD)
@@ -220,8 +204,6 @@ public class GetRDDOfAllElementsHandlerTest {
         assertEquals(1, returnedElements.length);
 
         assertEquals(entityRetainedAfterValidation, returnedElements[0]);
-
-        getRDD.getSparkSession().stop();
     }
 
     private Graph getGraphForMockAccumulo() throws OperationException {
@@ -279,7 +261,7 @@ public class GetRDDOfAllElementsHandlerTest {
                 .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/types.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(getAccumuloProperties(cluster))
+                .storeProperties(MiniAccumuloClusterProvider.getAccumuloProperties())
                 .build();
         final User user = new User();
         graph.execute(new AddElements.Builder().input(getElements()).build(), user);
@@ -300,7 +282,7 @@ public class GetRDDOfAllElementsHandlerTest {
                 .addSchema(getClass().getResourceAsStream("/schema/elementsWithVisibility.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/types.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(getAccumuloProperties(cluster))
+                .storeProperties(MiniAccumuloClusterProvider.getAccumuloProperties())
                 .build();
         final User user = new User();
         graph.execute(new AddElements.Builder().input(getElementsWithVisibilities()).build(), user);
@@ -321,7 +303,7 @@ public class GetRDDOfAllElementsHandlerTest {
                 .addSchema(getClass().getResourceAsStream("/schema/elementsForValidationChecking.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/typesForValidationChecking.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(getAccumuloProperties(cluster))
+                .storeProperties(MiniAccumuloClusterProvider.getAccumuloProperties())
                 .build();
         final User user = new User();
         graph.execute(new AddElements.Builder().input(getElementsForValidationChecking()).build(), user);
@@ -396,7 +378,7 @@ public class GetRDDOfAllElementsHandlerTest {
         return elements;
     }
 
-    private GetRDDOfAllElements getOperation(final String appName) throws IOException {
+    private GetRDDOfAllElements getOperation() throws IOException {
         // Create Hadoop configuration and serialise to a string
         final Configuration configuration = new Configuration();
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -405,37 +387,15 @@ public class GetRDDOfAllElementsHandlerTest {
 
         // Check get correct elements
         final GetRDDOfAllElements rddQuery = new GetRDDOfAllElements.Builder()
-                .sparkSession(getSparkSession(appName))
+                .sparkSession(SparkSessionProvider.getSparkSession())
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         return rddQuery;
     }
 
-    private GetRDDOfAllElements getOperationWithDirectRDDOption(final String appName) throws IOException {
-        final GetRDDOfAllElements op = getOperation(appName);
+    private GetRDDOfAllElements getOperationWithDirectRDDOption() throws IOException {
+        final GetRDDOfAllElements op = getOperation();
         op.addOption(AbstractGetRDDHandler.USE_RFILE_READER_RDD, "true");
         return op;
-    }
-
-    private AccumuloProperties getAccumuloProperties(final MiniAccumuloCluster cluster) {
-        final AccumuloProperties properties = new AccumuloProperties();
-        properties.setStoreClass(AccumuloStore.class);
-        properties.setInstance(cluster.getInstanceName());
-        properties.setZookeepers(cluster.getZooKeepers());
-        properties.setUser(MiniAccumuloClusterProvider.USER);
-        properties.setPassword(MiniAccumuloClusterProvider.PASSWORD);
-        properties.setOperationDeclarationPaths("sparkAccumuloOperationsDeclarations.json");
-        return properties;
-    }
-
-    private SparkSession getSparkSession(final String appName) {
-        final SparkSession sparkSession = SparkSession.builder()
-                .master("local")
-                .appName(appName)
-                .config(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
-                .config(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
-                .config(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, true)
-                .getOrCreate();
-        return sparkSession;
     }
 }
