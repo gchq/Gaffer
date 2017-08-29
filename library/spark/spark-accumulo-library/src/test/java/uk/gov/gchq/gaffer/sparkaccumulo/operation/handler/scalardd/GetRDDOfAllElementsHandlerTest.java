@@ -331,7 +331,7 @@ public class GetRDDOfAllElementsHandlerTest {
                 .build();
         final User user = new User();
         graph.execute(new AddElements.Builder().input(getElements()).build(), user);
-        cluster.getConnector("root", MiniAccumuloClusterProvider.PASSWORD)
+        cluster.getConnector(MiniAccumuloClusterProvider.ROOT, MiniAccumuloClusterProvider.PASSWORD)
                 .tableOperations()
                 .compact(tableName, new CompactionConfig());
         Thread.sleep(1000L);
@@ -352,7 +352,7 @@ public class GetRDDOfAllElementsHandlerTest {
                 .build();
         final User user = new User();
         graph.execute(new AddElements.Builder().input(getElementsWithVisibilities()).build(), user);
-        cluster.getConnector("root", MiniAccumuloClusterProvider.PASSWORD)
+        cluster.getConnector(MiniAccumuloClusterProvider.ROOT, MiniAccumuloClusterProvider.PASSWORD)
                 .tableOperations()
                 .compact(tableName, new CompactionConfig());
         Thread.sleep(1000L);
@@ -373,7 +373,7 @@ public class GetRDDOfAllElementsHandlerTest {
                 .build();
         final User user = new User();
         graph.execute(new AddElements.Builder().input(getElementsForValidationChecking()).build(), user);
-        cluster.getConnector("root", MiniAccumuloClusterProvider.PASSWORD)
+        cluster.getConnector(MiniAccumuloClusterProvider.ROOT, MiniAccumuloClusterProvider.PASSWORD)
                 .tableOperations()
                 .compact(tableName, new CompactionConfig());
         Thread.sleep(1000L);
