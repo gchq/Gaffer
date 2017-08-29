@@ -20,7 +20,6 @@ import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.client.admin.CompactionConfig;
-import org.apache.accumulo.core.client.admin.CompactionStrategyConfig;
 import org.apache.accumulo.core.conf.AccumuloConfiguration;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -242,9 +241,6 @@ public class GetRDDOfAllElementsHandlerTest {
 
         // Should get aggregated data
         final Element[] returnedElements = (Element[]) rdd.collect();
-        for (int i = 0; i < returnedElements.length; i++) {
-            System.out.println("YYY" + returnedElements[i]);
-        }
 
         assertEquals(1, returnedElements.length);
         final Entity entity1 = new Entity.Builder()
@@ -255,124 +251,75 @@ public class GetRDDOfAllElementsHandlerTest {
         assertEquals(entity1, returnedElements[0]);
     }
 
-    private Graph getGraphForMockAccumulo() throws OperationException {
+    private Graph _getGraphForMockAccumulo(final Schema schema, final List<Element> elements) throws OperationException {
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(GRAPH_ID)
                         .build())
-                .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/types.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
+                .addSchema(schema)
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
                 .build();
         final User user = new User();
-        graph.execute(new AddElements.Builder().input(getElements()).build(), user);
+        graph.execute(new AddElements.Builder().input(elements).build(), user);
         return graph;
+    }
+
+    private Graph getGraphForMockAccumulo() throws OperationException {
+        return _getGraphForMockAccumulo(getSchema(), getElements());
     }
 
     private Graph getGraphForMockAccumuloWithVisibility() throws OperationException {
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(GRAPH_ID)
-                        .build())
-                .addSchema(getClass().getResourceAsStream("/schema/elementsWithVisibility.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/types.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
-                .build();
-        final User user = new User();
-        graph.execute(new AddElements.Builder().input(getElementsWithVisibilities()).build(), user);
-        return graph;
+        return _getGraphForMockAccumulo(getSchemaForVisibility(), getElementsWithVisibilities());
     }
 
     private Graph getGraphForMockAccumuloForValidationChecking() throws OperationException {
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(GRAPH_ID)
-                        .build())
-                .addSchema(getClass().getResourceAsStream("/schema/elementsForValidationChecking.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/typesForValidationChecking.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
-                .build();
-        final User user = new User();
-        graph.execute(new AddElements.Builder().input(getElementsForValidationChecking()).build(), user);
-        return graph;
+        return _getGraphForMockAccumulo(getSchemaForValidationChecking(), getElementsForValidationChecking());
     }
 
     private Graph getGraphForMockAccumuloForIngestAggregation() throws OperationException {
+        final Graph graph = _getGraphForMockAccumulo(getSchemaForIngestAggregationChecking(),
+                getElementsForIngestAggregationChecking());
+        // Add data twice so that can check data is aggregated
+        graph.execute(new AddElements.Builder().input(getElementsForIngestAggregationChecking()).build(), USER);
+        return graph;
+    }
+
+    private Graph _getGraphForDirectRDD(final String tableName, final Schema schema, final List<Element> elements)
+            throws InterruptedException, AccumuloException, AccumuloSecurityException, IOException, OperationException,
+            TableNotFoundException {
+        final MiniAccumuloCluster cluster = MiniAccumuloClusterProvider.getMiniAccumuloCluster();
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
-                        .graphId(GRAPH_ID)
+                        .graphId(tableName)
                         .build())
-                .addSchema(getClass().getResourceAsStream("/schema/elementsForAggregationChecking.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/types.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .addSchema(schema)
+                .storeProperties(MiniAccumuloClusterProvider.getAccumuloProperties())
                 .build();
-        final User user = new User();
-        // Add data twice so that can check data is aggregated
-        graph.execute(new AddElements.Builder().input(getElementsForIngestAggregationChecking()).build(), user);
-        graph.execute(new AddElements.Builder().input(getElementsForIngestAggregationChecking()).build(), user);
+        if (null != elements) {
+            graph.execute(new AddElements.Builder().input(elements).build(), USER);
+            cluster.getConnector(MiniAccumuloClusterProvider.ROOT, MiniAccumuloClusterProvider.PASSWORD)
+                    .tableOperations()
+                    .compact(tableName, new CompactionConfig());
+            Thread.sleep(1000L);
+        }
         return graph;
     }
 
     private Graph getGraphForDirectRDD(final String tableName) throws InterruptedException, AccumuloException, AccumuloSecurityException,
             IOException, OperationException, TableNotFoundException {
-        final MiniAccumuloCluster cluster = MiniAccumuloClusterProvider.getMiniAccumuloCluster();
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(tableName)
-                        .build())
-                .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/types.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(MiniAccumuloClusterProvider.getAccumuloProperties())
-                .build();
-        final User user = new User();
-        graph.execute(new AddElements.Builder().input(getElements()).build(), user);
-        cluster.getConnector(MiniAccumuloClusterProvider.ROOT, MiniAccumuloClusterProvider.PASSWORD)
-                .tableOperations()
-                .compact(tableName, new CompactionConfig());
-        Thread.sleep(1000L);
-        return graph;
+        return _getGraphForDirectRDD(tableName, getSchema(), getElements());
     }
 
     private Graph getGraphForDirectRDDWithVisibility(final String tableName) throws InterruptedException, AccumuloException,
             AccumuloSecurityException, IOException, OperationException, TableNotFoundException {
-        final MiniAccumuloCluster cluster = MiniAccumuloClusterProvider.getMiniAccumuloCluster();
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(tableName)
-                        .build())
-                .addSchema(getClass().getResourceAsStream("/schema/elementsWithVisibility.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/types.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(MiniAccumuloClusterProvider.getAccumuloProperties())
-                .build();
-        final User user = new User();
-        graph.execute(new AddElements.Builder().input(getElementsWithVisibilities()).build(), user);
-        cluster.getConnector(MiniAccumuloClusterProvider.ROOT, MiniAccumuloClusterProvider.PASSWORD)
-                .tableOperations()
-                .compact(tableName, new CompactionConfig());
-        Thread.sleep(1000L);
-        return graph;
+        return _getGraphForDirectRDD(tableName, getSchemaForVisibility(), getElementsWithVisibilities());
     }
 
     private Graph getGraphForDirectRDDForValidationChecking(final String tableName) throws InterruptedException,
             AccumuloException, AccumuloSecurityException, IOException, OperationException, TableNotFoundException {
         final MiniAccumuloCluster cluster = MiniAccumuloClusterProvider.getMiniAccumuloCluster();
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(tableName)
-                        .build())
-                .addSchema(getClass().getResourceAsStream("/schema/elementsForValidationChecking.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/typesForValidationChecking.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(MiniAccumuloClusterProvider.getAccumuloProperties())
-                .build();
-        final User user = new User();
-        graph.execute(new AddElements.Builder().input(getElementsForValidationChecking()).build(), user);
+        final Graph graph = _getGraphForDirectRDD(tableName, getSchemaForValidationChecking(), null);
+        graph.execute(new AddElements.Builder().input(getElementsForValidationChecking()).build(), USER);
         cluster.getConnector(MiniAccumuloClusterProvider.ROOT, MiniAccumuloClusterProvider.PASSWORD)
                 .tableOperations()
                 .compact(tableName, new CompactionConfig());
@@ -382,16 +329,8 @@ public class GetRDDOfAllElementsHandlerTest {
 
     private Graph getGraphForDirectRDDForIngestAggregation(final String tableName) throws InterruptedException,
             AccumuloException, AccumuloSecurityException, IOException, OperationException, TableNotFoundException {
+        final Graph graph = _getGraphForDirectRDD(tableName, getSchemaForIngestAggregationChecking(), null);
         final MiniAccumuloCluster cluster = MiniAccumuloClusterProvider.getMiniAccumuloCluster();
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(tableName)
-                        .build())
-                .addSchema(getClass().getResourceAsStream("/schema/elementsForAggregationChecking.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/types.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(MiniAccumuloClusterProvider.getAccumuloProperties())
-                .build();
         // Write 2 files and import them to the table - writing 2 files with the same data allows us to test whether
         // data from multiple Rfiles is combined, i.e. whether the ingest aggregation is applied at query time when
         // using the RFileReaderRDD
@@ -423,6 +362,42 @@ public class GetRDDOfAllElementsHandlerTest {
         writer.startDefaultLocalityGroup();
         writer.append(key, value);
         writer.close();
+    }
+
+    private Schema getSchema() {
+        final Schema schema = new Schema.Builder()
+                .json(getClass().getResourceAsStream("/schema/elements.json"),
+                        getClass().getResourceAsStream("/schema/types.json"),
+                        getClass().getResourceAsStream("/schema/serialisation.json"))
+                .build();
+        return schema;
+    }
+
+    private Schema getSchemaForVisibility() {
+        final Schema schema = new Schema.Builder()
+                .json(getClass().getResourceAsStream("/schema/elementsWithVisibility.json"),
+                        getClass().getResourceAsStream("/schema/types.json"),
+                        getClass().getResourceAsStream("/schema/serialisation.json"))
+                .build();
+        return schema;
+    }
+
+    private Schema getSchemaForValidationChecking() {
+        final Schema schema = new Schema.Builder()
+                .json(getClass().getResourceAsStream("/schema/elementsForValidationChecking.json"),
+                        getClass().getResourceAsStream("/schema/typesForValidationChecking.json"),
+                        getClass().getResourceAsStream("/schema/serialisation.json"))
+                .build();
+        return schema;
+    }
+
+    private Schema getSchemaForIngestAggregationChecking() {
+        final Schema schema = new Schema.Builder()
+                .json(getClass().getResourceAsStream("/schema/elementsForAggregationChecking.json"),
+                        getClass().getResourceAsStream("/schema/types.json"),
+                        getClass().getResourceAsStream("/schema/serialisation.json"))
+                .build();
+        return schema;
     }
 
     private List<Element> getElements() {
