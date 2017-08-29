@@ -45,18 +45,13 @@ import org.apache.spark.util.TaskCompletionListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.stream.Collectors;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * A <code>RFileReaderIterator</code> is a {@link java.util.Iterator} formed by merging iterators over
@@ -203,37 +198,8 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
         }
     }
 
-    // Taken from org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator
     private List<IteratorSetting> getIteratorSettings() {
-        final String iterators = configuration.get(enumToConfKey(AccumuloInputFormat.class, InputConfigurator.ScanOpts.ITERATORS));
-
-        // If no iterators are present, return an empty list
-        if (iterators == null || iterators.isEmpty()) {
-            LOGGER.info("Found no iterators on configuration");
-            return new ArrayList<>();
-        }
-
-        // Compose the set of iterators encoded in the job configuration
-        final StringTokenizer tokens = new StringTokenizer(iterators, org.apache.hadoop.util.StringUtils.COMMA_STR);
-        final List<IteratorSetting> list = new ArrayList<>();
-        try {
-            while (tokens.hasMoreTokens()) {
-                final String itstring = tokens.nextToken();
-                final ByteArrayInputStream bais = new ByteArrayInputStream(
-                        org.apache.accumulo.core.util.Base64.decodeBase64(itstring.getBytes(UTF_8)));
-                list.add(new IteratorSetting(new DataInputStream(bais)));
-                bais.close();
-                LOGGER.info("Added iterator {}", list.get(list.size() - 1));
-            }
-            LOGGER.info("Found {} iterators in configuration", list.size());
-        } catch (final IOException e) {
-            throw new IllegalArgumentException("couldn't decode iterator settings");
-        }
-        return list;
-    }
-
-    protected static String enumToConfKey(final Class<?> implementingClass, final Enum<?> e) {
-        return implementingClass.getSimpleName() + "." + e.getDeclaringClass().getSimpleName() + "." + org.apache.hadoop.util.StringUtils.camelize(e.name().toLowerCase());
+        return InputConfigurator.getIterators(AccumuloInputFormat.class, configuration);
     }
 
     private void close() {
