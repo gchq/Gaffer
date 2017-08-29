@@ -33,7 +33,6 @@ import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.tool.AddElementsFromHdfsTool;
-import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.SplitStore;
@@ -136,13 +135,6 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         LOGGER.info("Starting to sample input data to create splits points to set on the table");
 
         // Sample data for split points and split the table
-        final Class<? extends MapperGenerator> mapperGeneratorClass;
-        try {
-            mapperGeneratorClass = Class.forName(operation.getMapperGeneratorClassName()).asSubclass(MapperGenerator.class);
-        } catch (final ClassNotFoundException e) {
-            throw new IllegalArgumentException("Mapper generator class name was invalid: " + operation.getMapperGeneratorClassName(), e);
-        }
-
         final String workingPath = operation.getWorkingPath();
         if (null == workingPath) {
             throw new IllegalArgumentException("Prior to adding the data, the table needs to be split. To do this the workingPath must be set to a temporary directory");
@@ -155,9 +147,8 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         try {
             store._execute(new OperationChain.Builder()
                     .first(new SampleDataForSplitPoints.Builder()
-                            .addInputPaths(operation.getInputPaths())
+                            .addInputMapperPairs(operation.getInputMapperPairs())
                             .jobInitialiser(operation.getJobInitialiser())
-                            .mapperGenerator(mapperGeneratorClass)
                             .mappers(operation.getNumMapTasks())
                             .validate(operation.isValidate())
                             .outputPath(tmpSplitsOutputPath)

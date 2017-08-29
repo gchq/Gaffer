@@ -51,9 +51,10 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -178,6 +179,50 @@ public class AddElementsFromHdfsIT {
         shouldNotSampleAndSplitBeforeAddingElements(ClassicKeyPackage.class);
     }
 
+    @Test
+    public void shouldAddMultipleInputPathsFromHdfs() throws Exception {
+        // Given
+        String inputDir2 = testFolder.getRoot().getAbsolutePath() + "/inputDir2";
+        String inputDir3 = testFolder.getRoot().getAbsolutePath() + "/inputDir3";
+        final Map<String, String> inputMappers = new HashMap<>();
+        inputMappers.put(new Path(inputDir).toString(), TextMapperGeneratorImpl.class.getName());
+        inputMappers.put(new Path(inputDir2).toString(), TextMapperGeneratorImpl.class.getName());
+
+        createInputFile(inputDir, 0, 1000);
+        createInputFile(inputDir2, 1000, 2000);
+        createInputFile(inputDir3, 2000, 3000);
+
+        final Graph graph = new Graph.Builder()
+                .store(createStore(ClassicKeyPackage.class))
+                .build();
+
+        // When
+        graph.execute(new AddElementsFromHdfs.Builder()
+                .inputMapperPairs(inputMappers)
+                .addinputMapperPair(new Path(inputDir3).toString(), TextMapperGeneratorImpl.class.getName())
+                .outputPath(outputDir)
+                .failurePath(failureDir)
+                .jobInitialiser(new TextJobInitialiser())
+                .useProvidedSplits(false)
+                .splitsFilePath(splitsFile)
+                .workingPath(workingDir)
+                .build(), new User());
+
+        // Then
+        final CloseableIterable<? extends Element> elements = graph.execute(new GetAllElements(), new User());
+        final Set<Element> elementSet = Sets.newHashSet(elements);
+        assertEquals(3000, elementSet.size());
+
+        final Set<Element> expectedElements = new HashSet<>(NUM_ENTITIES);
+        for (int i = 0; i < 3000; i++) {
+            expectedElements.add(new Entity.Builder()
+                    .vertex(VERTEX_ID_PREFIX + i)
+                    .group(TestGroups.ENTITY)
+                    .build());
+        }
+        assertEquals(expectedElements, elementSet);
+    }
+
     private void shouldNotSampleAndSplitBeforeAddingElements(final Class<? extends AccumuloKeyPackage> keyPackage) throws Exception {
         final AccumuloStore store = createStore(keyPackage);
 
@@ -196,17 +241,16 @@ public class AddElementsFromHdfsIT {
 
     private void addElementsFromHdfs(final AccumuloStore store, final int expectedSplits) throws Exception {
         // Given
-        createInputFile();
+        createInputFile(inputDir, 0, 1000);
         final Graph graph = new Graph.Builder()
                 .store(store)
                 .build();
 
         // When
         graph.execute(new AddElementsFromHdfs.Builder()
-                .inputPaths(Collections.singletonList(inputDir))
+                .addinputMapperPair(new Path(inputDir).toString(), TextMapperGeneratorImpl.class.getName())
                 .outputPath(outputDir)
                 .failurePath(failureDir)
-                .mapperGenerator(TextMapperGeneratorImpl.class)
                 .jobInitialiser(new TextJobInitialiser())
                 .useProvidedSplits(false)
                 .splitsFilePath(splitsFile)
@@ -229,14 +273,14 @@ public class AddElementsFromHdfsIT {
         assertEquals(expectedSplits, store.getConnection().tableOperations().listSplits(store.getTableName()).size());
     }
 
-    private void createInputFile() throws IOException, StoreException {
+    private void createInputFile(final String inputDir, final int start, final int end) throws IOException, StoreException {
         final Path inputPath = new Path(inputDir);
         final Path inputFilePath = new Path(inputDir + "/file.txt");
         final FileSystem fs = FileSystem.getLocal(createLocalConf());
         fs.mkdirs(inputPath);
 
         try (final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fs.create(inputFilePath, true)))) {
-            for (int i = 0; i < NUM_ENTITIES; i++) {
+            for (int i = start; i < end; i++) {
                 writer.write(TestGroups.ENTITY + "," + VERTEX_ID_PREFIX + i + "\n");
             }
         }
