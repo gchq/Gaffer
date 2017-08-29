@@ -15,7 +15,8 @@
  */
 package uk.gov.gchq.gaffer.binaryoperator;
 
-import uk.gov.gchq.gaffer.commonutil.exception.LimitExceededException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.types.IntegerFreqMap;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 import java.util.Map.Entry;
@@ -28,6 +29,8 @@ import java.util.Map.Entry;
  */
 @Deprecated
 public class IntegerFreqMapAggregator extends KorypheBinaryOperator<IntegerFreqMap> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(IntegerFreqMapAggregator.class);
+
     @Override
     public IntegerFreqMap _apply(final IntegerFreqMap a, final IntegerFreqMap b) {
        return _apply(a, b, true);
@@ -35,19 +38,20 @@ public class IntegerFreqMapAggregator extends KorypheBinaryOperator<IntegerFreqM
 
     public IntegerFreqMap _apply(final IntegerFreqMap a, final IntegerFreqMap b, final boolean truncate) {
         final int maxSize = 1000;
-        if (a.size() + b.size() < maxSize && truncate) {
-            for (final Entry<String, Integer> entry : b.entrySet()) {
-                if (a.size() < maxSize && a.containsKey(entry.getKey())) {
-                    a.put(entry.getKey(), a.get(entry.getKey()) + entry.getValue());
-                } else if (a.size() < maxSize) {
-                    a.put(entry.getKey(), entry.getValue());
-                } else {
-                    return a;
-                }
+        if (a.size() + b.size() > maxSize) {
+            if(!truncate) {
+                LOGGER.warn("Max size of: " + maxSize + " potentially exceeded - to avoid truncation, the first input will be returned.");
+                return a;
             }
-            return a;
-        } else {
-            throw new LimitExceededException("Result too large - potential to breach limits of the store row size.");
+            LOGGER.warn("Max size of: " + maxSize + " potentially exceeded - data may be lost due to truncation.");
         }
+        for (final Entry<String, Integer> entry : b.entrySet()) {
+            if (a.containsKey(entry.getKey())) {
+                a.put(entry.getKey(), a.get(entry.getKey()) + entry.getValue());
+            } else if (a.size() < maxSize) {
+                a.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return a;
     }
 }
