@@ -15,12 +15,17 @@
  */
 package uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory;
 
+import com.google.common.collect.Lists;
+import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public interface AddElementsFromHdfsJobFactory extends JobFactory<AddElementsFromHdfs> {
@@ -34,7 +39,29 @@ public interface AddElementsFromHdfsJobFactory extends JobFactory<AddElementsFro
      * @throws IOException for IO issues
      */
     @Override
-    List<Job> createJobs(final AddElementsFromHdfs operation, final Store store) throws IOException;
+    default List<Job> createJobs(final AddElementsFromHdfs operation, final Store store) throws IOException {
+        final List<Job> jobs = new ArrayList<>();
+        Map<String, List<String>> mapperGeneratorsToInputPathsList = new HashMap<>();
+        for (final Map.Entry<String, String> entry : operation.getInputMapperPairs().entrySet()) {
+            if (mapperGeneratorsToInputPathsList.containsKey(entry.getValue())) {
+                mapperGeneratorsToInputPathsList.get(entry.getValue()).add(entry.getKey());
+            } else {
+                mapperGeneratorsToInputPathsList.put(entry.getValue(), Lists.newArrayList(entry.getKey()));
+            }
+        }
+
+        for (final String mapperGeneratorClassName : mapperGeneratorsToInputPathsList.keySet()) {
+            final JobConf jobConf = createJobConf(operation, mapperGeneratorClassName, store);
+            final Job job = Job.getInstance(jobConf);
+            setupJob(job, operation, mapperGeneratorClassName, store);
+
+            if (null != operation.getJobInitialiser()) {
+                operation.getJobInitialiser().initialiseJob(job, operation, store);
+            }
+            jobs.add(job);
+        }
+        return jobs;
+    }
 
     /**
      * Prepares the store for the add from hdfs.
@@ -44,4 +71,26 @@ public interface AddElementsFromHdfsJobFactory extends JobFactory<AddElementsFro
      * @throws StoreException if an error occurs
      */
     void prepareStore(final Store store) throws StoreException;
+
+    /**
+     * Creates an {@link JobConf} to be used for the add from hdfs.
+     *
+     * @param operation                The AddElementsFromHdfs Operation.
+     * @param mapperGeneratorClassName Class name for the MapperGenerator class.
+     * @param store                    The store.
+     * @return The JobConf
+     * @throws IOException For IO issues.
+     */
+    JobConf createJobConf(final AddElementsFromHdfs operation, final String mapperGeneratorClassName, final Store store) throws IOException;
+
+    /**
+     * Sets up all parts of the Job to be used on the add from hdfs.
+     *
+     * @param job             The {@link Job} to be executed.
+     * @param operation       The AddElementsFromHdfs Operation.
+     * @param mapperGenerator Class Name for the MapperGenerator class.
+     * @param store           The store.
+     * @throws IOException For IO issues.
+     */
+    void setupJob(final Job job, final AddElementsFromHdfs operation, final String mapperGenerator, final Store store) throws IOException;
 }

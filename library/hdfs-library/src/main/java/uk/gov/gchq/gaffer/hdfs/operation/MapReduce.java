@@ -51,9 +51,9 @@ public interface MapReduce {
     }
 
     default void addInputMapperPair(final String inputPath, final String mapperGeneratorClassName) {
-        Map<String, String> inputMapperMap = new HashMap<>();
-        inputMapperMap.put(inputPath, mapperGeneratorClassName);
         if (null == getInputMapperPairs()) {
+            Map<String, String> inputMapperMap = new HashMap<>();
+            inputMapperMap.put(inputPath, mapperGeneratorClassName);
             setInputMapperPairs(inputMapperMap);
         } else {
             getInputMapperPairs().put(inputPath, mapperGeneratorClassName);

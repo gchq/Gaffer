@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory;
 
-import com.beust.jcommander.internal.Lists;
+import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;

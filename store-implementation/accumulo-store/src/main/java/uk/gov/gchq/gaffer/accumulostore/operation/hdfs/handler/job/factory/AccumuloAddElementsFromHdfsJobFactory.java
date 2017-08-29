@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory;
 
-import com.beust.jcommander.internal.Lists;
 import org.apache.accumulo.core.client.mapreduce.AccumuloFileOutputFormat;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -41,56 +40,17 @@ import uk.gov.gchq.gaffer.hdfs.operation.partitioner.NoPartitioner;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdfsJobFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloAddElementsFromHdfsJobFactory.class);
-
-    /**
-     * Creates a list of jobs with the store specific job initialisation and then applies the operation specific
-     * {@link uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser}.  The list is created using
-     * each Pair of InputMappers and creates a single Job for each MapperGenerator with all the inputs for a
-     * matching MapperGenerator in the same Job.
-     *
-     * @param operation the add elements from hdfs operation
-     * @param store     the store executing the operation
-     * @return the created jobs
-     * @throws IOException for IO issues
-     */
-    @Override
-    public List<Job> createJobs(final AddElementsFromHdfs operation, final Store store) throws IOException {
-        final List<Job> jobs = new ArrayList<>();
-        Map<String, List<String>> mapperGeneratorsToInputPathsList = new HashMap<>();
-        for (final Map.Entry<String, String> entry : operation.getInputMapperPairs().entrySet()) {
-            if (mapperGeneratorsToInputPathsList.containsKey(entry.getValue())) {
-                mapperGeneratorsToInputPathsList.get(entry.getValue()).add(entry.getKey());
-            } else {
-                mapperGeneratorsToInputPathsList.put(entry.getValue(), Lists.newArrayList(entry.getKey()));
-            }
-        }
-
-        for (final String mapperGeneratorClassName : mapperGeneratorsToInputPathsList.keySet()) {
-            final JobConf jobConf = createJobConf(operation, mapperGeneratorClassName, store);
-            final Job job = Job.getInstance(jobConf);
-            setupJob(job, operation, mapperGeneratorClassName, store);
-
-            if (null != operation.getJobInitialiser()) {
-                operation.getJobInitialiser().initialiseJob(job, operation, store);
-            }
-            jobs.add(job);
-        }
-        return jobs;
-    }
 
     @Override
     public void prepareStore(final Store store) throws StoreException {
         TableUtils.ensureTableExists(((AccumuloStore) store));
     }
 
-    protected JobConf createJobConf(final AddElementsFromHdfs operation, final String mapperGeneratorClassName, final Store store) throws IOException {
+    @Override
+    public JobConf createJobConf(final AddElementsFromHdfs operation, final String mapperGeneratorClassName, final Store store) throws IOException {
         final JobConf jobConf = new JobConf(new Configuration());
 
         LOGGER.info("Setting up job conf");
@@ -125,7 +85,8 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
         return "Ingest HDFS data: Generator=" + mapperGenerator + ", output=" + outputPath;
     }
 
-    protected void setupJob(final Job job, final AddElementsFromHdfs operation, final String mapperGenerator, final Store store) throws IOException {
+    @Override
+    public void setupJob(final Job job, final AddElementsFromHdfs operation, final String mapperGenerator, final Store store) throws IOException {
         job.setJarByClass(getClass());
         job.setJobName(getJobName(mapperGenerator, operation.getOutputPath()));
 
@@ -143,29 +104,28 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
         }
     }
 
-    protected void setupMapper(final Job job) throws IOException {
+    protected void setupMapper(final Job job) {
         job.setMapperClass(AddElementsFromHdfsMapper.class);
         job.setMapOutputKeyClass(Key.class);
         job.setMapOutputValueClass(Value.class);
     }
 
-    protected void setupCombiner(final Job job) throws IOException {
+    protected void setupCombiner(final Job job) {
         job.setCombinerClass(AccumuloKeyValueReducer.class);
     }
 
-    protected void setupReducer(final Job job) throws IOException {
+    protected void setupReducer(final Job job) {
         job.setReducerClass(AccumuloKeyValueReducer.class);
         job.setOutputKeyClass(Key.class);
         job.setOutputValueClass(Value.class);
     }
 
-    protected void setupOutput(final Job job, final AddElementsFromHdfs operation) throws IOException {
+    protected void setupOutput(final Job job, final AddElementsFromHdfs operation) {
         job.setOutputFormatClass(AccumuloFileOutputFormat.class);
         FileOutputFormat.setOutputPath(job, new Path(operation.getOutputPath()));
     }
 
-    protected void setupPartitioner(final Job job, final AddElementsFromHdfs operation, final AccumuloStore store)
-            throws IOException {
+    protected void setupPartitioner(final Job job, final AddElementsFromHdfs operation, final AccumuloStore store) throws IOException {
         if (operation.getSplitsFilePath() == null) {
             // Provide a default path if the splits file path is missing
             operation.setSplitsFilePath("");
