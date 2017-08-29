@@ -17,12 +17,12 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd;
 
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.SparkConf;
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.SparkSession;
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -49,7 +49,6 @@ import uk.gov.gchq.gaffer.sparkaccumulo.operation.scalardd.ImportKeyValuePairRDD
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.scala.ElementConverterFunction;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
@@ -65,6 +64,11 @@ public class ImportKeyValuePairRDDToAccumuloHandlerTest {
     private static final ClassTag<AccumuloElementConverter> ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG = scala.reflect.ClassTag$.MODULE$.apply(AccumuloElementConverter.class);
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
+    @After
+    public void tearDown() {
+        testFolder.delete();
+    }
 
     @Test
     public void checkImportRDDOfElements() throws OperationException, IOException {
@@ -121,10 +125,6 @@ public class ImportKeyValuePairRDDToAccumuloHandlerTest {
         final String configurationString = new String(baos.toByteArray(), CommonConstants.UTF_8);
         final String outputPath = testFolder + "load";
         final String failurePath = testFolder + "failure";
-        final File file = new File(outputPath);
-        if (file.exists()) {
-            FileUtils.forceDelete(file);
-        }
 
         final ElementConverterFunction func = new ElementConverterFunction(sparkSession.sparkContext().broadcast(new ByteEntityAccumuloElementConverter(graph1.getSchema()), ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG));
         final RDD<Tuple2<Key, Value>> elementRDD = sparkSession.sparkContext().parallelize(elements, 1, ELEMENT_CLASS_TAG).flatMap(func, TUPLE2_CLASS_TAG);
@@ -134,7 +134,6 @@ public class ImportKeyValuePairRDDToAccumuloHandlerTest {
                 .failurePath(failurePath)
                 .build();
         graph1.execute(addRdd, user);
-        FileUtils.forceDeleteOnExit(file);
 
         // Check all elements were added
         final GetRDDOfAllElements rddQuery = new GetRDDOfAllElements.Builder()
