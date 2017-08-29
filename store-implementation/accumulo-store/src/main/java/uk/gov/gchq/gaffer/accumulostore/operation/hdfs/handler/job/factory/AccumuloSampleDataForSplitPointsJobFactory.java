@@ -117,7 +117,8 @@ public class AccumuloSampleDataForSplitPointsJobFactory implements SampleDataFor
         return numberTabletServers - 1;
     }
 
-    protected JobConf createJobConf(final SampleDataForSplitPoints operation, final String mapperGeneratorClassName, final Store store) throws IOException {
+    @Override
+    public JobConf createJobConf(final SampleDataForSplitPoints operation, final String mapperGeneratorClassName, final Store store) throws IOException {
         final JobConf jobConf = new JobConf(new Configuration());
 
         LOGGER.info("Setting up job conf");
@@ -146,7 +147,8 @@ public class AccumuloSampleDataForSplitPointsJobFactory implements SampleDataFor
         return jobConf;
     }
 
-    protected void setupJob(final Job job, final SampleDataForSplitPoints operation, final String mapperGeneratorClassName, final Store store) throws IOException {
+    @Override
+    public void setupJob(final Job job, final SampleDataForSplitPoints operation, final String mapperGeneratorClassName, final Store store) throws IOException {
         job.setJarByClass(getClass());
         job.setJobName(getJobName(mapperGeneratorClassName, new Path(operation.getOutputPath())));
 
