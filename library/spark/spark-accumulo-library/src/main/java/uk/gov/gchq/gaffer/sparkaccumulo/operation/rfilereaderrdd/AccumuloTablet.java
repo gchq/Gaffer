@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.rfilereaderrdd;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.hadoop.io.Text;
 import org.apache.spark.Partition;
 
@@ -73,26 +75,34 @@ public class AccumuloTablet implements Serializable, Partition {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
 
-        final AccumuloTablet that = (AccumuloTablet) o;
+        final AccumuloTablet accumuloTablet = (AccumuloTablet) obj;
 
-        if (rddId != that.rddId) {
-            return false;
-        }
-        return index == that.index;
+        return new EqualsBuilder()
+                .append(rddId, accumuloTablet.rddId)
+                .append(index, accumuloTablet.index)
+                .append(start, accumuloTablet.start)
+                .append(end, accumuloTablet.end)
+                .append(files, accumuloTablet.files)
+                .isEquals();
     }
 
     @Override
     public int hashCode() {
-        int result = rddId;
-        result = 31 * result + index;
-        return result;
+        return new HashCodeBuilder(13, 31)
+                .append(rddId)
+                .append(index)
+                .append(start)
+                .append(end)
+                .append(files)
+                .hashCode();
     }
 }
