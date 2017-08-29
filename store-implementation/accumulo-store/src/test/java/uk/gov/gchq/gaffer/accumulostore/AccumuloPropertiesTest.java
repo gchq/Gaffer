@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class AccumuloPropertiesTest {
     @Test
@@ -49,6 +50,25 @@ public class AccumuloPropertiesTest {
 
         // Then
         assertEquals(SketchesJsonModules.class.getName() + "," + TestCustomJsonModules1.class.getName(), modules);
+    }
+
+    @Test
+    public void shouldSetProperties() {
+        // Given
+        final AccumuloProperties props = new AccumuloProperties();
+        final String NUM_THREADS = "5";
+        final String MAX_TIME_OUT = "500";
+        final String MAX_BUFFER = "200000000";
+
+        // When
+        props.setNumThreadsForBatchWriter(NUM_THREADS);
+        props.setMaxTimeOutForBatchWriterInMilliseconds(MAX_TIME_OUT);
+        props.setMaxBufferSizeForBatchWriterInBytes(MAX_BUFFER);
+
+        // Then
+        assertEquals(Integer.parseInt(NUM_THREADS), props.getNumThreadsForBatchWriter());
+        assertEquals(Long.parseLong(MAX_TIME_OUT), props.getMaxTimeOutForBatchWriterInMilliseconds().longValue());
+        assertEquals(Long.parseLong(MAX_BUFFER), props.getMaxBufferSizeForBatchWriterInBytes().longValue());
     }
 
     public static final class TestCustomJsonModules1 implements JSONSerialiserModules {
