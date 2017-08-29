@@ -28,6 +28,8 @@ import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.file.blockfile.impl.CachableBlockFile;
 import org.apache.accumulo.core.file.rfile.RFile;
+import org.apache.accumulo.core.iterators.IteratorEnvironment;
+import org.apache.accumulo.core.iterators.IteratorUtil;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.apache.accumulo.core.iterators.system.MultiIterator;
 import org.apache.accumulo.core.iterators.system.VisibilityFilter;
@@ -164,7 +166,37 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
         try {
             SortedKeyValueIterator<Key, Value> result = Class.forName(is.getIteratorClass())
                     .asSubclass(SortedKeyValueIterator.class).newInstance();
-            result.init(source, is.getOptions(), null);
+            result.init(source, is.getOptions(), new IteratorEnvironment() {
+                @Override
+                public SortedKeyValueIterator<Key, Value> reserveMapFileReader(final String mapFileName) throws IOException {
+                    return null;
+                }
+
+                @Override
+                public AccumuloConfiguration getConfig() {
+                    return null;
+                }
+
+                @Override
+                public IteratorUtil.IteratorScope getIteratorScope() {
+                    return IteratorUtil.IteratorScope.majc;
+                }
+
+                @Override
+                public boolean isFullMajorCompaction() {
+                    return false;
+                }
+
+                @Override
+                public void registerSideChannel(final SortedKeyValueIterator<Key, Value> iter) {
+
+                }
+
+                @Override
+                public Authorizations getAuthorizations() {
+                    return null;
+                }
+            });
             return result;
         } catch (final IOException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new RuntimeException("Exception creating iterator of class " + is.getIteratorClass());

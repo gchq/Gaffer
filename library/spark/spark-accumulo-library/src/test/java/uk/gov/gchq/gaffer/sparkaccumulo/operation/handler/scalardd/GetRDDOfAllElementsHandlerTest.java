@@ -20,12 +20,25 @@ import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.client.admin.CompactionConfig;
+import org.apache.accumulo.core.client.admin.CompactionStrategyConfig;
+import org.apache.accumulo.core.conf.AccumuloConfiguration;
+import org.apache.accumulo.core.data.Key;
+import org.apache.accumulo.core.data.Value;
+import org.apache.accumulo.core.file.blockfile.impl.CachableBlockFile;
+import org.apache.accumulo.core.file.rfile.RFile;
+import org.apache.accumulo.core.file.rfile.bcfile.Compression;
 import org.apache.accumulo.minicluster.MiniAccumuloCluster;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.spark.rdd.RDD;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -43,10 +56,12 @@ import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.MiniAccumuloClusterProvider;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.SparkSessionProvider;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.function.Concat;
 
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -55,6 +70,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class GetRDDOfAllElementsHandlerTest {
+    @Rule
+    public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
     private final User USER = new User();
     private final User USER_WITH_PUBLIC = new User("user1", Sets.newHashSet("public"));
     private final User USER_WITH_PUBLIC_AND_PRIVATE = new User("user2", Sets.newHashSet("public", "private"));
@@ -94,6 +112,16 @@ public class GetRDDOfAllElementsHandlerTest {
                 getOperation());
         testGetAllElementsInRDDWithValidationApplied(
                 getGraphForDirectRDDForValidationChecking("testGetAllElementsInRDDWithValidationApplied"),
+                getOperationWithDirectRDDOption());
+    }
+
+    @Test
+    public void testGetAllElementsInRDDWithIngestAggregationApplied() throws OperationException, IOException,
+            InterruptedException, AccumuloSecurityException, TableNotFoundException, AccumuloException {
+        testGetAllElementsInRDDWithIngestAggregationApplied(getGraphForMockAccumuloForIngestAggregation(),
+                getOperation());
+        testGetAllElementsInRDDWithIngestAggregationApplied(
+                getGraphForDirectRDDForIngestAggregation("testGetAllElementsInRDDWithIngestAggregationApplied"),
                 getOperationWithDirectRDDOption());
     }
 
@@ -202,8 +230,29 @@ public class GetRDDOfAllElementsHandlerTest {
         // Should get Entity B but not Entity A
         final Element[] returnedElements = (Element[]) rdd.collect();
         assertEquals(1, returnedElements.length);
-
         assertEquals(entityRetainedAfterValidation, returnedElements[0]);
+    }
+
+    private void testGetAllElementsInRDDWithIngestAggregationApplied(final Graph graph, final GetRDDOfAllElements getRDD)
+            throws OperationException {
+        final RDD<Element> rdd = graph.execute(getRDD, USER);
+        if (rdd == null) {
+            fail("No RDD returned");
+        }
+
+        // Should get aggregated data
+        final Element[] returnedElements = (Element[]) rdd.collect();
+        for (int i = 0; i < returnedElements.length; i++) {
+            System.out.println("YYY" + returnedElements[i]);
+        }
+
+        assertEquals(1, returnedElements.length);
+        final Entity entity1 = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex("A")
+                .property("count", 2)
+                .build();
+        assertEquals(entity1, returnedElements[0]);
     }
 
     private Graph getGraphForMockAccumulo() throws OperationException {
@@ -248,6 +297,23 @@ public class GetRDDOfAllElementsHandlerTest {
                 .build();
         final User user = new User();
         graph.execute(new AddElements.Builder().input(getElementsForValidationChecking()).build(), user);
+        return graph;
+    }
+
+    private Graph getGraphForMockAccumuloForIngestAggregation() throws OperationException {
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .addSchema(getClass().getResourceAsStream("/schema/elementsForAggregationChecking.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/types.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
+                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .build();
+        final User user = new User();
+        // Add data twice so that can check data is aggregated
+        graph.execute(new AddElements.Builder().input(getElementsForIngestAggregationChecking()).build(), user);
+        graph.execute(new AddElements.Builder().input(getElementsForIngestAggregationChecking()).build(), user);
         return graph;
     }
 
@@ -314,6 +380,51 @@ public class GetRDDOfAllElementsHandlerTest {
         return graph;
     }
 
+    private Graph getGraphForDirectRDDForIngestAggregation(final String tableName) throws InterruptedException,
+            AccumuloException, AccumuloSecurityException, IOException, OperationException, TableNotFoundException {
+        final MiniAccumuloCluster cluster = MiniAccumuloClusterProvider.getMiniAccumuloCluster();
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(tableName)
+                        .build())
+                .addSchema(getClass().getResourceAsStream("/schema/elementsForAggregationChecking.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/types.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
+                .storeProperties(MiniAccumuloClusterProvider.getAccumuloProperties())
+                .build();
+        // Write 2 files and import them to the table - writing 2 files with the same data allows us to test whether
+        // data from multiple Rfiles is combined, i.e. whether the ingest aggregation is applied at query time when
+        // using the RFileReaderRDD
+        for (int i = 0; i < 2; i++) {
+            final String dir = tempFolder.newFolder().getAbsolutePath();
+            final String file = dir + File.separator + "file" + i+ ".rf";
+            final String failure = tempFolder.newFolder().getAbsolutePath();
+            writeFile(graph.getSchema(), file);
+            cluster.getConnector(MiniAccumuloClusterProvider.USER, MiniAccumuloClusterProvider.PASSWORD)
+                    .tableOperations()
+                    .importDirectory(tableName, dir, failure, false);
+        }
+        return graph;
+    }
+
+    private void writeFile(final Schema schema, final String file) throws IOException {
+        final Configuration conf = new Configuration();
+        final CachableBlockFile.Writer blockFileWriter = new CachableBlockFile.Writer(
+                FileSystem.get(conf),
+                new Path(file),
+                Compression.COMPRESSION_NONE,
+                conf,
+                AccumuloConfiguration.getDefaultConfiguration());
+        final ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(schema);
+        final Entity entity = (Entity) getElementsForIngestAggregationChecking().get(0);
+        final Key key = converter.getKeyFromEntity((Entity) getElementsForIngestAggregationChecking().get(0));
+        final Value value = converter.getValueFromProperties(entity.getGroup(), entity.getProperties());
+        final RFile.Writer writer = new RFile.Writer(blockFileWriter, 1000);
+        writer.startDefaultLocalityGroup();
+        writer.append(key, value);
+        writer.close();
+    }
+
     private List<Element> getElements() {
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < 1; i++) {
@@ -375,6 +486,17 @@ public class GetRDDOfAllElementsHandlerTest {
         entityRetainedAfterValidation = entity2;
         elements.add(entity1);
         elements.add(entity2);
+        return elements;
+    }
+
+    private List<Element> getElementsForIngestAggregationChecking() {
+        final List<Element> elements = new ArrayList<>();
+        final Entity entity1 = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex("A")
+                .property("count", 1)
+                .build();
+        elements.add(entity1);
         return elements;
     }
 

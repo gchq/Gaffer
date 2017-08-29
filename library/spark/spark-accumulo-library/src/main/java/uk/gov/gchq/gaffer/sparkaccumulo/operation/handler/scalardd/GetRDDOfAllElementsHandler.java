@@ -33,6 +33,7 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.inputformat.ElementInputFormat;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage;
+import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
@@ -101,6 +102,13 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
         // is present on the table and therefore applied to all scans - here we're bypassing the normal table access
         // method so it needs to be applied manually)
         addValidationIterator(accumuloStore, conf);
+        // Need to add aggregation iterator manually for the same reasons as above
+        try {
+            addAggregationIterator(accumuloStore, conf);
+        } catch (final IteratorSettingException e) {
+            throw new OperationException("IteratorSettingException adding aggregation iterator", e);
+        }
+        // Add other iterators
         addIterators(accumuloStore, conf, context.getUser(), operation);
         try {
             // Add view to conf so that any transformations can be applied
@@ -131,6 +139,19 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
                 LOGGER.info("Adding validation iterator");
                 InputConfigurator.addIterator(AccumuloInputFormat.class, conf, itrSetting);
             }
+        }
+    }
+
+    private void addAggregationIterator(final AccumuloStore accumuloStore, final Configuration conf)
+            throws IteratorSettingException {
+        if (accumuloStore.getSchema().isAggregationEnabled()) {
+            // Add aggregator iterator to table for all scopes
+            LOGGER.info("Adding aggregator iterator");
+            final IteratorSetting itrSetting = accumuloStore
+                    .getKeyPackage().getIteratorFactory().getAggregatorIteratorSetting(accumuloStore);
+            InputConfigurator.addIterator(AccumuloInputFormat.class, conf, itrSetting);
+        } else {
+            LOGGER.info("Not adding aggregator iterator as aggregation is not enabled");
         }
     }
 
