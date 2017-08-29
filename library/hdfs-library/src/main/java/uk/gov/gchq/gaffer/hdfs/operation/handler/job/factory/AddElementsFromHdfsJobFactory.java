@@ -15,45 +15,12 @@
  */
 package uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory;
 
-import com.google.common.collect.Lists;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapreduce.Job;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 
 public interface AddElementsFromHdfsJobFactory extends JobFactory<AddElementsFromHdfs> {
-
-    @Override
-    default List<Job> createJobs(final AddElementsFromHdfs operation, final Store store) throws IOException {
-        final List<Job> jobs = new ArrayList<>();
-        Map<String, List<String>> mapperGeneratorsToInputPathsList = new HashMap<>();
-        for (final Map.Entry<String, String> entry : operation.getInputMapperPairs().entrySet()) {
-            if (mapperGeneratorsToInputPathsList.containsKey(entry.getValue())) {
-                mapperGeneratorsToInputPathsList.get(entry.getValue()).add(entry.getKey());
-            } else {
-                mapperGeneratorsToInputPathsList.put(entry.getValue(), Lists.newArrayList(entry.getKey()));
-            }
-        }
-
-        for (final String mapperGeneratorClassName : mapperGeneratorsToInputPathsList.keySet()) {
-            final JobConf jobConf = createJobConf(operation, mapperGeneratorClassName, store);
-            final Job job = Job.getInstance(jobConf);
-            setupJob(job, operation, mapperGeneratorClassName, store);
-
-            if (null != operation.getJobInitialiser()) {
-                operation.getJobInitialiser().initialiseJob(job, operation, store);
-            }
-            jobs.add(job);
-        }
-        return jobs;
-    }
 
     /**
      * Prepares the store for the add from hdfs.
