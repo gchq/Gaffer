@@ -28,6 +28,20 @@ import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.GetRDDOfAllEl
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
+/**
+ * A handler for the {@link GetJavaRDDOfAllElements} operation. This simply uses the operation
+ * {@link GetRDDOfAllElements} to produce an {@link RDD} and then calls <code>toJavaRDD()</code> to obtain a
+ * {@link JavaRDD}.
+ *
+ * <p>If the <code>gaffer.accumulo.spark.directrdd.use_rfile_reader</code> option is set to <code>true</code> then the
+ * RDD will be produced by directly reading the RFiles in the Accumulo table, rather than using
+ * {@link uk.gov.gchq.gaffer.accumulostore.inputformat.ElementInputFormat} to get data via the tablet servers. In order
+ * to read the RFiles directly, the user must have read access to the files. Also note that any data that has not been
+ * minor compacted will not be read. Reading the Rfiles directly can increase the performance.
+ *
+ * <p>If the <code>gaffer.accumulo.spark.directrdd.use_rfile_reader</code> option is not set then the standard approach
+ * of obtaining data via the tablet servers is used.
+ */
 public class GetJavaRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetJavaRDDOfAllElements, JavaRDD<Element>> {
 
     @Override
