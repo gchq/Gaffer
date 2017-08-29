@@ -23,13 +23,16 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.SparkConf;
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.SparkSession;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import scala.Tuple2;
 import scala.collection.mutable.ArrayBuffer;
 import scala.reflect.ClassTag;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -58,8 +61,10 @@ import static org.junit.Assert.fail;
 public class ImportKeyValuePairRDDToAccumuloHandlerTest {
 
     private static final ClassTag<Element> ELEMENT_CLASS_TAG = ClassTagConstants.ELEMENT_CLASS_TAG;
-    private static final ClassTag<Tuple2<Key, Value>> TUPLE2_CLASS_TAG = ClassTagConstants.TUPLE2_CLASS_TAG;
-    private static final ClassTag<AccumuloElementConverter> ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG = ClassTagConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG;
+    private static final ClassTag<Tuple2<Key, Value>> TUPLE2_CLASS_TAG = scala.reflect.ClassTag$.MODULE$.apply(Tuple2.class);
+    private static final ClassTag<AccumuloElementConverter> ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG = scala.reflect.ClassTag$.MODULE$.apply(AccumuloElementConverter.class);
+    @Rule
+    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     @Test
     public void checkImportRDDOfElements() throws OperationException, IOException {
@@ -114,8 +119,8 @@ public class ImportKeyValuePairRDDToAccumuloHandlerTest {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         configuration.write(new DataOutputStream(baos));
         final String configurationString = new String(baos.toByteArray(), CommonConstants.UTF_8);
-        final String outputPath = this.getClass().getResource("/").getPath().toString() + "load" + Math.random();
-        final String failurePath = this.getClass().getResource("/").getPath().toString() + "failure" + Math.random();
+        final String outputPath = testFolder + "load";
+        final String failurePath = testFolder + "failure";
         final File file = new File(outputPath);
         if (file.exists()) {
             FileUtils.forceDelete(file);

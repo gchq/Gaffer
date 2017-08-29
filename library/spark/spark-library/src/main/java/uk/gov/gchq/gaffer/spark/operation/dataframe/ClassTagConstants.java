@@ -15,13 +15,9 @@
  */
 package uk.gov.gchq.gaffer.spark.operation.dataframe;
 
-import org.apache.accumulo.core.data.Key;
-import org.apache.accumulo.core.data.Value;
 import org.apache.spark.sql.Row;
-import scala.Tuple2;
 import scala.reflect.ClassTag;
 import scala.reflect.ClassTag$;
-import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.data.element.Element;
 
 /**
@@ -35,7 +31,4 @@ public final class ClassTagConstants {
 
     public static final ClassTag<Element> ELEMENT_CLASS_TAG = ClassTag$.MODULE$.apply(Element.class);
     public static final ClassTag<Row> ROW_CLASS_TAG = ClassTag$.MODULE$.apply(Row.class);
-    public static final ClassTag<Tuple2<Key, Value>> TUPLE2_CLASS_TAG = ClassTag$.MODULE$.apply(Tuple2.class);
-    public static final ClassTag<AccumuloElementConverter> ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG = ClassTag$.MODULE$.apply(AccumuloElementConverter.class);
-
 }
