@@ -34,7 +34,6 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
 public class GetJavaRDDOfElementsHandler extends AbstractGetRDDHandler<GetJavaRDDOfElements, JavaRDD<Element>> {
-//    public static final String USE_RFILE_READER_RDD = "gaffer.accumulo.spark.rfilereader";
 
     @Override
     public JavaRDD<Element> doOperation(final GetJavaRDDOfElements operation,
@@ -46,9 +45,6 @@ public class GetJavaRDDOfElementsHandler extends AbstractGetRDDHandler<GetJavaRD
     private JavaRDD<Element> doOperation(final GetJavaRDDOfElements operation,
                                          final Context context,
                                          final AccumuloStore accumuloStore) throws OperationException {
-//        if (null != operation.getOption(USE_RFILE_READER_RDD)) {
-//            return doOperationUsingRFileReaderRDD(operation, accumuloStore);
-//        }
         final JavaSparkContext sparkContext = operation.getJavaSparkContext();
         final Configuration conf = getConfiguration(operation);
         // Use batch scan option when performing seeded operation
@@ -62,55 +58,6 @@ public class GetJavaRDDOfElementsHandler extends AbstractGetRDDHandler<GetJavaRD
         final JavaRDD<Element> rdd = pairRDD.map(new FirstElement());
         return rdd;
     }
-
-//    private JavaRDD<Element> doOperationUsingRFileReaderRDD(final GetJavaRDDOfElements operation,
-//                                                            final AccumuloStore accumuloStore) throws OperationException {
-//        try {
-//            final RDD<Map.Entry<Key, Value>> rdd = new RFileReaderRDD(
-//                    operation.getJavaSparkContext().getConf(),
-//                    accumuloStore.getProperties().getInstance(),
-//                    accumuloStore.getProperties().getZookeepers(),
-//                    accumuloStore.getProperties().getUser(),
-//                    accumuloStore.getProperties().getPassword(),
-//                    accumuloStore.getProperties().getTable(),
-//                    Utils.serialiseConfiguration(getConfiguration(operation)));
-//            final RDD<Element> elementRDD = rdd
-//                    .mapPartitions(new EntryIteratorToElementIterator(accumuloStore), true, ELEMENT_CLASS_TAG);
-//            return elementRDD.toJavaRDD();
-//        } catch (final IOException e) {
-//            throw new OperationException("IOException creating RFileReaderRDD", e);
-//        }
-//    }
-
-//    public class EntryIteratorToElementIterator implements Function1<Iterator<Map.Entry<Key, Value>>, Iterator<Element>> {
-//        private AccumuloStore accumuloStore;
-//
-//        public EntryIteratorToElementIterator(final AccumuloStore accumuloStore) {
-//            this.accumuloStore = accumuloStore;
-//        }
-//
-//        @Override
-//        public Iterator<Element> apply(final Iterator<Map.Entry<Key, Value>> entryIterator) {
-////            final AccumuloElementConverter converter = accumuloStore.getKeyPackage().getKeyConverter();
-//            final EntryToElement entryToElement = new EntryToElement(accumuloStore);
-//            return entryIterator.map(entryToElement);
-//        }
-//    }
-
-//    public class EntryToElement implements Function1<Map.Entry<Key, Value>, Element> {
-////        private AccumuloStore accumuloStore;
-//        private AccumuloElementConverter converter;
-//
-//        public EntryToElement(final AccumuloStore accumuloStore) {
-////            this.accumuloStore = accumuloStore;
-//            this.converter = accumuloStore.getKeyPackage().getKeyConverter();
-//        }
-//
-//        @Override
-//        public Element apply(final Map.Entry<Key, Value> entry) {
-//            return converter.getFullElement(entry.getKey(), entry.getValue());
-//        }
-//    }
 
     static class FirstElement implements Function<Tuple2<Element, NullWritable>, Element> {
 
