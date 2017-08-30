@@ -46,7 +46,6 @@ import uk.gov.gchq.gaffer.user.User;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -101,10 +100,9 @@ public class AddElementsFromHdfsIT {
 
         // When
         graph.execute(new AddElementsFromHdfs.Builder()
-                .inputPaths(Collections.singletonList(inputDir))
+                .addinputMapperPair(new Path(inputDir).toString(), TextMapperGeneratorImpl.class.getName())
                 .outputPath(outputDir)
                 .failurePath(failureDir)
-                .mapperGenerator(TextMapperGeneratorImpl.class)
                 .jobInitialiser(new TextJobInitialiser())
                 .option(HBaseStoreConstants.OPERATION_HDFS_STAGING_PATH, stagingDir)
                 .build(), new User());
