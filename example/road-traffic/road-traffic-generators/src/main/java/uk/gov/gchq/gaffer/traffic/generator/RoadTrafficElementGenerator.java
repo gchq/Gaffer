@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import static uk.gov.gchq.gaffer.traffic.generator.RoadTrafficDataField.A_Junction;
 import static uk.gov.gchq.gaffer.traffic.generator.RoadTrafficDataField.A_Ref_E;
@@ -191,14 +192,18 @@ public class RoadTrafficElementGenerator implements OneToManyElementGenerator<St
     private Date getDate(final String dCountString, final String hour) {
         Date dCount = null;
         try {
-            dCount = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(dCountString);
+            final SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+            format.setTimeZone(TimeZone.getTimeZone("UTC"));
+            dCount = format.parse(dCountString);
         } catch (ParseException e) {
             // incorrect date format
         }
 
         if (null == dCount) {
             try {
-                dCount = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(dCountString);
+                final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                format.setTimeZone(TimeZone.getTimeZone("UTC"));
+                dCount = format.parse(dCountString);
             } catch (ParseException e) {
                 // another incorrect date format
             }
