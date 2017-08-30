@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AddElementsFromHdfs
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Store;
 import java.io.IOException;
+import java.util.List;
 
 public class AddElementsFromHdfsTool extends Configured implements Tool {
     public static final int SUCCESS_RESPONSE = 1;
@@ -47,11 +48,13 @@ public class AddElementsFromHdfsTool extends Configured implements Tool {
         checkHdfsDirectories(operation);
         jobFactory.prepareStore(store);
         LOGGER.info("Adding elements from HDFS");
-        final Job job = jobFactory.createJob(operation, store);
-        job.waitForCompletion(true);
-        if (!job.isSuccessful()) {
-            LOGGER.error("Error running job");
-            throw new OperationException("Error running job");
+        final List<Job> jobs = jobFactory.createJobs(operation, store);
+        for (final Job job : jobs) {
+            job.waitForCompletion(true);
+            if (!job.isSuccessful()) {
+                LOGGER.error("Error running job");
+                throw new OperationException("Error running job");
+            }
         }
         LOGGER.info("Finished adding elements from HDFS");
 
