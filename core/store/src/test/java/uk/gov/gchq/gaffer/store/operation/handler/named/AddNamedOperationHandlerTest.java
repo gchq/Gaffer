@@ -125,7 +125,7 @@ public class AddNamedOperationHandlerTest {
     @Test
     public void shouldAllowForOperationChainJSONWithParameter() {
         try {
-            String opChainJSON = "{ \"class\" : \"uk.gov.gchq.gaffer.operation.OperationChain\"," +
+            final String opChainJSON = "{ \"class\" : \"uk.gov.gchq.gaffer.operation.OperationChain\"," +
                     "\"operations\": [ { \"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\" }, { \"class\":\"uk.gov.gchq.gaffer.operation.impl.Limit\", \"resultLimit\": \"${param1}\" } ] }";
 
             addNamedOperation.setOperationChain(opChainJSON);
@@ -149,7 +149,7 @@ public class AddNamedOperationHandlerTest {
 
     @Test
     public void shouldNotAllowForOperationChainWithParameterNotInOperationString() throws OperationException {
-        String opChainJSON = "{ \"class\" : \"uk.gov.gchq.gaffer.operation.OperationChain\"," +
+        final String opChainJSON = "{ \"class\" : \"uk.gov.gchq.gaffer.operation.OperationChain\"," +
                 "\"operations\": [ { \"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\" }, { \"class\":\"uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet\", \"key\": \"${param1}\" } ] }";
 
         addNamedOperation.setOperationChain(opChainJSON);
