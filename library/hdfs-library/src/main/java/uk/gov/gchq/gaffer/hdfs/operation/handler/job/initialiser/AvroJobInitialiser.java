@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.hdfs.operation.MapReduce;
 import uk.gov.gchq.gaffer.store.Store;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
+import java.util.Map;
 
 /**
  * An <code>AvroJobInitialiser</code> is an {@link JobInitialiser} that
@@ -33,6 +33,7 @@ import java.util.List;
  */
 public class AvroJobInitialiser implements JobInitialiser {
     private String avroSchemaFilePath;
+    private static final String MAPPER_GENERATOR = "mapperGenerator";
 
     public AvroJobInitialiser() {
     }
@@ -51,13 +52,14 @@ public class AvroJobInitialiser implements JobInitialiser {
         if (null == avroSchemaFilePath) {
             throw new IllegalArgumentException("Avro schema file path has not been set");
         }
-
         final Schema schema = new Parser().parse(new File(avroSchemaFilePath));
         AvroJob.setInputKeySchema(job, schema);
         job.setInputFormatClass(AvroKeyInputFormat.class);
-        List<String> paths = operation.getInputPaths();
-        for (final String path : paths) {
-            AvroKeyInputFormat.addInputPath(job, new Path(path));
+
+        for (final Map.Entry<String, String> entry : operation.getInputMapperPairs().entrySet()) {
+            if (entry.getValue().contains(job.getConfiguration().get(MAPPER_GENERATOR))) {
+                AvroKeyInputFormat.addInputPath(job, new Path(entry.getKey()));
+            }
         }
     }
 
