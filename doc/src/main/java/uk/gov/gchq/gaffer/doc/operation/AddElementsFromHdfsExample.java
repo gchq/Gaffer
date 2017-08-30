@@ -25,6 +25,8 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.SplitStore;
 import uk.gov.gchq.gaffer.user.User;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AddElementsFromHdfsExample extends OperationExample {
     private final String[] args = new String[5];
@@ -54,6 +56,7 @@ public class AddElementsFromHdfsExample extends OperationExample {
     public void runExamples() {
         addElementsFromHdfs();
         addElementsFromHdfsMainMethod();
+        addElementsFromHdfsWithMultipleInput();
     }
 
     @SuppressFBWarnings("REC_CATCH_EXCEPTION")
@@ -77,13 +80,12 @@ public class AddElementsFromHdfsExample extends OperationExample {
                     .build();
 
             final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
-                    .addInputPath(inputPath)
+                    .addinputMapperPair(inputPath, TextMapperGeneratorImpl.class.getName())
                     .outputPath(outputPath)
                     .failurePath(failurePath)
                     .splitsFilePath("/tmp/splits")
                     .workingPath("/tmp/workingDir")
                     .useProvidedSplits(false)
-                    .mapperGenerator(TextMapperGeneratorImpl.class)
                     .jobInitialiser(new TextJobInitialiser())
                     .minReducers(10)
                     .maxReducers(100)
@@ -102,13 +104,36 @@ public class AddElementsFromHdfsExample extends OperationExample {
     public void addElementsFromHdfs() {
         // ---------------------------------------------------------
         final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
-                .addInputPath("/path/to/input/fileOrFolder")
+                .addinputMapperPair("/path/to/input/fileOrFolder", TextMapperGeneratorImpl.class.getName())
                 .outputPath("/path/to/output/folder")
                 .failurePath("/path/to/failure/folder")
                 .splitsFilePath("/path/to/splits/file")
                 .workingPath("/tmp/workingDir")
                 .useProvidedSplits(false)
-                .mapperGenerator(TextMapperGeneratorImpl.class)
+                .jobInitialiser(new TextJobInitialiser())
+                .minReducers(10)
+                .maxReducers(100)
+                .build();
+        // ---------------------------------------------------------
+
+        showJavaExample(null);
+    }
+
+    @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
+    public void addElementsFromHdfsWithMultipleInput() {
+        // ---------------------------------------------------------
+        final Map<String, String> inputMapperMap = new HashMap<>();
+        inputMapperMap.put("/path/to/first/inputFileOrFolder", TextMapperGeneratorImpl.class.getName());
+        inputMapperMap.put("/path/to/second/inputFileOrFolder", TextMapperGeneratorImpl.class.getName());
+
+        final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
+                .inputMapperPairs(inputMapperMap)
+                .addinputMapperPair("/path/to/third/inputFileOrFolder", TextMapperGeneratorImpl.class.getName())
+                .outputPath("/path/to/output/folder")
+                .failurePath("/path/to/failure/folder")
+                .splitsFilePath("/path/to/splits/file")
+                .workingPath("/tmp/workingDir")
+                .useProvidedSplits(false)
                 .jobInitialiser(new TextJobInitialiser())
                 .minReducers(10)
                 .maxReducers(100)

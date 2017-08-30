@@ -334,7 +334,7 @@ public class ProxyStore extends Store {
             return this;
         }
 
-        public Builder connextTimeout(final int timeout) {
+        public Builder connectTimeout(final int timeout) {
             properties.setConnectTimeout(timeout);
             return this;
         }
