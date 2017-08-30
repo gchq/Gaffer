@@ -22,7 +22,6 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * An Operation used for adding graphs to a FederatedStore.
@@ -43,7 +42,7 @@ public class AddGraph implements Operation {
 
     @Required
     private String graphId;
-    private Properties properties;
+    private StoreProperties storeProperties;
     private String parentPropertiesId;
     private Schema schema;
     private List<String> parentSchemaIds;
@@ -68,8 +67,10 @@ public class AddGraph implements Operation {
     public AddGraph shallowClone() throws CloneFailedException {
         return new Builder()
                 .setGraphId(graphId)
-                .setProperties(properties)
                 .setSchema(schema)
+                .setProperties(storeProperties)
+                .setParentSchemaIds(parentSchemaIds)
+                .setParentPropertiesId(parentPropertiesId)
                 .build();
     }
 
@@ -82,12 +83,12 @@ public class AddGraph implements Operation {
         this.parentSchemaIds = parentSchemaIds;
     }
 
-    public Properties getProperties() {
-        return properties;
+    public StoreProperties getProperties() {
+        return storeProperties;
     }
 
-    public void setProperties(final Properties properties) {
-        this.properties = properties;
+    public void setProperties(final StoreProperties properties) {
+        this.storeProperties = properties;
     }
 
     public String getParentPropertiesId() {
@@ -109,17 +110,23 @@ public class AddGraph implements Operation {
             return this;
         }
 
-        public Builder setProperties(final Properties properties) {
-            _getOp().setProperties(properties);
-            return this;
-        }
-
         public Builder setProperties(final StoreProperties storeProperties) {
-            return setProperties(storeProperties.getProperties());
+            _getOp().setProperties(storeProperties);
+            return this;
         }
 
         public Builder setSchema(final Schema schema) {
             _getOp().setSchema(schema);
+            return _self();
+        }
+
+        public Builder setParentPropertiesId(final String parentPropertiesId) {
+            this._getOp().setParentPropertiesId(parentPropertiesId);
+            return _self();
+        }
+
+        public Builder setParentSchemaIds(final List<String> parentSchemaIds) {
+            _getOp().setParentSchemaIds(parentSchemaIds);
             return _self();
         }
     }

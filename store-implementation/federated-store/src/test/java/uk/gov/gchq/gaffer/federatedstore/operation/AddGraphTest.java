@@ -42,13 +42,13 @@ public class AddGraphTest extends OperationTest<AddGraph> {
         AddGraph op = new AddGraph.Builder()
                 .setGraphId(expectedGraphId)
                 .setSchema(expectedSchema)
-                .setProperties(storeProperties.getProperties())
+                .setProperties(storeProperties)
                 .build();
 
         Assert.assertEquals(expectedGraphId, op.getGraphId());
         Assert.assertEquals(expectedSchema, op.getSchema());
         Assert.assertTrue(op.getProperties().containsKey(expectedKey));
-        Assert.assertEquals(expectedValue, op.getProperties().getProperty(expectedKey));
+        Assert.assertEquals(expectedValue, op.getProperties().get(expectedKey));
     }
 
     @Override
