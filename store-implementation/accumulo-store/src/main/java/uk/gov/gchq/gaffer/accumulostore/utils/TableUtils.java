@@ -285,7 +285,7 @@ public final class TableUtils {
                     validatorItrSetting.removeOption(AccumuloStoreConstants.SCHEMA);
                 }
                 versioningIterSetting = store.getConnection().tableOperations().getIteratorSetting(tableName, "vers", iteratorScope);
-            } catch (AccumuloSecurityException | AccumuloException | TableNotFoundException e) {
+            } catch (final AccumuloSecurityException | AccumuloException | TableNotFoundException e) {
                 throw new StoreException("Unable to find iterators on the table " + tableName, e);
             }
 
@@ -305,7 +305,7 @@ public final class TableUtils {
         final Iterable<Map.Entry<String, String>> tableProps;
         try {
             tableProps = connector.tableOperations().getProperties(tableName);
-        } catch (AccumuloException | TableNotFoundException e) {
+        } catch (final AccumuloException | TableNotFoundException e) {
             throw new StoreException("Unable to get table properties.", e);
         }
 

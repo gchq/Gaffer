@@ -54,7 +54,7 @@ public class ParameterDetail implements Serializable {
         try {
             byte[] json = JSONSerialiser.serialise(defaultValue);
             JSONSerialiser.deserialise(json, this.valueClass);
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new IllegalArgumentException(e);
         }
     }

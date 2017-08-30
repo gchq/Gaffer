@@ -419,7 +419,7 @@ public class AccumuloStoreTest {
         try {
             store.validateSchemas();
             fail("Exception expected");
-        } catch (SchemaException e) {
+        } catch (final SchemaException e) {
             assert(e.getMessage().contains("serialisers to be consistent."));
         }
     }

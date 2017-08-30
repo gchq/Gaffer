@@ -69,7 +69,7 @@ public class AddNamedOperation implements Operation {
     public JsonNode getOperationChainAsJsonNode() {
         try {
             return JSONSerialiser.getJsonNodeFromString(operations);
-        } catch (SerialisationException se) {
+        } catch (final SerialisationException se) {
             throw new IllegalArgumentException(se.getMessage());
         }
     }
@@ -77,7 +77,7 @@ public class AddNamedOperation implements Operation {
     public void setOperationChain(final OperationChain operationChain) {
         try {
             this.operations = new String(JSONSerialiser.serialise(operationChain), Charset.forName(CHARSET_NAME));
-        } catch (SerialisationException se) {
+        } catch (final SerialisationException se) {
             throw new IllegalArgumentException(se.getMessage());
         }
     }

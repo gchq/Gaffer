@@ -39,7 +39,7 @@ public abstract class ViaCalculatedValueSerialiserTest<OUTPUT, VALUE> extends To
     protected VALUE useTestValue(final OUTPUT object) {
         try {
             return getTestValue(object);
-        } catch (NullPointerException e) {
+        } catch (final NullPointerException e) {
             throw new NullPointerException("The supplied object to getTestValue() was not suitable.");
         }
     }

@@ -51,7 +51,7 @@ public class RoadAndRoadUseWithTimesAndCardinalitiesElementGenerator implements 
         final Date timestamp;
         try {
             timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(t[3]);
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             throw new IllegalArgumentException("Invalid date: " + t[3]);
         }
 

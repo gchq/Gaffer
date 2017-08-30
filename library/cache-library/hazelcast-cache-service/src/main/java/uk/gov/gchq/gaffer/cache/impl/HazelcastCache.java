@@ -38,7 +38,7 @@ public class HazelcastCache <K, V> implements ICache<K, V> {
     public void put(final K key, final V value) throws CacheOperationException {
         try {
             distributedMap.put(key, value);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new CacheOperationException(e);
         }
     }
@@ -76,7 +76,7 @@ public class HazelcastCache <K, V> implements ICache<K, V> {
     public void clear() throws CacheOperationException {
         try {
             distributedMap.clear();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new CacheOperationException(e);
         }
     }

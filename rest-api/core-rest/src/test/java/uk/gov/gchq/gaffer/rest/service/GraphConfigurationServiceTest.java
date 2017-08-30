@@ -207,7 +207,7 @@ public class GraphConfigurationServiceTest {
         final Set<Class> classes = service.getTransformFunctions();
 
         // Then
-        assertTrue(classes.size() > 0);
+        assertTrue(!classes.isEmpty());
     }
 
     @Test
@@ -216,7 +216,7 @@ public class GraphConfigurationServiceTest {
         final Set<Class> classes = service.getElementGenerators();
 
         // Then
-        assertTrue(classes.size() > 0);
+        assertTrue(!classes.isEmpty());
     }
 
     @Test
@@ -225,7 +225,7 @@ public class GraphConfigurationServiceTest {
         final Set<Class> classes = service.getObjectGenerators();
 
         // Then
-        assertTrue(classes.size() > 0);
+        assertTrue(!classes.isEmpty());
     }
 
     @Test
@@ -234,7 +234,7 @@ public class GraphConfigurationServiceTest {
         final Set<Class> supportedOperations = service.getOperations();
 
         // Then
-        assertTrue(supportedOperations.size() > 0);
+        assertTrue(!supportedOperations.isEmpty());
         assertEquals(1, supportedOperations.size());
     }
 

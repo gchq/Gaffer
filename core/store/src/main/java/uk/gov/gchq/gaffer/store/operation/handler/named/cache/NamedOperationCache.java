@@ -127,7 +127,7 @@ public class NamedOperationCache {
                 if (op.hasReadAccess(user)) {
                     executables.add(op);
                 }
-            } catch (CacheOperationFailedException e) {
+            } catch (final CacheOperationFailedException e) {
                 LOGGER.error(e.getMessage(), e);
             }
 
@@ -138,7 +138,7 @@ public class NamedOperationCache {
     public void clear() throws CacheOperationFailedException {
         try {
             CacheServiceLoader.getService().clearCache(CACHE_NAME);
-        } catch (CacheOperationException e) {
+        } catch (final CacheOperationException e) {
             throw new CacheOperationFailedException("Failed to clear cache", e);
         }
     }
@@ -158,7 +158,7 @@ public class NamedOperationCache {
             } else {
                 CacheServiceLoader.getService().putSafeInCache(CACHE_NAME, name, operation);
             }
-        } catch (CacheOperationException e) {
+        } catch (final CacheOperationException e) {
             throw new CacheOperationFailedException(e);
         }
     }

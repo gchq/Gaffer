@@ -1136,7 +1136,7 @@ public class SchemaTest {
                     .edge(invalidGroupString, edgeDef)
                     .build();
             fail("Exception expected");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Group is invalid"));
         }
     }
@@ -1167,7 +1167,7 @@ public class SchemaTest {
                     .entity(invalidGroupString, entityDef)
                     .build();
             fail("Exception expected");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Group is invalid"));
         }
     }
@@ -1195,7 +1195,7 @@ public class SchemaTest {
                             .property("invalidPropName{@3#", "str")
                             .build());
             fail("Exception expected");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Property is invalid"));
         }
     }
@@ -1223,7 +1223,7 @@ public class SchemaTest {
                             .property("invalidPropName{@3#", "str")
                             .build());
             fail("Exception expected");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Property is invalid"));
         }
     }

@@ -131,7 +131,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                 }
             } catch (final OperationException | SerialisationException e) {
                 LOGGER.error("Exception while creating the mapping of file paths to Parquet filters: {}", e.getMessage());
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 LOGGER.error(e.getMessage(), e);
             }
         }
@@ -148,7 +148,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                             if (!finishedAllTasks) {
                                 wait(100L);
                             }
-                        } catch (Exception e) {
+                        } catch (final Exception e) {
                             LOGGER.error(e.getMessage(), e);
                             finishedAllTasks = true;
                         }

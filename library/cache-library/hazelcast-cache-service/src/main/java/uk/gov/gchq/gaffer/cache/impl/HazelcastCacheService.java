@@ -46,7 +46,7 @@ public class HazelcastCacheService implements ICacheService {
                 try {
                     final Config config = new FileSystemXmlConfig(configFile);
                     hazelcast = Hazelcast.newHazelcastInstance(config);
-                } catch (Exception e) {
+                } catch (final Exception e) {
                     throw new IllegalArgumentException("Could not create cache using config path: " + configFile, e);
                 }
             }

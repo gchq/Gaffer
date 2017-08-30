@@ -46,7 +46,7 @@ public class SetSerialiser implements ToBytesSerialiser<Set<? extends Object>> {
             for (final Object entry : object) {
                 builder.appendLengthValueFromObjectToByteStream(getObjectSerialiser(), entry);
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
         return builder.toArray();

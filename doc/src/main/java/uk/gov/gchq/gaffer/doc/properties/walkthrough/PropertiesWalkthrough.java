@@ -204,7 +204,7 @@ public abstract class PropertiesWalkthrough extends AbstractWalkthrough {
         for (final Class aClass : getSubClasses(clazz)) {
             try {
                 instances.add(((Class<T>) aClass).newInstance());
-            } catch (InstantiationException | IllegalAccessException e) {
+            } catch (final InstantiationException | IllegalAccessException e) {
                 // ignore errors
             }
         }

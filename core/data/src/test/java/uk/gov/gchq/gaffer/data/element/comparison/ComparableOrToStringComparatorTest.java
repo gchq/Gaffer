@@ -284,7 +284,7 @@ public class ComparableOrToStringComparatorTest {
         assertEquals(0, result);
     }
 
-    private final static class IntegerWrapper {
+    private static final class IntegerWrapper {
         private Integer field;
 
         private IntegerWrapper(final Integer field) {

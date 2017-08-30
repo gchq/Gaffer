@@ -56,7 +56,7 @@ public final class CacheServiceLoader {
         try {
             service = Class.forName(cacheClass).asSubclass(ICacheService.class).newInstance();
 
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new IllegalArgumentException("Failed to instantiate cache using class " + cacheClass, e);
         }
 

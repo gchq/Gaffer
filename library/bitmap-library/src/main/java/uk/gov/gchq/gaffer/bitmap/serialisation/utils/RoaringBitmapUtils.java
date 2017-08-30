@@ -115,7 +115,7 @@ public final class RoaringBitmapUtils {
             } else {
                 throw new SerialisationException("I failed to find a known roaring bitmap cookie (cookie = " + cookie + ")");
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }

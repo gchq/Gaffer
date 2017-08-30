@@ -46,7 +46,7 @@ public class NamedOperationExample extends OperationExample {
         // Clear the cache
         try {
             CacheServiceLoader.getService().clearCache("NamedOperation");
-        } catch (CacheOperationException e) {
+        } catch (final CacheOperationException e) {
             throw new RuntimeException(e);
         }
 

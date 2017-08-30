@@ -72,7 +72,7 @@ public class FileGraphLibraryTest {
         try {
             fileGraphLibrary.add(GRAPH_ID + "@#", schema, storeProperties);
             fail("Exception expected");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertNotNull(e.getMessage());
         }
     }
@@ -91,7 +91,7 @@ public class FileGraphLibraryTest {
             fileGraphLibrary.add(GRAPH_ID, schema, storeProperties);
             fileGraphLibrary.add(GRAPH_ID, schema1, storeProperties);
             fail("Exception expected");
-        } catch (OverwritingException e) {
+        } catch (final OverwritingException e) {
             assertTrue(e.getMessage().contains("already exists with a different schema"));
         }
     }
@@ -108,7 +108,7 @@ public class FileGraphLibraryTest {
             fileGraphLibrary.add(GRAPH_ID, schema, storeProperties);
             fileGraphLibrary.add(GRAPH_ID, schema, storeProperties1);
             fail("Exception expected");
-        } catch (OverwritingException e) {
+        } catch (final OverwritingException e) {
             assertNotNull(e.getMessage());
             assertTrue(e.getMessage().contains("already exists with a different store properties"));
         }
@@ -144,7 +144,7 @@ public class FileGraphLibraryTest {
         try {
             fileGraphLibrary.add(GRAPH_ID, schema, null);
             fail("Exception expected");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("StoreProperties cannot be null"));
         }
     }
@@ -159,7 +159,7 @@ public class FileGraphLibraryTest {
         try {
             fileGraphLibrary.add(GRAPH_ID, null, storeProperties);
             fail("Exception expected");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Schema cannot be null"));
         }
     }

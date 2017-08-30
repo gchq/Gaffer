@@ -204,7 +204,7 @@ public class JSONSerialiserTest {
     @Test
     public void shouldSerialiseWithHistoricValues() throws Exception {
         assertNotNull(historicSerialisationPairs);
-        for (Pair<Object, byte[]> pair : historicSerialisationPairs) {
+        for (final Pair<Object, byte[]> pair : historicSerialisationPairs) {
             serialiseFirst(pair);
             deserialiseSecond(pair);
         }

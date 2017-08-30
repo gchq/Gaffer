@@ -161,7 +161,7 @@ public class JSONSerialiser {
             final JSONSerialiserModules factory;
             try {
                 factory = Class.forName(factoryClass).asSubclass(JSONSerialiserModules.class).newInstance();
-            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
                 throw new IllegalArgumentException("Property " + JSON_SERIALISER_MODULES + " must be set to a csv of classes that are a sub class of " + JSONSerialiserModules.class.getName() + ". These classes are not valid: " + factoryClass, e);
             }
             final List<Module> modules = factory.getModules();
@@ -334,7 +334,7 @@ public class JSONSerialiser {
     public static JsonNode getJsonNodeFromString(final String content) throws SerialisationException {
         try {
             return getInstance().mapper.readTree(content);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }

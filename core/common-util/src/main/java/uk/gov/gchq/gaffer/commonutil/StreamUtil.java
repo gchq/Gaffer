@@ -93,7 +93,7 @@ public abstract class StreamUtil {
                 .forEach(schemaFile -> {
                             try {
                                 schemas.add(openStream(clazz, schemaFile));
-                            } catch (Exception e) {
+                            } catch (final Exception e) {
                                 int closedStreamsCount = closeStreams(schemas.toArray(new InputStream[schemas.size()]));
                                 LOGGER.info(String.format("Closed %s input streams", closedStreamsCount));
                             }

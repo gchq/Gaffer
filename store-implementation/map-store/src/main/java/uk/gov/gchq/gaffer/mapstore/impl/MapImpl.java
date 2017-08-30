@@ -246,7 +246,7 @@ public class MapImpl {
         } else {
             try {
                 mapFactory = Class.forName(factoryClass).asSubclass(MapFactory.class).newInstance();
-            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
                 throw new IllegalArgumentException("MapFactory is invalid: " + factoryClass, e);
             }
         }

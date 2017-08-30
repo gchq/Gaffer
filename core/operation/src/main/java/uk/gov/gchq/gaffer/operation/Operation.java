@@ -112,7 +112,7 @@ public interface Operation extends Closeable {
                     final Object value;
                     try {
                         value = field.get(this);
-                    } catch (IllegalAccessException e) {
+                    } catch (final IllegalAccessException e) {
                         throw new RuntimeException(e);
                     }
 
@@ -126,7 +126,7 @@ public interface Operation extends Closeable {
                         final Object value;
                         try {
                             value = field.get(this);
-                        } catch (IllegalAccessException e) {
+                        } catch (final IllegalAccessException e) {
                             throw new RuntimeException(e);
                         }
 

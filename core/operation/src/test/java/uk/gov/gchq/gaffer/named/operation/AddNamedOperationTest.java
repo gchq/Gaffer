@@ -79,7 +79,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         String opChain = null;
         try {
             opChain = new String(JSONSerialiser.serialise(OPERATION_CHAIN));
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             fail();
         }
         assertEquals(opChain, addNamedOperation.getOperationChainAsString());
@@ -107,7 +107,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         String opChain = null;
         try {
             opChain = new String(JSONSerialiser.serialise(OPERATION_CHAIN));
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             fail();
         }
 

@@ -92,7 +92,7 @@ public class HazelcastCacheServiceTest {
         try {
             file = tempFolder.newFile("hazelcast.xml");
             FileUtils.copyInputStreamToFile(StreamUtil.openStream(getClass(), "hazelcast.xml"), file);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
         cacheProperties.setProperty(CacheProperties.CACHE_CONFIG_FILE, file.getAbsolutePath());
@@ -161,7 +161,7 @@ public class HazelcastCacheServiceTest {
         try {
             service.putSafeInCache(CACHE_NAME, "test", 2);
             fail("Expected an exception");
-        } catch (CacheOperationException e) {
+        } catch (final CacheOperationException e) {
             assertEquals((Integer) 1, service.getFromCache(CACHE_NAME, "test"));
         }
 

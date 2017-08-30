@@ -861,7 +861,7 @@ public class AggregatorUtilTest {
         try {
             fn.apply(element);
             fail("Exception expected");
-        } catch (RuntimeException e) {
+        } catch (final RuntimeException e) {
             assertNotNull(e.getMessage());
         }
     }
@@ -883,7 +883,7 @@ public class AggregatorUtilTest {
         try {
             fn.apply(element);
             fail("Exception expected");
-        } catch (RuntimeException e) {
+        } catch (final RuntimeException e) {
             assertNotNull(e.getMessage());
         }
     }

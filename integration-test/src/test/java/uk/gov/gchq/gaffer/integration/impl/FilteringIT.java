@@ -371,7 +371,7 @@ public class FilteringIT extends AbstractStoreIT {
         return Comparator.comparing(a -> {
             try {
                 return new String(JSONSerialiser.serialise(a));
-            } catch (SerialisationException e) {
+            } catch (final SerialisationException e) {
                 throw new RuntimeException(e);
             }
         });

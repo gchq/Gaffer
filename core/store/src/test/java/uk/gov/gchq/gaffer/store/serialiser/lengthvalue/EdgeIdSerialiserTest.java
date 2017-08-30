@@ -51,7 +51,7 @@ public class EdgeIdSerialiserTest {
         try {
             serialiser = new EdgeIdSerialiser(schema);
             fail("Exception expected");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Vertex serialiser is required"));
         }
     }

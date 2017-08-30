@@ -87,7 +87,7 @@ public class TableUtilsTest {
         final Runnable invalidateTable = () -> {
             try {
                 AddUpdateTableIterator.removeIterator(store, AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME);
-            } catch (StoreException e) {
+            } catch (final StoreException e) {
                 throw new RuntimeException(e);
             }
         };
@@ -101,7 +101,7 @@ public class TableUtilsTest {
         final Runnable invalidateTable = () -> {
             try {
                 AddUpdateTableIterator.removeIterator(store, AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME);
-            } catch (StoreException e) {
+            } catch (final StoreException e) {
                 throw new RuntimeException(e);
             }
         };
