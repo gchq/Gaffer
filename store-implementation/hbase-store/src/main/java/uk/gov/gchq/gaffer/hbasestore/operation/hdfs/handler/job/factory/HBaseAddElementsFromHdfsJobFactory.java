@@ -40,61 +40,41 @@ import java.io.IOException;
 public class HBaseAddElementsFromHdfsJobFactory implements AddElementsFromHdfsJobFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(HBaseAddElementsFromHdfsJobFactory.class);
 
-    /**
-     * Creates a job with the store specific job initialisation and then applies the operation specific
-     * {@link uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser}.
-     *
-     * @param operation the add elements from hdfs operation
-     * @param store     the store executing the operation
-     * @return the created job
-     * @throws IOException for IO issues
-     */
-    @Override
-    public Job createJob(final AddElementsFromHdfs operation, final Store store) throws IOException {
-        final JobConf jobConf = createJobConf(operation, store);
-
-        final Job job = Job.getInstance(jobConf);
-        setupJob(job, operation, store);
-
-        // Apply Operation Specific Job Configuration
-        if (null != operation.getJobInitialiser()) {
-            operation.getJobInitialiser().initialiseJob(job, operation, store);
-        }
-
-        return job;
-    }
-
     @Override
     public void prepareStore(final Store store) throws StoreException {
         TableUtils.ensureTableExists(((HBaseStore) store));
     }
 
-    protected JobConf createJobConf(final AddElementsFromHdfs operation, final Store store) throws IOException {
+    @Override
+    public JobConf createJobConf(final AddElementsFromHdfs operation, final String mapperGeneratorClassName, final Store store) throws IOException {
         final JobConf jobConf = new JobConf(((HBaseStore) store).getConfiguration());
+
         LOGGER.info("Setting up job conf");
         jobConf.set(SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
         LOGGER.info("Added {} {} to job conf", SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
-        jobConf.set(MAPPER_GENERATOR, operation.getMapperGeneratorClassName());
-        LOGGER.info("Added {} of {} to job conf", MAPPER_GENERATOR, operation.getMapperGeneratorClassName());
+        jobConf.set(MAPPER_GENERATOR, mapperGeneratorClassName);
+        LOGGER.info("Added {} of {} to job conf", MAPPER_GENERATOR, mapperGeneratorClassName);
         jobConf.set(VALIDATE, String.valueOf(operation.isValidate()));
         LOGGER.info("Added {} option of {} to job conf", VALIDATE, operation.isValidate());
+
         Integer numTasks = operation.getNumMapTasks();
         if (null != numTasks) {
             jobConf.setNumMapTasks(numTasks);
             LOGGER.info("Set number of map tasks to {} on job conf", numTasks);
         }
+
         numTasks = operation.getNumReduceTasks();
         if (null != numTasks) {
             jobConf.setNumReduceTasks(numTasks);
             LOGGER.info("Set number of reduce tasks to {} on job conf", numTasks);
         }
-
         return jobConf;
     }
 
-    protected void setupJob(final Job job, final AddElementsFromHdfs operation, final Store store) throws IOException {
+    @Override
+    public void setupJob(final Job job, final AddElementsFromHdfs operation, final String mapperGeneratorClassName, final Store store) throws IOException {
         job.setJarByClass(getClass());
-        job.setJobName(getJobName(operation.getMapperGeneratorClassName(), operation.getOutputPath()));
+        job.setJobName(getJobName(mapperGeneratorClassName, operation.getOutputPath()));
 
         setupMapper(job);
         setupReducer(job);
@@ -105,13 +85,13 @@ public class HBaseAddElementsFromHdfsJobFactory implements AddElementsFromHdfsJo
         return "Ingest HDFS data: Generator=" + mapperGenerator + ", output=" + outputPath;
     }
 
-    protected void setupMapper(final Job job) throws IOException {
+    protected void setupMapper(final Job job) {
         job.setMapperClass(AddElementsFromHdfsMapper.class);
         job.setMapOutputKeyClass(ImmutableBytesWritable.class);
         job.setMapOutputValueClass(Put.class);
     }
 
-    protected void setupReducer(final Job job) throws IOException {
+    protected void setupReducer(final Job job) {
         job.setReducerClass(PutSortReducer.class);
     }
 
