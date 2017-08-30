@@ -213,7 +213,9 @@ public class RoadTrafficElementGenerator implements OneToManyElementGenerator<CS
 
         if (null == dCount) {
             try {
-                dCount = new SimpleDateFormat("yyyy-MM-dd").parse(dCountString);
+                final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                format.setTimeZone(TimeZone.getTimeZone("UTC"));
+                dCount = format.parse(dCountString);
             } catch (ParseException e) {
                 // another incorrect date format
             }
