@@ -375,11 +375,9 @@ public class EdgeTest extends ElementTest {
                 .directed(true)
                 .build();
 
-        final JSONSerialiser serialiser = new JSONSerialiser();
-
         // When
-        final byte[] serialisedElement = serialiser.serialise(edge);
-        final Edge deserialisedElement = serialiser.deserialise(serialisedElement, edge
+        final byte[] serialisedElement = JSONSerialiser.serialise(edge);
+        final Edge deserialisedElement = JSONSerialiser.deserialise(serialisedElement, edge
                 .getClass());
 
         // Then
@@ -568,16 +566,16 @@ public class EdgeTest extends ElementTest {
         }
 
         @Override
-        public boolean equals(final Object o) {
-            if (this == o) {
+        public boolean equals(final Object obj) {
+            if (this == obj) {
                 return true;
             }
 
-            if (o == null || getClass() != o.getClass()) {
+            if (obj == null || getClass() != obj.getClass()) {
                 return false;
             }
 
-            final Vertex vertex = (Vertex) o;
+            final Vertex vertex = (Vertex) obj;
 
             return new EqualsBuilder()
                     .append(property, vertex.property)
@@ -586,7 +584,7 @@ public class EdgeTest extends ElementTest {
 
         @Override
         public int hashCode() {
-            return new HashCodeBuilder(17, 37)
+            return new HashCodeBuilder(19, 23)
                     .append(property)
                     .toHashCode();
         }

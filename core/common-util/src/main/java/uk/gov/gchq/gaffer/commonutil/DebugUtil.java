@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class DebugUtil {
     public static final String DEBUG = "gaffer.error-mode.debug";
-    public static final String DEBUG_DEFAULT = String.valueOf(true);
+    public static final String DEBUG_DEFAULT = String.valueOf(false);
     public static Boolean isDebug;
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugUtil.class);
 
@@ -45,7 +45,7 @@ public final class DebugUtil {
             if (isDebug) {
                 LOGGER.debug("Debug has been enabled in SystemProperties");
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOGGER.error("Defaulting Debug flag. Could not assign from System Properties: {}", e.getMessage());
             isDebug = Boolean.valueOf(DEBUG_DEFAULT);
         }

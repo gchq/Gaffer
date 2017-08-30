@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.commonutil.GroupUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
@@ -459,6 +460,8 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
         @Override
         public Schema build() {
+            validateGroupNames();
+
             for (final SchemaElementDefinition elementDef : getThisSchema().getEntities().values()) {
                 elementDef.schemaReference = getThisSchema();
             }
@@ -517,6 +520,12 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             for (final Entry<String, SchemaEntityDefinition> entry : Lists.newArrayList(schema.getEntities().entrySet())) {
                 schema.getEntities().put(entry.getKey(), entry.getValue().getExpandedDefinition());
             }
+        }
+
+        private void validateGroupNames() {
+            getThisSchema().getEdgeGroups().forEach(GroupUtil::validateName);
+
+            getThisSchema().getEntityGroups().forEach(GroupUtil::validateName);
         }
     }
 

@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.parquetstore.utils;
 
+import org.apache.spark.sql.Row;
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.StructField;
@@ -124,7 +125,7 @@ public class GafferGroupObjectConverter implements Serializable {
      * @throws SerialisationException if the conversion from Parquet objects to the original object throws a
      *                                {@link SerialisationException}
      */
-    public Object sparkRowToGafferObject(final String gafferColumn, final GenericRowWithSchema row) throws SerialisationException {
+    public Object sparkRowToGafferObject(final String gafferColumn, final Row row) throws SerialisationException {
         final ArrayList<Object> objectsList = new ArrayList<>();
         final String[] paths = columnToPaths.get(gafferColumn);
         if (paths[0].contains(".")) {

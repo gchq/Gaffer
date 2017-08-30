@@ -202,11 +202,4 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
                        .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                        .build();
     }
-
-//    @Override
-//    public Response isOperationSupported(final Class operation) {
-//        return Response.ok(graphFactory.getGraph().isSupported(operation))
-//                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-//                       .build();
-//    }
 }

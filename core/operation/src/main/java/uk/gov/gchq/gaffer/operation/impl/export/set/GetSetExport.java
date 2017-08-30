@@ -34,14 +34,14 @@ public class GetSetExport implements
         Output<Iterable<?>> {
     private String jobId;
     private String key;
-    private Integer start = 0;
+    private int start = 0;
     private Integer end = null;
 
-    public Integer getStart() {
+    public int getStart() {
         return start;
     }
 
-    public void setStart(final Integer start) {
+    public void setStart(final int start) {
         this.start = start;
     }
 
@@ -76,6 +76,16 @@ public class GetSetExport implements
     @Override
     public TypeReference<Iterable<?>> getOutputTypeReference() {
         return new TypeReferenceImpl.IterableObj();
+    }
+
+    @Override
+    public GetSetExport shallowClone() {
+        return new GetSetExport.Builder()
+                .jobId(jobId)
+                .key(key)
+                .start(start)
+                .end(end)
+                .build();
     }
 
     public static class Builder

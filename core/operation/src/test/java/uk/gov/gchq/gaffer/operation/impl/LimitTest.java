@@ -18,9 +18,6 @@ package uk.gov.gchq.gaffer.operation.impl;
 
 import com.google.common.collect.Sets;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Set;
 
@@ -28,35 +25,17 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 
-public class LimitTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return Limit.class;
-    }
+public class LimitTest extends OperationTest<Limit> {
 
     @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet("resultLimit");
-    }
-
-    @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
-        // Given
-        final Limit op = new Limit();
-
-        // When
-        byte[] json = serialiser.serialise(op, true);
-        final Limit deserialisedOp = serialiser.deserialise(json, Limit.class);
-
-        // Then
-        assertNotNull(deserialisedOp);
     }
 
     @Test
@@ -70,5 +49,30 @@ public class LimitTest extends OperationTest {
         assertThat(limit.getInput(), iterableWithSize(2));
         assertThat(limit.getResultLimit(), is(1));
         assertThat(limit.getInput(), containsInAnyOrder("1", "2"));
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final String input = "1";
+        final int resultLimit = 4;
+        final Limit limit = new Limit.Builder<>()
+                .input(input)
+                .resultLimit(resultLimit)
+                .truncate(false)
+                .build();
+
+        // When
+        final Limit clone = limit.shallowClone();
+
+        // Then
+        assertNotSame(limit, clone);
+        assertEquals(input, clone.getInput().iterator().next());
+        assertEquals(resultLimit, (int) clone.getResultLimit());
+        assertFalse(clone.getTruncate());
+    }
+
+    protected Limit getTestObject() {
+        return new Limit();
     }
 }

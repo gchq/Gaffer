@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.exception.LimitExceededException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -98,5 +99,53 @@ public class LimitedCloseableIterableTest {
         } catch (final IllegalArgumentException e) {
             assertNotNull(e.getMessage());
         }
+    }
+
+    @Test
+    public void shouldThrowExceptionIfDataIsTruncated() {
+        // Given
+        final List<Integer> values = Arrays.asList(0, 1, 2, 3);
+        final int start = 0;
+        final int end = 2;
+        final boolean truncate = false;
+
+        // When
+        final CloseableIterable<Integer> limitedValues = new LimitedCloseableIterable<>(values, start, end, truncate);
+
+        // Then
+        try {
+            for (final Integer i : limitedValues) {
+                // Do nothing
+            }
+            fail("Exception expected");
+        } catch (final LimitExceededException e) {
+            assertEquals("Limit of " + end + " exceeded.", e
+                    .getMessage());
+        }
+    }
+
+    @Test
+    public void shouldHandleNullIterable() {
+        // Given
+        final CloseableIterable<Integer> nullIterable = new LimitedCloseableIterable<>(null, 0, 1, true);
+
+        // Then
+        assertTrue(Lists.newArrayList(nullIterable).isEmpty());
+    }
+
+    @Test
+    public void shouldHandleLimitEqualToIterableLength() {
+        // Given
+        final List<Integer> values = Arrays.asList(0, 1, 2, 3);
+        final int start = 0;
+        final int end = 4;
+        final boolean truncate = false;
+
+        // When
+        final CloseableIterable<Integer> equalValues = new LimitedCloseableIterable<>(values, start, end, truncate);
+
+        // Then
+        assertEquals(values, Lists.newArrayList(equalValues));
+
     }
 }

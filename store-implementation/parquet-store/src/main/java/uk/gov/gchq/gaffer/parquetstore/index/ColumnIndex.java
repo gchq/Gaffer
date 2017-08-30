@@ -20,7 +20,6 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.parquet.bytes.BytesUtils;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.store.StoreException;
-
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -29,36 +28,35 @@ import java.util.TreeSet;
 
 /**
  * This class is used to store a file-based index for a single gaffer column, i.e. it stores a set of
- * {@link MinMaxPath}s. Each {@link MinMaxPath} contains a path to a file that has been sorted by the column this index
+ * {@link MinValuesWithPath}s. Each {@link MinValuesWithPath} contains a path to a file that has been sorted by the column this index
  * is for and contains the min and max parquet objects from that parquet file.
  */
 public class ColumnIndex {
-    private static final Comparator<MinMaxPath> BY_PATH =
-            (MinMaxPath mmp1, MinMaxPath mmp2) -> mmp1.getPath().compareTo(mmp2.getPath());
-    private final SortedSet<MinMaxPath> minMaxPaths;
+    private static final Comparator<MinValuesWithPath> BY_PATH =
+            (MinValuesWithPath mmp1, MinValuesWithPath mmp2) -> mmp1.getPath().compareTo(mmp2.getPath());
+    private final SortedSet<MinValuesWithPath> minValuesWithPaths;
 
     public ColumnIndex() {
-        this.minMaxPaths = new TreeSet<>(BY_PATH);
+        this.minValuesWithPaths = new TreeSet<>(BY_PATH);
     }
 
     public boolean isEmpty() {
-        return minMaxPaths.isEmpty();
+        return minValuesWithPaths.isEmpty();
     }
 
-    public void add(final MinMaxPath minMaxPath) {
-        minMaxPaths.add(minMaxPath);
+    public void add(final MinValuesWithPath minValuesWithPath) {
+        minValuesWithPaths.add(minValuesWithPath);
     }
 
-    public Iterator<MinMaxPath> getIterator() {
-            return minMaxPaths.iterator();
+    public Iterator<MinValuesWithPath> getIterator() {
+            return minValuesWithPaths.iterator();
         }
 
     protected void write(final FSDataOutputStream outputFile) throws StoreException {
         try {
-            for (final MinMaxPath minMaxPath : minMaxPaths) {
-                final Object[] min = minMaxPath.getMin();
-                final Object[] max = minMaxPath.getMax();
-                final String path = minMaxPath.getPath();
+            for (final MinValuesWithPath minValuesWithPath : minValuesWithPaths) {
+                final Object[] min = minValuesWithPath.getMin();
+                final String path = minValuesWithPath.getPath();
                 outputFile.writeInt(min.length);
                 for (int colIndex = 0; colIndex < min.length; colIndex++) {
                     final Object minCol = min[colIndex];
@@ -69,9 +67,6 @@ public class ColumnIndex {
                     final byte[] minValue = serialiseObject(min[colIndex]);
                     outputFile.writeInt(minValue.length);
                     outputFile.write(minValue);
-                    final byte[] maxValue = serialiseObject(max[colIndex]);
-                    outputFile.writeInt(maxValue.length);
-                    outputFile.write(maxValue);
                 }
                 byte[] filePath = StringUtil.toBytes(path);
                 outputFile.writeInt(filePath.length);
@@ -109,20 +104,16 @@ public class ColumnIndex {
             while (reader.available() > 0) {
                 final int numOfCols = reader.readInt();
                 Object[] min = new Object[numOfCols];
-                Object[] max = new Object[numOfCols];
                 for (int i = 0; i < numOfCols; i++) {
                     final int colTypeLength = reader.readInt();
                     final byte[] colType = readBytes(colTypeLength, reader);
                     final int minLength = reader.readInt();
                     final byte[] minBytes = readBytes(minLength, reader);
                     min[i] = deserialiseColumn(colType, minBytes);
-                    final int maxLength = reader.readInt();
-                    final byte[] maxBytes = readBytes(maxLength, reader);
-                    max[i] = deserialiseColumn(colType, maxBytes);
                 }
                 final int filePathLength = reader.readInt();
                 final byte[] filePath = readBytes(filePathLength, reader);
-                add(new MinMaxPath(min, max, StringUtil.toString(filePath)));
+                add(new MinValuesWithPath(min, StringUtil.toString(filePath)));
             }
             reader.close();
         } catch (final IOException e) {

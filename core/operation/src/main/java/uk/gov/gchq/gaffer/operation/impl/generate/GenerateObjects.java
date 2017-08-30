@@ -97,6 +97,14 @@ public class GenerateObjects<OBJ> implements
         return TypeReferenceImpl.createIterableT();
     }
 
+    @Override
+    public GenerateObjects<OBJ> shallowClone() {
+        return new GenerateObjects.Builder<OBJ>()
+                .generator(elementGenerator)
+                .input(input)
+                .build();
+    }
+
     public static class Builder<OBJ> extends Operation.BaseBuilder<GenerateObjects<OBJ>, Builder<OBJ>>
             implements InputOutput.Builder<GenerateObjects<OBJ>, Iterable<? extends Element>, Iterable<? extends OBJ>, Builder<OBJ>>,
             MultiInput.Builder<GenerateObjects<OBJ>, Element, Builder<OBJ>> {

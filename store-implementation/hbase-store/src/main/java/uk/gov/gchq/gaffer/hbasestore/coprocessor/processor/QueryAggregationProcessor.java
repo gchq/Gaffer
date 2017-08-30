@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.LazyElementCell;
@@ -73,7 +74,8 @@ public class QueryAggregationProcessor implements GafferScannerProcessor {
             } else {
                 final String group = elementCell.getGroup();
                 final Set<String> schemaGroupBy = schema.getElement(group).getGroupBy();
-                final Set<String> groupBy = view.getElementGroupBy(group);
+                final ViewElementDefinition elementDef = view.getElement(group);
+                final Set<String> groupBy = null != elementDef ? elementDef.getGroupBy() : null;
                 if (!compareGroupByKeys(firstElementCell.getCell(), elementCell.getCell(), group, schemaGroupBy, groupBy)) {
                     completeAggregator(firstElementCell, aggregatedProperties, output);
                     firstElementCell = elementCell;
@@ -81,7 +83,8 @@ public class QueryAggregationProcessor implements GafferScannerProcessor {
                     aggregator = null;
                 } else {
                     if (null == aggregator) {
-                        aggregator = schema.getElement(group).getQueryAggregator(groupBy);
+                        final ElementAggregator viewAggregator = null != elementDef ? elementDef.getAggregator() : null;
+                        aggregator = schema.getElement(group).getQueryAggregator(groupBy, viewAggregator);
                         aggregatedProperties = firstElementCell.getElement().getProperties();
                     }
 

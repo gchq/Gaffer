@@ -77,6 +77,15 @@ public class Validate implements
         this.input = input;
     }
 
+    @Override
+    public Validate shallowClone() {
+        return new Validate.Builder()
+                .validate(validate)
+                .skipInvalidElements(skipInvalidElements)
+                .input(input)
+                .build();
+    }
+
     public static final class Builder
             extends Operation.BaseBuilder<Validate, Builder>
             implements Validatable.Builder<Validate, Builder>,

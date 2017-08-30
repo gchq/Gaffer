@@ -23,7 +23,7 @@ import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
-import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
@@ -54,10 +54,13 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.ValidationResult;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
@@ -149,16 +152,16 @@ public class HBaseStore extends Store {
     }
 
     /**
-     * Gets the HBase table.
+     * Gets the table.
      *
-     * @return the HBase table
+     * @return the table.
      * @throws StoreException if a reference to the table could not be created.
      */
-    public HTable getTable() throws StoreException {
+    public Table getTable() throws StoreException {
         final TableName tableName = getTableName();
         final Connection connection = getConnection();
         try {
-            return (HTable) connection.getTable(tableName);
+            return connection.getTable(tableName);
         } catch (final IOException e) {
             CloseableUtil.close(connection);
             throw new StoreException(e);
@@ -177,6 +180,18 @@ public class HBaseStore extends Store {
     @Override
     protected SchemaOptimiser createSchemaOptimiser() {
         return new SchemaOptimiser(new HBaseSerialisationFactory());
+    }
+
+    @Override
+    public void validateSchemas() {
+        super.validateSchemas();
+        validateConsistentVertex();
+    }
+
+    @Override
+    protected void validateSchemaElementDefinition(final Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry, final ValidationResult validationResult) {
+        super.validateSchemaElementDefinition(schemaElementDefinitionEntry, validationResult);
+        validateConsistentGroupByProperties(schemaElementDefinitionEntry, validationResult);
     }
 
     @Override

@@ -22,7 +22,6 @@ import uk.gov.gchq.gaffer.serialisation.implementation.BooleanSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawDateSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawDoubleSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawFloatSerialiser;
@@ -55,7 +54,7 @@ public class SerialisationFactoryTest {
         final boolean ordered = true;
 
         // When
-        final Serialiser serialiser = factory.getSerialiser(clazz, ordered);
+        final Serialiser serialiser = factory.getSerialiser(clazz, ordered, true);
 
         // Then
         assertTrue(serialiser.canHandle(clazz));
@@ -84,7 +83,7 @@ public class SerialisationFactoryTest {
         final boolean ordered = true;
 
         // When
-        final Serialiser serialiser = factory.getSerialiser(clazz, ordered);
+        final Serialiser serialiser = factory.getSerialiser(clazz, ordered, true);
 
         // Then
         assertTrue(serialiser.canHandle(clazz));

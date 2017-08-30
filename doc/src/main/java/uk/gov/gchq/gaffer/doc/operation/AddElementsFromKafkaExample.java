@@ -25,7 +25,8 @@ public class AddElementsFromKafkaExample extends OperationExample {
     }
 
     public AddElementsFromKafkaExample() {
-        super(AddElementsFromKafka.class);
+        super(AddElementsFromKafka.class, "This is not a core operation. To enable it to be handled by Apache Flink, see [flink-library/README.md](https://github.com/gchq/Gaffer/blob/master/library/flink-library/README.md)");
+
     }
 
     @Override

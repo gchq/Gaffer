@@ -35,7 +35,7 @@ public class RestApiV2IT extends AbstractRestApiIT {
     public void shouldReturnOkStatusMessage() {
         // Given
         final Response response = client.target("http://localhost:8080/rest/v2")
-                .path("status")
+                .path("graph/status")
                 .request()
                 .get();
 
@@ -50,7 +50,7 @@ public class RestApiV2IT extends AbstractRestApiIT {
     public void shouldRetrieveSchema() {
         // Given
         final Response response = client.target("http://localhost:8080/rest/v2")
-                .path("graph/schema")
+                .path("graph/config/schema")
                 .request()
                 .get();
 

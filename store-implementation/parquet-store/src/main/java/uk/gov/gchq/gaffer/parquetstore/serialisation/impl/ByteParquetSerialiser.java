@@ -73,4 +73,8 @@ public class ByteParquetSerialiser implements ParquetSerialiser<Byte> {
         return Byte.class.equals(clazz);
     }
 
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

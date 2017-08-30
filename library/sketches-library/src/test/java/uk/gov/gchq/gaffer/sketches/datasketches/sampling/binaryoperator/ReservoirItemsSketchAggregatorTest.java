@@ -22,14 +22,15 @@ import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.BinaryOperator;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class ReservoirItemsSketchAggregatorTest extends BinaryOperatorTest {
     private static final Random RANDOM = new Random();
@@ -88,14 +89,14 @@ public class ReservoirItemsSketchAggregatorTest extends BinaryOperatorTest {
         final ReservoirItemsSketchAggregator<String> aggregator = new ReservoirItemsSketchAggregator<>();
 
         // When 1
-        final String json = new String(new JSONSerialiser().serialise(aggregator, true));
+        final String json = new String(JSONSerialiser.serialise(aggregator, true));
         // Then 1
         JsonUtil.equals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.sampling.binaryoperator.ReservoirItemsSketchAggregator\"%n" +
                 "}"), json);
 
         // When 2
-        final ReservoirItemsSketchAggregator<String> deserialisedAggregator = new JSONSerialiser()
+        final ReservoirItemsSketchAggregator<String> deserialisedAggregator = JSONSerialiser
                 .deserialise(json.getBytes(), ReservoirItemsSketchAggregator.class);
         // Then 2
         assertNotNull(deserialisedAggregator);

@@ -149,7 +149,7 @@ public class JcsCacheServiceTest {
         try {
             service.putSafeInCache(TEST_REGION, "test", 2);
             fail("Expected an exception");
-        } catch (CacheOperationException e) {
+        } catch (final CacheOperationException e) {
             Assert.assertEquals((Integer) 1, service.getFromCache(TEST_REGION, "test"));
         }
 

@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.rest;
 import org.apache.commons.io.FileUtils;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
+import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.rules.TemporaryFolder;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -26,31 +27,27 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.rest.application.ApplicationConfigV1;
 import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 
-import static org.junit.Assert.assertEquals;
-
 public abstract class RestApiTestClient {
-    public final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
-    private final Client client = ClientBuilder.newClient();
+    protected final JSONSerialiser JSON_SERIALISER = JSONSerialiser.getInstance();
+    protected final Client client = ClientBuilder.newClient();
+    protected final ResourceConfig config;
+    protected String uri;
+    protected HttpServer server;
 
-    public String uri;
-    private HttpServer server;
-
-    public RestApiTestClient(final String uri) {
+    public RestApiTestClient(final String uri, final ResourceConfig config) {
         this.uri = uri;
+        this.config = config;
     }
 
     public void stopServer() {
@@ -87,7 +84,7 @@ public abstract class RestApiTestClient {
         // set properties for REST service
         System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, testFolder.getRoot() + "/store.properties");
         System.setProperty(SystemProperty.SCHEMA_PATHS, testFolder.getRoot() + "/schema.json");
-        System.setProperty(SystemProperty.GRAPH_ID, SystemProperty.GRAPH_ID);
+        System.setProperty(SystemProperty.GRAPH_ID, "graphId");
 
         reinitialiseGraph();
     }
@@ -106,58 +103,19 @@ public abstract class RestApiTestClient {
                 .build());
     }
 
-    public Response executeOperation(final Operation operation) throws IOException {
-        startServer();
-        return client.target(uri)
-                     .path("/graph/doOperation/operation")
-                     .request()
-                     .post(Entity.entity(JSON_SERIALISER.serialise(operation), MediaType.APPLICATION_JSON_TYPE));
-    }
+    public abstract Response executeOperation(final Operation operation) throws IOException;
 
-    public Response executeOperationChain(final OperationChain opChain) throws IOException {
-        startServer();
-        return client.target(uri)
-                     .path("/graph/doOperation")
-                     .request()
-                     .post(Entity.entity(JSON_SERIALISER.serialise(opChain), MediaType.APPLICATION_JSON_TYPE));
-    }
+    public abstract Response executeOperationChain(final OperationChain opChain) throws IOException;
 
-    public Response executeOperationChainChunked(final OperationChain opChain) throws IOException {
-        startServer();
-        return client.target(uri)
-                     .path("/graph/doOperation/chunked")
-                     .request()
-                     .post(Entity.entity(JSON_SERIALISER.serialise(opChain), MediaType.APPLICATION_JSON_TYPE));
-    }
+    public abstract Response executeOperationChainChunked(final OperationChain opChain) throws IOException;
 
-    public Response executeOperationChunked(final Operation operation) throws IOException {
-        startServer();
-        return client.target(uri)
-                     .path("/graph/doOperation/chunked/operation")
-                     .request()
-                     .post(Entity.entity(JSON_SERIALISER.serialise(operation), MediaType.APPLICATION_JSON_TYPE));
-    }
+    public abstract Response executeOperationChunked(final Operation operation) throws IOException;
+
+    public abstract void checkRestServiceStatus();
 
     public void startServer() throws IOException {
         if (null == server) {
-            server = GrizzlyHttpServerFactory.createHttpServer(URI.create(uri), new ApplicationConfigV1());
+            server = GrizzlyHttpServerFactory.createHttpServer(URI.create(uri), config);
         }
     }
-
-    private void checkRestServiceStatus() {
-        // Given
-        final Response response = client.target(uri)
-                                        .path("status")
-                                        .request()
-                                        .get();
-
-        // When
-        final String statusMsg = response.readEntity(SystemStatus.class)
-                                         .getStatus()
-                                         .getDescription();
-
-        // Then
-        assertEquals("The system is working normally.", statusMsg);
-    }
-
 }

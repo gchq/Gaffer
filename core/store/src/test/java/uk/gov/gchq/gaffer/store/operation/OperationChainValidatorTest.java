@@ -16,16 +16,11 @@
 
 package uk.gov.gchq.gaffer.store.operation;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
 import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.mockito.Mockito;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -46,12 +41,22 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.Arrays;
 import java.util.Set;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
 public class OperationChainValidatorTest {
     @Test
     public void shouldValidateValidOperationChain() {
         validateOperationChain(new OperationChain(Arrays.asList(
-                new GetElements(),
-                new GetElements(),
+                new GetElements.Builder()
+                        .input(new EmptyClosableIterable<>())
+                        .build(),
+                new GetElements.Builder()
+                        .input(new EmptyClosableIterable<>())
+                        .build(),
                 new ToVertices(),
                 new GetAdjacentIds()
         )), true);
@@ -90,8 +95,12 @@ public class OperationChainValidatorTest {
     @Test
     public void shouldValidateOperationChainThatCouldBeValidBasedOnGenerics() {
         validateOperationChain(new OperationChain(Arrays.asList(
-                new GetElements(),
-                new GetElements(),
+                new GetElements.Builder()
+                        .input(new EmptyClosableIterable<>())
+                        .build(),
+                new GetElements.Builder()
+                        .input(new EmptyClosableIterable<>())
+                        .build(),
                 new ToVertices(),
                 new GenerateObjects.Builder<>()
                         .generator(e -> e)
@@ -103,10 +112,14 @@ public class OperationChainValidatorTest {
     @Test
     public void shouldValidateExportOperationChain() {
         validateOperationChain(new OperationChain(Arrays.asList(
-                new GetElements(),
+                new GetElements.Builder()
+                        .input(new EmptyClosableIterable<>())
+                        .build(),
                 new ExportToSet<>(),
                 new DiscardOutput(),
-                new GetElements(),
+                new GetElements.Builder()
+                        .input(new EmptyClosableIterable<>())
+                        .build(),
                 new ExportToSet<>(),
                 new DiscardOutput(),
                 new GetExports()

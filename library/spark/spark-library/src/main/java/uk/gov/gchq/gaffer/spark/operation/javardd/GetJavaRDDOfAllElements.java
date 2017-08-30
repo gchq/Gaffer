@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.spark.operation.javardd;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.sql.SparkSession;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
@@ -45,8 +46,8 @@ public class GetJavaRDDOfAllElements implements
     public GetJavaRDDOfAllElements() {
     }
 
-    public GetJavaRDDOfAllElements(final JavaSparkContext sparkContext) {
-        setJavaSparkContext(sparkContext);
+    public GetJavaRDDOfAllElements(final SparkSession sparkSession) {
+        setJavaSparkContext(JavaSparkContext.fromSparkContext(sparkSession.sparkContext()));
     }
 
     @Override
@@ -92,6 +93,16 @@ public class GetJavaRDDOfAllElements implements
     @Override
     public void setDirectedType(final DirectedType directedType) {
         this.directedType = directedType;
+    }
+
+    @Override
+    public GetJavaRDDOfAllElements shallowClone() {
+        return new GetJavaRDDOfAllElements.Builder()
+                .options(options)
+                .javaSparkContext(sparkContext)
+                .view(view)
+                .directedType(directedType)
+                .build();
     }
 
     public static class Builder extends BaseBuilder<GetJavaRDDOfAllElements, Builder>

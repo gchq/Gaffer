@@ -37,18 +37,19 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * <p>
  * Contains the full list of groups in the graph.
+ * </p>
  * <p>
  * This class must be JSON serialisable.
  * A schema should normally be written in JSON and then deserialised at runtime.
  * Examples of JSON schemas can be found in the example projects.
+ * </p>
  *
  * @param <ENTITY_DEF> the type of {@link ElementDefinition} for the entities
  * @param <EDGE_DEF>   the type of {@link ElementDefinition} for the edges
  */
 public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, EDGE_DEF extends ElementDefinition> {
-    protected static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
-
     /**
      * Map of edge type to edge definition.
      */
@@ -66,7 +67,7 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
 
     public byte[] toJson(final boolean prettyPrint, final String... fieldsToExclude) throws SchemaException {
         try {
-            return JSON_SERIALISER.serialise(this, prettyPrint, fieldsToExclude);
+            return JSONSerialiser.serialise(this, prettyPrint, fieldsToExclude);
         } catch (final SerialisationException e) {
             throw new SchemaException(e.getMessage(), e);
         }
@@ -156,16 +157,16 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
 
-        final ElementDefinitions<?, ?> that = (ElementDefinitions<?, ?>) o;
+        final ElementDefinitions<?, ?> that = (ElementDefinitions<?, ?>) obj;
 
         return new EqualsBuilder()
                 .append(edges, that.edges)
@@ -175,7 +176,7 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(31, 5)
                 .append(edges)
                 .append(entities)
                 .toHashCode();
@@ -272,18 +273,18 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
             for (final Object jsonItem : jsonItems) {
                 try {
                     if (jsonItem instanceof InputStream) {
-                        merge(JSON_SERIALISER.deserialise((InputStream) jsonItem, clazz));
+                        merge(JSONSerialiser.deserialise((InputStream) jsonItem, clazz));
                     } else if (jsonItem instanceof Path) {
                         final Path path = (Path) jsonItem;
                         if (Files.isDirectory(path)) {
                             for (final Path filePath : Files.newDirectoryStream(path)) {
-                                merge(JSON_SERIALISER.deserialise(Files.readAllBytes(filePath), clazz));
+                                merge(JSONSerialiser.deserialise(Files.readAllBytes(filePath), clazz));
                             }
                         } else {
-                            merge(JSON_SERIALISER.deserialise(Files.readAllBytes(path), clazz));
+                            merge(JSONSerialiser.deserialise(Files.readAllBytes(path), clazz));
                         }
                     } else {
-                        merge(JSON_SERIALISER.deserialise((byte[]) jsonItem, clazz));
+                        merge(JSONSerialiser.deserialise((byte[]) jsonItem, clazz));
                     }
                 } catch (final IOException e) {
                     throw new SchemaException("Failed to load element definitions from bytes", e);

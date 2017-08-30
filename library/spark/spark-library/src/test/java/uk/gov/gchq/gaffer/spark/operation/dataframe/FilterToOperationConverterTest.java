@@ -16,8 +16,7 @@
 package uk.gov.gchq.gaffer.spark.operation.dataframe;
 
 import org.apache.spark.SparkConf;
-import org.apache.spark.SparkContext;
-import org.apache.spark.sql.SQLContext;
+import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.sources.And;
 import org.apache.spark.sql.sources.EqualTo;
 import org.apache.spark.sql.sources.Filter;
@@ -62,29 +61,29 @@ public class FilterToOperationConverterTest {
     @Test
     public void testIncompatibleGroups() throws OperationException {
         final Schema schema = getSchema();
-        final SQLContext sqlContext = getSqlContext("testIncompatibleGroups");
+        SparkSession sparkSession = SparkSession.builder().config(getSparkConf("testIncompatibleGroups")).getOrCreate();
 
         final Filter[] filters = new Filter[2];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.GROUP, "A");
         filters[1] = new EqualTo(SchemaToStructTypeConverter.GROUP, "B");
-        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext,
+        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession,
                 getViewFromSchema(schema), schema, filters);
 
         final Operation operation = converter.getOperation();
         assertNull(operation);
 
-        sqlContext.sparkContext().stop();
+        sparkSession.sparkContext().stop();
     }
 
     @Test
     public void testSingleGroup() throws OperationException {
         final Schema schema = getSchema();
-        final SQLContext sqlContext = getSqlContext("testSingleGroup");
+        SparkSession sparkSession = SparkSession.builder().config(getSparkConf("testSingleGroup")).getOrCreate();
 
         final Filter[] filters = new Filter[1];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.GROUP, ENTITY_GROUP);
 
-        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext,
+        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession,
                 getViewFromSchema(schema), schema, filters);
 
         final Operation operation = converter.getOperation();
@@ -92,35 +91,35 @@ public class FilterToOperationConverterTest {
         assertEquals(Collections.singleton(ENTITY_GROUP), ((GraphFilters) operation).getView().getEntityGroups());
         assertEquals(0, ((GraphFilters) operation).getView().getEdgeGroups().size());
 
-        sqlContext.sparkContext().stop();
+        sparkSession.sparkContext().stop();
     }
 
     @Test
     public void testSingleGroupNotInSchema() throws OperationException {
         final Schema schema = getSchema();
-        final SQLContext sqlContext = getSqlContext("testSingleGroupNotInSchema");
+        SparkSession sparkSession = SparkSession.builder().config(getSparkConf("testSingleGroupNotInSchema")).getOrCreate();
 
         final Filter[] filters = new Filter[1];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.GROUP, "random");
-        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext,
+        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession,
                 getViewFromSchema(schema), schema, filters);
 
         final Operation operation = converter.getOperation();
         assertNull(operation);
 
-        sqlContext.sparkContext().stop();
+        sparkSession.sparkContext().stop();
     }
 
     @Test
     public void testTwoGroups() throws OperationException {
         final Schema schema = getSchema();
-        final SQLContext sqlContext = getSqlContext("testTwoGroups");
+        SparkSession sparkSession = SparkSession.builder().config(getSparkConf("testTwoGroups")).getOrCreate();
 
         final Filter[] filters = new Filter[1];
         final Filter left = new EqualTo(SchemaToStructTypeConverter.GROUP, ENTITY_GROUP);
         final Filter right = new EqualTo(SchemaToStructTypeConverter.GROUP, EDGE_GROUP2);
         filters[0] = new Or(left, right);
-        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext,
+        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession,
                 getViewFromSchema(schema), schema, filters);
 
         final Operation operation = converter.getOperation();
@@ -128,17 +127,17 @@ public class FilterToOperationConverterTest {
         assertEquals(Collections.singleton(ENTITY_GROUP), ((GraphFilters) operation).getView().getEntityGroups());
         assertEquals(Collections.singleton(EDGE_GROUP2), ((GraphFilters) operation).getView().getEdgeGroups());
 
-        sqlContext.sparkContext().stop();
+        sparkSession.sparkContext().stop();
     }
 
     @Test
     public void testSpecifyVertex() throws OperationException {
         final Schema schema = getSchema();
-        final SQLContext sqlContext = getSqlContext("testSpecifyVertex");
+        SparkSession sparkSession = SparkSession.builder().config(getSparkConf("testSpecifyVertex")).getOrCreate();
 
         final Filter[] filters = new Filter[1];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.VERTEX_COL_NAME, "0");
-        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext,
+        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession,
                 getViewFromSchema(schema), schema, filters);
 
         final Operation operation = converter.getOperation();
@@ -151,17 +150,17 @@ public class FilterToOperationConverterTest {
         }
         assertEquals(Collections.singleton(new EntitySeed("0")), seeds);
 
-        sqlContext.sparkContext().stop();
+        sparkSession.sparkContext().stop();
     }
 
     @Test
     public void testSpecifySource() throws OperationException {
         final Schema schema = getSchema();
-        final SQLContext sqlContext = getSqlContext("testSpecifySource");
+        SparkSession sparkSession = SparkSession.builder().config(getSparkConf("testSpecifySource")).getOrCreate();
 
         final Filter[] filters = new Filter[1];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.SRC_COL_NAME, "0");
-        FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, getViewFromSchema(schema),
+        FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession, getViewFromSchema(schema),
                 schema, filters);
 
         Operation operation = converter.getOperation();
@@ -174,17 +173,17 @@ public class FilterToOperationConverterTest {
         }
         assertEquals(Collections.singleton(new EntitySeed("0")), seeds);
 
-        sqlContext.sparkContext().stop();
+        sparkSession.sparkContext().stop();
     }
 
     @Test
     public void testSpecifyDestination() throws OperationException {
         final Schema schema = getSchema();
-        final SQLContext sqlContext = getSqlContext("testSpecifyDestination");
+        SparkSession sparkSession = SparkSession.builder().config(getSparkConf("testSpecifyDestination")).getOrCreate();
 
         final Filter[] filters = new Filter[1];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.DST_COL_NAME, "0");
-        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext,
+        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession,
                 getViewFromSchema(schema), schema, filters);
 
         final Operation operation = converter.getOperation();
@@ -197,18 +196,18 @@ public class FilterToOperationConverterTest {
         }
         assertEquals(Collections.singleton(new EntitySeed("0")), seeds);
 
-        sqlContext.sparkContext().stop();
+        sparkSession.sparkContext().stop();
     }
 
     @Test
     public void testSpecifyPropertyFilters() throws OperationException {
         final Schema schema = getSchema();
-        final SQLContext sqlContext = getSqlContext("testSpecifyPropertyFilters");
+        SparkSession sparkSession = SparkSession.builder().config(getSparkConf("testSpecifyPropertyFilters")).getOrCreate();
         final Filter[] filters = new Filter[1];
 
         // GreaterThan
         filters[0] = new GreaterThan("property1", 5);
-        FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, getViewFromSchema(schema),
+        FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession, getViewFromSchema(schema),
                 schema, filters);
         Operation operation = converter.getOperation();
 
@@ -229,7 +228,7 @@ public class FilterToOperationConverterTest {
 
         // LessThan
         filters[0] = new LessThan("property4", 8L);
-        converter = new FiltersToOperationConverter(sqlContext, getViewFromSchema(schema), schema, filters);
+        converter = new FiltersToOperationConverter(sparkSession, getViewFromSchema(schema), schema, filters);
         operation = converter.getOperation();
 
         assertTrue(operation instanceof GetRDDOfAllElements);
@@ -250,7 +249,7 @@ public class FilterToOperationConverterTest {
         final Filter left = new GreaterThan("property1", 5);
         final Filter right = new GreaterThan("property4", 8L);
         filters[0] = new And(left, right);
-        converter = new FiltersToOperationConverter(sqlContext, getViewFromSchema(schema), schema, filters);
+        converter = new FiltersToOperationConverter(sparkSession, getViewFromSchema(schema), schema, filters);
         operation = converter.getOperation();
 
         assertTrue(operation instanceof GetRDDOfAllElements);
@@ -277,18 +276,18 @@ public class FilterToOperationConverterTest {
         assertEquals(1, edgePostAggFilters.get(1).getSelection().length);
         assertEquals(expectedProperties.get(1), edgePostAggFilters.get(1).getSelection()[0]);
 
-        sqlContext.sparkContext().stop();
+        sparkSession.sparkContext().stop();
     }
 
     @Test
     public void testSpecifyMultiplePropertyFilters() throws OperationException {
         final Schema schema = getSchema();
-        final SQLContext sqlContext = getSqlContext("testSpecifyMultiplePropertyFilters");
+        SparkSession sparkSession = SparkSession.builder().config(getSparkConf("testSpecifyMultiplePropertyFilters")).getOrCreate();
 
         final Filter[] filters = new Filter[2];
         filters[0] = new GreaterThan("property1", 5);
         filters[1] = new LessThan("property4", 8L);
-        FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, getViewFromSchema(schema),
+        FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession, getViewFromSchema(schema),
                 schema, filters);
         Operation operation = converter.getOperation();
 
@@ -318,19 +317,19 @@ public class FilterToOperationConverterTest {
         assertEquals(1, edgePostAggFilters.get(1).getSelection().length);
         assertEquals(expectedProperties.get(1), edgePostAggFilters.get(1).getSelection()[0]);
 
-        sqlContext.sparkContext().stop();
+        sparkSession.sparkContext().stop();
     }
 
     @Test
     public void testSpecifyVertexAndPropertyFilter() throws OperationException {
         final Schema schema = getSchema();
-        final SQLContext sqlContext = getSqlContext("testSpecifyVertexAndPropertyFilter");
+        SparkSession sparkSession = SparkSession.builder().config(getSparkConf("testSpecifyVertexAndPropertyFilter")).getOrCreate();
 
         // Specify vertex and a filter on property1
         Filter[] filters = new Filter[2];
         filters[0] = new GreaterThan("property1", 5);
         filters[1] = new EqualTo(SchemaToStructTypeConverter.VERTEX_COL_NAME, "0");
-        FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, getViewFromSchema(schema),
+        FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession, getViewFromSchema(schema),
                 schema, filters);
         Operation operation = converter.getOperation();
 
@@ -359,7 +358,7 @@ public class FilterToOperationConverterTest {
         filters[0] = new GreaterThan("property1", 5);
         filters[1] = new EqualTo(SchemaToStructTypeConverter.VERTEX_COL_NAME, "0");
         filters[2] = new LessThan("property4", 8);
-        converter = new FiltersToOperationConverter(sqlContext, getViewFromSchema(schema), schema, filters);
+        converter = new FiltersToOperationConverter(sparkSession, getViewFromSchema(schema), schema, filters);
         operation = converter.getOperation();
         assertTrue(operation instanceof GetRDDOfElements);
         assertEquals(1, ((GraphFilters) operation).getView().getEntityGroups().size());
@@ -387,19 +386,19 @@ public class FilterToOperationConverterTest {
         assertEquals(expectedFunctions.get(0), entityPostAggFilters.get(0).getPredicate());
         assertEquals(expectedFunctions.get(1), entityPostAggFilters.get(1).getPredicate());
 
-        sqlContext.sparkContext().stop();
+        sparkSession.sparkContext().stop();
     }
 
     @Test
     public void testSpecifySourceOrDestinationAndPropertyFilter() throws OperationException {
         final Schema schema = getSchema();
-        final SQLContext sqlContext = getSqlContext("testSpecifyVertexAndPropertyFilter");
+        SparkSession sparkSession = SparkSession.builder().config(getSparkConf("testSpecifyVertexAndPropertyFilter")).getOrCreate();
 
         // Specify src and a filter on property1
         Filter[] filters = new Filter[2];
         filters[0] = new GreaterThan("property1", 5);
         filters[1] = new EqualTo(SchemaToStructTypeConverter.SRC_COL_NAME, "0");
-        FiltersToOperationConverter converter = new FiltersToOperationConverter(sqlContext, getViewFromSchema(schema),
+        FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession, getViewFromSchema(schema),
                 schema, filters);
         Operation operation = converter.getOperation();
 
@@ -425,7 +424,7 @@ public class FilterToOperationConverterTest {
         filters[0] = new GreaterThan("property1", 5);
         filters[1] = new EqualTo(SchemaToStructTypeConverter.SRC_COL_NAME, "0");
         filters[2] = new LessThan("property4", 8);
-        converter = new FiltersToOperationConverter(sqlContext, getViewFromSchema(schema), schema, filters);
+        converter = new FiltersToOperationConverter(sparkSession, getViewFromSchema(schema), schema, filters);
         operation = converter.getOperation();
 
         assertTrue(operation instanceof GetRDDOfElements);
@@ -450,7 +449,7 @@ public class FilterToOperationConverterTest {
         assertEquals(expectedProperties.get(1), entityPostAggFilters.get(1).getSelection()[0]);
         assertEquals(new IsLessThan(8, false), entityPostAggFilters.get(1).getPredicate());
 
-        sqlContext.sparkContext().stop();
+        sparkSession.sparkContext().stop();
     }
 
     private Schema getSchema() {
@@ -464,13 +463,12 @@ public class FilterToOperationConverterTest {
                 .build();
     }
 
-    private SQLContext getSqlContext(final String appName) {
-        final SparkConf sparkConf = new SparkConf()
+    private SparkConf getSparkConf(final String appName) {
+        return new SparkConf()
                 .setMaster("local")
                 .setAppName(appName)
                 .set(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
                 .set(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
                 .set(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true");
-        return new SQLContext(new SparkContext(sparkConf));
     }
 }

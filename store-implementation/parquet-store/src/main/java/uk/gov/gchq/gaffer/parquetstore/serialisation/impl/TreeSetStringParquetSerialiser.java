@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.parquetstore.serialisation.impl;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
-
 import java.util.Arrays;
 import java.util.TreeSet;
 
@@ -74,12 +73,17 @@ public class TreeSetStringParquetSerialiser implements ParquetSerialiser<TreeSet
     }
 
     @Override
+    public boolean isConsistent() {
+        return true;
+    }
+
+    @Override
     public Object[] serialiseNull() {
         return new Object[0];
     }
 
     @Override
     public boolean canHandle(final Class clazz) {
-        return TreeSet.class.isAssignableFrom(clazz);
+        return TreeSet.class.equals(clazz);
     }
 }

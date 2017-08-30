@@ -79,7 +79,7 @@ public final class CompactRawSerialisationUtils {
                 rtn = isNegativeVInt(firstByte) ? ~rtn : rtn;
             }
             return rtn;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }

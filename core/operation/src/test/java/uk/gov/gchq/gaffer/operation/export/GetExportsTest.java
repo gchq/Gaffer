@@ -19,25 +19,17 @@ package uk.gov.gchq.gaffer.operation.export;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.export.GetExports;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 
-public class GetExportsTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return GetExports.class;
-    }
-
+public class GetExportsTest extends OperationTest<GetExports> {
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final GetExports op = new GetExports.Builder()
                 .exports(new GetSetExport.Builder()
@@ -49,8 +41,8 @@ public class GetExportsTest extends OperationTest {
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(op, true);
-        final GetExports deserialisedOp = serialiser.deserialise(json, GetExports.class);
+        byte[] json = JSONSerialiser.serialise(op, true);
+        final GetExports deserialisedOp = JSONSerialiser.deserialise(json, GetExports.class);
 
         // Then
         assertEquals("key1", deserialisedOp.getGetExports().get(0).getKey());
@@ -73,5 +65,28 @@ public class GetExportsTest extends OperationTest {
         // Then
         assertEquals("key1", op.getGetExports().get(0).getKey());
         assertEquals("key2", op.getGetExports().get(1).getKey());
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final GetSetExport getSetExport = new GetSetExport.Builder()
+                .key("key1")
+                .build();
+
+        final GetExports getExports = new GetExports.Builder()
+                .exports(getSetExport)
+                .build();
+
+        // When
+        final GetExports clone = getExports.shallowClone();
+
+        // Then
+        assertNotSame(getExports, clone);
+        assertEquals(getSetExport, clone.getGetExports().iterator().next());
+    }
+
+    protected GetExports getTestObject() {
+        return new GetExports();
     }
 }

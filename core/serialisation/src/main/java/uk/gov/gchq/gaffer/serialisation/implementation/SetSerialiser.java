@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
-
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -47,7 +46,7 @@ public class SetSerialiser implements ToBytesSerialiser<Set<? extends Object>> {
             for (final Object entry : object) {
                 builder.appendLengthValueFromObjectToByteStream(getObjectSerialiser(), entry);
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
         return builder.toArray();
@@ -93,6 +92,11 @@ public class SetSerialiser implements ToBytesSerialiser<Set<? extends Object>> {
 
     @Override
     public boolean preservesObjectOrdering() {
+        return false;
+    }
+
+    @Override
+    public boolean isConsistent() {
         return false;
     }
 

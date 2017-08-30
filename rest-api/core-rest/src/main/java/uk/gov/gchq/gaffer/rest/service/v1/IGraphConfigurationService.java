@@ -44,6 +44,11 @@ public interface IGraphConfigurationService {
     Schema getSchema();
 
     @GET
+    @Path("/description")
+    @ApiOperation(value = "Gets the Graph description", response = String.class)
+    String getDescription();
+
+    @GET
     @Path("/filterFunctions")
     @ApiOperation(value = "Gets available filter functions.", response = String.class, responseContainer = "list")
     Set<Class> getFilterFunctions();

@@ -68,4 +68,9 @@ public class RawIntegerSerialiser implements ToBytesSerialiser<Integer> {
     public boolean preservesObjectOrdering() {
         return true;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

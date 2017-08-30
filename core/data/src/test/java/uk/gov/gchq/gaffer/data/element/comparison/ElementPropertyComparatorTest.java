@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.data.element.comparison;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Test;
+import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -30,22 +31,7 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertNotNull;
 
-public class ElementPropertyComparatorTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Test
-    public void shouldSerialiseAndDeserialiseEmptyComparator() throws SerialisationException, JsonProcessingException {
-        // Given
-        final ElementPropertyComparator comparator = new ElementPropertyComparator();
-
-        // When
-        byte[] json = serialiser.serialise(comparator, true);
-        final ElementPropertyComparator deserialisedComparator = serialiser.deserialise(json, ElementPropertyComparator.class);
-
-        // Then
-        assertNotNull(deserialisedComparator);
-    }
-
+public class ElementPropertyComparatorTest extends JSONSerialisationTest<ElementPropertyComparator> {
     @Test
     public void shouldSerialiseAndDeserialisePopulatedComparator() throws SerialisationException, JsonProcessingException {
         // Given
@@ -56,13 +42,13 @@ public class ElementPropertyComparatorTest {
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(comparator, true);
-        final ElementPropertyComparator deserialisedComparator = serialiser.deserialise(json, ElementPropertyComparator.class);
+        byte[] json = JSONSerialiser.serialise(comparator, true);
+        final ElementPropertyComparator deserialisedComparator = JSONSerialiser.deserialise(json, ElementPropertyComparator.class);
 
         // Then
         assertNotNull(deserialisedComparator);
     }
-    
+
     @Test
     public void shouldCompare() {
         // Given
@@ -268,6 +254,11 @@ public class ElementPropertyComparatorTest {
 
         // Then
         assertThat(result, lessThan(0));
+    }
+
+    @Override
+    protected ElementPropertyComparator getTestObject() {
+        return new ElementPropertyComparator();
     }
 
     private static class IntegerWrapper {

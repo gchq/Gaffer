@@ -110,13 +110,13 @@ public class DefaultExamplesFactory implements ExamplesFactory {
             value = null;
         } else if (String.class.equals(clazz) || Object.class.equals(clazz)) {
             value = String.valueOf(uniqueId);
-        } else if (Integer.class.equals(clazz)) {
+        } else if (Integer.class.equals(clazz) || int.class.equals(clazz)) {
             value = uniqueId;
-        } else if (Double.class.equals(clazz)) {
+        } else if (Double.class.equals(clazz) || double.class.equals(clazz)) {
             value = (double) uniqueId + 0.1;
-        } else if (Long.class.equals(clazz)) {
+        } else if (Long.class.equals(clazz) || long.class.equals(clazz)) {
             value = (long) uniqueId;
-        } else if (Float.class.equals(clazz)) {
+        } else if (Float.class.equals(clazz) || float.class.equals(clazz)) {
             value = (float) uniqueId;
         } else if (Date.class.equals(clazz)) {
             value = new Date(System.currentTimeMillis() - 10000 + uniqueId);
@@ -150,8 +150,10 @@ public class DefaultExamplesFactory implements ExamplesFactory {
         final String group = getAnEntityGroup();
         final SchemaElementDefinition entityDef = getSchema().getEntity(group);
 
-        final Entity entity = new Entity(group);
-        entity.setVertex(getExampleVertex(entityDef.getIdentifierClass(IdentifierType.VERTEX), uniqueId));
+        final Entity entity = new Entity.Builder()
+                .group(group)
+                .vertex(getExampleVertex(entityDef.getIdentifierClass(IdentifierType.VERTEX), uniqueId))
+                .build();
         populateProperties(entity, entityDef, uniqueId);
 
         return entity;
@@ -161,11 +163,12 @@ public class DefaultExamplesFactory implements ExamplesFactory {
         final String group = getAnEdgeGroup();
         final SchemaElementDefinition edgeDef = getSchema().getEdge(group);
 
-        final Edge edge = new Edge.Builder().group(group)
-                                            .source(getExampleVertex(edgeDef.getIdentifierClass(IdentifierType.SOURCE), uniqueId1))
-                                            .dest(getExampleVertex(edgeDef.getIdentifierClass(IdentifierType.DESTINATION), uniqueId2))
-                                            .directed(isAnEdgeDirected())
-                                            .build();
+        final Edge edge = new Edge.Builder()
+                .group(group)
+                .source(getExampleVertex(edgeDef.getIdentifierClass(IdentifierType.SOURCE), uniqueId1))
+                .dest(getExampleVertex(edgeDef.getIdentifierClass(IdentifierType.DESTINATION), uniqueId2))
+                .directed(isAnEdgeDirected())
+                .build();
 
         populateProperties(edge, edgeDef, uniqueId1);
 
@@ -175,23 +178,23 @@ public class DefaultExamplesFactory implements ExamplesFactory {
     protected EntityId getEntityId(final int uniqueId) {
         return new EntitySeed(
                 getExampleVertex(getSchema().getEntity(getAnEntityGroup())
-                                            .getIdentifierClass(IdentifierType.VERTEX), uniqueId));
+                        .getIdentifierClass(IdentifierType.VERTEX), uniqueId));
     }
 
     protected EdgeId getEdgeId(final int uniqueId1, final int uniqueId2) {
         return new EdgeSeed(
                 getExampleVertex(getSchema().getEdge(getAnEdgeGroup())
-                                            .getIdentifierClass(IdentifierType.SOURCE), uniqueId1),
+                        .getIdentifierClass(IdentifierType.SOURCE), uniqueId1),
                 getExampleVertex(getSchema().getEdge(getAnEdgeGroup())
-                                            .getIdentifierClass(IdentifierType.DESTINATION), uniqueId2),
+                        .getIdentifierClass(IdentifierType.DESTINATION), uniqueId2),
                 isAnEdgeDirected());
     }
 
     protected boolean isAnEdgeDirected() {
         return !getSchema().getEdge(getAnEdgeGroup())
-                           .getDirected()
-                           .toLowerCase(Locale.getDefault())
-                           .contains("false");
+                .getDirected()
+                .toLowerCase(Locale.getDefault())
+                .contains("false");
     }
 
     protected String getAnEntityPropertyName() {
@@ -211,9 +214,9 @@ public class DefaultExamplesFactory implements ExamplesFactory {
                     .entrySet()) {
                 // Try and find an entity that has properties
                 if (null != entry.getValue()
-                                 .getProperties() && !entry.getValue()
-                                                           .getProperties()
-                                                           .isEmpty()) {
+                        .getProperties() && !entry.getValue()
+                        .getProperties()
+                        .isEmpty()) {
                     return entry.getKey();
                 }
             }
@@ -239,12 +242,12 @@ public class DefaultExamplesFactory implements ExamplesFactory {
     protected String getAnEdgeGroup() {
         if (!getSchema().getEdgeGroups().isEmpty()) {
             for (final Entry<String, SchemaEdgeDefinition> entry : getSchema().getEdges()
-                                                                              .entrySet()) {
+                    .entrySet()) {
                 // Try and find an edge that has properties
                 if (null != entry.getValue()
-                                 .getProperties() && !entry.getValue()
-                                                           .getProperties()
-                                                           .isEmpty()) {
+                        .getProperties() && !entry.getValue()
+                        .getProperties()
+                        .isEmpty()) {
                     return entry.getKey();
                 }
             }

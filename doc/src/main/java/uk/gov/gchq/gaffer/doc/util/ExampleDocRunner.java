@@ -20,7 +20,6 @@ import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
-
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.ArrayList;
@@ -51,7 +50,7 @@ public abstract class ExampleDocRunner {
                     CacheServiceLoader.getService().clearCache("NamedOperation");
                     CacheServiceLoader.getService().clearCache("JobTracker");
                 }
-            } catch (CacheOperationException e) {
+            } catch (final CacheOperationException e) {
                 throw new RuntimeException(e);
             }
 

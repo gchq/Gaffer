@@ -76,7 +76,7 @@ public class OperationService implements IOperationService {
 
     @SuppressFBWarnings
     @Override
-    public ChunkedOutput<String> executeChunked(final OperationChain opChain) {
+    public ChunkedOutput<String> executeChunkedChain(final OperationChain opChain) {
         // Create chunked output instance
         final ChunkedOutput<String> output = new ChunkedOutput<>(String.class, "\r\n");
 
@@ -100,7 +100,10 @@ public class OperationService implements IOperationService {
     @SuppressFBWarnings
     @Override
     public ChunkedOutput<String> executeChunked(final Operation operation) {
-        return executeChunked(new OperationChain(operation));
+        if (operation instanceof OperationChain) {
+            return executeChunkedChain((OperationChain) operation);
+        }
+        return executeChunkedChain(new OperationChain(operation));
     }
 
     @Override

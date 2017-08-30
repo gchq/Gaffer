@@ -19,24 +19,16 @@ package uk.gov.gchq.gaffer.operation.export.set;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 
-public class GetSetExportTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return GetSetExport.class;
-    }
-
+public class GetSetExportTest extends OperationTest<GetSetExport> {
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final GetSetExport operation = new GetSetExport.Builder()
                 .key("key")
@@ -46,8 +38,8 @@ public class GetSetExportTest extends OperationTest {
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(operation, true);
-        final GetSetExport deserialisedOp = serialiser.deserialise(json, GetSetExport.class);
+        byte[] json = JSONSerialiser.serialise(operation, true);
+        final GetSetExport deserialisedOp = JSONSerialiser.deserialise(json, GetSetExport.class);
 
         // Then
         assertEquals("key", deserialisedOp.getKey());
@@ -72,5 +64,34 @@ public class GetSetExportTest extends OperationTest {
         assertEquals("jobId", operation.getJobId());
         assertEquals(0, (int) operation.getStart());
         assertEquals(5, (int) operation.getEnd());
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final String key = "key";
+        final String jobId = "jobId";
+        final int start = 0;
+        final int end = 5;
+        final GetSetExport getSetExport = new GetSetExport.Builder()
+                .key(key)
+                .jobId(jobId)
+                .start(start)
+                .end(end)
+                .build();
+
+        // When
+        GetSetExport clone = getSetExport.shallowClone();
+
+        // Then
+        assertNotSame(getSetExport, clone);
+        assertEquals(key, clone.getKey());
+        assertEquals(jobId, clone.getJobId());
+        assertEquals(start, (int) clone.getStart());
+        assertEquals(end, (int) clone.getEnd());
+    }
+
+    protected GetSetExport getTestObject() {
+        return new GetSetExport();
     }
 }

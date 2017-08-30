@@ -186,16 +186,8 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
     }
 
     @Override
-    public void shouldJsonSerialiseAndDeserialise() {
-        // Given
-        final OperationChainLimiter hook = fromJson(OP_CHAIN_LIMITER_PATH);
-
-        // When
-        final byte[] json = toJson(hook);
-        final OperationChainLimiter deserialisedHook = fromJson(json);
-
-        // Then
-        assertNotNull(deserialisedHook);
+    protected OperationChainLimiter getTestObject() {
+        return fromJson(OP_CHAIN_LIMITER_PATH);
     }
 
     @Test

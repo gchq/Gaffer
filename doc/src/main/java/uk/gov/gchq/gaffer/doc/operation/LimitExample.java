@@ -33,6 +33,8 @@ public class LimitExample extends OperationExample {
     @Override
     public void runExamples() {
         limitElementsTo3();
+        limitElementsTo3WithoutTruncation();
+        limitElementsTo3WithBuilder();
     }
 
     public Iterable<? extends Element> limitElementsTo3() {
@@ -44,5 +46,35 @@ public class LimitExample extends OperationExample {
         // ---------------------------------------------------------
 
         return runExample(opChain, null);
+    }
+
+    public void limitElementsTo3WithoutTruncation() {
+        // ---------------------------------------------------------
+        final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
+                .first(new GetAllElements())
+                .then(new Limit<>(3, false))
+                .build();
+        // ---------------------------------------------------------
+
+        showExample(opChain, "Setting this flag to false will " +
+                "throw an error instead of truncating the iterable. " +
+                "In this case there are more than 3 elements, so " +
+                "when executed a LimitExceededException would be thrown.");
+    }
+
+    public Iterable<? extends Element> limitElementsTo3WithBuilder() {
+        // ---------------------------------------------------------
+        final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
+                .first(new GetAllElements())
+                .then(new Limit.Builder<Element>()
+                        .resultLimit(3)
+                        .truncate(true)
+                        .build())
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(opChain, "A builder can also be used to create the limit -" +
+                " note that truncate is set to true by default, so in this case it" +
+                " is redundant, but simply shown for demonstration.");
     }
 }

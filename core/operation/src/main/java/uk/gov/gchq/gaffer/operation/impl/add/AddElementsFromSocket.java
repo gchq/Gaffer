@@ -44,7 +44,7 @@ public class AddElementsFromSocket implements
     private String hostname;
 
     @Required
-    private Integer port;
+    private int port;
 
     @Required
     private Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> elementGenerator;
@@ -127,6 +127,20 @@ public class AddElementsFromSocket implements
 
     public Integer getParallelism() {
         return this.parallelism;
+    }
+
+    @Override
+    public AddElementsFromSocket shallowClone() {
+        return new AddElementsFromSocket.Builder()
+                .hostname(hostname)
+                .port(port)
+                .generator(elementGenerator)
+                .parallelism(parallelism)
+                .validate(validate)
+                .skipInvalidElements(skipInvalidElements)
+                .delimiter(delimiter)
+                .options(options)
+                .build();
     }
 
     public static class Builder extends Operation.BaseBuilder<AddElementsFromSocket, Builder>

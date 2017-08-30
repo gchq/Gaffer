@@ -44,6 +44,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 import java.io.IOException;
@@ -57,6 +58,7 @@ import java.util.function.Function;
 
 public abstract class WalkthroughStrSubstitutor {
     public static final String JAVA_DOC_URL_PREFIX = "http://gchq.github.io/Gaffer/";
+    public static final String KORYPHE_JAVA_DOC_URL_PREFIX = "http://gchq.github.io/koryphe/";
     public static final String GITHUB_URL_PREFIX = "https://github.com/gchq/Gaffer/blob/master/";
     public static final String GITHUB_WIKI_URL_PREFIX = "https://github.com/gchq/Gaffer/wiki/";
     public static final String JAVA_SRC_PATH = "/src/main/java/";
@@ -139,6 +141,7 @@ public abstract class WalkthroughStrSubstitutor {
     public static Map<String, String> createParameterMap(final String text, final AbstractWalkthrough example, final String modulePath) {
         final Map<String, String> params = new HashMap<>();
         params.put("EDGE_JAVADOC", getJavaDocLink(Edge.class));
+        params.put("USER_JAVADOC", getJavaDocLink(User.class));
         params.put("STORE_JAVADOC", getJavaDocLink(Store.class));
         params.put("ACCUMULO_STORE_JAVADOC", getJavaDocLink(AccumuloStore.class));
         params.put("MOCK_ACCUMULO_STORE_JAVADOC", getJavaDocLink(MockAccumuloStore.class));
@@ -224,7 +227,19 @@ public abstract class WalkthroughStrSubstitutor {
     }
 
     public static String getJavaDocLink(final Class<?> clazz) {
-        return "[" + clazz.getSimpleName() + "](" + JAVA_DOC_URL_PREFIX + clazz.getName().replaceAll("\\.", "/") + ".html)";
+        return getJavaDocLink(clazz, true);
+    }
+
+    public static String getJavaDocLink(final Class<?> clazz, final boolean simpleName) {
+        final String javaDocUrlPrefix;
+        if (clazz.getName().contains("uk.gov.gchq.koryphe")) {
+            javaDocUrlPrefix = KORYPHE_JAVA_DOC_URL_PREFIX;
+        } else {
+            javaDocUrlPrefix = JAVA_DOC_URL_PREFIX;
+        }
+
+        final String displayName = simpleName ? clazz.getSimpleName() : clazz.getName();
+        return "[" + displayName + "](" + javaDocUrlPrefix + clazz.getName().replaceAll("\\.", "/") + ".html)";
     }
 
     public static String getGitHubResourcesLink(final String resourcePath, final String modulePath) {

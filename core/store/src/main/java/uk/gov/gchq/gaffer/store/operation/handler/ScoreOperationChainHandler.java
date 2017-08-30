@@ -66,7 +66,11 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
 
         if (null != opChain) {
             for (final Operation operation : opChain.getOperations()) {
-                chainScore += authorise(operation);
+                if (operation instanceof OperationChain) {
+                    chainScore += getChainScore((OperationChain<?>) operation, user);
+                } else {
+                    chainScore += authorise(operation);
+                }
             }
         }
         return chainScore;
@@ -116,7 +120,7 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
         return Collections.unmodifiableMap(opScores);
     }
 
-    public void setOpScores(final LinkedHashMap<Class<? extends Operation>, Integer> opScores) {
+    public void setOpScores(final Map<Class<? extends Operation>, Integer> opScores) {
         this.opScores.clear();
         if (null != opScores) {
             this.opScores.putAll(opScores);
@@ -131,7 +135,7 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
     }
 
     @JsonSetter("opScores")
-    public void setOpScoresFromStrings(final LinkedHashMap<String, Integer> opScores) throws ClassNotFoundException {
+    public void setOpScoresFromStrings(final Map<String, Integer> opScores) throws ClassNotFoundException {
         this.opScores.clear();
         CollectionUtil.toMapWithClassKeys(opScores, this.opScores);
         validateOpScores();

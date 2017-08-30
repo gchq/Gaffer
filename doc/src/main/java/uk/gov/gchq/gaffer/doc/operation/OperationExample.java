@@ -199,7 +199,7 @@ public abstract class OperationExample extends Example {
 
     protected Graph createExampleGraph() {
         final Graph graph = new Graph.Builder()
-                .graphId("graph1")
+                .config(StreamUtil.graphConfig(getClass()))
                 .addSchemas(StreamUtil.openStreams(getClass(), "operation/schema"))
                 .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();
@@ -211,7 +211,7 @@ public abstract class OperationExample extends Example {
         final List<String> data;
         try {
             data = IOUtils.readLines(StreamUtil.openStream(getClass(), "operation/data.txt"));
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
 

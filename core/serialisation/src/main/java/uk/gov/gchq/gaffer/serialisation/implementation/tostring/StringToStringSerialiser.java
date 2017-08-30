@@ -70,4 +70,9 @@ public class StringToStringSerialiser implements ToStringSerialiser<String> {
     public boolean preservesObjectOrdering() {
         return true;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

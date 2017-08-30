@@ -132,7 +132,7 @@ public class SchemaUtils {
     }
 
     public StructType buildSparkSchema(final String group) throws SerialisationException {
-        final StructType sType = new ParquetSchemaConverter(false, false, false).convert(getParquetSchema(group));
+        final StructType sType = new ParquetSchemaConverter(false, false, false, false).convert(getParquetSchema(group));
         groupToSparkSchema.put(group, sType);
         return sType;
     }

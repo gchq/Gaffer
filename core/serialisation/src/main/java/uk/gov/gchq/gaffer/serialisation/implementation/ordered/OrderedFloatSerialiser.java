@@ -57,6 +57,11 @@ public class OrderedFloatSerialiser implements ToBytesSerialiser<Float> {
     }
 
     @Override
+    public boolean isConsistent() {
+        return true;
+    }
+
+    @Override
     public boolean canHandle(final Class clazz) {
         return Float.class.equals(clazz);
     }

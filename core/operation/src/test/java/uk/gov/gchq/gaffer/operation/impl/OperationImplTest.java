@@ -20,7 +20,6 @@ import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.CustomVertex;
 import uk.gov.gchq.koryphe.ValidationResult;
@@ -28,13 +27,11 @@ import java.util.Date;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
-public class OperationImplTest extends OperationTest {
-    private static final JSONSerialiser SERIALISER = new JSONSerialiser();
-
+public class OperationImplTest extends OperationTest<OperationImpl> {
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final String requiredField1 = "value1";
         final CustomVertex requiredField2 = new CustomVertex("type1", "value1");
@@ -48,8 +45,8 @@ public class OperationImplTest extends OperationTest {
                 .build();
 
         // When
-        byte[] json = SERIALISER.serialise(op, true);
-        final OperationImpl deserialisedOp = SERIALISER.deserialise(json, OperationImpl.class);
+        byte[] json = JSONSerialiser.serialise(op, true);
+        final OperationImpl deserialisedOp = JSONSerialiser.deserialise(json, OperationImpl.class);
 
         // Then
         assertEquals(requiredField1, deserialisedOp.getRequiredField1());
@@ -80,6 +77,31 @@ public class OperationImplTest extends OperationTest {
         assertEquals(optionalField2, op.getOptionalField2());
     }
 
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final String requiredField1 = "value1";
+        final CustomVertex requiredField2 = new CustomVertex("type1", "value1");
+        final Date optionalField1 = new Date(1L);
+        final CustomVertex optionalField2 = new CustomVertex("type2", "value2");
+        final OperationImpl op = new OperationImpl.Builder()
+                .requiredField1(requiredField1)
+                .requiredField2(requiredField2)
+                .optionalField1(optionalField1)
+                .optionalField2(optionalField2)
+                .build();
+
+        // When
+        OperationImpl clone = op.shallowClone();
+
+        // Then
+        assertNotSame(op, clone);
+        assertEquals(requiredField1, clone.getRequiredField1());
+        assertEquals(requiredField2, clone.getRequiredField2());
+        assertEquals(optionalField1, clone.getOptionalField1());
+        assertEquals(optionalField2, clone.getOptionalField2());
+    }
+
     @Test
     public void shouldValidateASingleMissingRequiredField() throws SerialisationException {
         // Given
@@ -108,8 +130,8 @@ public class OperationImplTest extends OperationTest {
     }
 
     @Override
-    public Class<? extends Operation> getOperationClass() {
-        return OperationImpl.class;
+    protected OperationImpl getTestObject() {
+        return new OperationImpl();
     }
 }
 

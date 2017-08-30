@@ -44,7 +44,7 @@ import static org.mockito.Mockito.mock;
 public abstract class AbstractCoreKeyIteratorSettingsFactoryTest {
     private final AbstractCoreKeyIteratorSettingsFactory factory;
 
-    protected AbstractCoreKeyIteratorSettingsFactoryTest(AbstractCoreKeyIteratorSettingsFactory factory) {
+    protected AbstractCoreKeyIteratorSettingsFactoryTest(final AbstractCoreKeyIteratorSettingsFactory factory) {
         this.factory = factory;
     }
 

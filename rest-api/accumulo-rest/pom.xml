@@ -20,7 +20,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>rest-api</artifactId>
-        <version>0.7.8-SNAPSHOT</version>
+        <version>0.7.9-SNAPSHOT</version>
     </parent>
 
     <artifactId>accumulo-rest</artifactId>
@@ -36,7 +36,6 @@
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>core-rest</artifactId>
             <version>${project.parent.version}</version>
-            <scope>test</scope>
             <classifier>classes</classifier>
         </dependency>
         <dependency>

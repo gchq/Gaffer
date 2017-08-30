@@ -54,7 +54,7 @@ public class GafferRangePartitioner extends Partitioner<Text, Writable> implemen
     public int getPartition(final Text key, final Writable value, final int numPartitions) {
         try {
             return findPartition(key, getCutPoints(), getNumSubBins());
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
     }

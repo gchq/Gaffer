@@ -23,48 +23,42 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 
-public class AddElementsFromHdfsTest extends OperationTest {
-    private static final JSONSerialiser SERIALISER = new JSONSerialiser();
+public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> {
     private static final String ADD_ELEMENTS_FROM_HDFS_JSON = String.format("{%n" +
             "  \"class\" : \"uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs\",%n" +
-            "  \"inputPaths\" : [ \"TestInput\" ],%n" +
-            "  \"outputPath\" : \"TestOutput\",%n" +
-            "  \"validate\" : true%n" +
+            "  \"validate\" : true,%n" +
+            "  \"inputMapperPairs\" : {%n    \"TestInput\" : \"uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator\"%n  } ,%n" +
+            "  \"outputPath\" : \"TestOutput\"%n" +
             "}");
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return AddElementsFromHdfs.class;
-    }
 
     @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet(
-                "failurePath",
-                "mapperGeneratorClassName",
-                "inputPaths",
+                "jobInitialiser",
                 "outputPath",
-                "jobInitialiser"
+                "inputMapperPairs",
+                "failurePath"
         );
     }
 
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
+        final Map<String, String> inputMapperPairs = new HashMap<>();
+        inputMapperPairs.put("inputPath", MapperGenerator.class.getName());
         final AddElementsFromHdfs addElements = new AddElementsFromHdfs.Builder()
-                .addInputPath("inputPath")
+                .inputMapperPairs(inputMapperPairs)
                 .outputPath("outputPath")
                 .failurePath("failurePath")
                 .jobInitialiser(new TextJobInitialiser())
@@ -73,18 +67,17 @@ public class AddElementsFromHdfsTest extends OperationTest {
                 .reducers(10)
                 .splitsFilePath("/path/to/splits/file")
                 .useProvidedSplits(false)
-                .mapperGenerator(MapperGenerator.class)
                 .build();
 
         // When
-        String json = new String(SERIALISER.serialise(addElements, true));
+        String json = new String(JSONSerialiser.serialise(addElements, true));
 
         // Then
         JsonAssert.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs\",%n" +
                 "  \"failurePath\" : \"failurePath\",%n" +
                 "  \"validate\" : true,%n" +
-                "  \"inputPaths\" : [ \"inputPath\" ],%n" +
+                "  \"inputMapperPairs\" : { \"inputPath\" :\"uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator\"},%n" +
                 "  \"outputPath\" : \"outputPath\",%n" +
                 "  \"jobInitialiser\" : {%n" +
                 "    \"class\" : \"uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser\"%n" +
@@ -92,16 +85,17 @@ public class AddElementsFromHdfsTest extends OperationTest {
                 "  \"numMapTasks\" : 5,%n" +
                 "  \"numReduceTasks\" : 10,%n" +
                 "  \"splitsFilePath\" : \"/path/to/splits/file\",%n" +
-                "  \"partitioner\" : \"org.apache.hadoop.mapreduce.Partitioner\",%n" +
-                "  \"mapperGeneratorClassName\" : \"uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator\"%n" +
+                "  \"partitioner\" : \"org.apache.hadoop.mapreduce.Partitioner\"%n" +
                 "}"), json);
     }
 
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
+        final Map<String, String> inputMapperPairs = new HashMap<>();
+        inputMapperPairs.put("inputPath", MapperGenerator.class.getName());
         final AddElementsFromHdfs addElements = new AddElementsFromHdfs.Builder()
-                .addInputPath("input")
+                .inputMapperPairs(inputMapperPairs)
                 .outputPath("output")
                 .failurePath("fail")
                 .mappers(10)
@@ -115,18 +109,53 @@ public class AddElementsFromHdfsTest extends OperationTest {
         assertEquals(new Integer(10), addElements.getNumMapTasks());
         assertEquals(new Integer(20), addElements.getNumReduceTasks());
         assertEquals("output", addElements.getOutputPath());
-        assertEquals("input", addElements.getInputPaths().get(0));
+        assertEquals(MapperGenerator.class.getName(), addElements.getInputMapperPairs().get("inputPath"));
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        Map<String, String> inputMapperPairs = new HashMap<>();
+        inputMapperPairs.put("inputPath1", MapperGenerator.class.getName());
+        inputMapperPairs.put("inputPath2", MapperGenerator.class.getName());
+        final AddElementsFromHdfs addElements = new AddElementsFromHdfs.Builder()
+                .inputMapperPairs(inputMapperPairs)
+                .addinputMapperPair("inputPath3", MapperGenerator.class.getName())
+                .outputPath("output")
+                .failurePath("fail")
+                .mappers(10)
+                .reducers(20)
+                .validate(true)
+                .option("testOption", "true")
+                .build();
+
+        // When
+        AddElementsFromHdfs clone = addElements.shallowClone();
+
+        // Then
+        assertNotSame(addElements, clone);
+        assertEquals("true", clone.getOption("testOption"));
+        assertTrue(clone.isValidate());
+        assertEquals("fail", clone.getFailurePath());
+        assertEquals(new Integer(10), clone.getNumMapTasks());
+        assertEquals(new Integer(20), clone.getNumReduceTasks());
+        assertEquals("output", clone.getOutputPath());
+        assertEquals(MapperGenerator.class.getName(), clone.getInputMapperPairs().get("inputPath1"));
+        assertEquals(MapperGenerator.class.getName(), clone.getInputMapperPairs().get("inputPath2"));
+        assertEquals(MapperGenerator.class.getName(), clone.getInputMapperPairs().get("inputPath3"));
     }
 
     @Test
     public void shouldSerialisePopulatedAddElementsFromHdfsOperation() throws IOException {
         // Given
-        final AddElementsFromHdfs addElementsFromHdfs = new AddElementsFromHdfs();
-        addElementsFromHdfs.setInputPaths(Arrays.asList("TestInput"));
+        final Map<String, String> inputMapperPairs = new HashMap<>();
+        inputMapperPairs.put("TestInput", MapperGenerator.class.getName());
+        final AddElementsFromHdfs addElementsFromHdfs = getTestObject();
+        addElementsFromHdfs.setInputMapperPairs(inputMapperPairs);
         addElementsFromHdfs.setOutputPath("TestOutput");
 
         // When
-        final String json = new String(SERIALISER.serialise(addElementsFromHdfs, true));
+        final String json = new String(JSONSerialiser.serialise(addElementsFromHdfs, true));
 
         // Then
         JsonAssert.assertEquals(ADD_ELEMENTS_FROM_HDFS_JSON, json);
@@ -135,11 +164,18 @@ public class AddElementsFromHdfsTest extends OperationTest {
     @Test
     public void shouldDeserialiseAddElementsOperation() throws IOException {
         // When
-        final AddElementsFromHdfs addElementsFromHdfs = SERIALISER.deserialise(ADD_ELEMENTS_FROM_HDFS_JSON.getBytes(), AddElementsFromHdfs.class);
+        final AddElementsFromHdfs addElementsFromHdfs = JSONSerialiser.deserialise(ADD_ELEMENTS_FROM_HDFS_JSON.getBytes(), AddElementsFromHdfs.class);
 
         // Then
-        final List<String> inputPaths = addElementsFromHdfs.getInputPaths();
-        assertEquals("TestInput", inputPaths.get(0));
+        final Map<String, String> inputMapperPairs = new HashMap<>();
+        inputMapperPairs.put("TestInput", MapperGenerator.class.getName());
+
+        assertEquals(inputMapperPairs, addElementsFromHdfs.getInputMapperPairs());
         assertEquals("TestOutput", addElementsFromHdfs.getOutputPath());
+    }
+
+    @Override
+    protected AddElementsFromHdfs getTestObject() {
+        return new AddElementsFromHdfs();
     }
 }

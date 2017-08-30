@@ -74,7 +74,7 @@ public class JobServiceV2 implements IJobServiceV2 {
                                         .path(jobDetail.getJobId())
                                         .build();
 
-            return Response.created(location)
+            return Response.created(location).entity(jobDetail)
                            .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                            .build();
         } finally {

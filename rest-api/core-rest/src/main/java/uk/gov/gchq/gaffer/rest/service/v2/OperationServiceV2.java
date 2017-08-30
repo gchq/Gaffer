@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.rest.service.v2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.glassfish.jersey.server.ChunkedOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,12 +68,39 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
     @Override
     public Response execute(final Operation operation) {
-        return _executeRest(operation);
+        return Response.ok(_execute(operation))
+                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                       .build();
     }
 
     @Override
     public ChunkedOutput<String> executeChunked(final Operation operation) {
-        return executeChunked(new OperationChain(operation));
+        return (operation instanceof OperationChain)
+                ? executeChunkedChain((OperationChain) operation)
+                : executeChunkedChain(new OperationChain(operation));
+    }
+
+    @SuppressFBWarnings
+    @Override
+    public ChunkedOutput<String> executeChunkedChain(final OperationChain opChain) {
+        // Create chunked output instance
+        final ChunkedOutput<String> output = new ChunkedOutput<>(String.class, "\r\n");
+
+        // write chunks to the chunked output object
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    final Object result = _execute(opChain);
+                    chunkResult(result, output);
+                } finally {
+                    CloseableUtil.close(output);
+                    CloseableUtil.close(opChain);
+                }
+            }
+        }.start();
+
+        return output;
     }
 
     @Override
@@ -95,7 +123,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             throw new BadRequestException("Class name does not match message body.");
         }
 
-        return _executeRest(operation);
+        return _execute(operation);
     }
 
     @Override
@@ -144,22 +172,17 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         // no action by default
     }
 
-    private Response _executeRest(final Operation operation) {
-        return _executeRest(new OperationChain(operation));
-    }
-
-    private Response _executeRest(final OperationChain opChain) {
-        return Response.ok(_execute(opChain))
-                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                       .build();
-    }
-
-    protected <O> O _execute(final Operation operation) {
-        return _execute(new OperationChain<>(operation));
-    }
-
     @SuppressWarnings("ThrowFromFinallyBlock")
-    protected <O> O _execute(final OperationChain<O> opChain) {
+    protected <O> O _execute(final Operation operation) {
+
+        OperationChain<O> opChain;
+
+        if (!(operation instanceof OperationChain)) {
+            opChain = new OperationChain<>(operation);
+        } else {
+            opChain = (OperationChain<O>) operation;
+        }
+
         final User user = userFactory.createUser();
         preOperationHook(opChain, user);
 
@@ -167,13 +190,13 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         try {
             result = graphFactory.getGraph().execute(opChain, user);
         } catch (final OperationException e) {
-            CloseableUtil.close(opChain);
+            CloseableUtil.close(operation);
             throw new RuntimeException("Error executing opChain", e);
         } finally {
             try {
                 postOperationHook(opChain, user);
             } catch (final Exception e) {
-                CloseableUtil.close(opChain);
+                CloseableUtil.close(operation);
                 throw e;
             }
         }
@@ -226,7 +249,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         private final String name;
         private final boolean required;
 
-        public OperationField(final String name, final boolean required) {
+        OperationField(final String name, final boolean required) {
             this.name = name;
             this.required = required;
         }
@@ -250,14 +273,13 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         private final Set<Class<? extends Operation>> next;
         private final Operation exampleJson;
 
-        public OperationDetail(final Class<? extends Operation> opClass) {
+        OperationDetail(final Class<? extends Operation> opClass) {
             this.name = opClass.getName();
             this.fields = getOperationFields(opClass);
             this.next = getNextOperations(opClass);
             try {
                 this.exampleJson = OperationServiceV2.this.getExampleJson(opClass);
             } catch (final ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-
                 throw new GafferRuntimeException("Could not get operation details for class: " + name, e, Status.BAD_REQUEST);
             }
         }

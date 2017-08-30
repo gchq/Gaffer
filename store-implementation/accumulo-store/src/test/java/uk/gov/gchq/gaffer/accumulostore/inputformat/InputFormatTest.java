@@ -73,8 +73,6 @@ public class InputFormatTest {
     private static final int NUM_ENTRIES = 1000;
     private static final List<Element> DATA = new ArrayList<>();
     private static final List<Element> DATA_WITH_VISIBILITIES = new ArrayList<>();
-    private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
-
     static {
         for (int i = 0; i < NUM_ENTRIES; i++) {
             final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
@@ -132,8 +130,8 @@ public class InputFormatTest {
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
-    private static String getJsonString(final Object o) throws SerialisationException {
-        return new String(JSON_SERIALISER.serialise(o));
+    private static String getJsonString(final Object obj) throws SerialisationException {
+        return new String(JSONSerialiser.serialise(obj));
     }
 
     @Test

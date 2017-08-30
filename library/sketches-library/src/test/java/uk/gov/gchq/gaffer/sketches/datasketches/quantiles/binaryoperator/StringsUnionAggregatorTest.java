@@ -22,7 +22,6 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator.StringsUnionAggregator;
 import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 import java.util.function.BinaryOperator;
 
@@ -71,14 +70,14 @@ public class StringsUnionAggregatorTest extends BinaryOperatorTest {
         final StringsUnionAggregator aggregator = new StringsUnionAggregator();
 
         // When 1
-        final String json = new String(new JSONSerialiser().serialise(aggregator, true));
+        final String json = new String(JSONSerialiser.serialise(aggregator, true));
         // Then 1
         JsonAssert.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator.StringsUnionAggregator\"%n" +
                 "}"), json);
 
         // When 2
-        final StringsUnionAggregator deserialisedAggregator = new JSONSerialiser()
+        final StringsUnionAggregator deserialisedAggregator = JSONSerialiser
                 .deserialise(json.getBytes(), StringsUnionAggregator.class);
         // Then 2
         assertNotNull(deserialisedAggregator);

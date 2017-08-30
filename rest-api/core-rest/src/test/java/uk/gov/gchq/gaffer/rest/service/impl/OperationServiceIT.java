@@ -35,6 +35,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 public abstract class OperationServiceIT extends AbstractRestApiIT {
     @Test
@@ -58,7 +59,7 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
         client.addElements(DEFAULT_ELEMENTS);
 
         // When
-        final Response response = client.executeOperationChainChunked(new OperationChain.Builder()
+        final Response response = client.executeOperationChunked(new OperationChain.Builder()
                 .first(new GetAllElements())
                 .then(new CountGroups())
                 .build());
@@ -141,11 +142,9 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
         client.addElements(DEFAULT_ELEMENTS);
 
         // When
-        final Response response = client.executeOperationChain(new OperationChain.Builder()
-                .first(new AddElements.Builder()
+        final Response response = client.executeOperation(new AddElements.Builder()
                         .input(new Entity("wrong_group", "object"))
-                        .build())
-                .build());
+                        .build());
 
         assertEquals(500, response.getStatus());
     }
@@ -165,6 +164,13 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
     }
 
     private <T> List<T> readChunkedResults(final Response response, final GenericType<ChunkedInput<T>> genericType) {
+        try {
+            // Sleep for a short amount of time to ensure that all results are collected
+            Thread.sleep(2000);
+        } catch (final InterruptedException e) {
+            fail("Issue while waiting for chunked response.");
+        }
+
         final ChunkedInput<T> input = response.readEntity(genericType);
 
         final List<T> results = new ArrayList<>();
@@ -176,7 +182,7 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
 
     private void verifyGroupCounts(final GroupCounts groupCounts) {
         assertEquals(2, (int) groupCounts.getEntityGroups()
-                .get(TestGroups.ENTITY));
+                                         .get(TestGroups.ENTITY));
         assertEquals(1, (int) groupCounts.getEdgeGroups().get(TestGroups.EDGE));
         assertFalse(groupCounts.isLimitHit());
     }

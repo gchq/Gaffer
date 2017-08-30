@@ -49,7 +49,7 @@ public class NamedOperations extends DevWalkthrough {
         /// [graph] create a graph using our schema and store properties
         // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
-                .graphId("graph1")
+                .config(StreamUtil.graphConfig(getClass()))
                 .addSchemas(StreamUtil.openStreams(getClass(), "RoadAndRoadUseWithTimesAndCardinalities/schema"))
                 .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();
@@ -127,6 +127,7 @@ public class NamedOperations extends DevWalkthrough {
         // with parameters
         // ---------------------------------------------------------
         String opChainString = "{" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.operation.OperationChain\"," +
                 "  \"operations\" : [ {" +
                 "    \"class\" : \"uk.gov.gchq.gaffer.operation.impl.get.GetElements\"," +
                 "    \"view\" : {" +

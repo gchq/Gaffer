@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.operation.impl.compare;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -23,9 +22,6 @@ import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min.Builder;
 import java.util.Set;
@@ -35,34 +31,15 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
-public class MinTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return Min.class;
-    }
+public class MinTest extends OperationTest<Min> {
 
     @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet("comparators");
-    }
-
-    @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException, JsonProcessingException {
-        // Given
-        final Min op = new Min();
-
-        // When
-        byte[] json = serialiser.serialise(op, true);
-        final Min deserialisedOp = serialiser.deserialise(json, Min.class);
-
-        // Then
-        assertNotNull(deserialisedOp);
     }
 
     @Test
@@ -88,5 +65,31 @@ public class MinTest extends OperationTest {
         assertThat(Streams.toStream(min.getInput())
                 .map(e -> e.getProperty("property"))
                 .collect(toList()), containsInAnyOrder(1, 2));
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final Entity input = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .property("property", 1)
+                .build();
+        final ElementPropertyComparator comparator = new ElementPropertyComparator();
+        final Min min = new Min.Builder()
+                .input(input)
+                .comparators(comparator)
+                .build();
+
+        // When
+        Min clone = min.shallowClone();
+
+        // Then
+        assertNotSame(min, clone);
+        assertEquals(input, clone.getInput().iterator().next());
+        assertEquals(comparator, clone.getComparators().iterator().next());
+    }
+
+    protected Min getTestObject() {
+        return new Min();
     }
 }

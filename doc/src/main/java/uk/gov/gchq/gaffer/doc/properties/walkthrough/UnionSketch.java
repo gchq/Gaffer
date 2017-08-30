@@ -38,7 +38,7 @@ import java.util.Set;
 
 public class UnionSketch extends PropertiesWalkthrough {
     public UnionSketch() {
-        super("Using Union to estimate the size of the graph", "properties/unionSketch", UnionElementGenerator.class);
+        super(Union.class, "properties/unionSketch", UnionElementGenerator.class);
     }
 
     public static void main(final String[] args) throws OperationException {
@@ -50,7 +50,7 @@ public class UnionSketch extends PropertiesWalkthrough {
         /// [graph] create a graph using our schema and store properties
         // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
-                .graphId("graph1")
+                .config(StreamUtil.graphConfig(getClass()))
                 .addSchemas(StreamUtil.openStreams(getClass(), "properties/unionSketch/schema"))
                 .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();

@@ -37,12 +37,17 @@ public abstract class StreamUtil {
     public static final String ELEMENTS_SCHEMA = SCHEMA_FOLDER + "elements.json";
     public static final String TYPES_SCHEMA = SCHEMA_FOLDER + "types.json";
     public static final String STORE_PROPERTIES = "/store.properties";
+    public static final String GRAPH_CONFIG = "/graphConfig.json";
     public static final String FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH = "Failed to create input stream for path: ";
     public static final String LOG_FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH = FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH + "{}";
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamUtil.class);
 
     private StreamUtil() {
         // this class should not be instantiated - it contains only util methods and constants.
+    }
+
+    public static InputStream graphConfig(final Class clazz) {
+        return openStream(clazz, GRAPH_CONFIG);
     }
 
     public static InputStream view(final Class clazz) {
@@ -88,7 +93,7 @@ public abstract class StreamUtil {
                 .forEach(schemaFile -> {
                             try {
                                 schemas.add(openStream(clazz, schemaFile));
-                            } catch (Exception e) {
+                            } catch (final Exception e) {
                                 int closedStreamsCount = closeStreams(schemas.toArray(new InputStream[schemas.size()]));
                                 LOGGER.info(String.format("Closed %s input streams", closedStreamsCount));
                             }

@@ -15,10 +15,6 @@
 */
 package uk.gov.gchq.gaffer.serialisation.implementation.raw;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -29,6 +25,10 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class CompactRawLongSerialiserTest extends ToBytesSerialisationTest<Long> {
 
