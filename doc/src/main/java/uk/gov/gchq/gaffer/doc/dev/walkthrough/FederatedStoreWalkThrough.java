@@ -56,10 +56,10 @@ public class FederatedStoreWalkThrough extends DevWalkthrough {
         // ---------------------------------------------------------
         AddGraph addAnotherGraph = new AddGraph.Builder()
                 .setGraphId("AnotherGraph")
-                .setSchema(new Schema.Builder()
+                .schema(new Schema.Builder()
                         .json(StreamUtil.openStreams(getClass(), "RoadAndRoadUseWithTimesAndCardinalities/schema"))
                         .build())
-                .setProperties(StoreProperties.loadStoreProperties("mockmapstore.properties"))
+                .storeProperties(StoreProperties.loadStoreProperties("mockmapstore.properties"))
                 .build();
         federatedStore.execute(addAnotherGraph, user);
         // ---------------------------------------------------------

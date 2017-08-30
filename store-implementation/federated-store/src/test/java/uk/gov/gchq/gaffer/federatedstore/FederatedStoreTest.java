@@ -157,7 +157,7 @@ public class FederatedStoreTest {
             store.initialise(FEDERATED_STORE_ID, federatedProperties);
         } catch (final IllegalArgumentException e) {
             //Then
-            assertTrue(e.getMessage().contains(String.format(S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2, "Graph", "Graph.Builder[config=GraphConfig[graphID=mockMapGraphId1,library=uk.gov.gchq.gaffer.store.library.NoGraphLibrary")));
+            assertTrue(e.getMessage().contains(String.format(S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2, "Graph", "Graph.Builder[config=GraphConfig[graphId=mockMapGraphId1,library=uk.gov.gchq.gaffer.store.library.NoGraphLibrary")));
             return;
         }
         fail(EXCEPTION_NOT_THROWN);
@@ -286,7 +286,7 @@ public class FederatedStoreTest {
         try {
             store.initialise(FEDERATED_STORE_ID, federatedProperties);
         } catch (final Exception e) {
-            assertTrue(e.getMessage().contains(String.format(S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2, "Graph", "Graph.Builder[config=GraphConfig[graphID=mockAccGraphId1,library=uk.gov.gchq.gaffer.store.library.NoGraphLibrary")));
+            assertTrue(e.getMessage().contains(String.format(S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2, "Graph", "Graph.Builder[config=GraphConfig[graphId=mockAccGraphId1,library=uk.gov.gchq.gaffer.store.library.NoGraphLibrary")));
             return;
         }
         fail(EXCEPTION_NOT_THROWN);

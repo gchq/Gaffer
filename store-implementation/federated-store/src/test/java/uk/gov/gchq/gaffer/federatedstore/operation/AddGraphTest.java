@@ -41,14 +41,14 @@ public class AddGraphTest extends OperationTest<AddGraph> {
         storeProperties.set(expectedKey, expectedValue);
         AddGraph op = new AddGraph.Builder()
                 .setGraphId(expectedGraphId)
-                .setSchema(expectedSchema)
-                .setProperties(storeProperties)
+                .schema(expectedSchema)
+                .storeProperties(storeProperties)
                 .build();
 
         Assert.assertEquals(expectedGraphId, op.getGraphId());
         Assert.assertEquals(expectedSchema, op.getSchema());
-        Assert.assertTrue(op.getProperties().containsKey(expectedKey));
-        Assert.assertEquals(expectedValue, op.getProperties().get(expectedKey));
+        Assert.assertTrue(op.getStoreProperties().containsKey(expectedKey));
+        Assert.assertEquals(expectedValue, op.getStoreProperties().get(expectedKey));
     }
 
     @Override
@@ -57,7 +57,7 @@ public class AddGraphTest extends OperationTest<AddGraph> {
         final AddGraph b = a.shallowClone();
 
         Assert.assertEquals(a.getGraphId(), b.getGraphId());
-        Assert.assertEquals(a.getProperties(), b.getProperties());
+        Assert.assertEquals(a.getStoreProperties(), b.getStoreProperties());
         Assert.assertEquals(a.getSchema(), b.getSchema());
     }
 

@@ -67,10 +67,10 @@ public class AddGraph implements Operation {
     public AddGraph shallowClone() throws CloneFailedException {
         return new Builder()
                 .setGraphId(graphId)
-                .setSchema(schema)
-                .setProperties(storeProperties)
-                .setParentSchemaIds(parentSchemaIds)
-                .setParentPropertiesId(parentPropertiesId)
+                .schema(schema)
+                .storeProperties(storeProperties)
+                .parentSchemaIds(parentSchemaIds)
+                .parentPropertiesId(parentPropertiesId)
                 .build();
     }
 
@@ -83,11 +83,11 @@ public class AddGraph implements Operation {
         this.parentSchemaIds = parentSchemaIds;
     }
 
-    public StoreProperties getProperties() {
+    public StoreProperties getStoreProperties() {
         return storeProperties;
     }
 
-    public void setProperties(final StoreProperties properties) {
+    public void setStoreProperties(final StoreProperties properties) {
         this.storeProperties = properties;
     }
 
@@ -110,22 +110,22 @@ public class AddGraph implements Operation {
             return this;
         }
 
-        public Builder setProperties(final StoreProperties storeProperties) {
-            _getOp().setProperties(storeProperties);
+        public Builder storeProperties(final StoreProperties storeProperties) {
+            _getOp().setStoreProperties(storeProperties);
             return this;
         }
 
-        public Builder setSchema(final Schema schema) {
+        public Builder schema(final Schema schema) {
             _getOp().setSchema(schema);
             return _self();
         }
 
-        public Builder setParentPropertiesId(final String parentPropertiesId) {
+        public Builder parentPropertiesId(final String parentPropertiesId) {
             this._getOp().setParentPropertiesId(parentPropertiesId);
             return _self();
         }
 
-        public Builder setParentSchemaIds(final List<String> parentSchemaIds) {
+        public Builder parentSchemaIds(final List<String> parentSchemaIds) {
             _getOp().setParentSchemaIds(parentSchemaIds);
             return _self();
         }

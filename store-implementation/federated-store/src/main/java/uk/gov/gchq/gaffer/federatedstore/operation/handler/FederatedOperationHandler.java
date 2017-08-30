@@ -33,7 +33,7 @@ import java.util.Collection;
  * @see FederatedStore
  */
 public class FederatedOperationHandler implements OperationHandler<Operation> {
-    public static String SKIP_FAILED_FEDERATED_STORE_EXECUTE = "skipFailedFederatedStoreExecute";
+    public static final String SKIP_FAILED_FEDERATED_STORE_EXECUTE = "skipFailedFederatedStoreExecute";
 
     public Object doOperation(final Operation operation, final Context context, final Store store) throws OperationException {
         final Collection<Graph> graphs = ((FederatedStore) store).getGraphs();

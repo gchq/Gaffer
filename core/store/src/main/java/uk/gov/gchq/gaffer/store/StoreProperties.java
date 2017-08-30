@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -219,13 +219,13 @@ public class StoreProperties implements Cloneable {
         return get(STORE_CLASS);
     }
 
-    public void setStoreClass(final String storeClass) {
-        set(STORE_CLASS, storeClass);
-    }
-
     @JsonIgnore
     public void setStoreClass(final Class<? extends Store> storeClass) {
         setStoreClass(storeClass.getName());
+    }
+
+    public void setStoreClass(final String storeClass) {
+        set(STORE_CLASS, storeClass);
     }
 
     public Boolean getJobTrackerEnabled() {
@@ -234,10 +234,6 @@ public class StoreProperties implements Cloneable {
 
     public void setJobTrackerEnabled(final Boolean jobTrackerEnabled) {
         set(JOB_TRACKER_ENABLED, jobTrackerEnabled.toString());
-    }
-
-    public void setJobTrackerEnabled(final String jobTrackerEnabled) {
-        set(JOB_TRACKER_ENABLED, jobTrackerEnabled);
     }
 
     public String getSchemaClassName() {
@@ -255,13 +251,13 @@ public class StoreProperties implements Cloneable {
         return schemaClass;
     }
 
-    public void setSchemaClass(final Class<? extends Schema> schemaClass) {
-        set(SCHEMA_CLASS, schemaClass.getName());
-    }
-
     @JsonSetter
     public void setSchemaClass(final String schemaClass) {
         set(SCHEMA_CLASS, schemaClass);
+    }
+
+    public void setSchemaClass(final Class<? extends Schema> schemaClass) {
+        set(SCHEMA_CLASS, schemaClass.getName());
     }
 
     public String getStorePropertiesClassName() {
@@ -314,21 +310,17 @@ public class StoreProperties implements Cloneable {
         return get(JSON_SERIALISER_CLASS);
     }
 
-    public void setJsonSerialiserClass(final String jsonSerialiserClass) {
-        set(JSON_SERIALISER_CLASS, jsonSerialiserClass);
-    }
-
     @JsonIgnore
     public void setJsonSerialiserClass(final Class<? extends JSONSerialiser> jsonSerialiserClass) {
         setJsonSerialiserClass(jsonSerialiserClass.getName());
     }
 
-    public String getJsonSerialiserModules() {
-        return get(JSON_SERIALISER_MODULES, "");
+    public void setJsonSerialiserClass(final String jsonSerialiserClass) {
+        set(JSON_SERIALISER_CLASS, jsonSerialiserClass);
     }
 
-    public void setJsonSerialiserModules(final String modules) {
-        set(JSON_SERIALISER_MODULES, modules);
+    public String getJsonSerialiserModules() {
+        return get(JSON_SERIALISER_MODULES, "");
     }
 
     @JsonIgnore
@@ -338,6 +330,10 @@ public class StoreProperties implements Cloneable {
             moduleNames.add(module.getName());
         }
         setJsonSerialiserModules(StringUtils.join(moduleNames, ","));
+    }
+
+    public void setJsonSerialiserModules(final String modules) {
+        set(JSON_SERIALISER_MODULES, modules);
     }
 
     public Properties getProperties() {
