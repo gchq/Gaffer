@@ -4,6 +4,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -40,8 +41,10 @@ public class TestUtils {
     public static JavaSparkContext javaSparkContext = JavaSparkContext.fromSparkContext(spark.sparkContext());
 
     public static ParquetStoreProperties getParquetStoreProperties() {
-        return (ParquetStoreProperties) StoreProperties.loadStoreProperties(
+        final ParquetStoreProperties parquetStoreProperties = (ParquetStoreProperties) StoreProperties.loadStoreProperties(
                 AbstractSparkOperationsTest.class.getResourceAsStream("/multiUseStore.properties"));
+        parquetStoreProperties.setTempFilesDir(CommonTestConstants.TMP_DIRECTORY.getAbsolutePath());
+        return parquetStoreProperties;
     }
 
     public static Schema gafferSchema(final String schemaFolder) {

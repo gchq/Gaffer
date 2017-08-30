@@ -31,7 +31,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.io.writer.ParquetElementWriter;
-import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.AggregateGroup;
+import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.AggregateGroupSplit;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -43,8 +43,9 @@ public class AggregateDataTest {
     @BeforeClass
     public static void GeneratePreAggregatedData() throws IOException {
         final SchemaUtils schemaUtils = new SchemaUtils(TestUtils.gafferSchema("schemaUsingLongVertexType"));
+        final ParquetStoreProperties props = TestUtils.getParquetStoreProperties();
         final ParquetWriter<Element> writer = new ParquetElementWriter
-                .Builder(new Path(".AggregateDataTest/AggregateDataTest/graph/GROUP=" + TestGroups.ENTITY + "/raw/split0/part-0.parquet"))
+                .Builder(new Path(props.getTempFilesDir() + "/AggregateDataTest/graph/GROUP=" + TestGroups.ENTITY + "/raw/split0/part-0.parquet"))
                 .isEntity(true)
                 .withSparkSchema(schemaUtils.getSparkSchema(TestGroups.ENTITY))
                 .withType(schemaUtils.getParquetSchema(TestGroups.ENTITY))
@@ -59,15 +60,14 @@ public class AggregateDataTest {
 
     @Test
     public void aggregateSplit() throws StoreException, IOException {
-        final ParquetStoreProperties props = new ParquetStoreProperties();
-        props.setTempFilesDir(".AggregateDataTest");
+        final ParquetStoreProperties props = TestUtils.getParquetStoreProperties();
         final ParquetStore store = new ParquetStore();
         store.initialise("AggregateDataTest", TestUtils.gafferSchema("schemaUsingLongVertexType"), props);
 
-        new AggregateGroup(TestGroups.ENTITY, ParquetStoreConstants.VERTEX, store, null, TestUtils.spark, 0).call();
+        new AggregateGroupSplit(TestGroups.ENTITY, ParquetStoreConstants.VERTEX, store, null, TestUtils.spark, 0).call();
 
         final FileSystem fs = FileSystem.get(new Configuration());
-        final String EntitySplit0 = ".AggregateDataTest/AggregateDataTest/graph/GROUP=" + TestGroups.ENTITY + "/aggregated/split0";
+        final String EntitySplit0 = props.getTempFilesDir() + "/AggregateDataTest/graph/GROUP=" + TestGroups.ENTITY + "/aggregated/split0";
         Assert.assertTrue(fs.exists(new Path(EntitySplit0)));
         Row[] results = (Row[]) TestUtils.spark.read().parquet(EntitySplit0).sort(ParquetStoreConstants.VERTEX).collect();
         for (int i = 0; i < 20; i++) {
@@ -86,7 +86,8 @@ public class AggregateDataTest {
 
     @AfterClass
     public static void cleanUpData() throws IOException {
-        deleteFolder(".AggregateDataTest", FileSystem.get(new Configuration()));
+        final ParquetStoreProperties props = TestUtils.getParquetStoreProperties();
+        deleteFolder(props.getTempFilesDir() +"/AggregateDataTest", FileSystem.get(new Configuration()));
     }
 
     private static void deleteFolder(final String path, final FileSystem fs) throws IOException {

@@ -39,7 +39,7 @@ public class CalculateSplitPointsFromIterable {
         this.numOfSplits = numOfSplits;
     }
 
-    public Map<Integer, Object> calculateSplitsForGroup(final Iterable<? extends Element> data, final String group, final boolean isEntity) {
+    public Map<Object, Integer> calculateSplitsForGroup(final Iterable<? extends Element> data, final String group, final boolean isEntity) {
         final Iterator<? extends Element> dataIter = data.iterator();
         final ArrayList<Object> sample = new ArrayList<>();
         long counter = sampleRate;
@@ -52,7 +52,7 @@ public class CalculateSplitPointsFromIterable {
                     } else {
                         sample.add(element.getIdentifier(IdentifierType.SOURCE));
                     }
-                    counter = 0;
+                    counter = 1;
                 } else {
                     counter++;
                 }
@@ -62,22 +62,14 @@ public class CalculateSplitPointsFromIterable {
             return new TreeMap<>(COMPARATOR);
         } else {
             sample.sort(COMPARATOR);
-            final int x = (sample.size() / (numOfSplits + 1)) + 1;
-            final Map<Integer, Object> splitPoints = new TreeMap<>(COMPARATOR);
-            if (x == 0) {
-                splitPoints.put(0, sample.get(0));
-            } else {
-                counter = 0;
-                for (final Object gafferObject : sample) {
-                    if (counter % x == 0) {
-                        final int i = (int) (counter / x);
-                        final Object split = splitPoints.get(i - 1);
-                        if (counter == 0 || split == null || !split.equals(gafferObject)) {
-                            splitPoints.put(i, gafferObject);
-                        }
-                    }
-                    counter++;
-                }
+            final int sampleSize = sample.size();
+            final int splitRate = (sampleSize / (numOfSplits + 1)) + 1;
+            final Map<Object, Integer> splitPoints = new TreeMap<>(COMPARATOR);
+            for (int i = 0; i < sampleSize; i += splitRate) {
+                splitPoints.put(sample.get(i), i / splitRate);
+            }
+            if (splitPoints.isEmpty()) {
+                splitPoints.put(sample.get(0), 0);
             }
             return splitPoints;
         }

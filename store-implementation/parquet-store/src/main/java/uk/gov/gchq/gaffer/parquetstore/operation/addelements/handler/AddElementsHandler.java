@@ -90,19 +90,19 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             final CalculateSplitPointsFromIterable calculateSplitPointsFromIterable =
                     new CalculateSplitPointsFromIterable(parquetStoreProperties.getSampleRate(),
                             parquetStoreProperties.getAddElementsOutputFilesPerGroup() - 1);
-            final Map<String, Map<Integer, Object>> groupToSplitPoints;
+            final Map<String, Map<Object, Integer>> groupToSplitPoints;
             final GraphIndex index = store.getGraphIndex();
             if (null == index) {
                 groupToSplitPoints = new HashMap<>();
                 for (final String group : gafferSchema.getEdgeGroups()) {
-                    final Map<Integer, Object> splitPoints = calculateSplitPointsFromIterable.calculateSplitsForGroup(input, group, false);
-                    if (splitPoints != null) {
+                    final Map<Object, Integer> splitPoints = calculateSplitPointsFromIterable.calculateSplitsForGroup(input, group, false);
+                    if (!splitPoints.isEmpty()) {
                         groupToSplitPoints.put(group, splitPoints);
                     }
                 }
                 for (final String group : gafferSchema.getEntityGroups()) {
-                    final Map<Integer, Object> splitPoints = calculateSplitPointsFromIterable.calculateSplitsForGroup(input, group, true);
-                    if (splitPoints != null) {
+                    final Map<Object, Integer> splitPoints = calculateSplitPointsFromIterable.calculateSplitsForGroup(input, group, true);
+                    if (!splitPoints.isEmpty()) {
                         groupToSplitPoints.put(group, splitPoints);
                     }
                 }

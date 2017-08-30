@@ -202,7 +202,7 @@ public final class ParquetFilterUtils {
                 } else {
                     identifier = ParquetStoreConstants.SOURCE;
                 }
-                final Pair<List<Object[]>, Map<Object[], Pair<Object[], DirectedType>>> prepSeedsResult = prepSeeds(identifier, group);
+                final Pair<List<Object[]>, Map<Object[], Pair<Object[], DirectedType>>> prepSeedsResult = prepSeeds(identifier, group, isEntityGroup);
                 final List<Object[]> sortedSeeds = prepSeedsResult.getFirst();
                 final Map<Object[], Pair<Object[], DirectedType>> seed2Parts = prepSeedsResult.getSecond();
                 // Build graph path to filter
@@ -223,6 +223,7 @@ public final class ParquetFilterUtils {
      *
      * @param identifier the column that the seed relates to
      * @param group the group that is currently being queried
+     * @param isEntityGroup is the group provided an entity group
      * @return a {@link Pair} in which the first entry is a sorted {@link Set} of the seeds converted to the form in
      * which they appear in the Parquet files, and the second entry is a {@link Map} from the seeds to a {@link Pair}
      * which is <code>null</code> if the seed is an {@link EntitySeed} and consists of the destination vertex and
@@ -230,7 +231,8 @@ public final class ParquetFilterUtils {
      * @throws SerialisationException if the conversion from the seed to corresponding Parquet objects fails
      */
     private Pair<List<Object[]>, Map<Object[], Pair<Object[], DirectedType>>> prepSeeds(final String identifier,
-                                                                                          final String group)
+                                                                                        final String group,
+                                                                                        final boolean isEntityGroup)
             throws SerialisationException {
         final HashMap<Object[], Pair<Object[], DirectedType>> seed2parts = new HashMap<>();
         final GafferGroupObjectConverter converter = schemaUtils.getConverter(group);
@@ -243,7 +245,11 @@ public final class ParquetFilterUtils {
                 final EdgeSeed edgeSeed = (EdgeSeed) elementSeed;
                 final Object[] serialisedSeed = converter.gafferObjectToParquetObjects(identifier, edgeSeed.getSource());
                 sortedSeeds.add(serialisedSeed);
-                seed2parts.put(serialisedSeed, new Pair<>(converter.gafferObjectToParquetObjects(identifier, edgeSeed.getDestination()), edgeSeed.getDirectedType()));
+                final Object[] serialisedDest = converter.gafferObjectToParquetObjects(identifier, edgeSeed.getDestination());
+                if (isEntityGroup && seedMatchingType != SeedMatching.SeedMatchingType.EQUAL) {
+                    sortedSeeds.add(serialisedDest);
+                }
+                seed2parts.put(serialisedSeed, new Pair<>(serialisedDest, edgeSeed.getDirectedType()));
             }
         }
         sortedSeeds.sort(COMPARATOR);
@@ -306,7 +312,7 @@ public final class ParquetFilterUtils {
                 if (seedMatchingType != SeedMatching.SeedMatchingType.EQUAL) {
                     // Vertex = source of edge seed or Vertex = destination of edge seed
                     filter = addIsEqualFilter(ParquetStoreConstants.VERTEX, currentSeed, group, true).getFirst();
-                    filter = orFilter(filter, addIsEqualFilter(ParquetStoreConstants.VERTEX, parts.getFirst(), group, true).getFirst());
+//                    filter = orFilter(filter, addIsEqualFilter(ParquetStoreConstants.VERTEX, parts.getFirst(), group, true).getFirst());
                 }
             }
         } else {

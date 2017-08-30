@@ -56,10 +56,10 @@ public abstract class AbstractSparkOperationsTest {
     static User USER = new SparkUser(new User(), TestUtils.spark);
     Graph graph;
 
-    static Graph getGraph(final Schema schema, final ParquetStoreProperties properties) throws StoreException {
+    static Graph getGraph(final Schema schema, final ParquetStoreProperties properties, final String graphID) throws StoreException {
         return new Graph.Builder()
                 .config(new GraphConfig.Builder()
-                        .graphId("test")
+                        .graphId(graphID)
                         .build())
                 .addSchema(schema)
                 .storeProperties(properties)
@@ -69,8 +69,7 @@ public abstract class AbstractSparkOperationsTest {
     @AfterClass
     public static void cleanUpData() throws IOException {
         try (final FileSystem fs = FileSystem.get(new Configuration())) {
-            final ParquetStoreProperties props = (ParquetStoreProperties) StoreProperties.loadStoreProperties(
-                    StreamUtil.storeProps(AbstractSparkOperationsTest.class));
+            final ParquetStoreProperties props = TestUtils.getParquetStoreProperties();
             deleteFolder(props.getDataDir(), fs);
         }
     }

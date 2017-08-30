@@ -72,7 +72,7 @@ public class AddElementsFromRDD {
                 final CalculateSplitPointsFromJavaRDD calculateSplitPointsFromJavaRDD =
                         new CalculateSplitPointsFromJavaRDD(parquetStoreProperties.getSampleRate(),
                                 parquetStoreProperties.getAddElementsOutputFilesPerGroup() - 1);
-                final Map<String, Map<Integer, Object>> groupToSplitPoints;
+                final Map<String, Map<Object, Integer>> groupToSplitPoints;
                 final GraphIndex index = store.getGraphIndex();
                 if (null == index) {
                     groupToSplitPoints = new HashMap<>();
@@ -86,7 +86,7 @@ public class AddElementsFromRDD {
                     groupToSplitPoints = CalculateSplitPointsFromIndex.apply(index, store.getSchemaUtils(), parquetStoreProperties, input);
                 }
                 final WriteUnsortedDataFunction writeUnsortedDataFunction =
-                        new WriteUnsortedDataFunction(store.getTempFilesDir(), store.getSchemaUtils(), groupToSplitPoints, parquetStoreProperties.getAddElementsOutputFilesPerGroup());
+                        new WriteUnsortedDataFunction(store.getTempFilesDir(), store.getSchemaUtils(), groupToSplitPoints);
                 input
                     .foreachPartition(writeUnsortedDataFunction);
                 LOGGER.debug("Finished writing the unsorted Parquet data to {}", tempDataDirString);

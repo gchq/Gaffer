@@ -19,7 +19,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.spark.sql.SparkSession;
-import scala.collection.JavaConversions;
 import scala.collection.Seq;
 import scala.collection.Seq$;
 import scala.collection.mutable.Builder;
@@ -31,42 +30,44 @@ import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
 /**
  * This class is used to sort the data for a single group by loading in the /aggregate folder within a group
  */
-public class SortGroup implements Callable<OperationException> {
+public class SortFullGroup implements Callable<OperationException> {
 
+    private static final String AGGREGATED = "/aggregated";
+    private static final String SORTED = "/sorted";
+    private static final String SPLIT = "/split*";
     private final String inputDir;
     private final String outputDir;
     private final Map<String, String[]> columnToPaths;
     private final boolean isEntity;
-    private final int filesPerGroup;
     private final SparkSession spark;
-    private static final String AGGREGATED = "/aggregated";
-    private static final String SORTED = "/sorted";
+    private final String column;
+    private final int numberOfOutputFiles;
 
-    public SortGroup(final String group,
-                     final String column,
-                     final ParquetStore store,
-                     final SparkSession spark) throws SerialisationException {
+    public SortFullGroup(final String group,
+                         final String column,
+                         final ParquetStore store,
+                         final SparkSession spark,
+                         final int numberOfOutputFiles) throws SerialisationException {
         final String tempFileDir = store.getTempFilesDir();
+        this.numberOfOutputFiles = numberOfOutputFiles;
+        this.column = column;
         final SchemaElementDefinition groupGafferSchema = store.getSchemaUtils().getGafferSchema().getElement(group);
         this.isEntity = groupGafferSchema instanceof SchemaEntityDefinition;
         this.spark = spark;
         this.columnToPaths = store.getSchemaUtils().getColumnToPaths(group);
         if (isEntity) {
-            this.inputDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.VERTEX, tempFileDir) + AGGREGATED;
-            this.outputDir = ParquetStore.getGroupDirectory(group, column, tempFileDir + SORTED);
+            this.inputDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.VERTEX, tempFileDir) + AGGREGATED + SPLIT;
+            this.outputDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.VERTEX, tempFileDir + SORTED);
         } else {
-            this.inputDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.SOURCE, tempFileDir) + AGGREGATED;
+            this.inputDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.SOURCE, tempFileDir) + AGGREGATED + SPLIT;
             this.outputDir = ParquetStore.getGroupDirectory(group, column, tempFileDir + SORTED);
         }
-        this.filesPerGroup = store.getProperties().getAddElementsOutputFilesPerGroup();
     }
 
     @Override
@@ -87,33 +88,37 @@ public class SortGroup implements Callable<OperationException> {
             } else {
                 final String[] srcPaths = groupPaths.get(ParquetStoreConstants.SOURCE);
                 final String[] destPaths = groupPaths.get(ParquetStoreConstants.DESTINATION);
-                firstSortColumn = srcPaths[0];
-                if (srcPaths.length > 1) {
-                    for (int i = 1; i < srcPaths.length; i++) {
-                        groupBySeq.$plus$eq(srcPaths[i]);
+                if (ParquetStoreConstants.SOURCE.equals(column)) {
+                    firstSortColumn = srcPaths[0];
+                    if (srcPaths.length > 1) {
+                        for (int i = 1; i < srcPaths.length; i++) {
+                            groupBySeq.$plus$eq(srcPaths[i]);
+                        }
                     }
-                }
-                for (final String destPath : destPaths) {
-                    groupBySeq.$plus$eq(destPath);
+                    for (final String destPath : destPaths) {
+                        groupBySeq.$plus$eq(destPath);
+                    }
+                } else {
+                    firstSortColumn = destPaths[0];
+                    if (destPaths.length > 1) {
+                        for (int i = 1; i < destPaths.length; i++) {
+                            groupBySeq.$plus$eq(destPaths[i]);
+                        }
+                    }
+                    for (final String srcPath : srcPaths) {
+                        groupBySeq.$plus$eq(srcPath);
+                    }
                 }
                 groupBySeq.$plus$eq(ParquetStoreConstants.DIRECTED);
             }
 
-            final List<String> paths = new ArrayList<>();
             final FileSystem fs = FileSystem.get(new Configuration());
-            for (int i = 0; i < filesPerGroup; i++) {
-                if (fs.exists(new Path(inputDir + "/split" + i))) {
-                    paths.add(inputDir + "/split" + i);
-                }
-            }
-
-            // Write out aggregated and sorted data
-            if (!paths.isEmpty()) {
+            if (fs.exists(new Path(inputDir).getParent())) {
                 spark.read()
                         .option("mergeSchema", true)
-                        .parquet(JavaConversions.asScalaBuffer(paths))
+                        .parquet(inputDir)
                         .sort(firstSortColumn, groupBySeq.result())
-                        .coalesce(filesPerGroup)
+                        .coalesce(numberOfOutputFiles)
                         .write()
                         .option("compression", "gzip")
                         .parquet(outputDir);

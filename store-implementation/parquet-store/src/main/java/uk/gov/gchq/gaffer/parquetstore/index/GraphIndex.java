@@ -16,6 +16,8 @@
 package uk.gov.gchq.gaffer.parquetstore.index;
 
 import org.apache.hadoop.fs.FileSystem;
+import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
+import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -67,10 +69,17 @@ public class GraphIndex {
         }
     }
 
-    public void readGroups(final Set<String> groups, final String rootDir, final FileSystem fs) throws StoreException {
-        for (final String group : groups) {
+    public void readGroups(final SchemaUtils schemaUtils, final String rootDir, final FileSystem fs) throws StoreException {
+        for (final String group : schemaUtils.getEntityGroups()) {
             final GroupIndex groupIndex = new GroupIndex();
-            groupIndex.readColumns(group, rootDir, fs);
+            groupIndex.readColumns(group, rootDir, fs, new String[]{ParquetStoreConstants.VERTEX});
+            if (!groupIndex.columnsIndexed().isEmpty()) {
+                add(group, groupIndex);
+            }
+        }
+        for (final String group : schemaUtils.getEdgeGroups()) {
+            final GroupIndex groupIndex = new GroupIndex();
+            groupIndex.readColumns(group, rootDir, fs, new String[]{ParquetStoreConstants.SOURCE, ParquetStoreConstants.DESTINATION});
             if (!groupIndex.columnsIndexed().isEmpty()) {
                 add(group, groupIndex);
             }

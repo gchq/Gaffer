@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.store.StoreException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -42,7 +43,7 @@ public class CalculateSplitPointsFromIterableTest {
     @Test
     public void calculateSplitsFromEmptyIterable() {
         final Iterable<Element> emptyIterable = new ArrayList<>();
-        final Map<Integer, Object> splitPoints = new CalculateSplitPointsFromIterable(2, 2).calculateSplitsForGroup(emptyIterable, TestGroups.ENTITY, true);
+        final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromIterable(2, 2).calculateSplitsForGroup(emptyIterable, TestGroups.ENTITY, true);
         Assert.assertTrue(splitPoints.isEmpty());
     }
 
@@ -53,10 +54,10 @@ public class CalculateSplitPointsFromIterableTest {
             data.add(DataGen.getEntity(TestGroups.ENTITY, i, null, null, null, null, null, null, null, null, 1));
             data.add(DataGen.getEntity(TestGroups.ENTITY_2, i + 5, null, null, null, null, null, null, null, null, 1));
         }
-        final Map<Integer, Object> splitPoints = new CalculateSplitPointsFromIterable(2, 2).calculateSplitsForGroup(data, TestGroups.ENTITY, true);
-        final Map<Integer, Object> expected = new TreeMap<>();
-        expected.put(0, 0L);
-        expected.put(1, 6L);
+        final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromIterable(2, 2).calculateSplitsForGroup(data, TestGroups.ENTITY, true);
+        final Map<Object, Integer> expected = new HashMap<>(2);
+        expected.put(0L, 0);
+        expected.put(6L, 1);
         Assert.assertEquals(expected, splitPoints);
     }
 
@@ -67,10 +68,10 @@ public class CalculateSplitPointsFromIterableTest {
             data.add(DataGen.getEdge(TestGroups.EDGE, i, i + 2, true, null, null, null, null, null, null, null, null, 1));
             data.add(DataGen.getEdge(TestGroups.EDGE_2, i + 5, i + 8, false,null, null, null, null, null, null, null, null, 1));
         }
-        final Map<Integer, Object> splitPoints = new CalculateSplitPointsFromIterable(2, 2).calculateSplitsForGroup(data, TestGroups.EDGE, false);
-        final Map<Integer, Object> expected = new TreeMap<>();
-        expected.put(0, 0L);
-        expected.put(1, 6L);
+        final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromIterable(2, 2).calculateSplitsForGroup(data, TestGroups.EDGE, false);
+        final Map<Object, Integer> expected = new HashMap<>(2);
+        expected.put(0L, 0);
+        expected.put(6L, 1);
         Assert.assertEquals(expected, splitPoints);
     }
 }

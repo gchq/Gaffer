@@ -25,13 +25,14 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.comparison.ComparableOrToStringComparator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.io.writer.ParquetElementWriter;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
+
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -44,15 +45,14 @@ public class WriteUnsortedData {
     private String tempFilesDir;
     private final SchemaUtils schemaUtils;
     private final Map<String, Map<Integer, ParquetWriter<Element>>> groupSplitToWriter;
-    private final Map<String, Map<Integer, Object>> groupToSplitPoints;
-    private static final ComparableOrToStringComparator COMPARATOR = new ComparableOrToStringComparator();
+    private final Map<String, Map<Object, Integer>> groupToSplitPoints;
 
-    public WriteUnsortedData(final ParquetStore store, final Map<String, Map<Integer, Object>> groupToSplitPoints) {
+    public WriteUnsortedData(final ParquetStore store, final Map<String, Map<Object, Integer>> groupToSplitPoints) {
         this(store.getTempFilesDir(), store.getSchemaUtils(), groupToSplitPoints);
     }
 
     public WriteUnsortedData(final String tempFilesDir, final SchemaUtils schemaUtils,
-                             final Map<String, Map<Integer, Object>> groupToSplitPoints) {
+                             final Map<String, Map<Object, Integer>> groupToSplitPoints) {
         this.tempFilesDir = tempFilesDir;
         this.schemaUtils = schemaUtils;
         this.groupToSplitPoints = groupToSplitPoints;
@@ -100,31 +100,30 @@ public class WriteUnsortedData {
     }
 
     private ParquetWriter<Element> getWriter(final Map<Integer, ParquetWriter<Element>> splitToWriter,
-                                             final Map<Integer, Object> splitPoints,
+                                             final Map<Object, Integer> splitPoints,
                                              final Object gafferObject, final String group, final String column) throws IOException {
-        final int numOfSplits = splitPoints.size();
-        for (int i = 1; i < numOfSplits; i++) {
-            final Object splitPoint = splitPoints.get(i);
-            final int comparision = COMPARATOR.compare(gafferObject, splitPoint);
-            if (comparision < 0) {
-                return _getWriter(splitToWriter, i - 1, group, column);
+        final Object[] splits = splitPoints.keySet().toArray();
+        final int searchResult = Arrays.binarySearch(splits, gafferObject);
+        final int split;
+        if (searchResult < 0) {
+            if (searchResult == -1) {
+                split = 0;
+            } else {
+                split = -searchResult - 2;
             }
+        } else {
+            split = searchResult;
         }
-        if (numOfSplits == 1 && COMPARATOR.compare(gafferObject, splitPoints.get(0)) == 0) {
-            return _getWriter(splitToWriter, 0, group, column);
+        if (split < 0) {
+            LOGGER.error("split = {}: searchResult = {}: splits = {}: object = {}", split, searchResult, Arrays.toString(splits), gafferObject);
         }
-        return _getWriter(splitToWriter, numOfSplits - 1, group, column);
-    }
-
-    private ParquetWriter<Element> _getWriter(final Map<Integer, ParquetWriter<Element>> splitToWriter, final int i,
-                                              final String group, final String column) throws IOException {
         final boolean isEntity = ParquetStoreConstants.VERTEX.equals(column);
         final ParquetWriter<Element> writer;
-        if (!splitToWriter.containsKey(i)) {
-            writer = buildWriter(group, column, isEntity, i);
-            splitToWriter.put(i, writer);
+        if (!splitToWriter.containsKey(split)) {
+            writer = buildWriter(group, column, isEntity, split);
+            splitToWriter.put(split, writer);
         } else {
-            writer = splitToWriter.get(i);
+            writer = splitToWriter.get(split);
         }
         return writer;
     }

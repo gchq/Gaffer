@@ -27,7 +27,8 @@ import java.util.TreeMap;
 
 /**
  * Generates the split points from an {@link JavaRDD} of {@link Element}s by selecting a sample of the data, sorting that sample and
- * then pulling out the relevant objects to act as the split points */
+ * then pulling out the relevant objects to act as the split points
+ */
 public class CalculateSplitPointsFromJavaRDD {
 
     private static final ComparableOrToStringComparator COMPARATOR = new ComparableOrToStringComparator();
@@ -39,7 +40,7 @@ public class CalculateSplitPointsFromJavaRDD {
         this.numOfSplits = numOfSplits;
     }
 
-    public Map<Integer, Object> calculateSplitsForGroup(final JavaRDD<Element> data, final String group, final boolean isEntity) {
+    public Map<Object, Integer> calculateSplitsForGroup(final JavaRDD<Element> data, final String group, final boolean isEntity) {
         final JavaRDD<Element> groupFilteredData = data.filter(element -> group.equals(element.getGroup()));
         if (isEntity) {
             return calculateSplitsForColumn(groupFilteredData, IdentifierType.VERTEX);
@@ -48,8 +49,7 @@ public class CalculateSplitPointsFromJavaRDD {
         }
     }
 
-    private Map<Integer, Object> calculateSplitsForColumn(final JavaRDD<Element> data, final IdentifierType colName) {
-        final Map<Integer, Object> splitPoints = new TreeMap<>(COMPARATOR);
+    private Map<Object, Integer> calculateSplitsForColumn(final JavaRDD<Element> data, final IdentifierType colName) {
         final List<Object> splits = data.sample(false, 1.0 / sampleRate)
                 .map(element -> element.getIdentifier(colName))
                 .sortBy(obj -> obj, true, numOfSplits)
@@ -61,12 +61,13 @@ public class CalculateSplitPointsFromJavaRDD {
                     return list.iterator();
                 })
                 .collect();
+        final Map<Object, Integer> splitPoints = new TreeMap<>(COMPARATOR);
         int i = 0;
         for (final Object split : splits) {
             if (split != null) {
-                splitPoints.put(i, split);
-                i++;
+                splitPoints.put(split, i);
             }
+            i++;
         }
         return splitPoints;
     }

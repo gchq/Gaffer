@@ -16,6 +16,9 @@
 
 package uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl;
 
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +29,11 @@ import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
+import uk.gov.gchq.gaffer.store.StoreException;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -46,8 +52,10 @@ import java.util.concurrent.Future;
  */
 public class AggregateAndSortTempData {
     private static final Logger LOGGER = LoggerFactory.getLogger(AggregateAndSortTempData.class);
+    private static final String SORTED = "/sorted";
+    private static final String SPLIT = "/split";
 
-    public AggregateAndSortTempData(final ParquetStore store, final SparkSession spark, final Map<String, Map<Integer, Object>> groupToSplitPoints) throws OperationException, SerialisationException {
+    public AggregateAndSortTempData(final ParquetStore store, final SparkSession spark, final Map<String, Map<Object, Integer>> groupToSplitPoints) throws OperationException, SerialisationException {
         final List<Callable<OperationException>> tasks = new ArrayList<>();
         final SchemaUtils schemaUtils = store.getSchemaUtils();
         final GraphIndex index = store.getGraphIndex();
@@ -58,52 +66,40 @@ public class AggregateAndSortTempData {
         } else {
             currentDataDir = null;
         }
-        final int numberOfSplits = store.getProperties().getAddElementsOutputFilesPerGroup();
         for (final String group : schemaUtils.getEdgeGroups()) {
-            final Map<Integer, Object> splitPoints = groupToSplitPoints.get(group);
-            final String currentDataInThisGroupDir;
-            if (currentDataDir != null) {
-                currentDataInThisGroupDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.VERTEX, currentDataDir);
-            } else {
-                currentDataInThisGroupDir = null;
-            }
-            for (int i = 0; i < numberOfSplits; i++) {
-                final Set<String> currentGraphFiles = new HashSet<>();
-                if (currentDataInThisGroupDir != null) {
-//                    if (splitPoints != null) {
-                        currentGraphFiles.add(currentDataInThisGroupDir + "/part-" + zeroPad(String.valueOf(i), 5) + "-*.parquet");
-//                        int x = i - 1;
-//                        while (x >= 0 && splitPoints.get(x) == null) {
-//                            currentGraphFiles.add(currentDataInThisGroupDir + "/part-" + zeroPad(String.valueOf(i), 5) + "-*.parquet");
-//                            x--;
-//                        }
-//                    }
+            if (groupToSplitPoints.containsKey(group)) {
+                final String currentDataInThisGroupDir;
+                if (currentDataDir != null) {
+                    currentDataInThisGroupDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.VERTEX, currentDataDir);
+                } else {
+                    currentDataInThisGroupDir = null;
                 }
-                tasks.add(new AggregateGroup(group, ParquetStoreConstants.SOURCE, store, currentGraphFiles, spark, i));
+                final Collection<Integer> splits = groupToSplitPoints.get(group).values();
+                for (final int i : splits) {
+                    final Set<String> currentGraphFiles = new HashSet<>();
+                    if (currentDataInThisGroupDir != null) {
+                        currentGraphFiles.add(currentDataInThisGroupDir + "/part-" + zeroPad(String.valueOf(i), 5) + "*.parquet");
+                    }
+                    tasks.add(new AggregateGroupSplit(group, ParquetStoreConstants.SOURCE, store, currentGraphFiles, spark, i));
+                }
             }
         }
         for (final String group : schemaUtils.getEntityGroups()) {
-            final Map<Integer, Object> splitPoints = groupToSplitPoints.get(group);
-            final String currentDataInThisGroupDir;
-            if (currentDataDir != null) {
-                currentDataInThisGroupDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.SOURCE, currentDataDir);
-            } else {
-                currentDataInThisGroupDir = null;
-            }
-            for (int i = 0; i < numberOfSplits; i++) {
-                final Set<String> currentGraphFiles = new HashSet<>();
-                if (currentDataInThisGroupDir != null) {
-
-//                    if (splitPoints != null) {
-                        currentGraphFiles.add(currentDataInThisGroupDir + "/part-" + zeroPad(String.valueOf(i), 5) + "-*.parquet");
-//                        int x = i - 1;
-//                        while (x >= 0 && splitPoints.get(x) == null) {
-//                            currentGraphFiles.add(currentDataInThisGroupDir + "/part-" + zeroPad(String.valueOf(i), 5) + "-*.parquet");
-//                            x--;
-//                        }
-//                    }
+            if (groupToSplitPoints.containsKey(group)) {
+                final String currentDataInThisGroupDir;
+                if (currentDataDir != null) {
+                    currentDataInThisGroupDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.SOURCE, currentDataDir);
+                } else {
+                    currentDataInThisGroupDir = null;
                 }
-                tasks.add(new AggregateGroup(group, ParquetStoreConstants.VERTEX, store, currentGraphFiles, spark, i));
+                final Collection<Integer> splits = groupToSplitPoints.get(group).values();
+                for (final int i : splits) {
+                    final Set<String> currentGraphFiles = new HashSet<>();
+                    if (currentDataInThisGroupDir != null) {
+                        currentGraphFiles.add(currentDataInThisGroupDir + "/part-" + zeroPad(String.valueOf(i), 5) + "*.parquet");
+                    }
+                    tasks.add(new AggregateGroupSplit(group, ParquetStoreConstants.VERTEX, store, currentGraphFiles, spark, i));
+                }
             }
         }
         final int numberOfThreads;
@@ -126,38 +122,71 @@ public class AggregateAndSortTempData {
             // sort the aggregated data
             tasks.clear();
             for (final String group : schemaUtils.getEdgeGroups()) {
-                tasks.add(new SortGroup(group, ParquetStoreConstants.SOURCE, store, spark));
+                if (groupToSplitPoints.containsKey(group)) {
+                    final Collection<Integer> splits = groupToSplitPoints.get(group).values();
+                    tasks.add(new SortFullGroup(group, ParquetStoreConstants.DESTINATION, store, spark, splits.size()));
+                    for (final int i : splits) {
+                        tasks.add(new SortGroupSplit(group, ParquetStoreConstants.SOURCE, store, spark, i));
+                    }
+                }
             }
             for (final String group : schemaUtils.getEntityGroups()) {
-                tasks.add(new SortGroup(group, ParquetStoreConstants.VERTEX, store, spark));
+                if (groupToSplitPoints.containsKey(group)) {
+                    final Collection<Integer> splits = groupToSplitPoints.get(group).values();
+                    for (final int i : splits) {
+                        tasks.add(new SortGroupSplit(group, ParquetStoreConstants.VERTEX, store, spark, i));
+                    }
+                }
             }
             results = pool.invokeAll(tasks);
             for (int i = 0; i < tasks.size(); i++) {
                 results.get(i).get();
             }
-            // duplicate edge groups data sorted by the Destination
-            tasks.clear();
+            pool.shutdown();
+            // move sorted files into a directory ready to be moved to the data directory
             for (final String group : schemaUtils.getEdgeGroups()) {
-                tasks.add(new GenerateIndexedColumnSortedData(group, store, spark));
-            }
-            results = pool.invokeAll(tasks);
-            for (int i = 0; i < tasks.size(); i++) {
-                final OperationException result = results.get(i).get();
-                if (result != null) {
-                    throw result;
+                if (groupToSplitPoints.containsKey(group)) {
+                    final Collection<Integer> splits = groupToSplitPoints.get(group).values();
+                    for (final int i : splits) {
+                        moveData(store.getFS(), store.getTempFilesDir(), group, ParquetStoreConstants.SOURCE, String.valueOf(i));
+                    }
                 }
             }
-            pool.shutdown();
+            for (final String group : schemaUtils.getEntityGroups()) {
+                if (groupToSplitPoints.containsKey(group)) {
+                    final Collection<Integer> splits = groupToSplitPoints.get(group).values();
+                    for (final int i : splits) {
+                        moveData(store.getFS(), store.getTempFilesDir(), group, ParquetStoreConstants.VERTEX, String.valueOf(i));
+                    }
+                }
+            }
         } catch (final InterruptedException e) {
             throw new OperationException("AggregateAndSortData was interrupted", e);
         } catch (final ExecutionException e) {
             throw new OperationException("AggregateAndSortData had an execution exception thrown", e);
+        } catch (StoreException e) {
+            throw new OperationException("AggregateAndSortData had a store exception thrown", e);
+        } catch (IOException e) {
+            throw new OperationException("AggregateAndSortData had an IO exception thrown", e);
         }
         pool.shutdown();
     }
 
+    private void moveData(final FileSystem fs, final String tempFileDir, final String group, final String column, final String splitNumber) throws StoreException, IOException, OperationException {
+        // Move data from temp to data
+        final String sourceFile = ParquetStore.getGroupDirectory(group, column, tempFileDir) + SORTED + SPLIT + splitNumber + "/part-00000-*.parquet";
+        final FileStatus[] files = fs.globStatus(new Path(sourceFile));
+        if (files.length == 1) {
+            final Path destPath = new Path(ParquetStore.getGroupDirectory(group, column, tempFileDir + SORTED) + "/part-" + zeroPad(splitNumber, 5) + ".gz.parquet");
+            fs.mkdirs(destPath.getParent());
+            fs.rename(files[0].getPath(), destPath);
+        } else if (files.length > 1) {
+            throw new OperationException("Expected to get only one file which matched the file pattern " + sourceFile);
+        }
+    }
+
     private String zeroPad(final String input, final int length) {
-        StringBuilder temp = new StringBuilder(input);
+        final StringBuilder temp = new StringBuilder(input);
         while (temp.length() < length) {
             temp.insert(0, "0");
         }

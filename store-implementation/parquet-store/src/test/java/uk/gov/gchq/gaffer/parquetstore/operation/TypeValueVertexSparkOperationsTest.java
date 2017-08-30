@@ -46,7 +46,7 @@ public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsT
     @BeforeClass
     public static void genData() throws OperationException, StoreException {
         Logger.getRootLogger().setLevel(Level.WARN);
-        getGraph(getSchema(), TestUtils.getParquetStoreProperties())
+        getGraph(getSchema(), TestUtils.getParquetStoreProperties(), "TypeValueVertexSparkOperationsTest")
                 .execute(new ImportJavaRDDOfElements.Builder()
                         .input(getElements(javaSparkContext))
                         .javaSparkContext(javaSparkContext)
@@ -55,7 +55,7 @@ public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsT
 
     @Before
     public void setup() throws StoreException {
-        graph = getGraph(getSchema(), TestUtils.getParquetStoreProperties());
+        graph = getGraph(getSchema(), TestUtils.getParquetStoreProperties(), "TypeValueVertexSparkOperationsTest");
     }
 
     protected static Schema getSchema() {

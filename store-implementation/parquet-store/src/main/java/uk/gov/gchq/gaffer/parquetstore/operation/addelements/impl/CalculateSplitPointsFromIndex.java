@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl;
 
 import org.apache.spark.api.java.JavaRDD;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.comparison.ComparableOrToStringComparator;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.index.ColumnIndex;
@@ -39,46 +40,60 @@ import java.util.TreeMap;
  */
 public final class CalculateSplitPointsFromIndex {
 
+    private static final ComparableOrToStringComparator COMPARATOR = new ComparableOrToStringComparator();
+
     private CalculateSplitPointsFromIndex() {
     }
 
-    public static Map<String, Map<Integer, Object>> apply(final GraphIndex index, final SchemaUtils schemaUtils,
+    public static Map<String, Map<Object, Integer>> apply(final GraphIndex index, final SchemaUtils schemaUtils,
                                                           final ParquetStoreProperties properties,
                                                           final Iterable<? extends Element> data) throws SerialisationException {
-        final Map<String, Map<Integer, Object>> groupToSplitPoints = calculateSplitPointsFromIndex(index, schemaUtils);
+        final Map<String, Map<Object, Integer>> groupToSplitPoints = calculateSplitPointsFromIndex(index, schemaUtils);
         for (final String group : schemaUtils.getEntityGroups()) {
             if (!groupToSplitPoints.containsKey(group)) {
-                groupToSplitPoints.put(group, new CalculateSplitPointsFromIterable(properties.getSampleRate(), properties.getAddElementsOutputFilesPerGroup() - 1).calculateSplitsForGroup(data, group, true));
+                final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromIterable(properties.getSampleRate(), properties.getAddElementsOutputFilesPerGroup() - 1).calculateSplitsForGroup(data, group, true);
+                if (!splitPoints.isEmpty()) {
+                    groupToSplitPoints.put(group, splitPoints);
+                }
             }
         }
         for (final String group : schemaUtils.getEdgeGroups()) {
             if (!groupToSplitPoints.containsKey(group)) {
-                groupToSplitPoints.put(group, new CalculateSplitPointsFromIterable(properties.getSampleRate(), properties.getAddElementsOutputFilesPerGroup() - 1).calculateSplitsForGroup(data, group, false));
+                final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromIterable(properties.getSampleRate(), properties.getAddElementsOutputFilesPerGroup() - 1).calculateSplitsForGroup(data, group, false);
+                if (!splitPoints.isEmpty()) {
+                    groupToSplitPoints.put(group, splitPoints);
+                }
             }
         }
         return groupToSplitPoints;
     }
 
-    public static Map<String, Map<Integer, Object>> apply(final GraphIndex index, final SchemaUtils schemaUtils,
+    public static Map<String, Map<Object, Integer>> apply(final GraphIndex index, final SchemaUtils schemaUtils,
                                                           final ParquetStoreProperties properties,
                                                           final JavaRDD<Element> data) throws SerialisationException {
-        final Map<String, Map<Integer, Object>> groupToSplitPoints = calculateSplitPointsFromIndex(index, schemaUtils);
+        final Map<String, Map<Object, Integer>> groupToSplitPoints = calculateSplitPointsFromIndex(index, schemaUtils);
         for (final String group : schemaUtils.getEntityGroups()) {
             if (!groupToSplitPoints.containsKey(group)) {
-                groupToSplitPoints.put(group, new CalculateSplitPointsFromJavaRDD(properties.getSampleRate(), properties.getAddElementsOutputFilesPerGroup() - 1).calculateSplitsForGroup(data, group, true));
+                final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromJavaRDD(properties.getSampleRate(), properties.getAddElementsOutputFilesPerGroup() - 1).calculateSplitsForGroup(data, group, true);
+                if (!splitPoints.isEmpty()) {
+                    groupToSplitPoints.put(group, splitPoints);
+                }
             }
         }
         for (final String group : schemaUtils.getEdgeGroups()) {
             if (!groupToSplitPoints.containsKey(group)) {
-                groupToSplitPoints.put(group, new CalculateSplitPointsFromJavaRDD(properties.getSampleRate(), properties.getAddElementsOutputFilesPerGroup() - 1).calculateSplitsForGroup(data, group, false));
+                final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromJavaRDD(properties.getSampleRate(), properties.getAddElementsOutputFilesPerGroup() - 1).calculateSplitsForGroup(data, group, false);
+                if (!splitPoints.isEmpty()) {
+                    groupToSplitPoints.put(group, splitPoints);
+                }
             }
         }
         return groupToSplitPoints;
     }
 
-    private static Map<String, Map<Integer, Object>> calculateSplitPointsFromIndex(final GraphIndex index, final SchemaUtils schemaUtils) throws SerialisationException {
+    private static Map<String, Map<Object, Integer>> calculateSplitPointsFromIndex(final GraphIndex index, final SchemaUtils schemaUtils) throws SerialisationException {
         final Set<String> entityGroups = schemaUtils.getEntityGroups();
-        final Map<String, Map<Integer, Object>> groupToSplitPoints = new TreeMap<>();
+        final Map<String, Map<Object, Integer>> groupToSplitPoints = new HashMap<>();
         for (final String group : index.groupsIndexed()) {
             final GroupIndex groupIndex = index.getGroup(group);
             final GafferGroupObjectConverter converter = schemaUtils.getConverter(group);
@@ -89,17 +104,13 @@ public final class CalculateSplitPointsFromIndex {
                 col = ParquetStoreConstants.SOURCE;
             }
             final ColumnIndex columnIndex = groupIndex.getColumn(col);
-            final Map<Integer, Object> splitPoints = new HashMap<>();
+            final Map<Object, Integer> splitPoints = new TreeMap<>(COMPARATOR);
             final Iterator<MinValuesWithPath> indexIter = columnIndex.getIterator();
-            int i = 0;
             while (indexIter.hasNext()) {
                 final MinValuesWithPath minValuesWithPath = indexIter.next();
                 final Object gafferObject = converter.parquetObjectsToGafferObject(col, minValuesWithPath.getMin());
-                final Object split = splitPoints.get(i - 1);
-                if (i == 0 || !indexIter.hasNext() || split == null || !split.equals(gafferObject)) {
-                    splitPoints.put(i, gafferObject);
-                }
-                i++;
+                final int split = Integer.valueOf(minValuesWithPath.getPath().substring(5, 10));
+                splitPoints.put(gafferObject, split);
             }
             if (!splitPoints.isEmpty()) {
                 groupToSplitPoints.put(group, splitPoints);

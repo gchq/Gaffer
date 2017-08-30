@@ -33,12 +33,14 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.util.AggregatorUtil;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -51,11 +53,11 @@ import java.util.concurrent.Callable;
 /**
  * Aggregates and sorts a directory of parquet files that represents a single group so each group can be processed in parallel.
  */
-public class AggregateGroup implements Callable<OperationException>, Serializable {
+public class AggregateGroupSplit implements Callable<OperationException>, Serializable {
     private static final String SPLIT = "/split";
     private static final String RAW = "/raw";
     private static final String AGGREGATED = "/aggregated";
-    private static final Logger LOGGER = LoggerFactory.getLogger(AggregateGroup.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AggregateGroupSplit.class);
     private static final long serialVersionUID = -7828247145178905841L;
     private final String group;
     private final String tempFileDir;
@@ -72,18 +74,23 @@ public class AggregateGroup implements Callable<OperationException>, Serializabl
     private final Set<String> groupByColumns;
     private final boolean aggregate;
 
-    public AggregateGroup(final String group,
-                          final String column,
-                          final ParquetStore store,
-                          final Set<String> currentGraphFiles,
-                          final SparkSession spark,
-                          final int splitNumber) throws SerialisationException {
+    public AggregateGroupSplit(final String group,
+                               final String column,
+                               final ParquetStore store,
+                               final Set<String> currentGraphFiles,
+                               final SparkSession spark,
+                               final int splitNumber) throws SerialisationException {
         this.group = group;
         this.tempFileDir = store.getTempFilesDir();
         final Schema gafferSchema = store.getSchemaUtils().getGafferSchema();
         final SchemaElementDefinition groupGafferSchema = gafferSchema.getElement(group);
         this.isEntity = groupGafferSchema instanceof SchemaEntityDefinition;
-        this.aggregate = groupGafferSchema.isAggregate();
+        final String aggregateOnIngest = store.getProperties().get(ParquetStoreProperties.PARQUET_AGGREGATE_ON_INGEST, null);
+        if (aggregateOnIngest == null) {
+            this.aggregate = groupGafferSchema.isAggregate();
+        } else {
+            this.aggregate = Boolean.valueOf(aggregateOnIngest);
+        }
         this.groupByColumns = new HashSet<>(AggregatorUtil.getIngestGroupBy(group, gafferSchema));
         this.aggregatorJson = JSONSerialiser.serialise(groupGafferSchema.getIngestAggregator());
         this.gafferProperties = new String[groupGafferSchema.getProperties().size()];
@@ -110,7 +117,7 @@ public class AggregateGroup implements Callable<OperationException>, Serializabl
             if (fs.exists(new Path(inputDir))) {
                 paths.add(inputDir);
             }
-            if (currentGraphFiles != null) {
+            if (currentGraphFiles != null && !currentGraphFiles.isEmpty()) {
                 for (final String currentGraphFile : currentGraphFiles) {
                     final Path currentGraphFilePath = new Path(currentGraphFile);
                     if (fs.exists(currentGraphFilePath.getParent())) {
@@ -143,7 +150,6 @@ public class AggregateGroup implements Callable<OperationException>, Serializabl
                 // Write out aggregated data
                 aggregatedData
                         .write()
-                        .option("compression", "none")
                         .parquet(outputDir);
             } else {
                 LOGGER.debug("Skipping the sorting and aggregation of group: {}, due to no data existing in the temporary files directory: {}", group, tempFileDir);

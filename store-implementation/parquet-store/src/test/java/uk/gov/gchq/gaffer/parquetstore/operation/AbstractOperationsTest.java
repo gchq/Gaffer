@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
+import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
@@ -66,8 +67,7 @@ public abstract class AbstractOperationsTest {
     @AfterClass
     public static void cleanUpData() throws IOException {
         try (final FileSystem fs = FileSystem.get(new Configuration())) {
-            final ParquetStoreProperties props = (ParquetStoreProperties) StoreProperties.loadStoreProperties(
-                    StreamUtil.storeProps(AbstractOperationsTest.class));
+            final ParquetStoreProperties props = TestUtils.getParquetStoreProperties();
             deleteFolder(props.getDataDir(), fs);
         }
     }

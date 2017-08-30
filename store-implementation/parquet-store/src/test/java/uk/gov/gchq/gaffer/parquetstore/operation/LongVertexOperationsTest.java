@@ -67,14 +67,12 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
     }
 
     private static Graph getGraph() {
-        ParquetStoreProperties pp = (ParquetStoreProperties) StoreProperties.loadStoreProperties(
-                AbstractOperationsTest.class.getResourceAsStream("/multiUseStore.properties"));
         return new Graph.Builder()
                 .config(new GraphConfig.Builder()
-                        .graphId("test")
+                        .graphId("LongVertexOperationsTest")
                         .build())
                 .addSchema(getSchema())
-                .storeProperties(pp)
+                .storeProperties(TestUtils.getParquetStoreProperties())
                 .build();
     }
 

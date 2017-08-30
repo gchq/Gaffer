@@ -34,6 +34,7 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -53,10 +54,9 @@ public class CalculateSplitPointsFromIndexTest {
     public void calculateSplitsFromEmptyIndex() throws SerialisationException {
         final Iterable<Element> emptyIterable = new ArrayList<>();
         final GraphIndex emptyIndex = new GraphIndex();
-        final Map<String, Map<Integer, Object>> splitPoints = CalculateSplitPointsFromIndex.apply(emptyIndex, schemaUtils, TestUtils.getParquetStoreProperties(), emptyIterable);
+        final Map<String, Map<Object, Integer>> splitPoints = CalculateSplitPointsFromIndex.apply(emptyIndex, schemaUtils, TestUtils.getParquetStoreProperties(), emptyIterable);
         for (final String group : gafferSchema.getGroups()) {
-            Assert.assertTrue(splitPoints.containsKey(group));
-            Assert.assertTrue(splitPoints.get(group).isEmpty());
+            Assert.assertFalse(splitPoints.containsKey(group));
         }
     }
 
@@ -68,18 +68,17 @@ public class CalculateSplitPointsFromIndexTest {
         index.add(TestGroups.ENTITY, entityGroupIndex);
         final ColumnIndex vrtIndex = new ColumnIndex();
         entityGroupIndex.add(ParquetStoreConstants.VERTEX, vrtIndex);
-        vrtIndex.add(new MinValuesWithPath(new Object[]{0L}, "part-0.parquet"));
-        vrtIndex.add(new MinValuesWithPath(new Object[]{6L}, "part-1.parquet"));
-        final Map<String, Map<Integer, Object>> splitPoints = CalculateSplitPointsFromIndex.apply(index, schemaUtils, TestUtils.getParquetStoreProperties(), emptyIterable);
-        final Map<Integer, Object> expected = new TreeMap<>();
-        expected.put(0, 0L);
-        expected.put(1, 6L);
+        vrtIndex.add(new MinValuesWithPath(new Object[]{0L}, "part-00000.parquet"));
+        vrtIndex.add(new MinValuesWithPath(new Object[]{6L}, "part-00001.parquet"));
+        final Map<String, Map<Object, Integer>> splitPoints = CalculateSplitPointsFromIndex.apply(index, schemaUtils, TestUtils.getParquetStoreProperties(), emptyIterable);
+        final Map<Object, Integer> expected = new HashMap<>(2);
+        expected.put(0L, 0);
+        expected.put(6L, 1);
         for (final String group : gafferSchema.getGroups()) {
-            Assert.assertTrue(splitPoints.containsKey(group));
             if (TestGroups.ENTITY.equals(group)) {
                 Assert.assertEquals(expected, splitPoints.get(TestGroups.ENTITY));
             } else {
-                Assert.assertTrue(splitPoints.get(group).isEmpty());
+                Assert.assertFalse(splitPoints.containsKey(group));
             }
         }
     }
@@ -92,18 +91,17 @@ public class CalculateSplitPointsFromIndexTest {
         index.add(TestGroups.EDGE, entityGroupIndex);
         final ColumnIndex srcIndex = new ColumnIndex();
         entityGroupIndex.add(ParquetStoreConstants.SOURCE, srcIndex);
-        srcIndex.add(new MinValuesWithPath(new Object[]{0L}, "part-0.parquet"));
-        srcIndex.add(new MinValuesWithPath(new Object[]{6L}, "part-1.parquet"));
-        final Map<String, Map<Integer, Object>> splitPoints = CalculateSplitPointsFromIndex.apply(index, schemaUtils, TestUtils.getParquetStoreProperties(), emptyIterable);
-        final Map<Integer, Object> expected = new TreeMap<>();
-        expected.put(0, 0L);
-        expected.put(1, 6L);
+        srcIndex.add(new MinValuesWithPath(new Object[]{0L}, "part-00000.parquet"));
+        srcIndex.add(new MinValuesWithPath(new Object[]{6L}, "part-00001.parquet"));
+        final Map<String, Map<Object, Integer>> splitPoints = CalculateSplitPointsFromIndex.apply(index, schemaUtils, TestUtils.getParquetStoreProperties(), emptyIterable);
+        final Map<Object, Integer> expected = new HashMap<>(2);
+        expected.put(0L, 0);
+        expected.put(6L, 1);
         for (final String group : gafferSchema.getGroups()) {
-            Assert.assertTrue(splitPoints.containsKey(group));
             if (TestGroups.EDGE.equals(group)) {
                 Assert.assertEquals(expected, splitPoints.get(TestGroups.EDGE));
             } else {
-                Assert.assertTrue(splitPoints.get(group).isEmpty());
+                Assert.assertFalse(splitPoints.containsKey(group));
             }
         }
     }

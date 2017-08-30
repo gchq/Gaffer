@@ -68,9 +68,8 @@ public class GroupIndex {
         }
     }
 
-    public void readColumns(final String group, final String rootDir, final FileSystem fs) throws StoreException {
+    public void readColumns(final String group, final String rootDir, final FileSystem fs, final String[] columns) throws StoreException {
         try {
-            final String[] columns = new String[]{ParquetStoreConstants.VERTEX, ParquetStoreConstants.SOURCE, ParquetStoreConstants.DESTINATION};
             for (final String column : columns) {
                 final String indexDir = ParquetStore.getGroupDirectory(group, column, rootDir) + "/";
                 final Path path = new Path(indexDir + ParquetStoreConstants.INDEX);

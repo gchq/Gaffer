@@ -66,14 +66,12 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
     }
 
     private static Graph getGraph() {
-        final ParquetStoreProperties pp = (ParquetStoreProperties) StoreProperties.loadStoreProperties(
-                AbstractOperationsTest.class.getResourceAsStream("/multiUseStore.properties"));
         return new Graph.Builder()
                 .config(new GraphConfig.Builder()
-                        .graphId("test")
+                        .graphId("TypeValueVertexOperationsTest")
                         .build())
                 .addSchema(getSchema())
-                .storeProperties(pp)
+                .storeProperties(TestUtils.getParquetStoreProperties())
                 .build();
     }
 

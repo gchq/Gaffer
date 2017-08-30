@@ -38,12 +38,11 @@ public class WriteUnsortedDataFunction implements Serializable, VoidFunction<Ite
     private static final long serialVersionUID = 1420859039414174311L;
     private final String tempFilesDir;
     private final byte[] gafferSchema;
-    private final Map<String, Map<Integer, Object>> groupToSplitPoints;
+    private final Map<String, Map<Object, Integer>> groupToSplitPoints;
 
 
     public WriteUnsortedDataFunction(final String tempFilesDir, final SchemaUtils schemaUtils,
-                                     final Map<String, Map<Integer, Object>> groupToSplitPoints,
-                                     final int numOfFilesPerGroup) {
+                                     final Map<String, Map<Object, Integer>> groupToSplitPoints) {
         this.tempFilesDir = tempFilesDir;
         this.gafferSchema = schemaUtils.getGafferSchema().toCompactJson();
         this.groupToSplitPoints = groupToSplitPoints;

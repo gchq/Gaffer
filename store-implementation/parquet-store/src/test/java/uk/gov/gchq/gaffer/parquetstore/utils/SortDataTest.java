@@ -31,7 +31,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.io.writer.ParquetElementWriter;
-import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.SortGroup;
+import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.SortGroupSplit;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -43,8 +43,9 @@ public class SortDataTest {
     @BeforeClass
     public static void GeneratePreAggregatedData() throws IOException {
         final SchemaUtils schemaUtils = new SchemaUtils(TestUtils.gafferSchema("schemaUsingLongVertexType"));
+        final ParquetStoreProperties props = TestUtils.getParquetStoreProperties();
         ParquetWriter<Element> writer = new ParquetElementWriter
-                .Builder(new Path(".SortDataTest/SortDataTest/graph/GROUP=" + TestGroups.ENTITY + "/aggregated/split0/part-0.parquet"))
+                .Builder(new Path(props.getTempFilesDir() + "/SortDataTest/graph/GROUP=" + TestGroups.ENTITY + "/aggregated/split0/part-0.parquet"))
                 .isEntity(true)
                 .withSparkSchema(schemaUtils.getSparkSchema(TestGroups.ENTITY))
                 .withType(schemaUtils.getParquetSchema(TestGroups.ENTITY))
@@ -55,7 +56,7 @@ public class SortDataTest {
         }
         writer.close();
         writer = new ParquetElementWriter
-                .Builder(new Path(".SortDataTest/SortDataTest/graph/GROUP=" + TestGroups.ENTITY + "/aggregated/split1/part-0.parquet"))
+                .Builder(new Path(props.getTempFilesDir() + "/SortDataTest/graph/GROUP=" + TestGroups.ENTITY + "/aggregated/split1/part-0.parquet"))
                 .isEntity(true)
                 .withSparkSchema(schemaUtils.getSparkSchema(TestGroups.ENTITY))
                 .withType(schemaUtils.getParquetSchema(TestGroups.ENTITY))
@@ -68,17 +69,17 @@ public class SortDataTest {
     }
 
     @Test
-    public void aggregateSplit() throws StoreException, IOException {
-        final ParquetStoreProperties props = new ParquetStoreProperties();
-        props.setTempFilesDir(".SortDataTest");
+    public void sortGroup() throws StoreException, IOException {
+        final ParquetStoreProperties props = TestUtils.getParquetStoreProperties();
         props.setAddElementsOutputFilesPerGroup(2);
         final ParquetStore store = new ParquetStore();
         store.initialise("SortDataTest", TestUtils.gafferSchema("schemaUsingLongVertexType"), props);
-        new SortGroup(TestGroups.ENTITY, ParquetStoreConstants.VERTEX, store, TestUtils.spark).call();
+        new SortGroupSplit(TestGroups.ENTITY, ParquetStoreConstants.VERTEX, store, TestUtils.spark, 0).call();
+        new SortGroupSplit(TestGroups.ENTITY, ParquetStoreConstants.VERTEX, store, TestUtils.spark, 1).call();
         final FileSystem fs = FileSystem.get(new Configuration());
-        final String EntityGroup = ".SortDataTest/SortDataTest/sorted/graph/GROUP=" + TestGroups.ENTITY;
+        final String EntityGroup = props.getTempFilesDir() + "/SortDataTest/graph/GROUP=" + TestGroups.ENTITY + "/sorted";
         Assert.assertTrue(fs.exists(new Path(EntityGroup)));
-        Row[] results = (Row[]) TestUtils.spark.read().parquet(EntityGroup + "/part-00000-*").collect();
+        Row[] results = (Row[]) TestUtils.spark.read().parquet(EntityGroup + "/split0/part-00000-*").collect();
         for (int i = 0; i < 10; i++) {
             Assert.assertEquals((long) i, (long) results[i].getAs(ParquetStoreConstants.VERTEX));
             Assert.assertEquals('b', ((byte[]) results[i].getAs("byte"))[0]);
@@ -91,7 +92,7 @@ public class SortDataTest {
             Assert.assertArrayEquals(new String[]{"A", "B", "C"}, (String[]) ((WrappedArray<String>) results[i].getAs("treeSet")).array());
             Assert.assertEquals(JavaConversions$.MODULE$.mapAsScalaMap(TestUtils.MERGED_FREQMAP), results[i].getAs("freqMap"));
         }
-        results = (Row[]) TestUtils.spark.read().parquet(EntityGroup + "/part-00001-*").collect();
+        results = (Row[]) TestUtils.spark.read().parquet(EntityGroup + "/split1/part-00000-*").collect();
         for (int i = 0; i < 10; i++) {
             Assert.assertEquals((long) i + 10, (long) results[i].getAs(ParquetStoreConstants.VERTEX));
             Assert.assertEquals('b', ((byte[]) results[i].getAs("byte"))[0]);
@@ -108,7 +109,8 @@ public class SortDataTest {
 
     @AfterClass
     public static void cleanUpData() throws IOException {
-        deleteFolder(".SortDataTest", FileSystem.get(new Configuration()));
+        final ParquetStoreProperties props = TestUtils.getParquetStoreProperties();
+        deleteFolder(props.getTempFilesDir() + "/SortDataTest", FileSystem.get(new Configuration()));
     }
 
     private static void deleteFolder(final String path, final FileSystem fs) throws IOException {

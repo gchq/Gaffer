@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -44,7 +45,7 @@ public class CalculateSplitPointsFromJavaRDDTest {
     @Test
     public void calculateSplitsFromEmptyJavaRDD() {
         final JavaRDD<Element> emptyJavaRDD = TestUtils.javaSparkContext.emptyRDD();
-        final Map<Integer, Object> splitPoints = new CalculateSplitPointsFromJavaRDD(2, 2).calculateSplitsForGroup(emptyJavaRDD, TestGroups.ENTITY, true);
+        final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromJavaRDD(2, 2).calculateSplitsForGroup(emptyJavaRDD, TestGroups.ENTITY, true);
         Assert.assertTrue(splitPoints.isEmpty());
     }
 
@@ -56,10 +57,10 @@ public class CalculateSplitPointsFromJavaRDDTest {
             data.add(DataGen.getEntity(TestGroups.ENTITY_2, i + 5, null, null, null, null, null, null, null, null, 1));
         }
         final JavaRDD<Element> dataRDD = TestUtils.javaSparkContext.parallelize(data);
-        final Map<Integer, Object> splitPoints = new CalculateSplitPointsFromJavaRDD(1, 2).calculateSplitsForGroup(dataRDD, TestGroups.ENTITY, true);
-        final Map<Integer, Object> expected = new TreeMap<>();
-        expected.put(0, 0L);
-        expected.put(1, 6L);
+        final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromJavaRDD(1, 2).calculateSplitsForGroup(dataRDD, TestGroups.ENTITY, true);
+        final Map<Object, Integer> expected = new HashMap<>(2);
+        expected.put(0L, 0);
+        expected.put(6L, 1);
         Assert.assertEquals(expected, splitPoints);
     }
 
@@ -71,10 +72,10 @@ public class CalculateSplitPointsFromJavaRDDTest {
             data.add(DataGen.getEdge(TestGroups.EDGE_2, i + 5, i + 8, false, null, null, null, null, null, null, null, null,1));
         }
         final JavaRDD<Element> dataRDD = TestUtils.javaSparkContext.parallelize(data);
-        final Map<Integer, Object> splitPoints = new CalculateSplitPointsFromJavaRDD(1, 2).calculateSplitsForGroup(dataRDD, TestGroups.EDGE, false);
-        final Map<Integer, Object> expected = new TreeMap<>();
-        expected.put(0, 0L);
-        expected.put(1, 6L);
+        final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromJavaRDD(1, 2).calculateSplitsForGroup(dataRDD, TestGroups.EDGE, false);
+        final Map<Object, Integer> expected = new HashMap<>(2);
+        expected.put(0L, 0);
+        expected.put(6L, 1);
         Assert.assertEquals(expected, splitPoints);
     }
 }

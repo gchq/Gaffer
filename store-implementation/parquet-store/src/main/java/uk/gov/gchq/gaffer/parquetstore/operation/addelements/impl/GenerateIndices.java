@@ -58,7 +58,8 @@ public class GenerateIndices {
         } else {
             numberOfThreads = store.getProperties().getThreadsAvailable();
         }
-        final ExecutorService pool = Executors.newFixedThreadPool(numberOfThreads);        final String tempFileDir = store.getTempFilesDir();
+        final ExecutorService pool = Executors.newFixedThreadPool(numberOfThreads);
+        final String tempFileDir = store.getTempFilesDir();
         final SchemaUtils schemaUtils = store.getSchemaUtils();
         final String rootDir = tempFileDir + "/" + ParquetStoreConstants.SORTED;
         final List<Callable<Tuple4<String, String, ColumnIndex, OperationException>>> tasks = new ArrayList<>();
