@@ -16,9 +16,11 @@
 package uk.gov.gchq.gaffer.serialisation.util;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 

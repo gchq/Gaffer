@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.accumulostore.key.core;
 
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage;

@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic;
 
 import org.apache.accumulo.core.data.Key;
+
 import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;

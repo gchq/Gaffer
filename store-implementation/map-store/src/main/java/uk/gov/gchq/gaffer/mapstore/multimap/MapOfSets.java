@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.mapstore.multimap;
 
 import com.google.common.collect.Sets;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;

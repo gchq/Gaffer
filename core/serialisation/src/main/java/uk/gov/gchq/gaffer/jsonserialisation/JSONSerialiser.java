@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.jsonserialisation;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonEncoding;
@@ -41,10 +40,12 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.jackson.CloseableIterableDeserializer;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringDeduplicateConcat;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;

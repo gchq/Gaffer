@@ -1,6 +1,5 @@
 package uk.gov.gchq.gaffer.cache.impl;
 
-
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
@@ -8,6 +7,7 @@ import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 
 import static org.junit.Assert.assertEquals;

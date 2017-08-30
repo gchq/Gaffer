@@ -19,6 +19,7 @@ import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
+
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
@@ -39,6 +40,7 @@ import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperatorCompos
 import uk.gov.gchq.koryphe.tuple.predicate.IntegerTupleAdaptedPredicate;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicateComposite;
+
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.ArrayList;

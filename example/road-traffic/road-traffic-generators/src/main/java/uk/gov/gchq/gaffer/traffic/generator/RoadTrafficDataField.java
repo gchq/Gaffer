@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.traffic.generator;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.StringUtils;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;

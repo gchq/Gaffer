@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.traffic.listeners;
 
 import org.apache.commons.io.FileUtils;
+
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -25,6 +26,7 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.traffic.generator.RoadTrafficElementGenerator;
 import uk.gov.gchq.gaffer.user.User;
+
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import java.io.File;

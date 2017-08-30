@@ -17,10 +17,12 @@
 package uk.gov.gchq.gaffer.store.operation;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
+
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.koryphe.ValidationResult;
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;

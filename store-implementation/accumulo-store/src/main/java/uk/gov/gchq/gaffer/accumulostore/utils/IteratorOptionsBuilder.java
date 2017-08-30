@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.accumulostore.utils;
 
 import org.apache.accumulo.core.iterators.OptionDescriber.IteratorOptions;
+
 import java.util.HashMap;
 import java.util.Map;
 

@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl.output;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;

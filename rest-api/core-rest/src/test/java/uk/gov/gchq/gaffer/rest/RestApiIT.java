@@ -16,7 +16,9 @@
 package uk.gov.gchq.gaffer.rest;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;

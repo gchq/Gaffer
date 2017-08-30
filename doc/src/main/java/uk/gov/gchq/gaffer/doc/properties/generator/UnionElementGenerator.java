@@ -17,10 +17,12 @@ package uk.gov.gchq.gaffer.doc.properties.generator;
 
 import com.yahoo.sketches.theta.Sketches;
 import com.yahoo.sketches.theta.Union;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;

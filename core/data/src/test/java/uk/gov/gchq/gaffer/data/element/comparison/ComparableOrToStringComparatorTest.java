@@ -18,7 +18,9 @@ package uk.gov.gchq.gaffer.data.element.comparison;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.ByteUtil;
+
 import java.util.Arrays;
 import java.util.List;
 
