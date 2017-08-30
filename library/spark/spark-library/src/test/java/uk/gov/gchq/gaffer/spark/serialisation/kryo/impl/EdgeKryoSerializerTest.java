@@ -27,7 +27,7 @@ import java.io.ByteArrayOutputStream;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestEdgeKryoSerializer {
+public class EdgeKryoSerializerTest {
     private final Kryo kryo = new Kryo();
 
     @Before
@@ -36,7 +36,7 @@ public class TestEdgeKryoSerializer {
     }
 
     @Test
-    public void testEdge() {
+    public void testEdgeKryoSerializer() {
         // Given
         final Edge edge = new Edge.Builder()
                 .group("group")

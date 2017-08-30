@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,41 +20,36 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator;
+import uk.gov.gchq.gaffer.types.FreqMap;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestEntityKryoSerializer {
+public class FreqMapKryoSerializerTest {
     private final Kryo kryo = new Kryo();
 
     @Before
-    public void setup() {
-        new Registrator().registerClasses(kryo);
-    }
+    public void setup() { new Registrator().registerClasses(kryo); }
 
     @Test
-    public void testEntity() {
+    public void testFreqMapKryoSerializer() {
         // Given
-        Entity entity = new Entity.Builder()
-                .group("group")
-                .vertex("abc")
-                .property("property1", 1)
-                .build();
+        final FreqMap freqMap = new FreqMap();
+        freqMap.upsert("test", 3L);
 
         // When
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        Output output = new Output(baos);
-        kryo.writeObject(output, entity);
+        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        final Output output = new Output(byteArrayOutputStream);
+        kryo.writeObject(output, freqMap);
         output.close();
-        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-        Input input = new Input(bais);
-        Entity read = kryo.readObject(input, Entity.class);
+        final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+        final Input input = new Input(byteArrayInputStream);
+        final FreqMap read = kryo.readObject(input, FreqMap.class);
         input.close();
 
         // Then
-        assertEquals(entity, read);
+        assertEquals(freqMap, read);
     }
 }
