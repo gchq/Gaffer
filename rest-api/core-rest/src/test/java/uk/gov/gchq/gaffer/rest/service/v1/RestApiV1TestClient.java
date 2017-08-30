@@ -80,6 +80,7 @@ public class RestApiV1TestClient extends RestApiTestClient {
 
         // When
         final String statusMsg = response.readEntity(SystemStatus.class)
+                                         .getStatus()
                                          .getDescription();
 
         // Then
