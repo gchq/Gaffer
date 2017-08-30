@@ -36,19 +36,28 @@ public class IntegerFreqMapAggregator extends KorypheBinaryOperator<IntegerFreqM
        return _apply(a, b, true);
     }
 
+    /**
+     * Includes logic on whether or not to truncate data if the resulting {@link IntegerFreqMap} would be too large.
+     * If truncate is set to true, as many entries as possible will be merged, but consequently data may be lost.
+     * If it is set to false, and the result would be too large, the merge will not be attempted.
+     * @param a an IntegerFreqMap object
+     * @param b another IntegerFreqMap to be merged
+     * @param truncate true by default, specifies whether or not data should be truncated
+     * @return an aggregated IntegerFreqMap if possible, else the first input if the merge would be unsafe.
+     */
     public IntegerFreqMap _apply(final IntegerFreqMap a, final IntegerFreqMap b, final boolean truncate) {
-        final int maxSize = 1000;
-        if (a.size() + b.size() > maxSize) {
+        final int MAX_SIZE = 1073741824;        // From HashMap - MAXIMUM_CAPACITY
+        if (a.size() + b.size() > MAX_SIZE) {
             if(!truncate) {
-                LOGGER.warn("Max size of: " + maxSize + " potentially exceeded - to avoid truncation, the first input will be returned.");
+                LOGGER.warn("Max size of: " + MAX_SIZE + " potentially exceeded - to avoid truncation, the first input will be returned.");
                 return a;
             }
-            LOGGER.warn("Max size of: " + maxSize + " potentially exceeded - data may be lost due to truncation.");
+            LOGGER.warn("Max size of: " + MAX_SIZE + " potentially exceeded - data may be lost due to truncation.");
         }
         for (final Entry<String, Integer> entry : b.entrySet()) {
             if (a.containsKey(entry.getKey())) {
                 a.put(entry.getKey(), a.get(entry.getKey()) + entry.getValue());
-            } else if (a.size() < maxSize) {
+            } else if (a.size() < MAX_SIZE) {
                 a.put(entry.getKey(), entry.getValue());
             }
         }
