@@ -67,11 +67,12 @@ The `ParquetStoreProperties` class contains all properties relating to the confi
 - `parquet.add_elements.row_group.size`: This parameter sets the maximum row group size in bytes before compression for the Parquet files, see [Parquet documentation](https://parquet.apache.org/documentation/latest/) for more information. By default this is set to 4MB;
 - `parquet.add_elements.page.size`: This just exposes the Parquet file format parameter controlling the maximum page and dictionary page size in bytes before compression, see [Parquet documentation](https://parquet.apache.org/documentation/latest/) for more information. By default this is set to 1MB;
 - `parquet.add_elements.output_files_per_group`: This is the number of files that the output data is split into per Gaffer group. By default this is set to 10.
+- `parquet.add_elements.aggregate`: This is a boolean flag of whether to aggregate the data on ingest
 
 A complete Gaffer properties file using a `ParquetStore` will look like:
 
 ```
-gaffer.store.class=uk.gov.gchq.gaffer.parquetstore.ParquetStore````
+gaffer.store.class=uk.gov.gchq.gaffer.parquetstore.ParquetStore
 gaffer.store.properties.class=uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties
 spark.master=yarn
 parquet.data.dir=/User/me/my_gaffer_parquet_store
@@ -80,6 +81,7 @@ parquet.add_elements.threadsAvailable=9
 parquet.add_elements.row_group.size=1073741824
 parquet.add_elements.page.size=4194304
 parquet.add_elements.output_files_per_group=2
+parquet.add_elements.aggregate=true
 ```
 
 Note that apart from the first two lines which are required by Gaffer so it knows which store to use, the rest of the lines are optional.
