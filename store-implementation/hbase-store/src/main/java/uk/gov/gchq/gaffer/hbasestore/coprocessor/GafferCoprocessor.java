@@ -26,12 +26,14 @@ import org.apache.hadoop.hbase.regionserver.ScanType;
 import org.apache.hadoop.hbase.regionserver.Store;
 import org.apache.hadoop.hbase.regionserver.compactions.CompactionRequest;
 import org.apache.hadoop.hbase.util.Bytes;
+
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.scanner.QueryScanner;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.scanner.StoreScanner;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
 import java.io.IOException;
 
 public class GafferCoprocessor extends BaseRegionObserver {

@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.accumulostore.key.core.impl.bytedEntity;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyAccumuloElementConverterTest;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;

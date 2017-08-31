@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.serialisation.implementation.raw;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+
 import java.util.Date;
 
 /**

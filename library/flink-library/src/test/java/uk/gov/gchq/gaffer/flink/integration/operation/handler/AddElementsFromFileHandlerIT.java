@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
 import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
@@ -28,6 +29,7 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromFile;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.io.File;
 import java.io.IOException;
 

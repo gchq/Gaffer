@@ -19,12 +19,14 @@ package uk.gov.gchq.gaffer.store.operation.handler.compare;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
+
 import java.util.Comparator;
 import java.util.List;
 

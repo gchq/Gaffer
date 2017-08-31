@@ -19,6 +19,7 @@ import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.GroupedProperties;
@@ -29,6 +30,7 @@ import uk.gov.gchq.gaffer.mapstore.factory.MapFactory;
 import uk.gov.gchq.gaffer.mapstore.multimap.MultiMap;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
 import java.util.Map;
 
 import static org.mockito.BDDMockito.given;

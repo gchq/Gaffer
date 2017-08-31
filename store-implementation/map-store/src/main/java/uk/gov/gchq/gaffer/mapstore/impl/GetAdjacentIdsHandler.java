@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.mapstore.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
@@ -35,6 +36,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
 import java.util.Objects;
 import java.util.stream.Stream;
 

@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.accumulostore.integration;
 import com.google.common.collect.Lists;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -42,6 +43,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
+
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 

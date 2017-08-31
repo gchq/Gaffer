@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -36,6 +37,7 @@ import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclaration;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -93,7 +95,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
         try {
             handler.createGraph(export, context, store);
             fail("Exception expected");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("same Graph"));
         }
     }
@@ -171,7 +173,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
         try {
             handler.createGraph(export, context, store);
             fail("Exception expected");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("User is not authorised to export using graphId"));
         }
     }
@@ -198,7 +200,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
         try {
             handler.createGraph(export, context, store);
             fail("Exception expected");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("User is not authorised to export using schemaId"));
         }
     }
@@ -225,7 +227,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
         try {
             handler.createGraph(export, context, store);
             fail("Exception expected");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("User is not authorised to export using storePropertiesId"));
         }
     }
@@ -251,7 +253,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
         try {
             handler.createGraph(export, context, store);
             fail("Exception expected");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("parentStorePropertiesId must be specified with parentSchemaId"));
         }
     }
@@ -278,7 +280,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
         try {
             handler.createGraph(export, context, store);
             fail("Exception expected");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("parentSchemaId must be specified with parentStorePropertiesId"));
         }
     }
@@ -302,7 +304,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
         try {
             handler.createGraph(export, context, store);
             fail("Exception expected");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("GraphLibrary cannot be found with graphId"));
         }
     }

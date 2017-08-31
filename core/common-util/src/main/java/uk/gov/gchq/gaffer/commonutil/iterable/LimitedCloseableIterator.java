@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
-
 import uk.gov.gchq.gaffer.commonutil.exception.LimitExceededException;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 

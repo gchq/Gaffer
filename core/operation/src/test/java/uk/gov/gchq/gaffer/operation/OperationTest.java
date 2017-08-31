@@ -17,8 +17,10 @@
 package uk.gov.gchq.gaffer.operation;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.koryphe.ValidationResult;
+
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;

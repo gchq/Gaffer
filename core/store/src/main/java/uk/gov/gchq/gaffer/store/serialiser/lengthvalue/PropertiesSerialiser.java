@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+
 import java.io.ByteArrayOutputStream;
 import java.util.Iterator;
 

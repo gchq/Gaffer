@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.traffic.generator;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
+
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
