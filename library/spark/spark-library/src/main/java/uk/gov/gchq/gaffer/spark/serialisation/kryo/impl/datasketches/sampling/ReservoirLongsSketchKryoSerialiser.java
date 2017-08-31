@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.quantiles;
+package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.sampling;
 
-import com.yahoo.sketches.quantiles.ItemsSketch;
-import uk.gov.gchq.gaffer.sketches.datasketches.quantiles.serialisation.StringsSketchSerialiser;
+import com.yahoo.sketches.sampling.ReservoirLongsSketch;
+import uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation.ReservoirLongsSketchSerialiser;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.WrappedKryoSerializer;
 
-public class StringsSketchKryoSerializer extends WrappedKryoSerializer<StringsSketchSerialiser, ItemsSketch<String>> {
+public class ReservoirLongsSketchKryoSerialiser extends WrappedKryoSerializer<ReservoirLongsSketchSerialiser, ReservoirLongsSketch> {
 
-    public StringsSketchKryoSerializer() {
-        super(new StringsSketchSerialiser());
+    public ReservoirLongsSketchKryoSerialiser() {
+        super(new ReservoirLongsSketchSerialiser());
     }
 }
