@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.hbasestore.operation.handler;
 
 import com.google.common.collect.Iterables;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;

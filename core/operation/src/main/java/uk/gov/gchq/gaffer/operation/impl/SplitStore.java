@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.impl;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
+
 import java.util.Map;
 
 

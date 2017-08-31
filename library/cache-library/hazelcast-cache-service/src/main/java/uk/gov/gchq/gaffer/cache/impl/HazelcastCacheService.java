@@ -16,15 +16,16 @@
 
 package uk.gov.gchq.gaffer.cache.impl;
 
-
 import com.hazelcast.config.Config;
 import com.hazelcast.config.FileSystemXmlConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.ICacheService;
+
 import java.util.Properties;
 
 import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_CONFIG_FILE;

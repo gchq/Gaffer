@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;

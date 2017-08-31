@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
+
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;

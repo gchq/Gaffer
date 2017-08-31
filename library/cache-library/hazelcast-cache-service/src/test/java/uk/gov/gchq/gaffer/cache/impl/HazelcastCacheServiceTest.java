@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.cache.impl;
 
-
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.After;
@@ -27,11 +26,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;

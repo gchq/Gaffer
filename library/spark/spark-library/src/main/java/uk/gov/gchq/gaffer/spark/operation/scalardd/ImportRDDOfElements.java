@@ -17,11 +17,13 @@ package uk.gov.gchq.gaffer.spark.operation.scalardd;
 
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.SparkSession;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.io.Input;
+
 import java.util.Map;
 
 public class ImportRDDOfElements implements
