@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import scala.collection.Seq;
 import scala.collection.mutable.WrappedArray$;
+
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.ExtractKeyFromRow;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
@@ -30,6 +31,7 @@ import uk.gov.gchq.gaffer.store.SerialisationFactory;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;

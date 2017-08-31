@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.commonutil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.tuple.n.Tuple3;
+
 import java.util.function.Predicate;
 
 /**

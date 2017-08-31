@@ -21,7 +21,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import org.apache.commons.lang3.text.WordUtils;
+
 import uk.gov.gchq.gaffer.core.exception.Status;
+
 import java.io.IOException;
 
 /**

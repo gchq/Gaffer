@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.parquetstore.operation;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
+
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -40,6 +41,7 @@ import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.impl.predicate.Not;
 import uk.gov.gchq.koryphe.impl.predicate.Or;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

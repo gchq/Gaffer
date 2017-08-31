@@ -20,6 +20,7 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
 import java.io.UnsupportedEncodingException;
 
 public class Users extends DevWalkthrough {

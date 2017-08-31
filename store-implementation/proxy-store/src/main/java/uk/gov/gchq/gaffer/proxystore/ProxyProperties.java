@@ -17,7 +17,9 @@
 package uk.gov.gchq.gaffer.proxystore;
 
 import org.apache.commons.lang3.StringUtils;
+
 import uk.gov.gchq.gaffer.store.StoreProperties;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;

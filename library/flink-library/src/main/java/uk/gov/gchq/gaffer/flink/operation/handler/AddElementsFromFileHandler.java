@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.flink.operation.handler;
 
 import org.apache.flink.api.java.ExecutionEnvironment;
+
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromFile;
 import uk.gov.gchq.gaffer.store.Context;

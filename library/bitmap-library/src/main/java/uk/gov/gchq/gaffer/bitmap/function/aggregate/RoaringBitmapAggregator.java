@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.bitmap.function.aggregate;
 
 import org.roaringbitmap.RoaringBitmap;
+
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 public class RoaringBitmapAggregator extends KorypheBinaryOperator<RoaringBitmap> {

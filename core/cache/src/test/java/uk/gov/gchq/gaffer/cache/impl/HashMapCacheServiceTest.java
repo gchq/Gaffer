@@ -21,6 +21,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 
@@ -91,7 +92,7 @@ public class HashMapCacheServiceTest {
         try {
             service.putSafeInCache(CACHE_NAME, "test", 2);
             Assert.fail("Expected an exception");
-        } catch (CacheOperationException e) {
+        } catch (final CacheOperationException e) {
             assertEquals((Integer) 1, service.getFromCache(CACHE_NAME, "test"));
         }
 

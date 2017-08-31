@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.store;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import java.util.Set;
 
 public final class TypeReferenceStoreImpl {

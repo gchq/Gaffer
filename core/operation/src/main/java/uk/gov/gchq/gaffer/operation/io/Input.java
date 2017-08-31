@@ -17,8 +17,10 @@
 package uk.gov.gchq.gaffer.operation.io;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.operation.Operation;
+
 import java.io.IOException;
 
 public interface Input<I> extends Operation {

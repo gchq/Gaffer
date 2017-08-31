@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.rest.factory;
 
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.rest.DisableOperationsTest;
+
 import java.io.IOException;
 
 

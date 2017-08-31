@@ -18,12 +18,14 @@ package uk.gov.gchq.gaffer.serialisation.implementation;
 
 import com.google.common.collect.Maps;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ParameterisedTestObject;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.SimpleTestObject;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
+
 import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
