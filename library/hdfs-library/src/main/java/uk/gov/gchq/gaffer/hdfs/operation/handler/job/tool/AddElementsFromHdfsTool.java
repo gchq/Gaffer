@@ -27,7 +27,6 @@ import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AddElementsFromHdfs
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Store;
 
-import java.io.IOException;
 import java.util.List;
 
 public class AddElementsFromHdfsTool extends Configured implements Tool {
