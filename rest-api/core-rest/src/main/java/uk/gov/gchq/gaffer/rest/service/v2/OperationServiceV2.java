@@ -21,6 +21,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.glassfish.jersey.server.ChunkedOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
@@ -32,9 +33,11 @@ import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.service.v2.example.ExamplesFactory;
 import uk.gov.gchq.gaffer.user.User;
+
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;

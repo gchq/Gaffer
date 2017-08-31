@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.rest.service.v2.example;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -42,7 +43,9 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+
 import javax.inject.Inject;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;

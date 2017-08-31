@@ -17,14 +17,17 @@
 package uk.gov.gchq.gaffer.rest.service.v2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.SystemStatus;
 import uk.gov.gchq.gaffer.rest.application.ApplicationConfigV2;
+
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+
 import java.io.IOException;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;

@@ -61,6 +61,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map.Entry;

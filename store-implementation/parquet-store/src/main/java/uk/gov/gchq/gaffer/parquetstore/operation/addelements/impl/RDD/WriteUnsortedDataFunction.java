@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.WriteUnsortedData;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
 import java.io.Serializable;
 import java.util.Iterator;
 

@@ -25,6 +25,7 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -66,6 +67,7 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
 import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.service.v2.example.DefaultExamplesFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;

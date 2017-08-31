@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;

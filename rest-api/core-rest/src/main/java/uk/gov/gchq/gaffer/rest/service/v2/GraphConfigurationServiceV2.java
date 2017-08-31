@@ -24,14 +24,17 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.StringUtils;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
+
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.data.generator.ObjectGenerator;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.koryphe.signature.Signature;
+
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
+
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.Collection;
