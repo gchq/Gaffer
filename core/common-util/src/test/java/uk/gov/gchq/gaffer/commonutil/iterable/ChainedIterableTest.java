@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;

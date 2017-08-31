@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.jsonserialisation;
 
-
 import com.fasterxml.jackson.databind.Module;
+
 import java.util.List;
 
 /**

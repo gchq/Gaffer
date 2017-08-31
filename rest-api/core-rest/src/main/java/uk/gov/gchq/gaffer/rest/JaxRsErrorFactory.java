@@ -16,8 +16,10 @@
 package uk.gov.gchq.gaffer.rest;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+
 import uk.gov.gchq.gaffer.core.exception.Error;
 import uk.gov.gchq.gaffer.core.exception.Error.ErrorBuilder;
+
 import javax.ws.rs.WebApplicationException;
 
 /**

@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.store.schema;
 
 import com.google.common.collect.Sets;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -41,6 +42,7 @@ import uk.gov.gchq.koryphe.impl.predicate.IsA;
 import uk.gov.gchq.koryphe.impl.predicate.IsXMoreThanY;
 import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.NotSerializableException;

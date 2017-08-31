@@ -16,10 +16,10 @@
 
 package uk.gov.gchq.gaffer.spark;
 
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.spark.sql.SparkSession;
+
 import uk.gov.gchq.gaffer.user.User;
 
 public class SparkUser extends User {

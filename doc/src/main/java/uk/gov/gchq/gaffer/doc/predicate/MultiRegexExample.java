@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.doc.predicate;
 
 import uk.gov.gchq.koryphe.impl.predicate.MultiRegex;
+
 import java.util.regex.Pattern;
 
 public class MultiRegexExample extends PredicateExample {

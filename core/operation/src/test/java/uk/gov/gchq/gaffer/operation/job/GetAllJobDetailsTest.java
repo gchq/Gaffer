@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.job;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 

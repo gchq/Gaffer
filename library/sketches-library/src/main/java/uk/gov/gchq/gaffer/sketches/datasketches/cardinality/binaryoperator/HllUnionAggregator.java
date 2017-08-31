@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.binaryoperator;
 
 import com.yahoo.sketches.hll.Union;
+
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**

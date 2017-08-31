@@ -17,11 +17,13 @@ package uk.gov.gchq.gaffer.serialisation.implementation.raw;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

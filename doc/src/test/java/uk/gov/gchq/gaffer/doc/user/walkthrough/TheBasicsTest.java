@@ -19,10 +19,12 @@ package uk.gov.gchq.gaffer.doc.user.walkthrough;
 import com.google.common.collect.Lists;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
+
 import java.io.IOException;
 import java.util.List;
 

@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.graph.hook;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;

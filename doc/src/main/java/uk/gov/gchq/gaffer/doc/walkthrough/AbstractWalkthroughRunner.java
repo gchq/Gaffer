@@ -16,10 +16,12 @@
 package uk.gov.gchq.gaffer.doc.walkthrough;
 
 import org.apache.commons.io.IOUtils;
+
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;

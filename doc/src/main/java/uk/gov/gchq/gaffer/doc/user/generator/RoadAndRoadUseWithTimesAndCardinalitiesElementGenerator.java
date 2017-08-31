@@ -18,12 +18,14 @@ package uk.gov.gchq.gaffer.doc.user.generator;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import org.apache.commons.lang3.time.DateUtils;
+
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.RDD;
 
 import org.apache.spark.api.java.function.PairFunction;
 import scala.Tuple2;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;

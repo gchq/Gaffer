@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.hdfs.operation;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.io.compress.GzipCodec;
 import org.apache.hadoop.mapreduce.Partitioner;
+
 import uk.gov.gchq.gaffer.commonutil.FieldUtil;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser;
@@ -26,6 +27,7 @@ import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.tuple.n.Tuple3;
+
 import java.util.Map;
 
 

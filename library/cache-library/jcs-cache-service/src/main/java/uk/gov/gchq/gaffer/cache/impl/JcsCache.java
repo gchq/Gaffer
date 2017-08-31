@@ -21,8 +21,10 @@ import org.apache.commons.jcs.access.GroupCacheAccess;
 import org.apache.commons.jcs.access.exception.CacheException;
 import org.apache.commons.jcs.engine.behavior.ICompositeCacheAttributes;
 import org.apache.commons.jcs.engine.control.CompositeCache;
+
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;

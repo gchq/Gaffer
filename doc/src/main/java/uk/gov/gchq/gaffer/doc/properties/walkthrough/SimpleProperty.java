@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.doc.properties.walkthrough;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
+
 import java.io.IOException;
 
 public class SimpleProperty extends PropertiesWalkthrough {

@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloTestData;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
@@ -26,6 +27,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

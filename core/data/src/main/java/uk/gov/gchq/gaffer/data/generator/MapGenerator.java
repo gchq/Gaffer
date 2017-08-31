@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.data.generator;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 

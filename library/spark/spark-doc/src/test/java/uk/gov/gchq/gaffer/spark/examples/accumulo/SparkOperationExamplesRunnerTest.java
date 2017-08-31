@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.spark.examples.accumulo;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.spark.examples.SparkOperationExamplesRunner;
 
 public class SparkOperationExamplesRunnerTest {

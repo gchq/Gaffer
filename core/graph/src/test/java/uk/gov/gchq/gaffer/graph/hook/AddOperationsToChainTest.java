@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.graph.hook;
 
 import org.junit.Test;
 import sun.misc.IOUtils;
+
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -31,6 +32,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
