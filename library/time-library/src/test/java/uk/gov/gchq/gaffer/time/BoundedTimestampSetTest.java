@@ -16,10 +16,12 @@
 package uk.gov.gchq.gaffer.time;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashSet;

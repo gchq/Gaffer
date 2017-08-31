@@ -19,7 +19,9 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.roaringbitmap.RoaringBitmap;
+
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
+
 import java.util.Collections;
 import java.util.List;
 

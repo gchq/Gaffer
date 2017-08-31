@@ -22,6 +22,7 @@ import org.apache.accumulo.core.conf.Property;
 import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
 import org.apache.hadoop.io.Text;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
@@ -39,6 +40,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
+
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -87,7 +89,7 @@ public class TableUtilsTest {
         final Runnable invalidateTable = () -> {
             try {
                 AddUpdateTableIterator.removeIterator(store, AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME);
-            } catch (StoreException e) {
+            } catch (final StoreException e) {
                 throw new RuntimeException(e);
             }
         };
@@ -101,7 +103,7 @@ public class TableUtilsTest {
         final Runnable invalidateTable = () -> {
             try {
                 AddUpdateTableIterator.removeIterator(store, AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME);
-            } catch (StoreException e) {
+            } catch (final StoreException e) {
                 throw new RuntimeException(e);
             }
         };

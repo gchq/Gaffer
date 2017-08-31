@@ -44,7 +44,7 @@ public abstract class ViaCalculatedArrayValueSerialiserTest<OUTPUT, VALUE> exten
             try {
                 originalValue = useTestValue(object);
                 countOfNullPointer++;
-            } catch (NullPointerException e) {
+            } catch (final NullPointerException e) {
                 originalValue = null;
             }
 
@@ -53,7 +53,7 @@ public abstract class ViaCalculatedArrayValueSerialiserTest<OUTPUT, VALUE> exten
                 final OUTPUT objectDeserialised = serialiser.deserialise(serialiser.serialise(object));
                 deserialisedValue = useTestValue(objectDeserialised);
                 countOfNullPointer++;
-            } catch (NullPointerException e) {
+            } catch (final NullPointerException e) {
                 deserialisedValue = null;
             }
 

@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.doc.user.walkthrough;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import org.apache.commons.io.IOUtils;
+
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -37,6 +38,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.predicate.HyperLogLogPlusIsLessThan;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
+
 import java.io.IOException;
 
 public class Cardinalities extends UserWalkthrough {

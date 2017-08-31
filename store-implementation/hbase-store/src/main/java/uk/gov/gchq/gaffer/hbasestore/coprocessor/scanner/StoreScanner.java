@@ -16,11 +16,13 @@
 package uk.gov.gchq.gaffer.hbasestore.coprocessor.scanner;
 
 import org.apache.hadoop.hbase.regionserver.InternalScanner;
+
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.GafferScannerProcessor;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.StoreAggregationProcessor;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.ValidationProcessor;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
 import java.util.ArrayList;
 import java.util.List;
 

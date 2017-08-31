@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.impl.dat
 import com.yahoo.sketches.theta.SetOperation;
 import com.yahoo.sketches.theta.Union;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.ConversionException;
 
 import static org.junit.Assert.assertEquals;

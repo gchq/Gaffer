@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.doc.walkthrough;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
+
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage;
@@ -47,6 +48,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;

@@ -16,14 +16,15 @@
 
 package uk.gov.gchq.gaffer.named.operation;
 
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+
 import java.io.Serializable;
 
 @JsonDeserialize(builder = ParameterDetail.Builder.class)
@@ -54,7 +55,7 @@ public class ParameterDetail implements Serializable {
         try {
             byte[] json = JSONSerialiser.serialise(defaultValue);
             JSONSerialiser.deserialise(json, this.valueClass);
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new IllegalArgumentException(e);
         }
     }

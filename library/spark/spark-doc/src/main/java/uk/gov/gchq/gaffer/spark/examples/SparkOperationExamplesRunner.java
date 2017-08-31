@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.spark.examples;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+
 import uk.gov.gchq.gaffer.doc.operation.OperationExample;
 import uk.gov.gchq.gaffer.doc.util.ExampleDocRunner;
 import uk.gov.gchq.gaffer.operation.Operation;

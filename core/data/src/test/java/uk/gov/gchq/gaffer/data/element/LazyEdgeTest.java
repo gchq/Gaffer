@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.data.element;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 
 import static org.junit.Assert.assertEquals;

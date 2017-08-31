@@ -31,7 +31,7 @@ public class PropertiesUtilTest {
         try {
             PropertiesUtil.validateName(INVALID_STRING);
             fail("Exception expected");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Property is invalid"));
         }
     }

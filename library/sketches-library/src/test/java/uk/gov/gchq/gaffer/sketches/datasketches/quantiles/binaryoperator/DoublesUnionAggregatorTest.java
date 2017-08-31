@@ -18,10 +18,12 @@ package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator;
 import com.yahoo.sketches.quantiles.DoublesUnion;
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
+
 import java.util.function.BinaryOperator;
 
 import static org.junit.Assert.assertEquals;

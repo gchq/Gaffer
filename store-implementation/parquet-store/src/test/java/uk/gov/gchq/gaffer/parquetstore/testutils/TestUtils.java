@@ -2,11 +2,13 @@ package uk.gov.gchq.gaffer.parquetstore.testutils;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.types.TypeValue;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;

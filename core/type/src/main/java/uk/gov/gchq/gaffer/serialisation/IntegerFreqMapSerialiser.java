@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.serialisation;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.types.IntegerFreqMap;
+
 import java.io.UnsupportedEncodingException;
 import java.util.Map.Entry;
 import java.util.Set;
