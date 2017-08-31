@@ -16,14 +16,13 @@
 
 package uk.gov.gchq.gaffer.parquetstore;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.spark.SparkConf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringDeduplicateConcat;
+
 import java.io.Serializable;
 import java.nio.file.Path;
 
