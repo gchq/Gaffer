@@ -21,6 +21,7 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import org.junit.Before;
 import org.junit.Test;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -28,39 +29,17 @@ import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertEquals;
 
-public class HyperLogLogPlusKryoSerializerTest {
-    private final Kryo kryo = new Kryo();
+public class HyperLogLogPlusKryoSerializerTest extends KryoSerializerTest<HyperLogLogPlus> {
 
-    @Before
-    public void setup() {
-        new Registrator().registerClasses(kryo);
+    @Override
+    protected Class<HyperLogLogPlus> getTestClass() {
+        return HyperLogLogPlus.class;
     }
 
-    @Test
-    public void testHyperLogLogPlusKryoSerialiser() {
-        // HyperLogLogPlus with p = 5, sp = 5
+    @Override
+    protected HyperLogLogPlus getTestObject() {
         final HyperLogLogPlus hyperLogLogPlus = new HyperLogLogPlus(5, 5);
         IntStream.range(0, 1000).forEach(i -> hyperLogLogPlus.offer("" + i));
-        test(hyperLogLogPlus);
-
-        // HyperLogLogPlus with p = 15
-        final HyperLogLogPlus hyperLogLogPlus2 = new HyperLogLogPlus(15);
-        IntStream.range(0, 10000).forEach(i -> hyperLogLogPlus2.offer("" + i));
-        test(hyperLogLogPlus2);
-    }
-
-    private void test(final HyperLogLogPlus hyperLogLogPlus) {
-        // When
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        final Output output = new Output(baos);
-        kryo.writeObject(output, hyperLogLogPlus);
-        output.close();
-        final ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-        final Input input = new Input(bais);
-        final HyperLogLogPlus read = kryo.readObject(input, HyperLogLogPlus.class);
-        input.close();
-
-        // Then
-        assertEquals(hyperLogLogPlus.cardinality(), read.cardinality());
+        return hyperLogLogPlus;
     }
 }

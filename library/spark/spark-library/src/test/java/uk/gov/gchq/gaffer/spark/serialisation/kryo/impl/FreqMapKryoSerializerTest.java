@@ -15,41 +15,20 @@
  */
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-import org.junit.Before;
-import org.junit.Test;
-import uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 import uk.gov.gchq.gaffer.types.FreqMap;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 
-import static org.junit.Assert.assertEquals;
+public class FreqMapKryoSerializerTest extends KryoSerializerTest<FreqMap> {
 
-public class FreqMapKryoSerializerTest {
-    private final Kryo kryo = new Kryo();
+    @Override
+    protected Class<FreqMap> getTestClass() {
+        return FreqMap.class;
+    }
 
-    @Before
-    public void setup() { new Registrator().registerClasses(kryo); }
-
-    @Test
-    public void testFreqMapKryoSerializer() {
-        // Given
+    @Override
+    protected FreqMap getTestObject() {
         final FreqMap freqMap = new FreqMap();
         freqMap.upsert("test", 3L);
-
-        // When
-        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        final Output output = new Output(byteArrayOutputStream);
-        kryo.writeObject(output, freqMap);
-        output.close();
-        final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
-        final Input input = new Input(byteArrayInputStream);
-        final FreqMap read = kryo.readObject(input, FreqMap.class);
-        input.close();
-
-        // Then
-        assertEquals(freqMap, read);
+        return freqMap;
     }
 }

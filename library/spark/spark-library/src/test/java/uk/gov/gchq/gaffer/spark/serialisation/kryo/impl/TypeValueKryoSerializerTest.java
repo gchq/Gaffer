@@ -15,41 +15,18 @@
  */
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-import org.junit.Before;
-import org.junit.Test;
-import uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 import uk.gov.gchq.gaffer.types.TypeValue;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 
-import static org.junit.Assert.assertEquals;
+public class TypeValueKryoSerializerTest extends KryoSerializerTest<TypeValue> {
 
-public class TypeValueKryoSerializerTest {
-    private final Kryo kryo = new Kryo();
+    @Override
+    protected Class<TypeValue> getTestClass() {
+        return TypeValue.class;
+    }
 
-    @Before
-    public void setup() { new Registrator().registerClasses(kryo); }
-
-    @Test
-    public void testTypeValueKryoSerializer() {
-        // Given
-        final TypeValue typeValue = new TypeValue("type", "value");
-
-        // When
-        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        final Output output = new Output(byteArrayOutputStream);
-        kryo.writeObject(output, typeValue);
-        output.close();
-        final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
-        final Input input = new Input(byteArrayInputStream);
-        final TypeValue read = kryo.readObject(input, TypeValue.class);
-        input.close();
-
-        // Then
-        assertEquals(typeValue, read);
-
+    @Override
+    protected TypeValue getTestObject() {
+        return new TypeValue("type", "value");
     }
 }

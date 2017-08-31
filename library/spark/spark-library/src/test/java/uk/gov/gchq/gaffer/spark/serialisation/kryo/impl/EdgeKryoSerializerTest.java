@@ -15,49 +15,22 @@
  */
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-import org.junit.Before;
-import org.junit.Test;
 import uk.gov.gchq.gaffer.data.element.Edge;
-import uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
-import static org.junit.Assert.assertEquals;
+public class EdgeKryoSerializerTest extends KryoSerializerTest<Edge> {
 
-public class EdgeKryoSerializerTest {
-    private final Kryo kryo = new Kryo();
-
-    @Before
-    public void setup() {
-        new Registrator().registerClasses(kryo);
+    public Class<Edge> getTestClass() {
+        return Edge.class;
     }
 
-    @Test
-    public void testEdgeKryoSerializer() {
-        // Given
-        final Edge edge = new Edge.Builder()
+    public Edge getTestObject() {
+        return new Edge.Builder()
                 .group("group")
                 .source("abc")
                 .dest("xyz")
                 .directed(true)
                 .property("property1", 1)
                 .build();
-
-        // When
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        final Output output = new Output(baos);
-        kryo.writeObject(output, edge);
-        output.close();
-        final ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-        final Input input = new Input(bais);
-        final Edge read = kryo.readObject(input, Edge.class);
-        input.close();
-
-        // Then
-        assertEquals(edge, read);
     }
-
 }

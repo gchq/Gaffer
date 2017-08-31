@@ -15,46 +15,22 @@
  */
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-import org.junit.Before;
-import org.junit.Test;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
-import static org.junit.Assert.assertEquals;
+public class EntityKryoSerializerTest extends KryoSerializerTest<Entity> {
 
-public class EntityKryoSerializerTest {
-    private final Kryo kryo = new Kryo();
-
-    @Before
-    public void setup() {
-        new Registrator().registerClasses(kryo);
+    @Override
+    protected Class<Entity> getTestClass() {
+        return Entity.class;
     }
 
-    @Test
-    public void testEntityKryoSerializer() {
-        // Given
-        Entity entity = new Entity.Builder()
+    @Override
+    protected Entity getTestObject() {
+        return new Entity.Builder()
                 .group("group")
                 .vertex("abc")
                 .property("property1", 1)
                 .build();
-
-        // When
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        Output output = new Output(baos);
-        kryo.writeObject(output, entity);
-        output.close();
-        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-        Input input = new Input(bais);
-        Entity read = kryo.readObject(input, Entity.class);
-        input.close();
-
-        // Then
-        assertEquals(entity, read);
     }
 }
