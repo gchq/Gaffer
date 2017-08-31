@@ -26,6 +26,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import scala.collection.JavaConversions$;
 import scala.collection.mutable.WrappedArray;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;

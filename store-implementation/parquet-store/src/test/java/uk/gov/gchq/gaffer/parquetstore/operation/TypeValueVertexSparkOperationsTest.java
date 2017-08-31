@@ -25,7 +25,6 @@ import org.apache.spark.sql.Row;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;

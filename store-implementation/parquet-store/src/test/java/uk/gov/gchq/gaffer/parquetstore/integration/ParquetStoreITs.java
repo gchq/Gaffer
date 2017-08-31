@@ -27,7 +27,6 @@ import org.junit.BeforeClass;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.integration.impl.GetAdjacentIdsIT;
-import uk.gov.gchq.gaffer.integration.impl.GetElementsIT;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 

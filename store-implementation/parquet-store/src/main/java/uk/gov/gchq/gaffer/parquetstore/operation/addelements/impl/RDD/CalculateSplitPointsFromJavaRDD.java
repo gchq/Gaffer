@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.RDD;
 
 import org.apache.spark.api.java.JavaRDD;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.comparison.ComparableOrToStringComparator;

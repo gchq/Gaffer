@@ -20,11 +20,12 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 
-<<<<<<< HEAD
 import java.io.Serializable;
-=======
->>>>>>> develop
 import java.util.Comparator;
+
+<<<<<<<HEAD
+        =======
+        >>>>>>>develop
 
 public class TypeSubTypeValue implements Comparable<TypeSubTypeValue>, Serializable {
 
