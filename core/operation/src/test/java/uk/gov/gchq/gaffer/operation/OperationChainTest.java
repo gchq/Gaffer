@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.GroupCounts;
@@ -42,6 +43,7 @@ import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;

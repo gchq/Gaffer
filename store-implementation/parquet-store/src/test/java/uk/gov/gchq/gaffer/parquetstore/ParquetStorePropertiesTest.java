@@ -21,8 +21,10 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
 import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
+
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;

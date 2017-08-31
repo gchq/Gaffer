@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.store.serialiser.lengthvalue;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.GroupedProperties;
 import uk.gov.gchq.gaffer.exception.SerialisationException;

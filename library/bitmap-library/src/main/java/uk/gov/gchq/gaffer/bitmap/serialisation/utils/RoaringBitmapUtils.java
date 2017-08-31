@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.bitmap.serialisation.utils;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -115,7 +116,7 @@ public final class RoaringBitmapUtils {
             } else {
                 throw new SerialisationException("I failed to find a known roaring bitmap cookie (cookie = " + cookie + ")");
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }

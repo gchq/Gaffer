@@ -19,8 +19,10 @@ package uk.gov.gchq.gaffer.store;
 import com.fasterxml.jackson.databind.Module;
 import com.google.common.collect.Sets;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
+
 import java.util.List;
 import java.util.Set;
 

@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.integration.impl;
 import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -36,6 +37,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.koryphe.impl.function.Concat;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;

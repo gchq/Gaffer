@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.commonutil;
 import com.google.common.collect.Iterators;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;

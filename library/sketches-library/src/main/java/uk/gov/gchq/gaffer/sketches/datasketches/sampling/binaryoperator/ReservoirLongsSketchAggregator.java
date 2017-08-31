@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.sketches.datasketches.sampling.binaryoperator;
 
 import com.yahoo.sketches.sampling.ReservoirLongsSketch;
 import com.yahoo.sketches.sampling.ReservoirLongsUnion;
+
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**

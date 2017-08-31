@@ -18,8 +18,10 @@ package uk.gov.gchq.gaffer.accumulostore;
 
 import com.fasterxml.jackson.databind.Module;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
 import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
+
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;

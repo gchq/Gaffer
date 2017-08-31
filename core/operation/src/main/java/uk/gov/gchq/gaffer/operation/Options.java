@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+
 import java.util.HashMap;
 import java.util.Map;
 

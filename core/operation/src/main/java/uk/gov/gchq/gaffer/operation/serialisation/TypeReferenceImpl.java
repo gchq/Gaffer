@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.serialisation;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.GroupCounts;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;

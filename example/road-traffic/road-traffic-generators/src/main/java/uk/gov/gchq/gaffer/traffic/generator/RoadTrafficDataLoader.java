@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.traffic.generator;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -105,7 +106,7 @@ public class RoadTrafficDataLoader {
         try {
             dataLoader.load(new File(dataFile));
             LOGGER.info("Data has been loaded");
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOGGER.info("Unable to load data: " + e.getMessage());
             throw new RuntimeException("Unable to load data", e);
         }

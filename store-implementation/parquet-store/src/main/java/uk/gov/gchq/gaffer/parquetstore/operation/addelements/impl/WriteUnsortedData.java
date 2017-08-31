@@ -22,6 +22,7 @@ import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.apache.spark.TaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;

@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.mapstore.impl;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
@@ -34,6 +35,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;

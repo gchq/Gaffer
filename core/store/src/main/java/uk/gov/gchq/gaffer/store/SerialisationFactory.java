@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.store;
 
 import com.google.common.collect.Lists;
+
 import uk.gov.gchq.gaffer.serialisation.FreqMapSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.TypeSubTypeValueSerialiser;
@@ -32,6 +33,7 @@ import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSer
 import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedLongSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
+
 import java.util.List;
 
 /**

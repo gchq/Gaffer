@@ -21,6 +21,7 @@ import org.apache.parquet.filter2.predicate.FilterPredicate;
 import org.apache.parquet.io.api.Binary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
@@ -45,6 +46,7 @@ import uk.gov.gchq.koryphe.impl.predicate.IsTrue;
 import uk.gov.gchq.koryphe.impl.predicate.Not;
 import uk.gov.gchq.koryphe.impl.predicate.Or;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;

@@ -16,7 +16,9 @@
 package uk.gov.gchq.gaffer.doc.predicate;
 
 import com.google.common.collect.Lists;
+
 import uk.gov.gchq.koryphe.impl.predicate.IsShorterThan;
+
 import java.util.HashMap;
 import java.util.Map;
 
