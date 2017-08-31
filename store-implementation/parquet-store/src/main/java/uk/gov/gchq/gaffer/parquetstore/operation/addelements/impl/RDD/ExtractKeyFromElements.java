@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;

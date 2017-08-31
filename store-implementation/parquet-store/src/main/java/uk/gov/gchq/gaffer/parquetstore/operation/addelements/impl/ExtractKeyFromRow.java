@@ -23,6 +23,7 @@ import scala.collection.Seq$;
 import scala.collection.mutable.Builder;
 
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
