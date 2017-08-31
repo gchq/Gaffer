@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation.handler;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -25,6 +26,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
+
 import java.util.Collections;
 import java.util.Iterator;
 

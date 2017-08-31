@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.doc.predicate;
 
 import uk.gov.gchq.koryphe.impl.predicate.AreIn;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;

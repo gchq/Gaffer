@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation.handler.generate;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;

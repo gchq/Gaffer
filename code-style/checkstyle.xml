@@ -66,9 +66,9 @@
         <module name="UnusedImports"/>
 
         <module name="ImportOrder">
-            <property name="groups" value="*,javax,java"/>
+            <property name="groups" value="*,uk.gov.gchq,/^javax\./,java"/>
             <property name="ordered" value="true"/>
-            <property name="separated" value="false"/>
+            <property name="separated" value="true"/>
             <property name="option" value="bottom"/>
             <property name="sortStaticImportsAlphabetically" value="true"/>
         </module>
@@ -109,9 +109,7 @@
 
         <module name="ArrayTypeStyle"/>
         <module name="FinalParameters">
-            <property name="tokens" value="FOR_EACH_CLAUSE"/>
-            <property name="tokens" value="CTOR_DEF"/>
-            <property name="tokens" value="METHOD_DEF"/>
+            <property name="tokens" value="METHOD_DEF, CTOR_DEF, LITERAL_CATCH, FOR_EACH_CLAUSE"/>
         </module>
         <module name="UpperEll"/>
 

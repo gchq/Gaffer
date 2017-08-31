@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.accumulostore.utils;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.security.InvalidParameterException;
 
 public class BytesAndRange {

@@ -31,7 +31,7 @@ public class GroupUtilTest {
         try {
             GroupUtil.validateName(INVALID_STRING);
             fail("Exception expected");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Group is invalid"));
         }
     }

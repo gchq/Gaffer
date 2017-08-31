@@ -19,6 +19,7 @@ import com.google.common.collect.Lists;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -38,6 +39,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -371,7 +373,7 @@ public class FilteringIT extends AbstractStoreIT {
         return Comparator.comparing(a -> {
             try {
                 return new String(JSONSerialiser.serialise(a));
-            } catch (SerialisationException e) {
+            } catch (final SerialisationException e) {
                 throw new RuntimeException(e);
             }
         });

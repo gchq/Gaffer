@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.doc.operation;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import uk.gov.gchq.gaffer.doc.operation.generator.TextMapperGeneratorImpl;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
@@ -24,6 +25,7 @@ import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitiali
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.SplitStore;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;

@@ -18,7 +18,9 @@ package uk.gov.gchq.gaffer.accumulostore.key.core.impl;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.file.keyfunctor.KeyFunctor;
+
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
+
 import java.util.Arrays;
 
 public class CoreKeyBloomFunctor implements KeyFunctor {

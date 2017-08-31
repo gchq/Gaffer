@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.parquetstore.serialisation.impl;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
+
 import java.util.Arrays;
 import java.util.TreeSet;
 

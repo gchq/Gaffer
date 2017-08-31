@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity;
 
 import org.apache.accumulo.core.data.Key;
+
 import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
@@ -29,6 +30,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
 import java.util.Arrays;
 
 /**
