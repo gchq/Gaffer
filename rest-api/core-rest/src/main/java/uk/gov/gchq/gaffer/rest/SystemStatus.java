@@ -18,10 +18,10 @@ package uk.gov.gchq.gaffer.rest;
 
 public class SystemStatus {
 
-    public static SystemStatus UP = new SystemStatus(Status.UP);
-    public static SystemStatus DOWN = new SystemStatus(Status.DOWN);
-    public static SystemStatus UNKNOWN = new SystemStatus(Status.UNKNOWN);
-    public static SystemStatus OUT_OF_SERVICE = new SystemStatus(Status.OUT_OF_SERVICE);
+    public static final SystemStatus UP = new SystemStatus(Status.UP);
+    public static final SystemStatus DOWN = new SystemStatus(Status.DOWN);
+    public static final SystemStatus UNKNOWN = new SystemStatus(Status.UNKNOWN);
+    public static final SystemStatus OUT_OF_SERVICE = new SystemStatus(Status.OUT_OF_SERVICE);
 
     private final Status status;
 
@@ -44,7 +44,7 @@ public class SystemStatus {
 
         private String code;
 
-        private Status(final String code, final String description) {
+        Status(final String code, final String description) {
             this.code = code;
             this.description = description;
         }

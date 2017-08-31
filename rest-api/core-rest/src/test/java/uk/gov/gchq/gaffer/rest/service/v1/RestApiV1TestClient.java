@@ -21,8 +21,10 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.SystemStatus;
 import uk.gov.gchq.gaffer.rest.application.ApplicationConfigV1;
+
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+
 import java.io.IOException;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
