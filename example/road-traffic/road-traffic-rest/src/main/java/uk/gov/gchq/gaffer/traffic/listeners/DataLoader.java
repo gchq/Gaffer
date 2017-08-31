@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;

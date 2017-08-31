@@ -51,6 +51,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 
 import javax.inject.Inject;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;

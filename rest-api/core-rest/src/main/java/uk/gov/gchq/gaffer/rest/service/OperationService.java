@@ -40,6 +40,7 @@ import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.user.User;
 
 import javax.inject.Inject;
+
 import java.io.IOException;
 
 import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;

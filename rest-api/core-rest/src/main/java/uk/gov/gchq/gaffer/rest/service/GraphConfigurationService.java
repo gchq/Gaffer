@@ -36,6 +36,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.signature.Signature;
 
 import javax.inject.Inject;
+
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.Collection;
