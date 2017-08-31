@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.traffic.generator;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.time.DateUtils;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
@@ -48,25 +49,25 @@ import static uk.gov.gchq.gaffer.traffic.generator.RoadTrafficDataField.Region_N
 import static uk.gov.gchq.gaffer.traffic.generator.RoadTrafficDataField.Road;
 import static uk.gov.gchq.gaffer.traffic.generator.RoadTrafficDataField.dCount;
 
-public class RoadTrafficElementGenerator implements OneToManyElementGenerator<String> {
+public class RoadTrafficElementGenerator implements OneToManyElementGenerator<CSVRecord> {
 
     @Override
-    public Iterable<Element> _apply(final String line) {
-        final String[] fields = RoadTrafficDataField.extractFields(line);
-        if (null == fields) {
+    public Iterable<Element> _apply(final CSVRecord record) {
+        // Check that the record has the expected number of fields
+        if (!record.isConsistent()) {
             return Collections.emptyList();
         }
 
-        final FreqMap vehicleCountsByType = getVehicleCounts(fields);
-        final Date startDate = getDate(fields[dCount.index()], fields[Hour.index()]);
+        final FreqMap vehicleCountsByType = getVehicleCounts(record);
+        final Date startDate = getDate(record.get(dCount.fieldName()), record.get(Hour.fieldName()));
         final Date endDate = null != startDate ? DateUtils.addHours(startDate, 1) : null;
-        final String region = fields[Region_Name.index()];
-        final String location = fields[ONS_LA_Name.index()];
-        final String road = fields[Road.index()];
-        final String junctionA = road + ":" + fields[A_Junction.index()];
-        final String junctionB = road + ":" + fields[B_Junction.index()];
-        final String junctionALocation = fields[A_Ref_E.index()] + "," + fields[A_Ref_N.index()];
-        final String junctionBLocation = fields[B_Ref_E.index()] + "," + fields[B_Ref_N.index()];
+        final String region = record.get(Region_Name.fieldName());
+        final String location = record.get(ONS_LA_Name.fieldName());
+        final String road = record.get(Road.fieldName());
+        final String junctionA = road + ":" + record.get(A_Junction.fieldName());
+        final String junctionB = road + ":" + record.get(B_Junction.fieldName());
+        final String junctionALocation = record.get(A_Ref_E.fieldName()) + "," + record.get(A_Ref_N.fieldName());
+        final String junctionBLocation = record.get(B_Ref_E.fieldName()) + "," + record.get(B_Ref_N.fieldName());
 
         final List<Edge> edges = Arrays.asList(
                 new Edge.Builder()
@@ -173,10 +174,11 @@ public class RoadTrafficElementGenerator implements OneToManyElementGenerator<St
                 .build();
     }
 
-    private FreqMap getVehicleCounts(final String[] fields) {
+    private FreqMap getVehicleCounts(final CSVRecord record) {
         final FreqMap freqMap = new FreqMap();
-        for (final RoadTrafficDataField fieldName : RoadTrafficDataField.VEHICLE_COUNTS) {
-            freqMap.upsert(fieldName.name(), Long.parseLong(fields[fieldName.index()]));
+        for (final RoadTrafficDataField field : RoadTrafficDataField.VEHICLE_COUNTS) {
+            final String value = record.get(field.fieldName());
+            freqMap.upsert(field.name(), value.isEmpty() ? 0 : Long.parseLong(value));
         }
         return freqMap;
     }
@@ -207,9 +209,18 @@ public class RoadTrafficElementGenerator implements OneToManyElementGenerator<St
         }
 
         if (null == dCount) {
+            try {
+                dCount = new SimpleDateFormat("yyyy-MM-dd").parse(dCountString);
+            } catch (final ParseException e) {
+                // another incorrect date format
+            }
+        }
+
+        if (null == dCount) {
             return null;
         }
 
         return DateUtils.addHours(dCount, Integer.parseInt(hour));
     }
+
 }
