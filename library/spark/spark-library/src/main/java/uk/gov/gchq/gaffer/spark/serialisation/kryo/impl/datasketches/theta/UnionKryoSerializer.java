@@ -13,19 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl;
+package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.theta;
 
-import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
-import com.esotericsoftware.kryo.Serializer;
-import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.HyperLogLogPlusSerialiser;
+import com.yahoo.sketches.theta.Union;
+import uk.gov.gchq.gaffer.sketches.datasketches.theta.serialisation.UnionSerialiser;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.WrappedKryoSerializer;
 
-/**
- * A Kryo {@link Serializer} for a {@link HyperLogLogPlus}.
- */
-public class HyperLogLogPlusKryoSerializer extends WrappedKryoSerializer<HyperLogLogPlusSerialiser, HyperLogLogPlus> {
+public class UnionKryoSerializer extends WrappedKryoSerializer<UnionSerialiser, Union> {
 
-    public HyperLogLogPlusKryoSerializer() {
-        super(new HyperLogLogPlusSerialiser());
+    public UnionKryoSerializer() {
+        super(new UnionSerialiser());
     }
 }
