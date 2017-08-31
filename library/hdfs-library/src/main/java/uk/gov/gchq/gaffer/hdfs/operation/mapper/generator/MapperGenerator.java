@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.hdfs.operation.mapper.generator;
 
 import org.apache.hadoop.mapreduce.MapContext;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 
 /**

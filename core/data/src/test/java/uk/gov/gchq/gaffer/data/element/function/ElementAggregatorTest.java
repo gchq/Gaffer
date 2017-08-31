@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.data.element.function;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
@@ -24,6 +25,7 @@ import uk.gov.gchq.gaffer.function.ExampleTuple2BinaryOperator;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.n.Tuple3;
+
 import java.util.List;
 import java.util.function.BinaryOperator;
 

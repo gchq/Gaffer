@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.serialisation;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+
 import java.io.UnsupportedEncodingException;
 
 /**

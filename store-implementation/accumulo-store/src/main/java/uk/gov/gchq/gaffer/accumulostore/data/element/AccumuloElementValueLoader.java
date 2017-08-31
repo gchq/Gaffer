@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.accumulostore.data.element;
 
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
+
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.data.element.ElementValueLoader;
 import uk.gov.gchq.gaffer.data.element.Properties;

@@ -1,12 +1,12 @@
 package uk.gov.gchq.gaffer.cache.impl;
 
-
 import org.apache.commons.jcs.access.exception.CacheException;
 import org.apache.commons.jcs.engine.control.CompositeCacheManager;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 
 import static org.junit.Assert.assertEquals;
@@ -36,7 +36,7 @@ public class JcsCacheTest {
             cache.put("test", 1);
             cache.putSafe("test", 1);
             fail();
-        } catch (CacheOperationException e) {
+        } catch (final CacheOperationException e) {
             assertEquals("Entry for key test already exists", e.getMessage());
         }
     }
@@ -46,7 +46,7 @@ public class JcsCacheTest {
         try {
             cache.put(null, 2);
             fail("Expected an exception");
-        } catch (CacheOperationException e) {
+        } catch (final CacheOperationException e) {
             assertNotNull(e.getMessage());
         }
     }
@@ -56,7 +56,7 @@ public class JcsCacheTest {
         try {
             cache.put("test", null);
             fail("Expected an exception");
-        } catch (CacheOperationException e) {
+        } catch (final CacheOperationException e) {
             assertNotNull(e.getMessage());
         }
     }

@@ -19,8 +19,10 @@ package uk.gov.gchq.gaffer.parquetstore;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+
 import java.util.HashSet;
 import java.util.Set;
 

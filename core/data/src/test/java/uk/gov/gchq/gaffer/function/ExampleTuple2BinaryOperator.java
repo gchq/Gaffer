@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.function;
 import uk.gov.gchq.gaffer.data.element.comparison.ComparableOrToStringComparator;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.n.Tuple2;
+
 import java.util.Comparator;
 
 public class ExampleTuple2BinaryOperator extends KorypheBinaryOperator<Tuple2<Comparable, Object>> {

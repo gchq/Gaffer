@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.sketches.datasketches.theta.binaryoperator;
 import com.yahoo.sketches.theta.Sketch;
 import com.yahoo.sketches.theta.Sketches;
 import com.yahoo.sketches.theta.Union;
+
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
