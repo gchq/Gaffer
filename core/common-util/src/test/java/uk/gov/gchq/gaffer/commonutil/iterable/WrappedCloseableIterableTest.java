@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import org.junit.Test;
 import org.mockito.Mockito;
+
 import java.util.Collections;
 import java.util.Iterator;
 

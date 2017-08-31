@@ -19,6 +19,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.mapstore.multimap.MultiMap;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
 import java.util.Map;
 
 public interface MapFactory {
@@ -28,7 +29,7 @@ public interface MapFactory {
 
     <K, V> MultiMap<K, V> getMultiMap(final String mapName, final Class<K> keyClass, final Class<V> valueClass);
 
-    default <K, V> void updateValue(Map<K, V> map, K key, V adaptedValue) {
+    default <K, V> void updateValue(final Map<K, V> map, final K key, final V adaptedValue) {
         // no action required.
     }
 

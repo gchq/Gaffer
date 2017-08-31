@@ -37,6 +37,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.accumulostore.inputformat.ElementInputFormat;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
@@ -87,6 +88,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
+
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.Collections;

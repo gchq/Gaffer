@@ -19,7 +19,9 @@ package uk.gov.gchq.gaffer.doc.user.walkthrough;
 import com.google.common.collect.Lists;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.operation.OperationException;
+
 import java.io.IOException;
 import java.util.List;
 

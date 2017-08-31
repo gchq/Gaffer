@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.accumulostore.key.core;
 
 import com.google.common.primitives.Bytes;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.accumulostore.key.AbstractAccumuloElementConverterTest;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -26,6 +27,7 @@ import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+
 import java.io.ByteArrayOutputStream;
 
 import static org.junit.Assert.assertArrayEquals;

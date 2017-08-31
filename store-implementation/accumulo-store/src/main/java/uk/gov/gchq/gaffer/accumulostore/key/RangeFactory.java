@@ -17,10 +17,12 @@
 package uk.gov.gchq.gaffer.accumulostore.key;
 
 import org.apache.accumulo.core.data.Range;
+
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+
 import java.util.List;
 
 /**

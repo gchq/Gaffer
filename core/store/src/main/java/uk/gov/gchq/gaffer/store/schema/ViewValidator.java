@@ -20,6 +20,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -33,6 +34,7 @@ import uk.gov.gchq.koryphe.signature.Signature;
 import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
+
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;

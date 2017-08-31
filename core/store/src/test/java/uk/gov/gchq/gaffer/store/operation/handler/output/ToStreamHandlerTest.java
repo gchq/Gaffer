@@ -17,10 +17,12 @@
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.output.ToStream;
 import uk.gov.gchq.gaffer.store.Context;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;

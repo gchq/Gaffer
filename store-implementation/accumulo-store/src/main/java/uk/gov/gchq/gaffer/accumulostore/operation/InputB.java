@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.accumulostore.operation;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import uk.gov.gchq.gaffer.operation.Operation;
 
 public interface InputB<I> {

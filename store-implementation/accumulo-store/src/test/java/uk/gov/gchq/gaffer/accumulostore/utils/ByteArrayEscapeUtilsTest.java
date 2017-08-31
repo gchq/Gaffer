@@ -19,7 +19,9 @@ package uk.gov.gchq.gaffer.accumulostore.utils;
 import org.apache.accumulo.core.data.Key;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
+
 import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;

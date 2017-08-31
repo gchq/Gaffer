@@ -18,11 +18,13 @@ package uk.gov.gchq.gaffer.data.element.function;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.ElementTuple;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunctionComposite;
+
 import java.util.function.Function;
 
 public class ElementTransformer extends TupleAdaptedFunctionComposite<String> {

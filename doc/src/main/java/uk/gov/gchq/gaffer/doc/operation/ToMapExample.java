@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToMap;
+
 import java.util.Map;
 
 public class ToMapExample extends OperationExample {

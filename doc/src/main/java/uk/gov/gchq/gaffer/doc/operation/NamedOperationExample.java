@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.doc.operation;
 
 import com.google.common.collect.Maps;
+
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -30,6 +31,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
+
 import java.util.Map;
 
 public class NamedOperationExample extends OperationExample {
@@ -46,7 +48,7 @@ public class NamedOperationExample extends OperationExample {
         // Clear the cache
         try {
             CacheServiceLoader.getService().clearCache("NamedOperation");
-        } catch (CacheOperationException e) {
+        } catch (final CacheOperationException e) {
             throw new RuntimeException(e);
         }
 

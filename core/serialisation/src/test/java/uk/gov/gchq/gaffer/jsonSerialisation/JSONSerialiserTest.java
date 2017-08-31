@@ -26,6 +26,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -34,6 +35,7 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
 import uk.gov.gchq.gaffer.serialisation.ParameterisedTestObject;
 import uk.gov.gchq.gaffer.serialisation.SimpleTestObject;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -204,7 +206,7 @@ public class JSONSerialiserTest {
     @Test
     public void shouldSerialiseWithHistoricValues() throws Exception {
         assertNotNull(historicSerialisationPairs);
-        for (Pair<Object, byte[]> pair : historicSerialisationPairs) {
+        for (final Pair<Object, byte[]> pair : historicSerialisationPairs) {
             serialiseFirst(pair);
             deserialiseSecond(pair);
         }

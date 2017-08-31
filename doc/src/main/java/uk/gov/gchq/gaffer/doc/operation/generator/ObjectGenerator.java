@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.doc.operation.generator;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;

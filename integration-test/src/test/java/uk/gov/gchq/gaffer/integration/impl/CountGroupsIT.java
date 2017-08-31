@@ -2,6 +2,7 @@ package uk.gov.gchq.gaffer.integration.impl;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.GroupCounts;

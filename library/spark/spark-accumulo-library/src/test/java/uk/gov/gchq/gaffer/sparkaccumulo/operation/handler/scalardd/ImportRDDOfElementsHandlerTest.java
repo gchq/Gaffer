@@ -23,6 +23,7 @@ import org.apache.spark.sql.SparkSession;
 import org.junit.Test;
 import scala.collection.mutable.ArrayBuffer;
 import scala.reflect.ClassTag;
+
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -37,6 +38,7 @@ import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.SparkSessionProvider;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;

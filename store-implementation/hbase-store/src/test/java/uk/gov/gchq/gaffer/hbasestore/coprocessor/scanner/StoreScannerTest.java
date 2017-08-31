@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.hbasestore.coprocessor.scanner;
 
 import org.apache.hadoop.hbase.client.Scan;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -34,6 +35,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
+
 import java.io.IOException;
 import java.util.List;
 

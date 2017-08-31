@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.doc.user.walkthrough;
 
 import org.apache.commons.io.IOUtils;
+
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -36,6 +37,7 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Min;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
+
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

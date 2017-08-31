@@ -22,7 +22,9 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import uk.gov.gchq.gaffer.core.exception.Status;
+
 import java.io.IOException;
 
 /**
