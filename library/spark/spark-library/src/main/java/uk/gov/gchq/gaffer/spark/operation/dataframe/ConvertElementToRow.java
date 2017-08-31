@@ -19,12 +19,14 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Row$;
 import scala.collection.mutable.MutableList;
 import scala.runtime.AbstractFunction1;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.ConversionException;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStructTypeConverter;
+
 import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Map;

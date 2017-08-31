@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
@@ -39,7 +40,7 @@ public abstract class ViaCalculatedValueSerialiserTest<OUTPUT, VALUE> extends To
     protected VALUE useTestValue(final OUTPUT object) {
         try {
             return getTestValue(object);
-        } catch (NullPointerException e) {
+        } catch (final NullPointerException e) {
             throw new NullPointerException("The supplied object to getTestValue() was not suitable.");
         }
     }

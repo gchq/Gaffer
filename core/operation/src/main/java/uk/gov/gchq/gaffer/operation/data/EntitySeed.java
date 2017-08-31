@@ -17,8 +17,10 @@
 package uk.gov.gchq.gaffer.operation.data;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
+
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+
 import java.util.Objects;
 
 /**

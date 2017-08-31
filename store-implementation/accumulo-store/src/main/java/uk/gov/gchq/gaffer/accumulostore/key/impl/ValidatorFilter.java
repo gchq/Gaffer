@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.accumulostore.key.impl;
 import uk.gov.gchq.gaffer.accumulostore.key.AbstractElementFilter;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.store.ElementValidator;
+
 import java.util.HashMap;
 import java.util.Map;
 

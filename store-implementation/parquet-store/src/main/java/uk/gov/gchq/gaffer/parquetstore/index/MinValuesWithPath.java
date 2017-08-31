@@ -16,7 +16,9 @@
 package uk.gov.gchq.gaffer.parquetstore.index;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import uk.gov.gchq.gaffer.store.StoreException;
+
 import java.util.Arrays;
 
 /**

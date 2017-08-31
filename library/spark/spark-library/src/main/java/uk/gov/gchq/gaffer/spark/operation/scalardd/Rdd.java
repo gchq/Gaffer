@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.spark.operation.scalardd;
 
 import org.apache.spark.sql.SparkSession;
+
 import uk.gov.gchq.gaffer.operation.Operation;
 
 public interface Rdd {

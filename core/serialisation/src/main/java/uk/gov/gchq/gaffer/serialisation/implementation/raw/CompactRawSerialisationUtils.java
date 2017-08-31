@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.serialisation.implementation.raw;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -79,7 +80,7 @@ public final class CompactRawSerialisationUtils {
                 rtn = isNegativeVInt(firstByte) ? ~rtn : rtn;
             }
             return rtn;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }

@@ -19,9 +19,11 @@ package uk.gov.gchq.gaffer.export;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.impl.export.set.SetExporter;
+
 import java.util.Arrays;
 import java.util.List;
 

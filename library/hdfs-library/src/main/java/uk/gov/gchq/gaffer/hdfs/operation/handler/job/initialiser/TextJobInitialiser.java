@@ -18,8 +18,10 @@ package uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+
 import uk.gov.gchq.gaffer.hdfs.operation.MapReduce;
 import uk.gov.gchq.gaffer.store.Store;
+
 import java.io.IOException;
 import java.util.Map;
 

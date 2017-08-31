@@ -18,8 +18,10 @@ package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang3.exception.CloneFailedException;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.koryphe.ValidationResult;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -112,7 +114,7 @@ public interface Operation extends Closeable {
                     final Object value;
                     try {
                         value = field.get(this);
-                    } catch (IllegalAccessException e) {
+                    } catch (final IllegalAccessException e) {
                         throw new RuntimeException(e);
                     }
 
@@ -126,7 +128,7 @@ public interface Operation extends Closeable {
                         final Object value;
                         try {
                             value = field.get(this);
-                        } catch (IllegalAccessException e) {
+                        } catch (final IllegalAccessException e) {
                             throw new RuntimeException(e);
                         }
 

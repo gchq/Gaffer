@@ -22,7 +22,9 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;

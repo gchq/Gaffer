@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.commonutil;
 
 import org.junit.Test;
+
 import java.io.InputStream;
 import java.net.URI;
 

@@ -19,10 +19,12 @@ import com.yahoo.sketches.sampling.ReservoirLongsSketch;
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
