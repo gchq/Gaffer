@@ -23,10 +23,6 @@ import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import java.io.Serializable;
 import java.util.Comparator;
 
-<<<<<<<HEAD
-        =======
-        >>>>>>>develop
-
 public class TypeSubTypeValue implements Comparable<TypeSubTypeValue>, Serializable {
 
     private static Comparator<String> stringComparator = Comparator

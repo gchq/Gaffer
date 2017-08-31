@@ -165,9 +165,9 @@ public class AggregateAndSortTempData {
             throw new OperationException("AggregateAndSortData was interrupted", e);
         } catch (final ExecutionException e) {
             throw new OperationException("AggregateAndSortData had an execution exception thrown", e);
-        } catch (StoreException e) {
+        } catch (final StoreException e) {
             throw new OperationException("AggregateAndSortData had a store exception thrown", e);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new OperationException("AggregateAndSortData had an IO exception thrown", e);
         }
         pool.shutdown();
