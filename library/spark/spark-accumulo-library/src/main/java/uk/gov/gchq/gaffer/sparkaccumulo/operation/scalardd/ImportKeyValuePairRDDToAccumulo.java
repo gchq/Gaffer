@@ -19,9 +19,11 @@ import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.spark.rdd.RDD;
 import scala.Tuple2;
+
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.io.Input;
+
 import java.util.Map;
 
 public class ImportKeyValuePairRDDToAccumulo implements

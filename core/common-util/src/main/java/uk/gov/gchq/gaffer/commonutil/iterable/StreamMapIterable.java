@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import uk.gov.gchq.gaffer.commonutil.stream.MapStreamSupplier;
+
 import java.util.function.Function;
 
 public class StreamMapIterable<I, O> extends StreamIterable<O> {

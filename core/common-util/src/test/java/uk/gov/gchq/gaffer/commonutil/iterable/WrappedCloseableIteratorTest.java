@@ -17,8 +17,10 @@
 package uk.gov.gchq.gaffer.commonutil.iterator;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterator;
+
 import java.util.Iterator;
 
 import static org.mockito.Mockito.mock;

@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.mapstore.impl;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -30,6 +31,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;

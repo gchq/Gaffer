@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.parquetstore.utils;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.ArrayListStringParquetSerialiser;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.BooleanParquetSerialiser;

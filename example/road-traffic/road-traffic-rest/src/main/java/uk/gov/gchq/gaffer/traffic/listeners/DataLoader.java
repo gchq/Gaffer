@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+
 import java.io.File;
 import java.util.logging.Logger;
 
@@ -52,7 +53,7 @@ public class DataLoader implements ServletContextListener {
         final RoadTrafficDataLoader dataLoader = new RoadTrafficDataLoader(graph, new User());
         try {
             dataLoader.load(new File(dataPath));
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOGGER.info("Unable to load data: " + e.getMessage());
             throw new RuntimeException("Unable to load data", e);
         }

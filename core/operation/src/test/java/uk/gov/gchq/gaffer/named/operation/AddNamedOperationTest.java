@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.named.operation;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -25,6 +26,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -79,7 +81,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         String opChain = null;
         try {
             opChain = new String(JSONSerialiser.serialise(OPERATION_CHAIN));
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             fail();
         }
         assertEquals(opChain, addNamedOperation.getOperationChainAsString());
@@ -107,7 +109,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         String opChain = null;
         try {
             opChain = new String(JSONSerialiser.serialise(OPERATION_CHAIN));
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             fail();
         }
 

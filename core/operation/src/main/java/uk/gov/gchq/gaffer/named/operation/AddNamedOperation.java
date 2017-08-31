@@ -16,16 +16,17 @@
 
 package uk.gov.gchq.gaffer.named.operation;
 
-
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
+
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,7 +70,7 @@ public class AddNamedOperation implements Operation {
     public JsonNode getOperationChainAsJsonNode() {
         try {
             return JSONSerialiser.getJsonNodeFromString(operations);
-        } catch (SerialisationException se) {
+        } catch (final SerialisationException se) {
             throw new IllegalArgumentException(se.getMessage());
         }
     }
@@ -77,7 +78,7 @@ public class AddNamedOperation implements Operation {
     public void setOperationChain(final OperationChain operationChain) {
         try {
             this.operations = new String(JSONSerialiser.serialise(operationChain), Charset.forName(CHARSET_NAME));
-        } catch (SerialisationException se) {
+        } catch (final SerialisationException se) {
             throw new IllegalArgumentException(se.getMessage());
         }
     }

@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.store.optimiser;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+
 import java.util.ArrayList;
 import java.util.List;
 

@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
-
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 

@@ -20,9 +20,11 @@ import org.apache.accumulo.core.data.Value;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.broadcast.Broadcast;
 import scala.Tuple2;
+
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;

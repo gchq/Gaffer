@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;

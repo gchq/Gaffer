@@ -17,9 +17,11 @@
 package uk.gov.gchq.gaffer.hbasestore;
 
 import org.apache.hadoop.hbase.TableName;
+
 import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringDeduplicateConcat;
+
 import java.io.InputStream;
 import java.nio.file.Path;
 

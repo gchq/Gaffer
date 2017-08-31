@@ -33,12 +33,14 @@ import org.apache.accumulo.core.security.Authorizations;
 import org.apache.hadoop.io.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloRuntimeException;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.CoreKeyBloomFunctor;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.koryphe.ValidationResult;
+
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -285,7 +287,7 @@ public final class TableUtils {
                     validatorItrSetting.removeOption(AccumuloStoreConstants.SCHEMA);
                 }
                 versioningIterSetting = store.getConnection().tableOperations().getIteratorSetting(tableName, "vers", iteratorScope);
-            } catch (AccumuloSecurityException | AccumuloException | TableNotFoundException e) {
+            } catch (final AccumuloSecurityException | AccumuloException | TableNotFoundException e) {
                 throw new StoreException("Unable to find iterators on the table " + tableName, e);
             }
 
@@ -305,7 +307,7 @@ public final class TableUtils {
         final Iterable<Map.Entry<String, String>> tableProps;
         try {
             tableProps = connector.tableOperations().getProperties(tableName);
-        } catch (AccumuloException | TableNotFoundException e) {
+        } catch (final AccumuloException | TableNotFoundException e) {
             throw new StoreException("Unable to get table properties.", e);
         }
 

@@ -16,9 +16,9 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named.cache;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -127,7 +128,7 @@ public class NamedOperationCache {
                 if (op.hasReadAccess(user)) {
                     executables.add(op);
                 }
-            } catch (CacheOperationFailedException e) {
+            } catch (final CacheOperationFailedException e) {
                 LOGGER.error(e.getMessage(), e);
             }
 
@@ -138,7 +139,7 @@ public class NamedOperationCache {
     public void clear() throws CacheOperationFailedException {
         try {
             CacheServiceLoader.getService().clearCache(CACHE_NAME);
-        } catch (CacheOperationException e) {
+        } catch (final CacheOperationException e) {
             throw new CacheOperationFailedException("Failed to clear cache", e);
         }
     }
@@ -158,7 +159,7 @@ public class NamedOperationCache {
             } else {
                 CacheServiceLoader.getService().putSafeInCache(CACHE_NAME, name, operation);
             }
-        } catch (CacheOperationException e) {
+        } catch (final CacheOperationException e) {
             throw new CacheOperationFailedException(e);
         }
     }

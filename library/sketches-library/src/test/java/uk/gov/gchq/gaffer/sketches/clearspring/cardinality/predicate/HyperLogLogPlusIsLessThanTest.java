@@ -18,10 +18,12 @@ package uk.gov.gchq.gaffer.sketches.clearspring.cardinality.predicate;
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.predicate.PredicateTest;
+
 import java.util.function.Predicate;
 
 import static org.junit.Assert.assertEquals;

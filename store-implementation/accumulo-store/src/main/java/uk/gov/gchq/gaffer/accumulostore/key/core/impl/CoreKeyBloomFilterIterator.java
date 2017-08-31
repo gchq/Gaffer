@@ -22,10 +22,12 @@ import org.apache.accumulo.core.iterators.Filter;
 import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.apache.hadoop.util.bloom.BloomFilter;
+
 import uk.gov.gchq.gaffer.accumulostore.key.exception.BloomFilterIteratorException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.IteratorOptionsBuilder;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
+
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;

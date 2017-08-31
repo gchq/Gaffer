@@ -19,6 +19,7 @@ import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.esotericsoftware.kryo.Kryo;
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;

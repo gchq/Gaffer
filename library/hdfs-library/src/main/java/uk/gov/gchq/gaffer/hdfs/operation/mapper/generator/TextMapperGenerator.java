@@ -18,7 +18,9 @@ package uk.gov.gchq.gaffer.hdfs.operation.mapper.generator;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.MapContext;
+
 import uk.gov.gchq.gaffer.data.element.Element;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;

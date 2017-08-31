@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.impl;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.ConversionException;
 import uk.gov.gchq.gaffer.types.FreqMap;
 

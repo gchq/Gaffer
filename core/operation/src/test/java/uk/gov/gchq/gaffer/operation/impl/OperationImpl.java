@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.operation.impl;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.data.CustomVertex;
+
 import java.util.Date;
 
 public class OperationImpl implements Operation {

@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.doc.operation;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.doc.operation.generator.ElementGenerator;
@@ -30,6 +31,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.List;
@@ -211,7 +213,7 @@ public abstract class OperationExample extends Example {
         final List<String> data;
         try {
             data = IOUtils.readLines(StreamUtil.openStream(getClass(), "operation/data.txt"));
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
 

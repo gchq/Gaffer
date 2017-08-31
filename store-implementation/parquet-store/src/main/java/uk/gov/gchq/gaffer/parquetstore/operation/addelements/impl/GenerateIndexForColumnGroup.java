@@ -26,12 +26,14 @@ import org.apache.spark.sql.SparkSession;
 import scala.collection.mutable.Builder;
 import scala.collection.mutable.Seq;
 import scala.collection.mutable.Seq$;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.index.ColumnIndex;
 import uk.gov.gchq.gaffer.parquetstore.index.MinValuesWithPath;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.koryphe.tuple.n.Tuple4;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.NoSuchElementException;
