@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.parquetstore.utils;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +37,6 @@ public class SchemaUtilsTest {
 
     @Before
     public void setUp() throws StoreException {
-        Logger.getRootLogger().setLevel(Level.WARN);
         final Schema schema = Schema.fromJson(StreamUtil.openStreams(SchemaUtilsTest.class, "schemaUsingStringVertexType"));
         final SchemaOptimiser optimiser = new SchemaOptimiser(new SerialisationFactory(ParquetStoreConstants.SERIALISERS));
         utils = new SchemaUtils(optimiser.optimise(schema, true));

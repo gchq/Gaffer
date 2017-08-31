@@ -38,6 +38,7 @@
     </logger>
     <logger name="uk.gov.gchq.gaffer.spark">
         <level value="WARN"/>
+        <
     </logger>
     <logger name="org.reflections.Reflections">
         <level value="WARN"/>
