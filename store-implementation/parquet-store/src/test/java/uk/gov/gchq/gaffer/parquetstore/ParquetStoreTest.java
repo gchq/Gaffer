@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.parquetstore;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
@@ -30,7 +28,6 @@ public class ParquetStoreTest {
 
     @Test
     public void testTraits() throws StoreException {
-        Logger.getRootLogger().setLevel(Level.WARN);
         final ParquetStore store = new ParquetStore();
         final Set<StoreTrait> expectedTraits = new HashSet<>();
         expectedTraits.add(StoreTrait.INGEST_AGGREGATION);
