@@ -23,6 +23,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -39,6 +40,7 @@ import uk.gov.gchq.koryphe.impl.predicate.IsA;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.impl.predicate.Not;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -207,7 +209,7 @@ public class GraphConfigurationServiceTest {
         final Set<Class> classes = service.getTransformFunctions();
 
         // Then
-        assertTrue(classes.size() > 0);
+        assertTrue(!classes.isEmpty());
     }
 
     @Test
@@ -216,7 +218,7 @@ public class GraphConfigurationServiceTest {
         final Set<Class> classes = service.getElementGenerators();
 
         // Then
-        assertTrue(classes.size() > 0);
+        assertTrue(!classes.isEmpty());
     }
 
     @Test
@@ -225,7 +227,7 @@ public class GraphConfigurationServiceTest {
         final Set<Class> classes = service.getObjectGenerators();
 
         // Then
-        assertTrue(classes.size() > 0);
+        assertTrue(!classes.isEmpty());
     }
 
     @Test
@@ -234,7 +236,7 @@ public class GraphConfigurationServiceTest {
         final Set<Class> supportedOperations = service.getOperations();
 
         // Then
-        assertTrue(supportedOperations.size() > 0);
+        assertTrue(!supportedOperations.isEmpty());
         assertEquals(1, supportedOperations.size());
     }
 

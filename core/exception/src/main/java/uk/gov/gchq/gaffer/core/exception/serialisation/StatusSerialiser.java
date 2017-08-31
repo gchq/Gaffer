@@ -19,7 +19,9 @@ package uk.gov.gchq.gaffer.core.exception.serialisation;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+
 import uk.gov.gchq.gaffer.core.exception.Status;
+
 import java.io.IOException;
 
 /**

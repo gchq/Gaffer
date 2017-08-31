@@ -17,7 +17,9 @@ package uk.gov.gchq.gaffer.mapstore.multimap;
 
 import com.google.common.collect.Sets;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.store.StoreException;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;

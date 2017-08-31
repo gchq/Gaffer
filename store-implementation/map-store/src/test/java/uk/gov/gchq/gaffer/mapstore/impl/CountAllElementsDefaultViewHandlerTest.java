@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.mapstore.impl;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.mapstore.operation.CountAllElementsDefaultView;
 import uk.gov.gchq.gaffer.operation.OperationException;

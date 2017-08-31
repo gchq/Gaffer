@@ -16,9 +16,9 @@
 
 package uk.gov.gchq.gaffer.cache.impl;
 
-
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.ICacheService;
+
 import java.util.HashMap;
 import java.util.Properties;
 

@@ -18,8 +18,10 @@ package uk.gov.gchq.gaffer.data.generator;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.StringUtils;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
+
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.regex.Pattern;

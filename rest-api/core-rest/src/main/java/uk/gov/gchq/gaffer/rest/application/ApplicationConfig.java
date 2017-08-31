@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.rest.application;
 import io.swagger.jaxrs.listing.ApiListingResource;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
 import org.glassfish.jersey.server.ResourceConfig;
+
 import uk.gov.gchq.gaffer.rest.FactoriesBinder;
 import uk.gov.gchq.gaffer.rest.mapper.GafferCheckedExceptionMapper;
 import uk.gov.gchq.gaffer.rest.mapper.GafferRuntimeExceptionMapper;
@@ -26,6 +27,7 @@ import uk.gov.gchq.gaffer.rest.mapper.GenericExceptionMapper;
 import uk.gov.gchq.gaffer.rest.mapper.ProcessingExceptionMapper;
 import uk.gov.gchq.gaffer.rest.mapper.WebApplicationExceptionMapper;
 import uk.gov.gchq.gaffer.rest.serialisation.RestJsonProvider;
+
 import java.util.HashSet;
 import java.util.Set;
 

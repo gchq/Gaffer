@@ -18,9 +18,11 @@ package uk.gov.gchq.gaffer.flink.operation.handler;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.flink.api.common.io.RichOutputFormat;
 import org.apache.flink.configuration.Configuration;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Validatable;
 import uk.gov.gchq.gaffer.store.Store;
+
 import java.io.IOException;
 
 @SuppressFBWarnings(value = "SE_TRANSIENT_FIELD_NOT_RESTORED", justification = "There are null checks that will initialise the fields")
