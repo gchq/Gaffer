@@ -24,7 +24,10 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.EdgeKryoSerializer;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.EntityKryoSerializer;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.FreqMapKryoSerializer;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.HyperLogLogPlusKryoSerializer;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.TypeSubTypeValueKryoSerializer;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.TypeValueKryoSerializer;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
 import uk.gov.gchq.gaffer.types.TypeValue;
@@ -40,9 +43,9 @@ public class Registrator implements KryoRegistrator {
         kryo.register(Entity.class, new EntityKryoSerializer());
         kryo.register(Edge.class, new EdgeKryoSerializer());
         kryo.register(Properties.class);
-        kryo.register(FreqMap.class);
+        kryo.register(FreqMap.class, new FreqMapKryoSerializer());
         kryo.register(HyperLogLogPlus.class, new HyperLogLogPlusKryoSerializer());
-        kryo.register(TypeValue.class);
-        kryo.register(TypeSubTypeValue.class);
+        kryo.register(TypeValue.class, new TypeValueKryoSerializer());
+        kryo.register(TypeSubTypeValue.class, new TypeSubTypeValueKryoSerializer());
     }
 }
