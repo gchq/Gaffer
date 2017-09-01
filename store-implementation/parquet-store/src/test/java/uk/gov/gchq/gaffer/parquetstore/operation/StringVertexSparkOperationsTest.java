@@ -25,7 +25,6 @@ import org.apache.spark.sql.Row;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -47,7 +46,7 @@ public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest
     @BeforeClass
     public static void genData() throws OperationException, StoreException {
         Logger.getRootLogger().setLevel(Level.WARN);
-        getGraph(getSchema(), getParquetStoreProperties())
+        getGraph(getSchema(), TestUtils.getParquetStoreProperties(), "StringVertexSparkOperationsTest")
                 .execute(new ImportJavaRDDOfElements.Builder()
                         .input(getElements(javaSparkContext))
                         .javaSparkContext(javaSparkContext)
@@ -56,11 +55,11 @@ public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest
 
     @Before
     public void setup() throws StoreException {
-        graph = getGraph(getSchema(), getParquetStoreProperties());
+        graph = getGraph(getSchema(), TestUtils.getParquetStoreProperties(), "StringVertexSparkOperationsTest");
     }
 
     protected static Schema getSchema() {
-        return Schema.fromJson(StreamUtil.openStreams(StringVertexSparkOperationsTest.class, "schemaUsingStringVertexType"));
+        return TestUtils.gafferSchema("schemaUsingStringVertexType");
     }
 
     private static JavaRDD<Element> getElements(final JavaSparkContext spark) {

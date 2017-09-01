@@ -21,7 +21,6 @@ import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -34,11 +33,9 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.types.TypeValue;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
@@ -68,19 +65,17 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
     }
 
     private static Graph getGraph() {
-        final ParquetStoreProperties pp = (ParquetStoreProperties) StoreProperties.loadStoreProperties(
-                AbstractOperationsTest.class.getResourceAsStream("/multiUseStore.properties"));
         return new Graph.Builder()
                 .config(new GraphConfig.Builder()
-                        .graphId("test")
+                        .graphId("TypeValueVertexOperationsTest")
                         .build())
                 .addSchema(getSchema())
-                .storeProperties(pp)
+                .storeProperties(TestUtils.getParquetStoreProperties())
                 .build();
     }
 
     protected static Schema getSchema() {
-        return Schema.fromJson(StreamUtil.openStreams(TypeValueVertexOperationsTest.class, "schemaUsingTypeValueVertexType"));
+        return TestUtils.gafferSchema("schemaUsingTypeValueVertexType");
     }
 
     private static Iterable<? extends Element> getElements() {
