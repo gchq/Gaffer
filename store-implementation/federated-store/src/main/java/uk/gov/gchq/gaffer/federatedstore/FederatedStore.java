@@ -67,6 +67,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -226,7 +227,7 @@ public class FederatedStore extends Store {
             } else {
                 resolveSchemaAndProps(graphId, builder);
             }
-            addGraphs(builder);
+            addGraphs(Optional.<FederatedAccessHook>empty(), builder);
         }
     }
 
@@ -257,15 +258,18 @@ public class FederatedStore extends Store {
                 .build());
     }
 
-    public void addGraphs(final Builder... builders) {
+    private void addGraphs(Optional<FederatedAccessHook> hook, final Builder... builders) {
         for (final Builder builder : builders) {
-            final Graph build;
+            if (hook.isPresent()) {
+                builder.config(new GraphConfig.Builder().addHook(hook.get()).build());
+            }
+            final Graph graph;
             try {
-                build = builder.build();
+                graph = builder.build();
             } catch (final Exception e) {
                 throw new IllegalArgumentException(String.format(S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2, "Graph", builder.toString()), e);
             }
-            addGraphs(build);
+            addGraphs(graph);
         }
     }
 
@@ -369,13 +373,18 @@ public class FederatedStore extends Store {
     }
 
     public void addGraphs(final String... graphId) {
+        addGraphs(Optional.<FederatedAccessHook>empty(), graphId);
+    }
+
+    public void addGraphs(final Optional<FederatedAccessHook> hook, final String... graphId) {
         for (final String id : graphId) {
             final Builder builder = new Builder().config(new GraphConfig.Builder()
                     .graphId(id)
                     .library(getGraphLibrary())
+                    .addHooks(hook.orElse(null))
                     .build());
             addConfigFromLibrary(id, builder);
-            addGraphs(builder);
+            addGraphs(Optional.<FederatedAccessHook>empty(), builder);
         }
     }
 

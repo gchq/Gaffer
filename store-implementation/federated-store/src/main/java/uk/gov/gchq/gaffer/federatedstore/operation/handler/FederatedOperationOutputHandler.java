@@ -51,7 +51,13 @@ public abstract class FederatedOperationOutputHandler<OP extends Output<O>, O> i
                 } catch (Exception e) {
                     if (!(updatedOp instanceof Options)
                             || !Boolean.valueOf(((Options) updatedOp).getOption(SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
-                        throw new OperationException("Failed to execute " + operation.getClass().getSimpleName() + " on graph " + graph.getGraphId(), e);
+                        final String additionalInfo = (!(updatedOp instanceof Options)) ? null
+                                : String.format("The operation %s implements %s, so to skip and continue set flag: %s",
+                                operation.getClass().getSimpleName(),
+                                Options.class.getSimpleName(), SKIP_FAILED_FEDERATED_STORE_EXECUTE);
+
+                        throw new OperationException(String.format("Failed to execute %s on graph %s.%n%s",
+                                operation.getClass().getSimpleName(), graph.getGraphId(), additionalInfo), e);
                     }
                 }
                 if (execute != null) {

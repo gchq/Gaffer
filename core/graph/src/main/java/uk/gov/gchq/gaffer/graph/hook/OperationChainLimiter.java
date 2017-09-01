@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/*
+/**
  * An <code>OperationChainLimiter</code> is a {@link GraphHook} that checks a
  * user is authorised to execute an operation chain based on that user's maximum chain score and the configured score value for each operation in the chain.
  * This class requires a map of operation scores.
@@ -40,7 +40,7 @@ import java.util.Map;
  * this is the score value someone with that auth can have, the maximum score value of a users auths is used.
  *
  * The class delegates the logic to {@link ScoreOperationChainHandler}. If you
- * wish to use the {@link ScoreOperationChain} operation and this graph hook,
+ * wish to use the {@link uk.gov.gchq.gaffer.operation.impl.ScoreOperationChain} operation and this graph hook,
  * then both need to have the same score configuration.
  */
 public class OperationChainLimiter implements GraphHook {

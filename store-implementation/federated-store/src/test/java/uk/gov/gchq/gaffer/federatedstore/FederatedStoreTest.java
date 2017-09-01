@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -30,6 +31,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federatedstore.integration.FederatedStoreITs;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -73,7 +75,8 @@ public class FederatedStoreTest {
     public static final String KEY_MAP_ID1_SCHEMA_ID = "gaffer.federatedstore.mockMapGraphId1.schema.id";
     public static final String PATH_INVALID = "nothing.json";
     public static final String EXCEPTION_NOT_THROWN = "exception not thrown";
-    public static final User TEST_USER = new User("testUser");
+    public static final String USER_ID = "testUser";
+    public static final User TEST_USER = new User(USER_ID);
     public static final String PROPS_ID_1 = "PROPS_ID_1";
     public static final String SCHEMA_ID_1 = "SCHEMA_ID_1";
     FederatedStore store;
@@ -698,6 +701,44 @@ public class FederatedStoreTest {
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("User is attempting to override a known graph in library."));
         }
+    }
+
+
+    @Test
+    public void shouldFederatedIfUserHasCorrectAuths() throws Exception {
+        //Given
+        store.initialise(FEDERATED_STORE_ID, federatedProperties);
+
+        store.addGraphs(new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(MAP_ID_1)
+                        .addHook(new FederatedAccessHook.Builder()
+                                .addOpAuths("auth1")
+                                .build())
+                        .build())
+                .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_MAP_STORE_PROPERTIES))
+                .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_ENTITY_SCHEMA_JSON))
+                .build());
+
+        try {
+            store.execute(new GetAllElements(),
+                    new User.Builder()
+                            .userId(USER_ID)
+                            .opAuths("x")
+                            .build());
+
+            fail("no exception thrown");
+        } catch (final Exception e) {
+            assertTrue(e.getCause().getMessage().contains(String.format(FederatedAccessHook.USER_DOES_NOT_HAVE_CORRECT_AUTHS_TO_ACCESS_THIS_GRAPH_USER_S, "")));
+        }
+
+        final CloseableIterable<? extends Element> elements = store.execute(new GetAllElements(),
+                new User.Builder()
+                        .userId(USER_ID)
+                        .opAuth("auth1")
+                        .build());
+
+        Assert.assertFalse(elements.iterator().hasNext());
     }
 
 

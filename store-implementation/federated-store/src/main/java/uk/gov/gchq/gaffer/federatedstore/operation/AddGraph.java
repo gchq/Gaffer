@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import org.apache.commons.lang3.exception.CloneFailedException;
 import uk.gov.gchq.gaffer.commonutil.Required;
+import uk.gov.gchq.gaffer.federatedstore.FederatedAccessHook;
+import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -46,6 +48,7 @@ public class AddGraph implements Operation {
     private String parentPropertiesId;
     private Schema schema;
     private List<String> parentSchemaIds;
+    private FederatedAccessHook hook;
 
     public String getGraphId() {
         return graphId;
@@ -99,6 +102,15 @@ public class AddGraph implements Operation {
         this.parentPropertiesId = parentPropertiesId;
     }
 
+    public GraphHook getHook() {
+        return hook;
+    }
+
+    public AddGraph setHook(final FederatedAccessHook hook) {
+        this.hook = hook;
+        return this;
+    }
+
     public static class Builder extends BaseBuilder<AddGraph, Builder> {
 
         public Builder() {
@@ -127,6 +139,11 @@ public class AddGraph implements Operation {
 
         public Builder parentSchemaIds(final List<String> parentSchemaIds) {
             _getOp().setParentSchemaIds(parentSchemaIds);
+            return _self();
+        }
+
+        public Builder hook(final FederatedAccessHook hook) {
+            _getOp().setHook(hook);
             return _self();
         }
     }

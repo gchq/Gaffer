@@ -44,7 +44,7 @@ public class FederatedAddGraphHandler implements OperationHandler<AddGraph> {
     public Void doOperation(final AddGraph operation, final Context context, final Store store) throws OperationException {
         final Graph graph = CreateGraphDelegate.createGraph(store, operation.getGraphId(),
                 operation.getSchema(), operation.getStoreProperties(),
-                operation.getParentSchemaIds(), operation.getParentPropertiesId());
+                operation.getParentSchemaIds(), operation.getParentPropertiesId(), operation.getHook());
 
         ((FederatedStore) store).addGraphs(graph);
         return null;
