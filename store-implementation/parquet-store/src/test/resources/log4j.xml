@@ -24,10 +24,31 @@
         </layout>
     </appender>
 
+    <logger name="org.apache.spark">
+        <level value="ERROR"/>
+    </logger>
     <logger name="org.apache.parquet">
+        <level value="ERROR"/>
+    </logger>
+    <logger name="org.apache.hadoop">
+        <level value="ERROR"/>
+    </logger>
+    <logger name="uk.gov.gchq.gaffer.parquetstore">
         <level value="WARN"/>
     </logger>
-    <logger name="org.apache.spark">
+    <logger name="uk.gov.gchq.gaffer.spark">
+        <level value="WARN"/>
+    </logger>
+    <logger name="org.reflections.Reflections">
+        <level value="WARN"/>
+    </logger>
+    <logger name="uk.gov.gchq.gaffer.jsonserialisation">
+        <level value="WARN"/>
+    </logger>
+    <logger name="uk.gov.gchq.gaffer.store">
+        <level value="WARN"/>
+    </logger>
+    <logger name="uk.gov.gchq.gaffer.cache">
         <level value="WARN"/>
     </logger>
 
