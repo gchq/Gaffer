@@ -447,12 +447,13 @@ The root directory has two folders, one for the main graph which is what is retu
 
 The main two operations are the `AddElements` and the `GetElements`.
 
-The `AddElements` operation is a five stage process:
-1. Write the unsorted data split by split points, group and `Element` type into Parquet files in the temporary files directory using the `ParquetElementWriter`;
-2. Using Spark, aggregate the data in each of the temporary files directories and the current store files on a per split, per group basis;
-3. Using Spark, sort the data in each of the temporary files directories on a per group basis;
-4. Using Spark, load in each of the Edge group's temporary files and sort them by destination to allow indexing by destination;
-5. Generate an `GraphIndex` containing the range of vertices in each file and load that into memory.
+The `AddElements` operation is a six stage process:
+1. Work out what the split points should be from the index or if this is the first time data is added to the graph then it will work it out from the input;
+2. Write the input data split by split points, group into Parquet files in the temporary files directory using the `ParquetElementWriter`;
+3. Using Spark, aggregate the data in each of the temporary files directories and the current store files on a per group, per split basis;
+4. Using Spark, sort the data in each of the temporary files directories by source or vertex on a per group, per split basis;
+5. Using Spark, load in each of the Edge group's aggregated temporary files and sort them by destination to allow indexing by destination;
+6. Generate an `GraphIndex` containing the range of vertices in each file and load that into memory.
 
 The `GetElements` operation is a four stage process per group:
 1. From the Gaffer view build up a corresponding Parquet filter;
