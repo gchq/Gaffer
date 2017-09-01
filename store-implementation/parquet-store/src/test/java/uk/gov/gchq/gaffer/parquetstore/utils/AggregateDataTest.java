@@ -68,9 +68,9 @@ public class AggregateDataTest {
         new AggregateGroupSplit(TestGroups.ENTITY, ParquetStoreConstants.VERTEX, store, null, TestUtils.spark, 0).call();
 
         final FileSystem fs = FileSystem.get(new Configuration());
-        final String EntitySplit0 = props.getTempFilesDir() + "/AggregateDataTest/graph/GROUP=" + TestGroups.ENTITY + "/aggregated/split0";
-        Assert.assertTrue(fs.exists(new Path(EntitySplit0)));
-        Row[] results = (Row[]) TestUtils.spark.read().parquet(EntitySplit0).sort(ParquetStoreConstants.VERTEX).collect();
+        final String entitySplit0 = props.getTempFilesDir() + "/AggregateDataTest/graph/GROUP=" + TestGroups.ENTITY + "/aggregated/split0";
+        Assert.assertTrue(fs.exists(new Path(entitySplit0)));
+        Row[] results = (Row[]) TestUtils.spark.read().parquet(entitySplit0).sort(ParquetStoreConstants.VERTEX).collect();
         for (int i = 0; i < 20; i++) {
             Assert.assertEquals((long) i, (long) results[i].getAs(ParquetStoreConstants.VERTEX));
             Assert.assertEquals('b', ((byte[]) results[i].getAs("byte"))[0]);

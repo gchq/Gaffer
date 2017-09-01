@@ -64,30 +64,30 @@ public class WriteUnsortedDataTest {
         splitPoints.put(TestGroups.ENTITY_2, new CalculateSplitPointsFromIterable(2, 2).calculateSplitsForGroup(data, TestGroups.ENTITY_2, true));
         final WriteUnsortedData writeUnsortedData = new WriteUnsortedData(props.getTempFilesDir() + "/WriteUnsortedDataTest", schemaUtils, splitPoints);
         writeUnsortedData.writeElements(data.iterator());
-        final String Entity1Split0 = props.getTempFilesDir() + "/WriteUnsortedDataTest/graph/GROUP=" + TestGroups.ENTITY + "/raw/split0";
-        final String Entity1Split1 = props.getTempFilesDir() + "/WriteUnsortedDataTest/graph/GROUP=" + TestGroups.ENTITY + "/raw/split1";
-        final String Entity2Split0 = props.getTempFilesDir() + "/WriteUnsortedDataTest/graph/GROUP=" + TestGroups.ENTITY_2 + "/raw/split0";
-        final String Entity2Split1 = props.getTempFilesDir() + "/WriteUnsortedDataTest/graph/GROUP=" + TestGroups.ENTITY_2 + "/raw/split1";
+        final String entity1Split0 = props.getTempFilesDir() + "/WriteUnsortedDataTest/graph/GROUP=" + TestGroups.ENTITY + "/raw/split0";
+        final String entity1Split1 = props.getTempFilesDir() + "/WriteUnsortedDataTest/graph/GROUP=" + TestGroups.ENTITY + "/raw/split1";
+        final String entity2Split0 = props.getTempFilesDir() + "/WriteUnsortedDataTest/graph/GROUP=" + TestGroups.ENTITY_2 + "/raw/split0";
+        final String entity2Split1 = props.getTempFilesDir() + "/WriteUnsortedDataTest/graph/GROUP=" + TestGroups.ENTITY_2 + "/raw/split1";
         Assert.assertTrue(fs.exists(new Path(props.getTempFilesDir())));
         Assert.assertTrue(fs.exists(new Path(props.getTempFilesDir() + "/WriteUnsortedDataTest/graph/GROUP=" + TestGroups.ENTITY)));
         Assert.assertTrue(fs.exists(new Path(props.getTempFilesDir() + "/WriteUnsortedDataTest/graph/GROUP=" + TestGroups.ENTITY_2)));
-        Assert.assertTrue(fs.exists(new Path(Entity1Split0)));
-        Assert.assertTrue(fs.exists(new Path(Entity1Split1)));
-        Assert.assertTrue(fs.exists(new Path(Entity2Split0)));
-        Assert.assertTrue(fs.exists(new Path(Entity2Split1)));
-        Row[] results = (Row[]) TestUtils.spark.read().parquet(Entity1Split0).select(ParquetStoreConstants.VERTEX).collect();
+        Assert.assertTrue(fs.exists(new Path(entity1Split0)));
+        Assert.assertTrue(fs.exists(new Path(entity1Split1)));
+        Assert.assertTrue(fs.exists(new Path(entity2Split0)));
+        Assert.assertTrue(fs.exists(new Path(entity2Split1)));
+        Row[] results = (Row[]) TestUtils.spark.read().parquet(entity1Split0).select(ParquetStoreConstants.VERTEX).collect();
         for (int i = 0; i < 6; i++) {
             Assert.assertEquals((long) i, results[i].get(0));
         }
-        results = (Row[]) TestUtils.spark.read().parquet(Entity1Split1).select(ParquetStoreConstants.VERTEX).collect();
+        results = (Row[]) TestUtils.spark.read().parquet(entity1Split1).select(ParquetStoreConstants.VERTEX).collect();
         for (int i = 6; i < 12; i++) {
             Assert.assertEquals((long) i, results[i - 6].get(0));
         }
-        results = (Row[]) TestUtils.spark.read().parquet(Entity2Split0).select(ParquetStoreConstants.VERTEX).collect();
+        results = (Row[]) TestUtils.spark.read().parquet(entity2Split0).select(ParquetStoreConstants.VERTEX).collect();
         for (int i = 0; i < 6; i++) {
             Assert.assertEquals((long) i + 5, results[i].get(0));
         }
-        results = (Row[]) TestUtils.spark.read().parquet(Entity2Split1).select(ParquetStoreConstants.VERTEX).collect();
+        results = (Row[]) TestUtils.spark.read().parquet(entity2Split1).select(ParquetStoreConstants.VERTEX).collect();
         for (int i = 6; i < 12; i++) {
             Assert.assertEquals((long) i + 5, results[i - 6].get(0));
         }
@@ -108,30 +108,30 @@ public class WriteUnsortedDataTest {
         splitPoints.put(TestGroups.EDGE_2, new CalculateSplitPointsFromIterable(2, 2).calculateSplitsForGroup(data, TestGroups.EDGE_2, false));
         final WriteUnsortedData writeUnsortedData = new WriteUnsortedData(props.getTempFilesDir() + "/WriteUnsortedDataTest", schemaUtils, splitPoints);
         writeUnsortedData.writeElements(data.iterator());
-        final String Edge1Split0 = props.getTempFilesDir() + "/WriteUnsortedDataTest/graph/GROUP=" + TestGroups.EDGE + "/raw/split0";
-        final String Edge1Split1 = props.getTempFilesDir() + "/WriteUnsortedDataTest/graph/GROUP=" + TestGroups.EDGE + "/raw/split1";
-        final String Edge2Split0 = props.getTempFilesDir() + "/WriteUnsortedDataTest/graph/GROUP=" + TestGroups.EDGE_2 + "/raw/split0";
-        final String Edge2Split1 = props.getTempFilesDir() + "/WriteUnsortedDataTest/graph/GROUP=" + TestGroups.EDGE_2 + "/raw/split1";
+        final String edge1Split0 = props.getTempFilesDir() + "/WriteUnsortedDataTest/graph/GROUP=" + TestGroups.EDGE + "/raw/split0";
+        final String edge1Split1 = props.getTempFilesDir() + "/WriteUnsortedDataTest/graph/GROUP=" + TestGroups.EDGE + "/raw/split1";
+        final String edge2Split0 = props.getTempFilesDir() + "/WriteUnsortedDataTest/graph/GROUP=" + TestGroups.EDGE_2 + "/raw/split0";
+        final String edge2Split1 = props.getTempFilesDir() + "/WriteUnsortedDataTest/graph/GROUP=" + TestGroups.EDGE_2 + "/raw/split1";
         Assert.assertTrue(fs.exists(new Path(props.getTempFilesDir())));
         Assert.assertTrue(fs.exists(new Path(props.getTempFilesDir() + "/WriteUnsortedDataTest/graph/GROUP=" + TestGroups.EDGE)));
         Assert.assertTrue(fs.exists(new Path(props.getTempFilesDir() + "/WriteUnsortedDataTest/graph/GROUP=" + TestGroups.EDGE_2)));
-        Assert.assertTrue(fs.exists(new Path(Edge1Split0)));
-        Assert.assertTrue(fs.exists(new Path(Edge1Split1)));
-        Assert.assertTrue(fs.exists(new Path(Edge2Split0)));
-        Assert.assertTrue(fs.exists(new Path(Edge2Split1)));
-        Row[] results = (Row[]) TestUtils.spark.read().parquet(Edge1Split0).select(ParquetStoreConstants.SOURCE).collect();
+        Assert.assertTrue(fs.exists(new Path(edge1Split0)));
+        Assert.assertTrue(fs.exists(new Path(edge1Split1)));
+        Assert.assertTrue(fs.exists(new Path(edge2Split0)));
+        Assert.assertTrue(fs.exists(new Path(edge2Split1)));
+        Row[] results = (Row[]) TestUtils.spark.read().parquet(edge1Split0).select(ParquetStoreConstants.SOURCE).collect();
         for (int i = 0; i < 6; i++) {
             Assert.assertEquals((long) i, results[i].get(0));
         }
-        results = (Row[]) TestUtils.spark.read().parquet(Edge1Split1).select(ParquetStoreConstants.SOURCE).collect();
+        results = (Row[]) TestUtils.spark.read().parquet(edge1Split1).select(ParquetStoreConstants.SOURCE).collect();
         for (int i = 6; i < 12; i++) {
             Assert.assertEquals((long) i, results[i - 6].get(0));
         }
-        results = (Row[]) TestUtils.spark.read().parquet(Edge2Split0).select(ParquetStoreConstants.SOURCE).collect();
+        results = (Row[]) TestUtils.spark.read().parquet(edge2Split0).select(ParquetStoreConstants.SOURCE).collect();
         for (int i = 0; i < 6; i++) {
             Assert.assertEquals((long) i + 5, results[i].get(0));
         }
-        results = (Row[]) TestUtils.spark.read().parquet(Edge2Split1).select(ParquetStoreConstants.SOURCE).collect();
+        results = (Row[]) TestUtils.spark.read().parquet(edge2Split1).select(ParquetStoreConstants.SOURCE).collect();
         for (int i = 6; i < 12; i++) {
             Assert.assertEquals((long) i + 5, results[i - 6].get(0));
         }

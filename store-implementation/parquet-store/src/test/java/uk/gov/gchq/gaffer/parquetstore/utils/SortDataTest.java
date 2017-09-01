@@ -78,9 +78,9 @@ public class SortDataTest {
         new SortGroupSplit(TestGroups.ENTITY, ParquetStoreConstants.VERTEX, store, TestUtils.spark, 0).call();
         new SortGroupSplit(TestGroups.ENTITY, ParquetStoreConstants.VERTEX, store, TestUtils.spark, 1).call();
         final FileSystem fs = FileSystem.get(new Configuration());
-        final String EntityGroup = props.getTempFilesDir() + "/SortDataTest/graph/GROUP=" + TestGroups.ENTITY + "/sorted";
-        Assert.assertTrue(fs.exists(new Path(EntityGroup)));
-        Row[] results = (Row[]) TestUtils.spark.read().parquet(EntityGroup + "/split0/part-00000-*").collect();
+        final String entityGroup = props.getTempFilesDir() + "/SortDataTest/graph/GROUP=" + TestGroups.ENTITY + "/sorted";
+        Assert.assertTrue(fs.exists(new Path(entityGroup)));
+        Row[] results = (Row[]) TestUtils.spark.read().parquet(entityGroup + "/split0/part-00000-*").collect();
         for (int i = 0; i < 10; i++) {
             Assert.assertEquals((long) i, (long) results[i].getAs(ParquetStoreConstants.VERTEX));
             Assert.assertEquals('b', ((byte[]) results[i].getAs("byte"))[0]);
@@ -93,7 +93,7 @@ public class SortDataTest {
             Assert.assertArrayEquals(new String[]{"A", "B", "C"}, (String[]) ((WrappedArray<String>) results[i].getAs("treeSet")).array());
             Assert.assertEquals(JavaConversions$.MODULE$.mapAsScalaMap(TestUtils.MERGED_FREQMAP), results[i].getAs("freqMap"));
         }
-        results = (Row[]) TestUtils.spark.read().parquet(EntityGroup + "/split1/part-00000-*").collect();
+        results = (Row[]) TestUtils.spark.read().parquet(entityGroup + "/split1/part-00000-*").collect();
         for (int i = 0; i < 10; i++) {
             Assert.assertEquals((long) i + 10, (long) results[i].getAs(ParquetStoreConstants.VERTEX));
             Assert.assertEquals('b', ((byte[]) results[i].getAs("byte"))[0]);
