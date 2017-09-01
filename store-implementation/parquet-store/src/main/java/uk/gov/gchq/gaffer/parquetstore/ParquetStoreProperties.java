@@ -38,6 +38,8 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
     public static final String TEMP_FILES_DIR = "parquet.temp_data.dir";
     public static final String PARQUET_ROW_GROUP_SIZE_IN_BYTES = "parquet.add_elements.row_group.size";
     public static final String PARQUET_PAGE_SIZE_IN_BYTES = "parquet.add_elements.page.size";
+    public static final String PARQUET_AGGREGATE_ON_INGEST = "parquet.add_elements.aggregate";
+    public static final String PARQUET_SPLIT_POINTS_SAMPLE_RATE = "parquet.add_elements.split_points.sample_rate";
     public static final String PARQUET_THREADS_AVAILABLE = "parquet.threadsAvailable";
     public static final String PARQUET_ADD_ELEMENTS_OUTPUT_FILES_PER_GROUP = "parquet.add_elements.output_files_per_group";
     public static final String SPARK_MASTER = "spark.master";
@@ -48,8 +50,10 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
     private static final String TEMP_FILES_DIR_DEFAULT = ".gaffer/temp_parquet_data";
     private static final String PARQUET_ROW_GROUP_SIZE_IN_BYTES_DEFAULT = "4194304"; //4MB
     private static final String PARQUET_PAGE_SIZE_IN_BYTES_DEFAULT = "1048576"; //1MB
+    public static final String PARQUET_AGGREGATE_ON_INGEST_DEFAULT = "true";
+    private static final String PARQUET_SPLIT_POINTS_SAMPLE_RATE_DEFAULT = "10";
     private static final String PARQUET_THREADS_AVAILABLE_DEFAULT = "3";
-    private static final String PARQUET_ADD_ELEMENTS_OUTPUT_FILES_PER_GROUP_DEFAULT = "100";
+    private static final String PARQUET_ADD_ELEMENTS_OUTPUT_FILES_PER_GROUP_DEFAULT = "10";
     private static final String SPARK_MASTER_DEFAULT = "local[*]";
     private static final long serialVersionUID = 7695540336792378185L;
 
@@ -85,6 +89,13 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
 
     public void setThreadsAvailable(final Integer threadsAvailable) {
         set(PARQUET_THREADS_AVAILABLE, threadsAvailable.toString());
+    }
+    public Integer getSampleRate() {
+        return Integer.parseInt(get(PARQUET_SPLIT_POINTS_SAMPLE_RATE, PARQUET_SPLIT_POINTS_SAMPLE_RATE_DEFAULT));
+    }
+
+    public void setSampleRate(final Integer sampleRate) {
+        set(PARQUET_SPLIT_POINTS_SAMPLE_RATE, sampleRate.toString());
     }
 
     public Integer getRowGroupSize() {
@@ -136,5 +147,13 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
                 SketchesJsonModules.class.getName(),
                 super.getJsonSerialiserModules()
         );
+    }
+
+    public boolean getAggregateOnIngest() {
+        return Boolean.parseBoolean(get(PARQUET_AGGREGATE_ON_INGEST, PARQUET_AGGREGATE_ON_INGEST_DEFAULT));
+    }
+
+    public void setAggregateOnIngest(final boolean aggregateOnIngest) {
+        set(PARQUET_AGGREGATE_ON_INGEST, String.valueOf(aggregateOnIngest));
     }
 }

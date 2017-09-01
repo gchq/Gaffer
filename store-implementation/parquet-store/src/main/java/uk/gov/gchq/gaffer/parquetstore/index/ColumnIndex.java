@@ -54,6 +54,10 @@ public class ColumnIndex {
             return minValuesWithPaths.iterator();
         }
 
+    public int size() {
+        return minValuesWithPaths.size();
+    }
+
     protected void write(final FSDataOutputStream outputFile) throws StoreException {
         try {
             for (final MinValuesWithPath minValuesWithPath : minValuesWithPaths) {
@@ -151,5 +155,10 @@ public class ColumnIndex {
         } else {
             return value;
         }
+    }
+
+    @Override
+    public String toString() {
+        return minValuesWithPaths.toString();
     }
 }
