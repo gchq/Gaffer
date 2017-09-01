@@ -42,7 +42,7 @@ import java.io.IOException;
 public class AggregateDataTest {
 
     @BeforeClass
-    public static void GeneratePreAggregatedData() throws IOException {
+    public static void generatePreAggregatedData() throws IOException {
         final SchemaUtils schemaUtils = new SchemaUtils(TestUtils.gafferSchema("schemaUsingLongVertexType"));
         final ParquetStoreProperties props = TestUtils.getParquetStoreProperties();
         final ParquetWriter<Element> writer = new ParquetElementWriter

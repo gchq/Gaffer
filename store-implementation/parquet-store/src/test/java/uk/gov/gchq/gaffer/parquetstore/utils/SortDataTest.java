@@ -42,7 +42,7 @@ import java.io.IOException;
 public class SortDataTest {
 
     @BeforeClass
-    public static void GeneratePreAggregatedData() throws IOException {
+    public static void generatePreAggregatedData() throws IOException {
         final SchemaUtils schemaUtils = new SchemaUtils(TestUtils.gafferSchema("schemaUsingLongVertexType"));
         final ParquetStoreProperties props = TestUtils.getParquetStoreProperties();
         ParquetWriter<Element> writer = new ParquetElementWriter
