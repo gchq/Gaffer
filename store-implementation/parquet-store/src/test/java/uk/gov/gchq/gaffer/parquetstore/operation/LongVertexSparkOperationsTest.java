@@ -23,7 +23,6 @@ import org.apache.spark.sql.Row;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -44,7 +43,7 @@ public class LongVertexSparkOperationsTest extends AbstractSparkOperationsTest {
 
     @BeforeClass
     public static void genData() throws OperationException, StoreException {
-        getGraph(getSchema(), getParquetStoreProperties())
+        getGraph(getSchema(), getParquetStoreProperties(), "LongVertexSparkOperationsTest")
                 .execute(new ImportJavaRDDOfElements.Builder()
                         .input(getElements(javaSparkContext))
                         .javaSparkContext(javaSparkContext)
@@ -53,11 +52,11 @@ public class LongVertexSparkOperationsTest extends AbstractSparkOperationsTest {
 
     @Before
     public void setup() throws StoreException {
-        graph = getGraph(getSchema(), getParquetStoreProperties());
+        graph = getGraph(getSchema(), TestUtils.getParquetStoreProperties(), "LongVertexSparkOperationsTest");
     }
 
     protected static Schema getSchema() {
-        return Schema.fromJson(StreamUtil.openStreams(LongVertexSparkOperationsTest.class, "schemaUsingLongVertexType"));
+        return TestUtils.gafferSchema("schemaUsingLongVertexType");
     }
 
     private static JavaRDD<Element> getElements(final JavaSparkContext spark) {

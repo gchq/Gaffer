@@ -224,7 +224,7 @@ public class ParquetStore extends Store {
             if (fs.exists(new Path(rootDir))) {
                 graphIndex = new GraphIndex();
                 final long snapshot = getLatestSnapshot(rootDir);
-                graphIndex.readGroups(schemaUtils.getGroups(), rootDir + "/" + snapshot, fs);
+                graphIndex.readGroups(schemaUtils, rootDir + "/" + snapshot, fs);
                 graphIndex.setSnapshotTimestamp(snapshot);
             }
         } catch (final IOException e) {
