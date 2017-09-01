@@ -44,7 +44,7 @@ public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsT
 
     @BeforeClass
     public static void genData() throws OperationException, StoreException {
-        getGraph(getSchema(), getParquetStoreProperties(), "TypeValueVertexSparkOperationsTest")
+        getGraph(getSchema(), TestUtils.getParquetStoreProperties(), "TypeValueVertexSparkOperationsTest")
                 .execute(new ImportJavaRDDOfElements.Builder()
                         .input(getElements(javaSparkContext))
                         .javaSparkContext(javaSparkContext)
