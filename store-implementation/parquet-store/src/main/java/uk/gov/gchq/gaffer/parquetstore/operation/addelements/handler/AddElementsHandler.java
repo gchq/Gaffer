@@ -86,7 +86,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
                 LOGGER.warn("Temp data directory '{}' has been deleted.", tempDirString);
             }
             // Write the data out
-            LOGGER.debug("Starting to write the unsorted Parquet data to {} split by group", tempDirString);
+            LOGGER.debug("Starting to write the input Parquet data to {} split by group and split points", tempDirString);
             final Iterable<? extends Element> input = addElementsOperation.getInput();
             final CalculateSplitPointsFromIterable calculateSplitPointsFromIterable =
                     new CalculateSplitPointsFromIterable(parquetStoreProperties.getSampleRate(),
@@ -119,7 +119,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             if (input instanceof CloseableIterable) {
                 ((CloseableIterable) input).close();
             }
-            LOGGER.debug("Finished writing the unsorted Parquet data to {}", tempDirString);
+            LOGGER.debug("Finished writing the input Parquet data to {}", tempDirString);
             // Use to Spark read in all the data, aggregate and sort it
             LOGGER.debug("Starting to write the sorted and aggregated Parquet data to {}/sorted split by group", tempDirString);
             new AggregateAndSortTempData(store, spark, groupToSplitPoints);
