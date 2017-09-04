@@ -39,6 +39,7 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
     public static final String PARQUET_ROW_GROUP_SIZE_IN_BYTES = "parquet.add_elements.row_group.size";
     public static final String PARQUET_PAGE_SIZE_IN_BYTES = "parquet.add_elements.page.size";
     public static final String PARQUET_AGGREGATE_ON_INGEST = "parquet.add_elements.aggregate";
+    public static final String PARQUET_SORT_BY_SPLITS_ON_INGEST = "parquet.add_elements.sort_by_splits";
     public static final String PARQUET_SPLIT_POINTS_SAMPLE_RATE = "parquet.add_elements.split_points.sample_rate";
     public static final String PARQUET_THREADS_AVAILABLE = "parquet.threadsAvailable";
     public static final String PARQUET_ADD_ELEMENTS_OUTPUT_FILES_PER_GROUP = "parquet.add_elements.output_files_per_group";
@@ -51,6 +52,7 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
     private static final String PARQUET_ROW_GROUP_SIZE_IN_BYTES_DEFAULT = "4194304"; //4MB
     private static final String PARQUET_PAGE_SIZE_IN_BYTES_DEFAULT = "1048576"; //1MB
     public static final String PARQUET_AGGREGATE_ON_INGEST_DEFAULT = "true";
+    public static final String PARQUET_SORT_BY_SPLITS_ON_INGEST_DEFAULT = "false";
     private static final String PARQUET_SPLIT_POINTS_SAMPLE_RATE_DEFAULT = "10";
     private static final String PARQUET_THREADS_AVAILABLE_DEFAULT = "3";
     private static final String PARQUET_ADD_ELEMENTS_OUTPUT_FILES_PER_GROUP_DEFAULT = "10";
@@ -155,5 +157,13 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
 
     public void setAggregateOnIngest(final boolean aggregateOnIngest) {
         set(PARQUET_AGGREGATE_ON_INGEST, String.valueOf(aggregateOnIngest));
+    }
+
+    public boolean getSortBySplitsOnIngest() {
+        return Boolean.parseBoolean(get(PARQUET_SORT_BY_SPLITS_ON_INGEST, PARQUET_SORT_BY_SPLITS_ON_INGEST_DEFAULT));
+    }
+
+    public void setSortBySplitsOnIngest(final boolean sortBySplits) {
+        set(PARQUET_SORT_BY_SPLITS_ON_INGEST, String.valueOf(sortBySplits));
     }
 }
