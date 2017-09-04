@@ -12,6 +12,7 @@ matrix:
 
 env:
   matrix:
+  - RELEASE=true
   - MODULES=:gaffer2,:core,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
   - MODULES=:accumulo-store,:spark-accumulo-library,:accumulo-rest
   - MODULES=:hbase-store,:hbase-rest
@@ -34,10 +35,6 @@ env:
 before_install: ./cd/before_install.sh
 install: travis_wait 45 ./cd/install.sh
 script: travis_wait 45 ./cd/verify.sh
-
-after_success:
-  - ./cd/before_deploy.sh
-  - travis_wait 45 ./cd/deploy.sh
-  - bash <(curl -s https://codecov.io/bash)
+after_success: travis_wait 45 ./cd/after_success.sh
 
 before_cache: rm -rf $HOME/.m2/repository/uk/gov/gchq/gaffer
