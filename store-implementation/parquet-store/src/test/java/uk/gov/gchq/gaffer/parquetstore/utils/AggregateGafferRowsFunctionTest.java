@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.parquetstore.utils;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema;
 import org.junit.After;
@@ -47,7 +45,6 @@ public class AggregateGafferRowsFunctionTest {
 
     @Before
     public void setUp() throws StoreException {
-        Logger.getRootLogger().setLevel(Level.WARN);
         final Schema schema = TestUtils.gafferSchema("schemaUsingStringVertexType");
         utils = new SchemaUtils(schema);
     }

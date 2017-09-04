@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.parquetstore.operation;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.Dataset;
@@ -45,7 +43,6 @@ public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest
 
     @BeforeClass
     public static void genData() throws OperationException, StoreException {
-        Logger.getRootLogger().setLevel(Level.WARN);
         getGraph(getSchema(), TestUtils.getParquetStoreProperties(), "StringVertexSparkOperationsTest")
                 .execute(new ImportJavaRDDOfElements.Builder()
                         .input(getElements(javaSparkContext))

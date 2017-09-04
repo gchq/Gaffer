@@ -1,8 +1,6 @@
 package uk.gov.gchq.gaffer.parquetstore.utils;
 
 import org.apache.hadoop.fs.Path;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.parquet.filter2.predicate.FilterPredicate;
 import org.apache.parquet.io.api.Binary;
 import org.junit.After;
@@ -51,7 +49,6 @@ public class ConvertViewToFilterTest {
 
     @Before
     public void setUp() throws StoreException {
-        Logger.getRootLogger().setLevel(Level.WARN);
         final Schema schema = TestUtils.gafferSchema("schemaUsingTypeValueVertexType");
         final ParquetStore store = new ParquetStore();
         store.initialise("ConvertViewToFilterTest", schema, new ParquetStoreProperties());
@@ -82,7 +79,7 @@ public class ConvertViewToFilterTest {
                         new ElementFilter.Builder()
                                 .select("double")
                                 .execute(
-                                new IsEqual(2.0))
+                                        new IsEqual(2.0))
                                 .build())
                         .build())
                 .build();

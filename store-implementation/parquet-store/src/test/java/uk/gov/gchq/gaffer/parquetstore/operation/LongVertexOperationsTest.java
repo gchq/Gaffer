@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.parquetstore.operation;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
@@ -56,7 +54,6 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
 
     @BeforeClass
     public static void genData() throws OperationException {
-        Logger.getRootLogger().setLevel(Level.WARN);
         getGraph().execute(new AddElements.Builder().input(getElements()).build(), USER);
     }
 
