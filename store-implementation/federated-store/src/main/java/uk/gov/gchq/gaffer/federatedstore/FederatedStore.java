@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphID;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationAddElementsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAccessHook;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllElementsHandler;
@@ -99,6 +100,7 @@ import java.util.regex.Pattern;
  */
 public class FederatedStore extends Store {
     public static final String USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S = "User is attempting to overwrite a graph within FederatedStore. GraphId: %s";
+    public static final String USER_IS_ATTEMPTING_TO_ADD_A_GRAPH_WITHOUT_A_S_GRAPH_ID_S = "User is attempting to add a graph without a %s. GraphId: %s";
     protected static final String S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2 = "%s was not able to be created with the supplied properties.%n%s";
     private static final String GAFFER_FEDERATED_STORE = "gaffer.federatedstore.";
     private static final String GRAPH_IDS = "graphIds";
@@ -108,7 +110,6 @@ public class FederatedStore extends Store {
     private static final String SCHEMA = "schema";
     private static final String PROPERTIES = "properties";
     private static final String ID = "id";
-
     private final Map<String, Graph> graphs = Maps.newHashMap();
     private Set<StoreTrait> traits = new HashSet<>();
 
@@ -235,6 +236,8 @@ public class FederatedStore extends Store {
         resolveSchema(graphId, builder);
 
         resolveProperties(graphId, builder);
+
+        // resolve graph config
     }
 
     private void resolveProperties(final String graphId, final Builder builder) {
@@ -357,6 +360,9 @@ public class FederatedStore extends Store {
         return graphIds;
     }
 
+    /*
+     * hooks must be included
+     */
     public void addGraphs(final Graph... graphs) {
         for (final Graph graph : graphs) {
             _add(graph);
@@ -368,6 +374,11 @@ public class FederatedStore extends Store {
         final String graphId = graph.getGraphId();
         if (graphs.containsKey(graphId)) {
             throw new OverwritingException((String.format(USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S, graphId)));
+//        } else {
+//            final boolean hasFederatedAccessHook = graph.getGraphHooks().contains(FederatedAccessHook.class);
+//            if (!hasFederatedAccessHook) {
+//                throw new InvalidParameterException(String.format(USER_IS_ATTEMPTING_TO_ADD_A_GRAPH_WITHOUT_A_S_GRAPH_ID_S, FederatedAccessHook.class.getSimpleName(), graphId));
+//            }
         }
         graphs.put(graphId, graph);
     }

@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federatedstore.integration.FederatedStoreITs;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAccessHook;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
@@ -713,7 +714,7 @@ public class FederatedStoreTest {
                 .config(new GraphConfig.Builder()
                         .graphId(MAP_ID_1)
                         .addHook(new FederatedAccessHook.Builder()
-                                .addOpAuths("auth1")
+                                .graphAuths("auth1")
                                 .build())
                         .build())
                 .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_MAP_STORE_PROPERTIES))

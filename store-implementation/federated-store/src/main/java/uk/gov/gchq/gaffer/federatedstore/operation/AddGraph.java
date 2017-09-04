@@ -16,14 +16,15 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
+import com.google.common.collect.Sets;
 import org.apache.commons.lang3.exception.CloneFailedException;
 import uk.gov.gchq.gaffer.commonutil.Required;
-import uk.gov.gchq.gaffer.federatedstore.FederatedAccessHook;
-import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * An Operation used for adding graphs to a FederatedStore.
@@ -48,7 +49,7 @@ public class AddGraph implements Operation {
     private String parentPropertiesId;
     private Schema schema;
     private List<String> parentSchemaIds;
-    private FederatedAccessHook hook;
+    private Set<String> graphAuths = Sets.newHashSet();
 
     public String getGraphId() {
         return graphId;
@@ -102,12 +103,16 @@ public class AddGraph implements Operation {
         this.parentPropertiesId = parentPropertiesId;
     }
 
-    public GraphHook getHook() {
-        return hook;
+    public Set<String> getGraphAuths() {
+        return graphAuths;
     }
 
-    public AddGraph setHook(final FederatedAccessHook hook) {
-        this.hook = hook;
+    public AddGraph setGraphAuths(final Set<String> graphAuths) {
+        if (null == graphAuths) {
+            this.getGraphAuths().clear();
+        } else {
+            this.graphAuths = graphAuths;
+        }
         return this;
     }
 
@@ -142,8 +147,8 @@ public class AddGraph implements Operation {
             return _self();
         }
 
-        public Builder hook(final FederatedAccessHook hook) {
-            _getOp().setHook(hook);
+        public Builder graphAuths(final String... graphAuths) {
+            Collections.addAll(_getOp().graphAuths, graphAuths);
             return _self();
         }
     }
