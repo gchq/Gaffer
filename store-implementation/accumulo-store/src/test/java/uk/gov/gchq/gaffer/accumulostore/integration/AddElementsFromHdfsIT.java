@@ -123,15 +123,29 @@ public class AddElementsFromHdfsIT {
         try {
             addElementsFromHdfs(ByteEntityKeyPackage.class);
             fail("Exception expected");
-        } catch (final OperationException e) {
-            assertEquals("Output directory exists and is not empty: " + outputDir, e.getCause().getMessage());
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Output directory exists and is not empty: " + outputDir, e.getMessage());
         }
 
         try {
             addElementsFromHdfs(ClassicKeyPackage.class);
             fail("Exception expected");
-        } catch (final OperationException e) {
-            assertEquals("Output directory exists and is not empty: " + outputDir, e.getCause().getMessage());
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Output directory exists and is not empty: " + outputDir, e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldAddElementsWhenOutputDirectoryDoesNotExist() throws Exception {
+        final FileSystem fs = FileSystem.getLocal(createLocalConf());
+        if (fs.exists(new Path(outputDir))) {
+            fs.delete(new Path(outputDir));
+        }
+
+        try {
+            addElementsFromHdfs(ByteEntityKeyPackage.class);
+        } catch (final Exception e) {
+            fail("Error occured: " + e.getMessage());
         }
     }
 
