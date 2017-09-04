@@ -22,6 +22,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import java.util.ArrayList;
@@ -53,6 +54,57 @@ public class EdgeTest extends ElementTest {
         assertEquals("group", edge.getGroup());
         assertEquals("source vertex", edge.getSource());
         assertEquals("destination vertex", edge.getDestination());
+        assertTrue(edge.isDirected());
+    }
+
+    @Test
+    public void shouldSetAndGetIdentifiersWithMatchedSource() {
+        // Given
+        final Edge edge = new Edge.Builder()
+                .group("group")
+                .source("source vertex")
+                .dest("destination vertex")
+                .directed(true)
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .build();
+
+        // When/Then
+        assertEquals("source vertex", edge.getIdentifier(IdentifierType.MATCHED_VERTEX));
+        assertEquals("destination vertex", edge.getIdentifier(IdentifierType.OPPOSITE_MATCHED_VERTEX));
+        assertTrue(edge.isDirected());
+    }
+
+    @Test
+    public void shouldSetAndGetIdentifiersWithMatchedDestination() {
+        // Given
+        final Edge edge = new Edge.Builder()
+                .group("group")
+                .source("source vertex")
+                .dest("destination vertex")
+                .directed(true)
+                .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
+                .build();
+
+        // When/Then
+        assertEquals("destination vertex", edge.getIdentifier(IdentifierType.MATCHED_VERTEX));
+        assertEquals("source vertex", edge.getIdentifier(IdentifierType.OPPOSITE_MATCHED_VERTEX));
+        assertTrue(edge.isDirected());
+    }
+
+    @Test
+    public void shouldSetAndGetIdentifiersWithMatchedSourceIsNull() {
+        // Given
+        final Edge edge = new Edge.Builder()
+                .group("group")
+                .source("source vertex")
+                .dest("destination vertex")
+                .directed(true)
+                .matchedVertex(null)
+                .build();
+
+        // When/Then
+        assertEquals("source vertex", edge.getIdentifier(IdentifierType.MATCHED_VERTEX));
+        assertEquals("destination vertex", edge.getIdentifier(IdentifierType.OPPOSITE_MATCHED_VERTEX));
         assertTrue(edge.isDirected());
     }
 

@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.data.element;
 
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -25,10 +24,12 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.comparison.ComparableOrToStringComparator;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+
 import java.util.Comparator;
 
 /**
@@ -90,10 +91,10 @@ public class Edge extends Element implements EdgeId {
      */
     @JsonCreator
     public Edge(@JsonProperty("group") final String group,
-                @JsonProperty("source")  final Object source,
+                @JsonProperty("source") final Object source,
                 @JsonProperty("destination") final Object destination,
                 @JsonProperty("directed") final boolean directed,
-                @JsonProperty("matchedVertex")  final MatchedVertex matchedVertex,
+                @JsonProperty("matchedVertex") final MatchedVertex matchedVertex,
                 @JsonProperty("properties") final Properties properties) {
         super(group, properties);
         this.source = source;
@@ -143,6 +144,10 @@ public class Edge extends Element implements EdgeId {
                 return getDestination();
             case DIRECTED:
                 return isDirected();
+            case MATCHED_VERTEX:
+                return MatchedVertex.DESTINATION == matchedVertex ? getDestination() : getSource();
+            case OPPOSITE_MATCHED_VERTEX:
+                return MatchedVertex.DESTINATION == matchedVertex ? getSource() : getDestination();
             default:
                 return null;
         }
@@ -159,9 +164,11 @@ public class Edge extends Element implements EdgeId {
     void putIdentifier(final IdentifierType identifierType, final Object value) {
         switch (identifierType) {
             case SOURCE:
+            case MATCHED_VERTEX:
                 source = value;
                 break;
             case DESTINATION:
+            case OPPOSITE_MATCHED_VERTEX:
                 destination = value;
                 break;
             case DIRECTED:

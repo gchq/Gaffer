@@ -41,7 +41,17 @@ public enum IdentifierType {
     /**
      * An Edge's directed flag
      */
-    DIRECTED;
+    DIRECTED,
+
+    /**
+     * An Edge's matched vertex (defaults to SOURCE).
+     */
+    MATCHED_VERTEX,
+
+    /**
+     * The vertex opposite to Edge's matched vertex (defaults to DESTINATION).
+     */
+    OPPOSITE_MATCHED_VERTEX;
 
     private static final Map<String, IdentifierType> VALUES = new HashMap<>(values().length);
 
