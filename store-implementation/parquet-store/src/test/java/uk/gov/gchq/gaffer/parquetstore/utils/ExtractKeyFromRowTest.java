@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.parquetstore.utils;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Row$;
 import org.junit.After;
@@ -29,10 +27,8 @@ import scala.collection.mutable.WrappedArray$;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.ExtractKeyFromRow;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
-import uk.gov.gchq.gaffer.store.SerialisationFactory;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,7 +46,6 @@ public class ExtractKeyFromRowTest {
 
     @Before
     public void setUp() throws StoreException {
-        Logger.getRootLogger().setLevel(Level.WARN);
         groupByColumns = new LinkedHashSet<>();
         groupByColumns.add("double");
         groupByColumns.add("date");
@@ -74,12 +69,8 @@ public class ExtractKeyFromRowTest {
         columnsToPaths.put(ParquetStoreConstants.VERTEX, vertPaths);
         columnsToPaths.put(ParquetStoreConstants.SOURCE, srcPaths);
         columnsToPaths.put(ParquetStoreConstants.DESTINATION, dstPaths);
-        final Schema schema = Schema.fromJson(getClass().getResourceAsStream("/schemaUsingStringVertexType/dataSchema.json"),
-                getClass().getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
-                getClass().getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
-                getClass().getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
-        final SchemaOptimiser optimiser = new SchemaOptimiser(new SerialisationFactory(ParquetStoreConstants.SERIALISERS));
-        utils = new SchemaUtils(optimiser.optimise(schema, true));
+        final Schema schema = TestUtils.gafferSchema("schemaUsingStringVertexType");
+        utils = new SchemaUtils(schema);
     }
 
     @After
@@ -90,7 +81,7 @@ public class ExtractKeyFromRowTest {
     @Test
     public void testExtractKeyFromRowForEntity() throws Exception {
         final ExtractKeyFromRow entityConverter = new ExtractKeyFromRow(groupByColumns, columnsToPaths, true);
-        final Row row = DataGen.generateEntityRow(utils, "BasicEntity","vertex", (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1());
+        final Row row = DataGen.generateEntityRow(utils, "BasicEntity", "vertex", (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1());
         final Seq<Object> results = entityConverter.call(row);
         final List<Object> actual = new ArrayList<>(4);
         for (int i = 0; i < results.length(); i++) {
@@ -107,7 +98,7 @@ public class ExtractKeyFromRowTest {
     @Test
     public void testExtractKeyFromRowForEdge() throws Exception {
         final ExtractKeyFromRow edgeConverter = new ExtractKeyFromRow(groupByColumns, columnsToPaths, false);
-        final Row row = DataGen.generateEdgeRow(utils, "BasicEdge","src", "dst", true, (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1());
+        final Row row = DataGen.generateEdgeRow(utils, "BasicEdge", "src", "dst", true, (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1());
         final Seq<Object> results = edgeConverter.call(row);
         final List<Object> actual = new ArrayList<>(6);
         for (int i = 0; i < results.length(); i++) {
