@@ -20,10 +20,10 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -39,6 +39,7 @@ import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,10 +54,6 @@ public class ImportJavaRDDOfElementsHandlerTest {
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
-    @After
-    public void tearDown() {
-        testFolder.delete();
-    }
 
     @Test
     public void checkImportJavaRDDOfElements() throws OperationException, IOException, InterruptedException {
@@ -112,8 +109,8 @@ public class ImportJavaRDDOfElementsHandlerTest {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         configuration.write(new DataOutputStream(baos));
         final String configurationString = new String(baos.toByteArray(), CommonConstants.UTF_8);
-        final String outputPath = testFolder + "load";
-        final String failurePath = testFolder + "failure";
+        final String outputPath = testFolder.getRoot().getAbsolutePath() + "/output";
+        final String failurePath = testFolder.getRoot().getAbsolutePath() + "/failure";
 
         final JavaRDD<Element> elementJavaRDD = sparkContext.parallelize(elements);
         final ImportJavaRDDOfElements addRdd = new ImportJavaRDDOfElements.Builder()

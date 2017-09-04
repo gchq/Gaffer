@@ -67,11 +67,6 @@ public class ImportKeyValuePairRDDToAccumuloHandlerTest {
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
-    @After
-    public void tearDown() {
-        testFolder.delete();
-    }
-
     @Test
     public void checkImportRDDOfElements() throws OperationException, IOException {
         final Graph graph1 = new Graph.Builder()
@@ -125,8 +120,8 @@ public class ImportKeyValuePairRDDToAccumuloHandlerTest {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         configuration.write(new DataOutputStream(baos));
         final String configurationString = new String(baos.toByteArray(), CommonConstants.UTF_8);
-        final String outputPath = testFolder + "load";
-        final String failurePath = testFolder + "failure";
+        final String outputPath = testFolder.getRoot().getAbsolutePath() + "/output";
+        final String failurePath = testFolder.getRoot().getAbsolutePath() + "/failure";
 
         final ElementConverterFunction func = new ElementConverterFunction(sparkSession.sparkContext().broadcast(new ByteEntityAccumuloElementConverter(graph1.getSchema()), ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG));
         final RDD<Tuple2<Key, Value>> elementRDD = sparkSession.sparkContext().parallelize(elements, 1, ELEMENT_CLASS_TAG).flatMap(func, TUPLE2_CLASS_TAG);

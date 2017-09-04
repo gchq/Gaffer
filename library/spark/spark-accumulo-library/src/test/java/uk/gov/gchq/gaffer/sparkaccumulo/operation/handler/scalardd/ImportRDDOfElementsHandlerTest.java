@@ -20,7 +20,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.SparkConf;
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.SparkSession;
-import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -57,11 +56,6 @@ public class ImportRDDOfElementsHandlerTest {
     private static final ClassTag<Element> ELEMENT_CLASS_TAG = ClassTagConstants.ELEMENT_CLASS_TAG;
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
-    @After
-    public void tearDown() {
-        testFolder.delete();
-    }
 
     @Test
     public void checkImportRDDOfElements() throws OperationException, IOException {
@@ -117,8 +111,8 @@ public class ImportRDDOfElementsHandlerTest {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         configuration.write(new DataOutputStream(baos));
         final String configurationString = new String(baos.toByteArray(), CommonConstants.UTF_8);
-        final String outputPath = testFolder + "load";
-        final String failurePath = testFolder + "failure";
+        final String outputPath = testFolder.getRoot().getAbsolutePath() + "/output";
+        final String failurePath = testFolder.getRoot().getAbsolutePath() + "/failure";
 
         final RDD<Element> elementRDD = sparkSession.sparkContext().parallelize(elements, 8, ELEMENT_CLASS_TAG);
         final ImportRDDOfElements addRdd = new ImportRDDOfElements.Builder()
