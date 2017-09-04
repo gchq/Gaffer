@@ -28,9 +28,9 @@ import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.AggregateAndSortTempData;
+import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.CalculateSplitPointsFromIndex;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.GenerateIndices;
-import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.RDD.AggregateGafferElements;
-import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.RDD.ExtractKeyFromElements;
+import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.RDD.CalculateSplitPointsFromJavaRDD;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.RDD.WriteUnsortedDataFunction;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SparkParquetUtils;
@@ -41,6 +41,8 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Executes the process of importing a {@link JavaRDD} of {@link Element} into the current {@link ParquetStore}
@@ -68,31 +70,31 @@ public class AddElementsFromRDD {
                 // aggregate new data and write out as unsorted data
                 LOGGER.debug("Starting to write the new unsorted Parquet data after aggregation to {} split by group", tempDataDirString);
                 final Schema gafferSchema = store.getSchema();
-                boolean aggregate = true;
-                for (final String group : gafferSchema.getGroups()) {
-                    if (!gafferSchema.getElement(group).isAggregate()) {
-                        aggregate = false;
+                final CalculateSplitPointsFromJavaRDD calculateSplitPointsFromJavaRDD =
+                        new CalculateSplitPointsFromJavaRDD(parquetStoreProperties.getSampleRate(),
+                                parquetStoreProperties.getAddElementsOutputFilesPerGroup() - 1);
+                final Map<String, Map<Object, Integer>> groupToSplitPoints;
+                final GraphIndex index = store.getGraphIndex();
+                if (null == index) {
+                    groupToSplitPoints = new HashMap<>();
+                    for (final String group : gafferSchema.getEdgeGroups()) {
+                        groupToSplitPoints.put(group, calculateSplitPointsFromJavaRDD.calculateSplitsForGroup(input, group, false));
                     }
+                    for (final String group : gafferSchema.getEntityGroups()) {
+                        groupToSplitPoints.put(group, calculateSplitPointsFromJavaRDD.calculateSplitsForGroup(input, group, true));
+                    }
+                } else {
+                    groupToSplitPoints = CalculateSplitPointsFromIndex.apply(index, store.getSchemaUtils(), parquetStoreProperties, input);
                 }
                 final WriteUnsortedDataFunction writeUnsortedDataFunction =
-                        new WriteUnsortedDataFunction(store.getTempFilesDir(), store.getSchemaUtils());
-                if (aggregate) {
-                    final ExtractKeyFromElements extractKeyFromElements = new ExtractKeyFromElements(gafferSchema);
-                    final AggregateGafferElements aggregateGafferProperties = new AggregateGafferElements(gafferSchema);
-                    input
-                        .mapToPair(extractKeyFromElements)
-                        .reduceByKey(aggregateGafferProperties)
-                        .values()
-                        .foreachPartition(writeUnsortedDataFunction);
-                } else {
-                   input
-                        .foreachPartition(writeUnsortedDataFunction);
-                }
+                        new WriteUnsortedDataFunction(store.getTempFilesDir(), store.getSchemaUtils(), groupToSplitPoints);
+                input
+                    .foreachPartition(writeUnsortedDataFunction);
                 LOGGER.debug("Finished writing the unsorted Parquet data to {}", tempDataDirString);
 
                 // Aggregate and sort data
                 LOGGER.debug("Starting to write the sorted and aggregated Parquet data to {} split by group", tempDataDirString);
-                new AggregateAndSortTempData(store, spark);
+                new AggregateAndSortTempData(store, spark, groupToSplitPoints);
                 LOGGER.debug("Finished writing the sorted and aggregated Parquet data to {}", tempDataDirString);
 
                 // Generate the file based index

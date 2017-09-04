@@ -25,13 +25,18 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.EdgeKryoSerializer;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.EntityKryoSerializer;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.FreqMapKryoSerializer;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.HyperLogLogPlusKryoSerializer;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.TypeSubTypeValueKryoSerializer;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.TypeValueKryoSerializer;
 import uk.gov.gchq.gaffer.types.FreqMap;
+import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
+import uk.gov.gchq.gaffer.types.TypeValue;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class TestRegistrator {
+public class RegistratorTest {
     private final Kryo kryo = new Kryo();
 
     @Before
@@ -51,9 +56,15 @@ public class TestRegistrator {
         assertTrue(kryo.getRegistration(Properties.class).getId() > 0);
 
         // FreqMap
-        assertTrue(kryo.getRegistration(FreqMap.class).getId() > 0);
+        assertEquals(FreqMapKryoSerializer.class, kryo.getSerializer(FreqMap.class).getClass());
 
         // HyperLogLogPlus
         assertEquals(HyperLogLogPlusKryoSerializer.class, kryo.getSerializer(HyperLogLogPlus.class).getClass());
+
+        // TypeValue
+        assertEquals(TypeValueKryoSerializer.class, kryo.getSerializer(TypeValue.class).getClass());
+
+        // TypeSubTypeValue
+        assertEquals(TypeSubTypeValueKryoSerializer.class, kryo.getSerializer(TypeSubTypeValue.class).getClass());
     }
 }
