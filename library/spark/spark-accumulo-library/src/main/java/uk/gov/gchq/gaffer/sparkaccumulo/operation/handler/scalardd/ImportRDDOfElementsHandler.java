@@ -61,7 +61,7 @@ public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfE
                         .failurePath(failurePath)
                         .outputPath(outputPath)
                         .build();
-        store._execute(new OperationChain<>(op), context);
+        store.execute(new OperationChain<>(op), context);
     }
 }
 
