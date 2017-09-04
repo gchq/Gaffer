@@ -49,9 +49,9 @@ public enum IdentifierType {
     MATCHED_VERTEX,
 
     /**
-     * The vertex opposite to Edge's matched vertex (defaults to DESTINATION).
+     * The vertex adjacent to Edge's matched vertex (defaults to DESTINATION).
      */
-    OPPOSITE_MATCHED_VERTEX;
+    ADJACENT_MATCHED_VERTEX;
 
     private static final Map<String, IdentifierType> VALUES = new HashMap<>(values().length);
 

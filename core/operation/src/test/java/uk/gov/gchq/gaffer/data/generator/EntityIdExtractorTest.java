@@ -103,7 +103,7 @@ public class EntityIdExtractorTest {
     @Test
     public void shouldGetOppositeMatchedVertexFromEdge() {
         // Given
-        final EntityIdExtractor extractor = new EntityIdExtractor(IdentifierType.OPPOSITE_MATCHED_VERTEX);
+        final EntityIdExtractor extractor = new EntityIdExtractor(IdentifierType.ADJACENT_MATCHED_VERTEX);
         final Edge edge = new Edge.Builder()
                 .group(TestGroups.EDGE)
                 .source("1")

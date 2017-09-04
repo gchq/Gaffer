@@ -42,7 +42,7 @@ public class ElementTupleTest {
         assertEquals("destination vertex", tuple.get(IdentifierType.DESTINATION.name()));
         assertEquals(true, tuple.get(IdentifierType.DIRECTED.name()));
         assertEquals("source vertex", tuple.get(IdentifierType.MATCHED_VERTEX.name()));
-        assertEquals("destination vertex", tuple.get(IdentifierType.OPPOSITE_MATCHED_VERTEX.name()));
+        assertEquals("destination vertex", tuple.get(IdentifierType.ADJACENT_MATCHED_VERTEX.name()));
         assertEquals(1, tuple.get(TestPropertyNames.COUNT));
     }
 
@@ -69,11 +69,11 @@ public class ElementTupleTest {
 
         // When
         tuple.put(IdentifierType.MATCHED_VERTEX.name(), "source vertex 2");
-        tuple.put(IdentifierType.OPPOSITE_MATCHED_VERTEX.name(), "destination vertex 2");
+        tuple.put(IdentifierType.ADJACENT_MATCHED_VERTEX.name(), "destination vertex 2");
 
         // Then
         assertEquals("source vertex 2", tuple.get(IdentifierType.MATCHED_VERTEX.name()));
-        assertEquals("destination vertex 2", tuple.get(IdentifierType.OPPOSITE_MATCHED_VERTEX.name()));
+        assertEquals("destination vertex 2", tuple.get(IdentifierType.ADJACENT_MATCHED_VERTEX.name()));
 
     }
 }

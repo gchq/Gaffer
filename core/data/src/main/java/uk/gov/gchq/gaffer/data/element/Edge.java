@@ -139,7 +139,7 @@ public class Edge extends Element implements EdgeId {
     }
 
     @JsonIgnore
-    public Object getOppositeMatchedVertexValue() {
+    public Object getAdjacentMatchedVertexValue() {
         return MatchedVertex.DESTINATION == matchedVertex ? getSource() : getDestination();
     }
 
@@ -154,8 +154,8 @@ public class Edge extends Element implements EdgeId {
                 return isDirected();
             case MATCHED_VERTEX:
                 return getMatchedVertexValue();
-            case OPPOSITE_MATCHED_VERTEX:
-                return getOppositeMatchedVertexValue();
+            case ADJACENT_MATCHED_VERTEX:
+                return getAdjacentMatchedVertexValue();
             default:
                 return null;
         }
@@ -176,7 +176,7 @@ public class Edge extends Element implements EdgeId {
                 source = value;
                 break;
             case DESTINATION:
-            case OPPOSITE_MATCHED_VERTEX:
+            case ADJACENT_MATCHED_VERTEX:
                 destination = value;
                 break;
             case DIRECTED:

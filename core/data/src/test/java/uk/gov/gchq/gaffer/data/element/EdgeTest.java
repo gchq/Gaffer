@@ -71,8 +71,8 @@ public class EdgeTest extends ElementTest {
         // When/Then
         assertEquals("source vertex", edge.getMatchedVertexValue());
         assertEquals("source vertex", edge.getIdentifier(IdentifierType.MATCHED_VERTEX));
-        assertEquals("destination vertex", edge.getOppositeMatchedVertexValue());
-        assertEquals("destination vertex", edge.getIdentifier(IdentifierType.OPPOSITE_MATCHED_VERTEX));
+        assertEquals("destination vertex", edge.getAdjacentMatchedVertexValue());
+        assertEquals("destination vertex", edge.getIdentifier(IdentifierType.ADJACENT_MATCHED_VERTEX));
         assertTrue(edge.isDirected());
     }
 
@@ -90,8 +90,8 @@ public class EdgeTest extends ElementTest {
         // When/Then
         assertEquals("destination vertex", edge.getMatchedVertexValue());
         assertEquals("destination vertex", edge.getIdentifier(IdentifierType.MATCHED_VERTEX));
-        assertEquals("source vertex", edge.getIdentifier(IdentifierType.OPPOSITE_MATCHED_VERTEX));
-        assertEquals("source vertex", edge.getOppositeMatchedVertexValue());
+        assertEquals("source vertex", edge.getIdentifier(IdentifierType.ADJACENT_MATCHED_VERTEX));
+        assertEquals("source vertex", edge.getAdjacentMatchedVertexValue());
         assertTrue(edge.isDirected());
     }
 
@@ -109,8 +109,8 @@ public class EdgeTest extends ElementTest {
         // When/Then
         assertEquals("source vertex", edge.getMatchedVertexValue());
         assertEquals("source vertex", edge.getIdentifier(IdentifierType.MATCHED_VERTEX));
-        assertEquals("destination vertex", edge.getIdentifier(IdentifierType.OPPOSITE_MATCHED_VERTEX));
-        assertEquals("destination vertex", edge.getIdentifier(IdentifierType.OPPOSITE_MATCHED_VERTEX));
+        assertEquals("destination vertex", edge.getIdentifier(IdentifierType.ADJACENT_MATCHED_VERTEX));
+        assertEquals("destination vertex", edge.getIdentifier(IdentifierType.ADJACENT_MATCHED_VERTEX));
         assertTrue(edge.isDirected());
     }
 
