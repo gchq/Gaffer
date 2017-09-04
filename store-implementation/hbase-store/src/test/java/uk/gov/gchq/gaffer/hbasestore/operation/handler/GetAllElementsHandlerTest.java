@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.hbasestore.operation.handler;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.ElementDedupeFilterProcessor;
 import uk.gov.gchq.gaffer.hbasestore.retriever.HBaseRetriever;

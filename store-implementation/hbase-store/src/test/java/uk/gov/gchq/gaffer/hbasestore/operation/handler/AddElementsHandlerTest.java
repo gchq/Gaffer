@@ -22,6 +22,7 @@ import org.apache.hadoop.hbase.client.Table;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -43,6 +44,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

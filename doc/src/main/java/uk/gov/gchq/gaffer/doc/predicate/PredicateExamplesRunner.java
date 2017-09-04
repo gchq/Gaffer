@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.doc.predicate;
 
 import uk.gov.gchq.gaffer.doc.util.ExampleDocRunner;
+
 import java.util.function.Predicate;
 
 /**

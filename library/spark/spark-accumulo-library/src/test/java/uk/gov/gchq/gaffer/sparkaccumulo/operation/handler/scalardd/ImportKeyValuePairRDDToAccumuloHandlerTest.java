@@ -29,6 +29,7 @@ import org.junit.rules.TemporaryFolder;
 import scala.Tuple2;
 import scala.collection.mutable.ArrayBuffer;
 import scala.reflect.ClassTag;
+
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
@@ -48,6 +49,7 @@ import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.scalardd.ImportKeyValuePairRDDToAccumulo;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.scala.ElementConverterFunction;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Collections;

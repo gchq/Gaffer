@@ -17,10 +17,12 @@
 package uk.gov.gchq.gaffer.accumulostore.key.impl;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.CoreKeyBloomFilterIterator;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.BloomFilterIteratorException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.operation.OperationException;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;

@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.commonutil;
 
 import com.google.common.collect.Sets;
 import org.junit.Test;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;

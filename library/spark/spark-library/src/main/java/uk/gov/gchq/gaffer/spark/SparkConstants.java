@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.spark;
 
 import org.apache.spark.serializer.KryoSerializer;
+
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator;
 
 public final class SparkConstants {

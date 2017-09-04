@@ -1,9 +1,9 @@
 package uk.gov.gchq.gaffer.store.util;
 
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaTest;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Product;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -861,7 +862,7 @@ public class AggregatorUtilTest {
         try {
             fn.apply(element);
             fail("Exception expected");
-        } catch (RuntimeException e) {
+        } catch (final RuntimeException e) {
             assertNotNull(e.getMessage());
         }
     }
@@ -883,7 +884,7 @@ public class AggregatorUtilTest {
         try {
             fn.apply(element);
             fail("Exception expected");
-        } catch (RuntimeException e) {
+        } catch (final RuntimeException e) {
             assertNotNull(e.getMessage());
         }
     }

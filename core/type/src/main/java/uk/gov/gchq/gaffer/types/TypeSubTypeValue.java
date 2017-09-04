@@ -17,10 +17,13 @@ package uk.gov.gchq.gaffer.types;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+
+import java.io.Serializable;
 import java.util.Comparator;
 
-public class TypeSubTypeValue implements Comparable<TypeSubTypeValue> {
+public class TypeSubTypeValue implements Comparable<TypeSubTypeValue>, Serializable {
 
     private static Comparator<String> stringComparator = Comparator
             .nullsFirst(String::compareTo);

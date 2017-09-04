@@ -17,8 +17,10 @@
 package uk.gov.gchq.gaffer.data.element.comparison;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Set;

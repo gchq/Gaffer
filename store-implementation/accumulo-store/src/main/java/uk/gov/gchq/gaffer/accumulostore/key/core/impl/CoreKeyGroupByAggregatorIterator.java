@@ -16,9 +16,11 @@
 package uk.gov.gchq.gaffer.accumulostore.key.core.impl;
 
 import org.apache.accumulo.core.data.Key;
+
 import uk.gov.gchq.gaffer.accumulostore.utils.IteratorOptionsBuilder;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
+
 import java.util.Iterator;
 import java.util.Set;
 

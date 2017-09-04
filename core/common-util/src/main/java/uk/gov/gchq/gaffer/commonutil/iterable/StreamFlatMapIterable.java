@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import uk.gov.gchq.gaffer.commonutil.stream.FlatMapStreamSupplier;
+
 import java.util.function.Function;
 import java.util.stream.Stream;
 

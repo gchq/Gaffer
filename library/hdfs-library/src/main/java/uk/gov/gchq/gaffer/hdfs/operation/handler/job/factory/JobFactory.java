@@ -18,8 +18,10 @@ package uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory;
 import com.google.common.collect.Lists;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
+
 import uk.gov.gchq.gaffer.hdfs.operation.MapReduce;
 import uk.gov.gchq.gaffer.store.Store;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;

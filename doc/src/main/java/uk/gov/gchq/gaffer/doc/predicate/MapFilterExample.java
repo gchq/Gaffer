@@ -19,6 +19,7 @@ import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.predicate.PredicateMap;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;

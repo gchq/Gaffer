@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.doc.dev.walkthrough;
 import uk.gov.gchq.gaffer.doc.dev.aggregator.VisibilityAggregator;
 import uk.gov.gchq.gaffer.doc.dev.serialiser.VisibilitySerialiser;
 import uk.gov.gchq.gaffer.doc.walkthrough.WalkthroughStrSubstitutor;
+
 import java.util.HashMap;
 import java.util.Map;
 

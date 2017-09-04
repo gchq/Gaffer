@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.accumulostore.key;
 
 import org.apache.accumulo.core.file.keyfunctor.KeyFunctor;
+
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 /**
