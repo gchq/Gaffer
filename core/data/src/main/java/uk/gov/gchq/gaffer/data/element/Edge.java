@@ -24,12 +24,10 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.comparison.ComparableOrToStringComparator;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
-
 import java.util.Comparator;
 
 /**
@@ -135,6 +133,16 @@ public class Edge extends Element implements EdgeId {
         return matchedVertex;
     }
 
+    @JsonIgnore
+    public Object getMatchedVertexValue() {
+        return MatchedVertex.DESTINATION == matchedVertex ? getDestination() : getSource();
+    }
+
+    @JsonIgnore
+    public Object getOppositeMatchedVertexValue() {
+        return MatchedVertex.DESTINATION == matchedVertex ? getSource() : getDestination();
+    }
+
     @Override
     public Object getIdentifier(final IdentifierType identifierType) {
         switch (identifierType) {
@@ -145,9 +153,9 @@ public class Edge extends Element implements EdgeId {
             case DIRECTED:
                 return isDirected();
             case MATCHED_VERTEX:
-                return MatchedVertex.DESTINATION == matchedVertex ? getDestination() : getSource();
+                return getMatchedVertexValue();
             case OPPOSITE_MATCHED_VERTEX:
-                return MatchedVertex.DESTINATION == matchedVertex ? getSource() : getDestination();
+                return getOppositeMatchedVertexValue();
             default:
                 return null;
         }
