@@ -16,28 +16,20 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
-import org.junit.Test;
-
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
-import static org.junit.Assert.assertTrue;
-
-public class NamedOperationHandlerTest {
-    @Test
-    public void shouldTest() throws OperationException {
-        // Given
-        final NamedOperationHandler handler = new NamedOperationHandler();
-        final NamedOperation<?, Object> op = new NamedOperation.Builder<>()
-                .name("opName")
-                .build();
-
-        // When / Then
-        try {
-            handler.doOperation(op, null, null);
-        } catch (final UnsupportedOperationException e) {
-            assertTrue(e.getMessage().contains(op.getOperationName()));
-        }
-
+/**
+ * Operation Handler for NamedOperation. NamedOperations are resolved
+ * the NamedOperationResolver GraphHook.
+ * If this handler is invoked then it means the named operation could not be resolved.
+ */
+public class NamedOperationHandler implements OutputOperationHandler<NamedOperation<?, Object>, Object> {
+    @Override
+    public Object doOperation(final NamedOperation<?, Object> operation, final Context context, final Store store) throws OperationException {
+        throw new UnsupportedOperationException("The named operation: " + operation.getOperationName() + " was not found.");
     }
 }

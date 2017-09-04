@@ -47,6 +47,7 @@ import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
@@ -495,6 +496,7 @@ public class StoreTest {
 
                 // OperationChain
                 OperationChain.class,
+                OperationChainDAO.class,
 
                 // Other
                 GenerateElements.class,

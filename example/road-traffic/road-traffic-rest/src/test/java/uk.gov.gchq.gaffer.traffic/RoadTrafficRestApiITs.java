@@ -16,17 +16,18 @@
 
 package uk.gov.gchq.gaffer.traffic;
 
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
+
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
 import uk.gov.gchq.gaffer.proxystore.ProxyStore;
-import uk.gov.gchq.gaffer.rest.RestApiTestUtil;
+import uk.gov.gchq.gaffer.rest.RestApiTestClient;
+import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.traffic.listeners.DataLoader;
@@ -41,37 +42,14 @@ import java.net.URL;
  */
 public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
 
-	public static final String STORE_TYPE_PROPERTY = "store.type";
-	public static final String STORE_TYPE_DEFAULT = "accumulo";
-
-	@ClassRule
-	public static final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
-	@BeforeClass
-	public static void beforeClass() throws IOException {
-		// Spin up the REST API
-		RestApiTestUtil.startServer();
-
-		// Connect it to a Gaffer store, as specified in the 'store.type' property
-		RestApiTestUtil.reinitialiseGraph(
-			testFolder,
-			Schema.fromJson(StreamUtil.schemas(ElementGroup.class)),
-			StoreProperties.loadStoreProperties(StreamUtil.openStream(RoadTrafficRestApiITs.class, System.getProperty(STORE_TYPE_PROPERTY, STORE_TYPE_DEFAULT) + StreamUtil.STORE_PROPERTIES))
-		);
-
-		// Load Road Traffic data into the store
-		final DataLoader loader = new DataLoader();
-		loader.contextInitialized(null);
-	}
-
-	@Before
-	public void setup() throws IOException {
+	@Override
+	public void prepareProxy() throws IOException {
 		// Create a proxy store that will proxy all queries to the REST API that has been spun up
 		ProxyProperties props = new ProxyProperties(System.getProperties());
 		props.setStoreClass(ProxyStore.class);
 		props.setStorePropertiesClass(props.getClass());
 
-		final URL restURL = new URL(RestApiTestUtil.REST_URI);
+		final URL restURL = new URL(client.getUri());
 		props.setGafferHost(restURL.getHost());
 		props.setGafferPort(restURL.getPort());
 		props.setGafferContextRoot(restURL.getPath());
@@ -82,11 +60,6 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
 			.build();
 
 		this.user = new User();
-	}
-
-	@AfterClass
-	public static void afterClass() {
-		RestApiTestUtil.stopServer();
 	}
 
 }

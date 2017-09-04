@@ -122,4 +122,7 @@ public abstract class RestApiTestClient {
         }
     }
 
+    public String getUri() {
+        return uri;
+    }
 }

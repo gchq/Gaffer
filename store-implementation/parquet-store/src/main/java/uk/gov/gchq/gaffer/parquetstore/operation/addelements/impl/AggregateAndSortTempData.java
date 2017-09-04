@@ -27,6 +27,7 @@ import scala.Option;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
@@ -95,20 +96,30 @@ public class AggregateAndSortTempData {
             // sort the aggregated data
             tasks.clear();
             LOGGER.debug("Starting to sort the aggregated data");
+            final ParquetStoreProperties props = store.getProperties();
             for (final String group : schemaUtils.getEdgeGroups()) {
                 if (groupToSplitPoints.containsKey(group)) {
                     final Collection<Integer> splits = groupToSplitPoints.get(group).values();
-                    tasks.add(new SortFullGroup(group, ParquetStoreConstants.DESTINATION, store, spark, splits.size()));
-                    for (final int i : splits) {
-                        tasks.add(new SortGroupSplit(group, ParquetStoreConstants.SOURCE, store, spark, i));
+                    if (props.getSortBySplitsOnIngest()) {
+                        tasks.add(new SortFullGroup(group, ParquetStoreConstants.DESTINATION, store, spark, splits.size()));
+                        for (final int i : splits) {
+                            tasks.add(new SortGroupSplit(group, ParquetStoreConstants.SOURCE, store, spark, i));
+                        }
+                    } else {
+                        tasks.add(new SortFullGroup(group, ParquetStoreConstants.SOURCE, store, spark, props.getAddElementsOutputFilesPerGroup()));
+                        tasks.add(new SortFullGroup(group, ParquetStoreConstants.DESTINATION, store, spark, props.getAddElementsOutputFilesPerGroup()));
                     }
                 }
             }
             for (final String group : schemaUtils.getEntityGroups()) {
                 if (groupToSplitPoints.containsKey(group)) {
                     final Collection<Integer> splits = groupToSplitPoints.get(group).values();
-                    for (final int i : splits) {
-                        tasks.add(new SortGroupSplit(group, ParquetStoreConstants.VERTEX, store, spark, i));
+                    if (props.getSortBySplitsOnIngest()) {
+                        for (final int i : splits) {
+                            tasks.add(new SortGroupSplit(group, ParquetStoreConstants.VERTEX, store, spark, i));
+                        }
+                    } else {
+                        tasks.add(new SortFullGroup(group, ParquetStoreConstants.VERTEX, store, spark, props.getAddElementsOutputFilesPerGroup()));
                     }
                 }
             }
@@ -119,19 +130,21 @@ public class AggregateAndSortTempData {
             LOGGER.debug("Finished sorting the aggregated data");
             pool.shutdown();
             // move sorted files into a directory ready to be moved to the data directory
-            for (final String group : schemaUtils.getEdgeGroups()) {
-                if (groupToSplitPoints.containsKey(group)) {
-                    final Collection<Integer> splits = groupToSplitPoints.get(group).values();
-                    for (final int i : splits) {
-                        moveData(store.getFS(), store.getTempFilesDir(), group, ParquetStoreConstants.SOURCE, String.valueOf(i));
+            if (props.getSortBySplitsOnIngest()) {
+                for (final String group : schemaUtils.getEdgeGroups()) {
+                    if (groupToSplitPoints.containsKey(group)) {
+                        final Collection<Integer> splits = groupToSplitPoints.get(group).values();
+                        for (final int i : splits) {
+                            moveData(store.getFS(), store.getTempFilesDir(), group, ParquetStoreConstants.SOURCE, String.valueOf(i));
+                        }
                     }
                 }
-            }
-            for (final String group : schemaUtils.getEntityGroups()) {
-                if (groupToSplitPoints.containsKey(group)) {
-                    final Collection<Integer> splits = groupToSplitPoints.get(group).values();
-                    for (final int i : splits) {
-                        moveData(store.getFS(), store.getTempFilesDir(), group, ParquetStoreConstants.VERTEX, String.valueOf(i));
+                for (final String group : schemaUtils.getEntityGroups()) {
+                    if (groupToSplitPoints.containsKey(group)) {
+                        final Collection<Integer> splits = groupToSplitPoints.get(group).values();
+                        for (final int i : splits) {
+                            moveData(store.getFS(), store.getTempFilesDir(), group, ParquetStoreConstants.VERTEX, String.valueOf(i));
+                        }
                     }
                 }
             }
