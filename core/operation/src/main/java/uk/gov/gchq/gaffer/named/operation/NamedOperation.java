@@ -60,12 +60,12 @@ public class NamedOperation<I_ITEM, O> implements
         this.input = input;
     }
 
-    public void setParameters(final Map<String, Object> parameters) {
-        this.parameters = parameters;
-    }
-
     public Map<String, Object> getParameters() {
         return parameters;
+    }
+
+    public void setParameters(final Map<String, Object> parameters) {
+        this.parameters = parameters;
     }
 
     public String getOperationName() {

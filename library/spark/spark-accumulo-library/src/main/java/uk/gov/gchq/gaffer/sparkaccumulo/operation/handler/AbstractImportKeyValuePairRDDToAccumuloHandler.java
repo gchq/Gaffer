@@ -64,7 +64,7 @@ public abstract class AbstractImportKeyValuePairRDDToAccumuloHandler<OP extends 
                         .inputPath(outputPath)
                         .failurePath(failurePath)
                         .build();
-        store._execute(new OperationChain<>(importAccumuloKeyValueFiles), context);
+        store.execute(new OperationChain<>(importAccumuloKeyValueFiles), context);
     }
 
     protected Configuration getConfiguration(final OP operation) throws OperationException {
