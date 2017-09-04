@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiParam;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
-import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -45,7 +45,7 @@ public interface IJobService {
     @POST
     @Path("/doOperation")
     @ApiOperation(value = "Performs the given operation chain job on the graph", response = JobDetail.class)
-    JobDetail executeJob(final OperationChain opChain);
+    JobDetail executeJob(final OperationChainDAO opChain);
 
     @GET
     @ApiOperation(value = "Get the details of all jobs", response = JobDetail.class, responseContainer = "List")

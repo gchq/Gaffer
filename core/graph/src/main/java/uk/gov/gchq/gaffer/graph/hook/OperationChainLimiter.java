@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.store.operation.handler.ScoreOperationChainHandler;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /*
@@ -81,7 +80,7 @@ public class OperationChainLimiter implements GraphHook {
         return scorer.getOpScores();
     }
 
-    public void setOpScores(final LinkedHashMap<Class<? extends Operation>, Integer> opScores) {
+    public void setOpScores(final Map<Class<? extends Operation>, Integer> opScores) {
         scorer.setOpScores(opScores);
     }
 
@@ -91,7 +90,7 @@ public class OperationChainLimiter implements GraphHook {
     }
 
     @JsonSetter("opScores")
-    public void setOpScoresFromStrings(final LinkedHashMap<String, Integer> opScores) throws ClassNotFoundException {
+    public void setOpScoresFromStrings(final Map<String, Integer> opScores) throws ClassNotFoundException {
         scorer.setOpScoresFromStrings(opScores);
     }
 
