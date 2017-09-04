@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAccessHook.FederatedAccessException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.Options;
@@ -48,6 +49,8 @@ public abstract class FederatedOperationOutputHandler<OP extends Output<O>, O> i
                 O execute = null;
                 try {
                     execute = graph.execute(updatedOp, context.getUser());
+                } catch (final FederatedAccessException e) {
+                    // ignore it.
                 } catch (Exception e) {
                     if (!(updatedOp instanceof Options)
                             || !Boolean.valueOf(((Options) updatedOp).getOption(SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {

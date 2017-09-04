@@ -18,7 +18,6 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import com.google.common.collect.Sets;
-import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.user.User;
@@ -49,7 +48,7 @@ public class FederatedAccessHook implements GraphHook {
     @Override
     public void preExecute(final OperationChain<?> opChain, final User user) {
         if (!isValidToExecute(user)) {
-            throw new UnauthorisedException(String.format(USER_DOES_NOT_HAVE_CORRECT_AUTHS_TO_ACCESS_THIS_GRAPH_USER_S, user.toString()));
+            throw new FederatedAccessException(String.format(USER_DOES_NOT_HAVE_CORRECT_AUTHS_TO_ACCESS_THIS_GRAPH_USER_S, user.toString()));
         }
     }
 
@@ -89,4 +88,24 @@ public class FederatedAccessHook implements GraphHook {
         }
     }
 
+    public class FederatedAccessException extends RuntimeException {
+        public FederatedAccessException() {
+        }
+
+        public FederatedAccessException(final String message) {
+            super(message);
+        }
+
+        public FederatedAccessException(final String message, final Throwable cause) {
+            super(message, cause);
+        }
+
+        public FederatedAccessException(final Throwable cause) {
+            super(cause);
+        }
+
+        public FederatedAccessException(final String message, final Throwable cause, final boolean enableSuppression, final boolean writableStackTrace) {
+            super(message, cause, enableSuppression, writableStackTrace);
+        }
+    }
 }
