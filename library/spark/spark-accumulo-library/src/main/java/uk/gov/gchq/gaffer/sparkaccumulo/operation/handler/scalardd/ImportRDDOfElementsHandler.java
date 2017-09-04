@@ -20,6 +20,7 @@ import org.apache.accumulo.core.data.Value;
 import org.apache.spark.rdd.RDD;
 import scala.Tuple2;
 import scala.reflect.ClassTag;
+
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.operation.OperationChain;

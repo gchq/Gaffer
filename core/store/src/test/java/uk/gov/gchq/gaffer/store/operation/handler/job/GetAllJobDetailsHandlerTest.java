@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation.handler.job;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobTracker;

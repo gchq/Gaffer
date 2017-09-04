@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.hbasestore.operation.handler;
 
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Table;
+
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
@@ -33,6 +34,7 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.element.ElementKey;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;

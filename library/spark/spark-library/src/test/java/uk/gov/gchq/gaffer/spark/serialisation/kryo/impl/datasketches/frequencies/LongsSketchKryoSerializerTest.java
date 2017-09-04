@@ -16,8 +16,9 @@
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.frequencies;
 
 import com.yahoo.sketches.frequencies.LongsSketch;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
-public class LongsSketchKryoSerializerTest extends KryoSerializationTest<LongsSketch> {
+public class LongsSketchKryoSerializerTest extends KryoSerializerTest<LongsSketch> {
 
     @Override
     public Class<LongsSketch> getTestClass() {

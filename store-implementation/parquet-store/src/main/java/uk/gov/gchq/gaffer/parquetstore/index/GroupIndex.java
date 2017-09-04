@@ -17,9 +17,11 @@ package uk.gov.gchq.gaffer.parquetstore.index;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.store.StoreException;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -68,20 +70,26 @@ public class GroupIndex {
         }
     }
 
-    public void readColumns(final String group, final String rootDir, final FileSystem fs) throws StoreException {
+    public void readColumns(final String group, final String rootDir, final FileSystem fs, final String[] columns) throws StoreException {
         try {
-            final String[] columns = new String[]{ParquetStoreConstants.VERTEX, ParquetStoreConstants.SOURCE, ParquetStoreConstants.DESTINATION};
             for (final String column : columns) {
                 final String indexDir = ParquetStore.getGroupDirectory(group, column, rootDir) + "/";
                 final Path path = new Path(indexDir + ParquetStoreConstants.INDEX);
                 if (fs.exists(path)) {
                     final ColumnIndex colIndex = new ColumnIndex();
                     colIndex.read(fs.open(path));
-                    add(column, colIndex);
+                    if (colIndex.getIterator().hasNext()) {
+                        add(column, colIndex);
+                    }
                 }
             }
         } catch (final IOException e) {
             throw new StoreException(e.getMessage());
         }
+    }
+
+    @Override
+    public String toString() {
+        return columnToIndex.toString();
     }
 }

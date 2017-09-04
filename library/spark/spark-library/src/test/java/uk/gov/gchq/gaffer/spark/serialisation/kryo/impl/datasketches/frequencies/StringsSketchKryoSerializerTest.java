@@ -16,16 +16,17 @@
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.frequencies;
 
 import com.yahoo.sketches.frequencies.ItemsSketch;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
-public class StringsSketchKryoSerializerTest extends KryoSerializationTest<ItemsSketch<String>> {
+public class StringsSketchKryoSerializerTest extends KryoSerializerTest<ItemsSketch> {
 
     @Override
-    protected Class<ItemsSketch> getTestClass() {
+    public Class<ItemsSketch> getTestClass() {
         return ItemsSketch.class;
     }
 
     @Override
-    protected ItemsSketch<String> getTestObject() {
+    public ItemsSketch<String> getTestObject() {
         final ItemsSketch<String> sketch = new ItemsSketch<>(32);
         sketch.update("1");
         sketch.update("2");

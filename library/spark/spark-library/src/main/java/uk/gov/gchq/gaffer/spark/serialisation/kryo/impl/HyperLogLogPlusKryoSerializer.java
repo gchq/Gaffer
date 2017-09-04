@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.esotericsoftware.kryo.Serializer;
+
 import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.HyperLogLogPlusSerialiser;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.WrappedKryoSerializer;
 

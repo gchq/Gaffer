@@ -21,6 +21,7 @@ import org.apache.parquet.filter2.predicate.FilterPredicate;
 import org.apache.parquet.hadoop.ParquetReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -70,19 +71,23 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
         if (elementFilter == null) {
             elementFilter = new ViewElementDefinition.Builder().json(elementDefinitionJson).build().getPreAggregationFilter();
         }
-        final ParquetReader<Element> fileReader = openParquetReader();
-        Element e = fileReader.read();
-        while (e != null) {
-            if (needsValidation) {
-                if (elementFilter.test(e)) {
+        try {
+            final ParquetReader<Element> fileReader = openParquetReader();
+            Element e = fileReader.read();
+            while (e != null) {
+                if (needsValidation) {
+                    if (elementFilter.test(e)) {
+                        queue.add(e);
+                    }
+                } else {
                     queue.add(e);
                 }
-            } else {
-                queue.add(e);
+                e = fileReader.read();
             }
-            e = fileReader.read();
+            fileReader.close();
+        } catch (final IOException ignore) {
+            // ignore as this file does not exist
         }
-        fileReader.close();
         return null;
     }
 

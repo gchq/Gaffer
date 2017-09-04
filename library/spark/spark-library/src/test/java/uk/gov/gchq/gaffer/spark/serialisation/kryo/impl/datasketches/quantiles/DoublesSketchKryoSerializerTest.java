@@ -17,8 +17,9 @@ package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.quantiles;
 
 import com.yahoo.sketches.quantiles.DoublesSketch;
 import com.yahoo.sketches.quantiles.UpdateDoublesSketch;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
-public class DoublesSketchKryoSerializerTest extends KryoSerializationTest<DoublesSketch> {
+public class DoublesSketchKryoSerializerTest extends KryoSerializerTest<DoublesSketch> {
 
     @Override
     public Class<DoublesSketch> getTestClass() {

@@ -28,11 +28,13 @@ import com.yahoo.sketches.sampling.ReservoirLongsSketch;
 import com.yahoo.sketches.sampling.ReservoirLongsUnion;
 import com.yahoo.sketches.theta.Sketch;
 import org.apache.spark.serializer.KryoRegistrator;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.EdgeKryoSerializer;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.EntityKryoSerializer;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.FreqMapKryoSerializer;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.HyperLogLogPlusKryoSerializer;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.cardinality.HllSketchKryoSerializer;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.cardinality.HllUnionKryoSerializer;
@@ -45,7 +47,11 @@ import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.sampling.Re
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.sampling.ReservoirLongsUnionKryoSerialiser;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.theta.SketchKryoSerializer;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.theta.UnionKryoSerializer;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.TypeSubTypeValueKryoSerializer;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.TypeValueKryoSerializer;
 import uk.gov.gchq.gaffer.types.FreqMap;
+import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
+import uk.gov.gchq.gaffer.types.TypeValue;
 
 /**
  * A custom {@link KryoRegistrator} that serializes Gaffer {@link Entity}s and {@link Edge}s. NB: It
@@ -58,7 +64,7 @@ public class Registrator implements KryoRegistrator {
         kryo.register(Entity.class, new EntityKryoSerializer());
         kryo.register(Edge.class, new EdgeKryoSerializer());
         kryo.register(Properties.class);
-        kryo.register(FreqMap.class);
+        kryo.register(FreqMap.class, new FreqMapKryoSerializer());
         kryo.register(HyperLogLogPlus.class, new HyperLogLogPlusKryoSerializer());
         kryo.register(HllSketch.class, new HllSketchKryoSerializer());
         kryo.register(Union.class, new HllUnionKryoSerializer());
@@ -72,5 +78,7 @@ public class Registrator implements KryoRegistrator {
         kryo.register(ReservoirLongsUnion.class, new ReservoirLongsUnionKryoSerialiser());
         kryo.register(Sketch.class, new SketchKryoSerializer());
         kryo.register(com.yahoo.sketches.theta.Union.class, new UnionKryoSerializer());
+        kryo.register(TypeValue.class, new TypeValueKryoSerializer());
+        kryo.register(TypeSubTypeValue.class, new TypeSubTypeValueKryoSerializer());
     }
 }

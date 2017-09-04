@@ -1,14 +1,12 @@
 package uk.gov.gchq.gaffer.parquetstore.utils;
 
 import org.apache.hadoop.fs.Path;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.parquet.filter2.predicate.FilterPredicate;
 import org.apache.parquet.io.api.Binary;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -25,10 +23,12 @@ import uk.gov.gchq.gaffer.parquetstore.index.ColumnIndex;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.index.GroupIndex;
 import uk.gov.gchq.gaffer.parquetstore.index.MinValuesWithPath;
+import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.types.TypeValue;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -49,8 +49,7 @@ public class ConvertViewToFilterTest {
 
     @Before
     public void setUp() throws StoreException {
-        Logger.getRootLogger().setLevel(Level.WARN);
-        final Schema schema = Schema.fromJson(StreamUtil.openStreams(ConvertViewToFilterTest.class, "schemaUsingTypeValueVertexType"));
+        final Schema schema = TestUtils.gafferSchema("schemaUsingTypeValueVertexType");
         final ParquetStore store = new ParquetStore();
         store.initialise("ConvertViewToFilterTest", schema, new ParquetStoreProperties());
         filterUtils = new ParquetFilterUtils(store);
@@ -80,7 +79,7 @@ public class ConvertViewToFilterTest {
                         new ElementFilter.Builder()
                                 .select("double")
                                 .execute(
-                                new IsEqual(2.0))
+                                        new IsEqual(2.0))
                                 .build())
                         .build())
                 .build();

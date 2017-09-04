@@ -16,9 +16,10 @@
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.quantiles;
 
 import com.yahoo.sketches.quantiles.ItemsSketch;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 import java.util.Comparator;
 
-public class StringsSketchKryoSerializerTest extends KryoSerializationTest<ItemsSketch<String>> {
+public class StringsSketchKryoSerializerTest extends KryoSerializerTest<ItemsSketch> {
 
     @Override
     public Class<ItemsSketch> getTestClass() {

@@ -17,8 +17,9 @@ package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.theta;
 
 import com.yahoo.sketches.theta.Sketch;
 import com.yahoo.sketches.theta.UpdateSketch;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
-public class SketchKryoSerializerTest extends KryoSerializationTest<Sketch> {
+public class SketchKryoSerializerTest extends KryoSerializerTest<Sketch> {
 
     @Override
     public Class<Sketch> getTestClass() {

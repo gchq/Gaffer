@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.doc.user.walkthrough;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -47,6 +48,7 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.predicate.PredicateMap;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.text.ParseException;
@@ -163,7 +165,7 @@ public class FullExample extends UserWalkthrough {
 
         try {
             log("GET_JSON", StringUtil.toString(JSONSerialiser.serialise(opChain, true)));
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new RuntimeException(e);
         }
 

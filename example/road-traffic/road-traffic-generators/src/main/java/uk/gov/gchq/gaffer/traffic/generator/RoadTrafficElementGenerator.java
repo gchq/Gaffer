@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.traffic.generator;
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.time.DateUtils;
+
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -27,6 +28,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;
 import uk.gov.gchq.gaffer.traffic.ElementGroup;
 import uk.gov.gchq.gaffer.types.FreqMap;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -34,6 +36,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import static uk.gov.gchq.gaffer.traffic.generator.RoadTrafficDataField.A_Junction;
 import static uk.gov.gchq.gaffer.traffic.generator.RoadTrafficDataField.A_Ref_E;
@@ -193,23 +196,29 @@ public class RoadTrafficElementGenerator implements OneToManyElementGenerator<CS
     private Date getDate(final String dCountString, final String hour) {
         Date dCount = null;
         try {
-            dCount = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(dCountString);
-        } catch (ParseException e) {
+            final SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+            format.setTimeZone(TimeZone.getTimeZone("UTC"));
+            dCount = format.parse(dCountString);
+        } catch (final ParseException e) {
             // incorrect date format
         }
 
         if (null == dCount) {
             try {
-                dCount = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(dCountString);
-            } catch (ParseException e) {
+                final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                format.setTimeZone(TimeZone.getTimeZone("UTC"));
+                dCount = format.parse(dCountString);
+            } catch (final ParseException e) {
                 // another incorrect date format
             }
         }
 
         if (null == dCount) {
             try {
-                dCount = new SimpleDateFormat("yyyy-MM-dd").parse(dCountString);
-            } catch (ParseException e) {
+                final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                format.setTimeZone(TimeZone.getTimeZone("UTC"));
+                dCount = format.parse(dCountString);
+            } catch (final ParseException e) {
                 // another incorrect date format
             }
         }

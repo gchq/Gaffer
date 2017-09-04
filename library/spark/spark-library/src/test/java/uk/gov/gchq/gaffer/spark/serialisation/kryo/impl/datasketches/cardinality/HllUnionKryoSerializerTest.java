@@ -16,8 +16,9 @@
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.cardinality;
 
 import com.yahoo.sketches.hll.Union;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
-public class HllUnionKryoSerializerTest extends KryoSerializationTest<Union> {
+public class HllUnionKryoSerializerTest extends KryoSerializerTest<Union> {
 
     @Override
     public Class<Union> getTestClass() {

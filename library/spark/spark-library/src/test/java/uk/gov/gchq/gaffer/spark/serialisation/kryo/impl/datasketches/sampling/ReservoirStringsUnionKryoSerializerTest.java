@@ -16,8 +16,9 @@
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.sampling;
 
 import com.yahoo.sketches.sampling.ReservoirItemsUnion;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
-public class ReservoirStringsUnionKryoSerializerTest extends KryoSerializationTest<ReservoirItemsUnion<String>> {
+public class ReservoirStringsUnionKryoSerializerTest extends KryoSerializerTest<ReservoirItemsUnion> {
 
     @Override
     public Class<ReservoirItemsUnion> getTestClass() {

@@ -16,10 +16,12 @@
 package uk.gov.gchq.gaffer.hdfs.operation;
 
 import org.apache.hadoop.mapreduce.Partitioner;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
+
 import java.util.Map;
 
 /**

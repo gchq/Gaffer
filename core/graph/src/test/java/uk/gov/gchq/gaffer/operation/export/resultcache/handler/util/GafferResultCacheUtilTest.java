@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.export.resultcache.handler.util;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;

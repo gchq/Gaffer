@@ -16,8 +16,9 @@
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.quantiles;
 
 import com.yahoo.sketches.quantiles.DoublesUnion;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
-public class DoublesUnionKryoSerializerTest extends KryoSerializationTest<DoublesUnion> {
+public class DoublesUnionKryoSerializerTest extends KryoSerializerTest<DoublesUnion> {
 
     @Override
     public Class<DoublesUnion> getTestClass() {

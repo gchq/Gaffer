@@ -17,12 +17,14 @@
 package uk.gov.gchq.gaffer.store.operation.handler.generate;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.ObjectGenerator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+
 import java.util.Iterator;
 import java.util.function.Function;
 

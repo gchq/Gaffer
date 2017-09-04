@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.cardinality;
 
 import com.yahoo.sketches.hll.HllSketch;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
 public class HllSketchKryoSerializerTest extends KryoSerializerTest<HllSketch> {
 

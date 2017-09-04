@@ -17,8 +17,9 @@ package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.quantiles;
 
 import com.google.common.collect.Ordering;
 import com.yahoo.sketches.quantiles.ItemsUnion;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
-public class StringsUnionKryoSerializerTest extends KryoSerializationTest<ItemsUnion<String>> {
+public class StringsUnionKryoSerializerTest extends KryoSerializerTest<ItemsUnion> {
 
     @Override
     public Class<ItemsUnion> getTestClass() {

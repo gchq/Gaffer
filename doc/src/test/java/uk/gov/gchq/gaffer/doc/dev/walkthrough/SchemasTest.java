@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.doc.dev.walkthrough;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 

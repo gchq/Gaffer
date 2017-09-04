@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.flink.operation;
 
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
+
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -34,6 +35,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
+
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;

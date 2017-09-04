@@ -23,10 +23,12 @@ import scala.Tuple2;
 import scala.collection.TraversableOnce;
 import scala.collection.mutable.ArrayBuffer;
 import scala.runtime.AbstractFunction1;
+
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
+
 import java.io.Serializable;
 
 public class ElementConverterFunction extends AbstractFunction1<Element, TraversableOnce<Tuple2<Key, Value>>> implements Serializable {
