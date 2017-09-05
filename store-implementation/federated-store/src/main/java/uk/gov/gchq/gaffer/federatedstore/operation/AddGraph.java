@@ -17,10 +17,12 @@
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import org.apache.commons.lang3.exception.CloneFailedException;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
 import java.util.List;
 import java.util.Map;
 
@@ -75,6 +77,16 @@ public class AddGraph implements Operation {
                 .parentPropertiesId(parentPropertiesId)
                 .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
 

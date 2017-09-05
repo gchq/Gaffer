@@ -17,8 +17,10 @@
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import org.apache.commons.lang3.exception.CloneFailedException;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
+
 import java.util.Map;
 
 /**
