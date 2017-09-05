@@ -218,7 +218,7 @@ public class FederatedStore extends Store {
                 final Builder overriddenBuilder = makeBuilder(graphId);
                 final String before = overriddenBuilder.toString();
 
-                resolveSchemaAndProps(graphId, overriddenBuilder);
+                resolveConfiguration(graphId, overriddenBuilder);
 
                 final String overridden = overriddenBuilder.toString();
                 final String original = builder.toString();
@@ -226,13 +226,13 @@ public class FederatedStore extends Store {
                     throw new IllegalArgumentException(String.format("User is attempting to override a known graph in library.%nOriginal: %s%nOverridden: %s", original, overridden));
                 }
             } else {
-                resolveSchemaAndProps(graphId, builder);
+                resolveConfiguration(graphId, builder);
             }
-            addGraphs(Optional.<FederatedAccessHook>empty(), builder);
+            addGraphs(builder);
         }
     }
 
-    private void resolveSchemaAndProps(final String graphId, final Builder builder) {
+    private void resolveConfiguration(final String graphId, final Builder builder) {
         resolveSchema(graphId, builder);
 
         resolveProperties(graphId, builder);
@@ -241,14 +241,16 @@ public class FederatedStore extends Store {
     }
 
     private void resolveAuths(final String graphId, final Builder builder) {
-        final String key = GAFFER_FEDERATED_STORE + graphId + DOT + "auths";
-        final List<String> values = getCleanStrings(getProperties().get(key));
+        final String value = getProperties().get(GAFFER_FEDERATED_STORE + graphId + DOT + "auths");
+        if (!Strings.isNullOrEmpty(value)) {
+            final List<String> values = getCleanStrings(value);
 
-        builder.config(new GraphConfig.Builder()
-                .addHook(new FederatedAccessHook.Builder()
-                        .graphAuths(values)
-                        .build())
-                .build());
+            builder.config(new GraphConfig.Builder()
+                    .addHook(new FederatedAccessHook.Builder()
+                            .graphAuths(values)
+                            .build())
+                    .build());
+        }
     }
 
     private void resolveProperties(final String graphId, final Builder builder) {
@@ -272,11 +274,8 @@ public class FederatedStore extends Store {
                 .build());
     }
 
-    private void addGraphs(Optional<FederatedAccessHook> hook, final Builder... builders) {
+    private void addGraphs(final Builder... builders) {
         for (final Builder builder : builders) {
-            if (hook.isPresent()) {
-                builder.config(new GraphConfig.Builder().addHook(hook.get()).build());
-            }
             final Graph graph;
             try {
                 graph = builder.build();
@@ -387,18 +386,22 @@ public class FederatedStore extends Store {
     }
 
     public void addGraphs(final String... graphId) {
-        addGraphs(Optional.<FederatedAccessHook>empty(), graphId);
+        addGraphs(Optional.<Collection<String>>empty(), graphId);
     }
 
-    public void addGraphs(final Optional<FederatedAccessHook> hook, final String... graphId) {
+    public void addGraphs(final Optional<Collection<String>> graphAuths, final String... graphId) {
         for (final String id : graphId) {
-            final Builder builder = new Builder().config(new GraphConfig.Builder()
+            final GraphConfig.Builder configBuilder = new GraphConfig.Builder()
                     .graphId(id)
-                    .library(getGraphLibrary())
-                    .addHooks(hook.orElse(null))
-                    .build());
-            addConfigFromLibrary(id, builder);
-            addGraphs(Optional.<FederatedAccessHook>empty(), builder);
+                    .library(getGraphLibrary());
+
+            if (graphAuths.isPresent()) {
+                configBuilder.addHooks(new FederatedAccessHook.Builder().graphAuths(graphAuths.get()).build());
+            }
+
+            final Builder graphBuilder = new Builder().config(configBuilder.build());
+            addConfigFromLibrary(id, graphBuilder);
+            addGraphs(graphBuilder);
         }
     }
 

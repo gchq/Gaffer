@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2017 Crown Copyright
  *
@@ -70,21 +69,21 @@ public class FederatedAccessHook implements GraphHook {
     }
 
     public static class Builder {
-        private FederatedAccessHook _hook = new FederatedAccessHook();
-        private Builder _self = this;
+        private FederatedAccessHook hook = new FederatedAccessHook();
+        private Builder self = this;
 
         public Builder graphAuths(final String... opAuth) {
-            _hook.addGraphAuths(Arrays.asList(opAuth));
-            return _self;
+            hook.addGraphAuths(Arrays.asList(opAuth));
+            return self;
         }
 
         public Builder graphAuths(final Collection<? extends String> opAuths) {
-            _hook.addGraphAuths(opAuths);
-            return _self;
+            hook.addGraphAuths(opAuths);
+            return self;
         }
 
         public FederatedAccessHook build() {
-            return _hook;
+            return hook;
         }
     }
 

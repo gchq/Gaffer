@@ -77,7 +77,7 @@ public class FederatedStoreTest {
     public static final String PATH_INVALID = "nothing.json";
     public static final String EXCEPTION_NOT_THROWN = "exception not thrown";
     public static final String USER_ID = "testUser";
-    public static final User TEST_USER = new User(USER_ID);
+    public static final User TEST_USER = new User.Builder().userId(USER_ID).opAuths("one", "two").build();
     public static final String PROPS_ID_1 = "PROPS_ID_1";
     public static final String SCHEMA_ID_1 = "SCHEMA_ID_1";
     FederatedStore store;
@@ -440,7 +440,7 @@ public class FederatedStoreTest {
                                 .build())
                         .build(), TEST_USER);
 
-        return Sets.newHashSet(elements);
+        return (null == elements) ? Sets.newHashSet() : Sets.newHashSet(elements);
     }
 
     @Test
@@ -704,7 +704,6 @@ public class FederatedStoreTest {
         }
     }
 
-
     @Test
     public void shouldFederatedIfUserHasCorrectAuths() throws Exception {
         //Given
@@ -721,18 +720,6 @@ public class FederatedStoreTest {
                 .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_ENTITY_SCHEMA_JSON))
                 .build());
 
-        try {
-            store.execute(new GetAllElements(),
-                    new User.Builder()
-                            .userId(USER_ID)
-                            .opAuths("x")
-                            .build());
-
-            fail("no exception thrown");
-        } catch (final Exception e) {
-            assertTrue(e.getCause().getMessage().contains(String.format(FederatedAccessHook.USER_DOES_NOT_HAVE_CORRECT_AUTHS_TO_ACCESS_THIS_GRAPH_USER_S, "")));
-        }
-
         final CloseableIterable<? extends Element> elements = store.execute(new GetAllElements(),
                 new User.Builder()
                         .userId(USER_ID)
@@ -740,6 +727,14 @@ public class FederatedStoreTest {
                         .build());
 
         Assert.assertFalse(elements.iterator().hasNext());
+
+        final CloseableIterable<? extends Element> x = store.execute(new GetAllElements(),
+                new User.Builder()
+                        .userId(USER_ID)
+                        .opAuths("x")
+                        .build());
+
+        Assert.assertNull(x);
     }
 
 
