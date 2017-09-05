@@ -32,6 +32,10 @@ function addExampleButtons(){
 
 function loadExample(exampleButton){
 
+    var footer = document.getElementById("swagger-ui-container").children[1].children[2].innerText
+
+    var version = footer.substr(footer.lastIndexOf(':') + 2, 2)
+
     var classPathParam = ""
 
     var operation = $(exampleButton).closest('.operation')
@@ -42,15 +46,15 @@ function loadExample(exampleButton){
         classPathParam = row.children[1].firstElementChild.value
     }
 
-    if (classPathParam == "") {
+    var urlSuffix = operation.find(".path").text().trim();
+    var method = operation.find(".http_method").text().trim();
+
+    if (classPathParam == "" && urlSuffix.includes('{')) {
         classPathParam = "uk.gov.gchq.gaffer.operation.OperationChain"
         row.children[1].firstElementChild.value = "uk.gov.gchq.gaffer.operation.OperationChain"
     }
 
-    var urlSuffix = operation.find(".path").text().trim();
-    var method = operation.find(".http_method").text().trim();
-
-    var exampleUrl = "latest/example" + urlSuffix.replace(/\{(.*?)\}/, classPathParam);
+    var exampleUrl = version + "/example" + urlSuffix.replace(/\{(.*?)\}/, classPathParam);
 
     if (method != 'post') {
         exampleUrl = exampleUrl + '/' + method
