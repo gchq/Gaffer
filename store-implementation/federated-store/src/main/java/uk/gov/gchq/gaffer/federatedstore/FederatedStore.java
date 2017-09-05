@@ -237,20 +237,31 @@ public class FederatedStore extends Store {
 
         resolveProperties(graphId, builder);
 
-        // resolve graph config
+        resolveAuths(graphId, builder);
+    }
+
+    private void resolveAuths(final String graphId, final Builder builder) {
+        final String key = GAFFER_FEDERATED_STORE + graphId + DOT + "auths";
+        final List<String> values = getCleanStrings(getProperties().get(key));
+
+        builder.config(new GraphConfig.Builder()
+                .addHook(new FederatedAccessHook.Builder()
+                        .graphAuths(values)
+                        .build())
+                .build());
     }
 
     private void resolveProperties(final String graphId, final Builder builder) {
         addPropertiesFromLibrary(graphId, builder);
 
-        //may override with properties from from
+        //this method is allowed to override properties from file
         addPropertiesFromFile(graphId, builder);
     }
 
     private void resolveSchema(final String graphId, final Builder builder) {
         addSchemaFromLibrary(graphId, builder);
 
-        //may override with schema from file
+        //this method is allowed to override schema from file
         addSchemaFromFile(graphId, builder);
     }
 
@@ -360,9 +371,6 @@ public class FederatedStore extends Store {
         return graphIds;
     }
 
-    /*
-     * hooks must be included
-     */
     public void addGraphs(final Graph... graphs) {
         for (final Graph graph : graphs) {
             _add(graph);
@@ -374,11 +382,6 @@ public class FederatedStore extends Store {
         final String graphId = graph.getGraphId();
         if (graphs.containsKey(graphId)) {
             throw new OverwritingException((String.format(USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S, graphId)));
-//        } else {
-//            final boolean hasFederatedAccessHook = graph.getGraphHooks().contains(FederatedAccessHook.class);
-//            if (!hasFederatedAccessHook) {
-//                throw new InvalidParameterException(String.format(USER_IS_ATTEMPTING_TO_ADD_A_GRAPH_WITHOUT_A_S_GRAPH_ID_S, FederatedAccessHook.class.getSimpleName(), graphId));
-//            }
         }
         graphs.put(graphId, graph);
     }
