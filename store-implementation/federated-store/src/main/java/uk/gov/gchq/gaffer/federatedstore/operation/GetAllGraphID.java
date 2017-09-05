@@ -18,12 +18,16 @@ package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
+
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
+import java.util.Map;
+
 
 public class GetAllGraphID implements Operation, Output<Iterable<? extends String>> {
+    private Map<String, String> options;
 
     @Override
     public TypeReference<Iterable<? extends String>> getOutputTypeReference() {
@@ -32,7 +36,19 @@ public class GetAllGraphID implements Operation, Output<Iterable<? extends Strin
 
     @Override
     public GetAllGraphID shallowClone() throws CloneFailedException {
-        return new Builder().build();
+        return new Builder()
+                .options(options)
+                .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static class Builder extends BaseBuilder<GetAllGraphID, Builder> {
