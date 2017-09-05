@@ -4,8 +4,6 @@ ${CODE_LINK}
 
 This example demonstrates how the [com.yahoo.sketches.theta.Sketch](https://github.com/DataSketches/sketches-core/blob/master/src/main/java/com/yahoo/sketches/theta/Sketch.java) sketch from the Data Sketches library can be used to maintain estimates of the cardinalities of sets. This sketch is similar to a HyperLogLogPlusPlus, but it can also be used to estimate the size of the intersections of sets. We give an example of how this can be used to monitor the changes to the number of edges in the graph over time.
 
-${PROPERTY_CLASS}
-
 ##### Elements schema
 This is our new elements schema. The edge has properties called 'startDate' and 'endDate'. These will be set to the midnight before the time of the occurrence of the edge and to midnight after the time of the occurrence of the edge. There is also a size property which will be a theta Sketch. This property will be aggregated over the 'groupBy' properties of startDate and endDate.
 

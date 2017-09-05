@@ -4,8 +4,6 @@ ${CODE_LINK}
 
 This example demonstrates how the [HllSketch](https://github.com/DataSketches/sketches-core/blob/master/src/main/java/com/yahoo/sketches/hll/HllSketch.java) sketch from the Data Sketches library can be used to maintain an estimate of the degree of a vertex. Every time an edge A -> B is added to graph, we also add an Entity for A with a property of a HllSketch containing B, and an Entity for B with a property of a HllSketch containing A. The aggregator for the HllSketches merges them together so that after querying for the Entity for vertex X the HllSketch property would give us an estimate of the approximate degree.
 
-${PROPERTY_CLASS}
-
 ##### Elements schema
 This is our new elements schema. The edge has a property called 'approx_cardinality'. This will store the HllSketch object.
 

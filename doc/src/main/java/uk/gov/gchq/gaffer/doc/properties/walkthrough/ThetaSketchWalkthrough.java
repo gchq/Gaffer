@@ -39,7 +39,12 @@ import java.util.Set;
 
 public class ThetaSketchWalkthrough extends PropertiesWalkthrough {
     public ThetaSketchWalkthrough() {
-        super(Sketch.class, "properties/thetaSketch", ThetaSketchElementGenerator.class);
+        super(ThetaSketch.class, "properties/thetaSketch", ThetaSketchElementGenerator.class);
+    }
+
+    private static class ThetaSketch {
+        // Dummy class used in the above constructor as the actual class is just called "Sketch" which isn't
+        // very useful in the table of contents.
     }
 
     public static void main(final String[] args) throws OperationException {
