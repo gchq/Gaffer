@@ -49,14 +49,14 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
 
     @Override
     public Void doOperation(final AddElementsFromHdfs operation,
-                            final Context context, final Store store)
+            final Context context, final Store store)
             throws OperationException {
         doOperation(operation, context, (AccumuloStore) store);
         return null;
     }
 
     public void doOperation(final AddElementsFromHdfs operation,
-                            final Context context, final AccumuloStore store)
+            final Context context, final AccumuloStore store)
             throws OperationException {
         validateOperation(operation);
 
@@ -67,6 +67,12 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
             final String splitsFilePath = getPathWithSlashSuffix(operation.getWorkingPath()) + context.getJobId() + "/splits";
             LOGGER.info("Using working directory for splits files: " + splitsFilePath);
             operation.setSplitsFilePath(splitsFilePath);
+        }
+
+        try {
+            checkHdfsDirectories(operation, store);
+        } catch (final IOException e) {
+            throw new OperationException("Operation failed due to filesystem error: " + e.getMessage());
         }
 
         if (!operation.isUseProvidedSplits() && needsSplitting(store)) {
@@ -141,7 +147,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
 
         final String tmpSplitsOutputPath = tmpJobWorkingPath + "/sampleSplitsOutput";
         try {
-            store._execute(new OperationChain.Builder()
+            store.execute(new OperationChain.Builder()
                     .first(new SampleDataForSplitPoints.Builder()
                             .addInputMapperPairs(operation.getInputMapperPairs())
                             .jobInitialiser(operation.getJobInitialiser())
@@ -183,7 +189,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         final int response;
         try {
             LOGGER.info("Running FetchElementsFromHdfsTool job");
-            response = ToolRunner.run(fetchTool, new String[0]);
+            response = ToolRunner.run(fetchTool.getConfig(), fetchTool, new String[0]);
             LOGGER.info("Finished running FetchElementsFromHdfsTool job");
         } catch (final Exception e) {
             LOGGER.error("Failed to fetch elements from HDFS: {}", e.getMessage());
@@ -213,6 +219,24 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         if (ImportElementsToAccumuloTool.SUCCESS_RESPONSE != response) {
             LOGGER.error("Failed to import elements into Accumulo. Response code was {}", response);
             throw new OperationException("Failed to import elements into Accumulo. Response code was: " + response);
+        }
+    }
+
+    private void checkHdfsDirectories(final AddElementsFromHdfs operation, final AccumuloStore store) throws IOException {
+        final AddElementsFromHdfsTool tool = new AddElementsFromHdfsTool(new AccumuloAddElementsFromHdfsJobFactory(), operation, store);
+
+        LOGGER.info("Checking that the correct HDFS directories exist");
+        final FileSystem fs = FileSystem.get(tool.getConfig());
+
+        final Path outputPath = new Path(operation.getOutputPath());
+        LOGGER.info("Ensuring output directory {} doesn't exist", outputPath);
+        if (fs.exists(outputPath)) {
+            if (fs.listFiles(outputPath, true).hasNext()) {
+                LOGGER.error("Output directory exists and is not empty: {}", outputPath);
+                throw new IllegalArgumentException("Output directory exists and is not empty: " + outputPath);
+            }
+            LOGGER.info("Output directory exists and is empty so deleting: {}", outputPath);
+            fs.delete(outputPath, true);
         }
     }
 }

@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.named.operation;
 
-
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 

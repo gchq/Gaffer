@@ -61,7 +61,7 @@ public class ImportJavaRDDOfElementsHandler implements OperationHandler<ImportJa
                         .failurePath(failurePath)
                         .outputPath(outputPath)
                         .build();
-        store._execute(new OperationChain(op), context);
+        store.execute(new OperationChain(op), context);
     }
 }
 

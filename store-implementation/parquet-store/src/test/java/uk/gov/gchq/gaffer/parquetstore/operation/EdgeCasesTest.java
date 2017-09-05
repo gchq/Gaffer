@@ -19,9 +19,7 @@ package uk.gov.gchq.gaffer.parquetstore.operation;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.log4j.Level;
 import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -59,11 +57,6 @@ import static org.junit.Assert.assertTrue;
 
 public class EdgeCasesTest {
     private static User USER = new User();
-
-    @BeforeClass
-    public static void setup() {
-        org.apache.log4j.Logger.getRootLogger().setLevel(Level.WARN);
-    }
 
     @AfterClass
     public static void cleanUp() throws IOException {

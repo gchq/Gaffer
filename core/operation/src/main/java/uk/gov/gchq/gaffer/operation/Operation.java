@@ -94,6 +94,7 @@ public interface Operation extends Closeable {
      *
      * @throws IOException if an I/O error occurs
      */
+    @Override
     default void close() throws IOException {
         // do nothing by default
     }
@@ -110,7 +111,6 @@ public interface Operation extends Closeable {
             final Required[] annotations = field.getAnnotationsByType(Required.class);
             if (null != annotations && annotations.length > 0) {
                 if (field.isAccessible()) {
-                    final String name = field.getName();
                     final Object value;
                     try {
                         value = field.get(this);
@@ -119,12 +119,11 @@ public interface Operation extends Closeable {
                     }
 
                     if (null == value) {
-                        result.addError(name + " is required");
+                        result.addError(field.getName() + " is required");
                     }
                 } else {
                     AccessController.doPrivileged((PrivilegedAction<Operation>) () -> {
                         field.setAccessible(true);
-                        final String name = field.getName();
                         final Object value;
                         try {
                             value = field.get(this);
@@ -133,7 +132,7 @@ public interface Operation extends Closeable {
                         }
 
                         if (null == value) {
-                            result.addError(name + " is required");
+                            result.addError(field.getName() + " is required");
                         }
                         return null;
                     });
@@ -142,6 +141,14 @@ public interface Operation extends Closeable {
         }
 
         return result;
+    }
+
+    static <O> OperationChain<O> asOperationChain(final Operation operation) {
+        if (operation instanceof OperationChain<?>) {
+            return (OperationChain<O>) operation;
+        } else {
+            return new OperationChain<>(operation);
+        }
     }
 
     interface Builder<OP, B extends Builder<OP, ?>> {
