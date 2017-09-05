@@ -454,4 +454,18 @@ public class FederatedStore extends Store {
                                           final Context context) {
         throw new UnsupportedOperationException();
     }
+
+    public Collection<Graph> getGraphs(final String[] split) {
+        Map<String, Graph> filteredGraphs = Maps.newHashMap();
+        if (null != split && split.length > 0) {
+            for (final String s : split) {
+                if (graphs.containsKey(s)) {
+                    filteredGraphs.put(s, graphs.get(s));
+                }
+            }
+        } else {
+            filteredGraphs = graphs;
+        }
+        return filteredGraphs.values();
+    }
 }

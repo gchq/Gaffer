@@ -20,7 +20,6 @@ import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -36,15 +35,19 @@ public class FederatedOperationHandler implements OperationHandler<Operation> {
     public static final String SKIP_FAILED_FEDERATED_STORE_EXECUTE = "skipFailedFederatedStoreExecute";
 
     public Object doOperation(final Operation operation, final Context context, final Store store) throws OperationException {
-        final Collection<Graph> graphs = ((FederatedStore) store).getGraphs();
+        final Collection<Graph> graphs;
+        if (null != operation.getOptions() && !operation.getOptions().isEmpty()) {
+            graphs = ((FederatedStore) store).getGraphs(operation.getOption("gaffer.operation.graphids").split(","));
+        } else {
+            graphs = ((FederatedStore) store).getGraphs();
+        }
         for (final Graph graph : graphs) {
             final Operation updatedOp = FederatedStore.updateOperationForGraph(operation, graph);
             if (null != updatedOp) {
                 try {
                     graph.execute(updatedOp, context.getUser());
                 } catch (final Exception e) {
-                    if (!(updatedOp instanceof Options)
-                            || !Boolean.valueOf(((Options) updatedOp).getOption(SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
+                    if (!Boolean.valueOf((updatedOp).getOption(SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
                         throw new OperationException("Failed to execute " + operation.getClass().getSimpleName() + " on graph " + graph.getGraphId(), e);
                     }
                 }

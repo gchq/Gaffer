@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.List;
+import java.util.Map;
 
 /**
  * An Operation used for adding graphs to a FederatedStore.
@@ -46,6 +47,7 @@ public class AddGraph implements Operation {
     private String parentPropertiesId;
     private Schema schema;
     private List<String> parentSchemaIds;
+    private Map<String, String> options;
 
     public String getGraphId() {
         return graphId;
@@ -71,6 +73,7 @@ public class AddGraph implements Operation {
                 .storeProperties(storeProperties)
                 .parentSchemaIds(parentSchemaIds)
                 .parentPropertiesId(parentPropertiesId)
+                .options(options)
                 .build();
     }
 
@@ -97,6 +100,16 @@ public class AddGraph implements Operation {
 
     public void setParentPropertiesId(final String parentPropertiesId) {
         this.parentPropertiesId = parentPropertiesId;
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static class Builder extends BaseBuilder<AddGraph, Builder> {
