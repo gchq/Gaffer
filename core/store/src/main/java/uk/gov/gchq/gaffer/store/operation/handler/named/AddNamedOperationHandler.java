@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
+
 import java.util.Map;
 
 /**
@@ -71,7 +72,8 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
 
             validate(namedOperationDetail.getOperationChainWithDefaultParams(), namedOperationDetail);
 
-            cache.addNamedOperation(namedOperationDetail, operation.isOverwriteFlag(), context.getUser());
+            cache.addNamedOperation(namedOperationDetail, operation.isOverwriteFlag(), context
+                    .getUser());
         } catch (final CacheOperationFailedException e) {
             throw new OperationException(e.getMessage(), e);
         }

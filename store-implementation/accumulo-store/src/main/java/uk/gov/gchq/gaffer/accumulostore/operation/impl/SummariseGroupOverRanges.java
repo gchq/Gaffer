@@ -15,8 +15,8 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
-
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -24,11 +24,11 @@ import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+
 import java.util.Map;
 
 /**
@@ -43,8 +43,7 @@ public class SummariseGroupOverRanges
         implements Operation,
         InputOutput<Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, CloseableIterable<? extends Element>>,
         MultiInput<Pair<? extends ElementId, ? extends ElementId>>,
-        SeededGraphFilters,
-        Options {
+        SeededGraphFilters {
 
     private Iterable<? extends Pair<? extends ElementId, ? extends ElementId>> input;
     private IncludeIncomingOutgoingType inOutType;
@@ -121,8 +120,7 @@ public class SummariseGroupOverRanges
     public static class Builder extends Operation.BaseBuilder<SummariseGroupOverRanges, Builder>
             implements InputOutput.Builder<SummariseGroupOverRanges, Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, CloseableIterable<? extends Element>, Builder>,
             MultiInput.Builder<SummariseGroupOverRanges, Pair<? extends ElementId, ? extends ElementId>, Builder>,
-            SeededGraphFilters.Builder<SummariseGroupOverRanges, Builder>,
-            Options.Builder<SummariseGroupOverRanges, Builder> {
+            SeededGraphFilters.Builder<SummariseGroupOverRanges, Builder> {
         public Builder() {
             super(new SummariseGroupOverRanges());
         }

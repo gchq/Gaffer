@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
+
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;

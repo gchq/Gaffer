@@ -21,6 +21,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToList;
+
 import java.util.List;
 
 public class ToListExample extends OperationExample {

@@ -16,7 +16,9 @@
 package uk.gov.gchq.gaffer.mapstore.utils;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.store.StoreException;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;

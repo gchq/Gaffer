@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.store;
 
 import uk.gov.gchq.gaffer.operation.export.Exporter;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;

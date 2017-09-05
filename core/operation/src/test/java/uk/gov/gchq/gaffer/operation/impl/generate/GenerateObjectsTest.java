@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.impl.generate;
 
 import com.google.common.collect.Sets;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -25,6 +26,7 @@ import uk.gov.gchq.gaffer.data.generator.ObjectGeneratorImpl;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
+
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;

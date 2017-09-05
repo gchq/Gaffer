@@ -18,16 +18,20 @@ package uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+
 import uk.gov.gchq.gaffer.hdfs.operation.MapReduce;
 import uk.gov.gchq.gaffer.store.Store;
+
 import java.io.IOException;
-import java.util.List;
+import java.util.Map;
 
 /**
  * An <code>AvroJobInitialiser</code> is an {@link JobInitialiser} that
  * initialises the provided {@link Job} to handle text input data.
  */
 public class TextJobInitialiser implements JobInitialiser {
+
+    private static final String MAPPER_GENERATOR = "mapperGenerator";
 
     public TextJobInitialiser() {
     }
@@ -40,9 +44,11 @@ public class TextJobInitialiser implements JobInitialiser {
 
     private void initialiseInput(final Job job, final MapReduce operation) throws IOException {
         job.setInputFormatClass(TextInputFormat.class);
-        List<String> paths = operation.getInputPaths();
-        for (final String path : paths) {
-            TextInputFormat.addInputPath(job, new Path(path));
+
+        for (final Map.Entry<String, String> entry : operation.getInputMapperPairs().entrySet()) {
+            if (entry.getValue().contains(job.getConfiguration().get(MAPPER_GENERATOR))) {
+                TextInputFormat.addInputPath(job, new Path(entry.getKey()));
+            }
         }
     }
 }

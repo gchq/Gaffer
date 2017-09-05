@@ -21,6 +21,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -48,12 +49,14 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.Collections;
@@ -143,26 +146,18 @@ public class ProxyStore extends Store {
         }
     }
 
-    @Override
-    protected <O> O handleOperationChain(
-            final OperationChain<O> operationChain, final Context context)
-            throws OperationException {
-        return executeOpChainViaUrl(operationChain, context);
-    }
-
-    protected <O> O executeOpChainViaUrl(
-            final OperationChain<O> operationChain, final Context context)
+    public <O> O executeOpChainViaUrl(final OperationChain<O> opChain, final Context context)
             throws OperationException {
         final String opChainJson;
         try {
-            opChainJson = new String(JSONSerialiser.serialise(operationChain), CommonConstants.UTF_8);
+            opChainJson = new String(JSONSerialiser.serialise(opChain), CommonConstants.UTF_8);
         } catch (final UnsupportedEncodingException | SerialisationException e) {
             throw new OperationException("Unable to serialise operation chain into JSON.", e);
         }
 
         final URL url = getProperties().getGafferUrl("graph/doOperation");
         try {
-            return doPost(url, opChainJson, operationChain.getOutputTypeReference(), context);
+            return doPost(url, opChainJson, opChain.getOutputTypeReference(), context);
         } catch (final StoreException e) {
             throw new OperationException(e.getMessage(), e);
         }
@@ -265,6 +260,7 @@ public class ProxyStore extends Store {
     @Override
     protected void addAdditionalOperationHandlers() {
         // no operation handlers to add.
+//        addOperationHandler(OperationChain.class, new OperationChainHandler());
     }
 
     @Override
@@ -295,6 +291,11 @@ public class ProxyStore extends Store {
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
         return null;
+    }
+
+    @Override
+    protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
+        return new uk.gov.gchq.gaffer.proxystore.operation.handler.OperationChainHandler<>();
     }
 
     protected Client createClient(final ProxyProperties proxyProps) {
@@ -336,7 +337,7 @@ public class ProxyStore extends Store {
             return this;
         }
 
-        public Builder connextTimeout(final int timeout) {
+        public Builder connectTimeout(final int timeout) {
             properties.setConnectTimeout(timeout);
             return this;
         }

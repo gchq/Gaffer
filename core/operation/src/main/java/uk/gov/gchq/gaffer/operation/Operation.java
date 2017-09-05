@@ -16,15 +16,20 @@
 
 package uk.gov.gchq.gaffer.operation;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang3.exception.CloneFailedException;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.koryphe.ValidationResult;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * An <code>Operation</code> defines an operation to be processed on a graph.
@@ -49,7 +54,6 @@ import java.security.PrivilegedAction;
  * {@link uk.gov.gchq.gaffer.operation.graph.OperationView}
  * {@link uk.gov.gchq.gaffer.operation.graph.GraphFilters}
  * {@link uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters}
- * {@link uk.gov.gchq.gaffer.operation.Options}
  * </p>
  * <p>
  * Each Operation implementation should have a corresponding unit test class
@@ -67,8 +71,7 @@ import java.security.PrivilegedAction;
  *         implements InputOutput.Builder&lt;GetElements, Iterable&lt;? extends ElementId&gt;, CloseableIterable&lt;? extends Element&gt;, Builder&gt;,
  *         MultiInput.Builder&lt;GetElements, ElementId, Builder&gt;,
  *         SeededGraphFilters.Builder&lt;GetElements, Builder&gt;,
- *         SeedMatching.Builder&lt;GetElements, Builder&gt;,
- *         Options.Builder&lt;GetElements, Builder&gt; {
+ *         SeedMatching.Builder&lt;GetElements, Builder&gt; {
  *     public Builder() {
  *             super(new GetElements());
  *     }
@@ -88,10 +91,64 @@ public interface Operation extends Closeable {
     Operation shallowClone() throws CloneFailedException;
 
     /**
+     * @return the operation options. This may contain store specific options such as authorisation strings or and
+     * other properties required for the operation to be executed. Note these options will probably not be interpreted
+     * in the same way by every store implementation.
+     */
+    Map<String, String> getOptions();
+
+    /**
+     * @param options the operation options. This may contain store specific options such as authorisation strings or and
+     *                other properties required for the operation to be executed. Note these options will probably not be interpreted
+     *                in the same way by every store implementation.
+     */
+    void setOptions(final Map<String, String> options);
+
+    /**
+     * Adds an operation option. This may contain store specific options such as authorisation strings or and
+     * other properties required for the operation to be executed. Note these options will probably not be interpreted
+     * in the same way by every store implementation.
+     *
+     * @param name  the name of the option
+     * @param value the value of the option
+     */
+    default void addOption(final String name, final String value) {
+        if (null == getOptions()) {
+            setOptions(new HashMap<>());
+        }
+
+        getOptions().put(name, value);
+    }
+
+    /**
+     * Gets an operation option by its given name.
+     *
+     * @param name the name of the option
+     * @return the value of the option
+     */
+    default String getOption(final String name) {
+        if (null == getOptions()) {
+            return null;
+        }
+
+        return getOptions().get(name);
+    }
+
+    @JsonGetter("options")
+    default Map<String, String> _getNullOrOptions() {
+        if (null == getOptions()) {
+            return null;
+        }
+
+        return getOptions().isEmpty() ? null : getOptions();
+    }
+
+    /**
      * Operation implementations should ensure that all closeable fields are closed in this method.
      *
      * @throws IOException if an I/O error occurs
      */
+    @Override
     default void close() throws IOException {
         // do nothing by default
     }
@@ -108,30 +165,28 @@ public interface Operation extends Closeable {
             final Required[] annotations = field.getAnnotationsByType(Required.class);
             if (null != annotations && annotations.length > 0) {
                 if (field.isAccessible()) {
-                    final String name = field.getName();
                     final Object value;
                     try {
                         value = field.get(this);
-                    } catch (IllegalAccessException e) {
+                    } catch (final IllegalAccessException e) {
                         throw new RuntimeException(e);
                     }
 
                     if (null == value) {
-                        result.addError(name + " is required for: " + this.getClass().getSimpleName());
+                        result.addError(field.getName() + " is required for: " + this.getClass().getSimpleName());
                     }
                 } else {
                     AccessController.doPrivileged((PrivilegedAction<Operation>) () -> {
                         field.setAccessible(true);
-                        final String name = field.getName();
                         final Object value;
                         try {
                             value = field.get(this);
-                        } catch (IllegalAccessException e) {
+                        } catch (final IllegalAccessException e) {
                             throw new RuntimeException(e);
                         }
 
                         if (null == value) {
-                            result.addError(name + " is required for: " + this.getClass().getSimpleName());
+                            result.addError(field.getName() + " is required for: " + this.getClass().getSimpleName());
                         }
                         return null;
                     });
@@ -140,6 +195,14 @@ public interface Operation extends Closeable {
         }
 
         return result;
+    }
+
+    static <O> OperationChain<O> asOperationChain(final Operation operation) {
+        if (operation instanceof OperationChain<?>) {
+            return (OperationChain<O>) operation;
+        } else {
+            return new OperationChain<>(operation);
+        }
     }
 
     interface Builder<OP, B extends Builder<OP, ?>> {
@@ -154,6 +217,28 @@ public interface Operation extends Closeable {
 
         protected BaseBuilder(final OP op) {
             this.op = op;
+        }
+
+        /**
+         * @param name  the name of the option to add
+         * @param value the value of the option to add
+         * @return this Builder
+         * @see Operation#addOption(String, String)
+         */
+        public B option(final String name, final String value) {
+            _getOp().addOption(name, value);
+            return _self();
+        }
+
+        public B options(final Map<String, String> options) {
+            if (null != options) {
+                if (null == _getOp().getOptions()) {
+                    _getOp().setOptions(new HashMap<>(options));
+                } else {
+                    _getOp().getOptions().putAll(options);
+                }
+            }
+            return _self();
         }
 
         /**

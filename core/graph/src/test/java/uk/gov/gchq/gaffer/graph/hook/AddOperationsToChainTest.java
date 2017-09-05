@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.graph.hook;
 
 import org.junit.Test;
 import sun.misc.IOUtils;
+
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -31,6 +32,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -38,7 +40,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -285,8 +286,55 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
         for (int i = 0; i < opChain.getOperations().size(); i++) {
             assertTrue(expectedOperations.get(i).getClass().getName().contains(opChain.getOperations().get(i).getClass().getSimpleName()));
         }
-
     }
+
+    @Test
+    public void shouldHandleNestedOperationChain(){
+        // Given
+        AddOperationsToChain hook = fromJson(ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH);
+
+        Operation discardOutput = new DiscardOutput();
+        Operation splitStore = new SplitStore();
+        Operation validate = new Validate();
+        Operation getAdjacentIds = new GetAdjacentIds();
+        Operation count = new Count<>();
+        Operation countGroups = new CountGroups();
+        Operation getElements = new GetElements();
+        Operation getAllElements = new GetAllElements();
+        Operation limit = new Limit<>();
+
+        final List expectedOperations = new ArrayList<Operation>();
+        expectedOperations.add(discardOutput);
+        expectedOperations.add(splitStore);
+        expectedOperations.add(validate);
+        expectedOperations.add(getAdjacentIds);
+        expectedOperations.add(count);
+        expectedOperations.add(discardOutput);
+        expectedOperations.add(countGroups);
+        expectedOperations.add(getElements);
+        expectedOperations.add(getAllElements);
+        expectedOperations.add(limit);
+        expectedOperations.add(validate);
+        expectedOperations.add(count);
+
+        final OperationChain opChain2 = new OperationChain.Builder()
+                .first(getElements)
+                .then(getAllElements)
+                .build();
+
+        final OperationChain opChain = new OperationChain.Builder()
+                .first(getAdjacentIds)
+                .then(opChain2)
+                .build();
+
+        // When
+        hook.preExecute(opChain, new User());
+
+        // Then
+        for (int i = 0; i < opChain.getOperations().size(); i++) {
+            assertTrue(expectedOperations.get(i).getClass().getName().contains(opChain.getOperations().get(i).getClass().getSimpleName()));
+        }
+    };
 
     @Test
     public void shouldReturnClonedOperations() throws IOException {
@@ -301,7 +349,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
     }
 
     public void assertClonedOperations(final Map<String, List<Operation>> after1, final Map<String, List<Operation>> after2) {
-        for (Map.Entry<String, List<Operation>> entry1 : after1.entrySet()) {
+        for (final Map.Entry<String, List<Operation>> entry1 : after1.entrySet()) {
             final List<Operation> ops1 = entry1.getValue();
             final List<Operation> ops2 = after2.get(entry1.getKey());
             assertClonedOperations(ops1, ops2);
@@ -317,15 +365,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
     }
 
     @Override
-    public void shouldJsonSerialiseAndDeserialise() {
-        // Given
-        final AddOperationsToChain hook = fromJson(ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH);
-
-        // When
-        final byte[] json = toJson(hook);
-        final AddOperationsToChain deserialisedHook = fromJson(json);
-
-        // Then
-        assertNotNull(deserialisedHook);
+    protected AddOperationsToChain getTestObject() {
+        return fromJson(ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH);
     }
 }

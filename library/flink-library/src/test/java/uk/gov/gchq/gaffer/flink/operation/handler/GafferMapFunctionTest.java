@@ -18,10 +18,12 @@ package uk.gov.gchq.gaffer.flink.operation.handler;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
+
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;

@@ -17,12 +17,12 @@
 package uk.gov.gchq.gaffer.parquetstore;
 
 import com.fasterxml.jackson.databind.Module;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
 import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
+
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -32,7 +32,6 @@ public class ParquetStorePropertiesTest {
 
     @Before
     public void setUp() throws Exception {
-        Logger.getRootLogger().setLevel(Level.WARN);
         props = new ParquetStoreProperties();
     }
 
@@ -72,10 +71,31 @@ public class ParquetStorePropertiesTest {
     }
 
     @Test
+    public void sampleRateTest(){
+        assertEquals((Integer) 10, props.getSampleRate());
+        props.setSampleRate(100000);
+        assertEquals((Integer) 100000, props.getSampleRate());
+    }
+
+    @Test
     public void addElementsOutputFilesPerGroupTest() {
-        assertEquals(100, props.getAddElementsOutputFilesPerGroup());
+        assertEquals(10, props.getAddElementsOutputFilesPerGroup());
         props.setAddElementsOutputFilesPerGroup(10000);
         assertEquals(10000, props.getAddElementsOutputFilesPerGroup());
+    }
+
+    @Test
+    public void aggregateTest() {
+        assertEquals(true, props.getAggregateOnIngest());
+        props.setAggregateOnIngest(false);
+        assertEquals(false, props.getAggregateOnIngest());
+    }
+
+    @Test
+    public void sortBySplitsTest() {
+        assertEquals(false, props.getSortBySplitsOnIngest());
+        props.setSortBySplitsOnIngest(true);
+        assertEquals(true, props.getSortBySplitsOnIngest());
     }
 
     @Test

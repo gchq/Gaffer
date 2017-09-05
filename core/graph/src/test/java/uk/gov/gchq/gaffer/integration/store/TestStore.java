@@ -28,12 +28,12 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
-import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.util.Set;
 
 import static org.mockito.Mockito.mock;
@@ -49,11 +49,6 @@ public class TestStore extends Store {
     @Override
     public <O> O execute(final OperationChain<O> operationChain, final User user) throws OperationException {
         return mockStore.execute(operationChain, user);
-    }
-
-    @Override
-    public <O> O _execute(final OperationChain<O> operationChain, final Context context) throws OperationException {
-        return mockStore._execute(operationChain, context);
     }
 
     @Override

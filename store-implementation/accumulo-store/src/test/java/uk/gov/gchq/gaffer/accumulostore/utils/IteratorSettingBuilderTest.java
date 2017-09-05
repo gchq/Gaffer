@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.accumulostore.utils;
 
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 

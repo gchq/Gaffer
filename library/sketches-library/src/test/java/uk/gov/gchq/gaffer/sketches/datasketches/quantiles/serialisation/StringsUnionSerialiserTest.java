@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.serialisation;
 import com.google.common.collect.Ordering;
 import com.yahoo.sketches.quantiles.ItemsUnion;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.ViaCalculatedValueSerialiserTest;

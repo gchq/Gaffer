@@ -19,17 +19,18 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.SparkSession;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
+
 import java.util.Map;
 
 public class GetJavaRDDOfElements implements
@@ -37,8 +38,7 @@ public class GetJavaRDDOfElements implements
         InputOutput<Iterable<? extends ElementId>, JavaRDD<Element>>,
         MultiInput<ElementId>,
         SeededGraphFilters,
-        JavaRdd,
-        Options {
+        JavaRdd {
 
     private Map<String, String> options;
     @Required
@@ -136,8 +136,7 @@ public class GetJavaRDDOfElements implements
             implements InputOutput.Builder<GetJavaRDDOfElements, Iterable<? extends ElementId>, JavaRDD<Element>, Builder>,
             MultiInput.Builder<GetJavaRDDOfElements, ElementId, Builder>,
             SeededGraphFilters.Builder<GetJavaRDDOfElements, Builder>,
-            JavaRdd.Builder<GetJavaRDDOfElements, Builder>,
-            Options.Builder<GetJavaRDDOfElements, Builder> {
+            JavaRdd.Builder<GetJavaRDDOfElements, Builder> {
         public Builder() {
             super(new GetJavaRDDOfElements());
         }

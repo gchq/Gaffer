@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.parquetstore.utils;
 import com.google.common.primitives.UnsignedBytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.Serializable;
 import java.util.Comparator;
 

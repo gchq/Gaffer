@@ -18,9 +18,11 @@ package uk.gov.gchq.gaffer.hbasestore.coprocessor.scanner;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.regionserver.InternalScanner;
 import org.apache.hadoop.hbase.regionserver.ScannerContext;
+
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.GafferScannerProcessor;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.LazyElementCell;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;

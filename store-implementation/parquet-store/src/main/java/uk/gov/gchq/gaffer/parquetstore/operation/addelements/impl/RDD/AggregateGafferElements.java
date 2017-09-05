@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.RDD;
 
 import org.apache.spark.api.java.function.Function2;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.store.schema.Schema;

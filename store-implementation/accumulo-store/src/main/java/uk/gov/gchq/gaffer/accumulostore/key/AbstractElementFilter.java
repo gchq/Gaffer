@@ -22,6 +22,7 @@ import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.Filter;
 import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
+
 import uk.gov.gchq.gaffer.accumulostore.data.element.AccumuloEdgeValueLoader;
 import uk.gov.gchq.gaffer.accumulostore.data.element.AccumuloEntityValueLoader;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.ElementFilterException;
@@ -38,6 +39,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.store.ElementValidator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
+
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;

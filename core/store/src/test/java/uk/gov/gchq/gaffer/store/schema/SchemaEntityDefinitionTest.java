@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.store.schema;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.koryphe.ValidationResult;
 

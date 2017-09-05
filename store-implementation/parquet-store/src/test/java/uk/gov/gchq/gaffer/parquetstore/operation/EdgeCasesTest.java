@@ -19,12 +19,12 @@ package uk.gov.gchq.gaffer.parquetstore.operation;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.log4j.Level;
 import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -40,10 +40,10 @@ import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -58,15 +58,11 @@ import static org.junit.Assert.assertTrue;
 public class EdgeCasesTest {
     private static User USER = new User();
 
-    @BeforeClass
-    public static void setup() {
-        org.apache.log4j.Logger.getRootLogger().setLevel(Level.WARN);
-    }
-
     @AfterClass
     public static void cleanUp() throws IOException {
         try (final FileSystem fs = FileSystem.get(new Configuration())) {
-            deleteFolder("parquet_data", fs);
+            final ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
+            deleteFolder(parquetStoreProperties.getDataDir(), fs);
         }
     }
 
@@ -82,17 +78,18 @@ public class EdgeCasesTest {
     }
 
     private static ParquetStoreProperties getParquetStoreProperties() {
-        return (ParquetStoreProperties) StoreProperties.loadStoreProperties(
-                StreamUtil.storeProps(EdgeCasesTest.class));
+        return TestUtils.getParquetStoreProperties();
     }
 
     @Test
     public void addElementsToExistingFolderTest() throws StoreException, OperationException, IOException {
-        final Schema gafferSchema = Schema.fromJson(StreamUtil.openStreams(EdgeCasesTest.class, "schemaUsingStringVertexType"));
+        final Schema gafferSchema = TestUtils.gafferSchema("schemaUsingStringVertexType");
         final ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
+        parquetStoreProperties.setSampleRate(1);
+        parquetStoreProperties.setAddElementsOutputFilesPerGroup(1);
         Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
-                        .graphId("test")
+                        .graphId("addElementsToExistingFolderTest")
                         .build())
                 .addSchemas(gafferSchema)
                 .storeProperties(parquetStoreProperties)
@@ -100,14 +97,14 @@ public class EdgeCasesTest {
         final FreqMap f2 = new FreqMap();
         f2.upsert("A", 2L);
         f2.upsert("B", 2L);
-        final ArrayList<Element> elements = new ArrayList<>(2);
+        final ArrayList<Element> elements = new ArrayList<>(1);
         elements.add(DataGen.getEntity(TestGroups.ENTITY, "vertex", (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L, (short) 6,
                 TestUtils.DATE, TestUtils.getFreqMap1(), 1));
-        final Entity expected = DataGen.getEntity(TestGroups.ENTITY, "vertex", (byte) 'a', 0.4, 6f, TestUtils.getTreeSet1(), 10L, (short) 12,
-                TestUtils.DATE, f2, 2);
         graph.execute(new AddElements.Builder().input(elements).build(), USER);
         graph.execute(new AddElements.Builder().input(elements).build(), USER);
         CloseableIterator<? extends Element> results = graph.execute(new GetAllElements.Builder().build(), USER).iterator();
+        final Entity expected = DataGen.getEntity(TestGroups.ENTITY, "vertex", (byte) 'a', 0.4, 6f, TestUtils.getTreeSet1(), 10L, (short) 12,
+                TestUtils.DATE, f2, 2);
         assertTrue(results.hasNext());
         assertEquals(expected, results.next());
         assertFalse(results.hasNext());
@@ -115,45 +112,39 @@ public class EdgeCasesTest {
 
     @Test
     public void readElementsWithZeroElementFiles() throws IOException, OperationException, StoreException {
-        try {
-            final List<Element> elements = new ArrayList<>(2);
-            elements.add(DataGen.getEntity(TestGroups.ENTITY, "vert1", null, null, null, null, null, null, null, null, 1));
-            elements.add(DataGen.getEntity(TestGroups.ENTITY, "vert2", null, null, null, null, null, null, null, null, 1));
+        final List<Element> elements = new ArrayList<>(2);
+        elements.add(DataGen.getEntity(TestGroups.ENTITY, "vert1", null, null, null, null, null, null, null, null, 1));
+        elements.add(DataGen.getEntity(TestGroups.ENTITY, "vert2", null, null, null, null, null, null, null, null, 1));
 
-            final Schema gafferSchema = Schema.fromJson(StreamUtil.openStreams(EdgeCasesTest.class, "schemaUsingStringVertexType"));
-            ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
-            parquetStoreProperties.setDataDir("readElementsWithZeroElementFiles");
-            parquetStoreProperties.setAddElementsOutputFilesPerGroup(3);
-            final Graph graph = new Graph.Builder()
-                    .config(new GraphConfig.Builder()
-                            .graphId("test")
-                            .build())
-                    .addSchema(gafferSchema)
-                    .storeProperties(parquetStoreProperties)
-                    .build();
-            graph.execute(new AddElements.Builder().input(elements).build(), USER);
-            final List<Element> retrievedElements = new ArrayList<>();
-            final CloseableIterator<? extends Element> iter = graph.execute(new GetAllElements(), USER).iterator();
-            assertTrue(iter.hasNext());
-            while (iter.hasNext()) {
-                retrievedElements.add(iter.next());
-            }
-            assertThat(elements, containsInAnyOrder(retrievedElements.toArray()));
-        } finally {
-            try (final FileSystem fs = FileSystem.get(new Configuration())) {
-                deleteFolder("readElementsWithZeroElementFiles", fs);
-            }
+        final Schema gafferSchema = Schema.fromJson(StreamUtil.openStreams(EdgeCasesTest.class, "schemaUsingStringVertexType"));
+        ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
+        parquetStoreProperties.setAddElementsOutputFilesPerGroup(3);
+        parquetStoreProperties.setSampleRate(1);
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("readElementsWithZeroElementFiles")
+                        .build())
+                .addSchema(gafferSchema)
+                .storeProperties(parquetStoreProperties)
+                .build();
+        graph.execute(new AddElements.Builder().input(elements).build(), USER);
+        final List<Element> retrievedElements = new ArrayList<>();
+        final CloseableIterator<? extends Element> iter = graph.execute(new GetAllElements(), USER).iterator();
+        assertTrue(iter.hasNext());
+        while (iter.hasNext()) {
+            retrievedElements.add(iter.next());
         }
+        assertThat(elements, containsInAnyOrder(retrievedElements.toArray()));
     }
 
     @Test
     public void indexOutOfRangeTest() throws IOException, StoreException, OperationException {
-        final Schema gafferSchema = Schema.fromJson(StreamUtil.openStreams(EdgeCasesTest.class, "schemaUsingStringVertexType"));
+        final Schema gafferSchema = TestUtils.gafferSchema("schemaUsingStringVertexType");
         final ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
         parquetStoreProperties.setAddElementsOutputFilesPerGroup(1);
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
-                        .graphId("test")
+                        .graphId("indexOutOfRangeTest")
                         .build())
                 .addSchemas(gafferSchema)
                 .storeProperties(parquetStoreProperties)
@@ -185,16 +176,17 @@ public class EdgeCasesTest {
     public void deduplicateEdgeWhenSrcAndDstAreEqual() throws OperationException {
         final Schema gafferSchema = Schema.fromJson(StreamUtil.openStreams(EdgeCasesTest.class, "schemaUsingStringVertexType"));
         ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
+        parquetStoreProperties.setSampleRate(1);
         parquetStoreProperties.setAddElementsOutputFilesPerGroup(1);
         Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
-                        .graphId("test")
+                        .graphId("deduplicateEdgeWhenSrcAndDstAreEqual")
                         .build())
                 .addSchemas(gafferSchema)
                 .storeProperties(parquetStoreProperties)
                 .build();
 
-        final ArrayList<Element> elements = new ArrayList<>(2);
+        final ArrayList<Element> elements = new ArrayList<>(1);
         final Edge A2A = new Edge(TestGroups.EDGE, "A", "A", false);
         A2A.putProperty("count", 1);
         elements.add(A2A);
@@ -213,5 +205,55 @@ public class EdgeCasesTest {
         assertTrue(iter.hasNext());
         assertEquals(A2A, iter.next());
         assertFalse(iter.hasNext());
+    }
+
+    @Test
+    public void changingNumberOfFilesOutput() throws OperationException {
+        final Schema gafferSchema = Schema.fromJson(StreamUtil.openStreams(EdgeCasesTest.class, "schemaUsingStringVertexType"));
+        ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
+        parquetStoreProperties.setAddElementsOutputFilesPerGroup(4);
+        Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("changingNumberOfFilesOutput")
+                        .build())
+                .addSchemas(gafferSchema)
+                .storeProperties(parquetStoreProperties)
+                .build();
+        final List<Element> input = DataGen.generate300StringElementsWithNullProperties();
+        graph.execute(new AddElements.Builder().input(input).build(), USER);
+        CloseableIterable<? extends Element> data = graph.execute(new GetAllElements.Builder().build(), USER);
+        checkData(data, 1);
+        data.close();
+        parquetStoreProperties.setAddElementsOutputFilesPerGroup(2);
+        graph.execute(new AddElements.Builder().input(input).build(), USER);
+        data = graph.execute(new GetAllElements.Builder().build(), USER);
+        checkData(data, 2);
+        data.close();
+        parquetStoreProperties.setAddElementsOutputFilesPerGroup(10);
+        graph.execute(new AddElements.Builder().input(input).build(), USER);
+        data = graph.execute(new GetAllElements.Builder().build(), USER);
+        checkData(data, 3);
+        data.close();
+    }
+
+    private void checkData(final CloseableIterable<? extends Element> data, final int iteration) {
+        final List<Element> expected = new ArrayList<>(150);
+        final List<Element> actual = new ArrayList<>(150);
+        final Iterator<? extends Element> dataIter = data.iterator();
+        assertTrue(dataIter.hasNext());
+        while (dataIter.hasNext()) {
+            actual.add(dataIter.next());
+        }
+        for (int i = 0; i < 25; i++) {
+            expected.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, true, null, null, null, null, null, null, null, null, 2 * iteration));
+            expected.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, false, null, null, null, null, null, null, null, null, 2 * iteration));
+
+            expected.add(DataGen.getEdge(TestGroups.EDGE_2, "src" + i, "dst" + i, true, null, null, null, null, null, null, null, null, 2 * iteration));
+            expected.add(DataGen.getEdge(TestGroups.EDGE_2, "src" + i, "dst" + i, false, null, null, null, null, null, null, null, null, 2 * iteration));
+
+            expected.add(DataGen.getEntity(TestGroups.ENTITY, "vert" + i, null, null, null, null, null, null, null, null, 2 * iteration));
+            expected.add(DataGen.getEntity(TestGroups.ENTITY_2, "vert" + i, null, null, null, null, null, null, null, null, 2 * iteration));
+        }
+        assertThat(expected, containsInAnyOrder(actual.toArray()));
     }
 }

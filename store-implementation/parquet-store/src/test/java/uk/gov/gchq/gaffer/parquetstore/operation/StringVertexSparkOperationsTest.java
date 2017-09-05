@@ -16,15 +16,13 @@
 
 package uk.gov.gchq.gaffer.parquetstore.operation;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -34,6 +32,7 @@ import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,8 +43,7 @@ public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest
 
     @BeforeClass
     public static void genData() throws OperationException, StoreException {
-        Logger.getRootLogger().setLevel(Level.WARN);
-        getGraph(getSchema(), getParquetStoreProperties())
+        getGraph(getSchema(), TestUtils.getParquetStoreProperties(), "StringVertexSparkOperationsTest")
                 .execute(new ImportJavaRDDOfElements.Builder()
                         .input(getElements(javaSparkContext))
                         .javaSparkContext(javaSparkContext)
@@ -54,11 +52,11 @@ public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest
 
     @Before
     public void setup() throws StoreException {
-        graph = getGraph(getSchema(), getParquetStoreProperties());
+        graph = getGraph(getSchema(), TestUtils.getParquetStoreProperties(), "StringVertexSparkOperationsTest");
     }
 
     protected static Schema getSchema() {
-        return Schema.fromJson(StreamUtil.openStreams(StringVertexSparkOperationsTest.class, "schemaUsingStringVertexType"));
+        return TestUtils.gafferSchema("schemaUsingStringVertexType");
     }
 
     private static JavaRDD<Element> getElements(final JavaSparkContext spark) {

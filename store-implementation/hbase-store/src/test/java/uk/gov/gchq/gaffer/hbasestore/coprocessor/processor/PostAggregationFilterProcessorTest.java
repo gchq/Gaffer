@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.hbasestore.coprocessor.processor;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;

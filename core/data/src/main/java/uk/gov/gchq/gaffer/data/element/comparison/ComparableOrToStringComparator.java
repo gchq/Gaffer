@@ -16,10 +16,11 @@
 
 package uk.gov.gchq.gaffer.data.element.comparison;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Comparator;
 
-public class ComparableOrToStringComparator implements Comparator<Object> {
+public class ComparableOrToStringComparator implements Comparator<Object>, Serializable {
     @Override
     public int compare(final Object vertex1, final Object vertex2) {
         if (null == vertex1) {

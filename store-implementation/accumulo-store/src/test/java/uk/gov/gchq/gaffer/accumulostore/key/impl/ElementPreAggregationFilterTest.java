@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.accumulostore.key.impl;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.accumulostore.key.AbstractElementFilter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
@@ -31,6 +32,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
+
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;

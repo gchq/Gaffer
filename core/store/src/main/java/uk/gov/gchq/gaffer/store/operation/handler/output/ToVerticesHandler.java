@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToVertices.EdgeVertices;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+
 import java.util.function.Function;
 import java.util.stream.Stream;
 

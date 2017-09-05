@@ -17,11 +17,14 @@
 package uk.gov.gchq.gaffer.operation.impl.io;
 
 import org.apache.commons.lang3.exception.CloneFailedException;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.data.CustomVertex;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
+
 import java.util.Date;
+import java.util.Map;
 
 public class InputImpl implements Operation, MultiInput<String> {
     @Required
@@ -33,6 +36,7 @@ public class InputImpl implements Operation, MultiInput<String> {
 
     private CustomVertex optionalField2;
     private Iterable<? extends String> input;
+    private Map<String, String> options;
 
     public String getRequiredField1() {
         return requiredField1;
@@ -84,7 +88,18 @@ public class InputImpl implements Operation, MultiInput<String> {
                 .requiredField1(requiredField1)
                 .requiredField2(requiredField2)
                 .input(input)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static final class Builder

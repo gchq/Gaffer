@@ -1,8 +1,10 @@
 package uk.gov.gchq.gaffer.commonutil;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.koryphe.ValidationResult;
+
 import java.util.LinkedHashSet;
 import java.util.Set;
 
