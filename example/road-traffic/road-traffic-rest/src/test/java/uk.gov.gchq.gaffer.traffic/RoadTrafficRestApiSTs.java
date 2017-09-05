@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.traffic;
 
-import org.junit.Before;
-
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
