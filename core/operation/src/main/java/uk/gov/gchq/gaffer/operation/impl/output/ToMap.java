@@ -43,6 +43,7 @@ public class ToMap implements
     @Required
     private MapGenerator elementGenerator;
     private Iterable<? extends Element> input;
+    private Map<String, String> options;
 
     public ToMap() {
     }
@@ -80,7 +81,18 @@ public class ToMap implements
         return new ToMap.Builder()
                 .generator(elementGenerator)
                 .input(input)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static final class Builder extends BaseBuilder<ToMap, Builder>
