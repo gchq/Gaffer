@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.graph.hook;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -50,7 +51,12 @@ public class AddOperationsToChain implements GraphHook {
         if (!authorisedOps.isEmpty() && !user.getOpAuths().isEmpty()) {
             for (final String auth : authorisedOps.keySet()) {
                 if (user.getOpAuths().contains(auth)) {
-                    newOpList.addAll(addOperationsToChain(opChain, authorisedOps.get(auth)));
+                    final AdditionalOperations additionalOperations = authorisedOps.get(auth);
+
+                    newOpList.addAll(additionalOperations.getStart());
+                    newOpList.addAll(addOperationsToChain(opChain, additionalOperations));
+                    newOpList.addAll(additionalOperations.getEnd());
+
                     hasAuth = true;
                     break;
                 }
@@ -58,7 +64,9 @@ public class AddOperationsToChain implements GraphHook {
         }
 
         if (!hasAuth) {
+            newOpList.addAll(defaultOperations.getStart());
             newOpList.addAll(addOperationsToChain(opChain, defaultOperations));
+            newOpList.addAll(defaultOperations.getEnd());
         }
         opChain.getOperations().clear();
         opChain.getOperations().addAll(newOpList);
@@ -70,36 +78,40 @@ public class AddOperationsToChain implements GraphHook {
         return result;
     }
 
-    public void setStart(final List<Operation> start) {
-        this.defaultOperations.setStart(start);
-    }
-
     public List<Operation> getStart() {
         return defaultOperations.getStart();
     }
 
-    public void setEnd(final List<Operation> end) {
-        this.defaultOperations.setEnd(end);
+    public void setStart(final List<Operation> start) {
+        this.defaultOperations.setStart(start);
     }
 
     public List<Operation> getEnd() {
         return defaultOperations.getEnd();
     }
 
-    public void setBefore(final Map<String, List<Operation>> before) {
-        this.defaultOperations.setBefore(before);
+    public void setEnd(final List<Operation> end) {
+        this.defaultOperations.setEnd(end);
     }
 
     public Map<String, List<Operation>> getBefore() {
         return defaultOperations.getBefore();
     }
 
-    public void setAfter(final Map<String, List<Operation>> after) {
-        this.defaultOperations.setAfter(after);
+    public void setBefore(final Map<String, List<Operation>> before) {
+        this.defaultOperations.setBefore(before);
     }
 
     public Map<String, List<Operation>> getAfter() {
         return defaultOperations.getAfter();
+    }
+
+    public void setAfter(final Map<String, List<Operation>> after) {
+        this.defaultOperations.setAfter(after);
+    }
+
+    public LinkedHashMap<String, AdditionalOperations> getAuthorisedOps() {
+        return authorisedOps;
     }
 
     public void setAuthorisedOps(final LinkedHashMap<String, AdditionalOperations> authorisedOps) {
@@ -109,29 +121,31 @@ public class AddOperationsToChain implements GraphHook {
         }
     }
 
-    public LinkedHashMap<String, AdditionalOperations> getAuthorisedOps() {
-        return authorisedOps;
-    }
-
     private List<Operation> addOperationsToChain(final OperationChain<?> opChain, final AdditionalOperations additionalOperations) {
-        List<Operation> newOpList = new ArrayList<>();
+        final List<Operation> opList = new ArrayList<>();
 
-        newOpList.addAll(additionalOperations.getStart());
         if (opChain != null && !opChain.getOperations().isEmpty()) {
             for (final Operation originalOp : opChain.getOperations()) {
-                List<Operation> beforeOps = additionalOperations.getBefore().get(originalOp.getClass().getName());
-                if (beforeOps != null) {
-                    newOpList.addAll(beforeOps);
-                }
-                newOpList.add(originalOp);
-                List<Operation> afterOps = additionalOperations.getAfter().get(originalOp.getClass().getName());
-                if (afterOps != null) {
-                    newOpList.addAll(afterOps);
+                if (originalOp instanceof OperationChain) {
+                    opList.addAll(addOperationsToChain((OperationChain) originalOp, additionalOperations));
+                } else {
+                    final List<Operation> beforeOps = additionalOperations.getBefore()
+                                                                          .get(originalOp.getClass()
+                                                                                        .getName());
+                    if (beforeOps != null) {
+                        opList.addAll(beforeOps);
+                    }
+                    opList.add(originalOp);
+                    final List<Operation> afterOps = additionalOperations.getAfter()
+                                                                         .get(originalOp.getClass()
+                                                                                        .getName());
+                    if (afterOps != null) {
+                        opList.addAll(afterOps);
+                    }
                 }
             }
         }
-        newOpList.addAll(additionalOperations.getEnd());
 
-        return newOpList;
+        return opList;
     }
 }

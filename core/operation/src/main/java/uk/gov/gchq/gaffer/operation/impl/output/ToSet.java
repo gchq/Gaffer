@@ -17,10 +17,13 @@
 package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -35,6 +38,7 @@ public class ToSet<T> implements
         InputOutput<Iterable<? extends T>, Set<? extends T>>,
         MultiInput<T> {
     private Iterable<? extends T> input;
+    private Map<String, String> options;
 
     @Override
     public Iterable<? extends T> getInput() {
@@ -55,7 +59,18 @@ public class ToSet<T> implements
     public ToSet shallowClone() {
         return new ToSet.Builder<T>()
                 .input(input)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static final class Builder<T>

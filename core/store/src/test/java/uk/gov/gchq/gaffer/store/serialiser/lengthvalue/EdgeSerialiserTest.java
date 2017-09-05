@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.store.serialiser.lengthvalue;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -57,7 +58,7 @@ public class EdgeSerialiserTest {
         try {
             serialiser = new EdgeSerialiser(schema);
             fail("Exception expected");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Vertex serialiser is required"));
         }
     }

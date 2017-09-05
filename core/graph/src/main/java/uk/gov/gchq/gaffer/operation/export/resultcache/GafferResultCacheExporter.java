@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.export.resultcache;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.iterable.AlwaysValid;
@@ -39,6 +40,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.AreIn;
+
 import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
 import java.util.Set;

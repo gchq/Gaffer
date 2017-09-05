@@ -16,12 +16,13 @@
 
 package uk.gov.gchq.gaffer.data.util;
 
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementComparator;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;

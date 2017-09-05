@@ -19,8 +19,10 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import uk.gov.gchq.gaffer.commonutil.OneOrMore;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;

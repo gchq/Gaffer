@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.doc.operation;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -26,6 +27,7 @@ import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResult
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
+
 import java.util.Map;
 
 public class ExportToGafferResultCacheExample extends OperationExample {

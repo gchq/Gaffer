@@ -17,7 +17,9 @@
 package uk.gov.gchq.gaffer.rest.serialisation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 

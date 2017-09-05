@@ -16,7 +16,10 @@
 
 package uk.gov.gchq.gaffer.doc.user.walkthrough;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -45,7 +48,9 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.predicate.PredicateMap;
+
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -80,15 +85,22 @@ public class FullExample extends UserWalkthrough {
         // generateElements - generating edges from the data (note these are directed edges)
         // addElements - add the edges to the graph
         // ---------------------------------------------------------
-        final OperationChain<Void> addOpChain = new OperationChain.Builder()
-                .first(new GenerateElements.Builder<String>()
-                        .generator(new RoadTrafficElementGenerator())
-                        .input(IOUtils.readLines(StreamUtil.openStream(getClass(), "FullExample/data.txt")))
-                        .build())
+        try (final CSVParser parser = CSVParser.parse(
+                getClass().getResource("/FullExample/data.txt"),
+                Charset.defaultCharset(),
+                CSVFormat.DEFAULT.withFirstRecordAsHeader()
+        )) {
+            final OperationChain<Void> addOpChain = new OperationChain.Builder()
+                .first(new GenerateElements.Builder<CSVRecord>()
+                    .generator(new RoadTrafficElementGenerator())
+                    .input(parser)
+                    .build())
                 .then(new AddElements())
                 .build();
 
-        graph.execute(addOpChain, user);
+            graph.execute(addOpChain, user);
+        }
+
         // ---------------------------------------------------------
         log("The elements have been added.");
 
@@ -153,7 +165,7 @@ public class FullExample extends UserWalkthrough {
 
         try {
             log("GET_JSON", StringUtil.toString(JSONSerialiser.serialise(opChain, true)));
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new RuntimeException(e);
         }
 

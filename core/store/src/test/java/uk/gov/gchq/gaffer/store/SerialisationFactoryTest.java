@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.store;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.BooleanSerialiser;

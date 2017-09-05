@@ -26,6 +26,7 @@ import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -39,7 +40,6 @@ import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.handler.AddElementsFromHdfsH
 import uk.gov.gchq.gaffer.hbasestore.retriever.HBaseRetriever;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
@@ -58,6 +58,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map.Entry;
@@ -168,7 +169,7 @@ public class HBaseStore extends Store {
         }
     }
 
-    public <OP extends Output<CloseableIterable<? extends Element>> & GraphFilters & Options> HBaseRetriever<OP>
+    public <OP extends Output<CloseableIterable<? extends Element>> & GraphFilters> HBaseRetriever<OP>
     createRetriever(final OP operation,
                     final User user,
                     final Iterable<? extends ElementId> ids,

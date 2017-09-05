@@ -18,9 +18,11 @@ package uk.gov.gchq.gaffer.rest.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
@@ -28,6 +30,7 @@ import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.user.User;
+
 import javax.inject.Inject;
 
 /**
@@ -52,7 +55,7 @@ public class JobService implements IJobService {
     private UserFactory userFactory;
 
     @Override
-    public JobDetail executeJob(final OperationChain opChain) {
+    public JobDetail executeJob(final OperationChainDAO opChain) {
         final User user = userFactory.createUser();
         preOperationHook(opChain, user);
 

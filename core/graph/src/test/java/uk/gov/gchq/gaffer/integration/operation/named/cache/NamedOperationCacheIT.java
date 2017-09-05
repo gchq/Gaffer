@@ -1,10 +1,10 @@
 package uk.gov.gchq.gaffer.integration.operation.named.cache;
 
-
 import com.google.common.collect.Lists;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperationHandler
 import uk.gov.gchq.gaffer.store.operation.handler.named.DeleteNamedOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.GetAllNamedOperationsHandler;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;

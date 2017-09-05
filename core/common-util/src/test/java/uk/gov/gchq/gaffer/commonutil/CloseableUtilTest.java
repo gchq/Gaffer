@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.commonutil;
 
 import org.junit.Test;
+
 import java.io.Closeable;
 import java.io.IOException;
 

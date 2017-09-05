@@ -19,9 +19,11 @@ package uk.gov.gchq.gaffer.hbasestore;
 import com.fasterxml.jackson.databind.Module;
 import org.apache.hadoop.fs.Path;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
 import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
 import uk.gov.gchq.gaffer.store.StoreException;
+
 import java.io.IOException;
 import java.util.List;
 

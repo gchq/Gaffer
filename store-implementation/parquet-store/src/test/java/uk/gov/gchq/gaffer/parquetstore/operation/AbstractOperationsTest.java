@@ -21,7 +21,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.junit.AfterClass;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
@@ -35,9 +35,10 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
-import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -66,8 +67,7 @@ public abstract class AbstractOperationsTest {
     @AfterClass
     public static void cleanUpData() throws IOException {
         try (final FileSystem fs = FileSystem.get(new Configuration())) {
-            final ParquetStoreProperties props = (ParquetStoreProperties) StoreProperties.loadStoreProperties(
-                    StreamUtil.storeProps(AbstractOperationsTest.class));
+            final ParquetStoreProperties props = TestUtils.getParquetStoreProperties();
             deleteFolder(props.getDataDir(), fs);
         }
     }

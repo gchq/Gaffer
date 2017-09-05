@@ -19,12 +19,13 @@ package uk.gov.gchq.gaffer.operation.impl.add;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.Validatable;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
+
 import java.util.Map;
 
 /**
@@ -39,8 +40,7 @@ import java.util.Map;
 public class AddElements implements
         Operation,
         Validatable,
-        MultiInput<Element>,
-        Options {
+        MultiInput<Element> {
     private boolean validate = true;
     private boolean skipInvalidElements;
     private Iterable<? extends Element> elements;
@@ -144,8 +144,7 @@ public class AddElements implements
 
     public static class Builder extends Operation.BaseBuilder<AddElements, Builder>
             implements Validatable.Builder<AddElements, Builder>,
-            MultiInput.Builder<AddElements, Element, Builder>,
-            Options.Builder<AddElements, Builder> {
+            MultiInput.Builder<AddElements, Element, Builder> {
         public Builder() {
             super(new AddElements());
         }

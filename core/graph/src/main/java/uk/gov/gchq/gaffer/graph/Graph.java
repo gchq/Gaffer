@@ -16,10 +16,10 @@
 
 package uk.gov.gchq.gaffer.graph;
 
-
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
@@ -44,6 +44,7 @@ import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;

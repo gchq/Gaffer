@@ -25,6 +25,7 @@ import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
@@ -34,19 +35,19 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyCloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewUtil;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-public abstract class AccumuloItemRetriever<OP extends Output<CloseableIterable<? extends Element>> & GraphFilters & Options, I_ITEM>
+public abstract class AccumuloItemRetriever<OP extends Output<CloseableIterable<? extends Element>> & GraphFilters, I_ITEM>
         extends AccumuloRetriever<OP, Element> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloItemRetriever.class);
 

@@ -3,6 +3,7 @@ package uk.gov.gchq.gaffer.core.exception;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.DebugUtil;
 import uk.gov.gchq.gaffer.core.exception.Error.ErrorBuilder;
 

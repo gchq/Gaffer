@@ -18,17 +18,18 @@ package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+
 import java.util.Map;
 
 /**
@@ -40,8 +41,7 @@ public class GetElementsWithinSet implements
         Operation,
         InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends Element>>,
         MultiInput<EntityId>,
-        GraphFilters,
-        Options {
+        GraphFilters {
     private View view;
     private DirectedType directedType;
     private Iterable<? extends EntityId> input;
@@ -111,8 +111,7 @@ public class GetElementsWithinSet implements
     public static class Builder extends Operation.BaseBuilder<GetElementsWithinSet, Builder>
             implements InputOutput.Builder<GetElementsWithinSet, Iterable<? extends EntityId>, CloseableIterable<? extends Element>, Builder>,
             MultiInput.Builder<GetElementsWithinSet, EntityId, Builder>,
-            GraphFilters.Builder<GetElementsWithinSet, Builder>,
-            Options.Builder<GetElementsWithinSet, Builder> {
+            GraphFilters.Builder<GetElementsWithinSet, Builder> {
         public Builder() {
             super(new GetElementsWithinSet());
         }
