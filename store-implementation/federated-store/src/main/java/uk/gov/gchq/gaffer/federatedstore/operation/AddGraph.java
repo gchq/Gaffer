@@ -79,17 +79,6 @@ public class AddGraph implements Operation {
                 .build();
     }
 
-    @Override
-    public Map<String, String> getOptions() {
-        return options;
-    }
-
-    @Override
-    public void setOptions(final Map<String, String> options) {
-        this.options = options;
-    }
-
-
     public List<String> getParentSchemaIds() {
         return parentSchemaIds;
     }
