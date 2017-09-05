@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
@@ -35,6 +37,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -58,6 +61,7 @@ import java.util.stream.Collectors;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
 public class OperationChain<OUT> implements Operation, Output<OUT> {
     private List<Operation> operations;
+    private Map<String, String> options;
 
     public OperationChain() {
         this(new ArrayList<>());
@@ -124,7 +128,19 @@ public class OperationChain<OUT> implements Operation, Output<OUT> {
         final List<Operation> clonedOps = operations.stream()
                 .map(Operation::shallowClone)
                 .collect(Collectors.toList());
-        return new OperationChain<>(clonedOps);
+        final OperationChain<OUT> clone = new OperationChain<>(clonedOps);
+        clone.setOptions(options);
+        return clone;
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     @Override
@@ -141,6 +157,26 @@ public class OperationChain<OUT> implements Operation, Output<OUT> {
                 CloseableUtil.close(operation);
             }
         }
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        boolean isEqual = false;
+        if (obj != null && obj instanceof OperationChain) {
+            final OperationChain that = (OperationChain) obj;
+
+            isEqual = new EqualsBuilder()
+                    .append(this.getOperations(), that.getOperations())
+                    .isEquals();
+        }
+        return isEqual;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 21)
+                .append(operations)
+                .toHashCode();
     }
 
     public List<Operation> flatten() {

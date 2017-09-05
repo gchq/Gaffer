@@ -40,7 +40,6 @@ import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.handler.AddElementsFromHdfsH
 import uk.gov.gchq.gaffer.hbasestore.retriever.HBaseRetriever;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
@@ -170,7 +169,7 @@ public class HBaseStore extends Store {
         }
     }
 
-    public <OP extends Output<CloseableIterable<? extends Element>> & GraphFilters & Options> HBaseRetriever<OP>
+    public <OP extends Output<CloseableIterable<? extends Element>> & GraphFilters> HBaseRetriever<OP>
     createRetriever(final OP operation,
                     final User user,
                     final Iterable<? extends ElementId> ids,

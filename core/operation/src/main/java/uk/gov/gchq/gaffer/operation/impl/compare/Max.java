@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A <code>Max</code> operation is intended as a terminal operation for
@@ -55,6 +56,7 @@ public class Max implements
 
     @Required
     private List<Comparator<Element>> comparators;
+    private Map<String, String> options;
 
     @Override
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
@@ -86,7 +88,18 @@ public class Max implements
         return new Max.Builder()
                 .input(input)
                 .comparators(comparators)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static final class Builder

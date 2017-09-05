@@ -23,7 +23,6 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
@@ -39,8 +38,7 @@ import java.util.Map;
 public class GetAllElements implements
         Operation,
         Output<CloseableIterable<? extends Element>>,
-        GraphFilters,
-        Options {
+        GraphFilters {
     private View view;
     private DirectedType directedType;
     private Map<String, String> options;
@@ -91,8 +89,7 @@ public class GetAllElements implements
 
     public static class Builder extends Operation.BaseBuilder<GetAllElements, Builder>
             implements Output.Builder<GetAllElements, CloseableIterable<? extends Element>, Builder>,
-            GraphFilters.Builder<GetAllElements, Builder>,
-            Options.Builder<GetAllElements, Builder> {
+            GraphFilters.Builder<GetAllElements, Builder> {
         public Builder() {
             super(new GetAllElements());
         }

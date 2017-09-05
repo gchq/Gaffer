@@ -41,6 +41,8 @@ public class AddNamedOperation implements Operation {
     private List<String> writeAccessRoles = new ArrayList<>();
     private boolean overwriteFlag = false;
     private Map<String, ParameterDetail> parameters;
+    private Map<String, String> options;
+
 
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
 
@@ -132,7 +134,18 @@ public class AddNamedOperation implements Operation {
                 .writeAccessRoles(writeAccessRoles.toArray(new String[writeAccessRoles.size()]))
                 .overwrite(overwriteFlag)
                 .parameters(parameters)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static class Builder extends BaseBuilder<AddNamedOperation, Builder> {
