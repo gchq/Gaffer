@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,28 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.impl;
+package uk.gov.gchq.gaffer.operation.impl.io;
+
+import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.data.CustomVertex;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
 
 import java.util.Date;
 import java.util.Map;
 
-public class OperationImpl implements Operation {
-    @Required
-    private String requiredField1;
-
+public class InputImpl implements Operation, MultiInput<String> {
     @Required
     // Public so the validation of the required field can be tested differently
     public CustomVertex requiredField2;
-
+    @Required
+    private String requiredField1;
     private Date optionalField1;
 
     private CustomVertex optionalField2;
+    private Iterable<? extends String> input;
     private Map<String, String> options;
 
     public String getRequiredField1() {
@@ -68,12 +70,24 @@ public class OperationImpl implements Operation {
         this.optionalField2 = optionalField2;
     }
 
-    public OperationImpl shallowClone() {
-        return new OperationImpl.Builder()
-                .requiredField1(requiredField1)
-                .requiredField2(requiredField2)
+    @Override
+    public Iterable<? extends String> getInput() {
+        return input;
+    }
+
+    @Override
+    public void setInput(final Iterable<? extends String> input) {
+        this.input = input;
+    }
+
+    @Override
+    public Operation shallowClone() throws CloneFailedException {
+        return new InputImpl.Builder()
                 .optionalField1(optionalField1)
                 .optionalField2(optionalField2)
+                .requiredField1(requiredField1)
+                .requiredField2(requiredField2)
+                .input(input)
                 .options(options)
                 .build();
     }
@@ -89,9 +103,10 @@ public class OperationImpl implements Operation {
     }
 
     public static final class Builder
-            extends Operation.BaseBuilder<OperationImpl, OperationImpl.Builder> {
+            extends Operation.BaseBuilder<InputImpl, InputImpl.Builder> implements
+            MultiInput.Builder<InputImpl, String, Builder> {
         public Builder() {
-            super(new OperationImpl());
+            super(new InputImpl());
         }
 
         public Builder requiredField1(final String requiredField1) {
@@ -113,6 +128,5 @@ public class OperationImpl implements Operation {
             _getOp().setOptionalField2(optionalField2);
             return _self();
         }
-
     }
 }

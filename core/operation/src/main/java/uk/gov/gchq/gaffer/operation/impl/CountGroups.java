@@ -25,6 +25,8 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
+import java.util.Map;
+
 /**
  * A <code>CountGroups</code> operation takes in {@link Element}s and collects
  * counts for the number of entity and edge groups used. To avoid counting all
@@ -39,6 +41,7 @@ public class CountGroups implements
         MultiInput<Element> {
     private Iterable<? extends Element> input;
     private Integer limit;
+    private Map<String, String> options;
 
     public CountGroups() {
     }
@@ -75,7 +78,18 @@ public class CountGroups implements
         return new CountGroups.Builder()
                 .input(input)
                 .limit(limit)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static class Builder

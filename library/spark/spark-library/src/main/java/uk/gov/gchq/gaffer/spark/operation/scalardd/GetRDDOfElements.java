@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
@@ -38,8 +37,7 @@ public class GetRDDOfElements implements
         InputOutput<Iterable<? extends ElementId>, RDD<Element>>,
         MultiInput<ElementId>,
         SeededGraphFilters,
-        Rdd,
-        Options {
+        Rdd {
 
     private Map<String, String> options;
     @Required
@@ -137,8 +135,7 @@ public class GetRDDOfElements implements
             implements InputOutput.Builder<GetRDDOfElements, Iterable<? extends ElementId>, RDD<Element>, Builder>,
             MultiInput.Builder<GetRDDOfElements, ElementId, Builder>,
             SeededGraphFilters.Builder<GetRDDOfElements, Builder>,
-            Rdd.Builder<GetRDDOfElements, Builder>,
-            Options.Builder<GetRDDOfElements, Builder> {
+            Rdd.Builder<GetRDDOfElements, Builder> {
         public Builder() {
             super(new GetRDDOfElements());
         }
