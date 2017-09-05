@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.doc.user.walkthrough;
 
 import org.apache.commons.io.IOUtils;
+
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.doc.user.generator.RoadAndRoadUseElementGenerator;
 import uk.gov.gchq.gaffer.doc.user.generator.RoadUseCsvGenerator;
@@ -30,6 +31,7 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.io.IOException;
 
 public class OperationChains extends UserWalkthrough {
@@ -42,7 +44,7 @@ public class OperationChains extends UserWalkthrough {
         // [graph] create a graph using our schema and store properties
         // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
-                .graphId("graph1")
+                .config(StreamUtil.graphConfig(getClass()))
                 .addSchemas(StreamUtil.openStreams(getClass(), "RoadAndRoadUse/schema"))
                 .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();

@@ -20,7 +20,6 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.CacheOperationFailedException;
-import uk.gov.gchq.gaffer.named.operation.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -29,7 +28,9 @@ import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +68,7 @@ public class NamedOperationHandler implements OutputOperationHandler<NamedOperat
             operationChain = new OperationChain<>(exposeNamedOperations(operationChain, context.getUser(), cache, params));
             updateOperationInput(operationChain.getOperations().get(0), operation.getInput());
             operationChain = updateView(operation.getView(), operationChain);
-            return store._execute(operationChain, context);
+            return store.execute(operationChain, context);
         } catch (final CacheOperationFailedException e) {
             throw new OperationException(e.getMessage(), e);
         } catch (final ClassCastException e) {

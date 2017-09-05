@@ -15,15 +15,16 @@
  */
 package uk.gov.gchq.gaffer.serialisation;
 
+import org.junit.Test;
+
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.types.IntegerFreqMap;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.pair.Pair;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.types.IntegerFreqMap;
 
 public class IntegerFreqMapSerialiserTest extends ToBytesSerialisationTest<IntegerFreqMap> {
 

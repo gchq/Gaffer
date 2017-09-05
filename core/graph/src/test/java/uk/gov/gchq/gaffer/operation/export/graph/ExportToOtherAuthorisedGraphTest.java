@@ -18,13 +18,17 @@ package uk.gov.gchq.gaffer.operation.export.graph;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Sets;
+import org.junit.Test;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
+
 import java.util.Arrays;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 public class ExportToOtherAuthorisedGraphTest extends OperationTest {
 
@@ -34,11 +38,11 @@ public class ExportToOtherAuthorisedGraphTest extends OperationTest {
             .parentStorePropertiesId("props1")
             .build();
 
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException, JsonProcessingException {
+    @Test
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException, JsonProcessingException {
         // Given / When
-        final byte[] json = JSON_SERIALISER.serialise(op);
-        final ExportToOtherAuthorisedGraph deserialisedOp = JSON_SERIALISER.deserialise(json, op.getClass());
+        final byte[] json = JSONSerialiser.serialise(op);
+        final ExportToOtherAuthorisedGraph deserialisedOp = JSONSerialiser.deserialise(json, op.getClass());
 
         // Then
         assertEquals("graphId", deserialisedOp.getGraphId());
@@ -55,12 +59,24 @@ public class ExportToOtherAuthorisedGraphTest extends OperationTest {
     }
 
     @Override
+    public void shouldShallowCloneOperation() {
+        // When
+        ExportToOtherAuthorisedGraph clone = op.shallowClone();
+
+        // Then
+        assertNotSame(op, clone);
+        assertEquals("graphId", clone.getGraphId());
+        assertEquals(Arrays.asList("schema1"), clone.getParentSchemaIds());
+        assertEquals("props1", clone.getParentStorePropertiesId());
+    }
+
+    @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet("graphId");
     }
 
     @Override
-    protected Class<? extends Operation> getOperationClass() {
-        return ExportToOtherAuthorisedGraph.class;
+    protected ExportToOtherAuthorisedGraph getTestObject() {
+        return new ExportToOtherAuthorisedGraph();
     }
 }

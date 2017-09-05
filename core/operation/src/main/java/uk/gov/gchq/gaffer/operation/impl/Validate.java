@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Validatable;
@@ -75,6 +76,15 @@ public class Validate implements
     @Override
     public void setInput(final Iterable<? extends Element> input) {
         this.input = input;
+    }
+
+    @Override
+    public Validate shallowClone() {
+        return new Validate.Builder()
+                .validate(validate)
+                .skipInvalidElements(skipInvalidElements)
+                .input(input)
+                .build();
     }
 
     public static final class Builder

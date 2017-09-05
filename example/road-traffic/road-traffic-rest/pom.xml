@@ -28,6 +28,9 @@
 
     <properties>
         <store.type>accumulo</store.type>
+        <!-- Test Properties -->
+        <gaffer.rest.host>localhost</gaffer.rest.host>
+        <gaffer.rest.port>8080</gaffer.rest.port>
     </properties>
 
     <dependencies>
@@ -38,17 +41,7 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>named-operation-library</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>jcs-cache-service</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>flink-library</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
@@ -70,7 +63,39 @@
             <version>${servlet-api.version}</version>
             <scope>provided</scope>
         </dependency>
+
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>core-rest</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>common-util</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.glassfish.jersey.test-framework.providers</groupId>
+            <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
+            <version>${jersey.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>${store.type}-store</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
     <build>
         <finalName>${project.artifactId}-${project.version}</finalName>
         <sourceDirectory>src/main/java</sourceDirectory>
@@ -120,6 +145,63 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <systemPropertyVariables>
+                        <store.type>${store.type}</store.type>
+                        <roadTraffic.dataLoader.dataPath>${project.parent.basedir}/road-traffic-demo/src/main/resources/roadTrafficSampleData.csv</roadTraffic.dataLoader.dataPath>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>system-test</id>
+            <properties>
+                <skip.surefire.tests>true</skip.surefire.tests>
+                <skip.failsafe.tests>false</skip.failsafe.tests>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>${failsafe.version}</version>
+                        <executions>
+                            <execution>
+                                <id>system-test</id>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <skipITs>${skip.failsafe.tests}</skipITs>
+                            <excludes>
+                                <exclude>**/*$*</exclude>
+                                <exclude>**/performance/**</exclude>
+                                <exclude>${exclude.tests}</exclude>
+                            </excludes>
+                            <includes>
+                                <include>**/*SystemTest.java</include>
+                                <include>**/*ST.java</include>
+                                <include>**/*STs.java</include>
+                                <include>**/*SystemTests.java</include>
+                            </includes>
+                            <systemPropertyVariables>
+                                <gaffer.host>${gaffer.rest.host}</gaffer.host>
+                                <gaffer.port>${gaffer.rest.port}</gaffer.port>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>

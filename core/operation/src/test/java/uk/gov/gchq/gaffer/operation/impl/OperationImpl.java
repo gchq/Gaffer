@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.operation.impl;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.data.CustomVertex;
+
 import java.util.Date;
 
 public class OperationImpl implements Operation {
@@ -63,6 +64,15 @@ public class OperationImpl implements Operation {
 
     public void setOptionalField2(final CustomVertex optionalField2) {
         this.optionalField2 = optionalField2;
+    }
+
+    public OperationImpl shallowClone() {
+        return new OperationImpl.Builder()
+                .requiredField1(requiredField1)
+                .requiredField2(requiredField2)
+                .optionalField1(optionalField1)
+                .optionalField2(optionalField2)
+                .build();
     }
 
     public static final class Builder

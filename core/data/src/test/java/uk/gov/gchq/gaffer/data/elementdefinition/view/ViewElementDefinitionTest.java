@@ -16,7 +16,9 @@
 
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
+import com.google.common.collect.Sets;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -31,18 +33,17 @@ import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
+
 import java.util.List;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class ViewElementDefinitionTest {
-
-    public static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
-
     @Test
     public void shouldBuildElementDefinition() {
         // Given
@@ -51,11 +52,11 @@ public class ViewElementDefinitionTest {
         final ElementAggregator aggregator = mock(ElementAggregator.class);
         final ElementFilter postFilter = mock(ElementFilter.class);
 
-
         // When
         final ViewElementDefinition elementDef = new ViewElementDefinition.Builder()
                 .transientProperty(TestPropertyNames.PROP_1, String.class)
                 .transientProperty(TestPropertyNames.PROP_2, String.class)
+                .properties(TestPropertyNames.COUNT, TestPropertyNames.DATE)
                 .preAggregationFilter(preFilter)
                 .aggregator(aggregator)
                 .postTransformFilter(postFilter)
@@ -67,6 +68,8 @@ public class ViewElementDefinitionTest {
         assertTrue(elementDef.containsTransientProperty(TestPropertyNames.PROP_1));
         assertTrue(elementDef.containsTransientProperty(TestPropertyNames.PROP_2));
 
+        assertEquals(Sets.newHashSet(TestPropertyNames.COUNT, TestPropertyNames.DATE), elementDef.getProperties());
+        assertNull(elementDef.getExcludeProperties());
         assertSame(preFilter, elementDef.getPreAggregationFilter());
         assertSame(aggregator, elementDef.getAggregator());
         assertSame(postFilter, elementDef.getPostTransformFilter());
@@ -79,6 +82,7 @@ public class ViewElementDefinitionTest {
         final ViewElementDefinition elementDef = new ViewElementDefinition.Builder()
                 .transientProperty(TestPropertyNames.PROP_1, String.class)
                 .transientProperty(TestPropertyNames.PROP_2, String.class)
+                .properties(TestPropertyNames.COUNT, TestPropertyNames.DATE)
                 .preAggregationFilter(new ElementFilter.Builder()
                         .select(TestPropertyNames.COUNT)
                         .execute(new IsMoreThan(5))
@@ -103,8 +107,11 @@ public class ViewElementDefinitionTest {
                 .build();
 
         // When
-        final byte[] json = JSON_SERIALISER.serialise(elementDef, true);
-        final ViewElementDefinition deserialisedElementDef = JSON_SERIALISER.deserialise(json, ViewElementDefinition.class);
+        final byte[] json = JSONSerialiser.serialise(elementDef, true);
+        final ViewElementDefinition deserialisedElementDef = JSONSerialiser.deserialise(json, ViewElementDefinition.class);
+
+        assertEquals(Sets.newHashSet(TestPropertyNames.COUNT, TestPropertyNames.DATE), deserialisedElementDef.getProperties());
+        assertNull(deserialisedElementDef.getExcludeProperties());
 
         final List<TupleAdaptedPredicate<String, ?>> preFilterComponents = deserialisedElementDef.getPreAggregationFilter().getComponents();
         assertEquals(1, preFilterComponents.size());
@@ -187,5 +194,35 @@ public class ViewElementDefinitionTest {
                 .postTransformFilter(postFilter)
                 .postTransformFilter(postFilter)
                 .build();
+    }
+
+    @Test
+    public void shouldFailToBuildElementDefinitionWhenPropertiesAndExcludePropertiesSet() {
+        // When
+        final ViewElementDefinition.Builder builder = new ViewElementDefinition.Builder();
+
+        // Then / When
+        builder.properties(TestPropertyNames.PROP_1);
+
+        try {
+            builder.excludeProperties(TestPropertyNames.PROP_1);
+        } catch (final IllegalArgumentException e) {
+            assertEquals("You cannot set both properties and excludeProperties", e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldFailToBuildElementDefinitionWhenExcludePropertiesAndPropertiesSet() {
+        // When
+        final ViewElementDefinition.Builder builder = new ViewElementDefinition.Builder();
+
+        // Then / When
+        builder.excludeProperties(TestPropertyNames.PROP_1);
+
+        try {
+            builder.properties(TestPropertyNames.PROP_1);
+        } catch (final IllegalArgumentException e) {
+            assertEquals("You cannot set both properties and excludeProperties", e.getMessage());
+        }
     }
 }

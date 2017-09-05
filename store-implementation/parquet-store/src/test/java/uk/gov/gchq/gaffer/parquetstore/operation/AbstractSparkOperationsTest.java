@@ -22,25 +22,25 @@ import org.apache.hadoop.fs.Path;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import org.apache.spark.sql.SparkSession;
 import org.junit.AfterClass;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
-import uk.gov.gchq.gaffer.spark.SparkConstants;
+import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.spark.SparkUser;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
+
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
@@ -50,35 +50,24 @@ public abstract class AbstractSparkOperationsTest {
 
     abstract void checkGetDataFrameOfElements(Dataset<Row> data);
 
-    static SparkSession spark = SparkSession.builder()
-            .appName("Parquet Gaffer Store tests")
-            .master(getParquetStoreProperties().getSparkMaster())
-            .config(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true")
-            .config(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
-            .config(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
-            .getOrCreate();
-    static JavaSparkContext javaSparkContext = JavaSparkContext.fromSparkContext(spark.sparkContext());
-    static User USER = new SparkUser(new User(), spark);
+    static JavaSparkContext javaSparkContext = JavaSparkContext.fromSparkContext(TestUtils.spark.sparkContext());
+    static User USER = new SparkUser(new User(), TestUtils.spark);
     Graph graph;
 
-    static ParquetStoreProperties getParquetStoreProperties() {
-        return (ParquetStoreProperties) StoreProperties.loadStoreProperties(
-                AbstractSparkOperationsTest.class.getResourceAsStream("/multiUseStore.properties"));
-    }
-
-    static Graph getGraph(final Schema schema, final ParquetStoreProperties properties) throws StoreException {
+    static Graph getGraph(final Schema schema, final ParquetStoreProperties properties, final String graphID) throws StoreException {
         return new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(graphID)
+                        .build())
                 .addSchema(schema)
                 .storeProperties(properties)
-                .graphId("test")
                 .build();
     }
 
     @AfterClass
     public static void cleanUpData() throws IOException {
         try (final FileSystem fs = FileSystem.get(new Configuration())) {
-            final ParquetStoreProperties props = (ParquetStoreProperties) StoreProperties.loadStoreProperties(
-                    StreamUtil.storeProps(AbstractSparkOperationsTest.class));
+            final ParquetStoreProperties props = TestUtils.getParquetStoreProperties();
             deleteFolder(props.getDataDir(), fs);
         }
     }
@@ -97,7 +86,7 @@ public abstract class AbstractSparkOperationsTest {
     @Test
     public void getDataFrameOfElementsTest() throws OperationException {
         final Dataset<Row> data = graph.execute(new GetDataFrameOfElements.Builder()
-                .sqlContext(spark.sqlContext())
+                .sparkSession(TestUtils.spark)
                 .build(), USER);
         checkGetDataFrameOfElements(data);
     }
@@ -112,7 +101,7 @@ public abstract class AbstractSparkOperationsTest {
                 .build();
         try {
             graph.execute(new GetDataFrameOfElements.Builder()
-                    .sqlContext(spark.sqlContext())
+                    .sparkSession(TestUtils.spark)
                     .view(view).build(), USER);
             fail();
         } catch (final OperationException e) {

@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl.export.set;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.ExportTo;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
@@ -56,6 +57,14 @@ public class ExportToSet<T> implements
     @Override
     public TypeReference<T> getOutputTypeReference() {
         return (TypeReference) new TypeReferenceImpl.Object();
+    }
+
+    @Override
+    public ExportToSet<T> shallowClone() {
+        return new ExportToSet.Builder<T>()
+                .key(key)
+                .input(input)
+                .build();
     }
 
     public static final class Builder<T> extends Operation.BaseBuilder<ExportToSet<T>, Builder<T>>

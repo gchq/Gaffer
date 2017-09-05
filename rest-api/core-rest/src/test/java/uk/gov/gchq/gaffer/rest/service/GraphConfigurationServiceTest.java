@@ -23,7 +23,9 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -38,6 +40,7 @@ import uk.gov.gchq.koryphe.impl.predicate.IsA;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.impl.predicate.Not;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -75,14 +78,17 @@ public class GraphConfigurationServiceTest {
     @Mock
     private Store store;
 
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
     @Before
     public void setup() {
         final Schema schema = mock(Schema.class);
         final Set<StoreTrait> traits = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, POST_AGGREGATION_FILTERING, TRANSFORMATION, STORE_VALIDATION));
         given(store.getSchema()).willReturn(schema);
-        final Graph graph = new Graph.Builder().graphId(GRAPH_ID).store(store).build();
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .store(store)
+                .build();
         final Set<Class<? extends Operation>> operations = new HashSet<>();
         operations.add(AddElements.class);
         given(graphFactory.getGraph()).willReturn(graph);
@@ -203,7 +209,7 @@ public class GraphConfigurationServiceTest {
         final Set<Class> classes = service.getTransformFunctions();
 
         // Then
-        assertTrue(classes.size() > 0);
+        assertTrue(!classes.isEmpty());
     }
 
     @Test
@@ -212,7 +218,7 @@ public class GraphConfigurationServiceTest {
         final Set<Class> classes = service.getElementGenerators();
 
         // Then
-        assertTrue(classes.size() > 0);
+        assertTrue(!classes.isEmpty());
     }
 
     @Test
@@ -221,7 +227,7 @@ public class GraphConfigurationServiceTest {
         final Set<Class> classes = service.getObjectGenerators();
 
         // Then
-        assertTrue(classes.size() > 0);
+        assertTrue(!classes.isEmpty());
     }
 
     @Test
@@ -230,7 +236,7 @@ public class GraphConfigurationServiceTest {
         final Set<Class> supportedOperations = service.getOperations();
 
         // Then
-        assertTrue(supportedOperations.size() > 0);
+        assertTrue(!supportedOperations.isEmpty());
         assertEquals(1, supportedOperations.size());
     }
 
@@ -248,8 +254,8 @@ public class GraphConfigurationServiceTest {
     @Test
     public void shouldSerialiseAndDeserialiseGetStoreTraits() throws IOException {
         // When
-        byte[] bytes = serialiser.serialise(service.getStoreTraits());
-        final Set<StoreTrait> traits = serialiser.deserialise(bytes, Set.class);
+        byte[] bytes = JSONSerialiser.serialise(service.getStoreTraits());
+        final Set<StoreTrait> traits = JSONSerialiser.deserialise(bytes, Set.class);
 
         // Then
         assertNotNull(traits);

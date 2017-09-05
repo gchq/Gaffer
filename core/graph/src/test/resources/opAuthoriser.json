@@ -1,0 +1,21 @@
+{
+  "class": "uk.gov.gchq.gaffer.graph.hook.OperationAuthoriser",
+  "auths": {
+    "uk.gov.gchq.gaffer.operation.Operation": [
+      "User"
+    ],
+    "uk.gov.gchq.gaffer.operation.io.Output": [
+      "ReadUser"
+    ],
+    "uk.gov.gchq.gaffer.operation.impl.add.AddElements": [
+      "WriteUser"
+    ],
+    "uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds": [
+      "SuperUser"
+    ],
+    "uk.gov.gchq.gaffer.operation.impl.get.GetAllElements": [
+      "AdminUser",
+      "SuperUser"
+    ]
+  }
+}

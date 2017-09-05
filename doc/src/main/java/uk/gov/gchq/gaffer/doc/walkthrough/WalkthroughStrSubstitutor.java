@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.doc.walkthrough;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
+
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage;
@@ -44,8 +45,10 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -140,6 +143,7 @@ public abstract class WalkthroughStrSubstitutor {
     public static Map<String, String> createParameterMap(final String text, final AbstractWalkthrough example, final String modulePath) {
         final Map<String, String> params = new HashMap<>();
         params.put("EDGE_JAVADOC", getJavaDocLink(Edge.class));
+        params.put("USER_JAVADOC", getJavaDocLink(User.class));
         params.put("STORE_JAVADOC", getJavaDocLink(Store.class));
         params.put("ACCUMULO_STORE_JAVADOC", getJavaDocLink(AccumuloStore.class));
         params.put("MOCK_ACCUMULO_STORE_JAVADOC", getJavaDocLink(MockAccumuloStore.class));

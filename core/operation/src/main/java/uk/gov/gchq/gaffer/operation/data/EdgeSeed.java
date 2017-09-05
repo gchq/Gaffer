@@ -19,10 +19,12 @@ package uk.gov.gchq.gaffer.operation.data;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.comparison.ComparableOrToStringComparator;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+
 import java.util.Comparator;
 
 /**
@@ -142,7 +144,7 @@ public class EdgeSeed extends ElementSeed implements EdgeId {
      */
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(21, 3)
+        return new HashCodeBuilder(21, 73)
                 .append(source)
                 .append(destination)
                 .append(directed)
@@ -155,6 +157,6 @@ public class EdgeSeed extends ElementSeed implements EdgeId {
                 .append("source", source)
                 .append("destination", destination)
                 .append("directed", directed)
-                .build();
+                .toString();
     }
 }

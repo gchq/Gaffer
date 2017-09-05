@@ -17,40 +17,19 @@
 package uk.gov.gchq.gaffer.operation.impl.output;
 
 import org.junit.Test;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
+
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 
-public class ToListTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return ToList.class;
-    }
-
-    @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
-        // Given
-        final ToList op = new ToList();
-
-        // When
-        byte[] json = serialiser.serialise(op, true);
-        final ToList deserialisedOp = serialiser.deserialise(json, ToList.class);
-
-        // Then
-        assertNotNull(deserialisedOp);
-    }
+public class ToListTest extends OperationTest<ToList> {
 
     @Test
     @Override
@@ -62,5 +41,25 @@ public class ToListTest extends OperationTest {
         assertThat(toList.getInput(), is(notNullValue()));
         assertThat(toList.getInput(), iterableWithSize(2));
         assertThat(toList.getInput(), containsInAnyOrder("1", "2"));
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final String input = "1";
+        final ToList toList = new ToList.Builder<>()
+                .input(input)
+                .build();
+
+        // When
+        final ToList clone = toList.shallowClone();
+
+        // Then
+        assertNotSame(toList, clone);
+        assertEquals(input, clone.getInput().iterator().next());
+    }
+
+    protected ToList getTestObject() {
+        return new ToList();
     }
 }

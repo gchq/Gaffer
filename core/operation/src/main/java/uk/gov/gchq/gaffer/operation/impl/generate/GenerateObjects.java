@@ -18,12 +18,14 @@ package uk.gov.gchq.gaffer.operation.impl.generate;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+
 import java.util.function.Function;
 
 /**
@@ -95,6 +97,14 @@ public class GenerateObjects<OBJ> implements
     @Override
     public TypeReference<Iterable<? extends OBJ>> getOutputTypeReference() {
         return TypeReferenceImpl.createIterableT();
+    }
+
+    @Override
+    public GenerateObjects<OBJ> shallowClone() {
+        return new GenerateObjects.Builder<OBJ>()
+                .generator(elementGenerator)
+                .input(input)
+                .build();
     }
 
     public static class Builder<OBJ> extends Operation.BaseBuilder<GenerateObjects<OBJ>, Builder<OBJ>>

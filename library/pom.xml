@@ -29,7 +29,6 @@
         <module>hdfs-library</module>
         <module>sketches-library</module>
         <module>spark</module>
-        <module>named-operation-library</module>
         <module>bitmap-library</module>
         <module>cache-library</module>
         <module>flink-library</module>
@@ -46,9 +45,10 @@
             <modules>
                 <module>hdfs-library</module>
                 <module>sketches-library</module>
-                <module>named-operation-library</module>
                 <module>bitmap-library</module>
                 <module>cache-library</module>
+                <module>flink-library</module>
+                <module>time-library</module>
             </modules>
         </profile>
     </profiles>

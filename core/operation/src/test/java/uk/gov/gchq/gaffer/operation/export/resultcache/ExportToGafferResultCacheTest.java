@@ -18,27 +18,21 @@ package uk.gov.gchq.gaffer.operation.export.resultcache;
 
 import com.google.common.collect.Sets;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
+
 import java.util.HashSet;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 
-public class ExportToGafferResultCacheTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return ExportToGafferResultCache.class;
-    }
-
+public class ExportToGafferResultCacheTest extends OperationTest<ExportToGafferResultCache> {
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final String key = "key";
         final HashSet<String> opAuths = Sets.newHashSet("1", "2");
@@ -48,8 +42,8 @@ public class ExportToGafferResultCacheTest extends OperationTest {
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(op, true);
-        final ExportToGafferResultCache deserialisedOp = serialiser.deserialise(json, ExportToGafferResultCache.class);
+        byte[] json = JSONSerialiser.serialise(op, true);
+        final ExportToGafferResultCache deserialisedOp = JSONSerialiser.deserialise(json, ExportToGafferResultCache.class);
 
         // Then
         assertEquals(key, deserialisedOp.getKey());
@@ -71,4 +65,31 @@ public class ExportToGafferResultCacheTest extends OperationTest {
         assertEquals(key, op.getKey());
         assertEquals(opAuths, op.getOpAuths());
     }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final String key = "key";
+        final HashSet<String> opAuths = Sets.newHashSet("1", "2");
+        final String input = "input";
+        final ExportToGafferResultCache exportToGafferResultCache = new ExportToGafferResultCache.Builder<>()
+                .key(key)
+                .opAuths(opAuths)
+                .input(input)
+                .build();
+
+        // When
+        ExportToGafferResultCache clone = exportToGafferResultCache.shallowClone();
+
+        // Then
+        assertNotSame(exportToGafferResultCache, clone);
+        assertEquals(key, clone.getKey());
+        assertEquals(input, clone.getInput());
+        assertEquals(opAuths, clone.getOpAuths());
+    }
+
+    protected ExportToGafferResultCache getTestObject() {
+        return new ExportToGafferResultCache();
+    }
 }
+

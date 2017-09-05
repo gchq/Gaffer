@@ -19,9 +19,11 @@ import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.spark.rdd.RDD;
 import scala.Tuple2;
+
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.io.Input;
+
 import java.util.Map;
 
 public class ImportKeyValuePairRDDToAccumulo implements
@@ -68,6 +70,15 @@ public class ImportKeyValuePairRDDToAccumulo implements
     @Override
     public void setOptions(final Map<String, String> options) {
         this.options = options;
+    }
+
+    public ImportKeyValuePairRDDToAccumulo shallowClone() {
+        return new ImportKeyValuePairRDDToAccumulo.Builder()
+                .input(input)
+                .outputPath(outputPath)
+                .failurePath(failurePath)
+                .options(options)
+                .build();
     }
 
     public static class Builder extends Operation.BaseBuilder<ImportKeyValuePairRDDToAccumulo, Builder>

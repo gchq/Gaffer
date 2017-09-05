@@ -24,6 +24,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.StringUtils;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
+
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.data.generator.ObjectGenerator;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -33,7 +34,9 @@ import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.signature.Signature;
+
 import javax.inject.Inject;
+
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.Collection;
@@ -71,6 +74,11 @@ public class GraphConfigurationService implements IGraphConfigurationService {
     @Override
     public Schema getSchema() {
         return graphFactory.getGraph().getSchema();
+    }
+
+    @Override
+    public String getDescription() {
+        return graphFactory.getGraph().getDescription();
     }
 
     @Override

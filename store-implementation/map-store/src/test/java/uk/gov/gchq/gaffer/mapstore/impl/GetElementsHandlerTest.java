@@ -18,8 +18,10 @@ package uk.gov.gchq.gaffer.mapstore.impl;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -41,6 +43,7 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -90,6 +93,7 @@ public class GetElementsHandlerTest {
 
         // When
         final GetElements getElements = new GetElements.Builder()
+                .input(new EmptyClosableIterable<>())
                 .build();
         final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
 
@@ -131,6 +135,7 @@ public class GetElementsHandlerTest {
 
         // When
         final GetElements getElements = new GetElements.Builder()
+                .input(new EmptyClosableIterable<>())
                 .build();
         final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
 

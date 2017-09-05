@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl.export.set;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.GetExport;
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -76,6 +77,16 @@ public class GetSetExport implements
     @Override
     public TypeReference<Iterable<?>> getOutputTypeReference() {
         return new TypeReferenceImpl.IterableObj();
+    }
+
+    @Override
+    public GetSetExport shallowClone() {
+        return new GetSetExport.Builder()
+                .jobId(jobId)
+                .key(key)
+                .start(start)
+                .end(end)
+                .build();
     }
 
     public static class Builder

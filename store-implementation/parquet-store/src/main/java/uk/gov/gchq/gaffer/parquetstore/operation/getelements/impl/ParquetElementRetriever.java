@@ -20,6 +20,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.parquet.filter2.predicate.FilterPredicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -27,6 +28,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
@@ -131,7 +133,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                 }
             } catch (final OperationException | SerialisationException e) {
                 LOGGER.error("Exception while creating the mapping of file paths to Parquet filters: {}", e.getMessage());
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 LOGGER.error(e.getMessage(), e);
             }
         }
@@ -148,7 +150,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                             if (!finishedAllTasks) {
                                 wait(100L);
                             }
-                        } catch (Exception e) {
+                        } catch (final Exception e) {
                             LOGGER.error(e.getMessage(), e);
                             finishedAllTasks = true;
                         }
@@ -190,10 +192,12 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                         ElementFilter preAggFilter = view.getElement(group).getPreAggregationFilter();
                         if (preAggFilter != null) {
                             if (preAggFilter.test(e)) {
+                                ViewUtil.removeProperties(view, e);
                                 return e;
                             }
                         }
                     } else {
+                        ViewUtil.removeProperties(view, e);
                         return e;
                     }
                 }

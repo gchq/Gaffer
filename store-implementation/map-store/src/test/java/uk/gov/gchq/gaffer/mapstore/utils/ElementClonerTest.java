@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.mapstore.utils;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.mapstore.MapStore;

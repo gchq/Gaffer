@@ -19,6 +19,7 @@ import com.yahoo.sketches.theta.Sketch;
 import com.yahoo.sketches.theta.UpdateSketch;
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -66,14 +67,14 @@ public class SketchAggregatorTest extends BinaryOperatorTest {
         final SketchAggregator aggregator = new SketchAggregator();
 
         // When 1
-        final String json = new String(new JSONSerialiser().serialise(aggregator, true));
+        final String json = new String(JSONSerialiser.serialise(aggregator, true));
         // Then 1
         JsonUtil.equals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.theta.binaryoperator.SketchAggregator\"%n" +
                 "}"), json);
 
         // When 2
-        final SketchAggregator deserialisedAggregator = new JSONSerialiser()
+        final SketchAggregator deserialisedAggregator = JSONSerialiser
                 .deserialise(json.getBytes(), SketchAggregator.class);
         // Then 2
         assertNotNull(deserialisedAggregator);

@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.serialisation.implementation.ordered;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+
 import java.util.Date;
 
 public class OrderedDateSerialiser implements ToBytesSerialiser<Date> {
@@ -42,6 +43,11 @@ public class OrderedDateSerialiser implements ToBytesSerialiser<Date> {
 
     @Override
     public boolean preservesObjectOrdering() {
+        return true;
+    }
+
+    @Override
+    public boolean isConsistent() {
         return true;
     }
 

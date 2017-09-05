@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.store.serialiser.lengthvalue;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -51,7 +52,7 @@ public class EntityIdSerialiserTest {
         try {
             serialiser = new EntityIdSerialiser(schema);
             fail("Exception expected");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Vertex serialiser is required"));
         }
     }
@@ -100,6 +101,11 @@ public class EntityIdSerialiserTest {
 
     @Test
     public void testPreserveObjectOrdering() throws SerialisationException {
-        assertEquals(false, serialiser.preservesObjectOrdering());
+        assertEquals(true, serialiser.preservesObjectOrdering());
+    }
+
+    @Test
+    public void testIsConsistent() {
+        assertEquals(true, serialiser.isConsistent());
     }
 }

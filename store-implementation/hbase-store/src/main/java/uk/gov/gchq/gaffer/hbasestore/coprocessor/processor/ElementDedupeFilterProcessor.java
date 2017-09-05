@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.hbasestore.coprocessor.processor;
 
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
+
 import uk.gov.gchq.gaffer.commonutil.ByteUtil;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.exception.SerialisationException;

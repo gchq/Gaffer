@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.parquetstore.serialisation.impl;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
 
@@ -72,6 +73,11 @@ public class InLineHyperLogLogPlusParquetSerialiser implements ParquetSerialiser
     @Override
     public boolean preservesObjectOrdering() {
         return false;
+    }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
     }
 
     @Override

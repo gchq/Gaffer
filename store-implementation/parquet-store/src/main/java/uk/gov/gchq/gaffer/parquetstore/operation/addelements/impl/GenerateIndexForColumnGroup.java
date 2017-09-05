@@ -26,6 +26,7 @@ import org.apache.spark.sql.SparkSession;
 import scala.collection.mutable.Builder;
 import scala.collection.mutable.Seq;
 import scala.collection.mutable.Seq$;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.index.ColumnIndex;

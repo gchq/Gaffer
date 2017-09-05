@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -24,6 +25,7 @@ import uk.gov.gchq.gaffer.data.generator.MapGenerator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.output.ToMap;
 import uk.gov.gchq.gaffer.store.Context;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;

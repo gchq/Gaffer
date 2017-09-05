@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl.job;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -29,6 +30,12 @@ public class GetAllJobDetails implements
     @Override
     public TypeReference<CloseableIterable<JobDetail>> getOutputTypeReference() {
         return new TypeReferenceImpl.JobDetailIterable();
+    }
+
+    @Override
+    public GetAllJobDetails shallowClone() {
+        return new GetAllJobDetails.Builder()
+                .build();
     }
 
     public static class Builder extends Operation.BaseBuilder<GetAllJobDetails, Builder>

@@ -17,11 +17,12 @@
 package uk.gov.gchq.gaffer.hbasestore.operation.handler;
 
 import com.google.common.collect.Lists;
-import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Table;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -43,6 +44,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -135,7 +137,7 @@ public class AddElementsHandlerTest {
         final Context context = mock(Context.class);
         final HBaseStore store = mock(HBaseStore.class);
 
-        final HTable table = mock(HTable.class);
+        final Table table = mock(Table.class);
         given(store.getTable()).willReturn(table);
 
         final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
@@ -162,8 +164,6 @@ public class AddElementsHandlerTest {
         final List<Element> elementsAdded = CellUtil.getElements(puts, new ElementSerialisation(SCHEMA), false);
         assertEquals(expectedElements.size(), elementsAdded.size());
         assertThat(elementsAdded, IsCollectionContaining.hasItems(expectedElementsArr));
-
-        verify(table).flushCommits();
     }
 
     @Test
@@ -181,7 +181,7 @@ public class AddElementsHandlerTest {
         final Context context = mock(Context.class);
         final HBaseStore store = mock(HBaseStore.class);
 
-        final HTable table = mock(HTable.class);
+        final Table table = mock(Table.class);
         given(store.getTable()).willReturn(table);
 
         final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
@@ -213,8 +213,6 @@ public class AddElementsHandlerTest {
         final List<Element> elementsAdded2 = CellUtil.getElements(puts2, new ElementSerialisation(SCHEMA), false);
         assertEquals(expectedElements.size(), elementsAdded2.size());
         assertThat(elementsAdded2, IsCollectionContaining.hasItems(expectedElementsArr));
-
-        verify(table, times(2)).flushCommits();
     }
 
     @Test
@@ -233,7 +231,7 @@ public class AddElementsHandlerTest {
         final Context context = mock(Context.class);
         final HBaseStore store = mock(HBaseStore.class);
 
-        final HTable table = mock(HTable.class);
+        final Table table = mock(Table.class);
         given(store.getTable()).willReturn(table);
 
         final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
@@ -263,8 +261,6 @@ public class AddElementsHandlerTest {
         final List<Element> elementsAdded = CellUtil.getElements(puts, new ElementSerialisation(SCHEMA), false);
         assertEquals(expectedElements.size(), elementsAdded.size());
         assertThat(elementsAdded, IsCollectionContaining.hasItems(expectedElementsArr));
-
-        verify(table).flushCommits();
     }
 
     @Test
@@ -275,7 +271,7 @@ public class AddElementsHandlerTest {
         final Context context = mock(Context.class);
         final HBaseStore store = mock(HBaseStore.class);
 
-        final HTable table = mock(HTable.class);
+        final Table table = mock(Table.class);
         given(store.getTable()).willReturn(table);
 
         final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
@@ -288,7 +284,6 @@ public class AddElementsHandlerTest {
 
         // Then
         verify(table, never()).put(anyListOf(Put.class));
-        verify(table, never()).flushCommits();
     }
 
     private List<Element> createElements() {

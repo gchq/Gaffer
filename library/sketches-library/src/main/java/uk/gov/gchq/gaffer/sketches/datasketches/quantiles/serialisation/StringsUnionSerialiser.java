@@ -19,6 +19,7 @@ import com.google.common.collect.Ordering;
 import com.yahoo.memory.WritableMemory;
 import com.yahoo.sketches.ArrayOfStringsSerDe;
 import com.yahoo.sketches.quantiles.ItemsUnion;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
@@ -55,6 +56,11 @@ public class StringsUnionSerialiser implements ToBytesSerialiser<ItemsUnion<Stri
 
     @Override
     public boolean preservesObjectOrdering() {
+        return false;
+    }
+
+    @Override
+    public boolean isConsistent() {
         return false;
     }
 }

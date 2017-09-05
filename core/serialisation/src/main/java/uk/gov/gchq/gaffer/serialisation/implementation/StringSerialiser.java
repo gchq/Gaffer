@@ -51,4 +51,9 @@ public class StringSerialiser extends ToBytesViaStringDeserialiser<String> {
     public boolean preservesObjectOrdering() {
         return true;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

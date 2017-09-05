@@ -20,6 +20,7 @@ import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.CoreKeyBloomFunctor;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloElementConverter;
@@ -30,6 +31,9 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
@@ -49,8 +53,8 @@ public class Gaffer1BloomElementFunctorTest {
     public void setup() {
         schema = new Schema.Builder()
                 .vertexSerialiser(new JavaSerialiser())
-                .edge(TestGroups.EDGE)
-                .entity(TestGroups.ENTITY)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition())
                 .build();
         elementConverter = new ClassicAccumuloElementConverter(schema);
     }

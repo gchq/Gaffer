@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl.job;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.Export;
 import uk.gov.gchq.gaffer.operation.export.GetExport;
@@ -34,6 +35,13 @@ public class GetJobResults extends GetGafferResultCacheExport {
         if (null != key && !Export.DEFAULT_KEY.equals(key)) {
             throw new IllegalArgumentException("Keys cannot be used with this operation");
         }
+    }
+
+    @Override
+    public GetJobResults shallowClone() {
+        return new GetJobResults.Builder()
+                .jobId(getJobId())
+                .build();
     }
 
     public static class Builder

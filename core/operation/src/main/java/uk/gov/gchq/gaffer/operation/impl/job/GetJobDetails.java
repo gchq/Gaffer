@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl.job;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -38,6 +39,13 @@ public class GetJobDetails implements
     @Override
     public TypeReference<JobDetail> getOutputTypeReference() {
         return new TypeReferenceImpl.JobDetail();
+    }
+
+    @Override
+    public GetJobDetails shallowClone() {
+        return new GetJobDetails.Builder()
+                .jobId(jobId)
+                .build();
     }
 
     public static class Builder extends Operation.BaseBuilder<GetJobDetails, Builder>

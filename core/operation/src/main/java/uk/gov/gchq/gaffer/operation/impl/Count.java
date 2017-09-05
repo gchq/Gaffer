@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
@@ -45,6 +46,13 @@ public class Count<T> implements
     @Override
     public TypeReference<Long> getOutputTypeReference() {
         return new TypeReferenceImpl.Long();
+    }
+
+    @Override
+    public Count shallowClone() {
+        return new Count.Builder<T>()
+                .input(input)
+                .build();
     }
 
     public static final class Builder<T>

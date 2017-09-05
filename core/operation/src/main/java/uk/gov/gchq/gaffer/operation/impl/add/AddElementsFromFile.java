@@ -20,6 +20,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.Validatable;
+
 import java.util.Map;
 import java.util.function.Function;
 
@@ -104,6 +105,18 @@ public class AddElementsFromFile implements
     @Override
     public void setValidate(final boolean validate) {
         this.validate = validate;
+    }
+
+    @Override
+    public AddElementsFromFile shallowClone() {
+        return new AddElementsFromFile.Builder()
+                .filename(filename)
+                .generator(elementGenerator)
+                .parallelism(parallelism)
+                .validate(validate)
+                .skipInvalidElements(skipInvalidElements)
+                .options(options)
+                .build();
     }
 
     public static class Builder extends BaseBuilder<AddElementsFromFile, Builder>

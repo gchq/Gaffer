@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation;
 import com.yahoo.memory.WritableMemory;
 import com.yahoo.sketches.ArrayOfItemsSerDe;
 import com.yahoo.sketches.sampling.ReservoirItemsSketch;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
@@ -54,6 +55,11 @@ public class ReservoirItemsSketchSerialiser<T> implements ToBytesSerialiser<Rese
 
     @Override
     public boolean preservesObjectOrdering() {
+        return false;
+    }
+
+    @Override
+    public boolean isConsistent() {
         return false;
     }
 }

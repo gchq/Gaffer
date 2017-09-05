@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.commonutil.pair;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 
 /**
@@ -82,7 +83,8 @@ public class Pair<F, S> {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37).append(first)
+        return new HashCodeBuilder(17, 29)
+                .append(first)
                 .append(second)
                 .toHashCode();
     }

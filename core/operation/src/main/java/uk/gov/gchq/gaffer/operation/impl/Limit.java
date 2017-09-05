@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
@@ -81,6 +82,15 @@ public class Limit<T> implements
     @Override
     public TypeReference<Iterable<? extends T>> getOutputTypeReference() {
         return TypeReferenceImpl.createIterableT();
+    }
+
+    @Override
+    public Limit<T> shallowClone() {
+        return new Limit.Builder<T>()
+                .resultLimit(resultLimit)
+                .input(input)
+                .truncate(truncate)
+                .build();
     }
 
     public static final class Builder<T>

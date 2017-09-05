@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.data;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 
 public class CustomVertex {
@@ -69,7 +70,7 @@ public class CustomVertex {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(13, 37)
+        return new HashCodeBuilder(37, 53)
                 .append(type)
                 .append(value)
                 .toHashCode();

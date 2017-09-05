@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
@@ -47,6 +48,13 @@ public class ToEntitySeeds implements
     @Override
     public TypeReference<Iterable<? extends EntitySeed>> getOutputTypeReference() {
         return new TypeReferenceImpl.IterableEntitySeed();
+    }
+
+    @Override
+    public ToEntitySeeds shallowClone() {
+        return new ToEntitySeeds.Builder()
+                .input(input)
+                .build();
     }
 
     public static final class Builder

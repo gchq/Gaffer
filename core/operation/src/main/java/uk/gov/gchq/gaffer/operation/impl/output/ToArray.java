@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
@@ -46,6 +47,13 @@ public class ToArray<T> implements
     @Override
     public TypeReference<T[]> getOutputTypeReference() {
         return new TypeReferenceImpl.Array();
+    }
+
+    @Override
+    public ToArray<T> shallowClone() {
+        return new ToArray.Builder<T>()
+                .input(input)
+                .build();
     }
 
     public static final class Builder<T>

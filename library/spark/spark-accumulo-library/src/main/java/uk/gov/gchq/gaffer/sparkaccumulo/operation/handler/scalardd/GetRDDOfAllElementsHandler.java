@@ -20,6 +20,7 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
 import scala.Tuple2;
+
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.inputformat.ElementInputFormat;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -44,7 +45,7 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
                                      final Context context,
                                      final AccumuloStore accumuloStore)
             throws OperationException {
-        final SparkContext sparkContext = operation.getSparkContext();
+        final SparkContext sparkContext = operation.getSparkSession().sparkContext();
         final Configuration conf = getConfiguration(operation);
         addIterators(accumuloStore, conf, context.getUser(), operation);
         final RDD<Tuple2<Element, NullWritable>> pairRDD = sparkContext.newAPIHadoopRDD(conf,

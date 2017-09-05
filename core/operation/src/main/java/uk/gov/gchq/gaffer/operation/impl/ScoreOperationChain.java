@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -37,6 +38,12 @@ public class ScoreOperationChain implements Operation, Output<Integer> {
 
     public void setOperationChain(final OperationChain operationChain) {
         this.operationChain = operationChain;
+    }
+
+    public ScoreOperationChain shallowClone() {
+        return new ScoreOperationChain.Builder()
+                .operationChain(operationChain)
+                .build();
     }
 
     public static class Builder extends BaseBuilder<ScoreOperationChain, Builder> implements

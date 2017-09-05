@@ -16,15 +16,13 @@
 
 package uk.gov.gchq.gaffer.parquetstore.operation;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -46,8 +44,7 @@ public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsT
 
     @BeforeClass
     public static void genData() throws OperationException, StoreException {
-        Logger.getRootLogger().setLevel(Level.WARN);
-        getGraph(getSchema(), getParquetStoreProperties())
+        getGraph(getSchema(), TestUtils.getParquetStoreProperties(), "TypeValueVertexSparkOperationsTest")
                 .execute(new ImportJavaRDDOfElements.Builder()
                         .input(getElements(javaSparkContext))
                         .javaSparkContext(javaSparkContext)
@@ -56,11 +53,11 @@ public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsT
 
     @Before
     public void setup() throws StoreException {
-        graph = getGraph(getSchema(), getParquetStoreProperties());
+        graph = getGraph(getSchema(), TestUtils.getParquetStoreProperties(), "TypeValueVertexSparkOperationsTest");
     }
 
     protected static Schema getSchema() {
-        return Schema.fromJson(StreamUtil.openStreams(TypeValueVertexSparkOperationsTest.class, "schemaUsingTypeValueVertexType"));
+        return TestUtils.gafferSchema("schemaUsingTypeValueVertexType");
     }
 
     private static JavaRDD<Element> getElements(final JavaSparkContext spark) {
@@ -95,7 +92,7 @@ public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsT
         //check returned elements are correct
         final List<Element> expected = new ArrayList<>(175);
         final List<Element> actual = TestUtils.convertTypeValueRowsToElements(data);
-        for (int x = 0 ; x < 25; x++) {
+        for (int x = 0; x < 25; x++) {
             final String type = "type" + (x % 5);
             final TypeValue src = new TypeValue(type, "src" + x);
             final TypeValue dst = new TypeValue(type, "dst" + (x + 1));

@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.impl.dat
 import com.yahoo.sketches.theta.Union;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.DataTypes;
+
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.ConversionException;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
 

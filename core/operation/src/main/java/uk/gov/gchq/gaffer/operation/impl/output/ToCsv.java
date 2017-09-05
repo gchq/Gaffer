@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.CsvGenerator;
@@ -72,6 +73,15 @@ public class ToCsv implements
     @Override
     public TypeReference<Iterable<? extends String>> getOutputTypeReference() {
         return new TypeReferenceImpl.IterableString();
+    }
+
+    @Override
+    public ToCsv shallowClone() {
+        return new ToCsv.Builder()
+                .generator(elementGenerator)
+                .input(input)
+                .includeHeader(includeHeader)
+                .build();
     }
 
     public static final class Builder extends BaseBuilder<ToCsv, Builder>

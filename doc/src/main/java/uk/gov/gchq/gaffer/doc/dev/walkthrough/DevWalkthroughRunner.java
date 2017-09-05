@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.doc.dev.walkthrough;
 
 import uk.gov.gchq.gaffer.doc.walkthrough.AbstractWalkthrough;
 import uk.gov.gchq.gaffer.doc.walkthrough.AbstractWalkthroughRunner;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,6 +28,7 @@ public class DevWalkthroughRunner extends AbstractWalkthroughRunner {
     private static final List<AbstractWalkthrough> EXAMPLES = Arrays.asList(
             new Visibilities(),
             new Schemas(),
+            new Users(),
             new Jobs(),
             new NamedOperations()
     );

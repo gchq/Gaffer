@@ -19,6 +19,7 @@ import com.yahoo.sketches.sampling.ReservoirLongsSketch;
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -29,7 +30,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BinaryOperator;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class ReservoirLongsSketchAggregatorTest extends BinaryOperatorTest {
     private ReservoirLongsSketch union1;
@@ -87,14 +90,14 @@ public class ReservoirLongsSketchAggregatorTest extends BinaryOperatorTest {
         final ReservoirLongsSketchAggregator aggregator = new ReservoirLongsSketchAggregator();
 
         // When 1
-        final String json = new String(new JSONSerialiser().serialise(aggregator, true));
+        final String json = new String(JSONSerialiser.serialise(aggregator, true));
         // Then 1
         JsonUtil.equals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.sampling.binaryoperator.ReservoirLongsSketchAggregator\"%n" +
                 "}"), json);
 
         // When 2
-        final ReservoirLongsSketchAggregator deserialisedAggregator = new JSONSerialiser()
+        final ReservoirLongsSketchAggregator deserialisedAggregator = JSONSerialiser
                 .deserialise(json.getBytes(), ReservoirLongsSketchAggregator.class);
         // Then 2
         assertNotNull(deserialisedAggregator);

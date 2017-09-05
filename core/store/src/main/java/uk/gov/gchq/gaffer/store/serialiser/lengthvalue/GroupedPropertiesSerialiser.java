@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -94,5 +95,10 @@ public class GroupedPropertiesSerialiser extends PropertiesSerialiser implements
 
     public String getGroup(final byte[] bytes) throws SerialisationException {
         return StringUtil.toString(LengthValueBytesSerialiserUtil.deserialise(bytes, 0));
+    }
+
+    @Override
+    public boolean isConsistent() {
+        return false;
     }
 }

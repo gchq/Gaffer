@@ -19,6 +19,7 @@ import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.types.TypeValue;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -92,6 +93,11 @@ public class TypeValueSerialiser implements ToBytesSerialiser<TypeValue> {
 
     @Override
     public boolean preservesObjectOrdering() {
+        return true;
+    }
+
+    @Override
+    public boolean isConsistent() {
         return true;
     }
 }

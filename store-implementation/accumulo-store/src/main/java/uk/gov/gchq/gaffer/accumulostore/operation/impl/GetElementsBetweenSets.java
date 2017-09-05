@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.accumulostore.operation.MultiInputB;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -32,6 +33,7 @@ import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+
 import java.io.IOException;
 import java.util.Map;
 
@@ -154,6 +156,19 @@ public class GetElementsBetweenSets implements
     public void close() throws IOException {
         MultiInput.super.close();
         CloseableUtil.close(inputB);
+    }
+
+    @Override
+    public GetElementsBetweenSets shallowClone() {
+        return new GetElementsBetweenSets.Builder()
+                .seedMatching(seedMatching)
+                .view(view)
+                .inOutType(inOutType)
+                .directedType(directedType)
+                .input(input)
+                .inputB(inputB)
+                .options(options)
+                .build();
     }
 
     public static class Builder extends Operation.BaseBuilder<GetElementsBetweenSets, Builder>

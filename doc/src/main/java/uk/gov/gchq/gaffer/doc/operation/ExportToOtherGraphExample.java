@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.doc.operation;
 
 import org.apache.commons.io.FileUtils;
+
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -33,6 +34,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.predicate.IsTrue;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -132,7 +134,7 @@ public class ExportToOtherGraphExample extends OperationExample {
     public void simpleExportUsingGraphFromGraphLibrary() {
         // ---------------------------------------------------------
         // Setup the graphLibrary with an export graph
-        final FileGraphLibrary graphLibrary = new FileGraphLibrary("target/ExportToOtherGraphGraphLibrary");
+        final FileGraphLibrary graphLibrary = new FileGraphLibrary("target/graphLibrary");
 
         final AccumuloProperties exportStoreProperties = new AccumuloProperties();
         exportStoreProperties.setId("exportStorePropertiesId");
@@ -157,10 +159,9 @@ public class ExportToOtherGraphExample extends OperationExample {
         graphLibrary.addOrUpdate("exportGraphId", exportSchema, exportStoreProperties);
 
         final Graph graph = new Graph.Builder()
-                .graphId("graph1")
+                .config(StreamUtil.openStream(getClass(), "graphConfigWithLibrary.json"))
                 .addSchemas(StreamUtil.openStreams(getClass(), "operation/schema"))
                 .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
-                .library(graphLibrary)
                 .build();
 
         final OperationChain<Iterable<? extends Element>> opChain =
@@ -184,7 +185,7 @@ public class ExportToOtherGraphExample extends OperationExample {
     public void exportToNewGraphBasedOnConfigFromGraphLibrary() {
         // ---------------------------------------------------------
         // Setup the graphLibrary with a schema and store properties for exporting
-        final FileGraphLibrary graphLibrary = new FileGraphLibrary("target/ExportToOtherGraphGraphLibrary");
+        final FileGraphLibrary graphLibrary = new FileGraphLibrary("target/graphLibrary");
 
         final AccumuloProperties exportStoreProperties = new AccumuloProperties();
         exportStoreProperties.setId("exportStorePropertiesId");
@@ -209,10 +210,9 @@ public class ExportToOtherGraphExample extends OperationExample {
         graphLibrary.addSchema("exportSchemaId", exportSchema);
 
         final Graph graph = new Graph.Builder()
-                .graphId("graph1")
+                .config(StreamUtil.openStream(getClass(), "graphConfigWithLibrary.json"))
                 .addSchemas(StreamUtil.openStreams(getClass(), "operation/schema"))
                 .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
-                .library(graphLibrary)
                 .build();
 
         final OperationChain<Iterable<? extends Element>> opChain =
@@ -240,7 +240,7 @@ public class ExportToOtherGraphExample extends OperationExample {
             if (new File("target/ExportToOtherGraphGraphLibrary").exists()) {
                 FileUtils.forceDelete(new File("target/ExportToOtherGraphGraphLibrary"));
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
     }

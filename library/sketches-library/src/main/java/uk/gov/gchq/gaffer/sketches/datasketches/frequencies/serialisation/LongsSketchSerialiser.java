@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.sketches.datasketches.frequencies.serialisation;
 
 import com.yahoo.memory.WritableMemory;
 import com.yahoo.sketches.frequencies.LongsSketch;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
@@ -49,6 +50,11 @@ public class LongsSketchSerialiser implements ToBytesSerialiser<LongsSketch> {
 
     @Override
     public boolean preservesObjectOrdering() {
+        return false;
+    }
+
+    @Override
+    public boolean isConsistent() {
         return false;
     }
 }

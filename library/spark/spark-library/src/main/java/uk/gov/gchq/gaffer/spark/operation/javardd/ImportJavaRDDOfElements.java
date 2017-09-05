@@ -17,11 +17,13 @@ package uk.gov.gchq.gaffer.spark.operation.javardd;
 
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.io.Input;
+
 import java.util.Map;
 
 
@@ -64,6 +66,15 @@ public class ImportJavaRDDOfElements implements
     @Override
     public void setOptions(final Map<String, String> options) {
         this.options = options;
+    }
+
+    @Override
+    public ImportJavaRDDOfElements shallowClone() {
+        return new ImportJavaRDDOfElements.Builder()
+                .javaSparkContext(sparkContext)
+                .input(input)
+                .options(options)
+                .build();
     }
 
     public static class Builder extends BaseBuilder<ImportJavaRDDOfElements, Builder>

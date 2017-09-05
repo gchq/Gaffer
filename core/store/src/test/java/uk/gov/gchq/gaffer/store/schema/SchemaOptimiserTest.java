@@ -19,11 +19,14 @@ package uk.gov.gchq.gaffer.store.schema;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser;
 import uk.gov.gchq.gaffer.store.SerialisationFactory;
+
 import java.io.Serializable;
 
 import static org.junit.Assert.assertEquals;
@@ -92,11 +95,11 @@ public class SchemaOptimiserTest {
         final boolean isOrdered = true;
 
         final StringSerialiser stringSerialiser = mock(StringSerialiser.class);
-        final StringSerialiser intSerialiser = mock(StringSerialiser.class);
+        final OrderedIntegerSerialiser intSerialiser = mock(OrderedIntegerSerialiser.class);
         final JavaSerialiser javaSerialiser = mock(JavaSerialiser.class);
-        given(serialisationFactory.getSerialiser(String.class, true)).willReturn(stringSerialiser);
-        given(serialisationFactory.getSerialiser(Integer.class, false)).willReturn(intSerialiser);
-        given(serialisationFactory.getSerialiser(Serializable.class, true)).willReturn(javaSerialiser);
+        given(serialisationFactory.getSerialiser(String.class, true, true)).willReturn(stringSerialiser);
+        given(serialisationFactory.getSerialiser(Integer.class, false, false)).willReturn(intSerialiser);
+        given(serialisationFactory.getSerialiser(Serializable.class, true, true)).willReturn(javaSerialiser);
         given(javaSerialiser.canHandle(Mockito.any(Class.class))).willReturn(true);
 
         schema = new Schema.Builder()
@@ -114,8 +117,8 @@ public class SchemaOptimiserTest {
         assertSame(stringSerialiser, optimisedSchema.getType("string").getSerialiser());
         assertSame(intSerialiser, optimisedSchema.getType("int").getSerialiser());
         assertSame(javaSerialiser, optimisedSchema.getVertexSerialiser());
-        verify(serialisationFactory, never()).getSerialiser(String.class, false);
-        verify(serialisationFactory, never()).getSerialiser(Serializable.class, false);
+        verify(serialisationFactory, never()).getSerialiser(String.class, false, true);
+        verify(serialisationFactory, never()).getSerialiser(Serializable.class, false, true);
     }
 
     @Test

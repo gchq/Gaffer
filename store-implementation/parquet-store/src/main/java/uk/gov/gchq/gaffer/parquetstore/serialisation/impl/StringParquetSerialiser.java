@@ -59,6 +59,11 @@ public class StringParquetSerialiser implements ParquetSerialiser<String> {
     }
 
     @Override
+    public boolean isConsistent() {
+        return true;
+    }
+
+    @Override
     public Object[] serialiseNull() {
         return new Object[0];
     }

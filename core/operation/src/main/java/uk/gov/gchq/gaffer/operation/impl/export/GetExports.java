@@ -18,11 +18,13 @@ package uk.gov.gchq.gaffer.operation.impl.export;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.GetExport;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -50,6 +52,13 @@ public class GetExports implements
         } else {
             this.getExports = getExports;
         }
+    }
+
+    @Override
+    public GetExports shallowClone() {
+        return new GetExports.Builder()
+                .exports(getExports)
+                .build();
     }
 
     @Override

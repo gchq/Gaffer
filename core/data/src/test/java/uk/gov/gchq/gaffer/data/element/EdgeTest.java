@@ -19,12 +19,14 @@ package uk.gov.gchq.gaffer.data.element;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -433,11 +435,9 @@ public class EdgeTest extends ElementTest {
                 .directed(true)
                 .build();
 
-        final JSONSerialiser serialiser = new JSONSerialiser();
-
         // When
-        final byte[] serialisedElement = serialiser.serialise(edge);
-        final Edge deserialisedElement = serialiser.deserialise(serialisedElement, edge
+        final byte[] serialisedElement = JSONSerialiser.serialise(edge);
+        final Edge deserialisedElement = JSONSerialiser.deserialise(serialisedElement, edge
                 .getClass());
 
         // Then
@@ -626,16 +626,16 @@ public class EdgeTest extends ElementTest {
         }
 
         @Override
-        public boolean equals(final Object o) {
-            if (this == o) {
+        public boolean equals(final Object obj) {
+            if (this == obj) {
                 return true;
             }
 
-            if (o == null || getClass() != o.getClass()) {
+            if (obj == null || getClass() != obj.getClass()) {
                 return false;
             }
 
-            final Vertex vertex = (Vertex) o;
+            final Vertex vertex = (Vertex) obj;
 
             return new EqualsBuilder()
                     .append(property, vertex.property)
@@ -644,7 +644,7 @@ public class EdgeTest extends ElementTest {
 
         @Override
         public int hashCode() {
-            return new HashCodeBuilder(17, 37)
+            return new HashCodeBuilder(19, 23)
                     .append(property)
                     .toHashCode();
         }

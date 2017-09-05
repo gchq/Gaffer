@@ -19,10 +19,12 @@ package uk.gov.gchq.gaffer.doc.user.walkthrough;
 import com.google.common.collect.Lists;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -50,7 +52,6 @@ public class TransformsTest {
                         .dest("11")
                         .directed(true)
                         .property("description", "3 vehicles have travelled between junction 10 and junction 11")
-                        .property("count", 3L)
                         .build(),
                 new Edge.Builder()
                         .group("RoadUse")
@@ -58,7 +59,6 @@ public class TransformsTest {
                         .dest("10")
                         .directed(true)
                         .property("description", "1 vehicles have travelled between junction 11 and junction 10")
-                        .property("count", 1L)
                         .build()
         };
 

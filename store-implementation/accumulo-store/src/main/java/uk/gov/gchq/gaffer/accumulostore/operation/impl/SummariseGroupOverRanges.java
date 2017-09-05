@@ -15,8 +15,8 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
-
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+
 import java.util.Map;
 
 /**
@@ -105,6 +106,17 @@ public class SummariseGroupOverRanges
     @Override
     public void setOptions(final Map<String, String> options) {
         this.options = options;
+    }
+
+    @Override
+    public SummariseGroupOverRanges shallowClone() {
+        return new SummariseGroupOverRanges.Builder()
+                .input(input)
+                .inOutType(inOutType)
+                .view(view)
+                .directedType(directedType)
+                .options(options)
+                .build();
     }
 
     public static class Builder extends Operation.BaseBuilder<SummariseGroupOverRanges, Builder>

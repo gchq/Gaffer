@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.store;
 
 import com.google.common.collect.Lists;
+
 import uk.gov.gchq.gaffer.serialisation.FreqMapSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.TypeSubTypeValueSerialiser;
@@ -32,6 +33,7 @@ import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSer
 import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedLongSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
+
 import java.util.List;
 
 /**
@@ -101,23 +103,24 @@ public class SerialisationFactory {
      *                                  no compatible serialiser could be found.
      */
     public Serialiser getSerialiser(final Class<?> objClass) {
-        return getSerialiser(objClass, false);
+        return getSerialiser(objClass, false, false);
     }
 
     /**
      * @param objClass      the class of an object to be serialised.
      * @param preserveOrder if true then the returned serialiser should preserve order.
+     * @param consistentSerialiser if true then the returned serialiser should be consistent
      * @return a compatible serialiser.
      * @throws IllegalArgumentException if the object class parameter is null or
      *                                  no compatible serialiser could be found.
      */
-    public Serialiser getSerialiser(final Class<?> objClass, final boolean preserveOrder) {
+    public Serialiser getSerialiser(final Class<?> objClass, final boolean preserveOrder, final boolean consistentSerialiser) {
         if (null == objClass) {
             throw new IllegalArgumentException("Object class for serialising is required");
         }
 
         for (final Serialiser serialiser : serialisers) {
-            if (canSerialiseClass(objClass, preserveOrder, serialiser)) {
+            if (canSerialiseClass(objClass, preserveOrder, serialiser) && (!consistentSerialiser || serialiser.isConsistent())) {
                 return serialiser;
             }
         }

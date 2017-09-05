@@ -17,10 +17,12 @@
 package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+
 import java.util.stream.Stream;
 
 /**
@@ -48,6 +50,13 @@ public class ToStream<T> implements
     @Override
     public TypeReference<Stream<? extends T>> getOutputTypeReference() {
         return new TypeReferenceImpl.Stream();
+    }
+
+    @Override
+    public ToStream<T> shallowClone() {
+        return new ToStream.Builder<T>()
+                .input(input)
+                .build();
     }
 
     public static final class Builder<T>

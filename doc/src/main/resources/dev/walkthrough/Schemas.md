@@ -73,6 +73,28 @@ Here are some example Types
 ${TYPES_JSON}
 
 
+##### Serialisers
+Gaffer will automatically choose serialisers for you for some core types.
+Where possible you should let Gaffer choose for you, as it will choose the optimal
+serialiser for the type and your usage.
+
+For custom types you will need to write your own serialiser. When manually
+choosing a serialiser for your schema you will need to take the following into
+consideration.
+
+For vertex serialisation and groupBy properties you must choose serialisers that
+are consistent. A consistent serialiser will serialise the equal objects into
+exactly the same values (bytes). For example the JavaSerialiser and
+FreqMapSerialiser are not consistent.
+
+When using an ordered store (a store that implements the ORDERED StoreTrait),
+this includes Accumulo and HBase, you need to check whether the serialisers are
+ordered.
+
+ - for vertex serialisation you must use a serialiser that is ordered
+ - for groupBy properties we recommend using a serialiser that is ordered, however it is not essential. In fact it will not cause any problems at present. In the future we plan to add features that would only be available to you if your groupBy properties are serialised using ordered serialisers.
+ - all other properties can be serialised with ordered/unordered serialisers.
+
 #### Full Schema
 Once the schema has been loaded into a graph the parent elements are merged into the children for performance reasons. This is what the full schema created from the above example schema parts looks like:
 

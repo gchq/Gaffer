@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.parquetstore.io.reader;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.hadoop.ParquetReader;
 import org.apache.parquet.hadoop.api.ReadSupport;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 

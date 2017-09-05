@@ -24,10 +24,12 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
+
 import java.util.List;
 import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
@@ -189,15 +191,15 @@ public class TypeDefinition {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
 
-        final TypeDefinition that = (TypeDefinition) o;
+        final TypeDefinition that = (TypeDefinition) obj;
 
         return new EqualsBuilder()
                 .append(clazz, that.clazz)
@@ -210,7 +212,7 @@ public class TypeDefinition {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(17, 83)
                 .append(clazz)
                 .append(validateFunctions)
                 .append(serialiser)

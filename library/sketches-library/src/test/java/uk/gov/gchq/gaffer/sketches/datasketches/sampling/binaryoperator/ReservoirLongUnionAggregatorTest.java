@@ -19,10 +19,12 @@ import com.yahoo.sketches.sampling.ReservoirLongsUnion;
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -88,14 +90,14 @@ public class ReservoirLongUnionAggregatorTest extends BinaryOperatorTest {
         final ReservoirLongsUnionAggregator aggregator = new ReservoirLongsUnionAggregator();
 
         // When 1
-        final String json = new String(new JSONSerialiser().serialise(aggregator, true));
+        final String json = new String(JSONSerialiser.serialise(aggregator, true));
         // Then 1
         JsonAssert.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.sampling.binaryoperator.ReservoirLongsUnionAggregator\"%n" +
                 "}"), json);
 
         // When 2
-        final ReservoirLongsUnionAggregator deserialisedAggregator = new JSONSerialiser()
+        final ReservoirLongsUnionAggregator deserialisedAggregator = JSONSerialiser
                 .deserialise(json.getBytes(), ReservoirLongsUnionAggregator.class);
         // Then 2
         assertNotNull(deserialisedAggregator);

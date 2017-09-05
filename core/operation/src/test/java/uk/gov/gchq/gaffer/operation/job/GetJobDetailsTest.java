@@ -17,34 +17,27 @@
 package uk.gov.gchq.gaffer.operation.job;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 
-public class GetJobDetailsTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return GetJobDetails.class;
-    }
-
+public class GetJobDetailsTest extends OperationTest<GetJobDetails> {
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final GetJobDetails operation = new GetJobDetails.Builder()
                 .jobId("jobId")
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(operation, true);
-        final GetJobDetails deserialisedOp = serialiser.deserialise(json, GetJobDetails.class);
+        byte[] json = JSONSerialiser.serialise(operation, true);
+        final GetJobDetails deserialisedOp = JSONSerialiser.deserialise(json, GetJobDetails.class);
 
         // Then
         assertEquals("jobId", deserialisedOp.getJobId());
@@ -60,5 +53,25 @@ public class GetJobDetailsTest extends OperationTest {
 
         // Then
         assertEquals("jobId", op.getJobId());
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final String jobId = "jobId";
+        final GetJobDetails getJobDetails = new GetJobDetails.Builder()
+                .jobId(jobId)
+                .build();
+
+        // When
+        GetJobDetails clone = getJobDetails.shallowClone();
+
+        // Then
+        assertNotSame(getJobDetails, clone);
+        assertEquals(jobId, clone.getJobId());
+    }
+
+    protected GetJobDetails getTestObject() {
+        return new GetJobDetails();
     }
 }

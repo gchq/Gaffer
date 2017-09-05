@@ -17,11 +17,13 @@ package uk.gov.gchq.gaffer.doc.properties.walkthrough;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import org.roaringbitmap.RoaringBitmap;
+
 import uk.gov.gchq.gaffer.doc.walkthrough.AbstractWalkthrough;
 import uk.gov.gchq.gaffer.doc.walkthrough.AbstractWalkthroughRunner;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
 import uk.gov.gchq.gaffer.types.TypeValue;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;

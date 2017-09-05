@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl.export.resultcache;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.Export;
@@ -54,6 +55,14 @@ public class GetGafferResultCacheExport implements
     @Override
     public TypeReference<CloseableIterable<?>> getOutputTypeReference() {
         return new TypeReferenceImpl.CloseableIterableObj();
+    }
+
+    @Override
+    public GetGafferResultCacheExport shallowClone() {
+        return new GetGafferResultCacheExport.Builder()
+                .jobId(jobId)
+                .key(key)
+                .build();
     }
 
     public static class Builder

@@ -17,26 +17,19 @@
 package uk.gov.gchq.gaffer.operation.export.resultcache;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 
-public class GetGafferResultCacheExportTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return GetGafferResultCacheExport.class;
-    }
-
+public class GetGafferResultCacheExportTest extends OperationTest<GetGafferResultCacheExport> {
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final String key = "key";
         final GetGafferResultCacheExport op = new GetGafferResultCacheExport.Builder()
@@ -44,8 +37,8 @@ public class GetGafferResultCacheExportTest extends OperationTest {
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(op, true);
-        final GetGafferResultCacheExport deserialisedOp = serialiser.deserialise(json, GetGafferResultCacheExport.class);
+        byte[] json = JSONSerialiser.serialise(op, true);
+        final GetGafferResultCacheExport deserialisedOp = JSONSerialiser.deserialise(json, GetGafferResultCacheExport.class);
 
         // Then
         assertEquals(key, deserialisedOp.getKey());
@@ -62,5 +55,28 @@ public class GetGafferResultCacheExportTest extends OperationTest {
 
         // Then
         assertEquals(key, op.getKey());
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final String key = "key";
+        final String jobId = "jobId";
+        final GetGafferResultCacheExport getGafferResultCacheExport = new GetGafferResultCacheExport.Builder()
+                .key(key)
+                .jobId(jobId)
+                .build();
+
+        // When
+        GetGafferResultCacheExport clone = getGafferResultCacheExport.shallowClone();
+
+        // Then
+        assertNotSame(getGafferResultCacheExport, clone);
+        assertEquals(key, clone.getKey());
+        assertEquals(jobId, clone.getJobId());
+    }
+
+    protected GetGafferResultCacheExport getTestObject() {
+        return new GetGafferResultCacheExport();
     }
 }

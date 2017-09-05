@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.data.GroupCounts;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -67,6 +68,14 @@ public class CountGroups implements
     @Override
     public void setInput(final Iterable<? extends Element> input) {
         this.input = input;
+    }
+
+    @Override
+    public CountGroups shallowClone() {
+        return new CountGroups.Builder()
+                .input(input)
+                .limit(limit)
+                .build();
     }
 
     public static class Builder

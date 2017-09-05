@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
+
 import java.util.Map;
 
 public class ImportAccumuloKeyValueFiles implements
@@ -54,6 +55,15 @@ public class ImportAccumuloKeyValueFiles implements
     @Override
     public void setOptions(final Map<String, String> options) {
         this.options = options;
+    }
+
+    @Override
+    public ImportAccumuloKeyValueFiles shallowClone() {
+        return new ImportAccumuloKeyValueFiles.Builder()
+                .failurePath(failurePath)
+                .inputPath(inputPath)
+                .options(options)
+                .build();
     }
 
 

@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import org.apache.commons.lang3.exception.CloneFailedException;
+
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.Input;
 
@@ -31,6 +33,11 @@ public class DiscardOutput implements
     @Override
     public void setInput(final Object input) {
         // No action required
+    }
+
+    @Override
+    public DiscardOutput shallowClone() throws CloneFailedException {
+        return new DiscardOutput();
     }
 
     public static final class Builder extends BaseBuilder<DiscardOutput, Builder>

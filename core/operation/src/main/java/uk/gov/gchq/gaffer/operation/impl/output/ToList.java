@@ -17,10 +17,12 @@
 package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+
 import java.util.List;
 
 /**
@@ -48,6 +50,13 @@ public class ToList<T> implements
     @Override
     public TypeReference<List<? extends T>> getOutputTypeReference() {
         return new TypeReferenceImpl.List();
+    }
+
+    @Override
+    public ToList<T> shallowClone() {
+        return new ToList.Builder<T>()
+                .input(input)
+                .build();
     }
 
     public static final class Builder<T>

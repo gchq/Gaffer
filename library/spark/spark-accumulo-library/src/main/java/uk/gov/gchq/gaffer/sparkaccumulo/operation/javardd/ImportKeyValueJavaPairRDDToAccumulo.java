@@ -18,10 +18,12 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.javardd;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.spark.api.java.JavaPairRDD;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.io.Input;
+
 import java.util.Map;
 
 public class ImportKeyValueJavaPairRDDToAccumulo implements
@@ -70,6 +72,16 @@ public class ImportKeyValueJavaPairRDDToAccumulo implements
     @Override
     public void setOptions(final Map<String, String> options) {
         this.options = options;
+    }
+
+    @Override
+    public ImportKeyValueJavaPairRDDToAccumulo shallowClone() {
+        return new ImportKeyValueJavaPairRDDToAccumulo.Builder()
+                .outputPath(outputPath)
+                .failurePath(failurePath)
+                .input(input)
+                .options(options)
+                .build();
     }
 
     public static class Builder extends Operation.BaseBuilder<ImportKeyValueJavaPairRDDToAccumulo, Builder>

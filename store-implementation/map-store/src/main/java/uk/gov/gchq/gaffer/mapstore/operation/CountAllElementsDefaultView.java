@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.mapstore.operation;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
@@ -41,6 +42,13 @@ public class CountAllElementsDefaultView implements
     @Override
     public TypeReference<Long> getOutputTypeReference() {
         return new TypeReferenceImpl.Long();
+    }
+
+    @Override
+    public CountAllElementsDefaultView shallowClone() {
+        return new CountAllElementsDefaultView.Builder()
+                .input(input)
+                .build();
     }
 
     public static final class Builder

@@ -18,9 +18,11 @@ package uk.gov.gchq.gaffer.operation.impl.export.resultcache;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Sets;
+
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.ExportTo;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+
 import java.util.Set;
 
 /**
@@ -61,6 +63,15 @@ public class ExportToGafferResultCache<T> implements
     @Override
     public void setInput(final T input) {
         this.input = input;
+    }
+
+    @Override
+    public ExportToGafferResultCache<T> shallowClone() {
+        return new ExportToGafferResultCache.Builder<T>()
+                .key(key)
+                .opAuths(opAuths)
+                .input(input)
+                .build();
     }
 
     @Override

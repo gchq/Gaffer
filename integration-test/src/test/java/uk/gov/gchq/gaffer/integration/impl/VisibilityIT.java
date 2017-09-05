@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
@@ -27,6 +28,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -39,6 +41,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -333,6 +336,9 @@ public class VisibilityIT extends AbstractStoreIT {
                         .clazz(String.class)
                         .aggregateFunction(new StringConcat())
                         .build())
+                .type(TestGroups.ENTITY, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex(TestTypes.ID_STRING)
                         .property(TestPropertyNames.STRING, TestTypes.PROP_STRING)
@@ -356,7 +362,9 @@ public class VisibilityIT extends AbstractStoreIT {
 
     private Graph createGraphWithNoVisibility() {
         return new Graph.Builder()
-                .graphId("integrationTestGraphWithNoVisibility")
+                .config(new GraphConfig.Builder()
+                        .graphId("integrationTestGraphWithNoVisibility")
+                        .build())
                 .storeProperties(getStoreProperties())
                 .addSchema(createSchemaNoVisibility())
                 .addSchema(getStoreSchema())

@@ -18,13 +18,15 @@ package uk.gov.gchq.gaffer.hdfs.operation.mapper.generator;
 import org.apache.avro.mapred.AvroKey;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.MapContext;
+
 import uk.gov.gchq.gaffer.data.element.Element;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
 /**
- * An <code>AvroMapperGenerator</code> is an {@link MapperGenerator} that
+ * An <code>AvroMapperGenerator</code> is a {@link MapperGenerator} that
  * can handle Avro input data and convert it into an {@link Iterable} of {@link Element}s.
  */
 public class AvroMapperGenerator<OBJ> implements MapperGenerator<AvroKey<OBJ>, NullWritable> {
