@@ -32,6 +32,7 @@ import uk.gov.gchq.gaffer.types.TypeValue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -69,9 +70,8 @@ public class PropertiesWalkthroughRunner extends AbstractWalkthroughRunner {
             BoundedTimestampSetWalkthrough.class
     );
 
-    private static final List<AbstractWalkthrough> CLEARSPRING_SKETCHES_WALKTHROUGHS = Arrays.asList(
-            new HyperLogLogPlusWalkthrough()
-    );
+    private static final List<AbstractWalkthrough> CLEARSPRING_SKETCHES_WALKTHROUGHS = Collections
+            .singletonList(new HyperLogLogPlusWalkthrough());
 
     private static final List<AbstractWalkthrough> DATA_SKETCHES_WALKTHROUGHS = Arrays.asList(
             new HllSketchWalkthrough(),
@@ -93,6 +93,14 @@ public class PropertiesWalkthroughRunner extends AbstractWalkthroughRunner {
         SIMPLE_PROPERTIES.forEach(c -> examples.add(new SimpleProperty(c)));
         SKETCHES.forEach(c -> examples.add(new SimpleProperty(c)));
         TIMESTAMP_PROPERTIES.forEach(c -> examples.add(new SimpleProperty(c)));
+        return examples;
+    }
+
+    private static List<AbstractWalkthrough> getAllWalkthroughs() {
+        final List<AbstractWalkthrough> examples = new ArrayList<>();
+        examples.addAll(CLEARSPRING_SKETCHES_WALKTHROUGHS);
+        examples.addAll(DATA_SKETCHES_WALKTHROUGHS);
+        examples.addAll(TIMESTAMP_WALKTHROUGHS);
         return examples;
     }
 
@@ -145,16 +153,20 @@ public class PropertiesWalkthroughRunner extends AbstractWalkthroughRunner {
         index++;
         System.out.println(index + ". [Timestamps](#timestamps)");
         index++;
-        System.out.println(index + ". [Examples](#examples)");
+        System.out.println(index + ". [Walkthroughs](#walkthroughs)");
         index++;
-        // TODO - list sub examples
+        int subIndex = 1;
+        for (final AbstractWalkthrough example : getAllWalkthroughs()) {
+            final String header = example.getHeader();
+            System.out.println("   " + subIndex + ". [" + header + "](#" + header.toLowerCase(Locale.getDefault()).replace(" ", "-") + ")");
+            subIndex++;
+        }
         System.out.println(index + ". [Predicates, aggregators and serialisers](#predicatesaggregatorsserialisers)");
-
-        index = 1;
+        subIndex = 1;
         for (final AbstractWalkthrough example : EXAMPLES) {
             final String header = example.getHeader();
-            System.out.println("   " + index + ". [" + header + "](#" + header.toLowerCase(Locale.getDefault()).replace(" ", "-") + ")");
-            index++;
+            System.out.println("   " + subIndex + ". [" + header + "](#" + header.toLowerCase(Locale.getDefault()).replace(" ", "-") + ")");
+            subIndex++;
         }
         System.out.println("\n");
     }
@@ -172,6 +184,7 @@ public class PropertiesWalkthroughRunner extends AbstractWalkthroughRunner {
     }
 
     private void printWalkthroughs() throws OperationException {
+        printFile("Walkthroughs.md");
         printWalkthroughs(CLEARSPRING_SKETCHES_WALKTHROUGHS);
         printWalkthroughs(DATA_SKETCHES_WALKTHROUGHS);
         printWalkthroughs(TIMESTAMP_WALKTHROUGHS);

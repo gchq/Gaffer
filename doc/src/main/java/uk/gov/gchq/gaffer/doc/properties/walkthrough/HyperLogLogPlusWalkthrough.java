@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.doc.properties.walkthrough;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
-import com.yahoo.sketches.hll.HllSketch;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -36,7 +35,7 @@ import java.util.Set;
 
 public class HyperLogLogPlusWalkthrough extends PropertiesWalkthrough {
     public HyperLogLogPlusWalkthrough() {
-        super(HllSketch.class, "properties/hyperLogLogPlus", HyperLogLogPlusElementGenerator.class);
+        super(HyperLogLogPlus.class, "properties/hyperLogLogPlus", HyperLogLogPlusElementGenerator.class);
     }
 
     public static void main(final String[] args) throws OperationException {
