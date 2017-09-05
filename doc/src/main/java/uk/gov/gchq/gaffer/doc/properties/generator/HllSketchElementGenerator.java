@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.doc.properties.generator;
 
 import com.yahoo.sketches.hll.HllSketch;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;

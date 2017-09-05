@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.doc.properties.walkthrough;
 
 import com.yahoo.sketches.frequencies.LongsSketch;
+
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
