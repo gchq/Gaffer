@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 if [ "$RELEASE" != 'true' ]; then
     if [ "$MODULES" == '' ]; then
         echo "Running verify script: mvn -q verify -P travis,analyze -B"
