@@ -259,8 +259,7 @@ public class GetRDDOfAllElementsHandlerTest {
                 .addSchema(schema)
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
                 .build();
-        final User user = new User();
-        graph.execute(new AddElements.Builder().input(elements).build(), user);
+        graph.execute(new AddElements.Builder().input(elements).build(), USER);
         return graph;
     }
 
