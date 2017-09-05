@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.named.operation;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
+
 import java.util.Map;
 
 public class DeleteNamedOperation implements Operation {
