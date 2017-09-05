@@ -60,8 +60,16 @@ public class AbstractWalkthroughRunner {
     }
 
     protected void printIntro() {
+        printFile("Intro.md");
+    }
+
+    protected void printRunningTheExamples() {
+        printFile("RunningTheExamples.md");
+    }
+
+    protected void printFile(final String filename) {
         final String intro;
-        try (final InputStream stream = StreamUtil.openStream(getClass(), resourcePrefix + "/walkthrough/Intro.md")) {
+        try (final InputStream stream = StreamUtil.openStream(getClass(), resourcePrefix + "/walkthrough/" + filename)) {
             intro = new String(IOUtils.toByteArray(stream), CommonConstants.UTF_8);
         } catch (final IOException e) {
             throw new RuntimeException(e);

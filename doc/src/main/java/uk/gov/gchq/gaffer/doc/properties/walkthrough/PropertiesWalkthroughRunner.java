@@ -21,21 +21,15 @@ import com.yahoo.sketches.hll.HllSketch;
 import com.yahoo.sketches.quantiles.DoublesSketch;
 import com.yahoo.sketches.sampling.ReservoirItemsSketch;
 import com.yahoo.sketches.theta.Sketch;
-import org.apache.commons.io.IOUtils;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.doc.walkthrough.AbstractWalkthrough;
 import uk.gov.gchq.gaffer.doc.walkthrough.AbstractWalkthroughRunner;
-import uk.gov.gchq.gaffer.doc.walkthrough.WalkthroughStrSubstitutor;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
 import uk.gov.gchq.gaffer.types.TypeValue;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -115,6 +109,7 @@ public class PropertiesWalkthroughRunner extends AbstractWalkthroughRunner {
         printHeader();
         printTableOfContents();
         printIntro();
+        printRunningTheExamples();
         printSimpleProperties();
         printSketches();
         printTimestampsIntro();
@@ -148,6 +143,8 @@ public class PropertiesWalkthroughRunner extends AbstractWalkthroughRunner {
         index++;
         System.out.println(index + ". [RoaringBitmap](#roaringbitmap)");
         index++;
+        System.out.println(index + ". [Timestamps](#timestamps)");
+        index++;
         System.out.println(index + ". [Examples](#examples)");
         index++;
         // TODO - list sub examples
@@ -163,36 +160,15 @@ public class PropertiesWalkthroughRunner extends AbstractWalkthroughRunner {
     }
 
     private void printSimpleProperties() {
-        final String intro;
-        try (final InputStream stream = StreamUtil.openStream(getClass(), resourcePrefix + "/walkthrough/SimpleProperties.md")) {
-            intro = new String(IOUtils.toByteArray(stream), CommonConstants.UTF_8);
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        System.out.println(WalkthroughStrSubstitutor.substitute(intro, modulePath));
+        printFile("SimpleProperties.md");
     }
 
     private void printSketches() {
-        final String intro;
-        try (final InputStream stream = StreamUtil.openStream(getClass(), resourcePrefix + "/walkthrough/Sketches.md")) {
-            intro = new String(IOUtils.toByteArray(stream), CommonConstants.UTF_8);
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        System.out.println(WalkthroughStrSubstitutor.substitute(intro, modulePath));
+        printFile("Sketches.md");
     }
 
     private void printTimestampsIntro() {
-        final String intro;
-        try (final InputStream stream = StreamUtil.openStream(getClass(), resourcePrefix + "/walkthrough/Timestamps.md")) {
-            intro = new String(IOUtils.toByteArray(stream), CommonConstants.UTF_8);
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        System.out.println(WalkthroughStrSubstitutor.substitute(intro, modulePath));
+        printFile("Timestamps.md");
     }
 
     private void printWalkthroughs() throws OperationException {
