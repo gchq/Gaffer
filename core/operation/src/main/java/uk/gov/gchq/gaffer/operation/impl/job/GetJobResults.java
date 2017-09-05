@@ -22,8 +22,11 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.Export;
 import uk.gov.gchq.gaffer.operation.export.GetExport;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
+import java.util.Map;
 
 public class GetJobResults extends GetGafferResultCacheExport {
+    private Map<String, String> options;
+
     @JsonIgnore
     @Override
     public String getKey() {
@@ -41,7 +44,18 @@ public class GetJobResults extends GetGafferResultCacheExport {
     public GetJobResults shallowClone() {
         return new GetJobResults.Builder()
                 .jobId(getJobId())
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
     }
 
     public static class Builder

@@ -22,7 +22,7 @@ import com.google.common.collect.Sets;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.ExportTo;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
-
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -36,6 +36,7 @@ public class ExportToGafferResultCache<T> implements
     private String key;
     private Set<String> opAuths;
     private T input;
+    private Map<String, String> options;
 
     @Override
     public String getKey() {
@@ -71,12 +72,23 @@ public class ExportToGafferResultCache<T> implements
                 .key(key)
                 .opAuths(opAuths)
                 .input(input)
+                .options(options)
                 .build();
     }
 
     @Override
     public TypeReference<T> getOutputTypeReference() {
         return (TypeReference) new TypeReferenceImpl.Object();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static final class Builder<T> extends Operation.BaseBuilder<ExportToGafferResultCache<T>, Builder<T>>

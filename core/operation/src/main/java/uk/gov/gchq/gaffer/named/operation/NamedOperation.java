@@ -49,6 +49,7 @@ public class NamedOperation<I_ITEM, O> implements
     @Required
     private String operationName;
     private Map<String, Object> parameters;
+    private Map<String, String> options;
 
     @Override
     public Iterable<? extends I_ITEM> getInput() {
@@ -86,7 +87,18 @@ public class NamedOperation<I_ITEM, O> implements
                 .input(input)
                 .name(operationName)
                 .parameters(parameters)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static class Builder<I_ITEM, O> extends BaseBuilder<NamedOperation<I_ITEM, O>, Builder<I_ITEM, O>>

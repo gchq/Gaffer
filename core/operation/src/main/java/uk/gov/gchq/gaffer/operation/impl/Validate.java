@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.operation.Validatable;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import java.util.Map;
 
 /**
  * A <code>Validate</code> operation takes in {@link uk.gov.gchq.gaffer.data.element.Element}s validates them using the
@@ -42,6 +43,7 @@ public class Validate implements
     private boolean validate = true;
     private boolean skipInvalidElements;
     private Iterable<? extends Element> input;
+    private Map<String, String> options;
 
     @Override
     public boolean isSkipInvalidElements() {
@@ -84,7 +86,18 @@ public class Validate implements
                 .validate(validate)
                 .skipInvalidElements(skipInvalidElements)
                 .input(input)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static final class Builder

@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A <code>Sort</code> operation can be used to sort a {@link java.lang.Iterable}
@@ -58,6 +59,7 @@ public class Sort implements
     private List<Comparator<Element>> comparators;
     private Integer resultLimit = null;
     private boolean deduplicate = true;
+    private Map<String, String> options;
 
     @Override
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
@@ -107,7 +109,18 @@ public class Sort implements
                 .comparators(comparators)
                 .resultLimit(resultLimit)
                 .deduplicate(deduplicate)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static final class Builder
