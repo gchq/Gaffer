@@ -20,9 +20,11 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
+
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

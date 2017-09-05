@@ -26,6 +26,7 @@ import org.apache.spark.serializer.KryoSerializer;
 import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -223,7 +224,7 @@ public class ParquetStore extends Store {
             if (fs.exists(new Path(rootDir))) {
                 graphIndex = new GraphIndex();
                 final long snapshot = getLatestSnapshot(rootDir);
-                graphIndex.readGroups(schemaUtils.getGroups(), rootDir + "/" + snapshot, fs);
+                graphIndex.readGroups(schemaUtils, rootDir + "/" + snapshot, fs);
                 graphIndex.setSnapshotTimestamp(snapshot);
             }
         } catch (final IOException e) {

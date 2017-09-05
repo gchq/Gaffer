@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.flink.operation.handler;
 
 import com.google.common.collect.Iterables;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.Validatable;
@@ -25,6 +26,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.io.Serializable;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentLinkedQueue;

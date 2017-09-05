@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.impl;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.ConversionException;
 
 import static org.junit.Assert.assertEquals;

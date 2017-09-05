@@ -16,11 +16,13 @@
 package uk.gov.gchq.gaffer.doc.properties.walkthrough;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
+
 import com.yahoo.sketches.frequencies.LongsSketch;
 import com.yahoo.sketches.hll.HllSketch;
 import com.yahoo.sketches.quantiles.DoublesSketch;
 import com.yahoo.sketches.sampling.ReservoirItemsSketch;
 import com.yahoo.sketches.theta.Sketch;
+
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.doc.walkthrough.AbstractWalkthrough;

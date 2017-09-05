@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.operation;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.exception.CloneFailedException;
@@ -28,9 +29,9 @@ import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,7 +53,8 @@ import java.util.stream.Collectors;
  *              {@link uk.gov.gchq.gaffer.operation.Operation} in the chain.
  * @see uk.gov.gchq.gaffer.operation.OperationChain.Builder
  */
-public class OperationChain<OUT> implements Closeable {
+@JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
+public class OperationChain<OUT> implements Operation, Output<OUT> {
     private List<Operation> operations;
 
     public OperationChain() {
@@ -70,10 +72,19 @@ public class OperationChain<OUT> implements Closeable {
     }
 
     public OperationChain(final List<Operation> operations) {
+        this(operations, false);
+    }
+
+    public OperationChain(final List<Operation> operations, final boolean flatten) {
         this.operations = new ArrayList<>(operations);
+
+        if (flatten) {
+            this.operations = flatten();
+        }
     }
 
     @JsonIgnore
+    @Override
     public TypeReference<OUT> getOutputTypeReference() {
         if (null != operations && !operations.isEmpty()) {
             final Operation lastOp = operations.get(operations.size() - 1);
@@ -128,6 +139,20 @@ public class OperationChain<OUT> implements Closeable {
                 CloseableUtil.close(operation);
             }
         }
+    }
+
+    public List<Operation> flatten() {
+        final List<Operation> tmp = new ArrayList<>(1);
+
+        for (final Operation operation : getOperations()) {
+            if (operation instanceof OperationChain) {
+                tmp.addAll(((OperationChain) operation).flatten());
+            } else {
+                tmp.add(operation);
+            }
+        }
+
+        return Collections.unmodifiableList(tmp);
     }
 
     /**

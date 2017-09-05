@@ -17,8 +17,10 @@
 package uk.gov.gchq.gaffer.cache.impl;
 
 import com.hazelcast.core.IMap;
+
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
+
 import java.util.Collection;
 import java.util.Set;
 
@@ -38,7 +40,7 @@ public class HazelcastCache <K, V> implements ICache<K, V> {
     public void put(final K key, final V value) throws CacheOperationException {
         try {
             distributedMap.put(key, value);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new CacheOperationException(e);
         }
     }
@@ -76,7 +78,7 @@ public class HazelcastCache <K, V> implements ICache<K, V> {
     public void clear() throws CacheOperationException {
         try {
             distributedMap.clear();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new CacheOperationException(e);
         }
     }

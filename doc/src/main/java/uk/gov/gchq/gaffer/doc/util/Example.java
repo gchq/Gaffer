@@ -16,9 +16,11 @@
 package uk.gov.gchq.gaffer.doc.util;
 
 import org.apache.commons.lang3.StringUtils;
+
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+
 import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 

@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation;
 
 import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
+import uk.gov.gchq.gaffer.core.exception.Status;
 
 import static uk.gov.gchq.gaffer.core.exception.Status.INTERNAL_SERVER_ERROR;
 
@@ -30,7 +31,15 @@ public class OperationException extends GafferCheckedException {
         super(message, INTERNAL_SERVER_ERROR);
     }
 
+    public OperationException(final String message, final Status status) {
+        super(message, status);
+    }
+
     public OperationException(final String message, final Throwable e) {
         super(message, e, INTERNAL_SERVER_ERROR);
+    }
+
+    public OperationException(final String message, final Throwable e, final Status status) {
+        super(message, e, status);
     }
 }

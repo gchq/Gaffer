@@ -16,12 +16,13 @@
 
 package uk.gov.gchq.gaffer.named.operation;
 
-
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+
 import java.util.Map;
 
 /**
@@ -59,12 +60,12 @@ public class NamedOperation<I_ITEM, O> implements
         this.input = input;
     }
 
-    public void setParameters(final Map<String, Object> parameters) {
-        this.parameters = parameters;
-    }
-
     public Map<String, Object> getParameters() {
         return parameters;
+    }
+
+    public void setParameters(final Map<String, Object> parameters) {
+        this.parameters = parameters;
     }
 
     public String getOperationName() {

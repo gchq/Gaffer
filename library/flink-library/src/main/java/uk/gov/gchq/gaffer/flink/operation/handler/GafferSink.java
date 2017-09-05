@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.flink.operation.handler;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Validatable;
 import uk.gov.gchq.gaffer.store.Store;

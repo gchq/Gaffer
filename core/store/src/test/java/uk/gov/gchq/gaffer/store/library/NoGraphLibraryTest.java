@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.store.library;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 

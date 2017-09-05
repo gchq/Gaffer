@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.doc.user.walkthrough;
 
 import uk.gov.gchq.gaffer.doc.walkthrough.AbstractWalkthrough;
 import uk.gov.gchq.gaffer.doc.walkthrough.AbstractWalkthroughRunner;
+
 import java.util.Arrays;
 import java.util.List;
 

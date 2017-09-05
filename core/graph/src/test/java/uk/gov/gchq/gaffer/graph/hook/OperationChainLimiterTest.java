@@ -16,8 +16,8 @@
  */
 package uk.gov.gchq.gaffer.graph.hook;
 
-
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -186,16 +187,8 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
     }
 
     @Override
-    public void shouldJsonSerialiseAndDeserialise() {
-        // Given
-        final OperationChainLimiter hook = fromJson(OP_CHAIN_LIMITER_PATH);
-
-        // When
-        final byte[] json = toJson(hook);
-        final OperationChainLimiter deserialisedHook = fromJson(json);
-
-        // Then
-        assertNotNull(deserialisedHook);
+    protected OperationChainLimiter getTestObject() {
+        return fromJson(OP_CHAIN_LIMITER_PATH);
     }
 
     @Test

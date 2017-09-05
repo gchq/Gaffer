@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity;
 
 import org.apache.accumulo.core.client.IteratorSetting;
+
 import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyIteratorSettingsFactory;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.IteratorSettingBuilder;

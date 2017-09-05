@@ -17,8 +17,10 @@
 package uk.gov.gchq.gaffer.commonutil.stream;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
+
 import java.util.Spliterators;
 import java.util.stream.Stream;
 

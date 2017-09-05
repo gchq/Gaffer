@@ -21,6 +21,7 @@ import org.apache.parquet.filter2.predicate.FilterPredicate;
 import org.apache.parquet.io.api.Binary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
@@ -45,6 +46,7 @@ import uk.gov.gchq.koryphe.impl.predicate.IsTrue;
 import uk.gov.gchq.koryphe.impl.predicate.Not;
 import uk.gov.gchq.koryphe.impl.predicate.Or;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -143,8 +145,19 @@ public final class ParquetFilterUtils {
         final Set<String> edgeGroups;
         final Set<String> entityGroups;
         if (view != null) {
-            edgeGroups = view.getEdgeGroups();
-            entityGroups = view.getEntityGroups();
+            edgeGroups = new HashSet<>();
+            entityGroups = new HashSet<>();
+            final Set<String> indexedGroups = graphIndex.groupsIndexed();
+            for (final String group : view.getEdgeGroups()) {
+                if (indexedGroups.contains(group)) {
+                    edgeGroups.add(group);
+                }
+            }
+            for (final String group : view.getEntityGroups()) {
+                if (indexedGroups.contains(group)) {
+                    entityGroups.add(group);
+                }
+            }
         } else {
             edgeGroups = schemaUtils.getEdgeGroups();
             entityGroups = schemaUtils.getEntityGroups();
@@ -191,7 +204,7 @@ public final class ParquetFilterUtils {
                 } else {
                     identifier = ParquetStoreConstants.SOURCE;
                 }
-                final Pair<List<Object[]>, Map<Object[], Pair<Object[], DirectedType>>> prepSeedsResult = prepSeeds(identifier, group);
+                final Pair<List<Object[]>, Map<Object[], Pair<Object[], DirectedType>>> prepSeedsResult = prepSeeds(identifier, group, isEntityGroup);
                 final List<Object[]> sortedSeeds = prepSeedsResult.getFirst();
                 final Map<Object[], Pair<Object[], DirectedType>> seed2Parts = prepSeedsResult.getSecond();
                 // Build graph path to filter
@@ -212,6 +225,7 @@ public final class ParquetFilterUtils {
      *
      * @param identifier the column that the seed relates to
      * @param group the group that is currently being queried
+     * @param isEntityGroup is the group provided an entity group
      * @return a {@link Pair} in which the first entry is a sorted {@link Set} of the seeds converted to the form in
      * which they appear in the Parquet files, and the second entry is a {@link Map} from the seeds to a {@link Pair}
      * which is <code>null</code> if the seed is an {@link EntitySeed} and consists of the destination vertex and
@@ -219,7 +233,8 @@ public final class ParquetFilterUtils {
      * @throws SerialisationException if the conversion from the seed to corresponding Parquet objects fails
      */
     private Pair<List<Object[]>, Map<Object[], Pair<Object[], DirectedType>>> prepSeeds(final String identifier,
-                                                                                          final String group)
+                                                                                        final String group,
+                                                                                        final boolean isEntityGroup)
             throws SerialisationException {
         final HashMap<Object[], Pair<Object[], DirectedType>> seed2parts = new HashMap<>();
         final GafferGroupObjectConverter converter = schemaUtils.getConverter(group);
@@ -232,7 +247,11 @@ public final class ParquetFilterUtils {
                 final EdgeSeed edgeSeed = (EdgeSeed) elementSeed;
                 final Object[] serialisedSeed = converter.gafferObjectToParquetObjects(identifier, edgeSeed.getSource());
                 sortedSeeds.add(serialisedSeed);
-                seed2parts.put(serialisedSeed, new Pair<>(converter.gafferObjectToParquetObjects(identifier, edgeSeed.getDestination()), edgeSeed.getDirectedType()));
+                final Object[] serialisedDest = converter.gafferObjectToParquetObjects(identifier, edgeSeed.getDestination());
+                if (isEntityGroup && seedMatchingType != SeedMatching.SeedMatchingType.EQUAL) {
+                    sortedSeeds.add(serialisedDest);
+                }
+                seed2parts.put(serialisedSeed, new Pair<>(serialisedDest, edgeSeed.getDirectedType()));
             }
         }
         sortedSeeds.sort(COMPARATOR);
@@ -295,7 +314,7 @@ public final class ParquetFilterUtils {
                 if (seedMatchingType != SeedMatching.SeedMatchingType.EQUAL) {
                     // Vertex = source of edge seed or Vertex = destination of edge seed
                     filter = addIsEqualFilter(ParquetStoreConstants.VERTEX, currentSeed, group, true).getFirst();
-                    filter = orFilter(filter, addIsEqualFilter(ParquetStoreConstants.VERTEX, parts.getFirst(), group, true).getFirst());
+//                    filter = orFilter(filter, addIsEqualFilter(ParquetStoreConstants.VERTEX, parts.getFirst(), group, true).getFirst());
                 }
             }
         } else {
@@ -436,14 +455,15 @@ public final class ParquetFilterUtils {
 
     private Set<Path> getIndexedPathsForSeeds(final Object[] seed, final String indexedColumn,
                                                              final String group) {
-        if (graphIndex.getGroup(group).columnsIndexed().contains(indexedColumn)) {
-            final List<Object[]> seeds = new ArrayList<>();
-            seeds.add(seed);
-            final Map<Object[], Set<Path>> seedToPaths = getIndexedPathsForSeeds(seeds, indexedColumn, group);
-            return seedToPaths.get(seed);
-        } else {
-            return null;
+        if (graphIndex.groupsIndexed().contains(group)) {
+            if (graphIndex.getGroup(group).columnsIndexed().contains(indexedColumn)) {
+                final List<Object[]> seeds = new ArrayList<>();
+                seeds.add(seed);
+                final Map<Object[], Set<Path>> seedToPaths = getIndexedPathsForSeeds(seeds, indexedColumn, group);
+                return seedToPaths.get(seed);
+            }
         }
+        return null;
     }
 
     private Set<Path> getAllPathsForColumn(final String group) {
@@ -454,9 +474,11 @@ public final class ParquetFilterUtils {
         } else {
             graphColumn = ParquetStoreConstants.SOURCE;
         }
-        final Iterator<MinValuesWithPath> minValuesWithPathIterator = graphIndex.getGroup(group).getColumn(graphColumn).getIterator();
-        while (minValuesWithPathIterator.hasNext()) {
-            paths.add(new Path(ParquetStore.getGroupDirectory(group, graphColumn, dataDir) + "/" + minValuesWithPathIterator.next().getPath()));
+        if (graphIndex.groupsIndexed().contains(group)) {
+            final Iterator<MinValuesWithPath> minValuesWithPathIterator = graphIndex.getGroup(group).getColumn(graphColumn).getIterator();
+            while (minValuesWithPathIterator.hasNext()) {
+                paths.add(new Path(ParquetStore.getGroupDirectory(group, graphColumn, dataDir) + "/" + minValuesWithPathIterator.next().getPath()));
+            }
         }
         return paths;
     }

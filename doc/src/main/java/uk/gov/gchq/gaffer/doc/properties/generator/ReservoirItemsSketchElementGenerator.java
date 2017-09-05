@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.doc.properties.generator;
 
 import com.yahoo.sketches.sampling.ReservoirItemsSketch;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
