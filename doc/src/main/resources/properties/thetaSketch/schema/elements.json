@@ -5,7 +5,7 @@
       "properties": {
         "startDate": "date.earliest",
         "endDate": "date.latest",
-        "size": "union"
+        "size": "thetasketch"
       },
       "groupBy": [
         "startDate",

@@ -8,13 +8,13 @@
         }
       ]
     },
-    "doubles.union": {
-      "class": "com.yahoo.sketches.quantiles.DoublesUnion",
+    "reservoir.strings.sketch": {
+      "class": "com.yahoo.sketches.sampling.ReservoirItemsSketch",
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator.DoublesUnionAggregator"
+        "class": "uk.gov.gchq.gaffer.sketches.datasketches.sampling.binaryoperator.ReservoirItemsSketchAggregator"
       },
       "serialiser": {
-        "class": "uk.gov.gchq.gaffer.sketches.datasketches.quantiles.serialisation.DoublesUnionSerialiser"
+        "class": "uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation.ReservoirStringsSketchSerialiser"
       }
     },
     "false": {

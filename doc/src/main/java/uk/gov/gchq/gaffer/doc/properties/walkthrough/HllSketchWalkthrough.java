@@ -15,30 +15,31 @@
  */
 package uk.gov.gchq.gaffer.doc.properties.walkthrough;
 
+import com.yahoo.sketches.hll.HllSketch;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.id.DirectedType;
-import uk.gov.gchq.gaffer.doc.properties.generator.LongsSketchElementGenerator;
+import uk.gov.gchq.gaffer.doc.properties.generator.HllSketchElementGenerator;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.util.Collections;
 import java.util.Set;
 
-public class LongsSketch extends PropertiesWalkthrough {
-    public LongsSketch() {
-        super(com.yahoo.sketches.frequencies.LongsSketch.class, "properties/longsSketch", LongsSketchElementGenerator.class);
+public class HllSketchWalkthrough extends PropertiesWalkthrough {
+    public HllSketchWalkthrough() {
+        super(HllSketch.class, "properties/hllSketch", HllSketchElementGenerator.class);
     }
 
     public static void main(final String[] args) throws OperationException {
-        new LongsSketch().run();
+        new HllSketchWalkthrough().run();
     }
 
     @Override
@@ -47,7 +48,7 @@ public class LongsSketch extends PropertiesWalkthrough {
         // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
                 .config(StreamUtil.graphConfig(getClass()))
-                .addSchemas(StreamUtil.openStreams(getClass(), "properties/longsSketch/schema"))
+                .addSchemas(StreamUtil.openStreams(getClass(), "properties/hllSketch/schema"))
                 .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();
         // ---------------------------------------------------------
@@ -64,7 +65,7 @@ public class LongsSketch extends PropertiesWalkthrough {
         final Set<String> dummyData = Collections.singleton("");
         final OperationChain<Void> addOpChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<String>()
-                        .generator(new LongsSketchElementGenerator())
+                        .generator(new HllSketchElementGenerator())
                         .input(dummyData)
                         .build())
                 .then(new AddElements())
@@ -72,32 +73,34 @@ public class LongsSketch extends PropertiesWalkthrough {
 
         graph.execute(addOpChain, user);
         // ---------------------------------------------------------
-        log("Added an edge A-B 1000 times, each time with a LongsSketch containing a random long between 0 and 9.");
+        log("Added 1000 entities for vertex A, each time with a HllSketch containing a vertex that A was seen in an"
+                + "edge with");
 
 
-        // [get] Get all edges
+        // [get] Get all entities
         // ---------------------------------------------------------
-        final CloseableIterable<? extends Element> allEdges = graph.execute(new GetAllElements(), user);
+        CloseableIterable<? extends Element> allEntities = graph.execute(new GetAllElements(), user);
         // ---------------------------------------------------------
         log("\nAll edges:");
-        for (final Element edge : allEdges) {
-            log("GET_ALL_EDGES_RESULT", edge.toString());
+        for (final Element entity : allEntities) {
+            log("GET_ALL_ENTITIES_RESULT", entity.toString());
         }
 
 
-        // [get frequencies of 1 and 9 for edge a b] Get the edge A-B and print estimates of frequencies of 1L and 9L
+        // [get the approximate degree of a] Get the entity for A and print out the estimate of the degree
         // ---------------------------------------------------------
         final GetElements query = new GetElements.Builder()
-                .input(new EdgeSeed("A", "B", DirectedType.UNDIRECTED))
+                .input(new EntitySeed("A"))
                 .build();
-        final CloseableIterable<? extends Element> edges = graph.execute(query, user);
-        final Element edge = edges.iterator().next();
-        final com.yahoo.sketches.frequencies.LongsSketch longsSketch = (com.yahoo.sketches.frequencies.LongsSketch) edge.getProperty("longsSketch");
-        final String estimates = "Edge A-B: 1L seen approximately " + longsSketch.getEstimate(1L)
-                + " times, 9L seen approximately " + longsSketch.getEstimate(9L) + " times.";
+        final CloseableIterable<? extends Element> elements = graph.execute(query, user);
+        final Element element = elements.iterator().next();
+        final HllSketch hllSketch = (HllSketch) element.getProperty("approxCardinality");
+        final double approxDegree = hllSketch.getEstimate();
+        final String degreeEstimate = "Entity A has approximate degree " + approxDegree;
         // ---------------------------------------------------------
-        log("\nEdge A-B with estimates of the frequencies of 1 and 9");
-        log("GET_FREQUENCIES_OF_1_AND_9_FOR_EDGE_A_B", estimates);
+        log("\nEntity A with an estimate of its degree");
+        log("GET_APPROX_DEGREE_FOR_ENTITY_A", degreeEstimate);
+
         return null;
     }
 }

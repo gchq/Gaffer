@@ -15,31 +15,32 @@
  */
 package uk.gov.gchq.gaffer.doc.properties.generator;
 
-import com.yahoo.sketches.sampling.ReservoirItemsUnion;
+import com.yahoo.sketches.sampling.ReservoirItemsSketch;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
 
-public class ReservoirItemsUnionElementGenerator implements OneToManyElementGenerator<String> {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+public class ReservoirItemsSketchElementGenerator implements OneToManyElementGenerator<String> {
     private static final char[] CHARS = new char[]{'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'};
     // Fix the seed so that the results are consistent
     private static final Random RANDOM = new Random(123456789L);
 
     @Override
     public Iterable<Element> _apply(final String line) {
-        final Set<Element> elements = new HashSet<>();
+        final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < 1000; i++) {
-            final ReservoirItemsUnion<String> reservoirStringsUnion = ReservoirItemsUnion.newInstance(20);
-            reservoirStringsUnion.update(getRandomString());
+            final ReservoirItemsSketch<String> reservoirStringsSketch = ReservoirItemsSketch.newInstance(20);
+            reservoirStringsSketch.update(getRandomString());
             final Edge edge = new Edge.Builder()
                     .group("red")
                     .source("A")
                     .dest("B")
-                    .property("stringsSample", reservoirStringsUnion)
+                    .property("stringsSample", reservoirStringsSketch)
                     .build();
             elements.add(edge);
         }
@@ -50,20 +51,20 @@ public class ReservoirItemsUnionElementGenerator implements OneToManyElementGene
                     .dest("Y" + i)
                     .build();
             elements.add(edge);
-            final ReservoirItemsUnion<String> reservoirStringsUnionX = ReservoirItemsUnion.newInstance(20);
-            reservoirStringsUnionX.update("Y" + i);
+            final ReservoirItemsSketch<String> reservoirStringsSketchX = ReservoirItemsSketch.newInstance(20);
+            reservoirStringsSketchX.update("Y" + i);
             final Entity entityX = new Entity.Builder()
                     .group("blueEntity")
                     .vertex("X")
-                    .property("neighboursSample", reservoirStringsUnionX)
+                    .property("neighboursSample", reservoirStringsSketchX)
                     .build();
             elements.add(entityX);
-            final ReservoirItemsUnion<String> reservoirStringsUnionY = ReservoirItemsUnion.newInstance(20);
-            reservoirStringsUnionY.update("X");
+            final ReservoirItemsSketch<String> reservoirStringsSketchY = ReservoirItemsSketch.newInstance(20);
+            reservoirStringsSketchY.update("X");
             final Entity entityY = new Entity.Builder()
                     .group("blueEntity")
                     .vertex("Y" + i)
-                    .property("neighboursSample", reservoirStringsUnionY)
+                    .property("neighboursSample", reservoirStringsSketchY)
                     .build();
             elements.add(entityY);
         }

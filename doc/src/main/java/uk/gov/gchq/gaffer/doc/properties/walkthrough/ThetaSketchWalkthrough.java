@@ -15,17 +15,17 @@
  */
 package uk.gov.gchq.gaffer.doc.properties.walkthrough;
 
-import com.yahoo.sketches.theta.CompactSketch;
 import com.yahoo.sketches.theta.Intersection;
+import com.yahoo.sketches.theta.Sketch;
 import com.yahoo.sketches.theta.Sketches;
-import com.yahoo.sketches.theta.Union;
+import com.yahoo.sketches.theta.UpdateSketch;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.doc.properties.generator.UnionElementGenerator;
+import uk.gov.gchq.gaffer.doc.properties.generator.ThetaSketchElementGenerator;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -36,13 +36,13 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.Collections;
 import java.util.Set;
 
-public class UnionSketch extends PropertiesWalkthrough {
-    public UnionSketch() {
-        super(Union.class, "properties/unionSketch", UnionElementGenerator.class);
+public class ThetaSketchWalkthrough extends PropertiesWalkthrough {
+    public ThetaSketchWalkthrough() {
+        super(Sketch.class, "properties/thetaSketch", ThetaSketchElementGenerator.class);
     }
 
     public static void main(final String[] args) throws OperationException {
-        new UnionSketch().run();
+        new ThetaSketchWalkthrough().run();
     }
 
     @Override
@@ -51,7 +51,7 @@ public class UnionSketch extends PropertiesWalkthrough {
         // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
                 .config(StreamUtil.graphConfig(getClass()))
-                .addSchemas(StreamUtil.openStreams(getClass(), "properties/unionSketch/schema"))
+                .addSchemas(StreamUtil.openStreams(getClass(), "properties/thetaSketch/schema"))
                 .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();
         // ---------------------------------------------------------
@@ -68,7 +68,7 @@ public class UnionSketch extends PropertiesWalkthrough {
         final Set<String> dummyData = Collections.singleton("");
         final OperationChain<Void> addOpChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<String>()
-                        .generator(new UnionElementGenerator())
+                        .generator(new ThetaSketchElementGenerator())
                         .input(dummyData)
                         .build())
                 .then(new AddElements())
@@ -105,9 +105,9 @@ public class UnionSketch extends PropertiesWalkthrough {
         final CloseableIterable<? extends Element> allEntities2 = graph.execute(getAllEntities2, user);
         final CloseableIterator<? extends Element> it = allEntities2.iterator();
         final Element entityDay1 = it.next();
-        final CompactSketch sketchDay1 = ((Union) entityDay1.getProperty("size")).getResult();
+        final Sketch sketchDay1 = ((Sketch) entityDay1.getProperty("size"));
         final Element entityDay2 = it.next();
-        final CompactSketch sketchDay2 = ((Union) entityDay2.getProperty("size")).getResult();
+        final Sketch sketchDay2 = ((Sketch) entityDay2.getProperty("size"));
         final double estimateDay1 = sketchDay1.getEstimate();
         final double estimateDay2 = sketchDay2.getEstimate();
         // ---------------------------------------------------------
@@ -138,7 +138,7 @@ public class UnionSketch extends PropertiesWalkthrough {
                 .build();
         final CloseableIterable<? extends Element> allEntities = graph.execute(getAllEntities, user);
         final Element entity = allEntities.iterator().next();
-        final double unionSizeEstimate = ((Union) entity.getProperty("size")).getResult().getEstimate();
+        final double unionSizeEstimate = ((Sketch) entity.getProperty("size")).getEstimate();
         // ---------------------------------------------------------
         log("\nThe estimate of the number of edges across the different days");
         log("UNION_ESTIMATE", "" + unionSizeEstimate);

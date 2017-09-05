@@ -16,18 +16,18 @@
 package uk.gov.gchq.gaffer.doc.properties.generator;
 
 import com.yahoo.sketches.theta.Sketches;
-import com.yahoo.sketches.theta.Union;
+import com.yahoo.sketches.theta.UpdateSketch;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
-public class UnionElementGenerator implements OneToManyElementGenerator<String> {
+public class ThetaSketchElementGenerator implements OneToManyElementGenerator<String> {
     public static Date getDate(final String dateStr) {
         try {
             return new SimpleDateFormat("dd/MM/yy").parse(dateStr);
@@ -38,9 +38,9 @@ public class UnionElementGenerator implements OneToManyElementGenerator<String> 
 
     @Override
     public Iterable<Element> _apply(final String line) {
-        final Set<Element> elements = new HashSet<>();
+        final List<Element> elements = new ArrayList<>();
         // On day 10/1/17 there are 1000 edges A-B0, A-B1, ..., A-B999.
-        // For each edge we create an Entity with a union sketch containing the source and destination from the edge
+        // For each edge we create an Entity with a theta sketch containing the source and destination from the edge
         final Date midnight9th = getDate("09/01/17");
         final Date midnight10th = getDate("10/01/17");
         for (int i = 0; i < 1000; i++) {
@@ -53,14 +53,14 @@ public class UnionElementGenerator implements OneToManyElementGenerator<String> 
                     .property("count", 1L)
                     .build();
             elements.add(edge);
-            final Union union = Sketches.setOperationBuilder().buildUnion();
-            union.update("A-B" + i);
+            final UpdateSketch thetaSketch = Sketches.updateSketchBuilder().build();
+            thetaSketch.update("A-B" + i);
             final Entity entity = new Entity.Builder()
                     .group("size")
                     .vertex("graph")
                     .property("startDate", midnight9th)
                     .property("endDate", midnight10th)
-                    .property("size", union)
+                    .property("size", thetaSketch)
                     .build();
             elements.add(entity);
         }
@@ -76,14 +76,14 @@ public class UnionElementGenerator implements OneToManyElementGenerator<String> 
                     .property("count", 1L)
                     .build();
             elements.add(edge);
-            final Union union = Sketches.setOperationBuilder().buildUnion();
-            union.update("A-B" + i);
+            final UpdateSketch thetaSketch = Sketches.updateSketchBuilder().build();
+            thetaSketch.update("A-B" + i);
             final Entity entity = new Entity.Builder()
                     .group("size")
                     .vertex("graph")
                     .property("startDate", midnight10th)
                     .property("endDate", midnight11th)
-                    .property("size", union)
+                    .property("size", thetaSketch)
                     .build();
             elements.add(entity);
         }

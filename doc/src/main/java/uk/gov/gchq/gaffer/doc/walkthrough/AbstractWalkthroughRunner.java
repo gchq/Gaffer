@@ -29,8 +29,8 @@ public class AbstractWalkthroughRunner {
     public static final String EXAMPLE_DIVIDER = "\n\n";
 
     private final List<AbstractWalkthrough> examples;
-    private final String modulePath;
-    private final String resourcePrefix;
+    protected final String modulePath;
+    protected final String resourcePrefix;
 
     public AbstractWalkthroughRunner(final List<AbstractWalkthrough> examples, final String modulePath, final String resourcePrefix) {
         this.examples = examples;
@@ -50,7 +50,7 @@ public class AbstractWalkthroughRunner {
                     CacheServiceLoader.getService().clearCache("NamedOperation");
                     CacheServiceLoader.getService().clearCache("JobTracker");
                 }
-            } catch (CacheOperationException e) {
+            } catch (final CacheOperationException e) {
                 throw new RuntimeException(e);
             }
 
@@ -59,7 +59,7 @@ public class AbstractWalkthroughRunner {
         }
     }
 
-    private void printIntro() {
+    protected void printIntro() {
         final String intro;
         try (final InputStream stream = StreamUtil.openStream(getClass(), resourcePrefix + "/walkthrough/Intro.md")) {
             intro = new String(IOUtils.toByteArray(stream), CommonConstants.UTF_8);
@@ -70,7 +70,7 @@ public class AbstractWalkthroughRunner {
         System.out.println(WalkthroughStrSubstitutor.substitute(intro, modulePath));
     }
 
-    private void printHeader() {
+    protected void printHeader() {
         System.out.println("Copyright 2016-2017 Crown Copyright\n"
                 + "\n"
                 + "Licensed under the Apache License, Version 2.0 (the \"License\");\n"
@@ -103,7 +103,7 @@ public class AbstractWalkthroughRunner {
         System.out.println("\n");
     }
 
-    private void printWalkthroughTitle() {
+    protected void printWalkthroughTitle() {
         System.out.println("## Walkthroughs");
     }
 }

@@ -15,16 +15,18 @@
  */
 package uk.gov.gchq.gaffer.doc.properties.walkthrough;
 
-import com.yahoo.sketches.quantiles.DoublesSketch;
+import com.yahoo.sketches.sampling.ReservoirItemsSketch;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
-import uk.gov.gchq.gaffer.doc.properties.generator.DoubleUnionElementGenerator;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.doc.properties.generator.ReservoirItemsSketchElementGenerator;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -33,13 +35,13 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.Collections;
 import java.util.Set;
 
-public class DoublesUnion extends PropertiesWalkthrough {
-    public DoublesUnion() {
-        super(com.yahoo.sketches.quantiles.DoublesUnion.class, "properties/doublesUnion", DoubleUnionElementGenerator.class);
+public class ReservoirItemsSketchWalkthrough extends PropertiesWalkthrough {
+    public ReservoirItemsSketchWalkthrough() {
+        super(ReservoirItemsSketch.class, "properties/reservoirItemsSketch", ReservoirItemsSketchElementGenerator.class);
     }
 
     public static void main(final String[] args) throws OperationException {
-        new DoublesUnion().run();
+        new ReservoirItemsSketchWalkthrough().run();
     }
 
     @Override
@@ -48,7 +50,7 @@ public class DoublesUnion extends PropertiesWalkthrough {
         // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
                 .config(StreamUtil.graphConfig(getClass()))
-                .addSchemas(StreamUtil.openStreams(getClass(), "properties/doublesUnion/schema"))
+                .addSchemas(StreamUtil.openStreams(getClass(), "properties/reservoirItemsSketch/schema"))
                 .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();
         // ---------------------------------------------------------
@@ -65,7 +67,7 @@ public class DoublesUnion extends PropertiesWalkthrough {
         final Set<String> dummyData = Collections.singleton("");
         final OperationChain<Void> addOpChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<String>()
-                        .generator(new DoubleUnionElementGenerator())
+                        .generator(new ReservoirItemsSketchElementGenerator())
                         .input(dummyData)
                         .build())
                 .then(new AddElements())
@@ -73,52 +75,67 @@ public class DoublesUnion extends PropertiesWalkthrough {
 
         graph.execute(addOpChain, user);
         // ---------------------------------------------------------
-        log("Added an edge A-B 1000 times, each time with a DoublesUnion containing a normally distributed"
-                + " (mean 0, standard deviation 1) random double.");
+        log("Added the edge A-B 1000 times each time with a ReservoirItemsSketchWalkthrough<String> containing a random string."
+                + " Also added 500 edges X-Y0, X-Y1, ..., X-Y499 each and for each an Entity on X with a"
+                + " ReservoirItemsSketchWalkthrough<String> containing the destination node.");
 
 
-        // [get] Get all edges
+        // [get red edge] Get the red edge
         // ---------------------------------------------------------
-        CloseableIterable<? extends Element> allEdges = graph.execute(new GetAllElements(), user);
+        final GetAllElements getAllEdges = new GetAllElements.Builder()
+                .view(new View.Builder()
+                        .edge("red")
+                        .build())
+                .build();
+        final CloseableIterable<? extends Element> allEdges = graph.execute(getAllEdges, user);
         // ---------------------------------------------------------
-        log("\nAll edges:");
+        log("\nThe red edge A-B:");
         for (final Element edge : allEdges) {
-            log("GET_ALL_EDGES_RESULT", edge.toString());
+            log("GET_A-B_EDGE_RESULT", edge.toString());
         }
 
 
-        // [get 0.25 0.5 0.75 percentiles for edge a b] Get the edge A-B and print an estimate of the 0.25, 0.5 and 0.75 quantiles, i.e. the 25th, 50th and 75th percentiles
+        // [get sample for edge a b] Get the edge A-B and print out the sample of strings
         // ---------------------------------------------------------
         final GetElements query = new GetElements.Builder()
                 .input(new EdgeSeed("A", "B", DirectedType.UNDIRECTED))
                 .build();
         final CloseableIterable<? extends Element> edges = graph.execute(query, user);
         final Element edge = edges.iterator().next();
-        final com.yahoo.sketches.quantiles.DoublesUnion doublesUnion = (com.yahoo.sketches.quantiles.DoublesUnion) edge.getProperty("doublesUnion");
-        final double[] quantiles = doublesUnion.getResult().getQuantiles(new double[]{0.25D, 0.5D, 0.75D});
-        final String quantilesEstimate = "Edge A-B with percentiles of double property - 25th percentile: " + quantiles[0]
-                + ", 50th percentile: " + quantiles[1]
-                + ", 75th percentile: " + quantiles[2];
+        final ReservoirItemsSketch<String> stringsSketch = ((ReservoirItemsSketch<String>) edge.getProperty("stringsSample"));
+        final String[] samples = stringsSketch.getSamples();
+        final StringBuilder sb = new StringBuilder("10 samples: ");
+        for (int i = 0; i < 10 && i < samples.length; i++) {
+            if (i > 0) {
+                sb.append(", ");
+            }
+            sb.append(samples[i]);
+        }
         // ---------------------------------------------------------
-        log("\nEdge A-B with an estimate of the median value");
-        log("GET_0.25,0.5,0.75_PERCENTILES_FOR_EDGE_A_B", quantilesEstimate);
+        log("\nEdge A-B with a sample of the strings");
+        log("GET_SAMPLE_FOR_RED_EDGE", sb.toString());
 
 
-        // [get cdf] Get the edge A-B and print some values from the cumulative density function
+        // [get sample for entity x] Get the entity Y and print a sample of the neighbours
         // ---------------------------------------------------------
         final GetElements query2 = new GetElements.Builder()
-                .input(new EdgeSeed("A", "B", DirectedType.UNDIRECTED))
+                .input(new EntitySeed("X"))
                 .build();
-        final CloseableIterable<? extends Element> edges2 = graph.execute(query2, user);
-        final Element edge2 = edges2.iterator().next();
-        final DoublesSketch doublesSketch2 = ((com.yahoo.sketches.quantiles.DoublesUnion) edge2.getProperty("doublesUnion")).getResult();
-        final double[] cdf = doublesSketch2.getCDF(new double[]{0.0D, 1.0D, 2.0D});
-        final String cdfEstimate = "Edge A-B with CDF values at 0: " + cdf[0]
-                + ", at 1: " + cdf[1]
-                + ", at 2: " + cdf[2];
+        final CloseableIterable<? extends Element> entities = graph.execute(query2, user);
+        final Element entity = entities.iterator().next();
+        final ReservoirItemsSketch<String> neighboursSketch = ((ReservoirItemsSketch<String>) entity.getProperty("neighboursSample"));
+        final String[] neighboursSample = neighboursSketch.getSamples();
+        sb.setLength(0);
+        sb.append("10 samples: ");
+        for (int i = 0; i < 10 && i < neighboursSample.length; i++) {
+            if (i > 0) {
+                sb.append(", ");
+            }
+            sb.append(neighboursSample[i]);
+        }
         // ---------------------------------------------------------
-        log("\nEdge A-B with the cumulative density function values at 0, 1, 2");
-        log("GET_CDF_FOR_EDGE_A_B_RESULT", cdfEstimate);
+        log("\nEntity for vertex X with a sample of its neighbouring vertices");
+        log("GET_SAMPLES_FOR_X_RESULT", sb.toString());
         return null;
     }
 }

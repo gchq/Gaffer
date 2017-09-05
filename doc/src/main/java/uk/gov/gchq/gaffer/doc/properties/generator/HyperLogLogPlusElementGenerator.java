@@ -15,31 +15,29 @@
  */
 package uk.gov.gchq.gaffer.doc.properties.generator;
 
-import com.yahoo.sketches.quantiles.DoublesUnion;
-import uk.gov.gchq.gaffer.data.element.Edge;
+import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
 
-public class DoubleUnionElementGenerator implements OneToManyElementGenerator<String> {
-    // Fix the seed so that the results are consistent
-    private static final Random RANDOM = new Random(123456789L);
+import java.util.ArrayList;
+import java.util.List;
+
+public class HyperLogLogPlusElementGenerator implements OneToManyElementGenerator<String> {
 
     @Override
     public Iterable<Element> _apply(final String line) {
-        final Set<Element> elements = new HashSet<>();
+        final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < 1000; i++) {
-            final DoublesUnion doublesUnion = DoublesUnion.builder().build();
-            doublesUnion.update(RANDOM.nextGaussian());
-            final Edge edge = new Edge.Builder()
-                    .group("red")
-                    .source("A")
-                    .dest("B")
-                    .property("doublesUnion", doublesUnion)
+            final HyperLogLogPlus hyperLogLogPlus = new HyperLogLogPlus(8, 8);
+            hyperLogLogPlus.offer("B" + i);
+
+            final Entity entity = new Entity.Builder()
+                    .group("cardinality")
+                    .vertex("A")
+                    .property("approxCardinality", hyperLogLogPlus)
                     .build();
-            elements.add(edge);
+            elements.add(entity);
         }
         return elements;
     }

@@ -36,13 +36,13 @@
         "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
       }
     },
-    "union": {
-      "class": "com.yahoo.sketches.theta.Union",
+    "thetasketch": {
+      "class": "com.yahoo.sketches.theta.Sketch",
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.sketches.datasketches.theta.binaryoperator.UnionAggregator"
+        "class": "uk.gov.gchq.gaffer.sketches.datasketches.theta.binaryoperator.SketchAggregator"
       },
       "serialiser": {
-        "class": "uk.gov.gchq.gaffer.sketches.datasketches.theta.serialisation.UnionSerialiser"
+        "class": "uk.gov.gchq.gaffer.sketches.datasketches.theta.serialisation.SketchSerialiser"
       }
     },
     "false": {

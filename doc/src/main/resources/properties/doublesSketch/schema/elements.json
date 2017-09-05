@@ -5,7 +5,7 @@
       "destination": "vertex.string",
       "directed": "false",
       "properties": {
-        "doublesUnion": "doubles.union"
+        "doublesSketch": "doubles.sketch"
       }
     }
   }

@@ -3,7 +3,7 @@
     "blueEntity": {
       "vertex": "vertex.string",
       "properties": {
-        "neighboursSample": "reservoir.strings.union"
+        "neighboursSample": "reservoir.strings.sketch"
       }
     }
   },
@@ -13,7 +13,7 @@
       "destination": "vertex.string",
       "directed": "false",
       "properties": {
-        "stringsSample": "reservoir.strings.union"
+        "stringsSample": "reservoir.strings.sketch"
       }
     },
     "blue": {
