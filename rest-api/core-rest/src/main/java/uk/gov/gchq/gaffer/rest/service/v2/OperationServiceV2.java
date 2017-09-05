@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.Status;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -41,6 +42,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -51,7 +53,6 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
 
 public class OperationServiceV2 implements IOperationServiceV2 {
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationServiceV2.class);
-    public final ObjectMapper mapper = createDefaultMapper();
 
     @Inject
     private GraphFactory graphFactory;
@@ -61,6 +62,8 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
     @Inject
     private ExamplesFactory examplesFactory;
+
+    public final ObjectMapper mapper = createDefaultMapper();
 
     @Override
     public Response getOperations() {
@@ -122,11 +125,13 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
     @Override
     public Response executeOperation(final String className, final Operation operation) {
-        if (className != operation.getClass().getCanonicalName()) {
-            throw new BadRequestException("Class name does not match message body.");
+        if (!Objects.equals(className, operation.getClass().getCanonicalName())) {
+            throw new BadRequestException("Class name does not match message body. Provided: " + className + ", expected: " + operation.getClass().getCanonicalName());
         }
 
-        return _execute(operation);
+        return Response.ok(_execute(operation))
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
     }
 
     @Override
