@@ -151,8 +151,6 @@ public class PropertiesWalkthroughRunner extends AbstractWalkthroughRunner {
         index++;
         System.out.println(index + ". [Sketches](#sketches)");
         index++;
-        System.out.println(index + ". [RoaringBitmap](#roaringbitmap)");
-        index++;
         System.out.println(index + ". [Timestamps](#timestamps)");
         index++;
         System.out.println(index + ". [Walkthroughs](#walkthroughs)");

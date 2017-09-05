@@ -2,7 +2,7 @@ ${HEADER}
 
 ${CODE_LINK}
 
-This example demonstrates how the HllSketch sketch from the Data Sketches library can be used to maintain an estimate of the degree of a vertex. Every time an edge A -> B is added to graph, we also add an Entity for A with a property of a HllSketch containing B, and an Entity for B with a property of a HllSketch containing A. The aggregator for the HllSketches merges them together so that after querying for the Entity for vertex X the HllSketch property would give us an estimate of the approximate degree.
+This example demonstrates how the [HllSketch](https://github.com/DataSketches/sketches-core/blob/master/src/main/java/com/yahoo/sketches/hll/HllSketch.java) sketch from the Data Sketches library can be used to maintain an estimate of the degree of a vertex. Every time an edge A -> B is added to graph, we also add an Entity for A with a property of a HllSketch containing B, and an Entity for B with a property of a HllSketch containing A. The aggregator for the HllSketches merges them together so that after querying for the Entity for vertex X the HllSketch property would give us an estimate of the approximate degree.
 
 ${PROPERTY_CLASS}
 
@@ -12,8 +12,8 @@ This is our new elements schema. The edge has a property called 'approx_cardinal
 ${ELEMENTS_JSON}
 
 ##### Types schema
-We have added a new type - 'hllsketch'. This is a com.yahoo.sketches.hll.HllSketch object.
-We also added in the serialiser and aggregator for the HllSketch object. Gaffer will automatically aggregate these sketches, using the provided aggregator, so they will keep up to date as new entities are added to the graph.
+We have added a new type - 'hllsketch'. This is a [com.yahoo.sketches.hll.HllSketch](https://github.com/DataSketches/sketches-core/blob/master/src/main/java/com/yahoo/sketches/hll/HllSketch.java) object.
+We also added in the [serialiser](https://github.com/gchq/Gaffer/blob/master/library/sketches-library/src/main/java/uk/gov/gchq/gaffer/sketches/datasketches/cardinality/serialisation/HllSketchSerialiser.java) and [aggregator](https://github.com/gchq/Gaffer/blob/develop/library/sketches-library/src/main/java/uk/gov/gchq/gaffer/sketches/datasketches/cardinality/binaryoperator/HllSketchAggregator.java) for the HllSketch object. Gaffer will automatically aggregate these sketches, using the provided aggregator, so they will keep up to date as new entities are added to the graph.
 
 ${TYPES_JSON}
 

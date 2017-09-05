@@ -2,7 +2,7 @@ ${HEADER}
 
 ${CODE_LINK}
 
-This example demonstrates how the HyperLogLogPlus sketch from the Clearspring library can be used to maintain an estimate of the degree of a vertex. Every time an edge A -> B is added to graph, we also add an Entity for A with a property of a HyperLogLogPlus containing B, and an Entity for B with a property of a HyperLogLogPlus containing A. The aggregator for the HyperLogLogPluses merges them together so that after querying for the Entity for vertex X the HyperLogLogPlus property would give us an estimate of the approximate degree.
+This example demonstrates how the [HyperLogLogPlus](https://github.com/addthis/stream-lib/blob/master/src/main/java/com/clearspring/analytics/stream/cardinality/HyperLogLogPlus.java) sketch from the Clearspring library can be used to maintain an estimate of the degree of a vertex. Every time an edge A -> B is added to graph, we also add an Entity for A with a property of a HyperLogLogPlus containing B, and an Entity for B with a property of a HyperLogLogPlus containing A. The aggregator for the HyperLogLogPluses merges them together so that after querying for the Entity for vertex X the HyperLogLogPlus property gives us an estimate of the approximate degree.
 
 ${PROPERTY_CLASS}
 
@@ -12,8 +12,8 @@ This is our new elements schema. The edge has a property called 'approx_cardinal
 ${ELEMENTS_JSON}
 
 ##### Types schema
-We have added a new type - 'hyperloglogplus'. This is a com.clearspring.analytics.stream.cardinality.HyperLogLogPlus object.
-We also added in the serialiser and aggregator for the HyperLogLogPlus object. Gaffer will automatically aggregate these sketches, using the provided aggregator, so they will keep up to date as new entities are added to the graph.
+We have added a new type - 'hyperloglogplus'. This is a [com.clearspring.analytics.stream.cardinality.HyperLogLogPlus](https://github.com/addthis/stream-lib/blob/master/src/main/java/com/clearspring/analytics/stream/cardinality/HyperLogLogPlus.java) object.
+We also added in the [serialiser](https://github.com/gchq/Gaffer/blob/master/library/sketches-library/src/main/java/uk/gov/gchq/gaffer/sketches/clearspring/cardinality/serialisation/HyperLogLogPlusSerialiser.java) and [aggregator](https://github.com/gchq/Gaffer/blob/master/library/sketches-library/src/main/java/uk/gov/gchq/gaffer/sketches/clearspring/cardinality/binaryoperator/HyperLogLogPlusAggregator.java) for the HyperLogLogPlus object. Gaffer will automatically aggregate these sketches, using the provided aggregator, so they will keep up to date as new entities are added to the graph.
 
 ${TYPES_JSON}
 

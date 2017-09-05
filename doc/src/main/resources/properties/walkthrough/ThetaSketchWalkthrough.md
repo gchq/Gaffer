@@ -2,7 +2,7 @@ ${HEADER}
 
 ${CODE_LINK}
 
-This example demonstrates how the com.yahoo.sketches.theta.Sketch sketch from the Data Sketches library can be used to maintain estimates of the cardinalities of sets. This sketch is similar to a HyperLogLogPlusPlus, but it can also be used to estimate the size of the intersections of sets. We give an example of how this can be used to monitor the changes to the number of edges in the graph over time.
+This example demonstrates how the [com.yahoo.sketches.theta.Sketch](https://github.com/DataSketches/sketches-core/blob/master/src/main/java/com/yahoo/sketches/theta/Sketch.java) sketch from the Data Sketches library can be used to maintain estimates of the cardinalities of sets. This sketch is similar to a HyperLogLogPlusPlus, but it can also be used to estimate the size of the intersections of sets. We give an example of how this can be used to monitor the changes to the number of edges in the graph over time.
 
 ${PROPERTY_CLASS}
 
@@ -12,8 +12,8 @@ This is our new elements schema. The edge has properties called 'startDate' and 
 ${ELEMENTS_JSON}
 
 ##### Types schema
-We have added a new type - 'thetasketch'. This is a com.yahoo.sketches.theta.Sketch object.
-We also added in the serialiser and aggregator for the Union object. Gaffer will automatically aggregate these sketches, using the provided aggregator, so they will keep up to date as new edges are added to the graph.
+We have added a new type - 'thetasketch'. This is a [com.yahoo.sketches.theta.Sketch](https://github.com/DataSketches/sketches-core/blob/master/src/main/java/com/yahoo/sketches/theta/Sketch.java) object.
+We also added in the [serialiser](https://github.com/gchq/Gaffer/blob/master/library/sketches-library/src/main/java/uk/gov/gchq/gaffer/sketches/datasketches/theta/serialisation/SketchSerialiser.java) and [aggregator](https://github.com/gchq/Gaffer/blob/master/library/sketches-library/src/main/java/uk/gov/gchq/gaffer/sketches/datasketches/theta/binaryoperator/SketchAggregator.java) for the Union object. Gaffer will automatically aggregate these sketches, using the provided aggregator, so they will keep up to date as new edges are added to the graph.
 
 ${TYPES_JSON}
 

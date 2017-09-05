@@ -7,5 +7,5 @@ Alternatively you can compile the code yourself by running a "mvn clean install 
 
 ```bash
 # Replace <DoublesUnion> with your example name.
-java -cp doc-jar-with-dependencies.jar uk.gov.gchq.gaffer.doc.properties.dev.walkthrough.DoublesUnion
+java -cp doc-jar-with-dependencies.jar uk.gov.gchq.gaffer.doc.properties.walkthrough.DoublesSketchWalkthrough
 ```
