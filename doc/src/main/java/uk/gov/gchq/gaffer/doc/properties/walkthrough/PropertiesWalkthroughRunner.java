@@ -70,6 +70,11 @@ public class PropertiesWalkthroughRunner extends AbstractWalkthroughRunner {
             Sketch.class
     );
 
+    private static final List<Class<?>> TIMESTAMP_PROPERTIES = Arrays.asList(
+            TimestampSetWalkthrough.class,
+            BoundedTimestampSetWalkthrough.class
+    );
+
     private static final List<AbstractWalkthrough> CLEARSPRING_SKETCHES_WALKTHROUGHS = Arrays.asList(
             new HyperLogLogPlusWalkthrough()
     );
@@ -82,12 +87,18 @@ public class PropertiesWalkthroughRunner extends AbstractWalkthroughRunner {
             new ThetaSketchWalkthrough()
     );
 
+    private static final List<AbstractWalkthrough> TIMESTAMP_WALKTHROUGHS = Arrays.asList(
+            new TimestampSetWalkthrough(),
+            new BoundedTimestampSetWalkthrough()
+    );
+
     private static final List<AbstractWalkthrough> EXAMPLES = getExamples();
 
     private static List<AbstractWalkthrough> getExamples() {
         final List<AbstractWalkthrough> examples = new ArrayList<>();
         SIMPLE_PROPERTIES.forEach(c -> examples.add(new SimpleProperty(c)));
         SKETCHES.forEach(c -> examples.add(new SimpleProperty(c)));
+        TIMESTAMP_PROPERTIES.forEach(c -> examples.add(new SimpleProperty(c)));
         return examples;
     }
 
@@ -106,7 +117,8 @@ public class PropertiesWalkthroughRunner extends AbstractWalkthroughRunner {
         printIntro();
         printSimpleProperties();
         printSketches();
-        printExamples();
+        printTimestampsIntro();
+        printWalkthroughs();
         printPredicatesAggregatorsSerialisersTitle();
         for (final AbstractWalkthrough example : EXAMPLES) {
             // Clear the caches so the output is not dependent on what's been run before
@@ -150,7 +162,7 @@ public class PropertiesWalkthroughRunner extends AbstractWalkthroughRunner {
         System.out.println("\n");
     }
 
-    protected void printSimpleProperties() {
+    private void printSimpleProperties() {
         final String intro;
         try (final InputStream stream = StreamUtil.openStream(getClass(), resourcePrefix + "/walkthrough/SimpleProperties.md")) {
             intro = new String(IOUtils.toByteArray(stream), CommonConstants.UTF_8);
@@ -172,12 +184,24 @@ public class PropertiesWalkthroughRunner extends AbstractWalkthroughRunner {
         System.out.println(WalkthroughStrSubstitutor.substitute(intro, modulePath));
     }
 
-    private void printExamples() throws OperationException {
-        printExamples(CLEARSPRING_SKETCHES_WALKTHROUGHS);
-        printExamples(DATA_SKETCHES_WALKTHROUGHS);
+    private void printTimestampsIntro() {
+        final String intro;
+        try (final InputStream stream = StreamUtil.openStream(getClass(), resourcePrefix + "/walkthrough/Timestamps.md")) {
+            intro = new String(IOUtils.toByteArray(stream), CommonConstants.UTF_8);
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        System.out.println(WalkthroughStrSubstitutor.substitute(intro, modulePath));
     }
 
-    private void printExamples(final List<AbstractWalkthrough> walkthroughs) throws OperationException {
+    private void printWalkthroughs() throws OperationException {
+        printWalkthroughs(CLEARSPRING_SKETCHES_WALKTHROUGHS);
+        printWalkthroughs(DATA_SKETCHES_WALKTHROUGHS);
+        printWalkthroughs(TIMESTAMP_WALKTHROUGHS);
+    }
+
+    private void printWalkthroughs(final List<AbstractWalkthrough> walkthroughs) throws OperationException {
         for (final AbstractWalkthrough example : walkthroughs) {
             // Clear the caches so the output is not dependent on what's been run before
             try {

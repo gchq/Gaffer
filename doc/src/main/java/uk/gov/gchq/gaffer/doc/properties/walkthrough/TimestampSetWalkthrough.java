@@ -18,25 +18,30 @@ package uk.gov.gchq.gaffer.doc.properties.walkthrough;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.doc.properties.generator.BoundedTimestampSetElementGenerator;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
+import uk.gov.gchq.gaffer.doc.properties.generator.TimestampSetElementGenerator;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
 import uk.gov.gchq.gaffer.user.User;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Set;
 
-public class BoundedTimestampSet extends PropertiesWalkthrough {
-    public BoundedTimestampSet() {
-        super(uk.gov.gchq.gaffer.time.BoundedTimestampSet.class, "properties/boundedTimestampSet",
-                BoundedTimestampSetElementGenerator.class);
+public class TimestampSetWalkthrough extends PropertiesWalkthrough {
+    public TimestampSetWalkthrough() {
+        super(RBMBackedTimestampSet.class, "properties/timestampSet",
+                TimestampSetElementGenerator.class);
     }
 
     public static void main(final String[] args) throws OperationException {
-        new BoundedTimestampSet().run();
+        new TimestampSetWalkthrough().run();
     }
 
     @Override
@@ -45,7 +50,7 @@ public class BoundedTimestampSet extends PropertiesWalkthrough {
         // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
                 .config(StreamUtil.graphConfig(getClass()))
-                .addSchemas(StreamUtil.openStreams(getClass(), "properties/boundedTimestampSet/schema"))
+                .addSchemas(StreamUtil.openStreams(getClass(), "properties/timestampSet/schema"))
                 .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();
         // ---------------------------------------------------------
@@ -62,7 +67,7 @@ public class BoundedTimestampSet extends PropertiesWalkthrough {
         final Set<String> dummyData = Collections.singleton("");
         final OperationChain<Void> addOpChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<String>()
-                        .generator(new BoundedTimestampSetElementGenerator())
+                        .generator(new TimestampSetElementGenerator())
                         .input(dummyData)
                         .build())
                 .then(new AddElements())
@@ -70,7 +75,7 @@ public class BoundedTimestampSet extends PropertiesWalkthrough {
 
         graph.execute(addOpChain, user);
         // ---------------------------------------------------------
-        log("Added an edge A-B 3 times, each time with a BoundedTimestampSet containing a random time in 2017.");
+        log("Added an edge A-B 25 times, each time with a RBMBackedTimestampSet containing a random time in 2017.");
 
 
         // [get] Get all edges
@@ -81,6 +86,25 @@ public class BoundedTimestampSet extends PropertiesWalkthrough {
         for (final Element edge : allEdges) {
             log("GET_ALL_EDGES_RESULT", edge.toString());
         }
+
+
+        // [get the first and last timestamps and the number of timestamps for edge a b] Get the edge A-B and print out the first and last times it was active and the total number of timestamps
+        // ---------------------------------------------------------
+        final GetElements query = new GetElements.Builder()
+                .input(new EdgeSeed("A", "B", DirectedType.UNDIRECTED))
+                .build();
+        final CloseableIterable<? extends Element> edges = graph.execute(query, user);
+        final Element edge = edges.iterator().next();
+        final uk.gov.gchq.gaffer.time.TimestampSet timestampSet = (uk.gov.gchq.gaffer.time.TimestampSet) edge.getProperty("timestampSet");
+        final Instant earliest = timestampSet.getEarliest();
+        final Instant latest = timestampSet.getLatest();
+        final long totalNumber = timestampSet.getNumberOfTimestamps();
+        final String earliestLatestNumber = "Edge A-B was first seen at " + earliest + ", last seen at " + latest
+                + ", and there were " + totalNumber + " timestamps it was active.";
+        // ---------------------------------------------------------
+        log("\nEdge A-B with the first seen time, last seen time and the number of times it was active:");
+        log("GET_FIRST_SEEN_LAST_SEEN_AND_NUMBER_OF_TIMES_FOR_EDGE_A_B", earliestLatestNumber);
+
 
         return null;
     }
