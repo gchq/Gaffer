@@ -48,7 +48,7 @@ public abstract class FederatedOperationOutputHandler<OP extends Output<O>, O> i
                 O execute = null;
                 try {
                     execute = graph.execute(updatedOp, context.getUser());
-                } catch (Exception e) {
+                } catch (final Exception e) {
                     if (!Boolean.valueOf(updatedOp.getOption(SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
                         throw new OperationException("Failed to execute " + operation.getClass().getSimpleName() + " on graph " + graph.getGraphId(), e);
                     }
