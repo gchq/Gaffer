@@ -22,13 +22,6 @@ import uk.gov.gchq.gaffer.operation.export.graph.OtherGraphExporter;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.export.ExportToHandler;
-<<<<<<< HEAD
-=======
-import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.koryphe.ValidationResult;
-
-import java.util.List;
->>>>>>> gh-1241-operation-options
 
 public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGraph, OtherGraphExporter> {
     @Override
@@ -43,6 +36,4 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
                 export.getParentStorePropertiesId());
         return new OtherGraphExporter(context.getUser(), graph);
     }
-
-
 }
