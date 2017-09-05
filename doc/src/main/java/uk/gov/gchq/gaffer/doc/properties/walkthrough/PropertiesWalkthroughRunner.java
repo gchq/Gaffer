@@ -28,6 +28,8 @@ import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.doc.walkthrough.AbstractWalkthrough;
 import uk.gov.gchq.gaffer.doc.walkthrough.AbstractWalkthroughRunner;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.time.BoundedTimestampSet;
+import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
 import uk.gov.gchq.gaffer.types.TypeValue;
@@ -68,8 +70,8 @@ public class PropertiesWalkthroughRunner extends AbstractWalkthroughRunner {
     );
 
     private static final List<Class<?>> TIMESTAMP_PROPERTIES = Arrays.asList(
-            TimestampSetWalkthrough.class,
-            BoundedTimestampSetWalkthrough.class
+            RBMBackedTimestampSet.class,
+            BoundedTimestampSet.class
     );
 
     private static final List<AbstractWalkthrough> CLEARSPRING_SKETCHES_WALKTHROUGHS = Collections
