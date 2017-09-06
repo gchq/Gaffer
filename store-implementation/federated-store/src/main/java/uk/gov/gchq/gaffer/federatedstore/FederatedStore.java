@@ -62,6 +62,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -425,6 +426,31 @@ public class FederatedStore extends Store {
         return graphs.values();
     }
 
+    public Collection<Graph> getGraphs(final String graphIdsCsv) {
+        if (null == graphIdsCsv) {
+            return getGraphs();
+        }
+        return getGraphs(graphIdsCsv.split(","));
+    }
+
+    public Collection<Graph> getGraphs(final String[] graphIds) {
+        final Collection<Graph> filteredGraphs;
+        if (null == graphIds) {
+            filteredGraphs = graphs.values();
+        } else {
+            filteredGraphs = new ArrayList<>();
+            for (final String graphId : graphIds) {
+                if (graphs.containsKey(graphId)) {
+                    final Graph graph = graphs.get(graphId);
+                    if (null != graph) {
+                        filteredGraphs.add(graph);
+                    }
+                }
+            }
+        }
+        return filteredGraphs;
+    }
+
     @Override
 
     protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
@@ -455,19 +481,5 @@ public class FederatedStore extends Store {
     protected Object doUnhandledOperation(final Operation operation,
                                           final Context context) {
         throw new UnsupportedOperationException();
-    }
-
-    public Collection<Graph> getGraphs(final String[] split) {
-        Map<String, Graph> filteredGraphs = Maps.newHashMap();
-        if (null != split && split.length > 0) {
-            for (final String s : split) {
-                if (graphs.containsKey(s)) {
-                    filteredGraphs.put(s, graphs.get(s));
-                }
-            }
-        } else {
-            filteredGraphs = graphs;
-        }
-        return filteredGraphs.values();
     }
 }
