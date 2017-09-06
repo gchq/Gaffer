@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
@@ -66,8 +65,7 @@ public class GetElements implements
         InputOutput<Iterable<? extends ElementId>, CloseableIterable<? extends Element>>,
         MultiInput<ElementId>,
         SeededGraphFilters,
-        SeedMatching,
-        Options {
+        SeedMatching {
     private SeedMatchingType seedMatching;
     private View view;
     private IncludeIncomingOutgoingType inOutType;
@@ -248,8 +246,7 @@ public class GetElements implements
             implements InputOutput.Builder<GetElements, Iterable<? extends ElementId>, CloseableIterable<? extends Element>, Builder>,
             MultiInput.Builder<GetElements, ElementId, Builder>,
             SeededGraphFilters.Builder<GetElements, Builder>,
-            SeedMatching.Builder<GetElements, Builder>,
-            Options.Builder<GetElements, Builder> {
+            SeedMatching.Builder<GetElements, Builder> {
         public Builder() {
             super(new GetElements());
         }

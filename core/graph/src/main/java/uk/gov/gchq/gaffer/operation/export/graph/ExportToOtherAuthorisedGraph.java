@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class ExportToOtherAuthorisedGraph implements
         Operation,
@@ -39,6 +40,7 @@ public class ExportToOtherAuthorisedGraph implements
     private Iterable<? extends Element> input;
     private List<String> parentSchemaIds;
     private String parentStorePropertiesId;
+    private Map<String, String> options;
 
     public String getGraphId() {
         return graphId;
@@ -97,11 +99,23 @@ public class ExportToOtherAuthorisedGraph implements
                 .input(input)
                 .parentSchemaIds(parentSchemaIds.toArray(new String[parentSchemaIds.size()]))
                 .parentStorePropertiesId(parentStorePropertiesId)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static final class Builder extends BaseBuilder<ExportToOtherAuthorisedGraph, Builder>
             implements ExportTo.Builder<ExportToOtherAuthorisedGraph, Iterable<? extends Element>, Builder> {
+
         public Builder() {
             super(new ExportToOtherAuthorisedGraph());
         }
@@ -133,6 +147,5 @@ public class ExportToOtherAuthorisedGraph implements
             }
             return _self();
         }
-
     }
 }
