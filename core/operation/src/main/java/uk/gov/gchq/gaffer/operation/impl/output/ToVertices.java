@@ -23,6 +23,8 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
+import java.util.Map;
+
 /**
  * A <code>ToVertices</code> takes an {@link java.lang.Iterable} of
  * {@link uk.gov.gchq.gaffer.data.element.id.ElementId}s and converts them into
@@ -38,6 +40,7 @@ public class ToVertices implements
     private Iterable<? extends ElementId> input;
     private UseMatchedVertex useMatchedVertex;
     private EdgeVertices edgeVertices;
+    private Map<String, String> options;
 
     @Override
     public Iterable<? extends ElementId> getInput() {
@@ -76,7 +79,18 @@ public class ToVertices implements
                 .input(input)
                 .useMatchedVertex(useMatchedVertex)
                 .edgeVertices(edgeVertices)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public enum EdgeVertices {

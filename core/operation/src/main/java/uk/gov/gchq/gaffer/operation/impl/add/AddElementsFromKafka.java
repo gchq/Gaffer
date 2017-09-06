@@ -20,7 +20,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.Validatable;
 import uk.gov.gchq.koryphe.ValidationResult;
 
@@ -38,8 +37,7 @@ import java.util.function.Function;
  */
 public class AddElementsFromKafka implements
         Operation,
-        Validatable,
-        Options {
+        Validatable {
     @Required
     private String topic;
 
@@ -164,8 +162,7 @@ public class AddElementsFromKafka implements
     }
 
     public static class Builder extends BaseBuilder<AddElementsFromKafka, Builder>
-            implements Validatable.Builder<AddElementsFromKafka, Builder>,
-            Options.Builder<AddElementsFromKafka, Builder> {
+            implements Validatable.Builder<AddElementsFromKafka, Builder> {
         public Builder() {
             super(new AddElementsFromKafka());
         }

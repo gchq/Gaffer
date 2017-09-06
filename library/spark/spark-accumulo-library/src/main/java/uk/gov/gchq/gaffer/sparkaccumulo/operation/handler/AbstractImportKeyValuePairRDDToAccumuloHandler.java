@@ -23,7 +23,6 @@ import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.AccumuloKeyRangePartitioner;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -33,7 +32,7 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-public abstract class AbstractImportKeyValuePairRDDToAccumuloHandler<OP extends Operation & Options> implements OperationHandler<OP> {
+public abstract class AbstractImportKeyValuePairRDDToAccumuloHandler<OP extends Operation> implements OperationHandler<OP> {
 
     protected abstract void prepareKeyValues(final OP operation, final AccumuloKeyRangePartitioner partitioner) throws OperationException;
 

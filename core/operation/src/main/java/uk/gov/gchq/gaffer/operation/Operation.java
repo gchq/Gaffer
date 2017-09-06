@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
@@ -27,6 +28,8 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * An <code>Operation</code> defines an operation to be processed on a graph.
@@ -51,7 +54,6 @@ import java.security.PrivilegedAction;
  * {@link uk.gov.gchq.gaffer.operation.graph.OperationView}
  * {@link uk.gov.gchq.gaffer.operation.graph.GraphFilters}
  * {@link uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters}
- * {@link uk.gov.gchq.gaffer.operation.Options}
  * </p>
  * <p>
  * Each Operation implementation should have a corresponding unit test class
@@ -69,8 +71,7 @@ import java.security.PrivilegedAction;
  *         implements InputOutput.Builder&lt;GetElements, Iterable&lt;? extends ElementId&gt;, CloseableIterable&lt;? extends Element&gt;, Builder&gt;,
  *         MultiInput.Builder&lt;GetElements, ElementId, Builder&gt;,
  *         SeededGraphFilters.Builder&lt;GetElements, Builder&gt;,
- *         SeedMatching.Builder&lt;GetElements, Builder&gt;,
- *         Options.Builder&lt;GetElements, Builder&gt; {
+ *         SeedMatching.Builder&lt;GetElements, Builder&gt; {
  *     public Builder() {
  *             super(new GetElements());
  *     }
@@ -88,6 +89,59 @@ public interface Operation extends Closeable {
      * @throws CloneFailedException if a Clone error occurs
      */
     Operation shallowClone() throws CloneFailedException;
+
+    /**
+     * @return the operation options. This may contain store specific options such as authorisation strings or and
+     * other properties required for the operation to be executed. Note these options will probably not be interpreted
+     * in the same way by every store implementation.
+     */
+    Map<String, String> getOptions();
+
+    /**
+     * @param options the operation options. This may contain store specific options such as authorisation strings or and
+     *                other properties required for the operation to be executed. Note these options will probably not be interpreted
+     *                in the same way by every store implementation.
+     */
+    void setOptions(final Map<String, String> options);
+
+    /**
+     * Adds an operation option. This may contain store specific options such as authorisation strings or and
+     * other properties required for the operation to be executed. Note these options will probably not be interpreted
+     * in the same way by every store implementation.
+     *
+     * @param name  the name of the option
+     * @param value the value of the option
+     */
+    default void addOption(final String name, final String value) {
+        if (null == getOptions()) {
+            setOptions(new HashMap<>());
+        }
+
+        getOptions().put(name, value);
+    }
+
+    /**
+     * Gets an operation option by its given name.
+     *
+     * @param name the name of the option
+     * @return the value of the option
+     */
+    default String getOption(final String name) {
+        if (null == getOptions()) {
+            return null;
+        }
+
+        return getOptions().get(name);
+    }
+
+    @JsonGetter("options")
+    default Map<String, String> _getNullOrOptions() {
+        if (null == getOptions()) {
+            return null;
+        }
+
+        return getOptions().isEmpty() ? null : getOptions();
+    }
 
     /**
      * Operation implementations should ensure that all closeable fields are closed in this method.
@@ -163,6 +217,28 @@ public interface Operation extends Closeable {
 
         protected BaseBuilder(final OP op) {
             this.op = op;
+        }
+
+        /**
+         * @param name  the name of the option to add
+         * @param value the value of the option to add
+         * @return this Builder
+         * @see Operation#addOption(String, String)
+         */
+        public B option(final String name, final String value) {
+            _getOp().addOption(name, value);
+            return _self();
+        }
+
+        public B options(final Map<String, String> options) {
+            if (null != options) {
+                if (null == _getOp().getOptions()) {
+                    _getOp().setOptions(new HashMap<>(options));
+                } else {
+                    _getOp().getOptions().putAll(options);
+                }
+            }
+            return _self();
         }
 
         /**

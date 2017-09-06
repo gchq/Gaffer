@@ -40,6 +40,7 @@ public class GetExports implements
         Operation,
         Output<Map<String, CloseableIterable<?>>> {
     private List<GetExport> getExports = new ArrayList<>();
+    private Map<String, String> options;
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     public List<GetExport> getGetExports() {
@@ -58,12 +59,23 @@ public class GetExports implements
     public GetExports shallowClone() {
         return new GetExports.Builder()
                 .exports(getExports)
+                .options(options)
                 .build();
     }
 
     @Override
     public TypeReference<Map<String, CloseableIterable<?>>> getOutputTypeReference() {
         return (TypeReference) new TypeReferenceImpl.MapStringSet();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static class Builder

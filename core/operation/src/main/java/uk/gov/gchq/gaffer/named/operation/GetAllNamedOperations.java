@@ -23,9 +23,13 @@ import uk.gov.gchq.gaffer.named.operation.serialisation.NamedOperationTypeRefere
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.Output;
 
+import java.util.Map;
+
 public class GetAllNamedOperations implements
         Operation,
         Output<CloseableIterable<NamedOperationDetail>> {
+    private Map<String, String> options;
+
     @Override
     public TypeReference<CloseableIterable<NamedOperationDetail>> getOutputTypeReference() {
         return new NamedOperationTypeReference.IterableNamedOperationDetail();
@@ -33,7 +37,18 @@ public class GetAllNamedOperations implements
 
     public GetAllNamedOperations shallowClone() {
         return new GetAllNamedOperations.Builder()
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static class Builder extends BaseBuilder<GetAllNamedOperations, Builder>

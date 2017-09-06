@@ -68,7 +68,6 @@ operation takes multiple inputs. This will help with JSON serialisation
 - uk.gov.gchq.gaffer.operation.graph.OperationView
 - uk.gov.gchq.gaffer.operation.graph.GraphFilters
 - uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters
-- uk.gov.gchq.gaffer.operation.Options
 
 Each operation implementation should have a corresponding unit test class
 that extends the `OperationTest` class.

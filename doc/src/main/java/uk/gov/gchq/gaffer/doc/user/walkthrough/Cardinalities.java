@@ -140,7 +140,10 @@ public class Cardinalities extends UserWalkthrough {
                         .build();
         // ---------------------------------------------------------
 
-        final Element roadUse10Cardinality = graph.execute(getCardinalities, user).iterator().next();
+        final Element roadUse10Cardinality;
+        try (final CloseableIterable<? extends Element> elements = graph.execute(getCardinalities, user)) {
+            roadUse10Cardinality = elements.iterator().next();
+        }
         log("\nRoadUse edge cardinality at vertex 10:");
         final String edgeGroup = (roadUse10Cardinality.getProperty("edgeGroup")).toString();
         log("CARDINALITY_OF_10_RESULT", "Vertex " + ((Entity) roadUse10Cardinality).getVertex() + " " + edgeGroup + ": " + ((HyperLogLogPlus) roadUse10Cardinality.getProperty("hllp")).cardinality());

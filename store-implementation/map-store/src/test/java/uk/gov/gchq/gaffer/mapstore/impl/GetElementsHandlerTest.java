@@ -1152,12 +1152,18 @@ public class GetElementsHandlerTest {
         final GetElements getElements = new GetElements.Builder()
                 .input(new EntitySeed("B9"))
                 .build();
-        final Edge result = (Edge) graph.execute(getElements, new User()).iterator().next();
+        final Edge result;
+        try (final CloseableIterable<? extends Element> results = graph.execute(getElements, new User())) {
+            result = (Edge) results.iterator().next();
+        }
         // Change a property
         result.putProperty(GetAllElementsHandlerTest.PROPERTY1, "qqq");
 
         // Then
-        final Edge result2 = (Edge) graph.execute(getElements, new User()).iterator().next();
+        final Edge result2;
+        try (final CloseableIterable<? extends Element> results2 = graph.execute(getElements, new User())) {
+            result2 = (Edge) results2.iterator().next();
+        }
         assertEquals("B9", result2.getDestination());
         assertEquals("q", result2.getProperty(GetAllElementsHandlerTest.PROPERTY1));
     }

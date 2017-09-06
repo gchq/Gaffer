@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
@@ -50,8 +49,7 @@ import java.util.Map;
 public class GetDataFrameOfElements implements
         Operation,
         Output<Dataset<Row>>,
-        GraphFilters,
-        Options {
+        GraphFilters {
 
     @Required
     private SparkSession sparkSession;
@@ -134,7 +132,6 @@ public class GetDataFrameOfElements implements
 
     public static class Builder extends Operation.BaseBuilder<GetDataFrameOfElements, Builder>
             implements Output.Builder<GetDataFrameOfElements, Dataset<Row>, Builder>,
-            Options.Builder<GetDataFrameOfElements, Builder>,
             GraphFilters.Builder<GetDataFrameOfElements, Builder> {
         public Builder() {
             super(new GetDataFrameOfElements());
