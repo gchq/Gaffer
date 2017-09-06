@@ -15,6 +15,11 @@
  */
 package uk.gov.gchq.gaffer.parquetstore.operation.getelements.impl;
 
+import org.apache.accumulo.core.security.AuthorizationContainer;
+import org.apache.accumulo.core.security.Authorizations;
+import org.apache.accumulo.core.security.ColumnVisibility;
+import org.apache.accumulo.core.security.VisibilityEvaluator;
+import org.apache.accumulo.core.security.VisibilityParseException;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.filter2.compat.FilterCompat;
 import org.apache.parquet.filter2.predicate.FilterPredicate;
@@ -31,6 +36,7 @@ import uk.gov.gchq.gaffer.parquetstore.io.reader.ParquetElementReader;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -50,12 +56,28 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
     private final byte[] elementDefinitionJson;
     private final boolean needsValidation;
     private final String group;
+    private final Authorizations auths;
+    private final String visibility;
 
     public RetrieveElementsFromFile(final Path filePath, final FilterPredicate filter, final Schema gafferSchema,
-                                    final ConcurrentLinkedQueue<Element> queue, final boolean needsValidation, final View view) {
+                                    final ConcurrentLinkedQueue<Element> queue, final boolean needsValidation,
+                                    final View view, final User user) {
         this.filePath = filePath;
         this.filter = filter;
         this.jsonGafferSchema = gafferSchema.toCompactJson();
+
+        if (gafferSchema.getVisibilityProperty() != null) {
+            this.visibility = gafferSchema.getVisibilityProperty();
+        } else {
+            this.visibility = new String();
+        }
+
+        if (user != null && user.getDataAuths() != null) {
+            this.auths = new Authorizations(user.getDataAuths().toArray(new String[user.getDataAuths().size()]));
+        } else {
+            this.auths = new Authorizations();
+        }
+
         this.queue = queue;
         this.needsValidation = needsValidation;
         if (filePath.getName().contains("=")) {
@@ -75,7 +97,17 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
             final ParquetReader<Element> fileReader = openParquetReader();
             Element e = fileReader.read();
             while (e != null) {
-                if (needsValidation) {
+                if (!visibility.isEmpty()) {
+                    if (isVisible(e)) {
+                        if (needsValidation) {
+                            if (elementFilter.test(e)) {
+                                queue.add(e);
+                            }
+                        } else {
+                            queue.add(e);
+                        }
+                    }
+                } else if (needsValidation) {
                     if (elementFilter.test(e)) {
                         queue.add(e);
                     }
@@ -108,5 +140,14 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
                     .usingConverter(converter)
                     .build();
         }
+    }
+
+    private Boolean isVisible(Element e) throws VisibilityParseException {
+        if (e.getProperties().containsKey(visibility)) {
+            VisibilityEvaluator ve = new VisibilityEvaluator((AuthorizationContainer) auths);
+            ColumnVisibility columnVisibility = new ColumnVisibility((String) e.getProperty(visibility));
+            return ve.evaluate(columnVisibility);
+        }
+        return true;
     }
 }
