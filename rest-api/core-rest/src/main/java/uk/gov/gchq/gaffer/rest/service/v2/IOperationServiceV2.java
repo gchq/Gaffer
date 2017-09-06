@@ -36,6 +36,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.BAD_REQUEST;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.FORBIDDEN;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.INTERNAL_SERVER_ERROR;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.OK;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.OPERATION_NOT_FOUND;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.OPERATION_NOT_IMPLEMENTED;
 
 /**
  * An <code>IOperationServiceV2</code> has methods to execute {@link uk.gov.gchq.gaffer.operation.Operation}s on the
@@ -49,26 +55,26 @@ public interface IOperationServiceV2 {
 
     @GET
     @ApiOperation(value = "Gets all operations supported by the store.", response = String.class, responseContainer = "list", produces = APPLICATION_JSON)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK")})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = OK)})
     Response getOperations();
 
     @POST
     @ApiOperation(value = "Performs the given operation on the graph", response = Object.class, produces = APPLICATION_JSON)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 400, message = "Error while processing request body"),
-            @ApiResponse(code = 403, message = "The current user cannot perform the requested operation"),
-            @ApiResponse(code = 500, message = "Something went wrong in the server"),
-            @ApiResponse(code = 501, message = "The requested operation is not supported by the target store")})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
+            @ApiResponse(code = 400, message = BAD_REQUEST),
+            @ApiResponse(code = 403, message = FORBIDDEN),
+            @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR),
+            @ApiResponse(code = 501, message = OPERATION_NOT_IMPLEMENTED)})
     Response execute(final Operation operation);
 
     @POST
     @Path("/chunked")
     @ApiOperation(value = "Performs the given operation on the graph, returned chunked output. NOTE - does not work in Swagger.", response = Object.class, produces = APPLICATION_JSON)
-    @ApiResponses(value = {@ApiResponse(code = 202, message = "OK"),
-            @ApiResponse(code = 400, message = "Error while processing request body"),
-            @ApiResponse(code = 403, message = "The current user cannot perform the requested operation"),
-            @ApiResponse(code = 500, message = "Something went wrong in the server"),
-            @ApiResponse(code = 501, message = "The requested operation is not supported by the target store")})
+    @ApiResponses(value = {@ApiResponse(code = 202, message = OK),
+            @ApiResponse(code = 400, message = BAD_REQUEST),
+            @ApiResponse(code = 403, message = FORBIDDEN),
+            @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR),
+            @ApiResponse(code = 501, message = OPERATION_NOT_IMPLEMENTED)})
     ChunkedOutput<String> executeChunked(final Operation operation);
 
     @SuppressFBWarnings
@@ -77,47 +83,38 @@ public interface IOperationServiceV2 {
     @GET
     @Path("/{className}")
     @ApiOperation(value = "Gets details about the specified operation class.", produces = APPLICATION_JSON)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 403, message = "The current user cannot access the requested operation"),
-            @ApiResponse(code = 404, message = "Operation not found"),
-            @ApiResponse(code = 500, message = "Something went wrong in the server")})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
+            @ApiResponse(code = 403, message = FORBIDDEN),
+            @ApiResponse(code = 404, message = OPERATION_NOT_FOUND),
+            @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
     Response operationDetails(@ApiParam(value = "the fully qualified class name") @PathParam("className") final String className) throws InstantiationException, IllegalAccessException;
 
     @POST
     @Path("/{className}")
     @ApiOperation(value = "Performs the given operation on the graph", response = Object.class, produces = APPLICATION_JSON)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 400, message = "Error while processing request body"),
-            @ApiResponse(code = 403, message = "The current user cannot perform the requested operation"),
-            @ApiResponse(code = 500, message = "Something went wrong in the server"),
-            @ApiResponse(code = 501, message = "The requested operation is not supported by the target store")})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
+            @ApiResponse(code = 400, message = BAD_REQUEST),
+            @ApiResponse(code = 403, message = FORBIDDEN),
+            @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR),
+            @ApiResponse(code = 501, message = OPERATION_NOT_IMPLEMENTED)})
     Response executeOperation(@ApiParam(value = "the fully qualified class name") @PathParam("className") final String className, final Operation operation);
-
-    @GET
-    @Path("/{className}/doc")
-    @ApiOperation(value = "Gets documentation relating to the specified operation class.", produces = APPLICATION_JSON)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 403, message = "The current user cannot access the requested operation"),
-            @ApiResponse(code = 404, message = "Operation not found"),
-            @ApiResponse(code = 500, message = "Something went wrong in the server")})
-    Response operationDocumentation(@ApiParam(value = "the fully qualified class name") @PathParam("className") final String className);
 
     @GET
     @Path("/{className}/example")
     @ApiOperation(value = "Gets example JSON for the specified operation class.", produces = APPLICATION_JSON)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 403, message = "The current user cannot access the requested operation"),
-            @ApiResponse(code = 404, message = "Operation not found"),
-            @ApiResponse(code = 500, message = "Something went wrong in the server")})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
+            @ApiResponse(code = 403, message = FORBIDDEN),
+            @ApiResponse(code = 404, message = OPERATION_NOT_FOUND),
+            @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
     Response operationExample(@ApiParam(value = "the fully qualified class name") @PathParam("className") final String className) throws InstantiationException, IllegalAccessException;
 
     @GET
     @Path("/{className}/next")
     @ApiOperation(value = "Gets all the compatible operations that could be added to an operation chain after the provided operation.",
             response = String.class, responseContainer = "list", produces = APPLICATION_JSON)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 404, message = "Operation not found."),
-            @ApiResponse(code = 500, message = "Something went wrong in the server")})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
+            @ApiResponse(code = 404, message = OPERATION_NOT_FOUND),
+            @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
     Response nextOperations(@ApiParam(value = "the fully qualified class name") @PathParam("className") final String className);
 
 }

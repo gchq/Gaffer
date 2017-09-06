@@ -29,7 +29,7 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
 
 /**
- * An implementation of {@link uk.gov.gchq.gaffer.rest.service.v1.IStatusService}.
+ * An implementation of {@link uk.gov.gchq.gaffer.rest.service.v2.IStatusServiceV2}.
  * By default it will use a singleton {@link uk.gov.gchq.gaffer.graph.Graph} generated
  * using the {@link uk.gov.gchq.gaffer.rest.factory.GraphFactory}.
  * All operations are simply delegated to the graph.

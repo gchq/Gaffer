@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.traffic;
 
+import org.junit.Ignore;
+
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
@@ -29,6 +31,7 @@ import java.net.URL;
  * Spins up the Gaffer REST API and loads the example Road Traffic data set into the store specified by the 'store.type'
  * property and then runs the {@link RoadTrafficTestQueries} against it.
  */
+@Ignore
 public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
 
 	@Override
@@ -38,10 +41,10 @@ public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
 		props.setStoreClass(ProxyStore.class);
 		props.setStorePropertiesClass(props.getClass());
 
-		final URL restURL = new URL(client.getUri());
+		final URL restURL = new URL(client.getRoot());
 		props.setGafferHost(restURL.getHost());
 		props.setGafferPort(restURL.getPort());
-		props.setGafferContextRoot(restURL.getPath());
+		props.setGafferContextRoot(client.getPath());
 
 		this.graph = new Graph.Builder()
 			.config(StreamUtil.graphConfig(this.getClass()))

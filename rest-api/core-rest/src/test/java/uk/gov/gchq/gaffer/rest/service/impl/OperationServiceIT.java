@@ -156,7 +156,7 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
     public void shouldThrowErrorOnEmptyOperationChain() throws IOException {
         // When
         final Response response = client.executeOperationChain(new OperationChain());
-
+        System.out.println(response.readEntity(String.class));
         assertEquals(500, response.getStatus());
     }
 

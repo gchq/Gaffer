@@ -45,12 +45,21 @@ public abstract class RestApiTestClient {
     protected final JSONSerialiser JSON_SERIALISER = JSONSerialiser.getInstance();
     protected final Client client = ClientBuilder.newClient();
     protected final ResourceConfig config;
-    protected String uri;
+    protected final String fullPath;
+    protected final String root;
+    protected final String path;
+    protected final String versionString;
+    protected final String uriString;
     protected HttpServer server;
 
-    public RestApiTestClient(final String uri, final ResourceConfig config) {
-        this.uri = uri;
+    public RestApiTestClient(final String root, final String path, final String versionString, final ResourceConfig config) {
+        this.root = root.replaceAll("/$", "");
+        this.path = path.replaceAll("/$", "");
+        this.versionString = versionString.replaceAll("/$", "");
         this.config = config;
+
+        this.fullPath = this.path + '/' + versionString;
+        this.uriString = this.root + '/' + this.fullPath;
     }
 
     public void stopServer() {
@@ -118,11 +127,27 @@ public abstract class RestApiTestClient {
 
     public void startServer() throws IOException {
         if (null == server) {
-            server = GrizzlyHttpServerFactory.createHttpServer(URI.create(uri), config);
+            server = GrizzlyHttpServerFactory.createHttpServer(URI.create(uriString), config);
         }
     }
 
-    public String getUri() {
-        return uri;
+    public String getPath() {
+        return path;
+    }
+
+    public String getVersionString() {
+        return versionString;
+    }
+
+    public String getRoot() {
+        return root;
+    }
+
+    public String getFullPath() {
+        return fullPath;
+    }
+
+    public String getUriString() {
+        return uriString;
     }
 }

@@ -132,21 +132,6 @@ public class ExampleGeneratorTest {
         );
     }
 
-//    @BeforeClass
-//    public static void beforeClass() throws IOException {
-//        final File storePropertiesFile = tempFolder.newFile("store.properties");
-//        FileUtils.writeLines(storePropertiesFile, IOUtils.readLines(StreamUtil.openStream(ExampleGeneratorTest.class, "store.properties")));
-//        System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, storePropertiesFile.getAbsolutePath());
-//
-//        final File schemaFile = tempFolder.newFile("schema.json");
-//        FileUtils.writeLines(schemaFile, IOUtils.readLines(StreamUtil.openStream(ExampleGeneratorTest.class, "/schema/schema.json")));
-//        System.setProperty(SystemProperty.SCHEMA_PATHS, schemaFile.getAbsolutePath());
-//
-////        System.getProperties().put("gaffer.storeProperties", StreamUtil.storeProps(ExampleGeneratorTest.class));
-//        System.getProperties().put("gaffer.graph.id", "graphId");
-////        System.getProperties().put("gaffer.schemas", StreamUtil.schema(ExampleGeneratorTest.class));
-//    }
-
     @Before
     public void before() throws IllegalAccessException, NoSuchFieldException, IOException {
         final File storePropertiesFile = tempFolder.newFile("store.properties");

@@ -109,7 +109,7 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
     }
 
     @Override
-    public Response getFilterFunctions() {
+    public Response getFilterFunction() {
         return Response.ok(FILTER_FUNCTIONS)
                        .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                        .build();
@@ -117,9 +117,9 @@ public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2
 
     @SuppressFBWarnings(value = "REC_CATCH_EXCEPTION", justification = "Need to wrap all runtime exceptions before they are given to the user")
     @Override
-    public Response getFilterFunctions(final String inputClass) {
+    public Response getFilterFunction(final String inputClass) {
         if (StringUtils.isEmpty(inputClass)) {
-            return getFilterFunctions();
+            return getFilterFunction();
         }
 
         final Class<?> clazz;

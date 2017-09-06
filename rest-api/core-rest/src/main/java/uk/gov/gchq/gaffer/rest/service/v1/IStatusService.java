@@ -27,6 +27,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.INTERNAL_SERVER_ERROR;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.OK;
 
 /**
  * An <code>StatusService</code> has methods to check the status of the system
@@ -38,7 +40,7 @@ public interface IStatusService {
 
     @GET
     @ApiOperation(value = "Returns the status of the service", response = SystemStatus.class)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 500, message = "Something wrong in Server")})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
+            @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
     SystemStatus status();
 }

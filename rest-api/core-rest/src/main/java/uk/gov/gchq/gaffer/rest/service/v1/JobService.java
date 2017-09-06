@@ -70,7 +70,6 @@ public class JobService implements IJobService {
         }
     }
 
-
     @Override
     public CloseableIterable<JobDetail> details() {
         try {

@@ -18,11 +18,25 @@ package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import java.util.List;
+
+/**
+ * Simple data access object which enables the serialisation and deserialisation
+ * @param <OUT> the output type of the <code>OperationChainDAO</code>. This should
+ *             match the output type of the last {@link uk.gov.gchq.gaffer.operation.Operation}
+ *             in the chain.
+ */
+@JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
 public class OperationChainDAO<OUT> extends OperationChain<OUT> {
 
     public OperationChainDAO() {
         super();
+    }
+
+    public OperationChainDAO(final List<Operation> operations) {
+        super(operations);
     }
 
     @JsonGetter("class")
@@ -34,5 +48,4 @@ public class OperationChainDAO<OUT> extends OperationChain<OUT> {
     public void setClassName(final String className) {
         // Do nothing
     }
-
 }

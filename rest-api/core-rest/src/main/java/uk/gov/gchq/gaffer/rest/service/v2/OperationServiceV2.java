@@ -134,11 +134,6 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     }
 
     @Override
-    public Response operationDocumentation(final String className) {
-        throw new GafferRuntimeException("Operation documentation is not currently supported.", Status.NOT_IMPLEMENTED);
-    }
-
-    @Override
     public Response operationExample(final String className) throws InstantiationException, IllegalAccessException {
         try {
             return Response.ok(getExampleJson(getOperationClass(className)))
@@ -232,10 +227,6 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         }
     }
 
-    private String getDocumentationLink() {
-        throw new GafferRuntimeException("Operation documentation is not currently supported.", Status.NOT_IMPLEMENTED);
-    }
-
     private Operation getExampleJson(final Class<? extends Operation> opClass) throws ClassNotFoundException,
             IllegalAccessException, InstantiationException {
         return examplesFactory.generateExample(opClass);
@@ -308,8 +299,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         }
 
         private List<OperationField> getOperationFields(final Class<? extends Operation> opClass) {
-            return Arrays.asList(opClass.getDeclaredFields())
-                         .stream()
+            return Arrays.stream(opClass.getDeclaredFields())
                          .map(f -> {
                              boolean required = false;
                              final Required[] annotations = f.getAnnotationsByType(Required.class);
