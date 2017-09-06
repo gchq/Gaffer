@@ -15,33 +15,30 @@
  */
 package uk.gov.gchq.gaffer.doc.properties.generator;
 
-import com.yahoo.sketches.frequencies.LongsSketch;
+import com.yahoo.sketches.hll.HllSketch;
 
-import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
-public class LongsSketchElementGenerator implements OneToManyElementGenerator<String> {
-    // Fix the seed so that the results are consistent
-    private static final Random RANDOM = new Random(123456789L);
+public class HllSketchElementGenerator implements OneToManyElementGenerator<String> {
 
     @Override
     public Iterable<Element> _apply(final String line) {
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < 1000; i++) {
-            final LongsSketch longsSketch = new LongsSketch(32);
-            longsSketch.update((long) (RANDOM.nextDouble() * 10));
-            final Edge edge = new Edge.Builder()
-                    .group("red")
-                    .source("A")
-                    .dest("B")
-                    .property("longsSketch", longsSketch)
+            final HllSketch hllSketch = new HllSketch(10);
+            hllSketch.update("B" + i);
+
+            final Entity entity = new Entity.Builder()
+                    .group("cardinality")
+                    .vertex("A")
+                    .property("approxCardinality", hllSketch)
                     .build();
-            elements.add(edge);
+            elements.add(entity);
         }
         return elements;
     }
