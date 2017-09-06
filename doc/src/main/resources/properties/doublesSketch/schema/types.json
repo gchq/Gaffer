@@ -1,0 +1,29 @@
+{
+  "types": {
+    "vertex.string": {
+      "class": "java.lang.String",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.koryphe.impl.predicate.Exists"
+        }
+      ]
+    },
+    "doubles.sketch": {
+      "class": "com.yahoo.sketches.quantiles.DoublesSketch",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator.DoublesSketchAggregator"
+      },
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.sketches.datasketches.quantiles.serialisation.DoublesSketchSerialiser"
+      }
+    },
+    "false": {
+      "class": "java.lang.Boolean",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.koryphe.impl.predicate.IsFalse"
+        }
+      ]
+    }
+  }
+}
