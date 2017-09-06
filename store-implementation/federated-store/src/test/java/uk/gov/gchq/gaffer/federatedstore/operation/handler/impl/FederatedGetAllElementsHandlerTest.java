@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import com.google.common.collect.Lists;
 import org.junit.Before;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
@@ -26,7 +27,9 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandlerTest;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -63,9 +66,10 @@ public class FederatedGetAllElementsHandlerTest extends FederatedOperationOutput
     }
 
     @Override
-    protected boolean validateMergeResultsFromFieldObjects(final CloseableIterable<? extends Element> result) {
+    protected boolean validateMergeResultsFromFieldObjects(final CloseableIterable<? extends Element> result, final Object... resultParts) {
         assertNotNull(result);
-        final ArrayList<Object> elements = Lists.newArrayList(new ChainedIterable<>(o1, o2, o3, o4));
+        final Iterable[] resultPartItrs = Arrays.copyOf(resultParts, resultParts.length, Iterable[].class);
+        final ArrayList<Object> elements = Lists.newArrayList(new ChainedIterable<>(resultPartItrs));
         int i = 0;
         for (Element e : result) {
             assertTrue(e instanceof Entity);

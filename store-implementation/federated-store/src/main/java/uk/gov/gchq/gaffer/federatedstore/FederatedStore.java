@@ -63,6 +63,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -421,8 +422,22 @@ public class FederatedStore extends Store {
         return traits;
     }
 
-    public Collection<Graph> getGraphs() {
-        return graphs.values();
+    public Collection<Graph> getGraphs(final String graphIdsCsv) {
+        if (null == graphIdsCsv) {
+            return graphs.values();
+        }
+
+        final String[] graphIds = graphIdsCsv.split(",");
+        final Collection<Graph> filteredGraphs = new ArrayList<>();
+        for (final String graphId : graphIds) {
+            if (graphs.containsKey(graphId)) {
+                final Graph graph = graphs.get(graphId);
+                if (null != graph) {
+                    filteredGraphs.add(graph);
+                }
+            }
+        }
+        return filteredGraphs;
     }
 
     @Override

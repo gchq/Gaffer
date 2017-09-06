@@ -31,7 +31,8 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import java.util.Collection;
 import java.util.Set;
 
-import static uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationHandler.SKIP_FAILED_FEDERATED_STORE_EXECUTE;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.GRAPH_IDS;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.SKIP_FAILED_FEDERATED_STORE_EXECUTE;
 
 /**
  * A handler for AddElements operation for the FederatedStore.
@@ -50,7 +51,8 @@ import static uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOpera
 public class FederatedOperationAddElementsHandler implements OperationHandler<AddElements> {
     public Object doOperation(final AddElements addElements, final Context context, final Store store) throws OperationException {
         final Set<String> allGroups = store.getSchema().getGroups();
-        final Collection<Graph> graphs = ((FederatedStore) store).getGraphs();
+        final Collection<Graph> graphs = ((FederatedStore) store).getGraphs(addElements.getOption(GRAPH_IDS));
+
         for (final Graph graph : graphs) {
             final Set<String> graphGroups = graph.getSchema().getGroups();
             final Iterable<? extends Element> retain = Iterables.filter(

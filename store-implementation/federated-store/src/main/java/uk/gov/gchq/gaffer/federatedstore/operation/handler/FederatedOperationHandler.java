@@ -26,6 +26,9 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 import java.util.Collection;
 
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.GRAPH_IDS;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.SKIP_FAILED_FEDERATED_STORE_EXECUTE;
+
 /**
  * A handler for Operations with no output for FederatedStore
  *
@@ -33,10 +36,9 @@ import java.util.Collection;
  * @see FederatedStore
  */
 public class FederatedOperationHandler implements OperationHandler<Operation> {
-    public static final String SKIP_FAILED_FEDERATED_STORE_EXECUTE = "skipFailedFederatedStoreExecute";
 
     public Object doOperation(final Operation operation, final Context context, final Store store) throws OperationException {
-        final Collection<Graph> graphs = ((FederatedStore) store).getGraphs();
+        final Collection<Graph> graphs = ((FederatedStore) store).getGraphs(operation.getOption(GRAPH_IDS));
         for (final Graph graph : graphs) {
             final Operation updatedOp = FederatedStore.updateOperationForGraph(operation, graph);
             if (null != updatedOp) {

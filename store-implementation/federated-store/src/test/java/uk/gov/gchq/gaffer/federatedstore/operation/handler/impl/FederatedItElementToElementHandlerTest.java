@@ -17,12 +17,14 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import org.junit.Before;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandlerTest;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
@@ -60,7 +62,7 @@ public abstract class FederatedItElementToElementHandlerTest<
     }
 
     @Override
-    protected boolean validateMergeResultsFromFieldObjects(final Element result) {
+    protected boolean validateMergeResultsFromFieldObjects(final Element result, final Object... resultParts) {
         assertNotNull(result);
         assertTrue(result instanceof Entity);
         assertEquals(1, result.getProperty(PROPERTY_TYPE));

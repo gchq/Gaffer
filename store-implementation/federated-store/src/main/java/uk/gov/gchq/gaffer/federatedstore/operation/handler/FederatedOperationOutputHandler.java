@@ -24,11 +24,13 @@ import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationHandler.SKIP_FAILED_FEDERATED_STORE_EXECUTE;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.GRAPH_IDS;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.SKIP_FAILED_FEDERATED_STORE_EXECUTE;
 
 /**
  * A abstract handler for Operations with output for FederatedStore
@@ -40,7 +42,7 @@ import static uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOpera
 public abstract class FederatedOperationOutputHandler<OP extends Output<O>, O> implements OutputOperationHandler<OP, O> {
     @Override
     public O doOperation(final OP operation, final Context context, final Store store) throws OperationException {
-        final Collection<Graph> graphs = ((FederatedStore) store).getGraphs();
+        final Collection<Graph> graphs = ((FederatedStore) store).getGraphs(operation.getOption(GRAPH_IDS));
         final List<O> results = new ArrayList<>(graphs.size());
         for (final Graph graph : graphs) {
             final OP updatedOp = FederatedStore.updateOperationForGraph(operation, graph);
@@ -50,7 +52,7 @@ public abstract class FederatedOperationOutputHandler<OP extends Output<O>, O> i
                     execute = graph.execute(updatedOp, context.getUser());
                 } catch (final FederatedAccessException e) {
                     // ignore it.
-                } catch (Exception e) {
+                } catch (final Exception e) {
                     if (!Boolean.valueOf(updatedOp.getOption(SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
                         final String additionalInfo = String.format("set the skip and continue flag: %s for operation: %s",
                                 SKIP_FAILED_FEDERATED_STORE_EXECUTE,

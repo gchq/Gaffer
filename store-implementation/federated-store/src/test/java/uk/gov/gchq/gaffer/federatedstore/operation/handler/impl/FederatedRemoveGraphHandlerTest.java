@@ -45,7 +45,7 @@ public class FederatedRemoveGraphHandlerTest {
                 .storeProperties(storeProperties)
                 .build());
 
-        assertEquals(1, store.getGraphs().size());
+        assertEquals(1, store.getGraphs(null).size());
 
         new FederatedRemoveGraphHandler().doOperation(
                 new RemoveGraph.Builder()
@@ -54,7 +54,7 @@ public class FederatedRemoveGraphHandlerTest {
                 new Context(new User("TestUser")),
                 store);
 
-        Collection<Graph> graphs = store.getGraphs();
+        Collection<Graph> graphs = store.getGraphs(null);
 
         assertEquals(0, graphs.size());
 

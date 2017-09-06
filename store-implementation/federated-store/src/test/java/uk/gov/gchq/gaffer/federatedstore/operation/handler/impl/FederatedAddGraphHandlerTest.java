@@ -49,7 +49,7 @@ public class FederatedAddGraphHandlerTest {
         StoreProperties storeProperties = new StoreProperties();
         storeProperties.set("gaffer.store.class", "uk.gov.gchq.gaffer.federatedstore.FederatedStore");
 
-        assertEquals(0, store.getGraphs().size());
+        assertEquals(0, store.getGraphs(null).size());
 
         FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
         federatedAddGraphHandler.doOperation(
@@ -61,7 +61,7 @@ public class FederatedAddGraphHandlerTest {
                 new Context(new User("TestUser")),
                 store);
 
-        Collection<Graph> graphs = store.getGraphs();
+        Collection<Graph> graphs = store.getGraphs(null);
 
         assertEquals(1, graphs.size());
         Graph next = graphs.iterator().next();
@@ -77,7 +77,7 @@ public class FederatedAddGraphHandlerTest {
                 new Context(new User("TestUser")),
                 store);
 
-        graphs = store.getGraphs();
+        graphs = store.getGraphs(null);
 
         assertEquals(2, graphs.size());
         Iterator<Graph> iterator = graphs.iterator();
@@ -99,7 +99,7 @@ public class FederatedAddGraphHandlerTest {
         storeProperties.set(StoreProperties.STORE_CLASS, "uk.gov.gchq.gaffer.federatedstore.FederatedStore");
         storeProperties.set(StoreProperties.STORE_PROPERTIES_CLASS, "uk.gov.gchq.gaffer.store.StoreProperties");
 
-        assertEquals(0, store.getGraphs().size());
+        assertEquals(0, store.getGraphs(null).size());
 
         FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
         federatedAddGraphHandler.doOperation(
@@ -111,7 +111,7 @@ public class FederatedAddGraphHandlerTest {
                 new Context(new User("TestUser")),
                 store);
 
-        Collection<Graph> graphs = store.getGraphs();
+        Collection<Graph> graphs = store.getGraphs(null);
 
         assertEquals(1, graphs.size());
         Graph next = graphs.iterator().next();
@@ -131,7 +131,7 @@ public class FederatedAddGraphHandlerTest {
                 new Context(new User("TestUser")),
                 store);
 
-        graphs = store.getGraphs();
+        graphs = store.getGraphs(null);
 
         assertEquals(2, graphs.size());
         Iterator<Graph> iterator = graphs.iterator();
@@ -153,7 +153,7 @@ public class FederatedAddGraphHandlerTest {
         StoreProperties storeProperties = new StoreProperties();
         storeProperties.set("gaffer.store.class", "uk.gov.gchq.gaffer.federatedstore.FederatedStore");
 
-        assertEquals(0, store.getGraphs().size());
+        assertEquals(0, store.getGraphs(null).size());
 
         FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
 

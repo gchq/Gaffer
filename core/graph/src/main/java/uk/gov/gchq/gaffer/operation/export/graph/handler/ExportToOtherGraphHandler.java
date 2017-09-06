@@ -36,6 +36,4 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
                 export.getParentStorePropertiesId());
         return new OtherGraphExporter(context.getUser(), graph);
     }
-
-
 }

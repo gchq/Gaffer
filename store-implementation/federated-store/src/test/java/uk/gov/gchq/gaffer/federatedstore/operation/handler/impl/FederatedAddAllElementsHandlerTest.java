@@ -67,7 +67,7 @@ public class FederatedAddAllElementsHandlerTest {
         linkedGraphs.add(graph2);
         linkedGraphs.add(graph3);
         linkedGraphs.add(graph4);
-        Mockito.when(mockStore.getGraphs()).thenReturn(linkedGraphs);
+        Mockito.when(mockStore.getGraphs(null)).thenReturn(linkedGraphs);
 
         // When
         new FederatedAddElementsHandler().doOperation(op, testContext, mockStore);

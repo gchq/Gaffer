@@ -140,7 +140,6 @@ public abstract class Store {
     private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new LinkedHashMap<>();
     protected final List<OperationChainOptimiser> opChainOptimisers = new ArrayList<>();
     protected final OperationChainValidator opChainValidator;
-
     private final SchemaOptimiser schemaOptimiser;
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to aggregate the elements.
