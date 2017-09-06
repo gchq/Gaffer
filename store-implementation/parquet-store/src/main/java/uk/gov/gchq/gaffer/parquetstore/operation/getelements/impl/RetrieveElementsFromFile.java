@@ -147,7 +147,9 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
             VisibilityEvaluator ve = new VisibilityEvaluator((AuthorizationContainer) auths);
             ColumnVisibility columnVisibility = new ColumnVisibility((String) e.getProperty(visibility));
             return ve.evaluate(columnVisibility);
+        } else {
+            e.putProperty(visibility, new String());
+            return true;
         }
-        return true;
     }
 }
