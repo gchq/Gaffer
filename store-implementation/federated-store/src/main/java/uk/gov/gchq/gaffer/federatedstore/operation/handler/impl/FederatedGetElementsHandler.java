@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOut
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+
 import java.util.List;
 
 /**

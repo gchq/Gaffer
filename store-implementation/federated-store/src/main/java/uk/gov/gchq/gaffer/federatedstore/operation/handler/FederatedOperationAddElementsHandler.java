@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -26,6 +27,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+
 import java.util.Collection;
 import java.util.Set;
 

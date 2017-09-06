@@ -67,7 +67,7 @@ public class ExportToOtherGraphExample extends OperationExample {
         if (new File(pathname).exists()) {
             try {
                 FileUtils.forceDelete(new File(pathname));
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new RuntimeException(e);
             }
         }
