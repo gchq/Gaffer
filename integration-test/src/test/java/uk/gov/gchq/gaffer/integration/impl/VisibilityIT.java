@@ -186,6 +186,9 @@ public class VisibilityIT extends AbstractStoreIT {
         entity1.putProperty(TestTypes.VISIBILITY, null);
         elements.add(entity1);
 
+        System.out.println("Is visibility property there before execution: " + entity1.getProperties().containsKey(TestTypes.VISIBILITY));
+        System.out.println("Element before anything: " + entity1.toString());
+
         final AddElements addElements = new AddElements.Builder()
                 .input(elements)
                 .build();
@@ -199,10 +202,14 @@ public class VisibilityIT extends AbstractStoreIT {
 
         final List<Element> results = Lists.newArrayList(iterable);
 
+
         // Check for all entities which should be visible
         assertThat("Results do not contain all expected entities.", results, hasSize(1));
 
         for (final Element e : results) {
+
+            System.out.println("Is visibility property there after execution: " + e.getProperties().containsKey(TestTypes.VISIBILITY));
+            System.out.println("Element after everything: " + e.toString());
 
             // Check that all visible entities contain the visibility property
             assertTrue("Visibility property should be visible.", e.getProperties()
