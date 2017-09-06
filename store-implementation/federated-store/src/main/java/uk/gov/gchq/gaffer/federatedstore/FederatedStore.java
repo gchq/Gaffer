@@ -422,29 +422,18 @@ public class FederatedStore extends Store {
         return traits;
     }
 
-    public Collection<Graph> getGraphs() {
-        return graphs.values();
-    }
-
     public Collection<Graph> getGraphs(final String graphIdsCsv) {
         if (null == graphIdsCsv) {
-            return getGraphs();
+            return graphs.values();
         }
-        return getGraphs(graphIdsCsv.split(","));
-    }
 
-    public Collection<Graph> getGraphs(final String[] graphIds) {
-        final Collection<Graph> filteredGraphs;
-        if (null == graphIds) {
-            filteredGraphs = graphs.values();
-        } else {
-            filteredGraphs = new ArrayList<>();
-            for (final String graphId : graphIds) {
-                if (graphs.containsKey(graphId)) {
-                    final Graph graph = graphs.get(graphId);
-                    if (null != graph) {
-                        filteredGraphs.add(graph);
-                    }
+        final String[] graphIds = graphIdsCsv.split(",");
+        final Collection<Graph> filteredGraphs = new ArrayList<>();
+        for (final String graphId : graphIds) {
+            if (graphs.containsKey(graphId)) {
+                final Graph graph = graphs.get(graphId);
+                if (null != graph) {
+                    filteredGraphs.add(graph);
                 }
             }
         }

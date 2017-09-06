@@ -99,13 +99,13 @@ public class FederatedStoreTest {
         federatedProperties.set(KEY_MAP_ID1_SCHEMA_FILE, PATH_BASIC_EDGE_SCHEMA_JSON);
 
         //Then
-        int before = store.getGraphs().size();
+        int before = store.getGraphs(null).size();
 
         //When
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         //Then
-        Collection<Graph> graphs = store.getGraphs();
+        Collection<Graph> graphs = store.getGraphs(null);
         int after = graphs.size();
         assertEquals(0, before);
         assertEquals(2, after);
@@ -304,9 +304,9 @@ public class FederatedStoreTest {
         federatedProperties.set(KEY_ACC_ID1_SCHEMA_FILE, "/schema/edgeX2NoTypesSchema.json" + ", /schema/edgeTypeSchema.json");
 
 
-        int before = store.getGraphs().size();
+        int before = store.getGraphs(null).size();
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
-        int after = store.getGraphs().size();
+        int after = store.getGraphs(null).size();
 
         assertEquals(0, before);
         assertEquals(1, after);
@@ -316,9 +316,9 @@ public class FederatedStoreTest {
     public void shouldAddTwoGraphs() throws Exception {
         federatedProperties = StoreProperties.loadStoreProperties(StreamUtil.openStream(FederatedStoreITs.class, PATH_FEDERATED_STORE_PROPERTIES));
         // When
-        int sizeBefore = store.getGraphs().size();
+        int sizeBefore = store.getGraphs(null).size();
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
-        int sizeAfter = store.getGraphs().size();
+        int sizeAfter = store.getGraphs(null).size();
 
         //Then
         assertEquals(0, sizeBefore);
@@ -470,9 +470,9 @@ public class FederatedStoreTest {
         store.setGraphLibrary(mockLibrary);
 
         //When
-        final int before = store.getGraphs().size();
+        final int before = store.getGraphs(null).size();
         store.addGraphs(MAP_ID_1);
-        final int after = store.getGraphs().size();
+        final int after = store.getGraphs(null).size();
         //Then
         assertEquals(0, before);
         assertEquals(1, after);
@@ -496,7 +496,7 @@ public class FederatedStoreTest {
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         //Then
-        final int after = store.getGraphs().size();
+        final int after = store.getGraphs(null).size();
         assertEquals(1, after);
     }
 
@@ -513,7 +513,7 @@ public class FederatedStoreTest {
         store.setGraphLibrary(mockLibrary);
 
         //Then
-        final int after = store.getGraphs().size();
+        final int after = store.getGraphs(null).size();
         assertEquals(1, after);
     }
 
@@ -536,7 +536,7 @@ public class FederatedStoreTest {
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         //Then
-        final int after = store.getGraphs().size();
+        final int after = store.getGraphs(null).size();
         assertEquals(2, after);
     }
 
@@ -551,7 +551,7 @@ public class FederatedStoreTest {
         store.setGraphLibrary(mockLibrary);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
-        assertEquals(1, store.getGraphs().size());
+        assertEquals(1, store.getGraphs(null).size());
 
         Mockito.verify(mockLibrary).getProperties(PROPS_ID_1);
     }
@@ -570,7 +570,7 @@ public class FederatedStoreTest {
         store.setGraphLibrary(mockLibrary);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
-        assertEquals(1, store.getGraphs().size());
+        assertEquals(1, store.getGraphs(null).size());
 
         Mockito.verify(mockLibrary).getSchema(SCHEMA_ID_1);
     }
@@ -591,7 +591,7 @@ public class FederatedStoreTest {
         store.setGraphLibrary(mockLibrary);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
-        assertEquals(1, store.getGraphs().size());
+        assertEquals(1, store.getGraphs(null).size());
 
         Mockito.verify(mockLibrary).getSchema(SCHEMA_ID_1);
         Mockito.verify(mockLibrary).getProperties(PROPS_ID_1);
@@ -612,8 +612,8 @@ public class FederatedStoreTest {
         store.setGraphLibrary(mockLibrary);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
-        assertEquals(1, store.getGraphs().size());
-        assertTrue(store.getGraphs().iterator().next().getStoreProperties().getProperties().getProperty(unusualKey) != null);
+        assertEquals(1, store.getGraphs(null).size());
+        assertTrue(store.getGraphs(null).iterator().next().getStoreProperties().getProperties().getProperty(unusualKey) != null);
 
         Mockito.verify(mockLibrary).getProperties(PROPS_ID_1);
     }
@@ -632,8 +632,8 @@ public class FederatedStoreTest {
         store.setGraphLibrary(mockLibrary);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
-        assertEquals(1, store.getGraphs().size());
-        assertTrue(store.getGraphs().iterator().next().getSchema().getEntityGroups().contains("BasicEntity"));
+        assertEquals(1, store.getGraphs(null).size());
+        assertTrue(store.getGraphs(null).iterator().next().getSchema().getEntityGroups().contains("BasicEntity"));
 
         Mockito.verify(mockLibrary).getSchema(SCHEMA_ID_1);
     }
@@ -657,9 +657,9 @@ public class FederatedStoreTest {
         store.setGraphLibrary(mockLibrary);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
-        assertEquals(1, store.getGraphs().size());
-        assertTrue(store.getGraphs().iterator().next().getStoreProperties().getProperties().getProperty(unusualKey) != null);
-        assertTrue(store.getGraphs().iterator().next().getSchema().getEntityGroups().contains("BasicEntity"));
+        assertEquals(1, store.getGraphs(null).size());
+        assertTrue(store.getGraphs(null).iterator().next().getStoreProperties().getProperties().getProperty(unusualKey) != null);
+        assertTrue(store.getGraphs(null).iterator().next().getSchema().getEntityGroups().contains("BasicEntity"));
 
         Mockito.verify(mockLibrary).getProperties(PROPS_ID_1);
         Mockito.verify(mockLibrary).getSchema(SCHEMA_ID_1);

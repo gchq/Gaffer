@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -51,7 +52,7 @@ public abstract class FederatedOperationOutputHandler<OP extends Output<O>, O> i
                     execute = graph.execute(updatedOp, context.getUser());
                 } catch (final FederatedAccessException e) {
                     // ignore it.
-                } catch (Exception e) {
+                } catch (final Exception e) {
                     if (!Boolean.valueOf(updatedOp.getOption(SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
                         final String additionalInfo = String.format("set the skip and continue flag: %s for operation: %s",
                                 SKIP_FAILED_FEDERATED_STORE_EXECUTE,

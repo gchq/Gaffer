@@ -21,7 +21,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -30,11 +32,13 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.util.LinkedHashSet;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, O> {
@@ -82,21 +86,50 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         linkedGraphs.add(getGraphWithMockStore(mockStore2));
         linkedGraphs.add(getGraphWithMockStore(mockStore3));
         linkedGraphs.add(getGraphWithMockStore(mockStore4));
-        Mockito.when(mockStore.getGraphs()).thenReturn(linkedGraphs);
+        Mockito.when(mockStore.getGraphs(null)).thenReturn(linkedGraphs);
 
         // When
         O theMergedResultsOfOperation = getFederatedHandler().doOperation(op, new Context(user), mockStore);
 
         //Then
-        validateMergeResultsFromFieldObjects(theMergedResultsOfOperation);
+        validateMergeResultsFromFieldObjects(theMergedResultsOfOperation, o1, o2, o3, o4);
         verify(mockStore1).execute(any(OperationChain.class), eq(user));
         verify(mockStore2).execute(any(OperationChain.class), eq(user));
         verify(mockStore3).execute(any(OperationChain.class), eq(user));
         verify(mockStore4).execute(any(OperationChain.class), eq(user));
     }
 
+    @Test
+    final public void shouldMergeResultsFromFieldObjectsWithGivenGraphIds() throws Exception {
+        // Given
+        final OP op = getExampleOperation();
+        op.addOption(FederatedStoreConstants.GRAPH_IDS, "1,3");
 
-    protected abstract boolean validateMergeResultsFromFieldObjects(final O result);
+        Schema unusedSchema = new Schema.Builder().build();
+
+        Store mockStore1 = getMockStore(op, unusedSchema, o1);
+        Store mockStore2 = getMockStore(op, unusedSchema, o2);
+        Store mockStore3 = getMockStore(op, unusedSchema, o3);
+        Store mockStore4 = getMockStore(op, unusedSchema, o4);
+
+        FederatedStore mockStore = Mockito.mock(FederatedStore.class);
+        LinkedHashSet<Graph> filteredGraphs = Sets.newLinkedHashSet();
+        filteredGraphs.add(getGraphWithMockStore(mockStore1));
+        filteredGraphs.add(getGraphWithMockStore(mockStore3));
+        Mockito.when(mockStore.getGraphs("1,3")).thenReturn(filteredGraphs);
+
+        // When
+        O theMergedResultsOfOperation = getFederatedHandler().doOperation(op, new Context(user), mockStore);
+
+        //Then
+        validateMergeResultsFromFieldObjects(theMergedResultsOfOperation, o1, o3);
+        verify(mockStore1).execute(any(OperationChain.class), eq(user));
+        verify(mockStore2, never()).execute(any(OperationChain.class), eq(user));
+        verify(mockStore3).execute(any(OperationChain.class), eq(user));
+        verify(mockStore4, never()).execute(any(OperationChain.class), eq(user));
+    }
+
+    protected abstract boolean validateMergeResultsFromFieldObjects(final O result, final Object... resultParts);
 
     private Graph getGraphWithMockStore(final Store mockStore) throws uk.gov.gchq.gaffer.operation.OperationException {
         return new Graph.Builder()

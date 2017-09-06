@@ -45,7 +45,7 @@ public class FederatedStoreTestAuth {
         StoreProperties storeProperties = new StoreProperties();
         storeProperties.set("gaffer.store.class", "uk.gov.gchq.gaffer.federatedstore.FederatedStore");
 
-        assertEquals(0, store.getGraphs().size());
+        assertEquals(0, store.getGraphs(null).size());
 
         FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
         federatedAddGraphHandler.doOperation(
@@ -58,7 +58,7 @@ public class FederatedStoreTestAuth {
                 new Context(new User("TestUser")),
                 store);
 
-        Collection<Graph> graphs = store.getGraphs();
+        Collection<Graph> graphs = store.getGraphs(null);
 
         assertEquals(1, graphs.size());
         Graph next = graphs.iterator().next();

@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -33,6 +34,7 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.LinkedHashSet;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 public class FederatedOperationHandlerTest {
@@ -68,7 +70,7 @@ public class FederatedOperationHandlerTest {
         linkedGraphs.add(graph2);
         linkedGraphs.add(graph3);
         linkedGraphs.add(graph4);
-        Mockito.when(mockStore.getGraphs()).thenReturn(linkedGraphs);
+        Mockito.when(mockStore.getGraphs(null)).thenReturn(linkedGraphs);
 
         // When
         new FederatedOperationHandler().doOperation(op, testContext, mockStore);
@@ -78,6 +80,38 @@ public class FederatedOperationHandlerTest {
         verify(mockStore3).execute(new OperationChain<>(op).shallowClone(), user);
         verify(mockStore4).execute(new OperationChain<>(op).shallowClone(), user);
 
+    }
+
+    @Test
+    final public void shouldMergeResultsFromFieldObjectsWithGivenGraphIds() throws Exception {
+        // Given
+        final Operation op = Mockito.mock(Operation.class);
+        given(op.getOption(FederatedStoreConstants.GRAPH_IDS)).willReturn("1,3");
+
+        Schema unusedSchema = new Schema.Builder().build();
+        Store mockStore1 = getMockStore(unusedSchema);
+        Store mockStore2 = getMockStore(unusedSchema);
+        Store mockStore3 = getMockStore(unusedSchema);
+        Store mockStore4 = getMockStore(unusedSchema);
+
+        Graph graph1 = getGraphWithMockStore(mockStore1);
+        Graph graph3 = getGraphWithMockStore(mockStore3);
+
+        Context testContext = new Context(user);
+
+        FederatedStore mockStore = Mockito.mock(FederatedStore.class);
+        LinkedHashSet<Graph> filteredGraphs = Sets.newLinkedHashSet();
+        filteredGraphs.add(graph1);
+        filteredGraphs.add(graph3);
+        Mockito.when(mockStore.getGraphs("1,3")).thenReturn(filteredGraphs);
+
+        // When
+        new FederatedOperationHandler().doOperation(op, testContext, mockStore);
+
+        verify(mockStore1).execute(new OperationChain<>(op).shallowClone(), user);
+        verify(mockStore2, never()).execute(new OperationChain<>(op).shallowClone(), user);
+        verify(mockStore3).execute(new OperationChain<>(op).shallowClone(), user);
+        verify(mockStore4, never()).execute(new OperationChain<>(op).shallowClone(), user);
     }
 
     private Graph getGraphWithMockStore(final Store mockStore) throws uk.gov.gchq.gaffer.operation.OperationException {
