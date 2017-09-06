@@ -35,9 +35,11 @@ import org.apache.spark.rdd.RDD;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -62,7 +64,10 @@ import uk.gov.gchq.koryphe.impl.function.Concat;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
@@ -257,9 +262,12 @@ public class GetRDDOfAllElementsHandlerTest {
                         .graphId(GRAPH_ID)
                         .build())
                 .addSchema(schema)
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .storeProperties(StreamUtil.storeProps(getClass()))
                 .build();
-        graph.execute(new AddElements.Builder().input(elements).build(), USER);
+        graph.execute(new AddElements.Builder()
+                .input(elements)
+                .validate(false)
+                .build(), USER);
         return graph;
     }
 
@@ -279,7 +287,10 @@ public class GetRDDOfAllElementsHandlerTest {
         final Graph graph = _getGraphForMockAccumulo(getSchemaForIngestAggregationChecking(),
                 getElementsForIngestAggregationChecking());
         // Add data twice so that can check data is aggregated
-        graph.execute(new AddElements.Builder().input(getElementsForIngestAggregationChecking()).build(), USER);
+        graph.execute(new AddElements.Builder()
+                .input(getElementsForIngestAggregationChecking())
+                .validate(false)
+                .build(), USER);
         return graph;
     }
 
@@ -295,7 +306,10 @@ public class GetRDDOfAllElementsHandlerTest {
                 .storeProperties(MiniAccumuloClusterProvider.getAccumuloProperties())
                 .build();
         if (null != elements) {
-            graph.execute(new AddElements.Builder().input(elements).build(), USER);
+            graph.execute(new AddElements.Builder()
+                    .input(elements)
+                    .validate(false)
+                    .build(), USER);
             cluster.getConnector(MiniAccumuloClusterProvider.ROOT, MiniAccumuloClusterProvider.PASSWORD)
                     .tableOperations()
                     .compact(tableName, new CompactionConfig());
@@ -318,7 +332,10 @@ public class GetRDDOfAllElementsHandlerTest {
             AccumuloException, AccumuloSecurityException, IOException, OperationException, TableNotFoundException {
         final MiniAccumuloCluster cluster = MiniAccumuloClusterProvider.getMiniAccumuloCluster();
         final Graph graph = _getGraphForDirectRDD(tableName, getSchemaForValidationChecking(), null);
-        graph.execute(new AddElements.Builder().input(getElementsForValidationChecking()).build(), USER);
+        graph.execute(new AddElements.Builder()
+                .input(getElementsForValidationChecking())
+                .validate(false)
+                .build(), USER);
         cluster.getConnector(MiniAccumuloClusterProvider.ROOT, MiniAccumuloClusterProvider.PASSWORD)
                 .tableOperations()
                 .compact(tableName, new CompactionConfig());
@@ -335,7 +352,7 @@ public class GetRDDOfAllElementsHandlerTest {
         // using the RFileReaderRDD
         for (int i = 0; i < 2; i++) {
             final String dir = tempFolder.newFolder().getAbsolutePath();
-            final String file = dir + File.separator + "file" + i+ ".rf";
+            final String file = dir + File.separator + "file" + i + ".rf";
             final String failure = tempFolder.newFolder().getAbsolutePath();
             writeFile(graph.getSchema(), file);
             cluster.getConnector(MiniAccumuloClusterProvider.USER, MiniAccumuloClusterProvider.PASSWORD)
