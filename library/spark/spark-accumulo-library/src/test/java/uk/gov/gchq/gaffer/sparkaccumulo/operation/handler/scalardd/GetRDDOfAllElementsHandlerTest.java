@@ -57,6 +57,7 @@ import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.MiniAccumuloClusterProvider;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.SparkSessionProvider;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.function.Concat;
@@ -77,6 +78,8 @@ public class GetRDDOfAllElementsHandlerTest {
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
+    private enum KEY_PACKAGE {BYTE_ENTITY, CLASSIC}
+
     private final User USER = new User();
     private final User USER_WITH_PUBLIC = new User("user1", Sets.newHashSet("public"));
     private final User USER_WITH_PUBLIC_AND_PRIVATE = new User("user2", Sets.newHashSet("public", "private"));
@@ -86,7 +89,7 @@ public class GetRDDOfAllElementsHandlerTest {
     @Test
     public void testGetAllElementsInRDD() throws OperationException, IOException, InterruptedException,
             AccumuloSecurityException, AccumuloException, TableNotFoundException {
-        testGetAllElementsInRDD(getGraphForMockAccumulo(), getOperation());
+        testGetAllElementsInRDD(getGraphForMockAccumulo(KEY_PACKAGE.BYTE_ENTITY), getOperation());
         testGetAllElementsInRDD(getGraphForDirectRDD("testGetAllElementsInRDD"),
                 getOperationWithDirectRDDOption());
     }
@@ -138,6 +141,9 @@ public class GetRDDOfAllElementsHandlerTest {
         }
         final Set<Element> results = new HashSet<>();
         final Element[] returnedElements = (Element[]) rdd.collect();
+        // Check the number of elements returned is correct to ensure edges
+        // aren't returned twice
+        assertEquals(30, returnedElements.length);
         for (int i = 0; i < returnedElements.length; i++) {
             results.add(returnedElements[i]);
         }
@@ -256,7 +262,15 @@ public class GetRDDOfAllElementsHandlerTest {
         assertEquals(entity1, returnedElements[0]);
     }
 
-    private Graph _getGraphForMockAccumulo(final Schema schema, final List<Element> elements) throws OperationException {
+    private StoreProperties getAccumuloPropreties(final KEY_PACKAGE keyPackage) {
+        final StoreProperties storeProperties = StoreProperties
+                .loadStoreProperties(StreamUtil.storeProps(getClass()));
+        return storeProperties;
+    }
+
+    private Graph _getGraphForMockAccumulo(final Schema schema,
+                                           final List<Element> elements,
+                                           final KEY_PACKAGE keyPackage) throws OperationException {
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(GRAPH_ID)
@@ -271,8 +285,8 @@ public class GetRDDOfAllElementsHandlerTest {
         return graph;
     }
 
-    private Graph getGraphForMockAccumulo() throws OperationException {
-        return _getGraphForMockAccumulo(getSchema(), getElements());
+    private Graph getGraphForMockAccumulo(KEY_PACKAGE keyPackage) throws OperationException {
+        return _getGraphForMockAccumulo(getSchema(), getElements(), keyPackage);
     }
 
     private Graph getGraphForMockAccumuloWithVisibility() throws OperationException {
@@ -418,7 +432,7 @@ public class GetRDDOfAllElementsHandlerTest {
 
     private List<Element> getElements() {
         final List<Element> elements = new ArrayList<>();
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 10; i++) {
             final Entity entity = new Entity.Builder()
                     .group(TestGroups.ENTITY)
                     .vertex("" + i)
