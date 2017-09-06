@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
-import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphID;
+import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationAddElementsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationHandler;
@@ -166,31 +166,6 @@ public class FederatedStore extends Store {
             newView = view;
         }
         return newView;
-    }
-
-    /**
-     * Initialise this FederatedStore with any sub-graphs defined within properties
-     *
-     * @param graphId      the graphId to label this FederatedStore.
-     * @param properties   properties to initialise this FederatedStore, can contain details on graphs to add to scope.
-     * @param graphLibrary the source for extracting sub-graphs from.
-     * @throws StoreException exception
-     */
-    public void initialise(final String graphId, final StoreProperties properties, final GraphLibrary graphLibrary) throws StoreException {
-        setGraphLibrary(graphLibrary);
-        this.initialise(graphId, properties);
-    }
-
-    /**
-     * Initialise this FederatedStore with any sub-graphs defined within properties.
-     *
-     * @param graphId    the graphId to label this FederatedStore.
-     * @param properties properties to initialise this FederatedStore, can contain details on graphs to add to scope.
-     * @throws StoreException exception
-     * @see #initialise(String, Schema, StoreProperties)
-     */
-    public void initialise(final String graphId, final StoreProperties properties) throws StoreException {
-        this.initialise(graphId, null, properties);
     }
 
     /**
@@ -362,10 +337,9 @@ public class FederatedStore extends Store {
     private HashSet<String> getGraphIds() {
         final HashSet<String> graphIds = Sets.newHashSet();
         final String idKey = GAFFER_FEDERATED_STORE + GRAPH_IDS;
-        final String graphIDValue = getProperties().get(idKey);
-        if (!Strings.isNullOrEmpty(graphIDValue)) {
-            final List<String> graphIDs = getCleanStrings(graphIDValue);
-            graphIds.addAll(graphIDs);
+        final String graphIdValue = getProperties().get(idKey);
+        if (!Strings.isNullOrEmpty(graphIdValue)) {
+            graphIds.addAll(getCleanStrings(graphIdValue));
         }
         return graphIds;
     }
@@ -425,7 +399,7 @@ public class FederatedStore extends Store {
                 .filter(op -> !Output.class.isAssignableFrom(op) && !AddElements.class.equals(op))
                 .forEach(op -> addOperationHandler(op, new FederatedOperationHandler()));
 
-        addOperationHandler(GetAllGraphID.class, new FederatedGetAllGraphIDHandler());
+        addOperationHandler(GetAllGraphIds.class, new FederatedGetAllGraphIDHandler());
         addOperationHandler(AddGraph.class, new FederatedAddGraphHandler());
         addOperationHandler(RemoveGraph.class, new FederatedRemoveGraphHandler());
     }

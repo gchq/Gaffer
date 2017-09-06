@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 
-public class GetAllGraphID implements Operation, Output<Iterable<? extends String>> {
+public class GetAllGraphIds implements Operation, Output<Iterable<? extends String>> {
 
     @Override
     public TypeReference<Iterable<? extends String>> getOutputTypeReference() {
@@ -31,14 +31,14 @@ public class GetAllGraphID implements Operation, Output<Iterable<? extends Strin
     }
 
     @Override
-    public GetAllGraphID shallowClone() throws CloneFailedException {
+    public GetAllGraphIds shallowClone() throws CloneFailedException {
         return new Builder().build();
     }
 
-    public static class Builder extends BaseBuilder<GetAllGraphID, Builder> {
+    public static class Builder extends BaseBuilder<GetAllGraphIds, Builder> {
 
         public Builder() {
-            super(new GetAllGraphID());
+            super(new GetAllGraphIds());
         }
     }
 }
