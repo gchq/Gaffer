@@ -21,6 +21,7 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.doc.user.generator.RoadAndRoadUseWithTimesAndCardinalitiesElementGenerator;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
@@ -28,9 +29,10 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -38,7 +40,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 public class FederatedStoreWalkThrough extends DevWalkthrough {
     public FederatedStoreWalkThrough() {
-        super("FederatedStore", "RoadAndRoadUseWithTimesAndCardinalities");
+        super("FederatedStore", "RoadAndRoadUseWithTimesAndCardinalitiesForFederatedStore");
     }
 
     public static void main(final String[] args) throws Exception {
@@ -66,7 +68,7 @@ public class FederatedStoreWalkThrough extends DevWalkthrough {
         AddGraph addAnotherGraph = new AddGraph.Builder()
                 .setGraphId("AnotherGraph")
                 .schema(new Schema.Builder()
-                        .json(StreamUtil.openStreams(getClass(), "RoadAndRoadUseWithTimesAndCardinalities/schema"))
+                        .json(StreamUtil.openStreams(getClass(), "RoadAndRoadUseWithTimesAndCardinalitiesForFederatedStore/schema"))
                         .build())
                 .storeProperties(StoreProperties.loadStoreProperties("mockmapstore.properties"))
                 .build();
@@ -114,12 +116,33 @@ public class FederatedStoreWalkThrough extends DevWalkthrough {
         // [get elements]
         // ---------------------------------------------------------
         final OperationChain<CloseableIterable<? extends Element>> getOpChain = new OperationChain.Builder()
-                .first(new GetAllElements.Builder()
+                .first(new GetElements.Builder()
+                        .input(new EntitySeed("10"))
                         .build())
                 .build();
 
-        CloseableIterable<? extends Element> allElements = federatedGraph.execute(getOpChain, user);
+        CloseableIterable<? extends Element> elements = federatedGraph.execute(getOpChain, user);
         // ---------------------------------------------------------
+
+        for (final Element element : elements) {
+            log("elements", element.toString());
+        }
+
+        // [get elements from accumulo graph]
+        // ---------------------------------------------------------
+        final OperationChain<CloseableIterable<? extends Element>> getOpChainOnAccumuloGraph = new OperationChain.Builder()
+                .first(new GetElements.Builder()
+                        .input(new EntitySeed("10"))
+                        .option(FederatedStoreConstants.GRAPH_IDS, "accumuloGraph")
+                        .build())
+                .build();
+
+        CloseableIterable<? extends Element> elementsFromAccumuloGraph = federatedGraph.execute(getOpChainOnAccumuloGraph, user);
+        // ---------------------------------------------------------
+
+        for (final Element element : elementsFromAccumuloGraph) {
+            log("elements from accumuloGraph", element.toString());
+        }
 
         // [add secure graph] add a graph to the federated store.
         // ---------------------------------------------------------
@@ -137,6 +160,6 @@ public class FederatedStoreWalkThrough extends DevWalkthrough {
         log("addSecureGraphJson", new String(JSONSerialiser.serialise(addSecureGraph, true)));
 
 
-        return allElements;
+        return elements;
     }
 }

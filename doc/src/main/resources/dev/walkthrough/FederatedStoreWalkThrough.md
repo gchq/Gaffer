@@ -90,6 +90,20 @@ ${ADD_ELEMENTS_SNIPPET}
 
 ${GET_ELEMENTS_SNIPPET}
 
+and the results are:
+
+```
+${elements}
+```
+
+${GET_ELEMENTS_FROM_ACCUMULO_GRAPH_SNIPPET}
+
+and the results are:
+
+```
+${elements from accumuloGraph}
+```
+
 #### Failed Execution
 If the execution against a graph fails a OperationException is thrown, unless the operation has the Option flag "skipFailedFederatedStoreExecute" set to true. In that situation the FederatedStore will continue onto the next graph.
 
