@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.data.generator;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -68,6 +69,42 @@ public class EntityIdExtractorTest {
     public void shouldGetDestinationFromEdge() {
         // Given
         final EntityIdExtractor extractor = new EntityIdExtractor(IdentifierType.DESTINATION);
+        final Edge edge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("1")
+                .dest("2")
+                .directed(false)
+                .build();
+
+        // When
+        final EntityId seed = extractor._apply(edge);
+
+        // Then
+        assertEquals("2", seed.getVertex());
+    }
+
+    @Test
+    public void shouldGetMatchedVertexFromEdge() {
+        // Given
+        final EntityIdExtractor extractor = new EntityIdExtractor(IdentifierType.MATCHED_VERTEX);
+        final Edge edge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("1")
+                .dest("2")
+                .directed(false)
+                .build();
+
+        // When
+        final EntityId seed = extractor._apply(edge);
+
+        // Then
+        assertEquals("1", seed.getVertex());
+    }
+
+    @Test
+    public void shouldGetOppositeMatchedVertexFromEdge() {
+        // Given
+        final EntityIdExtractor extractor = new EntityIdExtractor(IdentifierType.ADJACENT_MATCHED_VERTEX);
         final Edge edge = new Edge.Builder()
                 .group(TestGroups.EDGE)
                 .source("1")

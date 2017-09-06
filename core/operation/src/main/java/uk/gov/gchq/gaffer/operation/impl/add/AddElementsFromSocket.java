@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.operation.impl.add;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.Validatable;
+
 import java.util.Map;
 import java.util.function.Function;
 
@@ -36,8 +36,7 @@ import java.util.function.Function;
  */
 public class AddElementsFromSocket implements
         Operation,
-        Validatable,
-        Options {
+        Validatable {
     public static final String DEFAULT_DELIMITER = "\n";
 
     @Required
@@ -144,8 +143,7 @@ public class AddElementsFromSocket implements
     }
 
     public static class Builder extends Operation.BaseBuilder<AddElementsFromSocket, Builder>
-            implements Validatable.Builder<AddElementsFromSocket, Builder>,
-            Options.Builder<AddElementsFromSocket, Builder> {
+            implements Validatable.Builder<AddElementsFromSocket, Builder> {
         public Builder() {
             super(new AddElementsFromSocket());
         }

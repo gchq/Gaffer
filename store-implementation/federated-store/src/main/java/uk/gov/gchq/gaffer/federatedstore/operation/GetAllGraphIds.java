@@ -21,9 +21,11 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import java.util.Map;
 
 
 public class GetAllGraphIds implements Operation, Output<Iterable<? extends String>> {
+    private Map<String, String> options;
 
     @Override
     public TypeReference<Iterable<? extends String>> getOutputTypeReference() {
@@ -32,7 +34,19 @@ public class GetAllGraphIds implements Operation, Output<Iterable<? extends Stri
 
     @Override
     public GetAllGraphIds shallowClone() throws CloneFailedException {
-        return new Builder().build();
+        return new Builder()
+                .options(options)
+                .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static class Builder extends BaseBuilder<GetAllGraphIds, Builder> {

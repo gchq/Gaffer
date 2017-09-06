@@ -20,7 +20,7 @@ import com.google.common.collect.Sets;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Set;
 
-public class GetAllGraphIDTest extends OperationTest<GetAllGraphIds> {
+public class GetAllGraphIdsTest extends OperationTest<GetAllGraphIds> {
     @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet();

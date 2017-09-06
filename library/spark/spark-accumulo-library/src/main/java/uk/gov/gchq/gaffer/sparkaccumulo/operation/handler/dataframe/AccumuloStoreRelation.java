@@ -28,6 +28,7 @@ import org.apache.spark.sql.sources.TableScan;
 import org.apache.spark.sql.types.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -40,6 +41,7 @@ import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStructTypeConverter;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;

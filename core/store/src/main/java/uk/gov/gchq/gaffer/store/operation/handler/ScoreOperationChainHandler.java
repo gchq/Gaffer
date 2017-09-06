@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -28,6 +29,7 @@ import uk.gov.gchq.gaffer.operation.impl.ScoreOperationChain;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -66,7 +68,11 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
 
         if (null != opChain) {
             for (final Operation operation : opChain.getOperations()) {
-                chainScore += authorise(operation);
+                if (operation instanceof OperationChain) {
+                    chainScore += getChainScore((OperationChain<?>) operation, user);
+                } else {
+                    chainScore += authorise(operation);
+                }
             }
         }
         return chainScore;
@@ -116,7 +122,7 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
         return Collections.unmodifiableMap(opScores);
     }
 
-    public void setOpScores(final LinkedHashMap<Class<? extends Operation>, Integer> opScores) {
+    public void setOpScores(final Map<Class<? extends Operation>, Integer> opScores) {
         this.opScores.clear();
         if (null != opScores) {
             this.opScores.putAll(opScores);
@@ -131,7 +137,7 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
     }
 
     @JsonSetter("opScores")
-    public void setOpScoresFromStrings(final LinkedHashMap<String, Integer> opScores) throws ClassNotFoundException {
+    public void setOpScoresFromStrings(final Map<String, Integer> opScores) throws ClassNotFoundException {
         this.opScores.clear();
         CollectionUtil.toMapWithClassKeys(opScores, this.opScores);
         validateOpScores();

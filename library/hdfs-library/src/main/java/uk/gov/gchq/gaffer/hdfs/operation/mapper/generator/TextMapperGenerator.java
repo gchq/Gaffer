@@ -18,13 +18,15 @@ package uk.gov.gchq.gaffer.hdfs.operation.mapper.generator;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.MapContext;
+
 import uk.gov.gchq.gaffer.data.element.Element;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
 /**
- * An <code>TextMapperGenerator</code> is an {@link MapperGenerator} that
+ * An <code>TextMapperGenerator</code> is a {@link MapperGenerator} that
  * can handle text input data and convert it into an {@link Iterable} of {@link Element}s.
  */
 public class TextMapperGenerator implements MapperGenerator<LongWritable, Text> {

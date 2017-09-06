@@ -20,7 +20,6 @@ import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAccessHook.FederatedAccessException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -52,12 +51,10 @@ public abstract class FederatedOperationOutputHandler<OP extends Output<O>, O> i
                 } catch (final FederatedAccessException e) {
                     // ignore it.
                 } catch (Exception e) {
-                    if (!(updatedOp instanceof Options)
-                            || !Boolean.valueOf(((Options) updatedOp).getOption(SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
-                        final String additionalInfo = (!(updatedOp instanceof Options)) ? null
-                                : String.format("The operation %s implements %s, so to skip and continue set flag: %s",
-                                operation.getClass().getSimpleName(),
-                                Options.class.getSimpleName(), SKIP_FAILED_FEDERATED_STORE_EXECUTE);
+                    if (!Boolean.valueOf(updatedOp.getOption(SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
+                        final String additionalInfo = String.format("set the skip and continue flag: %s for operation: %s",
+                                SKIP_FAILED_FEDERATED_STORE_EXECUTE,
+                                operation.getClass().getSimpleName());
 
                         throw new OperationException(String.format("Failed to execute %s on graph %s.%n%s",
                                 operation.getClass().getSimpleName(), graph.getGraphId(), additionalInfo), e);

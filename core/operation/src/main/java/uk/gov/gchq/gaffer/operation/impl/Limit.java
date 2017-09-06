@@ -17,11 +17,14 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+
+import java.util.Map;
 
 /**
  * A <code>Limit</code> operation takes in an {@link Iterable} of items
@@ -39,6 +42,7 @@ public class Limit<T> implements
     protected Integer resultLimit;
     private Iterable<? extends T> input;
     private boolean truncate = true;
+    private Map<String, String> options;
 
     public Limit() {
     }
@@ -89,7 +93,18 @@ public class Limit<T> implements
                 .resultLimit(resultLimit)
                 .input(input)
                 .truncate(truncate)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static final class Builder<T>

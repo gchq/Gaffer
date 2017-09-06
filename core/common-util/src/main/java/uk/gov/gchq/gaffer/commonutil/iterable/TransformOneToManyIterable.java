@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 

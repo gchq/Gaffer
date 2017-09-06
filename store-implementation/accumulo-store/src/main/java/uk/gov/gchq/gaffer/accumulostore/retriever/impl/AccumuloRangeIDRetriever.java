@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.accumulostore.retriever.impl;
 
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.data.Range;
+
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
@@ -26,18 +27,18 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.util.Set;
 
 /**
  * This allows queries for all data from between the provided
  * {@link uk.gov.gchq.gaffer.data.element.id.ElementId} pairs.
  */
-public class AccumuloRangeIDRetriever<OP extends InputOutput<Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, CloseableIterable<? extends Element>> & GraphFilters & Options>
+public class AccumuloRangeIDRetriever<OP extends InputOutput<Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, CloseableIterable<? extends Element>> & GraphFilters>
         extends AccumuloItemRetriever<OP, Pair<ElementId, ElementId>> {
 
     public AccumuloRangeIDRetriever(final AccumuloStore store, final OP operation, final User user)

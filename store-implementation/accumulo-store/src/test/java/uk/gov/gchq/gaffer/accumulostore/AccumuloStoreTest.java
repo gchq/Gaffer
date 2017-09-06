@@ -25,6 +25,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsBetweenSetsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsInRangesHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsWithinSetHandler;
@@ -75,6 +76,7 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
+
 import java.io.IOException;
 import java.util.Collection;
 
@@ -402,7 +404,7 @@ public class AccumuloStoreTest {
                         .build())
                 .type("string", new TypeDefinition.Builder()
                         .clazz(String.class)
-                        .serialiser(new StringSerialiser())
+                        .serialiser(new JavaSerialiser())
                         .aggregateFunction(new StringConcat())
                         .build())
                 .type("int", new TypeDefinition.Builder()
@@ -411,6 +413,7 @@ public class AccumuloStoreTest {
                         .aggregateFunction(new Sum())
                         .build())
                 .type("false", Boolean.class)
+                .vertexSerialiser(new JavaSerialiser())
                 .build();
 
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
@@ -419,8 +422,9 @@ public class AccumuloStoreTest {
         try {
             store.validateSchemas();
             fail("Exception expected");
-        } catch (SchemaException e) {
+        } catch (final SchemaException e) {
             assert(e.getMessage().contains("serialisers to be consistent."));
         }
     }
 }
+

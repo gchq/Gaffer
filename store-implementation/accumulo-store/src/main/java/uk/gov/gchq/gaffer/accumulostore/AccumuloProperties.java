@@ -20,6 +20,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPa
 import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringDeduplicateConcat;
+
 import java.io.InputStream;
 import java.nio.file.Path;
 
@@ -85,7 +86,7 @@ public class AccumuloProperties extends StoreProperties {
     }
 
     public void setMaxTimeOutForBatchWriterInMilliseconds(final String maxTimeOutForBatchWriterInMilliseconds) {
-        set(NUM_THREADS_FOR_BATCH_WRITER, MAX_TIME_OUT_FOR_BATCH_WRITER);
+        set(MAX_TIME_OUT_FOR_BATCH_WRITER, maxTimeOutForBatchWriterInMilliseconds);
     }
 
     public void setMaxBufferSizeForBatchWriterInBytes(final String maxBufferSizeForBatchWriterInBytes) {

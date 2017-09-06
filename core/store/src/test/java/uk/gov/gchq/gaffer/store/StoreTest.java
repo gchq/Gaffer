@@ -24,12 +24,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -47,6 +47,7 @@ import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
@@ -102,6 +103,7 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -492,6 +494,10 @@ public class StoreTest {
                 Min.class,
                 Sort.class,
 
+                // OperationChain
+                OperationChain.class,
+                OperationChainDAO.class,
+
                 // Other
                 GenerateElements.class,
                 GenerateObjects.class,
@@ -501,6 +507,7 @@ public class StoreTest {
                 Limit.class,
                 DiscardOutput.class
         );
+
         expectedOperations.sort(Comparator.comparing(Class::getName));
         supportedOperations.sort(Comparator.comparing(Class::getName));
         assertEquals(expectedOperations, supportedOperations);
@@ -710,7 +717,7 @@ public class StoreTest {
                     return validSerialiserInterface;
                 }
             }.initialise("graphId", invalidSchema, properties);
-        } catch (SchemaException e) {
+        } catch (final SchemaException e) {
             assertTrue(e.getMessage().contains(invalidSerialiserClass.getSimpleName()));
             throw e;
         }

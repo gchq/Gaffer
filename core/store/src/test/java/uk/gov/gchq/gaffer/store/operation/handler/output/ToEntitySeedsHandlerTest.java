@@ -18,11 +18,13 @@ package uk.gov.gchq.gaffer.store.operation.handler.output;
 
 import com.google.common.collect.Sets;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
 import uk.gov.gchq.gaffer.store.Context;
+
 import java.util.Arrays;
 import java.util.Set;
 

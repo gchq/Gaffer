@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import org.junit.Test;
+
 import java.util.stream.Stream;
 
 import static org.mockito.Mockito.mock;

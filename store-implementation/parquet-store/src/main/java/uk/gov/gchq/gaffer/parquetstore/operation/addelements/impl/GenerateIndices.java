@@ -20,10 +20,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.Option;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.index.ColumnIndex;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.index.GroupIndex;
@@ -31,6 +32,7 @@ import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.koryphe.tuple.n.Tuple4;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -50,8 +52,14 @@ public class GenerateIndices {
 
     public GenerateIndices(final ParquetStore store, final SparkSession spark) throws OperationException, SerialisationException, StoreException {
         graphIndex = new GraphIndex();
-        final ParquetStoreProperties parquetStoreProperties = store.getProperties();
-        final ExecutorService pool = Executors.newFixedThreadPool(parquetStoreProperties.getThreadsAvailable());
+        final int numberOfThreads;
+        final Option<String> sparkDriverCores = spark.conf().getOption("spark.driver.cores");
+        if (sparkDriverCores.nonEmpty()) {
+            numberOfThreads = Integer.parseInt(sparkDriverCores.get());
+        } else {
+            numberOfThreads = store.getProperties().getThreadsAvailable();
+        }
+        final ExecutorService pool = Executors.newFixedThreadPool(numberOfThreads);
         final String tempFileDir = store.getTempFilesDir();
         final SchemaUtils schemaUtils = store.getSchemaUtils();
         final String rootDir = tempFileDir + "/" + ParquetStoreConstants.SORTED;

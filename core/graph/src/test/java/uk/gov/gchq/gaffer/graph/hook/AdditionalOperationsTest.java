@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -36,6 +37,7 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToArray;
 import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
 import uk.gov.gchq.gaffer.operation.impl.output.ToMap;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -86,7 +88,7 @@ public class AdditionalOperationsTest extends JSONSerialisationTest<AdditionalOp
     }
 
     public void assertClonedOperations(final Map<String, List<Operation>> after1, final Map<String, List<Operation>> after2) {
-        for (Map.Entry<String, List<Operation>> entry1 : after1.entrySet()) {
+        for (final Map.Entry<String, List<Operation>> entry1 : after1.entrySet()) {
             final List<Operation> ops1 = entry1.getValue();
             final List<Operation> ops2 = after2.get(entry1.getKey());
             assertClonedOperations(ops1, ops2);

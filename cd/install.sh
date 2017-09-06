@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 if [ "$RELEASE" != 'true' ]; then
     if [ "$MODULES" == '' ] || [[ $MODULES == *'!'* ]]; then
         echo "Running install script: mvn -q install -P quick,travis,build-extras -B -V"

@@ -21,8 +21,10 @@ import org.apache.commons.jcs.access.GroupCacheAccess;
 import org.apache.commons.jcs.access.exception.CacheException;
 import org.apache.commons.jcs.engine.behavior.ICompositeCacheAttributes;
 import org.apache.commons.jcs.engine.control.CompositeCache;
+
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
@@ -53,7 +55,7 @@ public class JcsCache <K, V> implements ICache<K, V> {
         }
         try {
             cache.putInGroup(key, groupName, value);
-        } catch (CacheException e) {
+        } catch (final CacheException e) {
             throw new CacheOperationException("Failed to add item to cache", e);
         }
     }
@@ -98,7 +100,7 @@ public class JcsCache <K, V> implements ICache<K, V> {
     public void clear() throws CacheOperationException {
         try {
             cache.clear();
-        } catch (CacheException e) {
+        } catch (final CacheException e) {
             throw new CacheOperationException("Failed to clear cache", e);
         }
     }

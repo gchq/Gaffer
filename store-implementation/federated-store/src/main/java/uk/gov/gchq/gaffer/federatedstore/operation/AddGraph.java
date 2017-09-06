@@ -18,12 +18,15 @@ package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.exception.CloneFailedException;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 
 /**
  * An Operation used for adding graphs to a FederatedStore.
@@ -49,6 +52,7 @@ public class AddGraph implements Operation {
     private Schema schema;
     private List<String> parentSchemaIds;
     private Set<String> graphAuths;
+    private Map<String, String> options;
 
     public String getGraphId() {
         return graphId;
@@ -74,7 +78,18 @@ public class AddGraph implements Operation {
                 .storeProperties(storeProperties)
                 .parentSchemaIds(parentSchemaIds)
                 .parentPropertiesId(parentPropertiesId)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
 

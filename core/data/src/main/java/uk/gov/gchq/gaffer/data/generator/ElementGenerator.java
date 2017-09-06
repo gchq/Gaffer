@@ -19,7 +19,9 @@ package uk.gov.gchq.gaffer.data.generator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
 import uk.gov.gchq.gaffer.data.element.Element;
+
 import java.util.function.Function;
 
 /**

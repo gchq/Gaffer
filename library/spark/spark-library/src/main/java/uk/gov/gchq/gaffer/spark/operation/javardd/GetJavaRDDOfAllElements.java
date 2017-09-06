@@ -19,23 +19,23 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.SparkSession;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
+
 import java.util.Map;
 
 public class GetJavaRDDOfAllElements implements
         Operation,
         Output<JavaRDD<Element>>,
         GraphFilters,
-        JavaRdd,
-        Options {
+        JavaRdd {
 
     private Map<String, String> options;
     @Required
@@ -108,8 +108,7 @@ public class GetJavaRDDOfAllElements implements
     public static class Builder extends BaseBuilder<GetJavaRDDOfAllElements, Builder>
             implements Output.Builder<GetJavaRDDOfAllElements, JavaRDD<Element>, Builder>,
             GraphFilters.Builder<GetJavaRDDOfAllElements, Builder>,
-            JavaRdd.Builder<GetJavaRDDOfAllElements, Builder>,
-            Options.Builder<GetJavaRDDOfAllElements, Builder> {
+            JavaRdd.Builder<GetJavaRDDOfAllElements, Builder> {
         public Builder() {
             super(new GetJavaRDDOfAllElements());
         }

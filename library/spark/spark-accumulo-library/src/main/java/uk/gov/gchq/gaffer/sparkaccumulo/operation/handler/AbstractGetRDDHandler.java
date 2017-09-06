@@ -23,6 +23,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.NullWritable;
 import scala.Tuple2;
 import scala.runtime.AbstractFunction1;
+
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
@@ -31,13 +32,13 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -45,7 +46,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractGetRDDHandler<OP extends Output<O> & GraphFilters & Options, O>
+public abstract class AbstractGetRDDHandler<OP extends Output<O> & GraphFilters, O>
         implements OutputOperationHandler<OP, O> {
 
     public static final String HADOOP_CONFIGURATION_KEY = "Hadoop_Configuration_Key";
@@ -75,7 +76,7 @@ public abstract class AbstractGetRDDHandler<OP extends Output<O> & GraphFilters 
         }
     }
 
-    public <INPUT_OP extends Operation & GraphFilters & Options & Input<Iterable<? extends ElementId>>>
+    public <INPUT_OP extends Operation & GraphFilters & Input<Iterable<? extends ElementId>>>
     void addRanges(final AccumuloStore accumuloStore,
                    final Configuration conf,
                    final INPUT_OP operation)

@@ -19,6 +19,7 @@ import com.yahoo.sketches.theta.CompactSketch;
 import com.yahoo.sketches.theta.Intersection;
 import com.yahoo.sketches.theta.Sketches;
 import com.yahoo.sketches.theta.Union;
+
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
@@ -33,6 +34,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.util.Collections;
 import java.util.Set;
 

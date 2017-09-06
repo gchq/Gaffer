@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.CsvGenerator;
@@ -24,6 +25,8 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+
+import java.util.Map;
 
 /**
  * A <code>ToMap</code> operation takes in an {@link Iterable} of items
@@ -41,6 +44,7 @@ public class ToCsv implements
     private CsvGenerator elementGenerator;
     private Iterable<? extends Element> input;
     private boolean includeHeader = true;
+    private Map<String, String> options;
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     public CsvGenerator getElementGenerator() {
@@ -80,7 +84,18 @@ public class ToCsv implements
                 .generator(elementGenerator)
                 .input(input)
                 .includeHeader(includeHeader)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static final class Builder extends BaseBuilder<ToCsv, Builder>

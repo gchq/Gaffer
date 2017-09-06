@@ -17,8 +17,11 @@
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import org.apache.commons.lang3.exception.CloneFailedException;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
+
+import java.util.Map;
 
 /**
  * An Operation used for removing graphs from a FederatedStore.
@@ -35,6 +38,7 @@ public class RemoveGraph implements Operation {
 
     @Required
     private String graphId;
+    private Map<String, String> options;
 
     public String getGraphId() {
         return graphId;
@@ -48,7 +52,18 @@ public class RemoveGraph implements Operation {
     public RemoveGraph shallowClone() throws CloneFailedException {
         return new RemoveGraph.Builder()
                 .setGraphId(graphId)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static class Builder extends BaseBuilder<RemoveGraph, Builder> {

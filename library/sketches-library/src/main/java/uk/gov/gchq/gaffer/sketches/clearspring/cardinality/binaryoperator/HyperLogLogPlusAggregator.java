@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.sketches.clearspring.cardinality.binaryoperator;
 
 import com.clearspring.analytics.stream.cardinality.CardinalityMergeException;
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
+
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**

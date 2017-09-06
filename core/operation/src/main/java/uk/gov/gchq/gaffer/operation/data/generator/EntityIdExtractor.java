@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.data.generator;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -64,6 +65,10 @@ public class EntityIdExtractor implements OneToOneObjectGenerator<EntityId> {
             identifier = ((Edge) element).getSource();
         } else if (IdentifierType.DESTINATION == edgeIdentifierToExtract) {
             identifier = ((Edge) element).getDestination();
+        } else if (IdentifierType.MATCHED_VERTEX == edgeIdentifierToExtract) {
+            identifier = ((Edge) element).getMatchedVertexValue();
+        } else if (IdentifierType.ADJACENT_MATCHED_VERTEX == edgeIdentifierToExtract) {
+            identifier = ((Edge) element).getAdjacentMatchedVertexValue();
         } else {
             throw new IllegalArgumentException("Cannot get an EntityId from an Edge when IdentifierType is " + edgeIdentifierToExtract);
         }

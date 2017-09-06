@@ -16,11 +16,13 @@
 package uk.gov.gchq.gaffer.doc.predicate;
 
 import org.apache.commons.lang.StringUtils;
+
 import uk.gov.gchq.gaffer.doc.util.Example;
 import uk.gov.gchq.gaffer.doc.util.JavaSourceUtil;
 import uk.gov.gchq.koryphe.signature.Signature;
 import uk.gov.gchq.koryphe.tuple.MapTuple;
 import uk.gov.gchq.koryphe.tuple.Tuple;
+
 import java.util.function.Predicate;
 
 public abstract class PredicateExample extends Example {

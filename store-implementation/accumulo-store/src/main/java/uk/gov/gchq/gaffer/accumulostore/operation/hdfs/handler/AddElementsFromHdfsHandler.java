@@ -26,6 +26,7 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory.AccumuloAddElementsFromHdfsJobFactory;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.tool.ImportElementsToAccumuloTool;
@@ -33,7 +34,6 @@ import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.tool.AddElementsFromHdfsTool;
-import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.SplitStore;
@@ -41,6 +41,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+
 import java.io.IOException;
 
 public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsFromHdfs> {
@@ -48,14 +49,14 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
 
     @Override
     public Void doOperation(final AddElementsFromHdfs operation,
-                            final Context context, final Store store)
+            final Context context, final Store store)
             throws OperationException {
         doOperation(operation, context, (AccumuloStore) store);
         return null;
     }
 
     public void doOperation(final AddElementsFromHdfs operation,
-                            final Context context, final AccumuloStore store)
+            final Context context, final AccumuloStore store)
             throws OperationException {
         validateOperation(operation);
 
@@ -66,6 +67,12 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
             final String splitsFilePath = getPathWithSlashSuffix(operation.getWorkingPath()) + context.getJobId() + "/splits";
             LOGGER.info("Using working directory for splits files: " + splitsFilePath);
             operation.setSplitsFilePath(splitsFilePath);
+        }
+
+        try {
+            checkHdfsDirectories(operation, store);
+        } catch (final IOException e) {
+            throw new OperationException("Operation failed due to filesystem error: " + e.getMessage());
         }
 
         if (!operation.isUseProvidedSplits() && needsSplitting(store)) {
@@ -106,7 +113,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         final boolean lessThan2Splits;
         try {
             lessThan2Splits = store.getConnection().tableOperations().listSplits(store.getTableName(), 2).size() < 2;
-        } catch (TableNotFoundException | AccumuloSecurityException | StoreException | AccumuloException e) {
+        } catch (final TableNotFoundException | AccumuloSecurityException | StoreException | AccumuloException e) {
             throw new OperationException("Unable to get accumulo's split points", e);
         }
 
@@ -130,13 +137,6 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         LOGGER.info("Starting to sample input data to create splits points to set on the table");
 
         // Sample data for split points and split the table
-        final Class<? extends MapperGenerator> mapperGeneratorClass;
-        try {
-            mapperGeneratorClass = Class.forName(operation.getMapperGeneratorClassName()).asSubclass(MapperGenerator.class);
-        } catch (final ClassNotFoundException e) {
-            throw new IllegalArgumentException("Mapper generator class name was invalid: " + operation.getMapperGeneratorClassName(), e);
-        }
-
         final String workingPath = operation.getWorkingPath();
         if (null == workingPath) {
             throw new IllegalArgumentException("Prior to adding the data, the table needs to be split. To do this the workingPath must be set to a temporary directory");
@@ -147,11 +147,10 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
 
         final String tmpSplitsOutputPath = tmpJobWorkingPath + "/sampleSplitsOutput";
         try {
-            store._execute(new OperationChain.Builder()
+            store.execute(new OperationChain.Builder()
                     .first(new SampleDataForSplitPoints.Builder()
-                            .addInputPaths(operation.getInputPaths())
+                            .addInputMapperPairs(operation.getInputMapperPairs())
                             .jobInitialiser(operation.getJobInitialiser())
-                            .mapperGenerator(mapperGeneratorClass)
                             .mappers(operation.getNumMapTasks())
                             .validate(operation.isValidate())
                             .outputPath(tmpSplitsOutputPath)
@@ -190,7 +189,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         final int response;
         try {
             LOGGER.info("Running FetchElementsFromHdfsTool job");
-            response = ToolRunner.run(fetchTool, new String[0]);
+            response = ToolRunner.run(fetchTool.getConfig(), fetchTool, new String[0]);
             LOGGER.info("Finished running FetchElementsFromHdfsTool job");
         } catch (final Exception e) {
             LOGGER.error("Failed to fetch elements from HDFS: {}", e.getMessage());
@@ -220,6 +219,24 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         if (ImportElementsToAccumuloTool.SUCCESS_RESPONSE != response) {
             LOGGER.error("Failed to import elements into Accumulo. Response code was {}", response);
             throw new OperationException("Failed to import elements into Accumulo. Response code was: " + response);
+        }
+    }
+
+    private void checkHdfsDirectories(final AddElementsFromHdfs operation, final AccumuloStore store) throws IOException {
+        final AddElementsFromHdfsTool tool = new AddElementsFromHdfsTool(new AccumuloAddElementsFromHdfsJobFactory(), operation, store);
+
+        LOGGER.info("Checking that the correct HDFS directories exist");
+        final FileSystem fs = FileSystem.get(tool.getConfig());
+
+        final Path outputPath = new Path(operation.getOutputPath());
+        LOGGER.info("Ensuring output directory {} doesn't exist", outputPath);
+        if (fs.exists(outputPath)) {
+            if (fs.listFiles(outputPath, true).hasNext()) {
+                LOGGER.error("Output directory exists and is not empty: {}", outputPath);
+                throw new IllegalArgumentException("Output directory exists and is not empty: " + outputPath);
+            }
+            LOGGER.info("Output directory exists and is empty so deleting: {}", outputPath);
+            fs.delete(outputPath, true);
         }
     }
 }
