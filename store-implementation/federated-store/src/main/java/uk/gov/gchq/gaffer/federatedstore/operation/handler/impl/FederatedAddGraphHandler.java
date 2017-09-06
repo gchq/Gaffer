@@ -45,8 +45,10 @@ public class FederatedAddGraphHandler implements OperationHandler<AddGraph> {
     public Void doOperation(final AddGraph operation, final Context context, final Store store) throws OperationException {
         final Set<String> graphAuths = operation.getGraphAuths();
         FederatedAccessHook hook = new FederatedAccessHook();
-        hook.addGraphAuths(graphAuths);
-        hook.setCreatorUserId(context.getUser().getUserId());
+        hook.setGraphAuths(graphAuths);
+        if (graphAuths == null) {
+            hook.setAddingUserId(context.getUser().getUserId());
+        }
 
         final Graph graph = CreateGraphDelegate.createGraph(store, operation.getGraphId(),
                 operation.getSchema(), operation.getStoreProperties(),

@@ -31,7 +31,7 @@ public class FederatedAccessHookTest {
     //At least 1 ops.
 
     @Test
-    public void shouldValidateMatchingOp() throws Exception {
+    public void shouldValidateMatchingAuth() throws Exception {
 
         final User user = new Builder()
                 .opAuth(A)
@@ -45,7 +45,7 @@ public class FederatedAccessHookTest {
     }
 
     @Test
-    public void shouldValidateNoOp() throws Exception {
+    public void shouldInValidateNoAuthNoUser() throws Exception {
 
         final User user = new Builder()
                 .build();
@@ -57,7 +57,7 @@ public class FederatedAccessHookTest {
     }
 
     @Test
-    public void shouldInValidateMismatchingOp() throws Exception {
+    public void shouldInValidateMismatchingAuth() throws Exception {
 
         final User user = new Builder()
                 .opAuth(A)
@@ -71,7 +71,7 @@ public class FederatedAccessHookTest {
     }
 
     @Test
-    public void shouldInValidateMissingOp() throws Exception {
+    public void shouldInValidateMissingAuth() throws Exception {
 
         final User user = new Builder()
                 .opAuth(A)
@@ -84,7 +84,7 @@ public class FederatedAccessHookTest {
     }
 
     @Test
-    public void shouldValidatePartialMatchingOp() throws Exception {
+    public void shouldValidatePartialMatchingAuth() throws Exception {
 
         final User user = new Builder()
                 .opAuths(A, AA)
@@ -98,7 +98,7 @@ public class FederatedAccessHookTest {
     }
 
     @Test
-    public void shouldValidateMatchingOpWithSurplus() throws Exception {
+    public void shouldValidateMatchingAuthWithSurplus() throws Exception {
 
         final User user = new Builder()
                 .opAuths(A)
@@ -119,7 +119,7 @@ public class FederatedAccessHookTest {
      * @throws Exception
      */
     @Test
-    public void shouldValidateCreatingUserRegardlessOfOp() throws Exception {
+    public void shouldValidateCreatingUserRegardlessOfAuth() throws Exception {
 
         final User user = new Builder()
                 .opAuth(A)
@@ -130,7 +130,23 @@ public class FederatedAccessHookTest {
                 .graphAuths(B)
                 .build();
 
-        hook.setCreatorUserId(USER);
+        hook.setAddingUserId(USER);
+
+        Assert.assertTrue(hook.isValidToExecute(user));
+    }
+
+    @Test
+    public void shouldValidateWithExplicitlySetEmptyPublicAuth() throws Exception {
+
+        final User user = new Builder()
+                .build();
+
+        String s = null;
+
+        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+                .graphAuths(s)
+                .graphAuths("")
+                .build();
 
         Assert.assertTrue(hook.isValidToExecute(user));
     }

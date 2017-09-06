@@ -95,7 +95,7 @@ If the execution against a graph fails a OperationException is thrown, unless th
 
 #### Limiting Access
 It is possible to have a FederatedStore with many sub-graphs, however you may wish to limit the users access. This is possible by using Authorisations at the time of adding a graph to the FederatedStore, this limits the graphs users can send operations to via the FederatedStore.
-Explicitly setting Authorisations to an empty string grants access to all users.
+Explicitly setting Authorisations to an empty list grants access to all users.
 
 This can be done at FederatedStore Initialisation, by default if Authorisations is not specified it will be public to all.
 

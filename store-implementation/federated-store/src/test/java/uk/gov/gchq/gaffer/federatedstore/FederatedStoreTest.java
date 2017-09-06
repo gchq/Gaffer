@@ -492,8 +492,8 @@ public class FederatedStoreTest {
                         StoreProperties.loadStoreProperties(StreamUtil.openStream(this.getClass(), PATH_MAP_STORE_PROPERTIES))
                 ));
 
-        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
         store.setGraphLibrary(mockLibrary);
+        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         //Then
         final int after = store.getGraphs().size();
@@ -532,8 +532,8 @@ public class FederatedStoreTest {
                         StoreProperties.loadStoreProperties(StreamUtil.openStream(this.getClass(), PATH_MAP_STORE_PROPERTIES))
                 ));
 
-        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
         store.setGraphLibrary(mockLibrary);
+        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         //Then
         final int after = store.getGraphs().size();
@@ -548,8 +548,8 @@ public class FederatedStoreTest {
         final GraphLibrary mockLibrary = Mockito.mock(GraphLibrary.class);
         Mockito.when(mockLibrary.getProperties(PROPS_ID_1)).thenReturn(StoreProperties.loadStoreProperties(PATH_MAP_STORE_PROPERTIES));
 
-        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
         store.setGraphLibrary(mockLibrary);
+        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         assertEquals(1, store.getGraphs().size());
 
@@ -567,8 +567,8 @@ public class FederatedStoreTest {
                         .json(StreamUtil.openStream(FederatedStore.class, PATH_BASIC_ENTITY_SCHEMA_JSON))
                         .build());
 
-        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
         store.setGraphLibrary(mockLibrary);
+        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         assertEquals(1, store.getGraphs().size());
 
@@ -588,8 +588,8 @@ public class FederatedStoreTest {
                         .json(StreamUtil.openStream(FederatedStore.class, PATH_BASIC_ENTITY_SCHEMA_JSON))
                         .build());
 
-        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
         store.setGraphLibrary(mockLibrary);
+        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         assertEquals(1, store.getGraphs().size());
 
@@ -609,8 +609,8 @@ public class FederatedStoreTest {
         prop.set(unusualKey, "value");
         Mockito.when(mockLibrary.getProperties(PROPS_ID_1)).thenReturn(prop);
 
-        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
         store.setGraphLibrary(mockLibrary);
+        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         assertEquals(1, store.getGraphs().size());
         assertTrue(store.getGraphs().iterator().next().getStoreProperties().getProperties().getProperty(unusualKey) != null);
@@ -629,8 +629,8 @@ public class FederatedStoreTest {
                 .json(StreamUtil.openStream(this.getClass(), PATH_BASIC_ENTITY_SCHEMA_JSON))
                 .build());
 
-        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
         store.setGraphLibrary(mockLibrary);
+        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         assertEquals(1, store.getGraphs().size());
         assertTrue(store.getGraphs().iterator().next().getSchema().getEntityGroups().contains("BasicEntity"));
@@ -654,8 +654,8 @@ public class FederatedStoreTest {
                 .json(StreamUtil.openStream(this.getClass(), PATH_BASIC_ENTITY_SCHEMA_JSON))
                 .build());
 
-        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
         store.setGraphLibrary(mockLibrary);
+        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         assertEquals(1, store.getGraphs().size());
         assertTrue(store.getGraphs().iterator().next().getStoreProperties().getProperties().getProperty(unusualKey) != null);
@@ -709,8 +709,8 @@ public class FederatedStoreTest {
         lib.add(MAP_ID_1, schema, storeProperties);
 
         try {
-            store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
             store.setGraphLibrary(lib);
+            store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
             fail("exception should have been thrown");
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("User is attempting to override a known graph in library."));

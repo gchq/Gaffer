@@ -22,7 +22,6 @@ import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -49,7 +48,7 @@ public class AddGraph implements Operation {
     private String parentPropertiesId;
     private Schema schema;
     private List<String> parentSchemaIds;
-    private Set<String> graphAuths = Sets.newHashSet();
+    private Set<String> graphAuths;
 
     public String getGraphId() {
         return graphId;
@@ -108,11 +107,7 @@ public class AddGraph implements Operation {
     }
 
     public AddGraph setGraphAuths(final Set<String> graphAuths) {
-        if (null == graphAuths) {
-            this.getGraphAuths().clear();
-        } else {
-            this.graphAuths = graphAuths;
-        }
+        this.graphAuths = graphAuths;
         return this;
     }
 
@@ -148,7 +143,10 @@ public class AddGraph implements Operation {
         }
 
         public Builder graphAuths(final String... graphAuths) {
-            Collections.addAll(_getOp().graphAuths, graphAuths);
+            if (null == graphAuths) {
+                _getOp().setGraphAuths(null);
+            }
+            _getOp().setGraphAuths(Sets.newHashSet(graphAuths));
             return _self();
         }
     }

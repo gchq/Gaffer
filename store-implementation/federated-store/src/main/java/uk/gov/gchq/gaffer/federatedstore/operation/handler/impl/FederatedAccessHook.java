@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -37,11 +38,11 @@ import java.util.Set;
  */
 public class FederatedAccessHook implements GraphHook {
     public static final String USER_DOES_NOT_HAVE_CORRECT_AUTHS_TO_ACCESS_THIS_GRAPH_USER_S = "User does not have correct auths to access this graph. User: %s";
-    private Set<String> graphAuths = Sets.newHashSet();
-    private String creatorUserId;
+    private Set<String> graphAuths;
+    private String addingUserId;
 
-    void setCreatorUserId(final String creatorUserId) {
-        this.creatorUserId = creatorUserId;
+    void setAddingUserId(final String creatorUserId) {
+        this.addingUserId = creatorUserId;
     }
 
     @Override
@@ -52,15 +53,18 @@ public class FederatedAccessHook implements GraphHook {
     }
 
     public boolean isValidToExecute(final User user) {
-        return (null != user.getUserId() && user.getUserId().equals(creatorUserId)) || !Collections.disjoint(user.getOpAuths(), this.graphAuths);
+        final boolean isAddingUser = null != user.getUserId() && user.getUserId().equals(addingUserId);
+        final boolean authsIsEmpty = this.graphAuths != null && this.graphAuths.isEmpty();
+        final boolean userHasASharedAuth = this.graphAuths != null && !Collections.disjoint(user.getOpAuths(), this.graphAuths);
+
+        return authsIsEmpty
+                || isAddingUser
+                || userHasASharedAuth;
     }
 
-    public boolean addGraphAuths(final String opAuth) {
-        return this.graphAuths.add(opAuth);
-    }
-
-    public boolean addGraphAuths(final Collection<? extends String> opAuths) {
-        return this.graphAuths.addAll(opAuths);
+    public FederatedAccessHook setGraphAuths(final Set<String> graphAuths) {
+        this.graphAuths = graphAuths;
+        return this;
     }
 
     @Override
@@ -73,12 +77,22 @@ public class FederatedAccessHook implements GraphHook {
         private Builder self = this;
 
         public Builder graphAuths(final String... opAuth) {
-            hook.addGraphAuths(Arrays.asList(opAuth));
+            if (opAuth == null) {
+                hook.setGraphAuths(null);
+            } else {
+                graphAuths(Arrays.asList(opAuth));
+            }
             return self;
         }
 
         public Builder graphAuths(final Collection<? extends String> opAuths) {
-            hook.addGraphAuths(opAuths);
+            final HashSet<String> graphAuths = Sets.newHashSet(opAuths);
+            graphAuths.remove(null);
+            graphAuths.remove("");
+            if (hook.graphAuths == null) {
+                hook.graphAuths = Sets.newHashSet();
+            }
+            hook.setGraphAuths(graphAuths);
             return self;
         }
 
