@@ -26,9 +26,9 @@ cd Gaffer
 # This will download several maven dependencies such as tomcat.
 # Using -pl we tell maven only to build the demo module and just download the other Gaffer binaries from maven.
 # The -Pfederated-demo is a profile that will automatically startup a standalone instance of tomcat with the REST API and UI deployed.
-mvn install -Pquick -Pfederated-demo -pl example/federated/federated-rest
+mvn install -Pquick -Pfederated-demo -pl :federated-demo
 ```
 
-If you wish to build all of Gaffer first then just remove the "-pl example/federated/federated-rest" part.
+If you wish to build all of Gaffer first then just remove the "-pl :federated-demo" part.
 
 The rest api will be deployed to localhost:8080/rest.

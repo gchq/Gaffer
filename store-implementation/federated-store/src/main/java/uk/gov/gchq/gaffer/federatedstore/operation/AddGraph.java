@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
+import com.google.common.collect.Sets;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -25,6 +26,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * An Operation used for adding graphs to a FederatedStore.
@@ -49,6 +51,7 @@ public class AddGraph implements Operation {
     private String parentPropertiesId;
     private Schema schema;
     private List<String> parentSchemaIds;
+    private Set<String> graphAuths;
     private Map<String, String> options;
 
     public String getGraphId() {
@@ -113,8 +116,16 @@ public class AddGraph implements Operation {
         this.options = options;
     }
 
-    public static class Builder extends BaseBuilder<AddGraph, Builder> {
+    public Set<String> getGraphAuths() {
+        return graphAuths;
+    }
 
+    public AddGraph setGraphAuths(final Set<String> graphAuths) {
+        this.graphAuths = graphAuths;
+        return this;
+    }
+
+    public static class Builder extends BaseBuilder<AddGraph, Builder> {
         public Builder() {
             super(new AddGraph());
         }
@@ -141,6 +152,14 @@ public class AddGraph implements Operation {
 
         public Builder parentSchemaIds(final List<String> parentSchemaIds) {
             _getOp().setParentSchemaIds(parentSchemaIds);
+            return _self();
+        }
+
+        public Builder graphAuths(final String... graphAuths) {
+            if (null == graphAuths) {
+                _getOp().setGraphAuths(null);
+            }
+            _getOp().setGraphAuths(Sets.newHashSet(graphAuths));
             return _self();
         }
     }

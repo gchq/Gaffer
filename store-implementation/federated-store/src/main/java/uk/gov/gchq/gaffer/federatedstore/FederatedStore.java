@@ -28,10 +28,11 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
-import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphID;
+import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationAddElementsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAccessHook;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllElementsHandler;
@@ -70,6 +71,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -101,6 +103,7 @@ import java.util.regex.Pattern;
  */
 public class FederatedStore extends Store {
     public static final String USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S = "User is attempting to overwrite a graph within FederatedStore. GraphId: %s";
+    public static final String USER_IS_ATTEMPTING_TO_ADD_A_GRAPH_WITHOUT_A_S_GRAPH_ID_S = "User is attempting to add a graph without a %s. GraphId: %s";
     protected static final String S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2 = "%s was not able to be created with the supplied properties.%n%s";
     private static final String GAFFER_FEDERATED_STORE = "gaffer.federatedstore.";
     private static final String GRAPH_IDS = "graphIds";
@@ -110,7 +113,6 @@ public class FederatedStore extends Store {
     private static final String SCHEMA = "schema";
     private static final String PROPERTIES = "properties";
     private static final String ID = "id";
-
     private final Map<String, Graph> graphs = Maps.newHashMap();
     private Set<StoreTrait> traits = new HashSet<>();
 
@@ -170,31 +172,6 @@ public class FederatedStore extends Store {
     }
 
     /**
-     * Initialise this FederatedStore with any sub-graphs defined within properties
-     *
-     * @param graphId      the graphId to label this FederatedStore.
-     * @param properties   properties to initialise this FederatedStore, can contain details on graphs to add to scope.
-     * @param graphLibrary the source for extracting sub-graphs from.
-     * @throws StoreException exception
-     */
-    public void initialise(final String graphId, final StoreProperties properties, final GraphLibrary graphLibrary) throws StoreException {
-        setGraphLibrary(graphLibrary);
-        this.initialise(graphId, properties);
-    }
-
-    /**
-     * Initialise this FederatedStore with any sub-graphs defined within properties.
-     *
-     * @param graphId    the graphId to label this FederatedStore.
-     * @param properties properties to initialise this FederatedStore, can contain details on graphs to add to scope.
-     * @throws StoreException exception
-     * @see #initialise(String, Schema, StoreProperties)
-     */
-    public void initialise(final String graphId, final StoreProperties properties) throws StoreException {
-        this.initialise(graphId, null, properties);
-    }
-
-    /**
      * Initialise this FederatedStore with any sub-graphs defined within properties.
      *
      * @param graphId    the graphId to label this FederatedStore.
@@ -219,7 +196,7 @@ public class FederatedStore extends Store {
                 final Builder overriddenBuilder = makeBuilder(graphId);
                 final String before = overriddenBuilder.toString();
 
-                resolveSchemaAndProps(graphId, overriddenBuilder);
+                resolveConfiguration(graphId, overriddenBuilder);
 
                 final String overridden = overriddenBuilder.toString();
                 final String original = builder.toString();
@@ -227,29 +204,44 @@ public class FederatedStore extends Store {
                     throw new IllegalArgumentException(String.format("User is attempting to override a known graph in library.%nOriginal: %s%nOverridden: %s", original, overridden));
                 }
             } else {
-                resolveSchemaAndProps(graphId, builder);
+                resolveConfiguration(graphId, builder);
             }
             addGraphs(builder);
         }
     }
 
-    private void resolveSchemaAndProps(final String graphId, final Builder builder) {
+    private void resolveConfiguration(final String graphId, final Builder builder) {
         resolveSchema(graphId, builder);
 
         resolveProperties(graphId, builder);
+
+        resolveAuths(graphId, builder);
+    }
+
+    private void resolveAuths(final String graphId, final Builder builder) {
+        final String value = getProperties().get(GAFFER_FEDERATED_STORE + graphId + DOT + "auths");
+        if (!Strings.isNullOrEmpty(value)) {
+            final List<String> values = getCleanStrings(value);
+
+            builder.config(new GraphConfig.Builder()
+                    .addHook(new FederatedAccessHook.Builder()
+                            .graphAuths(values)
+                            .build())
+                    .build());
+        }
     }
 
     private void resolveProperties(final String graphId, final Builder builder) {
         addPropertiesFromLibrary(graphId, builder);
 
-        //may override with properties from from
+        //this method is allowed to override properties from file
         addPropertiesFromFile(graphId, builder);
     }
 
     private void resolveSchema(final String graphId, final Builder builder) {
         addSchemaFromLibrary(graphId, builder);
 
-        //may override with schema from file
+        //this method is allowed to override schema from file
         addSchemaFromFile(graphId, builder);
     }
 
@@ -260,15 +252,15 @@ public class FederatedStore extends Store {
                 .build());
     }
 
-    public void addGraphs(final Builder... builders) {
+    private void addGraphs(final Builder... builders) {
         for (final Builder builder : builders) {
-            final Graph build;
+            final Graph graph;
             try {
-                build = builder.build();
+                graph = builder.build();
             } catch (final Exception e) {
                 throw new IllegalArgumentException(String.format(S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2, "Graph", builder.toString()), e);
             }
-            addGraphs(build);
+            addGraphs(graph);
         }
     }
 
@@ -348,10 +340,9 @@ public class FederatedStore extends Store {
     private HashSet<String> getGraphIds() {
         final HashSet<String> graphIds = Sets.newHashSet();
         final String idKey = GAFFER_FEDERATED_STORE + GRAPH_IDS;
-        final String graphIDValue = getProperties().get(idKey);
-        if (!Strings.isNullOrEmpty(graphIDValue)) {
-            final List<String> graphIDs = getCleanStrings(graphIDValue);
-            graphIds.addAll(graphIDs);
+        final String graphIdValue = getProperties().get(idKey);
+        if (!Strings.isNullOrEmpty(graphIdValue)) {
+            graphIds.addAll(getCleanStrings(graphIdValue));
         }
         return graphIds;
     }
@@ -372,13 +363,22 @@ public class FederatedStore extends Store {
     }
 
     public void addGraphs(final String... graphId) {
+        addGraphs(Optional.<Collection<String>>empty(), graphId);
+    }
+
+    public void addGraphs(final Optional<Collection<String>> graphAuths, final String... graphId) {
         for (final String id : graphId) {
-            final Builder builder = new Builder().config(new GraphConfig.Builder()
+            final GraphConfig.Builder configBuilder = new GraphConfig.Builder()
                     .graphId(id)
-                    .library(getGraphLibrary())
-                    .build());
-            addConfigFromLibrary(id, builder);
-            addGraphs(builder);
+                    .library(getGraphLibrary());
+
+            if (graphAuths.isPresent()) {
+                configBuilder.addHooks(new FederatedAccessHook.Builder().graphAuths(graphAuths.get()).build());
+            }
+
+            final Builder graphBuilder = new Builder().config(configBuilder.build());
+            addConfigFromLibrary(id, graphBuilder);
+            addGraphs(graphBuilder);
         }
     }
 
@@ -402,7 +402,7 @@ public class FederatedStore extends Store {
                 .filter(op -> !Output.class.isAssignableFrom(op) && !AddElements.class.equals(op))
                 .forEach(op -> addOperationHandler(op, new FederatedOperationHandler()));
 
-        addOperationHandler(GetAllGraphID.class, new FederatedGetAllGraphIDHandler());
+        addOperationHandler(GetAllGraphIds.class, new FederatedGetAllGraphIDHandler());
         addOperationHandler(AddGraph.class, new FederatedAddGraphHandler());
         addOperationHandler(RemoveGraph.class, new FederatedRemoveGraphHandler());
     }

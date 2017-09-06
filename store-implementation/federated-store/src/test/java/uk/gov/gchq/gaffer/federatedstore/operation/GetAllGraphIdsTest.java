@@ -20,7 +20,7 @@ import com.google.common.collect.Sets;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Set;
 
-public class GetAllGraphIDTest extends OperationTest<GetAllGraphID> {
+public class GetAllGraphIdsTest extends OperationTest<GetAllGraphIds> {
     @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet();
@@ -34,12 +34,12 @@ public class GetAllGraphIDTest extends OperationTest<GetAllGraphID> {
 
     @Override
     public void shouldShallowCloneOperation() {
-        final GetAllGraphID a = getTestObject().shallowClone();
-        final GetAllGraphID b = a.shallowClone();
+        final GetAllGraphIds a = getTestObject().shallowClone();
+        final GetAllGraphIds b = a.shallowClone();
     }
 
     @Override
-    protected GetAllGraphID getTestObject() {
-        return new GetAllGraphID.Builder().build();
+    protected GetAllGraphIds getTestObject() {
+        return new GetAllGraphIds.Builder().build();
     }
 }

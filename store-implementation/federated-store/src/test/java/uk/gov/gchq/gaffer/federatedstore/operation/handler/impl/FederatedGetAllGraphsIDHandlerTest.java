@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphID;
+import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.store.Context;
 import java.util.Set;
 
@@ -34,7 +34,7 @@ public class FederatedGetAllGraphsIDHandlerTest {
 
         FederatedGetAllGraphIDHandler federatedGetAllGraphIDHandler = new FederatedGetAllGraphIDHandler();
 
-        GetAllGraphID op = Mockito.mock(GetAllGraphID.class);
+        GetAllGraphIds op = Mockito.mock(GetAllGraphIds.class);
         Context context = Mockito.mock(Context.class);
         FederatedStore store = Mockito.mock(FederatedStore.class);
         Set<String> expected = Sets.newHashSet();

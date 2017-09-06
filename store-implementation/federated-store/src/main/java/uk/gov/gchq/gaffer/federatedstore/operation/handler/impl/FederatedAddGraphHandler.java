@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.operation.export.graph.handler.CreateGraphDelegate;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import java.util.Set;
 
 /**
  * A handler for AddGraph operation for the FederatedStore.
@@ -42,9 +43,16 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 public class FederatedAddGraphHandler implements OperationHandler<AddGraph> {
     @Override
     public Void doOperation(final AddGraph operation, final Context context, final Store store) throws OperationException {
+        final Set<String> graphAuths = operation.getGraphAuths();
+        FederatedAccessHook hook = new FederatedAccessHook();
+        hook.setGraphAuths(graphAuths);
+        if (graphAuths == null) {
+            hook.setAddingUserId(context.getUser().getUserId());
+        }
+
         final Graph graph = CreateGraphDelegate.createGraph(store, operation.getGraphId(),
                 operation.getSchema(), operation.getStoreProperties(),
-                operation.getParentSchemaIds(), operation.getParentPropertiesId());
+                operation.getParentSchemaIds(), operation.getParentPropertiesId(), hook);
 
         ((FederatedStore) store).addGraphs(graph);
         return null;

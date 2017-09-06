@@ -21,15 +21,18 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.doc.user.generator.RoadAndRoadUseWithTimesAndCardinalitiesElementGenerator;
-import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
-import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphID;
+import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
+import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -46,9 +49,14 @@ public class FederatedStoreWalkThrough extends DevWalkthrough {
     public CloseableIterable<? extends Element> run() throws Exception {
         // [federated store] create a store that federates to a MapStore and AccumuloStore
         // ---------------------------------------------------------
-        final FederatedStore federatedStore = new FederatedStore();
-        StoreProperties properties = StoreProperties.loadStoreProperties("federatedStore.properties");
-        federatedStore.initialise("federatedRoadUse", properties);
+        final Graph federatedGraph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("federatedRoadUse")
+                        .library(new HashMapGraphLibrary())
+                        .build())
+                .storeProperties(StreamUtil.openStream(getClass(), "federatedStore.properties"))
+                .build();
+
         // ---------------------------------------------------------
 
         final User user = new User("user01");
@@ -62,21 +70,31 @@ public class FederatedStoreWalkThrough extends DevWalkthrough {
                         .build())
                 .storeProperties(StoreProperties.loadStoreProperties("mockmapstore.properties"))
                 .build();
-        federatedStore.execute(addAnotherGraph, user);
+        federatedGraph.execute(addAnotherGraph, user);
         // ---------------------------------------------------------
+
+        log("addGraphJson", new String(JSONSerialiser.serialise(addAnotherGraph, true)));
 
         // [remove graph] remove a graph from the federated store.
         // ---------------------------------------------------------
         RemoveGraph removeGraph = new RemoveGraph.Builder()
                 .setGraphId("AnotherGraph")
                 .build();
-        federatedStore.execute(removeGraph, user);
+        federatedGraph.execute(removeGraph, user);
         // ---------------------------------------------------------
 
-        // [getallgraphid] Get a list of all the graphID within the FederatedStore.
+        log("removeGraphJson", new String(JSONSerialiser.serialise(removeGraph, true)));
+
+        // [get all graph ids] Get a list of all the graphId within the FederatedStore.
         // ---------------------------------------------------------
-        Iterable<? extends String> graphIds = federatedStore.execute(new GetAllGraphID(), user);
+        final GetAllGraphIds getAllGraphIDs = new GetAllGraphIds();
+        Iterable<? extends String> graphIds = federatedGraph.execute(getAllGraphIDs, user);
         // ---------------------------------------------------------
+
+        log("getAllGraphIdsJson", new String(JSONSerialiser.serialise(getAllGraphIDs, true)));
+
+        log("graphIds", graphIds.toString());
+
 
         // [add elements] Create a data generator and add the edges to the federated graphs using an operation chain consisting of:
         // generateElements - generating edges from the data (note these are directed edges)
@@ -90,7 +108,7 @@ public class FederatedStoreWalkThrough extends DevWalkthrough {
                 .then(new AddElements())
                 .build();
 
-        federatedStore.execute(addOpChain, user);
+        federatedGraph.execute(addOpChain, user);
         // ---------------------------------------------------------
 
         // [get elements]
@@ -100,8 +118,23 @@ public class FederatedStoreWalkThrough extends DevWalkthrough {
                         .build())
                 .build();
 
-        CloseableIterable<? extends Element> allElements = federatedStore.execute(getOpChain, user);
+        CloseableIterable<? extends Element> allElements = federatedGraph.execute(getOpChain, user);
         // ---------------------------------------------------------
+
+        // [add secure graph] add a graph to the federated store.
+        // ---------------------------------------------------------
+        AddGraph addSecureGraph = new AddGraph.Builder()
+                .setGraphId("SecureGraph")
+                .schema(new Schema.Builder()
+                        .json(StreamUtil.openStreams(getClass(), "RoadAndRoadUseWithTimesAndCardinalities/schema"))
+                        .build())
+                .storeProperties(StoreProperties.loadStoreProperties("mockmapstore.properties"))
+                .graphAuths("public", "private")
+                .build();
+        federatedGraph.execute(addSecureGraph, user);
+        // ---------------------------------------------------------
+
+        log("addSecureGraphJson", new String(JSONSerialiser.serialise(addSecureGraph, true)));
 
 
         return allElements;

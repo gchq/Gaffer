@@ -17,13 +17,13 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAccessHook.FederatedAccessException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -49,9 +49,16 @@ public abstract class FederatedOperationOutputHandler<OP extends Output<O>, O> i
                 O execute = null;
                 try {
                     execute = graph.execute(updatedOp, context.getUser());
-                } catch (final Exception e) {
+                } catch (final FederatedAccessException e) {
+                    // ignore it.
+                } catch (Exception e) {
                     if (!Boolean.valueOf(updatedOp.getOption(SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
-                        throw new OperationException("Failed to execute " + operation.getClass().getSimpleName() + " on graph " + graph.getGraphId(), e);
+                        final String additionalInfo = String.format("set the skip and continue flag: %s for operation: %s",
+                                SKIP_FAILED_FEDERATED_STORE_EXECUTE,
+                                operation.getClass().getSimpleName());
+
+                        throw new OperationException(String.format("Failed to execute %s on graph %s.%n%s",
+                                operation.getClass().getSimpleName(), graph.getGraphId(), additionalInfo), e);
                     }
                 }
                 if (execute != null) {
