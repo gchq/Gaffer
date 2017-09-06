@@ -142,7 +142,7 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
         }
     }
 
-    private Boolean isVisible(Element e) throws VisibilityParseException {
+    private Boolean isVisible(final Element e) throws VisibilityParseException {
         if (e.getProperty(visibility) != null) {
             VisibilityEvaluator ve = new VisibilityEvaluator((AuthorizationContainer) auths);
             ColumnVisibility columnVisibility = new ColumnVisibility((String) e.getProperty(visibility));
