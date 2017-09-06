@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.doc.properties.walkthrough;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
-
 import com.yahoo.sketches.frequencies.LongsSketch;
 import com.yahoo.sketches.hll.HllSketch;
 import com.yahoo.sketches.quantiles.DoublesSketch;
@@ -126,21 +125,7 @@ public class PropertiesWalkthroughRunner extends AbstractWalkthroughRunner {
         printSketches();
         printTimestampsIntro();
         printWalkthroughs();
-        printPredicatesAggregatorsSerialisersTitle();
-        for (final AbstractWalkthrough example : EXAMPLES) {
-            // Clear the caches so the output is not dependent on what's been run before
-            try {
-                if (CacheServiceLoader.getService() != null) {
-                    CacheServiceLoader.getService().clearCache("NamedOperation");
-                    CacheServiceLoader.getService().clearCache("JobTracker");
-                }
-            } catch (final CacheOperationException e) {
-                throw new RuntimeException(e);
-            }
-
-            System.out.println(example.walkthrough());
-            System.out.println(EXAMPLE_DIVIDER);
-        }
+        printPredicatesAggregatorsSerialisers();
     }
 
     private void printTableOfContents() throws InstantiationException, IllegalAccessException {
@@ -186,7 +171,7 @@ public class PropertiesWalkthroughRunner extends AbstractWalkthroughRunner {
     }
 
     private void printWalkthroughs() throws OperationException {
-        printFile("Walkthroughs.md");
+        printFile("WalkthroughsIntro.md");
         printWalkthroughs(CLEARSPRING_SKETCHES_WALKTHROUGHS);
         printWalkthroughs(DATA_SKETCHES_WALKTHROUGHS);
         printWalkthroughs(TIMESTAMP_WALKTHROUGHS);
@@ -209,7 +194,21 @@ public class PropertiesWalkthroughRunner extends AbstractWalkthroughRunner {
         }
     }
 
-    private void printPredicatesAggregatorsSerialisersTitle() {
+    private void printPredicatesAggregatorsSerialisers() throws OperationException {
         System.out.println("## Predicates, aggregators and serialisers");
+        for (final AbstractWalkthrough example : EXAMPLES) {
+            // Clear the caches so the output is not dependent on what's been run before
+            try {
+                if (CacheServiceLoader.getService() != null) {
+                    CacheServiceLoader.getService().clearCache("NamedOperation");
+                    CacheServiceLoader.getService().clearCache("JobTracker");
+                }
+            } catch (final CacheOperationException e) {
+                throw new RuntimeException(e);
+            }
+
+            System.out.println(example.walkthrough());
+            System.out.println(EXAMPLE_DIVIDER);
+        }
     }
 }

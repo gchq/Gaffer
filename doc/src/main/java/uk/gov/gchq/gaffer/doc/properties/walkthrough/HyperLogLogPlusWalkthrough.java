@@ -74,8 +74,7 @@ public class HyperLogLogPlusWalkthrough extends PropertiesWalkthrough {
 
         graph.execute(addOpChain, user);
         // ---------------------------------------------------------
-        log("Added 1000 entities for vertex A, each time with a HyperLogLogPlus containing a vertex that A was seen in an"
-                + "edge with");
+        log("Added 1000 entities for vertex A, each time w\nith a HyperLogLogPlus containing a vertex that A was seen in an edge with");
 
 
         // [get] Get all entities
@@ -93,8 +92,10 @@ public class HyperLogLogPlusWalkthrough extends PropertiesWalkthrough {
         final GetElements query = new GetElements.Builder()
                 .input(new EntitySeed("A"))
                 .build();
-        final CloseableIterable<? extends Element> elements = graph.execute(query, user);
-        final Element element = elements.iterator().next();
+        final Element element;
+        try (final CloseableIterable<? extends Element> elements = graph.execute(query, user)) {
+            element = elements.iterator().next();
+        }
         final HyperLogLogPlus hyperLogLogPlus = (HyperLogLogPlus) element.getProperty("approxCardinality");
         final double approxDegree = hyperLogLogPlus.cardinality();
         final String degreeEstimate = "Entity A has approximate degree " + approxDegree;

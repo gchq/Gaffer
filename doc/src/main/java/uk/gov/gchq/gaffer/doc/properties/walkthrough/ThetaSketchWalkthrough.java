@@ -142,8 +142,10 @@ public class ThetaSketchWalkthrough extends PropertiesWalkthrough {
                                 .build())
                         .build())
                 .build();
-        final CloseableIterable<? extends Element> allEntities = graph.execute(getAllEntities, user);
-        final Element entity = allEntities.iterator().next();
+        final Element entity;
+        try (final CloseableIterable<? extends Element> allEntities = graph.execute(getAllEntities, user)) {
+            entity = allEntities.iterator().next();
+        }
         final double unionSizeEstimate = ((Sketch) entity.getProperty("size")).getEstimate();
         // ---------------------------------------------------------
         log("\nThe estimate of the number of edges across the different days");

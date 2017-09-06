@@ -102,8 +102,10 @@ public class ReservoirItemsSketchWalkthrough extends PropertiesWalkthrough {
         final GetElements query = new GetElements.Builder()
                 .input(new EdgeSeed("A", "B", DirectedType.UNDIRECTED))
                 .build();
-        final CloseableIterable<? extends Element> edges = graph.execute(query, user);
-        final Element edge = edges.iterator().next();
+        final Element edge;
+        try (final CloseableIterable<? extends Element> edges = graph.execute(query, user)) {
+            edge = edges.iterator().next();
+        }
         final ReservoirItemsSketch<String> stringsSketch = ((ReservoirItemsSketch<String>) edge.getProperty("stringsSample"));
         final String[] samples = stringsSketch.getSamples();
         final StringBuilder sb = new StringBuilder("10 samples: ");
@@ -123,8 +125,10 @@ public class ReservoirItemsSketchWalkthrough extends PropertiesWalkthrough {
         final GetElements query2 = new GetElements.Builder()
                 .input(new EntitySeed("X"))
                 .build();
-        final CloseableIterable<? extends Element> entities = graph.execute(query2, user);
-        final Element entity = entities.iterator().next();
+        final Element entity;
+        try (final CloseableIterable<? extends Element> entities = graph.execute(query2, user)) {
+            entity = entities.iterator().next();
+        }
         final ReservoirItemsSketch<String> neighboursSketch = ((ReservoirItemsSketch<String>) entity.getProperty("neighboursSample"));
         final String[] neighboursSample = neighboursSketch.getSamples();
         sb.setLength(0);

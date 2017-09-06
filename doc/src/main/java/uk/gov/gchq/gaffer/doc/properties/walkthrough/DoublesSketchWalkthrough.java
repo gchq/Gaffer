@@ -94,8 +94,10 @@ public class DoublesSketchWalkthrough extends PropertiesWalkthrough {
         final GetElements query = new GetElements.Builder()
                 .input(new EdgeSeed("A", "B", DirectedType.UNDIRECTED))
                 .build();
-        final CloseableIterable<? extends Element> edges = graph.execute(query, user);
-        final Element edge = edges.iterator().next();
+        final Element edge;
+        try (final CloseableIterable<? extends Element> edges = graph.execute(query, user)) {
+            edge = edges.iterator().next();
+        }
         final DoublesSketch doublesSketch = (DoublesSketch) edge.getProperty("doublesSketch");
         final double[] quantiles = doublesSketch.getQuantiles(new double[]{0.25D, 0.5D, 0.75D});
         final String quantilesEstimate = "Edge A-B with percentiles of double property - 25th percentile: " + quantiles[0]
@@ -111,8 +113,10 @@ public class DoublesSketchWalkthrough extends PropertiesWalkthrough {
         final GetElements query2 = new GetElements.Builder()
                 .input(new EdgeSeed("A", "B", DirectedType.UNDIRECTED))
                 .build();
-        final CloseableIterable<? extends Element> edges2 = graph.execute(query2, user);
-        final Element edge2 = edges2.iterator().next();
+        final Element edge2;
+        try (final CloseableIterable<? extends Element> edges2 = graph.execute(query2, user)) {
+            edge2 = edges2.iterator().next();
+        }
         final DoublesSketch doublesSketch2 = (DoublesSketch) edge2.getProperty("doublesSketch");
         final double[] cdf = doublesSketch2.getCDF(new double[]{0.0D, 1.0D, 2.0D});
         final String cdfEstimate = "Edge A-B with CDF values at 0: " + cdf[0]

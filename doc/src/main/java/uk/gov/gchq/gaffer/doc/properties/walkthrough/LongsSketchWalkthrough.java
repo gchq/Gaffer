@@ -93,8 +93,10 @@ public class LongsSketchWalkthrough extends PropertiesWalkthrough {
         final GetElements query = new GetElements.Builder()
                 .input(new EdgeSeed("A", "B", DirectedType.UNDIRECTED))
                 .build();
-        final CloseableIterable<? extends Element> edges = graph.execute(query, user);
-        final Element edge = edges.iterator().next();
+        final Element edge;
+        try (final CloseableIterable<? extends Element> edges = graph.execute(query, user)) {
+            edge = edges.iterator().next();
+        }
         final LongsSketch longsSketch = (LongsSketch) edge.getProperty("longsSketch");
         final String estimates = "Edge A-B: 1L seen approximately " + longsSketch.getEstimate(1L)
                 + " times, 9L seen approximately " + longsSketch.getEstimate(9L) + " times.";

@@ -94,8 +94,10 @@ public class TimestampSetWalkthrough extends PropertiesWalkthrough {
         final GetElements query = new GetElements.Builder()
                 .input(new EdgeSeed("A", "B", DirectedType.UNDIRECTED))
                 .build();
-        final CloseableIterable<? extends Element> edges = graph.execute(query, user);
-        final Element edge = edges.iterator().next();
+        final Element edge;
+        try (final CloseableIterable<? extends Element> edges = graph.execute(query, user)) {
+            edge = edges.iterator().next();
+        }
         final uk.gov.gchq.gaffer.time.TimestampSet timestampSet = (uk.gov.gchq.gaffer.time.TimestampSet) edge.getProperty("timestampSet");
         final Instant earliest = timestampSet.getEarliest();
         final Instant latest = timestampSet.getLatest();
