@@ -15,7 +15,8 @@
  */
 package uk.gov.gchq.gaffer.doc.properties.generator;
 
-import com.yahoo.sketches.frequencies.LongsSketch;
+import com.yahoo.sketches.quantiles.DoublesSketch;
+import com.yahoo.sketches.quantiles.UpdateDoublesSketch;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -25,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class LongsSketchElementGenerator implements OneToManyElementGenerator<String> {
+public class DoublesSketchElementGenerator implements OneToManyElementGenerator<String> {
     // Fix the seed so that the results are consistent
     private static final Random RANDOM = new Random(123456789L);
 
@@ -33,13 +34,13 @@ public class LongsSketchElementGenerator implements OneToManyElementGenerator<St
     public Iterable<Element> _apply(final String line) {
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < 1000; i++) {
-            final LongsSketch longsSketch = new LongsSketch(32);
-            longsSketch.update((long) (RANDOM.nextDouble() * 10));
+            final UpdateDoublesSketch doublesSketch = DoublesSketch.builder().build();
+            doublesSketch.update(RANDOM.nextGaussian());
             final Edge edge = new Edge.Builder()
                     .group("red")
                     .source("A")
                     .dest("B")
-                    .property("longsSketch", longsSketch)
+                    .property("doublesSketch", doublesSketch)
                     .build();
             elements.add(edge);
         }
