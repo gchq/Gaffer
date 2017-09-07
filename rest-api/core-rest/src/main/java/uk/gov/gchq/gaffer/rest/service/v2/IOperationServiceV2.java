@@ -89,16 +89,6 @@ public interface IOperationServiceV2 {
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
     Response operationDetails(@ApiParam(value = "the fully qualified class name") @PathParam("className") final String className) throws InstantiationException, IllegalAccessException;
 
-    @POST
-    @Path("/{className}")
-    @ApiOperation(value = "Performs the given operation on the graph", response = Object.class, produces = APPLICATION_JSON)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
-            @ApiResponse(code = 400, message = BAD_REQUEST),
-            @ApiResponse(code = 403, message = FORBIDDEN),
-            @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR),
-            @ApiResponse(code = 501, message = OPERATION_NOT_IMPLEMENTED)})
-    Response executeOperation(@ApiParam(value = "the fully qualified class name") @PathParam("className") final String className, final Operation operation);
-
     @GET
     @Path("/{className}/example")
     @ApiOperation(value = "Gets example JSON for the specified operation class.", produces = APPLICATION_JSON)

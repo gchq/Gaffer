@@ -123,17 +123,6 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     }
 
     @Override
-    public Response executeOperation(final String className, final Operation operation) {
-        if (!Objects.equals(className, operation.getClass().getCanonicalName())) {
-            throw new BadRequestException("Class name does not match message body. Provided: " + className + ", expected: " + operation.getClass().getCanonicalName());
-        }
-
-        return Response.ok(_execute(operation))
-                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                .build();
-    }
-
-    @Override
     public Response operationExample(final String className) throws InstantiationException, IllegalAccessException {
         try {
             return Response.ok(getExampleJson(getOperationClass(className)))
