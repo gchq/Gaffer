@@ -20,7 +20,6 @@ import uk.gov.gchq.gaffer.operation.Operation;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -41,15 +40,11 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 public interface IExamplesServiceV2 {
 
     @GET
-    @Path("/graph/operations")
+    @Path("/graph/operations/execute")
     Operation execute() throws InstantiationException, IllegalAccessException;
 
     @GET
-    @Path("/graph/operations/chunked")
+    @Path("/graph/operations/execute/chunked")
     Operation executeChunked() throws InstantiationException, IllegalAccessException;
-
-    @GET
-    @Path("/graph/operations/{className}")
-    Operation executeClass(@PathParam("className") final String className) throws ClassNotFoundException, InstantiationException, IllegalAccessException;
 
 }

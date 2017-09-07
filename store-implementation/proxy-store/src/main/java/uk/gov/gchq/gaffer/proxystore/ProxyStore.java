@@ -155,7 +155,7 @@ public class ProxyStore extends Store {
             throw new OperationException("Unable to serialise operation chain into JSON.", e);
         }
 
-        final URL url = getProperties().getGafferUrl("graph/operations");
+        final URL url = getProperties().getGafferUrl("graph/operations/execute");
         try {
             return doPost(url, opChainJson, opChain.getOutputTypeReference(), context);
         } catch (final StoreException e) {

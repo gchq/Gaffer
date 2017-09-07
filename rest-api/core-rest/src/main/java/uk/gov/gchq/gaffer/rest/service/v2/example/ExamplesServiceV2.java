@@ -40,9 +40,4 @@ public class ExamplesServiceV2 implements IExamplesServiceV2 {
                 new Limit.Builder().resultLimit(1).build());
     }
 
-    @Override
-    public Operation executeClass(final String className) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        return examplesFactory.generateExample((Class<? extends Operation>) Class.forName(className));
-    }
-
 }
