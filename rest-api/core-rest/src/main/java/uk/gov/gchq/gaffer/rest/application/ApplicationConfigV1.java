@@ -27,11 +27,15 @@ import uk.gov.gchq.gaffer.rest.service.v1.example.ExamplesService;
 
 import javax.ws.rs.Path;
 
+import static uk.gov.gchq.gaffer.rest.application.ApplicationConfigV1.VERSION;
+
 /**
  * An <code>ApplicationConfig</code> sets up the application resources.
  */
-@Path("v1")
+@Path(VERSION)
 public class ApplicationConfigV1 extends ApplicationConfig {
+
+    static final String VERSION = "v1";
 
     @Override
     protected void setupBeanConfig() {
@@ -42,10 +46,10 @@ public class ApplicationConfigV1 extends ApplicationConfig {
             basePath = "/" + basePath;
         }
 
-        beanConfig.setBasePath(basePath + "/v1");
+        beanConfig.setBasePath(basePath + '/' + VERSION);
 
-        beanConfig.setConfigId("v1");
-        beanConfig.setScannerId("v1");
+        beanConfig.setConfigId(VERSION);
+        beanConfig.setScannerId(VERSION);
 
         beanConfig.setResourcePackage("uk.gov.gchq.gaffer.rest.service.v1");
         beanConfig.setScan(true);

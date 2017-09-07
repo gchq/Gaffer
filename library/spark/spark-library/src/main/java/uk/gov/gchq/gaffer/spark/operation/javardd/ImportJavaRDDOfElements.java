@@ -21,7 +21,6 @@ import org.apache.spark.api.java.JavaSparkContext;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.io.Input;
 
 import java.util.Map;
@@ -30,8 +29,7 @@ import java.util.Map;
 public class ImportJavaRDDOfElements implements
         Operation,
         Input<JavaRDD<Element>>,
-        JavaRdd,
-        Options {
+        JavaRdd {
     public static final String HADOOP_CONFIGURATION_KEY = "Hadoop_Configuration_Key";
     @Required
     private JavaSparkContext sparkContext;
@@ -79,8 +77,7 @@ public class ImportJavaRDDOfElements implements
 
     public static class Builder extends BaseBuilder<ImportJavaRDDOfElements, Builder>
             implements Input.Builder<ImportJavaRDDOfElements, JavaRDD<Element>, Builder>,
-            JavaRdd.Builder<ImportJavaRDDOfElements, Builder>,
-            Options.Builder<ImportJavaRDDOfElements, Builder> {
+            JavaRdd.Builder<ImportJavaRDDOfElements, Builder> {
         public Builder() {
             super(new ImportJavaRDDOfElements());
         }

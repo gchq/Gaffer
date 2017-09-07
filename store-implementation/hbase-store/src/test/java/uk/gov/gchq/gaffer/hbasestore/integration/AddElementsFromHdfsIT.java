@@ -91,7 +91,7 @@ public class AddElementsFromHdfsIT {
             addElementsFromHdfs();
             fail("Exception expected");
         } catch (final OperationException e) {
-            assertEquals("Output directory exists and is not empty: " + outputDir, e.getCause().getMessage());
+            assertEquals("Output directory file:" + outputDir + " already exists", e.getCause().getMessage());
         }
     }
 

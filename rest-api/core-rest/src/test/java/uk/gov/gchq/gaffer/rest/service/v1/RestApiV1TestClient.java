@@ -33,13 +33,13 @@ import static org.junit.Assert.assertEquals;
 public class RestApiV1TestClient extends RestApiTestClient {
 
     public RestApiV1TestClient() {
-        super("http://localhost:8080/rest/v1", new ApplicationConfigV1());
+        super("http://localhost:8080/", "rest/", "v1", new ApplicationConfigV1());
     }
 
     @Override
     public Response executeOperation(final Operation operation) throws IOException {
         startServer();
-        return client.target(uri)
+        return client.target(uriString)
                      .path("/graph/doOperation/operation")
                      .request()
                      .post(Entity.entity(JSON_SERIALISER.serialise(operation), APPLICATION_JSON_TYPE));
@@ -48,7 +48,7 @@ public class RestApiV1TestClient extends RestApiTestClient {
     @Override
     public Response executeOperationChain(final OperationChain opChain) throws IOException {
         startServer();
-        return client.target(uri)
+        return client.target(uriString)
                      .path("/graph/doOperation")
                      .request()
                      .post(Entity.entity(JSON_SERIALISER.serialise(opChain), APPLICATION_JSON_TYPE));
@@ -57,7 +57,7 @@ public class RestApiV1TestClient extends RestApiTestClient {
     @Override
     public Response executeOperationChainChunked(final OperationChain opChain) throws IOException {
         startServer();
-        return client.target(uri)
+        return client.target(uriString)
                      .path("/graph/doOperation/chunked")
                      .request()
                      .post(Entity.entity(JSON_SERIALISER.serialise(opChain), APPLICATION_JSON_TYPE));
@@ -66,7 +66,7 @@ public class RestApiV1TestClient extends RestApiTestClient {
     @Override
     public Response executeOperationChunked(final Operation operation) throws IOException {
         startServer();
-        return client.target(uri)
+        return client.target(uriString)
                      .path("/graph/doOperation/chunked/operation")
                      .request()
                      .post(Entity.entity(JSON_SERIALISER.serialise(operation), APPLICATION_JSON_TYPE));
@@ -75,7 +75,7 @@ public class RestApiV1TestClient extends RestApiTestClient {
     @Override
     public void checkRestServiceStatus() {
         // Given
-        final Response response = client.target(uri)
+        final Response response = client.target(uriString)
                                         .path("status")
                                         .request()
                                         .get();

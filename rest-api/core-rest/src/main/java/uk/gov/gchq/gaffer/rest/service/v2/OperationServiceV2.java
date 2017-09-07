@@ -35,7 +35,6 @@ import uk.gov.gchq.gaffer.rest.service.v2.example.ExamplesFactory;
 import uk.gov.gchq.gaffer.user.User;
 
 import javax.inject.Inject;
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 
 import java.io.IOException;
@@ -51,7 +50,6 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
 
 public class OperationServiceV2 implements IOperationServiceV2 {
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationServiceV2.class);
-    public final ObjectMapper mapper = createDefaultMapper();
 
     @Inject
     private GraphFactory graphFactory;
@@ -61,6 +59,8 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
     @Inject
     private ExamplesFactory examplesFactory;
+
+    public final ObjectMapper mapper = createDefaultMapper();
 
     @Override
     public Response getOperations() {
@@ -118,20 +118,6 @@ public class OperationServiceV2 implements IOperationServiceV2 {
                            .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                            .build();
         }
-    }
-
-    @Override
-    public Response executeOperation(final String className, final Operation operation) {
-        if (className != operation.getClass().getCanonicalName()) {
-            throw new BadRequestException("Class name does not match message body.");
-        }
-
-        return _execute(operation);
-    }
-
-    @Override
-    public Response operationDocumentation(final String className) {
-        throw new GafferRuntimeException("Operation documentation is not currently supported.", Status.NOT_IMPLEMENTED);
     }
 
     @Override
@@ -228,10 +214,6 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         }
     }
 
-    private String getDocumentationLink() {
-        throw new GafferRuntimeException("Operation documentation is not currently supported.", Status.NOT_IMPLEMENTED);
-    }
-
     private Operation getExampleJson(final Class<? extends Operation> opClass) throws ClassNotFoundException,
             IllegalAccessException, InstantiationException {
         return examplesFactory.generateExample(opClass);
@@ -304,8 +286,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         }
 
         private List<OperationField> getOperationFields(final Class<? extends Operation> opClass) {
-            return Arrays.asList(opClass.getDeclaredFields())
-                         .stream()
+            return Arrays.stream(opClass.getDeclaredFields())
                          .map(f -> {
                              boolean required = false;
                              final Required[] annotations = f.getAnnotationsByType(Required.class);

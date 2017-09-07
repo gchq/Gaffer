@@ -156,7 +156,6 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
     public void shouldThrowErrorOnEmptyOperationChain() throws IOException {
         // When
         final Response response = client.executeOperationChain(new OperationChain());
-
         assertEquals(500, response.getStatus());
     }
 
@@ -169,7 +168,7 @@ public abstract class OperationServiceIT extends AbstractRestApiIT {
     private <T> List<T> readChunkedResults(final Response response, final GenericType<ChunkedInput<T>> genericType) {
         try {
             // Sleep for a short amount of time to ensure that all results are collected
-            Thread.sleep(2000);
+            Thread.sleep(2500);
         } catch (final InterruptedException e) {
             fail("Issue while waiting for chunked response.");
         }

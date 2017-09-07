@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -41,6 +42,8 @@ public class AddNamedOperation implements Operation {
     private List<String> writeAccessRoles = new ArrayList<>();
     private boolean overwriteFlag = false;
     private Map<String, ParameterDetail> parameters;
+    private Map<String, String> options;
+
 
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
 
@@ -77,7 +80,12 @@ public class AddNamedOperation implements Operation {
 
     public void setOperationChain(final OperationChain operationChain) {
         try {
-            this.operations = new String(JSONSerialiser.serialise(operationChain), Charset.forName(CHARSET_NAME));
+            if (operationChain instanceof OperationChainDAO) {
+                this.operations = new String(JSONSerialiser.serialise(operationChain), Charset.forName(CHARSET_NAME));
+            } else {
+                final OperationChainDAO dao = new OperationChainDAO(operationChain.getOperations());
+                this.operations = new String(JSONSerialiser.serialise(dao), Charset.forName(CHARSET_NAME));
+            }
         } catch (final SerialisationException se) {
             throw new IllegalArgumentException(se.getMessage());
         }
@@ -132,7 +140,18 @@ public class AddNamedOperation implements Operation {
                 .writeAccessRoles(writeAccessRoles.toArray(new String[writeAccessRoles.size()]))
                 .overwrite(overwriteFlag)
                 .parameters(parameters)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static class Builder extends BaseBuilder<AddNamedOperation, Builder> {

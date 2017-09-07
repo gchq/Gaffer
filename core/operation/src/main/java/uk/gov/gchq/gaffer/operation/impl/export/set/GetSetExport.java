@@ -23,6 +23,8 @@ import uk.gov.gchq.gaffer.operation.export.GetExport;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
+import java.util.Map;
+
 /**
  * An <code>GetSetExport</code> GetExport operation gets exported Set results.
  * The Set export is maintained per single Job or {@link uk.gov.gchq.gaffer.operation.OperationChain} only.
@@ -37,6 +39,7 @@ public class GetSetExport implements
     private String key;
     private int start = 0;
     private Integer end = null;
+    private Map<String, String> options;
 
     public int getStart() {
         return start;
@@ -86,7 +89,18 @@ public class GetSetExport implements
                 .key(key)
                 .start(start)
                 .end(end)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static class Builder

@@ -63,10 +63,12 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
     protected void updateOperationInput(final Operation op, final Object result) {
         if (null != result) {
             if (op instanceof OperationChain) {
-                final Operation firstOp = (Operation) ((OperationChain) op).getOperations()
-                                                                           .get(0);
-                if (firstOp instanceof Input) {
-                    setOperationInput(firstOp, result);
+                if (!((OperationChain) op).getOperations().isEmpty()) {
+                    final Operation firstOp = (Operation) ((OperationChain) op).getOperations()
+                            .get(0);
+                    if (firstOp instanceof Input) {
+                        setOperationInput(firstOp, result);
+                    }
                 }
             } else if (op instanceof Input) {
                 setOperationInput(op, result);

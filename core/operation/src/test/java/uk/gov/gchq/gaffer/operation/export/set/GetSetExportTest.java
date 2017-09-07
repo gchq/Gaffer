@@ -45,7 +45,7 @@ public class GetSetExportTest extends OperationTest<GetSetExport> {
         // Then
         assertEquals("key", deserialisedOp.getKey());
         assertEquals("jobId", deserialisedOp.getJobId());
-        assertEquals(0, (int) deserialisedOp.getStart());
+        assertEquals(0, deserialisedOp.getStart());
         assertEquals(5, (int) deserialisedOp.getEnd());
     }
 
@@ -63,7 +63,7 @@ public class GetSetExportTest extends OperationTest<GetSetExport> {
         // Then
         assertEquals("key", operation.getKey());
         assertEquals("jobId", operation.getJobId());
-        assertEquals(0, (int) operation.getStart());
+        assertEquals(0, operation.getStart());
         assertEquals(5, (int) operation.getEnd());
     }
 
@@ -88,7 +88,7 @@ public class GetSetExportTest extends OperationTest<GetSetExport> {
         assertNotSame(getSetExport, clone);
         assertEquals(key, clone.getKey());
         assertEquals(jobId, clone.getJobId());
-        assertEquals(start, (int) clone.getStart());
+        assertEquals(start, clone.getStart());
         assertEquals(end, (int) clone.getEnd());
     }
 

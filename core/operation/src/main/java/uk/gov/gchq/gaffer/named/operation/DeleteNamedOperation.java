@@ -19,9 +19,12 @@ package uk.gov.gchq.gaffer.named.operation;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 
+import java.util.Map;
+
 public class DeleteNamedOperation implements Operation {
     @Required
     private String operationName;
+    private Map<String, String> options;
 
     public String getOperationName() {
         return operationName;
@@ -34,7 +37,18 @@ public class DeleteNamedOperation implements Operation {
     public DeleteNamedOperation shallowClone() {
         return new DeleteNamedOperation.Builder()
                 .name(operationName)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static class Builder extends BaseBuilder<DeleteNamedOperation, Builder> {

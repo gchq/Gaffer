@@ -23,7 +23,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
-import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 
 import javax.ws.rs.Consumes;
@@ -35,6 +35,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.BAD_REQUEST;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.FORBIDDEN;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.INTERNAL_SERVER_ERROR;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.JOB_CREATED;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.JOB_NOT_FOUND;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.JOB_SERVICE_UNAVAILABLE;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.OK;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.OPERATION_NOT_IMPLEMENTED;
 
 /**
  * An <code>IJobService</code> handles jobs - executing Jobs and getting Job
@@ -47,36 +55,36 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 public interface IJobServiceV2 {
 
     @POST
-    @ApiOperation(value = "Performs the given operation chain job on the graph", response = JobDetail.class, code = 201, produces = APPLICATION_JSON)
-    @ApiResponses(value = {@ApiResponse(code = 201, message = "A new job was successfully submitted"),
-            @ApiResponse(code = 400, message = "Error while processing request body"),
-            @ApiResponse(code = 403, message = "The current user cannot perform the requested operation"),
-            @ApiResponse(code = 500, message = "Something went wrong in the server"),
-            @ApiResponse(code = 501, message = "The requested operation is not supported by the target store"),
-            @ApiResponse(code = 503, message = "The job service is not available.")})
-    Response executeJob(final OperationChain opChain) throws OperationException;
+    @ApiOperation(value = "Submits the given operation job to the graph", response = JobDetail.class, code = 201, produces = APPLICATION_JSON)
+    @ApiResponses(value = {@ApiResponse(code = 201, message = JOB_CREATED),
+            @ApiResponse(code = 400, message = BAD_REQUEST),
+            @ApiResponse(code = 403, message = FORBIDDEN),
+            @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR),
+            @ApiResponse(code = 501, message = OPERATION_NOT_IMPLEMENTED),
+            @ApiResponse(code = 503, message = JOB_SERVICE_UNAVAILABLE)})
+    Response executeJob(final Operation operation) throws OperationException;
 
     @GET
     @ApiOperation(value = "Get the details of all jobs", response = JobDetail.class, responseContainer = "List", produces = APPLICATION_JSON)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 500, message = "Something went wrong in the server"),
-            @ApiResponse(code = 503, message = "The job service is not available.")})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
+            @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR),
+            @ApiResponse(code = 503, message = JOB_SERVICE_UNAVAILABLE)})
     Response details() throws OperationException;
 
     @GET
     @Path("{id}")
     @ApiOperation(value = "Get the details of a job", response = JobDetail.class, produces = APPLICATION_JSON)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 404, message = "Job was not found."),
-            @ApiResponse(code = 500, message = "Something went wrong in the server"),
-            @ApiResponse(code = 503, message = "The job service is not available.")})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
+            @ApiResponse(code = 404, message = JOB_NOT_FOUND),
+            @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR),
+            @ApiResponse(code = 503, message = JOB_SERVICE_UNAVAILABLE)})
     Response details(@ApiParam(value = "a job id") @PathParam("id") final String id) throws OperationException;
 
     @GET
     @Path("{id}/results")
     @ApiOperation(value = "Get the results of a job", response = Object.class, responseContainer = "List", produces = APPLICATION_JSON)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 500, message = "Something went wrong in the server"),
-            @ApiResponse(code = 503, message = "The job service is not available.")})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
+            @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR),
+            @ApiResponse(code = 503, message = JOB_SERVICE_UNAVAILABLE)})
     Response results(@ApiParam(value = "a job id") @PathParam("id") final String id) throws OperationException;
 }

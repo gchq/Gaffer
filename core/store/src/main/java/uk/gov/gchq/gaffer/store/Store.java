@@ -37,6 +37,7 @@ import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
@@ -759,6 +760,7 @@ public abstract class Store {
 
         // OperationChain
         addOperationHandler(OperationChain.class, getOperationChainHandler());
+        addOperationHandler(OperationChainDAO.class, getOperationChainHandler());
 
         // Other
         addOperationHandler(GenerateElements.class, new GenerateElementsHandler<>());

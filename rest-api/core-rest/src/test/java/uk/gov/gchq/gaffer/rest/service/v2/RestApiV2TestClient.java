@@ -16,9 +16,6 @@
 
 package uk.gov.gchq.gaffer.rest.service.v2;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
@@ -36,13 +33,13 @@ import static org.junit.Assert.assertEquals;
 public class RestApiV2TestClient extends RestApiTestClient {
 
     public RestApiV2TestClient() {
-        super("http://localhost:8080/rest/v2", new ApplicationConfigV2());
+        super("http://localhost:8080/", "rest/", "v2", new ApplicationConfigV2());
     }
 
     @Override
     public Response executeOperation(final Operation operation) throws IOException {
         startServer();
-        return client.target(uri)
+        return client.target(uriString)
                      .path("/graph/operations")
                      .request()
                      .post(Entity.entity(JSON_SERIALISER.serialise(operation), APPLICATION_JSON_TYPE));
@@ -51,11 +48,7 @@ public class RestApiV2TestClient extends RestApiTestClient {
     @Override
     public Response executeOperationChain(final OperationChain opChain) throws IOException {
         startServer();
-
-        final ObjectMapper mapper = JSONSerialiser.createDefaultMapper();
-        System.out.println(mapper.writeValueAsString(opChain));
-
-        return client.target(uri)
+        return client.target(uriString)
                      .path("/graph/operations")
                      .request()
                      .post(Entity.entity(JSON_SERIALISER.serialise(opChain), APPLICATION_JSON_TYPE));
@@ -69,7 +62,7 @@ public class RestApiV2TestClient extends RestApiTestClient {
     @Override
     public Response executeOperationChunked(final Operation operation) throws IOException {
         startServer();
-        return client.target(uri)
+        return client.target(uriString)
                      .path("/graph/operations/chunked")
                      .request()
                      .post(Entity.entity(JSON_SERIALISER.serialise(operation), APPLICATION_JSON_TYPE));
@@ -78,7 +71,7 @@ public class RestApiV2TestClient extends RestApiTestClient {
     @Override
     public void checkRestServiceStatus() {
         // Given
-        final Response response = client.target(uri)
+        final Response response = client.target(uriString)
                                         .path("/graph/status")
                                         .request()
                                         .get();

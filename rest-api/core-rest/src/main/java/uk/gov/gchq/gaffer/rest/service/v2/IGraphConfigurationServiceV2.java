@@ -32,6 +32,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.CLASS_NOT_FOUND;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.FUNCTION_NOT_FOUND;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.INTERNAL_SERVER_ERROR;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.OK;
 
 /**
  * An <code>IGraphConfigurationService</code> has methods to get {@link uk.gov.gchq.gaffer.graph.Graph} configuration information
@@ -46,68 +50,59 @@ public interface IGraphConfigurationServiceV2 {
     @GET
     @Path("/schema")
     @ApiOperation(value = "Gets the schema", response = String.class, responseContainer = "list", produces = APPLICATION_JSON)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 500, message = "Something went wrong in the server")})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
+            @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
     Response getSchema();
 
     @GET
     @Path("/filterFunctions")
     @ApiOperation(value = "Gets available filter functions.", response = String.class, responseContainer = "list",
             produces = APPLICATION_JSON)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 500, message = "Something went wrong in the server")})
-    Response getFilterFunctions();
+    @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
+            @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
+    Response getFilterFunction();
 
     @GET
     @Path("/filterFunctions/{inputClass}")
     @ApiOperation(value = "Gets available filter functions for the given input class is provided.", response = String.class, responseContainer = "list", produces = APPLICATION_JSON)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 404, message = "Filter function not found."),
-            @ApiResponse(code = 500, message = "Something went wrong in the server")})
-    Response getFilterFunctions(@ApiParam(value = "a function input java class") @PathParam("inputClass") final String inputClass);
+    @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
+            @ApiResponse(code = 404, message = FUNCTION_NOT_FOUND),
+            @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
+    Response getFilterFunction(@ApiParam(value = "a function input java class") @PathParam("inputClass") final String inputClass);
 
     @GET
     @Path("/transformFunctions")
     @ApiOperation(value = "Gets available transform functions", response = String.class, responseContainer = "list", produces = APPLICATION_JSON)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 500, message = "Something went wrong in the server")})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
+            @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
     Response getTransformFunctions();
 
     @GET
     @Path("/elementGenerators")
     @ApiOperation(value = "Gets available element generators", response = String.class, responseContainer = "list", produces = APPLICATION_JSON)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 500, message = "Something went wrong in the server")})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
+            @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
     Response getElementGenerators();
 
     @GET
     @Path("/objectGenerators")
     @ApiOperation(value = "Gets available object generators", response = String.class, responseContainer = "list", produces = APPLICATION_JSON)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 500, message = "Something went wrong in the server")})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
+            @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
     Response getObjectGenerators();
 
     @GET
     @Path("/storeTraits")
     @ApiOperation(value = "Gets all supported store traits", response = StoreTrait.class, responseContainer = "list", produces = APPLICATION_JSON)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 500, message = "Something went wrong in the server")})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
+            @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
     Response getStoreTraits();
-
-//    @POST
-//    @Path("/isOperationSupported")
-//    @ApiOperation(value = "Determines whether the operation type supplied is supported by the store",
-//            response = Boolean.class, produces = APPLICATION_JSON)
-//    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
-//            @ApiResponse(code = 404, message = "Operation not found."),
-//            @ApiResponse(code = 500, message = "Something went wrong in the server")})
-//    Response isOperationSupported(final Class operation);
 
     @GET
     @Path("/serialisedFields/{className}")
     @ApiOperation(value = "Gets all serialised fields for a given java class.", response = String.class, responseContainer = "list", produces = APPLICATION_JSON)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 404, message = "Class not found."),
-            @ApiResponse(code = 500, message = "Something went wrong in the server")})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
+            @ApiResponse(code = 404, message = CLASS_NOT_FOUND),
+            @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
     Response getSerialisedFields(@ApiParam(value = "a java class name") @PathParam("className") final String className);
 }

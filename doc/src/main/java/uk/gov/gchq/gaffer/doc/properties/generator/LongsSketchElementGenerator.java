@@ -21,9 +21,9 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 public class LongsSketchElementGenerator implements OneToManyElementGenerator<String> {
     // Fix the seed so that the results are consistent
@@ -31,7 +31,7 @@ public class LongsSketchElementGenerator implements OneToManyElementGenerator<St
 
     @Override
     public Iterable<Element> _apply(final String line) {
-        final Set<Element> elements = new HashSet<>();
+        final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < 1000; i++) {
             final LongsSketch longsSketch = new LongsSketch(32);
             longsSketch.update((long) (RANDOM.nextDouble() * 10));

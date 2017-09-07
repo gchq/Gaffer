@@ -27,7 +27,6 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
-import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -81,16 +80,14 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
 
     @Override
     protected List<Range> getRange(final Object sourceVal, final Object destVal, final DirectedType directed,
-                                   final GraphFilters operation) throws RangeFactoryException {
-        return Collections.singletonList(new Range(getKeyFromEdgeId(sourceVal, destVal, directed, operation, false), true,
-                getKeyFromEdgeId(sourceVal, destVal, directed, operation, true), true));
+                                   final GraphFilters operation, final IncludeIncomingOutgoingType inOutType) throws RangeFactoryException {
+        return Collections.singletonList(new Range(getKeyFromEdgeId(sourceVal, destVal, directed, inOutType, false), true,
+                getKeyFromEdgeId(sourceVal, destVal, directed, inOutType, true), true));
     }
 
     protected Key getKeyFromEdgeId(final Object sourceVal, final Object destVal, final DirectedType directed,
-                                   final GraphFilters operation,
+                                   final IncludeIncomingOutgoingType inOutType,
                                    final boolean endKey) throws RangeFactoryException {
-        final IncludeIncomingOutgoingType inOutType = (operation instanceof SeededGraphFilters) ? ((SeededGraphFilters) operation).getIncludeIncomingOutGoing() : IncludeIncomingOutgoingType.OUTGOING;
-
         final byte directionFlag1;
         if (DirectedType.isEither(directed)) {
             // Get directed and undirected edges

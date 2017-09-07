@@ -23,7 +23,6 @@ import uk.gov.gchq.gaffer.commonutil.FieldUtil;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.tuple.n.Tuple3;
@@ -46,8 +45,7 @@ import java.util.Map;
  */
 public class SampleDataForSplitPoints implements
         Operation,
-        MapReduce,
-        Options {
+        MapReduce {
 
     @Required
     private String splitsFilePath;
@@ -278,8 +276,7 @@ public class SampleDataForSplitPoints implements
 
 
     public static class Builder extends Operation.BaseBuilder<SampleDataForSplitPoints, Builder>
-            implements MapReduce.Builder<SampleDataForSplitPoints, Builder>,
-            Options.Builder<SampleDataForSplitPoints, Builder> {
+            implements MapReduce.Builder<SampleDataForSplitPoints, Builder> {
         public Builder() {
             super(new SampleDataForSplitPoints());
         }

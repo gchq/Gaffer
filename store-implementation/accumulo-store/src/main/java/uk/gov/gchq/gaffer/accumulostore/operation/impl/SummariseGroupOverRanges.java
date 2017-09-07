@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
@@ -44,8 +43,7 @@ public class SummariseGroupOverRanges
         implements Operation,
         InputOutput<Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, CloseableIterable<? extends Element>>,
         MultiInput<Pair<? extends ElementId, ? extends ElementId>>,
-        SeededGraphFilters,
-        Options {
+        SeededGraphFilters {
 
     private Iterable<? extends Pair<? extends ElementId, ? extends ElementId>> input;
     private IncludeIncomingOutgoingType inOutType;
@@ -122,8 +120,7 @@ public class SummariseGroupOverRanges
     public static class Builder extends Operation.BaseBuilder<SummariseGroupOverRanges, Builder>
             implements InputOutput.Builder<SummariseGroupOverRanges, Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, CloseableIterable<? extends Element>, Builder>,
             MultiInput.Builder<SummariseGroupOverRanges, Pair<? extends ElementId, ? extends ElementId>, Builder>,
-            SeededGraphFilters.Builder<SummariseGroupOverRanges, Builder>,
-            Options.Builder<SummariseGroupOverRanges, Builder> {
+            SeededGraphFilters.Builder<SummariseGroupOverRanges, Builder> {
         public Builder() {
             super(new SummariseGroupOverRanges());
         }

@@ -22,9 +22,11 @@ import io.swagger.annotations.Info;
 import io.swagger.annotations.License;
 import io.swagger.annotations.SwaggerDefinition;
 
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+
 @SwaggerDefinition(
         info = @Info(
-                description = "This is an example REST service for Gaffer.",
+                description = "The Gaffer REST service.",
                 version = "v1",
                 title = "Gaffer REST API",
                 contact = @Contact(
@@ -36,10 +38,10 @@ import io.swagger.annotations.SwaggerDefinition;
                         url = "http://www.apache.org/licenses/LICENSE-2.0"
                 )
         ),
-        consumes = {"application/json"},
-        produces = {"application/json"},
+        consumes = {APPLICATION_JSON},
+        produces = {APPLICATION_JSON},
         schemes = {SwaggerDefinition.Scheme.HTTP, SwaggerDefinition.Scheme.HTTPS},
-        externalDocs = @ExternalDocs(value = "Wiki", url = "https://github.com/gchq/Gaffer/Wiki")
+        externalDocs = @ExternalDocs(value = "Wiki", url = "https://github.com/gchq/Gaffer/wiki")
 )
 public interface SwaggerDefinitionConfig {
     // Empty marker interface

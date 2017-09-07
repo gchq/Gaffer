@@ -14,14 +14,47 @@
  * limitations under the License.
  */
 function addExampleButtons(){
-$("#resource_operations .operation-params").find("td:eq(2)").append("<input type='button' value='Example JSON' onclick='if(loadExample){loadExample(this)}'>");
+
+    var tables = $("#resource_operations .operation-params")
+
+    for (var i = 0; i < tables.length; i++) {
+        var table = tables[i]
+        var rows = table.children
+        for (var j = 0; j < rows.length; j++) {
+            var row = rows[j]
+            var firstCell = row.firstElementChild
+            if (firstCell.firstElementChild.innerText == "body") {
+                row.children[2].innerHTML = "<input type='button' value='Example JSON' onclick='if(loadExample){loadExample(this)}'>"
+            }
+        }
+    }
 }
 
 function loadExample(exampleButton){
-    var urlSuffix = $(exampleButton).closest('.operation').find(".path").text().trim();
-    var method = $(exampleButton).closest('.operation').find(".http_method").text().trim();
 
-    var exampleUrl = "latest/example" + urlSuffix;
+    var footer = document.getElementById("swagger-ui-container").children[1].children[2].innerText
+
+    var version = footer.substr(footer.lastIndexOf(':') + 2, 2)
+
+    var classPathParam = ""
+
+    var operation = $(exampleButton).closest('.operation')
+
+    var row = operation.find(".operation-params")[0].firstElementChild
+
+    if (row.firstElementChild.textContent == "className") {
+        classPathParam = row.children[1].firstElementChild.value
+    }
+
+    var urlSuffix = operation.find(".path").text().trim();
+    var method = operation.find(".http_method").text().trim();
+
+    if (classPathParam == "" && urlSuffix.includes('{')) {
+        classPathParam = "uk.gov.gchq.gaffer.operation.OperationChain"
+        row.children[1].firstElementChild.value = "uk.gov.gchq.gaffer.operation.OperationChain"
+    }
+
+    var exampleUrl = version + "/example" + urlSuffix.replace(/\{(.*?)\}/, classPathParam);
 
     if (method != 'post') {
         exampleUrl = exampleUrl + '/' + method
@@ -54,7 +87,7 @@ function init(onSwaggerComplete){
               }
         },
         onFailure: function(data) {
-          log("Unable to Load SwaggerUI");
+          log("Unable to load SwaggerUI");
         },
         docExpansion: "none",
         jsonEditor: false,
