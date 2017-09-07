@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -79,7 +80,12 @@ public class AddNamedOperation implements Operation {
 
     public void setOperationChain(final OperationChain operationChain) {
         try {
-            this.operations = new String(JSONSerialiser.serialise(operationChain), Charset.forName(CHARSET_NAME));
+            if (operationChain instanceof OperationChainDAO) {
+                this.operations = new String(JSONSerialiser.serialise(operationChain), Charset.forName(CHARSET_NAME));
+            } else {
+                final OperationChainDAO dao = new OperationChainDAO(operationChain.getOperations());
+                this.operations = new String(JSONSerialiser.serialise(dao), Charset.forName(CHARSET_NAME));
+            }
         } catch (final SerialisationException se) {
             throw new IllegalArgumentException(se.getMessage());
         }

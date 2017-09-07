@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest.service;
+package uk.gov.gchq.gaffer.rest.service.v1.example;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -28,11 +28,12 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
+
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 /**
  * An <code>IExamplesService</code> has methods to produce example {@link uk.gov.gchq.gaffer.operation.Operation}s to be applied
- * to the methods in {@link uk.gov.gchq.gaffer.rest.service.IOperationService}.
+ * to the methods in {@link uk.gov.gchq.gaffer.rest.service.v1.IOperationService}.
  * Each example method path should be equal to the corresponding IOperationService method with /example as a prefix.
  * Each example method should return a populated {@link uk.gov.gchq.gaffer.operation.Operation} which can be used to call the
  * corresponding IOperationService method.
@@ -42,7 +43,7 @@ import javax.ws.rs.core.MediaType;
  * constructing a valid {@link uk.gov.gchq.gaffer.operation.Operation}.
  */
 @Path("/example")
-@Produces(MediaType.APPLICATION_JSON)
+@Produces(APPLICATION_JSON)
 public interface IExamplesService {
     @GET
     @Path("/graph/doOperation")

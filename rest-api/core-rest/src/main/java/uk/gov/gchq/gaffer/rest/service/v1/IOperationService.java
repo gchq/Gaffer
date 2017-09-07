@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest.service;
+package uk.gov.gchq.gaffer.rest.service.v1;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
@@ -38,21 +37,22 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
+
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 /**
  * An <code>IOperationService</code> has methods to execute {@link uk.gov.gchq.gaffer.operation.Operation}s on the
  * {@link uk.gov.gchq.gaffer.graph.Graph}.
  */
 @Path("/graph/doOperation")
-@Api(value = "operations", description = "Allows operations to be executed on the graph. See <a href='https://github.com/gchq/Gaffer/wiki/operation-examples' target='_blank'>Wiki</a>.")
-@Consumes(MediaType.APPLICATION_JSON)
-@Produces(MediaType.APPLICATION_JSON)
+@Api(value = "operations")
+@Consumes(APPLICATION_JSON)
+@Produces(APPLICATION_JSON)
 public interface IOperationService {
 
     @POST
     @ApiOperation(value = "Performs the given operation chain on the graph", response = Object.class)
-    Object execute(final OperationChainDAO opChain);
+    Object execute(final OperationChain opChain);
 
     @POST
     @Path("/operation")
@@ -67,7 +67,7 @@ public interface IOperationService {
     @POST
     @Path("/chunked")
     @ApiOperation(value = "Performs the given operation chain on the graph, returned chunked output. NOTE - does not work in Swagger.", response = Object.class)
-    ChunkedOutput<String> executeChunked(final OperationChain<CloseableIterable<Element>> opChain);
+    ChunkedOutput<String> executeChunkedChain(final OperationChain<CloseableIterable<Element>> opChain);
 
     @POST
     @Path("/generate/objects")

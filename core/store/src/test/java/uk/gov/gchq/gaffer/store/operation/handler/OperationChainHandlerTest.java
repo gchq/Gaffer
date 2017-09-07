@@ -96,7 +96,7 @@ public class OperationChainHandlerTest {
         final StoreProperties storeProperties = new StoreProperties();
 
         final GetAllElements op = mock(GetAllElements.class);
-        final OperationChain opChain = new OperationChain(Arrays.asList(op));
+        final OperationChain opChain = new OperationChain(Collections.singletonList(op));
         final Entity expectedResult = new Entity(TestGroups.ENTITY);
 
         given(context.getUser()).willReturn(user);

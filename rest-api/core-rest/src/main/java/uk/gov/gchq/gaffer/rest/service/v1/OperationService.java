@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest.service;
+package uk.gov.gchq.gaffer.rest.service.v1;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
@@ -47,7 +46,7 @@ import java.io.IOException;
 import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
 
 /**
- * An implementation of {@link uk.gov.gchq.gaffer.rest.service.IOperationService}. By default it will use a singleton
+ * An implementation of {@link IOperationService}. By default it will use a singleton
  * {@link uk.gov.gchq.gaffer.graph.Graph} generated using the {@link uk.gov.gchq.gaffer.rest.factory.GraphFactory}.
  * All operations are simple delegated to the graph.
  * Pre and post operation hooks are available by extending this class and implementing preOperationHook and/or
@@ -69,7 +68,7 @@ public class OperationService implements IOperationService {
     private UserFactory userFactory;
 
     @Override
-    public Object execute(final OperationChainDAO opChain) {
+    public Object execute(final OperationChain opChain) {
         return _execute(opChain);
     }
 
@@ -80,7 +79,7 @@ public class OperationService implements IOperationService {
 
     @SuppressFBWarnings
     @Override
-    public ChunkedOutput<String> executeChunked(final OperationChain<CloseableIterable<Element>> opChain) {
+    public ChunkedOutput<String> executeChunkedChain(final OperationChain opChain) {
         // Create chunked output instance
         final ChunkedOutput<String> output = new ChunkedOutput<>(String.class, "\r\n");
 
@@ -104,7 +103,10 @@ public class OperationService implements IOperationService {
     @SuppressFBWarnings
     @Override
     public ChunkedOutput<String> executeChunked(final Operation operation) {
-        return executeChunked(new OperationChain(operation));
+        if (operation instanceof OperationChain) {
+            return executeChunkedChain((OperationChain) operation);
+        }
+        return executeChunkedChain(new OperationChain(operation));
     }
 
     @Override

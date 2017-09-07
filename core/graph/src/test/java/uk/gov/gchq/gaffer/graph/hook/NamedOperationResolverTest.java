@@ -125,7 +125,6 @@ public class NamedOperationResolverTest {
         verify(op2, never()).setInput((Iterable) input);
     }
 
-
     @Test
     public void shouldResolveNamedOperationWithParameter() throws OperationException, CacheOperationFailedException {
         // Given

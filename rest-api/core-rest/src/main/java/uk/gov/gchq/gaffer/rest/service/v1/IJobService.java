@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest.service;
+package uk.gov.gchq.gaffer.rest.service.v1;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -30,16 +30,17 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
+
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 /**
  * An <code>IJobService</code> handles jobs - executing Jobs and getting Job
  * statuses.
  */
 @Path("/graph/jobs")
-@Api(value = "job", description = "Allows jobs to be executed on the graph. See <a href='https://github.com/gchq/Gaffer/wiki/operation-examples' target='_blank'>Wiki</a>.")
-@Consumes(MediaType.APPLICATION_JSON)
-@Produces(MediaType.APPLICATION_JSON)
+@Api(value = "job")
+@Consumes(APPLICATION_JSON)
+@Produces(APPLICATION_JSON)
 public interface IJobService {
 
     @POST

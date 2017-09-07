@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest.service;
+package uk.gov.gchq.gaffer.rest.service.v1.example;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -240,7 +240,7 @@ public class ExamplesService implements IExamplesService {
         populateOperation((Operation) operation);
     }
 
-    protected View.Builder generateViewBuilder() {
+    public View.Builder generateViewBuilder() {
         final View.Builder viewBuilder = new View.Builder();
         if (hasEntities()) {
             final ViewElementDefinition viewElement;

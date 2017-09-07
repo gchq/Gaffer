@@ -224,7 +224,6 @@ public class GetRDDOfAllElementsHandlerTest {
         final Element[] returnedElements = (Element[]) rdd.collect();
         for (int i = 0; i < returnedElements.length; i++) {
             results.add(returnedElements[i]);
-            System.out.println(returnedElements[i]);
         }
         assertEquals(expectedElements, results);
     }

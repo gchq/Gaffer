@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest.service;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+package uk.gov.gchq.gaffer.rest.service.v1;
 
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.Status;
@@ -28,29 +23,29 @@ import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 
 /**
- * An <code>StatusService</code> has methods to check the status of the system
+ * An implementation of {@link IStatusService}.
+ * By default it will use a singleton {@link uk.gov.gchq.gaffer.graph.Graph} generated
+ * using the {@link uk.gov.gchq.gaffer.rest.factory.GraphFactory}.
+ * All operations are simply delegated to the graph.
+ * Pre and post operation hooks are available by extending this class and implementing
+ * preOperationHook and/or postOperationHook.
+ * <p>
+ * By default queries will be executed with an UNKNOWN user containing no auths.
+ * TheuserFactory.createUser() method should be overridden and a {@link uk.gov.gchq.gaffer.user.User}
+ * object should be created from the http request.
+ * </p>
  */
-@Path("/status")
-@Produces(MediaType.APPLICATION_JSON)
-@Api(value = "/status", description = "Methods to check the status of the system.")
-public class StatusService {
+public class StatusService implements IStatusService {
 
-     @Inject
+    @Inject
     private GraphFactory graphFactory;
 
     @Inject
     private UserFactory userFactory;
 
-    @GET
-    @ApiOperation(value = "Returns the status of the service", response = SystemStatus.class)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 500, message = "Something wrong in Server")})
+    @Override
     public SystemStatus status() {
         try {
             if (null != graphFactory.getGraph()) {
