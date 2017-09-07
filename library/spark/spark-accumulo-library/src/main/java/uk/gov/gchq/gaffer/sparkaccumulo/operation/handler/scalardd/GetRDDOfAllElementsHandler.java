@@ -198,9 +198,9 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
         }
     }
 
-    public static class EntryToElement extends AbstractFunction1<Map.Entry<Key, Value>, Element> implements Serializable {
-        private transient AccumuloElementConverter converter;
-        private transient View view;
+    public static class EntryToElement extends AbstractFunction1<Map.Entry<Key, Value>, Element> {
+        private AccumuloElementConverter converter;
+        private View view;
 
         public EntryToElement(final byte[] serialisedConf) {
             try {
