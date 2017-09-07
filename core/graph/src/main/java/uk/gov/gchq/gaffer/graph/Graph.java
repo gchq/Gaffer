@@ -671,6 +671,8 @@ public final class Graph {
                 config.setGraphId(store.getGraphId());
             }
 
+            updateSchema(config);
+
             if (null != config.getLibrary() && config.getLibrary().exists(config.getGraphId())) {
                 //Set Props & Schema if null.
                 final Pair<Schema, StoreProperties> pair = config.getLibrary().get(config.getGraphId());
@@ -678,7 +680,6 @@ public final class Graph {
                 schema = (null == schema) ? pair.getFirst() : schema;
             }
 
-            updateSchema(config);
             updateStore(config);
 
             if (null != config.getGraphId()) {

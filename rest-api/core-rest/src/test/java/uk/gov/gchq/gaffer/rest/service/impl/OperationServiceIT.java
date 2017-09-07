@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest.service;
+package uk.gov.gchq.gaffer.rest.service.impl;
 
 import org.glassfish.jersey.client.ChunkedInput;
 import org.junit.Test;
@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.rest.AbstractRestApiIT;
-import uk.gov.gchq.gaffer.rest.RestApiTestUtil;
 
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
@@ -39,15 +38,16 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
-public class OperationServiceIT extends AbstractRestApiIT {
+public abstract class OperationServiceIT extends AbstractRestApiIT {
     @Test
     public void shouldReturnAllElements() throws IOException {
         // Given
-        RestApiTestUtil.addElements(DEFAULT_ELEMENTS);
+        client.addElements(DEFAULT_ELEMENTS);
 
         // When
-        final Response response = RestApiTestUtil.executeOperation(new GetAllElements());
+        final Response response = client.executeOperation(new GetAllElements());
 
         // Then
         final List<Element> results = response.readEntity(new GenericType<List<Element>>() {
@@ -59,10 +59,10 @@ public class OperationServiceIT extends AbstractRestApiIT {
     @Test
     public void shouldReturnGroupCounts() throws IOException {
         // Given
-        RestApiTestUtil.addElements(DEFAULT_ELEMENTS);
+        client.addElements(DEFAULT_ELEMENTS);
 
         // When
-        final Response response = RestApiTestUtil.executeOperationChainChunked(new OperationChain.Builder()
+        final Response response = client.executeOperationChunked(new OperationChain.Builder()
                 .first(new GetAllElements())
                 .then(new CountGroups())
                 .build());
@@ -77,10 +77,10 @@ public class OperationServiceIT extends AbstractRestApiIT {
     @Test
     public void shouldReturnChunkedOperationChainElements() throws IOException {
         // Given
-        RestApiTestUtil.addElements(DEFAULT_ELEMENTS);
+        client.addElements(DEFAULT_ELEMENTS);
 
         // When
-        final Response response = RestApiTestUtil.executeOperationChainChunked(new OperationChain<>(new GetAllElements()));
+        final Response response = client.executeOperationChainChunked(new OperationChain<>(new GetAllElements()));
 
         // Then
         final List<Element> results = readChunkedElements(response);
@@ -90,10 +90,10 @@ public class OperationServiceIT extends AbstractRestApiIT {
     @Test
     public void shouldReturnAllChunkedOperationElements() throws IOException {
         // Given
-        RestApiTestUtil.addElements(DEFAULT_ELEMENTS);
+        client.addElements(DEFAULT_ELEMENTS);
 
         // When
-        final Response response = RestApiTestUtil.executeOperationChunked(new GetAllElements());
+        final Response response = client.executeOperationChunked(new GetAllElements());
 
         // Then
         final List<Element> results = readChunkedElements(response);
@@ -103,10 +103,10 @@ public class OperationServiceIT extends AbstractRestApiIT {
     @Test
     public void shouldReturnChunkedOperationChainGroupCounts() throws IOException {
         // Given
-        RestApiTestUtil.addElements(DEFAULT_ELEMENTS);
+        client.addElements(DEFAULT_ELEMENTS);
 
         // When
-        final Response response = RestApiTestUtil.executeOperationChainChunked(new OperationChain.Builder()
+        final Response response = client.executeOperationChainChunked(new OperationChain.Builder()
                 .first(new GetAllElements())
                 .then(new CountGroups())
                 .build());
@@ -122,7 +122,7 @@ public class OperationServiceIT extends AbstractRestApiIT {
     @Test
     public void shouldReturnNoChunkedOperationChainElementsWhenNoElementsInGraph() throws IOException {
         // When
-        final Response response = RestApiTestUtil.executeOperationChainChunked(new OperationChain<>(new GetAllElements()));
+        final Response response = client.executeOperationChainChunked(new OperationChain<>(new GetAllElements()));
 
         // Then
         final List<Element> results = readChunkedElements(response);
@@ -132,7 +132,7 @@ public class OperationServiceIT extends AbstractRestApiIT {
     @Test
     public void shouldReturnNoChunkedOperationElementsWhenNoElementsInGraph() throws IOException {
         // When
-        final Response response = RestApiTestUtil.executeOperationChunked(new GetAllElements());
+        final Response response = client.executeOperationChunked(new GetAllElements());
 
         // Then
         final List<Element> results = readChunkedElements(response);
@@ -142,14 +142,12 @@ public class OperationServiceIT extends AbstractRestApiIT {
     @Test
     public void shouldThrowErrorOnAddElements() throws IOException {
         // Given
-        RestApiTestUtil.addElements(DEFAULT_ELEMENTS);
+        client.addElements(DEFAULT_ELEMENTS);
 
         // When
-        final Response response = RestApiTestUtil.executeOperationChain(new OperationChain.Builder()
-                .first(new AddElements.Builder()
+        final Response response = client.executeOperation(new AddElements.Builder()
                         .input(new Entity("wrong_group", "object"))
-                        .build())
-                .build());
+                        .build());
 
         assertEquals(500, response.getStatus());
     }
@@ -157,8 +155,7 @@ public class OperationServiceIT extends AbstractRestApiIT {
     @Test
     public void shouldThrowErrorOnEmptyOperationChain() throws IOException {
         // When
-        final Response response = RestApiTestUtil.executeOperationChain(new OperationChain());
-
+        final Response response = client.executeOperationChain(new OperationChain());
         assertEquals(500, response.getStatus());
     }
 
@@ -169,6 +166,13 @@ public class OperationServiceIT extends AbstractRestApiIT {
     }
 
     private <T> List<T> readChunkedResults(final Response response, final GenericType<ChunkedInput<T>> genericType) {
+        try {
+            // Sleep for a short amount of time to ensure that all results are collected
+            Thread.sleep(2500);
+        } catch (final InterruptedException e) {
+            fail("Issue while waiting for chunked response.");
+        }
+
         final ChunkedInput<T> input = response.readEntity(genericType);
 
         final List<T> results = new ArrayList<>();
@@ -180,7 +184,7 @@ public class OperationServiceIT extends AbstractRestApiIT {
 
     private void verifyGroupCounts(final GroupCounts groupCounts) {
         assertEquals(2, (int) groupCounts.getEntityGroups()
-                .get(TestGroups.ENTITY));
+                                         .get(TestGroups.ENTITY));
         assertEquals(1, (int) groupCounts.getEdgeGroups().get(TestGroups.EDGE));
         assertFalse(groupCounts.isLimitHit());
     }

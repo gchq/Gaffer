@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest.service;
+package uk.gov.gchq.gaffer.rest.service.v2;
 
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JavaType;
@@ -27,15 +27,13 @@ import org.reflections.util.ClasspathHelper;
 
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.data.generator.ObjectGenerator;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
-import uk.gov.gchq.gaffer.store.StoreTrait;
-import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.signature.Signature;
 
 import javax.inject.Inject;
+import javax.ws.rs.core.Response;
 
 import java.lang.reflect.Modifier;
 import java.net.URL;
@@ -47,15 +45,18 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
+
 /**
- * An implementation of {@link uk.gov.gchq.gaffer.rest.service.IGraphConfigurationService}. By default it will use a singleton
+ * An implementation of {@link uk.gov.gchq.gaffer.rest.service.v2.IGraphConfigurationServiceV2}. By default it will use a singleton
  * {@link uk.gov.gchq.gaffer.graph.Graph} generated using the {@link uk.gov.gchq.gaffer.rest.factory.GraphFactory}.
  * <p>
  * Currently the {@link uk.gov.gchq.gaffer.operation.Operation}s, {@link java.util.function.Predicate}s,
  * {@link java.util.function.Function}s and {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator}s available
  * are only returned if they are in a package prefixed with 'gaffer'.
  */
-public class GraphConfigurationService implements IGraphConfigurationService {
+public class GraphConfigurationServiceV2 implements IGraphConfigurationServiceV2 {
     private static final Set<Class> FILTER_FUNCTIONS = getSubClasses(Predicate.class);
     private static final Set<Class> TRANSFORM_FUNCTIONS = getSubClasses(Function.class);
     private static final Set<Class> ELEMENT_GENERATORS = getSubClasses(ElementGenerator.class);
@@ -71,125 +72,10 @@ public class GraphConfigurationService implements IGraphConfigurationService {
         // Invoking this method will cause the static lists to be populated.
     }
 
-    @Override
-    public Schema getSchema() {
-        return graphFactory.getGraph().getSchema();
-    }
-
-    @Override
-    public String getDescription() {
-        return graphFactory.getGraph().getDescription();
-    }
-
-    @Override
-    public Set<Class> getFilterFunctions() {
-        return FILTER_FUNCTIONS;
-    }
-
-    @SuppressFBWarnings(value = "REC_CATCH_EXCEPTION", justification = "Need to wrap all runtime exceptions before they are given to the user")
-    @Override
-    public Set<Class> getFilterFunctions(final String inputClass) {
-        if (StringUtils.isEmpty(inputClass)) {
-            return getFilterFunctions();
-        }
-
-        final Class<?> clazz;
-        try {
-            clazz = Class.forName(inputClass);
-        } catch (final Exception e) {
-            throw new IllegalArgumentException("Input class was not recognised: " + inputClass, e);
-        }
-
-        final Set<Class> classes = new HashSet<>();
-        for (final Class functionClass : FILTER_FUNCTIONS) {
-            try {
-                final Predicate function = (Predicate) functionClass.newInstance();
-                final Signature signature = Signature.getInputSignature(function);
-                if (null == signature.getNumClasses()
-                        || (1 == signature.getNumClasses() &&
-                        (Signature.UnknownGenericType.class.isAssignableFrom(signature.getClasses()[0])
-                                || signature.getClasses()[0].isAssignableFrom(clazz)))) {
-                    classes.add(functionClass);
-                }
-            } catch (final Exception e) {
-                // just add the function.
-                classes.add(functionClass);
-            }
-        }
-
-        return classes;
-    }
-
-    @SuppressFBWarnings(value = "REC_CATCH_EXCEPTION", justification = "Need to wrap all runtime exceptions before they are given to the user")
-    @Override
-    public Set<String> getSerialisedFields(final String className) {
-        final Class<?> clazz;
-        try {
-            clazz = Class.forName(className);
-        } catch (final Exception e) {
-            throw new IllegalArgumentException("Class name was not recognised: " + className, e);
-        }
-
-        final ObjectMapper mapper = new ObjectMapper();
-        final JavaType type = mapper.getTypeFactory().constructType(clazz);
-        final BeanDescription introspection = mapper.getSerializationConfig().introspect(type);
-        final List<BeanPropertyDefinition> properties = introspection.findProperties();
-
-        final Set<String> fields = new HashSet<>();
-        for (final BeanPropertyDefinition property : properties) {
-            fields.add(property.getName());
-        }
-
-        return fields;
-    }
-
-    @Override
-    public Set<Class> getTransformFunctions() {
-        return TRANSFORM_FUNCTIONS;
-    }
-
-    @Override
-    public Set<StoreTrait> getStoreTraits() {
-        return graphFactory.getGraph().getStoreTraits();
-    }
-
-    @Override
-    public Set<Class> getNextOperations(final String operationClassName) {
-        Class<? extends Operation> opClass;
-        try {
-            opClass = Class.forName(operationClassName).asSubclass(Operation.class);
-        } catch (final ClassNotFoundException e) {
-            throw new IllegalArgumentException("Operation class was not found: " + operationClassName, e);
-        } catch (final ClassCastException e) {
-            throw new IllegalArgumentException(operationClassName + " does not extend Operation", e);
-        }
-
-        return (Set) graphFactory.getGraph().getNextOperations(opClass);
-    }
-
-    @Override
-    public Set<Class> getElementGenerators() {
-        return ELEMENT_GENERATORS;
-    }
-
-    @Override
-    public Set<Class> getObjectGenerators() {
-        return OBJECT_GENERATORS;
-    }
-
-    @Override
-    public Set<Class> getOperations() {
-        return (Set) graphFactory.getGraph().getSupportedOperations();
-    }
-
-    @Override
-    public Boolean isOperationSupported(final Class operation) {
-        return graphFactory.getGraph().isSupported(operation);
-    }
-
     private static Set<Class> getSubClasses(final Class<?> clazz) {
         final Set<URL> urls = new HashSet<>();
-        for (final String packagePrefix : System.getProperty(SystemProperty.PACKAGE_PREFIXES, SystemProperty.PACKAGE_PREFIXES_DEFAULT).split(",")) {
+        for (final String packagePrefix : System.getProperty(SystemProperty.PACKAGE_PREFIXES, SystemProperty.PACKAGE_PREFIXES_DEFAULT)
+                                                .split(",")) {
             urls.addAll(ClasspathHelper.forPackage(packagePrefix));
         }
 
@@ -206,11 +92,117 @@ public class GraphConfigurationService implements IGraphConfigurationService {
                 final Class clazz = itr.next();
                 if (null != clazz) {
                     final int modifiers = clazz.getModifiers();
-                    if (Modifier.isAbstract(modifiers) || Modifier.isInterface(modifiers) || Modifier.isPrivate(modifiers) || Modifier.isProtected(modifiers)) {
+                    if (Modifier.isAbstract(modifiers) || Modifier.isInterface(modifiers) || Modifier
+                            .isPrivate(modifiers) || Modifier.isProtected(modifiers)) {
                         itr.remove();
                     }
                 }
             }
         }
+    }
+
+    @Override
+    public Response getSchema() {
+        return Response.ok(graphFactory.getGraph().getSchema())
+                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                       .build();
+    }
+
+    @Override
+    public Response getFilterFunction() {
+        return Response.ok(FILTER_FUNCTIONS)
+                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                       .build();
+    }
+
+    @SuppressFBWarnings(value = "REC_CATCH_EXCEPTION", justification = "Need to wrap all runtime exceptions before they are given to the user")
+    @Override
+    public Response getFilterFunction(final String inputClass) {
+        if (StringUtils.isEmpty(inputClass)) {
+            return getFilterFunction();
+        }
+
+        final Class<?> clazz;
+        try {
+            clazz = Class.forName(inputClass);
+        } catch (final Exception e) {
+            throw new IllegalArgumentException("Input class was not recognised: " + inputClass, e);
+        }
+
+        final Set<Class> classes = new HashSet<>();
+        for (final Class functionClass : FILTER_FUNCTIONS) {
+            try {
+                final Predicate function = (Predicate) functionClass.newInstance();
+                final Signature signature = Signature.getInputSignature(function);
+                if (null == signature.getNumClasses()
+                        || (1 == signature.getNumClasses() &&
+                        (Signature.UnknownGenericType.class.isAssignableFrom(signature
+                                .getClasses()[0])
+                                || signature.getClasses()[0].isAssignableFrom(clazz)))) {
+                    classes.add(functionClass);
+                }
+            } catch (final Exception e) {
+                // just add the function.
+                classes.add(functionClass);
+            }
+        }
+
+        return Response.ok(classes)
+                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                       .build();
+    }
+
+    @SuppressFBWarnings(value = "REC_CATCH_EXCEPTION", justification = "Need to wrap all runtime exceptions before they are given to the user")
+    @Override
+    public Response getSerialisedFields(final String className) {
+        final Class<?> clazz;
+        try {
+            clazz = Class.forName(className);
+        } catch (final Exception e) {
+            throw new IllegalArgumentException("Class name was not recognised: " + className, e);
+        }
+
+        final ObjectMapper mapper = new ObjectMapper();
+        final JavaType type = mapper.getTypeFactory().constructType(clazz);
+        final BeanDescription introspection = mapper.getSerializationConfig()
+                                                    .introspect(type);
+        final List<BeanPropertyDefinition> properties = introspection.findProperties();
+
+        final Set<String> fields = new HashSet<>();
+        for (final BeanPropertyDefinition property : properties) {
+            fields.add(property.getName());
+        }
+
+        return Response.ok(fields)
+                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                       .build();
+    }
+
+    @Override
+    public Response getTransformFunctions() {
+        return Response.ok(TRANSFORM_FUNCTIONS)
+                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                       .build();
+    }
+
+    @Override
+    public Response getStoreTraits() {
+        return Response.ok(graphFactory.getGraph().getStoreTraits())
+                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                       .build();
+    }
+
+    @Override
+    public Response getElementGenerators() {
+        return Response.ok(ELEMENT_GENERATORS)
+                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                       .build();
+    }
+
+    @Override
+    public Response getObjectGenerators() {
+        return Response.ok(OBJECT_GENERATORS)
+                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                       .build();
     }
 }
