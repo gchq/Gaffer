@@ -69,7 +69,7 @@
                             </webapps>
                             <systemProperties>
                                 <gaffer.rest-api.basePath>
-                                    ${standalone-path}/v1
+                                    ${standalone-path}
                                 </gaffer.rest-api.basePath>
                                 <gaffer.graph.config>
                                     ${project.build.outputDirectory}/graphConfig.json
