@@ -15,11 +15,7 @@
  */
 package uk.gov.gchq.gaffer.parquetstore.operation.getelements.impl;
 
-import org.apache.accumulo.core.security.AuthorizationContainer;
-import org.apache.accumulo.core.security.Authorizations;
-import org.apache.accumulo.core.security.ColumnVisibility;
-import org.apache.accumulo.core.security.VisibilityEvaluator;
-import org.apache.accumulo.core.security.VisibilityParseException;
+
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.filter2.compat.FilterCompat;
 import org.apache.parquet.filter2.predicate.FilterPredicate;
@@ -35,6 +31,11 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.io.reader.ParquetElementReader;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
+import uk.gov.gchq.gaffer.parquetstore.utils.visibilities.AuthorisationContainer;
+import uk.gov.gchq.gaffer.parquetstore.utils.visibilities.Authorisations;
+import uk.gov.gchq.gaffer.parquetstore.utils.visibilities.ColumnVisibility;
+import uk.gov.gchq.gaffer.parquetstore.utils.visibilities.VisibilityEvaluator;
+import uk.gov.gchq.gaffer.parquetstore.utils.visibilities.exception.VisibilityParseException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -56,7 +57,7 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
     private final byte[] elementDefinitionJson;
     private final boolean needsValidation;
     private final String group;
-    private final Authorizations auths;
+    private final Authorisations auths;
     private final String visibility;
 
     public RetrieveElementsFromFile(final Path filePath, final FilterPredicate filter, final Schema gafferSchema,
@@ -73,9 +74,9 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
         }
 
         if (user != null && user.getDataAuths() != null) {
-            this.auths = new Authorizations(user.getDataAuths().toArray(new String[user.getDataAuths().size()]));
+            this.auths = new Authorisations(user.getDataAuths().toArray(new String[user.getDataAuths().size()]));
         } else {
-            this.auths = new Authorizations();
+            this.auths = new Authorisations();
         }
 
         this.queue = queue;
@@ -144,7 +145,7 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
 
     private Boolean isVisible(final Element e) throws VisibilityParseException {
         if (e.getProperty(visibility) != null) {
-            final VisibilityEvaluator visibilityEvaluator = new VisibilityEvaluator((AuthorizationContainer) auths);
+            final VisibilityEvaluator visibilityEvaluator = new VisibilityEvaluator((AuthorisationContainer) auths);
             final ColumnVisibility elementVisibility = new ColumnVisibility((String) e.getProperty(visibility));
             return visibilityEvaluator.evaluate(elementVisibility);
         } else {
