@@ -1,0 +1,10 @@
+{
+  "entities": {
+    "cardinality": {
+      "vertex": "vertex.string",
+      "properties": {
+        "approxCardinality": "hyperloglogplus"
+      }
+    }
+  }
+}
