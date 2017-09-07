@@ -38,7 +38,6 @@ import uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
