@@ -1,7 +1,7 @@
 {
   "graphId": "graphId1",
   "library": {
-    "class": "uk.gov.gchq.gaffer.store.library.FileGraphLibrary"
+    "class": "uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary"
   },
   "hooks": [
     {

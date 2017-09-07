@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest;
+package uk.gov.gchq.gaffer.rest.factory;
 
-import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
-
-public class GraphFactoryForTest extends DefaultGraphFactory {
+public class UserFactoryForTest extends UnknownUserFactory {
 }

@@ -130,7 +130,7 @@ public abstract class GraphLibrary {
     }
 
     public void checkExisting(final String graphId, final Schema schema, final StoreProperties properties) {
-        checkExisting(graphId, (null == schema) ? null : schema.toCompactJson(), properties);
+        checkExisting(graphId, (null == schema) ? null : schema.toJson(false), properties);
     }
 
     private void checkExisting(final String graphId, final byte[] schema, final StoreProperties properties) {

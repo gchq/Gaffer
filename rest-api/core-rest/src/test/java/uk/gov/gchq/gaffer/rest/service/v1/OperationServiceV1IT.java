@@ -14,9 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest;
+package uk.gov.gchq.gaffer.rest.service.v1;
 
-import uk.gov.gchq.gaffer.rest.factory.UnknownUserFactory;
+import uk.gov.gchq.gaffer.rest.RestApiTestClient;
+import uk.gov.gchq.gaffer.rest.service.impl.OperationServiceIT;
 
-public class UserFactoryForTest extends UnknownUserFactory {
+public class OperationServiceV1IT extends OperationServiceIT {
+
+    @Override
+    protected RestApiTestClient getClient() {
+        return new RestApiV1TestClient();
+    }
 }

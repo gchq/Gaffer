@@ -76,7 +76,7 @@ org.json4s:json4s-ast_2.10:3.2.11):
 - Apache License, Version 2.0
 
 
-Swagger (io.swagger:-jersey2-jaxrs:1.5.9):
+Swagger (io.swagger:-jersey2-jaxrs:1.5.15):
 
 - Apache License, Version 2.0
 

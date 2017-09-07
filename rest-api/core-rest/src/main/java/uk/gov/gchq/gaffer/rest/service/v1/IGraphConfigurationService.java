@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest.service;
+package uk.gov.gchq.gaffer.rest.service.v1;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -28,17 +28,18 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 
 import java.util.Set;
+
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 /**
  * An <code>IGraphConfigurationService</code> has methods to get {@link uk.gov.gchq.gaffer.graph.Graph} configuration information
  * such as the {@link Schema} and available {@link uk.gov.gchq.gaffer.operation.Operation}s.
  */
 @Path("/graph")
-@Produces(MediaType.APPLICATION_JSON)
-@Api(value = "/graph", description = "Methods to get graph configuration information.")
+@Produces(APPLICATION_JSON)
+@Api(value = "/graph")
 public interface IGraphConfigurationService {
     @GET
     @Path("/schema")

@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.rest;
+package uk.gov.gchq.gaffer.rest.service.v1;
 
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.rest.AbstractRestApiIT;
+import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import javax.ws.rs.client.Client;
@@ -28,7 +30,7 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class RestApiIT extends AbstractRestApiIT {
+public class RestApiV1IT extends AbstractRestApiIT {
 
     private static final Client client = ClientBuilder.newClient();
 
@@ -60,5 +62,11 @@ public class RestApiIT extends AbstractRestApiIT {
 
         // Then
         assertNotNull(schema);
+    }
+
+
+    @Override
+    protected RestApiTestClient getClient() {
+        return new RestApiV1TestClient();
     }
 }
