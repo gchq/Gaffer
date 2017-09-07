@@ -87,7 +87,7 @@ function init(onSwaggerComplete){
               }
         },
         onFailure: function(data) {
-          log("Unable to Load SwaggerUI");
+          log("Unable to load SwaggerUI");
         },
         docExpansion: "none",
         jsonEditor: false,

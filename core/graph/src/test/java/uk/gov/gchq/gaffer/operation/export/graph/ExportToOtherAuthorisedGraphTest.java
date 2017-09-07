@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 

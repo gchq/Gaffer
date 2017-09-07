@@ -16,9 +16,6 @@
 
 package uk.gov.gchq.gaffer.rest.service.v2;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
@@ -51,10 +48,6 @@ public class RestApiV2TestClient extends RestApiTestClient {
     @Override
     public Response executeOperationChain(final OperationChain opChain) throws IOException {
         startServer();
-
-        final ObjectMapper mapper = JSONSerialiser.createDefaultMapper();
-        System.out.println(mapper.writeValueAsString(opChain));
-
         return client.target(uriString)
                      .path("/graph/operations")
                      .request()

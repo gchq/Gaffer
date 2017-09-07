@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.rest.service.v2.example;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 
 import javax.inject.Inject;
@@ -34,7 +35,8 @@ public class ExamplesServiceV2 implements IExamplesServiceV2 {
 
     @Override
     public Operation executeChunked() throws InstantiationException, IllegalAccessException {
-        return new OperationChain(examplesFactory.generateExample(GetAllElements.class));
+        return new OperationChain(examplesFactory.generateExample(GetAllElements.class),
+                new Limit.Builder().resultLimit(1).build());
     }
 
     @Override

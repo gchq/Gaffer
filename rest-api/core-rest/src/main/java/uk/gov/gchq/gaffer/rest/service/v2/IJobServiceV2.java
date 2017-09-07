@@ -23,7 +23,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
-import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 
 import javax.ws.rs.Consumes;
@@ -55,14 +55,14 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.OPERATION_NOT_IMPLEMENTED
 public interface IJobServiceV2 {
 
     @POST
-    @ApiOperation(value = "Performs the given operation chain job on the graph", response = JobDetail.class, code = 201, produces = APPLICATION_JSON)
+    @ApiOperation(value = "Submits the given operation job to the graph", response = JobDetail.class, code = 201, produces = APPLICATION_JSON)
     @ApiResponses(value = {@ApiResponse(code = 201, message = JOB_CREATED),
             @ApiResponse(code = 400, message = BAD_REQUEST),
             @ApiResponse(code = 403, message = FORBIDDEN),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR),
             @ApiResponse(code = 501, message = OPERATION_NOT_IMPLEMENTED),
             @ApiResponse(code = 503, message = JOB_SERVICE_UNAVAILABLE)})
-    Response executeJob(final OperationChain opChain) throws OperationException;
+    Response executeJob(final Operation operation) throws OperationException;
 
     @GET
     @ApiOperation(value = "Get the details of all jobs", response = JobDetail.class, responseContainer = "List", produces = APPLICATION_JSON)

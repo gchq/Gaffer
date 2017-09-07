@@ -75,6 +75,13 @@ public class OperationChain<OUT> implements Operation, Output<OUT> {
         operations.add(operation);
     }
 
+    public OperationChain(final Operation... operations) {
+        this(new ArrayList<>(operations.length));
+        for (final Operation operation : operations) {
+            this.operations.add(operation);
+        }
+    }
+
     public OperationChain(final List<Operation> operations) {
         this(operations, false);
     }

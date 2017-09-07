@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
@@ -64,8 +65,17 @@ public class JobServiceV2 implements IJobServiceV2 {
     private UriInfo context;
 
     @Override
-    public Response executeJob(final OperationChain opChain) throws OperationException {
+    public Response executeJob(final Operation operation) throws OperationException {
         final User user = userFactory.createUser();
+
+        OperationChain opChain;
+
+        if (operation instanceof OperationChain) {
+            opChain = (OperationChain) operation;
+        } else {
+            opChain = new OperationChain(operation);
+        }
+
         preOperationHook(opChain, user);
 
         try {
