@@ -40,7 +40,7 @@ public class RestApiV2TestClient extends RestApiTestClient {
     public Response executeOperation(final Operation operation) throws IOException {
         startServer();
         return client.target(uriString)
-                     .path("/graph/operations")
+                     .path("/graph/operations/execute")
                      .request()
                      .post(Entity.entity(JSON_SERIALISER.serialise(operation), APPLICATION_JSON_TYPE));
     }
@@ -49,7 +49,7 @@ public class RestApiV2TestClient extends RestApiTestClient {
     public Response executeOperationChain(final OperationChain opChain) throws IOException {
         startServer();
         return client.target(uriString)
-                     .path("/graph/operations")
+                     .path("/graph/operations/execute")
                      .request()
                      .post(Entity.entity(JSON_SERIALISER.serialise(opChain), APPLICATION_JSON_TYPE));
     }
@@ -63,7 +63,7 @@ public class RestApiV2TestClient extends RestApiTestClient {
     public Response executeOperationChunked(final Operation operation) throws IOException {
         startServer();
         return client.target(uriString)
-                     .path("/graph/operations/chunked")
+                     .path("/graph/operations/execute/chunked")
                      .request()
                      .post(Entity.entity(JSON_SERIALISER.serialise(operation), APPLICATION_JSON_TYPE));
     }

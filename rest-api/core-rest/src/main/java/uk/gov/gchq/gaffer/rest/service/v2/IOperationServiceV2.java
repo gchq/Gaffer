@@ -59,6 +59,7 @@ public interface IOperationServiceV2 {
     Response getOperations();
 
     @POST
+    @Path("/execute")
     @ApiOperation(value = "Performs the given operation on the graph", response = Object.class, produces = APPLICATION_JSON)
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
             @ApiResponse(code = 400, message = BAD_REQUEST),
@@ -68,7 +69,7 @@ public interface IOperationServiceV2 {
     Response execute(final Operation operation);
 
     @POST
-    @Path("/chunked")
+    @Path("/execute/chunked")
     @ApiOperation(value = "Performs the given operation on the graph, returned chunked output. NOTE - does not work in Swagger.", response = Object.class, produces = APPLICATION_JSON)
     @ApiResponses(value = {@ApiResponse(code = 202, message = OK),
             @ApiResponse(code = 400, message = BAD_REQUEST),
