@@ -25,8 +25,6 @@ import scala.Tuple2;
 import scala.runtime.AbstractFunction1;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
-import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
@@ -35,7 +33,6 @@ import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -64,39 +61,6 @@ public abstract class AbstractGetRDDHandler<OP extends Output<O> & GraphFilters,
             // Update configuration with instance name, table name, zookeepers, and with view
             accumuloStore.updateConfiguration(conf, operation, user);
             // Add iterators based on operation-specific (i.e. not view related) options
-            if (accumuloStore.getKeyPackage() instanceof ClassicKeyPackage) {
-                final IteratorSetting edgeEntityDirectionFilter = accumuloStore.getKeyPackage()
-                        .getIteratorFactory()
-                        .getEdgeEntityDirectionFilterIteratorSetting(getGetAllElementsClonedFromOp(operation));
-                System.out.println("HERE");
-                if (edgeEntityDirectionFilter != null) {
-                    System.out.println("TTT Adding ");
-                    InputConfigurator.addIterator(AccumuloInputFormat.class, conf, edgeEntityDirectionFilter);
-                }
-            } else if (accumuloStore.getKeyPackage() instanceof ByteEntityKeyPackage) {
-                final IteratorSetting edgeEntityDirectionFilter = accumuloStore.getKeyPackage()
-                        .getIteratorFactory()
-                        .getElementPropertyRangeQueryFilter(getGetAllElementsClonedFromOp(operation));
-                System.out.println("HERE");
-                if (edgeEntityDirectionFilter != null) {
-                    System.out.println("TTT Adding ");
-                    InputConfigurator.addIterator(AccumuloInputFormat.class, conf, edgeEntityDirectionFilter);
-                }
-            } else {
-                throw new OperationException("Unsupported key package of "
-                        + accumuloStore.getKeyPackage().getClass().getName());
-            }
-
-
-
-            final IteratorSetting edgeEntityDirectionFilter = accumuloStore.getKeyPackage()
-                    .getIteratorFactory()
-                    .getEdgeEntityDirectionFilterIteratorSetting(getGetAllElementsClonedFromOp(operation));
-            System.out.println("HERE");
-            if (edgeEntityDirectionFilter != null) {
-                System.out.println("TTT Adding ");
-                InputConfigurator.addIterator(AccumuloInputFormat.class, conf, edgeEntityDirectionFilter);
-            }
             final IteratorSetting queryTimeAggregator = accumuloStore.getKeyPackage()
                     .getIteratorFactory()
                     .getQueryTimeAggregatorIteratorSetting(operation.getView(), accumuloStore);
@@ -106,14 +70,6 @@ public abstract class AbstractGetRDDHandler<OP extends Output<O> & GraphFilters,
         } catch (final StoreException | IteratorSettingException e) {
             throw new OperationException("Failed to update configuration", e);
         }
-    }
-
-    protected GetAllElements getGetAllElementsClonedFromOp(final OP operation) {
-        final GetAllElements getAllElements = new GetAllElements.Builder()
-                .view(operation.getView())
-                .directedType(operation.getDirectedType())
-                .build();
-        return getAllElements;
     }
 
     public <INPUT_OP extends Operation & GraphFilters & Input<Iterable<? extends ElementId>>>
