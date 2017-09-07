@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
@@ -26,6 +28,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -123,6 +126,20 @@ public class AddGraph implements Operation {
     public AddGraph setGraphAuths(final Set<String> graphAuths) {
         this.graphAuths = graphAuths;
         return this;
+    }
+
+    @JsonGetter("storeProperties")
+    public Properties getProperties() {
+        return null != storeProperties ? storeProperties.getProperties() : null;
+    }
+
+    @JsonSetter("storeProperties")
+    public void setProperties(final Properties properties) {
+        if (null == properties) {
+            setStoreProperties(null);
+        } else {
+            setStoreProperties(StoreProperties.loadStoreProperties(properties));
+        }
     }
 
     public static class Builder extends BaseBuilder<AddGraph, Builder> {

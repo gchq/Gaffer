@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
+package uk.gov.gchq.gaffer.federatedstore;
 
 import org.junit.Assert;
 import org.junit.Test;

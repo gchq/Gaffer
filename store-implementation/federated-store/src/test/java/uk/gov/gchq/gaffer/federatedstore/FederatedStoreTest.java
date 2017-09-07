@@ -30,7 +30,6 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federatedstore.integration.FederatedStoreITs;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAccessHook;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
@@ -161,7 +160,7 @@ public class FederatedStoreTest {
             store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
         } catch (final IllegalArgumentException e) {
             //Then
-            assertTrue(e.getMessage().contains(String.format(S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2, "Graph", "Graph.Builder[config=GraphConfig[graphId=mockMapGraphId1,library=uk.gov.gchq.gaffer.store.library.NoGraphLibrary")));
+            assertTrue(e.getMessage().contains(String.format(S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2, "Graph", "")));
             return;
         }
         fail(EXCEPTION_NOT_THROWN);
@@ -290,7 +289,7 @@ public class FederatedStoreTest {
         try {
             store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
         } catch (final Exception e) {
-            assertTrue(e.getMessage().contains(String.format(S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2, "Graph", "Graph.Builder[config=GraphConfig[graphId=mockAccGraphId1,library=uk.gov.gchq.gaffer.store.library.NoGraphLibrary")));
+            assertTrue(e.getMessage().contains(String.format(S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2, "Graph", "")));
             return;
         }
         fail(EXCEPTION_NOT_THROWN);
@@ -458,6 +457,7 @@ public class FederatedStoreTest {
     public void shouldAddGraphFromLibrary() throws Exception {
         //Given
         final GraphLibrary mockLibrary = Mockito.mock(GraphLibrary.class);
+        Mockito.when(mockLibrary.exists(MAP_ID_1)).thenReturn(true);
         Mockito.when(mockLibrary.get(MAP_ID_1)).thenReturn(
                 new Pair<>(
                         new Schema.Builder()
@@ -484,6 +484,7 @@ public class FederatedStoreTest {
         federatedProperties.set(GRAPH_IDS, MAP_ID_1);
         federatedProperties.set(GRAPH_IDS, MAP_ID_1);
         final GraphLibrary mockLibrary = Mockito.mock(GraphLibrary.class);
+        Mockito.when(mockLibrary.exists(MAP_ID_1)).thenReturn(true);
         Mockito.when(mockLibrary.get(MAP_ID_1)).thenReturn(
                 new Pair<>(
                         new Schema.Builder()
@@ -524,6 +525,7 @@ public class FederatedStoreTest {
         federatedProperties.set(KEY_ACC_ID1_PROPERTIES_FILE, PATH_ACC_STORE_PROPERTIES);
         federatedProperties.set(KEY_ACC_ID1_SCHEMA_FILE, PATH_BASIC_ENTITY_SCHEMA_JSON);
         final GraphLibrary mockLibrary = Mockito.mock(GraphLibrary.class);
+        Mockito.when(mockLibrary.exists(MAP_ID_1)).thenReturn(true);
         Mockito.when(mockLibrary.get(MAP_ID_1)).thenReturn(
                 new Pair<>(
                         new Schema.Builder()
@@ -713,7 +715,7 @@ public class FederatedStoreTest {
             store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
             fail("exception should have been thrown");
         } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("User is attempting to override a known graph in library."));
+            assertTrue(e.getCause().getMessage().contains("GraphId " + MAP_ID_1 + " already exists with a different store properties:"));
         }
     }
 

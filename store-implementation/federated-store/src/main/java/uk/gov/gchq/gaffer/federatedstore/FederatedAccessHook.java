@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
+package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Sets;
 
@@ -43,7 +43,7 @@ public class FederatedAccessHook implements GraphHook {
     private Set<String> graphAuths;
     private String addingUserId;
 
-    void setAddingUserId(final String creatorUserId) {
+    public void setAddingUserId(final String creatorUserId) {
         this.addingUserId = creatorUserId;
     }
 
@@ -54,14 +54,10 @@ public class FederatedAccessHook implements GraphHook {
         }
     }
 
-    public boolean isValidToExecute(final User user) {
-        final boolean isAddingUser = null != user.getUserId() && user.getUserId().equals(addingUserId);
-        final boolean authsIsEmpty = this.graphAuths != null && this.graphAuths.isEmpty();
-        final boolean userHasASharedAuth = this.graphAuths != null && !Collections.disjoint(user.getOpAuths(), this.graphAuths);
-
-        return authsIsEmpty
-                || isAddingUser
-                || userHasASharedAuth;
+    protected boolean isValidToExecute(final User user) {
+        return /*authsIsEmpty*/ this.graphAuths != null && this.graphAuths.isEmpty()
+                || /*isAddingUser*/ null != user.getUserId() && user.getUserId().equals(addingUserId)
+                || /*userHasASharedAuth*/ this.graphAuths != null && !Collections.disjoint(user.getOpAuths(), this.graphAuths);
     }
 
     public FederatedAccessHook setGraphAuths(final Set<String> graphAuths) {
@@ -79,7 +75,7 @@ public class FederatedAccessHook implements GraphHook {
         private Builder self = this;
 
         public Builder graphAuths(final String... opAuth) {
-            if (opAuth == null) {
+            if (null == opAuth) {
                 hook.setGraphAuths(null);
             } else {
                 graphAuths(Arrays.asList(opAuth));
@@ -88,39 +84,22 @@ public class FederatedAccessHook implements GraphHook {
         }
 
         public Builder graphAuths(final Collection<? extends String> opAuths) {
-            final HashSet<String> graphAuths = Sets.newHashSet(opAuths);
-            graphAuths.remove(null);
-            graphAuths.remove("");
-            if (hook.graphAuths == null) {
-                hook.graphAuths = Sets.newHashSet();
+            if (null == opAuths) {
+                hook.setGraphAuths(null);
+            } else {
+                final HashSet<String> graphAuths = Sets.newHashSet(opAuths);
+                graphAuths.remove(null);
+                graphAuths.remove("");
+                if (null == hook.graphAuths) {
+                    hook.graphAuths = Sets.newHashSet();
+                }
+                hook.graphAuths.addAll(graphAuths);
             }
-            hook.setGraphAuths(graphAuths);
             return self;
         }
 
         public FederatedAccessHook build() {
             return hook;
-        }
-    }
-
-    public class FederatedAccessException extends RuntimeException {
-        public FederatedAccessException() {
-        }
-
-        public FederatedAccessException(final String message) {
-            super(message);
-        }
-
-        public FederatedAccessException(final String message, final Throwable cause) {
-            super(message, cause);
-        }
-
-        public FederatedAccessException(final Throwable cause) {
-            super(cause);
-        }
-
-        public FederatedAccessException(final String message, final Throwable cause, final boolean enableSuppression, final boolean writableStackTrace) {
-            super(message, cause, enableSuppression, writableStackTrace);
         }
     }
 }

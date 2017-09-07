@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
+import uk.gov.gchq.gaffer.federatedstore.FederatedAccessException;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAccessHook.FederatedAccessException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Output;

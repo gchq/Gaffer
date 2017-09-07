@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -705,6 +704,8 @@ public final class Graph {
                 config.setGraphId(store.getGraphId());
             }
 
+            updateSchema(config);
+
             if (null != config.getLibrary() && config.getLibrary().exists(config.getGraphId())) {
                 //Set Props & Schema if null.
                 final Pair<Schema, StoreProperties> pair = config.getLibrary().get(config.getGraphId());
@@ -712,7 +713,6 @@ public final class Graph {
                 schema = (null == schema) ? pair.getFirst() : schema;
             }
 
-            updateSchema(config);
             updateStore(config);
 
             if (null != config.getGraphId()) {
@@ -849,15 +849,5 @@ public final class Graph {
             return null != schema ? schema.clone() : null;
         }
 
-        @Override
-        public String toString() {
-            updateSchema(configBuilder.build());
-
-            return new ToStringBuilder(this)
-                    .append("config", this.configBuilder)
-                    .append("schema", this.schema)
-                    .append("properties", this.properties)
-                    .build();
-        }
     }
 }
