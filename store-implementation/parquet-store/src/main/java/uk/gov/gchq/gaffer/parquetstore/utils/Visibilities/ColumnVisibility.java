@@ -29,6 +29,19 @@ public class ColumnVisibility {
     private byte[] expression;
     private static final ColumnVisibility.Node EMPTY_NODE;
 
+    static {
+        EMPTY_NODE = new ColumnVisibility.Node(ColumnVisibility.NodeType.EMPTY, 0);
+    }
+
+    public ColumnVisibility(final String expression) {
+        this(expression.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public ColumnVisibility(final byte[] expression) {
+        this.node = null;
+        this.validate(expression);
+    }
+
     public byte[] getExpression() {
         return this.expression;
     }
@@ -42,15 +55,6 @@ public class ColumnVisibility {
         }
 
         this.expression = expression;
-    }
-
-    public ColumnVisibility(final String expression) {
-        this(expression.getBytes(StandardCharsets.UTF_8));
-    }
-
-    public ColumnVisibility(final byte[] expression) {
-        this.node = null;
-        this.validate(expression);
     }
 
     public String toString() {
@@ -71,10 +75,6 @@ public class ColumnVisibility {
 
     public ColumnVisibility.Node getParseTree() {
         return this.node;
-    }
-
-    static {
-        EMPTY_NODE = new ColumnVisibility.Node(ColumnVisibility.NodeType.EMPTY, 0);
     }
 
     private static class ColumnVisibilityParser {
@@ -240,7 +240,6 @@ public class ColumnVisibility {
         }
     }
 
-
     public static class Node {
         public static final List<Node> EMPTY = Collections.emptyList();
         ColumnVisibility.NodeType type;
@@ -286,7 +285,7 @@ public class ColumnVisibility {
             return this.end;
         }
 
-        public ByteSequence getTerm(final byte[] expression) {
+        public ArrayByteSequence getTerm(final byte[] expression) {
             if (this.type != ColumnVisibility.NodeType.TERM) {
                 throw new RuntimeException();
             } else if (expression[this.start] == 34) {

@@ -31,7 +31,6 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.io.reader.ParquetElementReader;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
-import uk.gov.gchq.gaffer.parquetstore.utils.visibilities.AuthorisationContainer;
 import uk.gov.gchq.gaffer.parquetstore.utils.visibilities.Authorisations;
 import uk.gov.gchq.gaffer.parquetstore.utils.visibilities.ColumnVisibility;
 import uk.gov.gchq.gaffer.parquetstore.utils.visibilities.VisibilityEvaluator;
@@ -145,7 +144,7 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
 
     private Boolean isVisible(final Element e) throws VisibilityParseException {
         if (e.getProperty(visibility) != null) {
-            final VisibilityEvaluator visibilityEvaluator = new VisibilityEvaluator((AuthorisationContainer) auths);
+            final VisibilityEvaluator visibilityEvaluator = new VisibilityEvaluator(auths);
             final ColumnVisibility elementVisibility = new ColumnVisibility((String) e.getProperty(visibility));
             return visibilityEvaluator.evaluate(elementVisibility);
         } else {

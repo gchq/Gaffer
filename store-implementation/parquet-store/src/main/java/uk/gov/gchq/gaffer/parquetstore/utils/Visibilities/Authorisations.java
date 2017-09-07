@@ -28,12 +28,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class Authorisations implements Iterable<byte[]>, Serializable, AuthorisationContainer {
+public class Authorisations implements Iterable<byte[]>, Serializable {
     private static final long serialVersionUID = 8931467369628123909L;
-    private Set<ByteSequence> auths = new HashSet();
+    private Set<ArrayByteSequence> auths = new HashSet();
     private List<byte[]> authsList = new ArrayList();
     private static final boolean[] VALID_AUTH_CHARS = new boolean[256];
-    public static final String HEADER = "!AUTH1:";
 
     public Authorisations() {
     }
@@ -62,7 +61,7 @@ public class Authorisations implements Iterable<byte[]>, Serializable, Authorisa
         Iterator var3 = this.auths.iterator();
 
         while (var3.hasNext()) {
-            ByteSequence auth = (ByteSequence) var3.next();
+            ArrayByteSequence auth = (ArrayByteSequence) var3.next();
             sb.append(sep);
             sep = ",";
             sb.append(new String(auth.toArray(), StandardCharsets.UTF_8));
@@ -75,7 +74,7 @@ public class Authorisations implements Iterable<byte[]>, Serializable, Authorisa
         return this.auths.contains(new ArrayByteSequence(auth));
     }
 
-    public boolean contains(final ByteSequence auth) {
+    public boolean contains(final ArrayByteSequence auth) {
         return this.auths.contains(auth);
     }
 
@@ -97,9 +96,9 @@ public class Authorisations implements Iterable<byte[]>, Serializable, Authorisa
     public int hashCode() {
         int result = 0;
 
-        ByteSequence b;
+        ArrayByteSequence b;
         for (Iterator var2 = this.auths.iterator(); var2.hasNext(); result += b.hashCode()) {
-            b = (ByteSequence) var2.next();
+            b = (ArrayByteSequence) var2.next();
         }
 
         return result;
@@ -122,7 +121,7 @@ public class Authorisations implements Iterable<byte[]>, Serializable, Authorisa
         Iterator var2 = sortedAuths.iterator();
 
         while (var2.hasNext()) {
-            ByteSequence bs = (ByteSequence) var2.next();
+            ArrayByteSequence bs = (ArrayByteSequence) var2.next();
             if (bs.length() == 0) {
                 throw new IllegalArgumentException("Empty authorization");
             }

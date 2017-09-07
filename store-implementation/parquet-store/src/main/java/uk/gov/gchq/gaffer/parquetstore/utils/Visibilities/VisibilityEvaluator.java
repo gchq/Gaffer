@@ -19,49 +19,10 @@ package uk.gov.gchq.gaffer.parquetstore.utils.visibilities;
 import uk.gov.gchq.gaffer.parquetstore.utils.visibilities.exception.VisibilityParseException;
 
 public class VisibilityEvaluator {
-    private AuthorisationContainer auths;
+    private Authorisations auths;
 
-    static ByteSequence unescape(final ByteSequence auth) {
-        int escapeCharCount = 0;
-
-        for (int unescapedCopy = 0; unescapedCopy < auth.length(); ++unescapedCopy) {
-            byte pos = auth.byteAt(unescapedCopy);
-            if (pos == 34 || pos == 92) {
-                ++escapeCharCount;
-            }
-        }
-
-        if (escapeCharCount > 0) {
-            if (escapeCharCount % 2 == 1) {
-                throw new IllegalArgumentException("Illegal escape sequence in auth : " + auth);
-            } else {
-                byte[] var6 = new byte[auth.length() - escapeCharCount / 2];
-                int var7 = 0;
-
-                for (int i = 0; i < auth.length(); ++i) {
-                    byte b = auth.byteAt(i);
-                    if (b == 92) {
-                        ++i;
-                        b = auth.byteAt(i);
-                        if (b != 34 && b != 92) {
-                            throw new IllegalArgumentException("Illegal escape sequence in auth : " + auth);
-                        }
-                    } else if (b == 34) {
-                        throw new IllegalArgumentException("Illegal escape sequence in auth : " + auth);
-                    }
-
-                    var6[var7++] = b;
-                }
-
-                return new ArrayByteSequence(var6);
-            }
-        } else {
-            return auth;
-        }
-    }
-
-    public VisibilityEvaluator(final AuthorisationContainer authsContainer) {
-        this.auths = new VisibilityEvaluator.UnescapingAuthorisationContainer(authsContainer);
+    public VisibilityEvaluator(final Authorisations auths) {
+        this.auths = auths;
     }
 
     public boolean evaluate(final ColumnVisibility visibility) throws VisibilityParseException {
@@ -97,18 +58,6 @@ public class VisibilityEvaluator {
                 return false;
             default:
                 throw new VisibilityParseException("No such node type", expression, root.start);
-        }
-    }
-
-    private static class UnescapingAuthorisationContainer implements AuthorisationContainer {
-        private AuthorisationContainer wrapped;
-
-        UnescapingAuthorisationContainer(final AuthorisationContainer wrapee) {
-            this.wrapped = wrapee;
-        }
-
-        public boolean contains(final ByteSequence auth) {
-            return this.wrapped.contains(VisibilityEvaluator.unescape(auth));
         }
     }
 }

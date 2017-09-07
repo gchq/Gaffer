@@ -16,10 +16,12 @@
 
 package uk.gov.gchq.gaffer.parquetstore.utils.visibilities;
 
+import org.apache.hadoop.io.WritableComparator;
+
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 
-public class ArrayByteSequence extends ByteSequence implements Serializable {
+public class ArrayByteSequence implements Serializable, Comparable<ArrayByteSequence> {
     private static final long serialVersionUID = 4850846929226802566L;
     protected byte[] data;
     protected int offset;
@@ -83,5 +85,50 @@ public class ArrayByteSequence extends ByteSequence implements Serializable {
 
     public String toString() {
         return new String(this.data, this.offset, this.length, StandardCharsets.UTF_8);
+    }
+
+    public static int compareBytes(final ArrayByteSequence bs1, final ArrayByteSequence bs2) {
+        int minLen = Math.min(bs1.length(), bs2.length());
+
+        for (int i = 0; i < minLen; ++i) {
+            int a = bs1.byteAt(i) & 255;
+            int b = bs2.byteAt(i) & 255;
+            if (a != b) {
+                return a - b;
+            }
+        }
+
+        return bs1.length() - bs2.length();
+    }
+
+    public int compareTo(final ArrayByteSequence obs) {
+        return this.isBackedByArray() && obs.isBackedByArray() ? WritableComparator.compareBytes(this.getBackingArray(), this.offset(), this.length(), obs.getBackingArray(), obs.offset(), obs.length()) : compareBytes(this, obs);
+    }
+
+    public boolean equals(final Object o) {
+        if (o instanceof ArrayByteSequence) {
+            ArrayByteSequence obs = (ArrayByteSequence) o;
+            return this == o ? true : (this.length() != obs.length() ? false : this.compareTo(obs) == 0);
+        } else {
+            return false;
+        }
+    }
+
+    public int hashCode() {
+        int hash = 1;
+        if (this.isBackedByArray()) {
+            byte[] i = this.getBackingArray();
+            int end = this.offset() + this.length();
+
+            for (int i1 = this.offset(); i1 < end; ++i1) {
+                hash = 31 * hash + i[i1];
+            }
+        } else {
+            for (int var5 = 0; var5 < this.length(); ++var5) {
+                hash = 31 * hash + this.byteAt(var5);
+            }
+        }
+
+        return hash;
     }
 }
