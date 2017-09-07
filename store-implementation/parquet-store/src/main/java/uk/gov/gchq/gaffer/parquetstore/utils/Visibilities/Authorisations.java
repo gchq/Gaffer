@@ -116,6 +116,35 @@ public class Authorisations implements Iterable<byte[]>, Serializable {
         return this.getAuthorizations().iterator();
     }
 
+    static final boolean isValidAuthChar(final byte b) {
+        return VALID_AUTH_CHARS[255 & b];
+    }
+
+    static {
+        int i;
+        for (i = 0; i < 256; ++i) {
+            VALID_AUTH_CHARS[i] = false;
+        }
+
+        for (i = 97; i <= 122; ++i) {
+            VALID_AUTH_CHARS[i] = true;
+        }
+
+        for (i = 65; i <= 90; ++i) {
+            VALID_AUTH_CHARS[i] = true;
+        }
+
+        for (i = 48; i <= 57; ++i) {
+            VALID_AUTH_CHARS[i] = true;
+        }
+
+        VALID_AUTH_CHARS[95] = true;
+        VALID_AUTH_CHARS[45] = true;
+        VALID_AUTH_CHARS[58] = true;
+        VALID_AUTH_CHARS[46] = true;
+        VALID_AUTH_CHARS[47] = true;
+    }
+
     private void checkAuths() {
         TreeSet sortedAuths = new TreeSet(this.auths);
         Iterator var2 = sortedAuths.iterator();
@@ -144,34 +173,5 @@ public class Authorisations implements Iterable<byte[]>, Serializable {
         }
 
         this.checkAuths();
-    }
-
-    static final boolean isValidAuthChar(final byte b) {
-        return VALID_AUTH_CHARS[255 & b];
-    }
-
-    static {
-        int i;
-        for (i = 0; i < 256; ++i) {
-            VALID_AUTH_CHARS[i] = false;
-        }
-
-        for (i = 97; i <= 122; ++i) {
-            VALID_AUTH_CHARS[i] = true;
-        }
-
-        for (i = 65; i <= 90; ++i) {
-            VALID_AUTH_CHARS[i] = true;
-        }
-
-        for (i = 48; i <= 57; ++i) {
-            VALID_AUTH_CHARS[i] = true;
-        }
-
-        VALID_AUTH_CHARS[95] = true;
-        VALID_AUTH_CHARS[45] = true;
-        VALID_AUTH_CHARS[58] = true;
-        VALID_AUTH_CHARS[46] = true;
-        VALID_AUTH_CHARS[47] = true;
     }
 }

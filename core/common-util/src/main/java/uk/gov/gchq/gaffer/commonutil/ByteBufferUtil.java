@@ -52,9 +52,4 @@ public final class ByteBufferUtil {
         }
 
     }
-
-    /*public static String toString(final ByteBuffer bytes) {
-        return bytes.hasArray() ? new String(bytes.array(), bytes.arrayOffset() + bytes.position(), bytes.remaining(), StandardCharsets.UTF_8) : new String(toBytes(bytes), StandardCharsets.UTF_8);
-    }*/
 }
-

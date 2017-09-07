@@ -46,17 +46,6 @@ public class ColumnVisibility {
         return this.expression;
     }
 
-    private void validate(final byte[] expression) {
-        if (expression != null && expression.length > 0) {
-            ColumnVisibility.ColumnVisibilityParser p = new ColumnVisibility.ColumnVisibilityParser();
-            this.node = p.parse(expression);
-        } else {
-            this.node = EMPTY_NODE;
-        }
-
-        this.expression = expression;
-    }
-
     public String toString() {
         return "[" + new String(this.expression, StandardCharsets.UTF_8) + "]";
     }
@@ -75,6 +64,85 @@ public class ColumnVisibility {
 
     public ColumnVisibility.Node getParseTree() {
         return this.node;
+    }
+
+    private void validate(final byte[] expression) {
+        if (expression != null && expression.length > 0) {
+            ColumnVisibility.ColumnVisibilityParser p = new ColumnVisibility.ColumnVisibilityParser();
+            this.node = p.parse(expression);
+        } else {
+            this.node = EMPTY_NODE;
+        }
+
+        this.expression = expression;
+    }
+
+    public static class Node {
+        public static final List<Node> EMPTY = Collections.emptyList();
+        ColumnVisibility.NodeType type;
+        int start;
+        int end;
+        List<ColumnVisibility.Node> children;
+
+        public Node(final ColumnVisibility.NodeType type, final int start) {
+            this.children = EMPTY;
+            this.type = type;
+            this.start = start;
+            this.end = start + 1;
+        }
+
+        public Node(final int start, final int end) {
+            this.children = EMPTY;
+            this.type = ColumnVisibility.NodeType.TERM;
+            this.start = start;
+            this.end = end;
+        }
+
+        public void add(final ColumnVisibility.Node child) {
+            if (this.children == EMPTY) {
+                this.children = new ArrayList();
+            }
+
+            this.children.add(child);
+        }
+
+        public ColumnVisibility.NodeType getType() {
+            return this.type;
+        }
+
+        public List<ColumnVisibility.Node> getChildren() {
+            return this.children;
+        }
+
+        public int getTermStart() {
+            return this.start;
+        }
+
+        public int getTermEnd() {
+            return this.end;
+        }
+
+        public ArrayByteSequence getTerm(final byte[] expression) {
+            if (this.type != ColumnVisibility.NodeType.TERM) {
+                throw new RuntimeException();
+            } else if (expression[this.start] == 34) {
+                int qStart = this.start + 1;
+                int qEnd = this.end - 1;
+                return new ArrayByteSequence(expression, qStart, qEnd - qStart);
+            } else {
+                return new ArrayByteSequence(expression, this.start, this.end - this.start);
+            }
+        }
+    }
+
+    public enum NodeType {
+        EMPTY,
+        TERM,
+        OR,
+        AND;
+
+        NodeType() {
+        }
     }
 
     private static class ColumnVisibilityParser {
@@ -237,74 +305,6 @@ public class ColumnVisibility {
             } else {
                 return result;
             }
-        }
-    }
-
-    public static class Node {
-        public static final List<Node> EMPTY = Collections.emptyList();
-        ColumnVisibility.NodeType type;
-        int start;
-        int end;
-        List<ColumnVisibility.Node> children;
-
-        public Node(final ColumnVisibility.NodeType type, final int start) {
-            this.children = EMPTY;
-            this.type = type;
-            this.start = start;
-            this.end = start + 1;
-        }
-
-        public Node(final int start, final int end) {
-            this.children = EMPTY;
-            this.type = ColumnVisibility.NodeType.TERM;
-            this.start = start;
-            this.end = end;
-        }
-
-        public void add(final ColumnVisibility.Node child) {
-            if (this.children == EMPTY) {
-                this.children = new ArrayList();
-            }
-
-            this.children.add(child);
-        }
-
-        public ColumnVisibility.NodeType getType() {
-            return this.type;
-        }
-
-        public List<ColumnVisibility.Node> getChildren() {
-            return this.children;
-        }
-
-        public int getTermStart() {
-            return this.start;
-        }
-
-        public int getTermEnd() {
-            return this.end;
-        }
-
-        public ArrayByteSequence getTerm(final byte[] expression) {
-            if (this.type != ColumnVisibility.NodeType.TERM) {
-                throw new RuntimeException();
-            } else if (expression[this.start] == 34) {
-                int qStart = this.start + 1;
-                int qEnd = this.end - 1;
-                return new ArrayByteSequence(expression, qStart, qEnd - qStart);
-            } else {
-                return new ArrayByteSequence(expression, this.start, this.end - this.start);
-            }
-        }
-    }
-
-    public enum NodeType {
-        EMPTY,
-        TERM,
-        OR,
-        AND;
-
-        NodeType() {
         }
     }
 }
