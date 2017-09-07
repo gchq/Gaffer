@@ -30,20 +30,22 @@ public final class Utils {
     }
 
     public static byte[] serialiseConfiguration(final Configuration configuration) throws IOException {
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        final DataOutputStream dos = new DataOutputStream(baos);
-        configuration.write(dos);
-        final byte[] serialised = baos.toByteArray();
-        baos.close();
-        return serialised;
+        try (final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            final DataOutputStream dos = new DataOutputStream(baos);
+            configuration.write(dos);
+            final byte[] serialised = baos.toByteArray();
+            baos.close();
+            return serialised;
+        }
     }
 
     public static Configuration deserialiseConfiguration(final byte[] serialisedConfiguration) throws IOException {
-        final ByteArrayInputStream bais = new ByteArrayInputStream(serialisedConfiguration);
-        final DataInputStream dis = new DataInputStream(bais);
-        final Configuration configuration = new Configuration();
-        configuration.readFields(dis);
-        dis.close();
-        return configuration;
+        try (final ByteArrayInputStream bais = new ByteArrayInputStream(serialisedConfiguration)) {
+            final DataInputStream dis = new DataInputStream(bais);
+            final Configuration configuration = new Configuration();
+            configuration.readFields(dis);
+            dis.close();
+            return configuration;
+        }
     }
 }

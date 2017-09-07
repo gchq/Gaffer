@@ -46,13 +46,16 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
+import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.MiniAccumuloClusterProvider;
@@ -61,6 +64,8 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.function.Concat;
+import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
+import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 
 import java.io.DataOutputStream;
 import java.io.File;
@@ -160,6 +165,7 @@ public class GetRDDOfAllElementsHandlerTest {
                     e.putProperty("newProperty", e.getSource().toString() + "," + e.getProperty(TestPropertyNames.COUNT));
                     return e;
                 })
+                .filter(e -> e.getProperty("newProperty").equals("0,2"))
                 .forEach(expectedElements::add);
         getRDD.setView(new View.Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
@@ -169,16 +175,22 @@ public class GetRDDOfAllElementsHandlerTest {
                                 .execute(new Concat())
                                 .project("newProperty")
                                 .build())
+                        .postTransformFilter(new ElementFilter.Builder()
+                                .select("newProperty")
+                                .execute(new IsEqual("0,2"))
+                                .build())
                         .build())
                 .build());
         final RDD<Element> rdd = graph.execute(getRDD, USER);
         if (rdd == null) {
             fail("No RDD returned");
         }
+
         final Set<Element> results = new HashSet<>();
         final Element[] returnedElements = (Element[]) rdd.collect();
         for (int i = 0; i < returnedElements.length; i++) {
             results.add(returnedElements[i]);
+            System.out.println(returnedElements[i]);
         }
         assertEquals(expectedElements, results);
     }
