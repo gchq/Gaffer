@@ -17,10 +17,8 @@
 package uk.gov.gchq.gaffer.core.exception.serialisation;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import org.apache.commons.lang3.text.WordUtils;
 
 import uk.gov.gchq.gaffer.core.exception.Status;
 
@@ -34,9 +32,7 @@ public class StatusSerialiser extends JsonSerializer<Status> {
 
     @Override
     public void serialize(final Status statusType, final JsonGenerator generator,
-            final SerializerProvider provider) throws IOException, JsonProcessingException {
-        final String statusStr = statusType.toString().replace('_', ' ');
-
-        generator.writeString(WordUtils.capitalize(statusStr));
+            final SerializerProvider provider) throws IOException {
+        generator.writeString(statusType.getReason());
     }
 }

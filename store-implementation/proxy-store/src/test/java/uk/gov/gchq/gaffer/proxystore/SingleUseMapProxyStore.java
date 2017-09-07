@@ -20,7 +20,8 @@ import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.rest.RestApiTestUtil;
+import uk.gov.gchq.gaffer.rest.RestApiTestClient;
+import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -40,14 +41,15 @@ import java.io.IOException;
  */
 public class SingleUseMapProxyStore extends ProxyStore {
     public static final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    private static final RestApiTestClient client = new RestApiV2TestClient();
 
     @Override
-    public void initialise(final String graphId, final Schema accumuloSchema, final StoreProperties proxyProps) throws StoreException {
-        startMapStoreRestApi(accumuloSchema);
+    public void initialise(final String graphId, final Schema schema, final StoreProperties proxyProps) throws StoreException {
+        startMapStoreRestApi(schema);
         super.initialise(graphId, new Schema(), proxyProps);
     }
 
-    protected void startMapStoreRestApi(final Schema accumuloSchema) throws StoreException {
+    protected void startMapStoreRestApi(final Schema schema) throws StoreException {
         try {
             testFolder.delete();
             testFolder.create();
@@ -55,10 +57,10 @@ public class SingleUseMapProxyStore extends ProxyStore {
             throw new StoreException("Unable to create temporary folder", e);
         }
 
-        final StoreProperties accumuloStoreProperties = StoreProperties.loadStoreProperties(
+        final StoreProperties storeProperties = StoreProperties.loadStoreProperties(
                 StreamUtil.openStream(getClass(), "map-store.properties"));
         try {
-            RestApiTestUtil.reinitialiseGraph(testFolder, accumuloSchema, accumuloStoreProperties);
+            client.reinitialiseGraph(testFolder, schema, storeProperties);
         } catch (final IOException e) {
             throw new StoreException("Unable to reinitialise delegate graph", e);
         }
@@ -66,6 +68,6 @@ public class SingleUseMapProxyStore extends ProxyStore {
 
     public static void cleanUp() {
         testFolder.delete();
-        RestApiTestUtil.stopServer();
+        client.stopServer();
     }
 }

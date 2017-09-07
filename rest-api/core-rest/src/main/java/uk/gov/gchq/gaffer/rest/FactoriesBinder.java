@@ -20,20 +20,22 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 
+import javax.inject.Singleton;
+
 /**
  * HK2 binder class to facilitate dependency injection with Jersey.
- * Any depedency which has the {@link javax.inject.Inject} annotation can be
+ * Any dependency which has the {@link javax.inject.Inject} annotation can be
  * included. This denoted which concrete instance is bound to a particular
  * interface, and optionally in which scope the binding applies.
  */
 public class FactoriesBinder extends AbstractBinder {
     @Override
     protected void configure() {
-        bind(getDefaultGraphFactory()).to(GraphFactory.class);
-        bind(getDefaultUserFactory()).to(UserFactory.class);
+        bind(getDefaultGraphFactory()).to(GraphFactory.class).in(Singleton.class);
+        bind(getDefaultUserFactory()).to(UserFactory.class).in(Singleton.class);
     }
 
-    private Class<?> getDefaultGraphFactory() {
+    private Class<? extends GraphFactory> getDefaultGraphFactory() {
         final String graphFactoryClass = System.getProperty(SystemProperty.GRAPH_FACTORY_CLASS,
                 SystemProperty.GRAPH_FACTORY_CLASS_DEFAULT);
 
@@ -45,7 +47,7 @@ public class FactoriesBinder extends AbstractBinder {
         }
     }
 
-    private Class<?> getDefaultUserFactory() {
+    private Class<? extends UserFactory> getDefaultUserFactory() {
         final String userFactoryClass = System.getProperty(SystemProperty.USER_FACTORY_CLASS,
                 SystemProperty.USER_FACTORY_CLASS_DEFAULT);
 

@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -46,7 +46,7 @@ public class ExportToOtherAuthorisedGraphTest extends OperationTest {
 
         // Then
         assertEquals("graphId", deserialisedOp.getGraphId());
-        assertEquals(Arrays.asList("schema1"), deserialisedOp.getParentSchemaIds());
+        assertEquals(Collections.singletonList("schema1"), deserialisedOp.getParentSchemaIds());
         assertEquals("props1", deserialisedOp.getParentStorePropertiesId());
     }
 
@@ -54,7 +54,7 @@ public class ExportToOtherAuthorisedGraphTest extends OperationTest {
     public void builderShouldCreatePopulatedOperation() {
         // Given / When / Then
         assertEquals("graphId", op.getGraphId());
-        assertEquals(Arrays.asList("schema1"), op.getParentSchemaIds());
+        assertEquals(Collections.singletonList("schema1"), op.getParentSchemaIds());
         assertEquals("props1", op.getParentStorePropertiesId());
     }
 
@@ -66,7 +66,7 @@ public class ExportToOtherAuthorisedGraphTest extends OperationTest {
         // Then
         assertNotSame(op, clone);
         assertEquals("graphId", clone.getGraphId());
-        assertEquals(Arrays.asList("schema1"), clone.getParentSchemaIds());
+        assertEquals(Collections.singletonList("schema1"), clone.getParentSchemaIds());
         assertEquals("props1", clone.getParentStorePropertiesId());
     }
 

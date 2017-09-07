@@ -16,9 +16,6 @@ limitations under the License.
 
 Gaffer
 ======
-[![Build Status](https://travis-ci.org/gchq/Gaffer.svg?branch=master)](https://travis-ci.org/gchq/Gaffer)
-[![codecov](https://codecov.io/gh/gchq/Gaffer/branch/master/graph/badge.svg)](https://codecov.io/gh/gchq/Gaffer)
-
 Gaffer is built for very large graphs.
 
 It's designed to be as flexible, scalable and extensible as possible, allowing for rapid prototyping and transition to production systems.

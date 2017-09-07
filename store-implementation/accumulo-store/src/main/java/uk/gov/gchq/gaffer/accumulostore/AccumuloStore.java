@@ -32,6 +32,7 @@ import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.ColumnVisibility;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.slf4j.Logger;
@@ -89,6 +90,7 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
@@ -203,6 +205,7 @@ public class AccumuloStore extends Store {
             final View view = graphFilters.getView();
 
             // Table name
+            LOGGER.info("Updating configuration with table name of {}", getTableName());
             InputConfigurator.setInputTableName(AccumuloInputFormat.class,
                     conf,
                     getTableName());
@@ -218,19 +221,27 @@ public class AccumuloStore extends Store {
             InputConfigurator.setScanAuthorizations(AccumuloInputFormat.class,
                     conf,
                     authorisations);
+            LOGGER.info("Updating configuration with authorizations of {}", authorisations);
             // Zookeeper
             addZookeeperToConfiguration(conf);
             // Add keypackage, schema and view to conf
             conf.set(ElementInputFormat.KEY_PACKAGE, getProperties().getKeyPackageClass());
+            LOGGER.info("Updating configuration with key package of {}", getProperties().getKeyPackageClass());
             conf.set(ElementInputFormat.SCHEMA, new String(getSchema().toCompactJson(), CommonConstants.UTF_8));
+            LOGGER.info("Updating configuration with Schema of {}", getSchema());
             conf.set(ElementInputFormat.VIEW, new String(view.toCompactJson(), CommonConstants.UTF_8));
+            LOGGER.info("Updating configuration with View of {}", view);
 
             if (view.hasGroups()) {
                 // Add the columns to fetch
-                InputConfigurator.fetchColumns(AccumuloInputFormat.class, conf,
-                        Stream.concat(view.getEntityGroups().stream(), view.getEdgeGroups().stream())
-                                .map(g -> new org.apache.accumulo.core.util.Pair<>(new Text(g), (Text) null))
-                                .collect(Collectors.toSet()));
+                final Collection<org.apache.accumulo.core.util.Pair<Text, Text>> columnFamilyColumnQualifierPairs
+                        = Stream
+                        .concat(view.getEntityGroups().stream(), view.getEdgeGroups().stream())
+                        .map(g -> new org.apache.accumulo.core.util.Pair<>(new Text(g), (Text) null))
+                        .collect(Collectors.toSet());
+                InputConfigurator.fetchColumns(AccumuloInputFormat.class, conf, columnFamilyColumnQualifierPairs);
+                LOGGER.info("Updated configuration with column family/qualifiers of {}",
+                        StringUtils.join(columnFamilyColumnQualifierPairs, ','));
 
                 // Add iterators that depend on the view
                 final IteratorSetting elementPreFilter = getKeyPackage()
@@ -238,18 +249,21 @@ public class AccumuloStore extends Store {
                         .getElementPreAggregationFilterIteratorSetting(view, this);
                 if (null != elementPreFilter) {
                     InputConfigurator.addIterator(AccumuloInputFormat.class, conf, elementPreFilter);
+                    LOGGER.info("Added pre-aggregation filter iterator of {}", elementPreFilter);
                 }
                 final IteratorSetting elementPostFilter = getKeyPackage()
                         .getIteratorFactory()
                         .getElementPostAggregationFilterIteratorSetting(view, this);
                 if (null != elementPostFilter) {
                     InputConfigurator.addIterator(AccumuloInputFormat.class, conf, elementPostFilter);
+                    LOGGER.info("Added post-aggregation filter iterator of {}", elementPostFilter);
                 }
                 final IteratorSetting edgeEntityDirFilter = getKeyPackage()
                         .getIteratorFactory()
                         .getEdgeEntityDirectionFilterIteratorSetting(graphFilters);
                 if (null != edgeEntityDirFilter) {
                     InputConfigurator.addIterator(AccumuloInputFormat.class, conf, edgeEntityDirFilter);
+                    LOGGER.info("Added edge direction filter iterator of {}", edgeEntityDirFilter);
                 }
             }
         } catch (final AccumuloSecurityException | IteratorSettingException | UnsupportedEncodingException e) {
@@ -280,6 +294,7 @@ public class AccumuloStore extends Store {
     }
 
     protected void addUserToConfiguration(final Configuration conf) throws AccumuloSecurityException {
+        LOGGER.info("Updating configuration with user of {}", getProperties().getUser());
         InputConfigurator.setConnectorInfo(AccumuloInputFormat.class,
                 conf,
                 getProperties().getUser(),

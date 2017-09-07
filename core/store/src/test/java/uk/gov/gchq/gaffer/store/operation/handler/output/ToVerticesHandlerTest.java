@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToVertices.EdgeVertices;
 import uk.gov.gchq.gaffer.store.Context;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -180,7 +181,7 @@ public class ToVerticesHandlerTest {
         final Object vertex1 = "vertex1";
         final Object vertex2 = "vertex2";
 
-        final List elementIds = Arrays.asList(new EdgeSeed(vertex1, vertex2, false));
+        final List elementIds = Collections.singletonList(new EdgeSeed(vertex1, vertex2, false));
         final ToVerticesHandler handler = new ToVerticesHandler();
         final ToVertices operation = mock(ToVertices.class);
 
@@ -200,7 +201,7 @@ public class ToVerticesHandlerTest {
         final Object vertex1 = "vertex1";
         final Object vertex2 = "vertex2";
 
-        final List elementIds = Arrays.asList(new EdgeSeed(vertex1, vertex2, false));
+        final List elementIds = Collections.singletonList(new EdgeSeed(vertex1, vertex2, false));
 
         final ToVerticesHandler handler = new ToVerticesHandler();
         final ToVertices operation = mock(ToVertices.class);
