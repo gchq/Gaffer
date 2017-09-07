@@ -86,7 +86,7 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
                                      final AccumuloStore accumuloStore)
             throws OperationException {
         final String useRFileReaderRDD = operation.getOption(USE_RFILE_READER_RDD);
-        if (null != useRFileReaderRDD && useRFileReaderRDD.equalsIgnoreCase("true")) {
+        if (Boolean.parseBoolean(useRFileReaderRDD)) {
             return doOperationUsingRFileReaderRDD(operation, context, accumuloStore);
         } else {
             return doOperationUsingElementInputFormat(operation, context, accumuloStore);
