@@ -88,12 +88,12 @@ public class HashMapGraphLibraryTest {
                         .description("some description")
                         .build())
                 .build();
-        LIBRARY.add(GRAPH_ID, schema1, storeProperties);
+        LIBRARY.add("someOtherGraph", schema1, storeProperties);
 
         final Schema schema1Clone = schema1.clone();
 
         // When
-        LIBRARY.checkExisting(GRAPH_ID, schema1Clone, storeProperties);
+        LIBRARY.checkExisting("someOtherGraph", schema1Clone, storeProperties);
 
         // Then - no exceptions
     }
