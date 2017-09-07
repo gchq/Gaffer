@@ -16,6 +16,12 @@
 
 package uk.gov.gchq.gaffer.rest;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 public class SystemStatus {
 
     public static final SystemStatus UP = new SystemStatus(Status.UP);
@@ -25,12 +31,44 @@ public class SystemStatus {
 
     private final Status status;
 
-    public SystemStatus(final Status status) {
+    @JsonCreator
+    public SystemStatus(@JsonProperty("status") final Status status) {
         this.status = status;
     }
 
     public Status getStatus() {
         return status;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final SystemStatus that = (SystemStatus) obj;
+
+        return new EqualsBuilder()
+                .append(status, that.status)
+                .isEquals();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("status", status)
+                .toString();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(status)
+                .toHashCode();
     }
 
     public enum Status {
@@ -55,6 +93,14 @@ public class SystemStatus {
 
         public String getDescription() {
             return description;
+        }
+
+        @Override
+        public String toString() {
+            return new ToStringBuilder(this)
+                    .append("description", description)
+                    .append("code", code)
+                    .toString();
         }
     }
 }

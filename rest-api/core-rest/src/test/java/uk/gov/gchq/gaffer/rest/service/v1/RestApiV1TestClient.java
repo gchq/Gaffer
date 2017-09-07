@@ -28,7 +28,6 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
-import static org.junit.Assert.assertEquals;
 
 public class RestApiV1TestClient extends RestApiTestClient {
 
@@ -73,19 +72,12 @@ public class RestApiV1TestClient extends RestApiTestClient {
     }
 
     @Override
-    public void checkRestServiceStatus() {
-        // Given
-        final Response response = client.target(uriString)
-                                        .path("status")
-                                        .request()
-                                        .get();
+    public SystemStatus getRestServiceStatus() {
+        return client.target(uriString)
+                     .path("status")
+                     .request()
+                     .get(SystemStatus.class);
 
-        // When
-        final String statusMsg = response.readEntity(SystemStatus.class)
-                                         .getStatus()
-                                         .getDescription();
 
-        // Then
-        assertEquals("The system is working normally.", statusMsg);
     }
 }

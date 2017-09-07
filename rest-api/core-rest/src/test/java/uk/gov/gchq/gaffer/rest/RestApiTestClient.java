@@ -106,7 +106,12 @@ public abstract class RestApiTestClient {
         DefaultGraphFactory.setGraph(null);
 
         startServer();
-        checkRestServiceStatus();
+
+        final SystemStatus status = getRestServiceStatus();
+
+        if (SystemStatus.Status.UP != status.getStatus()) {
+            throw new RuntimeException("The system status was not UP.");
+        }
     }
 
     public void addElements(final Element... elements) throws IOException {
@@ -123,7 +128,7 @@ public abstract class RestApiTestClient {
 
     public abstract Response executeOperationChunked(final Operation operation) throws IOException;
 
-    public abstract void checkRestServiceStatus();
+    public abstract SystemStatus getRestServiceStatus();
 
     public void startServer() throws IOException {
         if (null == server) {
