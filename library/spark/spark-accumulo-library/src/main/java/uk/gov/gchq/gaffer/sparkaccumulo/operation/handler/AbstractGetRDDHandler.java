@@ -33,8 +33,10 @@ import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
@@ -58,8 +60,18 @@ public abstract class AbstractGetRDDHandler<OP extends Output<O> & GraphFilters,
                              final User user,
                              final OP operation) throws OperationException {
         try {
+            final GraphFilters derivedOperation;
+            if (operation instanceof GetRDDOfAllElements) {
+                // Create dummy GetAllElements operation as some of the methods in
+                // AccumuloStore test if the operation is a GetAllElements operation
+                // and if so set some options. We need those options if operation
+                // is returning all the elements.
+                derivedOperation = getGetAllElements(operation);
+            } else {
+                derivedOperation = operation;
+            }
             // Update configuration with instance name, table name, zookeepers, and with view
-            accumuloStore.updateConfiguration(conf, operation, user);
+            accumuloStore.updateConfiguration(conf, derivedOperation, user);
             // Add iterators based on operation-specific (i.e. not view related) options
             final IteratorSetting queryTimeAggregator = accumuloStore.getKeyPackage()
                     .getIteratorFactory()
@@ -67,9 +79,23 @@ public abstract class AbstractGetRDDHandler<OP extends Output<O> & GraphFilters,
             if (queryTimeAggregator != null) {
                 InputConfigurator.addIterator(AccumuloInputFormat.class, conf, queryTimeAggregator);
             }
+            final IteratorSetting propertyFilter = accumuloStore.getKeyPackage()
+                    .getIteratorFactory()
+                    .getElementPropertyRangeQueryFilter(derivedOperation);
+            if (propertyFilter != null) {
+                InputConfigurator.addIterator(AccumuloInputFormat.class, conf, propertyFilter);
+            }
         } catch (final StoreException | IteratorSettingException e) {
             throw new OperationException("Failed to update configuration", e);
         }
+    }
+
+    private GetAllElements getGetAllElements(final OP getRDDOfAllElements) {
+        final GetAllElements getAllElements = new GetAllElements.Builder()
+                .view(getRDDOfAllElements.getView())
+                .directedType(getRDDOfAllElements.getDirectedType())
+                .build();
+        return getAllElements;
     }
 
     public <INPUT_OP extends Operation & GraphFilters & Input<Iterable<? extends ElementId>>>

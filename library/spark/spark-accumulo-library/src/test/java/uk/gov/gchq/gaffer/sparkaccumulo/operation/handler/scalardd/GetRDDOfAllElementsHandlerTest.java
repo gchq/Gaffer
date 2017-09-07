@@ -97,8 +97,8 @@ public class GetRDDOfAllElementsHandlerTest {
     @Test
     public void testGetAllElementsInRDD() throws OperationException, IOException, InterruptedException,
             AccumuloSecurityException, AccumuloException, TableNotFoundException {
-//        testGetAllElementsInRDD(getGraphForMockAccumulo(KeyPackage.BYTE_ENTITY), getOperation());
-//        testGetAllElementsInRDD(getGraphForMockAccumulo(KeyPackage.CLASSIC), getOperation());
+        testGetAllElementsInRDD(getGraphForMockAccumulo(KeyPackage.BYTE_ENTITY), getOperation());
+        testGetAllElementsInRDD(getGraphForMockAccumulo(KeyPackage.CLASSIC), getOperation());
         testGetAllElementsInRDD(
                 getGraphForDirectRDD(KeyPackage.BYTE_ENTITY, "testGetAllElementsInRDD1"),
                 getOperationWithDirectRDDOption());
@@ -182,7 +182,7 @@ public class GetRDDOfAllElementsHandlerTest {
         final Element[] returnedElements = (Element[]) rdd.collect();
         // Check the number of elements returned is correct to ensure edges
         // aren't returned twice
-//        assertEquals(30, returnedElements.length);
+        assertEquals(30, returnedElements.length);
         for (int i = 0; i < returnedElements.length; i++) {
             results.add(returnedElements[i]);
         }
