@@ -30,7 +30,8 @@ public class ExamplesServiceV2 implements IExamplesServiceV2 {
 
     @Override
     public Operation execute() throws InstantiationException, IllegalAccessException {
-        return new OperationChain(examplesFactory.generateExample(GetAllElements.class));
+        return new OperationChain(examplesFactory.generateExample(GetAllElements.class),
+                new Limit.Builder().resultLimit(1).build());
     }
 
     @Override
