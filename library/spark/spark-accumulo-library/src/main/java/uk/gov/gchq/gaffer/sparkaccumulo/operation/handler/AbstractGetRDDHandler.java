@@ -91,11 +91,11 @@ public abstract class AbstractGetRDDHandler<OP extends Output<O> & GraphFilters,
     }
 
     private GetAllElements getGetAllElements(final OP getRDDOfAllElements) {
-        final GetAllElements getAllElements = new GetAllElements.Builder()
+        return new GetAllElements.Builder()
                 .view(getRDDOfAllElements.getView())
                 .directedType(getRDDOfAllElements.getDirectedType())
+                .options(getRDDOfAllElements.getOptions())
                 .build();
-        return getAllElements;
     }
 
     public <INPUT_OP extends Operation & GraphFilters & Input<Iterable<? extends ElementId>>>
