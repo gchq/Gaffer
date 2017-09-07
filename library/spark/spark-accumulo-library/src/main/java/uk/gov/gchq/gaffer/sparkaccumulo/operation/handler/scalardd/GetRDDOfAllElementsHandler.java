@@ -38,9 +38,11 @@ import uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewUtil;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
@@ -180,7 +182,19 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
         @Override
         public Iterator<Element> apply(final Iterator<Map.Entry<Key, Value>> entryIterator) {
             final EntryToElement entryToElement = new EntryToElement(serialisedConf);
-            return entryIterator.map(entryToElement);
+            return entryIterator
+                    .map(entryToElement)
+                    .filter(new FilterOutNull());
+        }
+    }
+
+    public static class FilterOutNull extends AbstractFunction1<Element, Object> implements Serializable {
+        @Override
+        public Object apply(final Element element) {
+            if (null != element) {
+                return true;
+            }
+            return false;
         }
     }
 
@@ -216,6 +230,13 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
                 if (transformer != null) {
                     transformer.apply(element);
                 }
+                if (ElementInputFormat.doPostFilter(element, view)) {
+                    ViewUtil.removeProperties(view, element);
+                    return element;
+                } else {
+                    return null;
+                }
+
             }
             return element;
         }
