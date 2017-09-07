@@ -38,6 +38,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class EdgeTest extends ElementTest {
 
@@ -603,6 +604,80 @@ public class EdgeTest extends ElementTest {
 
         // Then
         assertThat(edge1, equalTo(edge2));
+    }
+
+    @Test
+    public void shouldDeserialiseFromJsonUsingDirectedTrueField() throws SerialisationException {
+        // Given
+        final String json = "{\"class\": \"uk.gov.gchq.gaffer.data.element.Edge\", \"directed\": true}";
+
+        // When
+        final Edge deserialisedEdge = JSONSerialiser.deserialise(json.getBytes(), Edge.class);
+
+        // Then
+        assertTrue(deserialisedEdge.isDirected());
+    }
+
+    @Test
+    public void shouldDeserialiseFromJsonUsingDirectedFalseField() throws SerialisationException {
+        // Given
+        final String json = "{\"class\": \"uk.gov.gchq.gaffer.data.element.Edge\", \"directed\": false}";
+
+        // When
+        final Edge deserialisedEdge = JSONSerialiser.deserialise(json.getBytes(), Edge.class);
+
+        // Then
+        assertFalse(deserialisedEdge.isDirected());
+    }
+
+    @Test
+    public void shouldDeserialiseFromJsonWhenDirectedTypeIsDirected() throws SerialisationException {
+        // Given
+        final String json = "{\"class\": \"uk.gov.gchq.gaffer.data.element.Edge\", \"directedType\": \"DIRECTED\"}";
+
+        // When
+        final Edge deserialisedEdge = JSONSerialiser.deserialise(json.getBytes(), Edge.class);
+
+        // Then
+        assertTrue(deserialisedEdge.isDirected());
+    }
+
+    @Test
+    public void shouldDeserialiseFromJsonWhenDirectedTypeIsUndirected() throws SerialisationException {
+        // Given
+        final String json = "{\"class\": \"uk.gov.gchq.gaffer.data.element.Edge\", \"directedType\": \"UNDIRECTED\"}";
+
+        // When
+        final Edge deserialisedEdge = JSONSerialiser.deserialise(json.getBytes(), Edge.class);
+
+        // Then
+        assertFalse(deserialisedEdge.isDirected());
+    }
+
+    @Test
+    public void shouldDeserialiseFromJsonWhenDirectedTypeIsEither() throws SerialisationException {
+        // Given
+        final String json = "{\"class\": \"uk.gov.gchq.gaffer.data.element.Edge\", \"directedType\": \"EITHER\"}";
+
+        // When
+        final Edge deserialisedEdge = JSONSerialiser.deserialise(json.getBytes(), Edge.class);
+
+        // Then
+        assertTrue(deserialisedEdge.isDirected());
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenDeserialiseFromJsonUsingDirectedAndDirectedType() {
+        // Given
+        final String json = "{\"class\": \"uk.gov.gchq.gaffer.data.element.Edge\", \"directed\": true, \"directedType\": \"DIRECTED\"}";
+
+        // When / Then
+        try {
+            JSONSerialiser.deserialise(json.getBytes(), Edge.class);
+            fail("Exception expected");
+        } catch (final Exception e) {
+            assertTrue(e.getMessage().contains("not both"));
+        }
     }
 
     private Edge cloneCoreFields(final Edge edge) {
