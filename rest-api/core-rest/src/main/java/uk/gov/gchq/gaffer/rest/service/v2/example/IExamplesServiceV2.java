@@ -41,15 +41,11 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 public interface IExamplesServiceV2 {
 
     @GET
-    @Path("/graph/operations")
+    @Path("/graph/operations/execute")
     Operation execute() throws InstantiationException, IllegalAccessException;
 
     @GET
-    @Path("/graph/operations/chunked")
+    @Path("/graph/operations/execute/chunked")
     Operation executeChunked() throws InstantiationException, IllegalAccessException;
-
-    @GET
-    @Path("/graph/operations/{className}")
-    Operation executeClass(@PathParam("className") final String className) throws ClassNotFoundException, InstantiationException, IllegalAccessException;
 
 }
