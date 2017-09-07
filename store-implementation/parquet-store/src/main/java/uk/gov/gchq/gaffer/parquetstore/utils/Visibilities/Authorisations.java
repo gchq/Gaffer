@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+/**
+ * This is coped from org.apache.accumulo.core.security.Authorizations.
+ */
 public class Authorisations implements Iterable<byte[]>, Serializable {
     private static final long serialVersionUID = 8931467369628123909L;
     private Set<ArrayByteSequence> auths = new HashSet();

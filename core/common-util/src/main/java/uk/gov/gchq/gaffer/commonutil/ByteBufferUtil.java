@@ -22,7 +22,8 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 /**
- * Utility methods for a ByteBuffer
+ * Utility methods for a ByteBuffer.
+ * This class is coped from org.apache.accumulo.core.util.ByteBufferUtil.
  */
 public final class ByteBufferUtil {
 

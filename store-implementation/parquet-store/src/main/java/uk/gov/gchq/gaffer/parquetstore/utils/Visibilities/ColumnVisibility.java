@@ -24,6 +24,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.PatternSyntaxException;
 
+/**
+ * This class is coped from org.apache.accumulo.core.security.ColumnVisibility.
+ */
 public class ColumnVisibility {
     ColumnVisibility.Node node;
     private byte[] expression;

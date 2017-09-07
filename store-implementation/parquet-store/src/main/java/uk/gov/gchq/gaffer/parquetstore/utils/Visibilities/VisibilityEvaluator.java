@@ -18,6 +18,9 @@ package uk.gov.gchq.gaffer.parquetstore.utils.visibilities;
 
 import uk.gov.gchq.gaffer.parquetstore.utils.visibilities.exception.VisibilityParseException;
 
+/**
+ * This class is copied from org.apache.accumulo.core.security.VisibilityEvaluator.
+ */
 public class VisibilityEvaluator {
     private Authorisations auths;
 

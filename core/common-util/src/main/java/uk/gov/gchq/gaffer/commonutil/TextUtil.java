@@ -19,7 +19,8 @@ package uk.gov.gchq.gaffer.commonutil;
 import org.apache.hadoop.io.Text;
 
 /**
- * Utility methods for Text
+ * Utility methods for Text.
+ * This class is coped from org.apache.accumulo.core.util.TextUtil.
  */
 public final class TextUtil {
 
