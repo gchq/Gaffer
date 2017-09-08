@@ -18,9 +18,11 @@ package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.google.common.collect.Sets;
 import org.junit.Assert;
+
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
 import java.util.Set;
 
 public class AddGraphTest extends OperationTest<AddGraph> {

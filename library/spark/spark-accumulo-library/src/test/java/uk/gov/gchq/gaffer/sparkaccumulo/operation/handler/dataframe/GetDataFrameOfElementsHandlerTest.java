@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
-import org.apache.spark.SparkConf;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Row$;
@@ -39,7 +38,6 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.spark.SparkConstants;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.ConversionException;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
