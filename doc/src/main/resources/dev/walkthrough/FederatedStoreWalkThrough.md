@@ -39,7 +39,7 @@ gaffer.federatedstore.<GraphId2>.properties.id=<Id name in graphLibrary>
 gaffer.federatedstore.<GraphId2>.schema.id=<Id name in graphLibrary>
 ```
 
-or through the `AddGraph` operation. However this operation maybe limited to for some
+or through the `AddGraph` operation. However this operation maybe limited for some
 users if the `FederatedStore` property "gaffer.federatedstore.customPropertiesAuths" is defined.
 Without matching authorisation users can only specify adding a graph with `StoreProperties` from the `GraphLibrary`.
 
@@ -60,7 +60,7 @@ ${REMOVE_GRAPH_SNIPPET}
 or through the rest service with json.
 
 ```
-{$removeGraphJson}
+${removeGraphJson}
 ```
 
 #### Getting all the GraphId's
@@ -111,24 +111,24 @@ ${elements from accumuloGraph}
 ```
 
 #### Failed Execution
-If the execution against a graph fails an `OperationException` is thrown, unless the operation has the Option flag "skipFailedFederatedStoreExecute" set to true. In that situation the `FederatedStore` will continue onto the next graph.
+If the execution against a graph fails, that graph is skipped and the `FederatedStore` continues with the remaining graphs. Unless the operation has the option flag "skipFailedFederatedStoreExecute" set to `false`, in that situation a `OperationException` is thrown.
 
 #### Limiting Access
-It is possible to have a `FederatedStore` with many sub-graphs, however you may wish to limit the users access. This is possible by using Authorisations at the time of adding a graph to the FederatedStore, this limits the graphs users can send operations to via the FederatedStore.
-Explicitly setting Authorisations to an empty list grants access to all users.
+It is possible to have a `FederatedStore` with many sub-graphs, however you may wish to limit the users access. This is possible by using authorisations at the time of adding a graph to the FederatedStore, this limits the graphs users can send operations to via the FederatedStore.
+Explicitly setting authorisations to an empty list grants access to all users.
 
-This can be done at `FederatedStore` Initialisation, by default if Authorisations is not specified it will be public to all.
+This can be done at `FederatedStore` Initialisation, by default if authorisations is not specified it will be public to all.
 
 ```
 gaffer.federatedstore.<GraphId1>.auths=public,private
 
 ```
 
-or via the `AddGraph` operation, by default if Authorisations is not specified it is private to the user that added it to FederatedStore.
+or via the `AddGraph` operation, by default if authorisations is not specified it is private to the user that added it to FederatedStore.
 
 ${ADD_SECURE_GRAPH_SNIPPET}
 
-or through the rest service with json, by default if Authorisations is not specified it is private to the user that added it to FederatedStore.
+or through the rest service with json, by default if authorisations is not specified it is private to the user that added it to FederatedStore.
 
 ```json
 ${addSecureGraphJson}
