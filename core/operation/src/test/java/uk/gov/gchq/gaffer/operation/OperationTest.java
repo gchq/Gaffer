@@ -49,7 +49,7 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
         // Then
         final Set<String> requiredFields = getRequiredFields();
         final Set<String> requiredFieldsErrors = requiredFields.stream()
-                .map(f -> f + " is required")
+                .map(f -> f + " is required for: " + op.getClass().getSimpleName())
                 .collect(Collectors.toSet());
 
         assertEquals(

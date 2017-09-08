@@ -65,7 +65,7 @@
                 <executions>
                     <execution>
                         <id>full</id>
-                        <phase>package</phase>
+                        <phase>${shaded.jar.phase}</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>

@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.proxystore.ProxyProperties;
 import uk.gov.gchq.gaffer.proxystore.ProxyStore;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.FileGraphLibrary;
+import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
@@ -39,14 +40,14 @@ import java.io.File;
 import java.io.IOException;
 
 public class ExportToOtherGraphExample extends OperationExample {
-    public static void main(final String[] args) throws OperationException {
-        new ExportToOtherGraphExample().run();
-    }
-
     public ExportToOtherGraphExample() {
         super(ExportToOtherGraph.class, "These export examples export all edges in the example graph to another Gaffer instance. \n\n" +
                 "To add this operation to your Gaffer graph you will need to include the ExportToOtherGraphOperationDeclarations.json in your store properties, i.e. set this property: " +
                 "gaffer.store.operation.declarations=ExportToOtherGraphOperationDeclarations.json\n");
+    }
+
+    public static void main(final String[] args) throws OperationException {
+        new ExportToOtherGraphExample().run();
     }
 
     @Override
@@ -54,9 +55,22 @@ public class ExportToOtherGraphExample extends OperationExample {
         simpleExport();
         simpleExportWithCustomGraph();
         simpleToOtherGafferRestApi();
+        deleteTheOldGraphLibraryGraph1();
         simpleExportUsingGraphFromGraphLibrary();
+        deleteTheOldGraphLibraryGraph1();
         exportToNewGraphBasedOnConfigFromGraphLibrary();
         cleanUp();
+    }
+
+    private void deleteTheOldGraphLibraryGraph1() {
+        final String pathname = "target/graphLibrary/graph1Graphs.json";
+        if (new File(pathname).exists()) {
+            try {
+                FileUtils.forceDelete(new File(pathname));
+            } catch (final IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public void simpleExport() {
@@ -134,7 +148,7 @@ public class ExportToOtherGraphExample extends OperationExample {
     public void simpleExportUsingGraphFromGraphLibrary() {
         // ---------------------------------------------------------
         // Setup the graphLibrary with an export graph
-        final FileGraphLibrary graphLibrary = new FileGraphLibrary("target/graphLibrary");
+        final GraphLibrary graphLibrary = new FileGraphLibrary("target/graphLibrary");
 
         final AccumuloProperties exportStoreProperties = new AccumuloProperties();
         exportStoreProperties.setId("exportStorePropertiesId");
@@ -185,7 +199,7 @@ public class ExportToOtherGraphExample extends OperationExample {
     public void exportToNewGraphBasedOnConfigFromGraphLibrary() {
         // ---------------------------------------------------------
         // Setup the graphLibrary with a schema and store properties for exporting
-        final FileGraphLibrary graphLibrary = new FileGraphLibrary("target/graphLibrary");
+        final GraphLibrary graphLibrary = new FileGraphLibrary("target/graphLibrary");
 
         final AccumuloProperties exportStoreProperties = new AccumuloProperties();
         exportStoreProperties.setId("exportStorePropertiesId");

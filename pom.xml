@@ -43,6 +43,8 @@
         <skip.surefire.tests>false</skip.surefire.tests>
         <skip.failsafe.tests>false</skip.failsafe.tests>
         <exclude.tests/>
+        <skip.jar-with-dependencies>false</skip.jar-with-dependencies>
+        <shaded.jar.phase>package</shaded.jar.phase>
 
         <java.version>1.8</java.version>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -817,6 +819,7 @@
                 <skip.surefire.tests>true</skip.surefire.tests>
                 <skip.failsafe.tests>true</skip.failsafe.tests>
                 <jacoco.skip>true</jacoco.skip>
+                <shaded.jar.phase>none</shaded.jar.phase>
             </properties>
         </profile>
         <profile>
@@ -824,6 +827,7 @@
             <properties>
                 <skip.surefire.tests>false</skip.surefire.tests>
                 <skip.failsafe.tests>false</skip.failsafe.tests>
+                <shaded.jar.phase>none</shaded.jar.phase>
             </properties>
             <build>
                 <plugins>
@@ -855,6 +859,8 @@
             <properties>
                 <skip.surefire.tests>true</skip.surefire.tests>
                 <skip.failsafe.tests>false</skip.failsafe.tests>
+                <skip.jar-with-dependencies>true</skip.jar-with-dependencies>
+                <shaded.jar.phase>none</shaded.jar.phase>
             </properties>
             <build>
                 <plugins>
@@ -886,6 +892,8 @@
             <properties>
                 <skip.surefire.tests>false</skip.surefire.tests>
                 <skip.failsafe.tests>true</skip.failsafe.tests>
+                <skip.jar-with-dependencies>true</skip.jar-with-dependencies>
+                <shaded.jar.phase>none</shaded.jar.phase>
             </properties>
             <build>
                 <plugins>

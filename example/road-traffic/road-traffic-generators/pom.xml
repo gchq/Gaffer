@@ -44,17 +44,21 @@
                 <executions>
                     <execution>
                         <id>full</id>
-                        <phase>package</phase>
+                        <phase>${shaded.jar.phase}</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <shadedArtifactAttached>true
+                            </shadedArtifactAttached>
                             <shadedClassifierName>utility</shadedClassifierName>
                             <artifactSet>
                                 <includes>
-                                    <include>uk.gov.gchq.gaffer.traffic.generator.*</include>
-                                    <include>org.apache.commons:commons-csv</include>
+                                    <include>
+                                        uk.gov.gchq.gaffer.traffic.generator.*
+                                    </include>
+                                    <include>org.apache.commons:commons-csv
+                                    </include>
                                 </includes>
                             </artifactSet>
                         </configuration>

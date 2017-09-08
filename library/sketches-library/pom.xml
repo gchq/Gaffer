@@ -77,7 +77,7 @@
                 <executions>
                     <execution>
                         <id>deploy</id>
-                        <phase>package</phase>
+                        <phase>${shaded.jar.phase}</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>

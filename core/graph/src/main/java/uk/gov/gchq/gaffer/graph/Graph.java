@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -480,6 +481,38 @@ public final class Graph {
             return this;
         }
 
+        public Builder addStoreProperties(final StoreProperties updateProperties) {
+            if (this.properties == null) {
+                storeProperties(updateProperties);
+            } else {
+                final Properties old = this.properties.getProperties();
+                old.putAll(updateProperties.getProperties());
+            }
+            return this;
+        }
+
+        public Builder addStoreProperties(final String updatePropertiesPath) {
+            return addStoreProperties(StoreProperties.loadStoreProperties(updatePropertiesPath));
+        }
+
+        public Builder addStoreProperties(final Path updatePropertiesPath) {
+            return addStoreProperties(StoreProperties.loadStoreProperties(updatePropertiesPath));
+        }
+
+        public Builder addStoreProperties(final InputStream updatePropertiesStream) {
+            return addStoreProperties(StoreProperties.loadStoreProperties(updatePropertiesStream));
+        }
+
+        public Builder addStoreProperties(final URI updatePropertiesURI) {
+            try {
+                addStoreProperties(StreamUtil.openStream(updatePropertiesURI));
+            } catch (final IOException e) {
+                throw new SchemaException("Unable to read storeProperties from URI: " + updatePropertiesURI, e);
+            }
+
+            return this;
+        }
+
         public Builder addParentSchemaIds(final String... parentSchemaIds) {
             this.parentSchemaIds = parentSchemaIds;
             return this;
@@ -815,5 +848,6 @@ public final class Graph {
         private Schema cloneSchema(final Schema schema) {
             return null != schema ? schema.clone() : null;
         }
+
     }
 }
