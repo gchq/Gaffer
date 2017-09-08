@@ -20,7 +20,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>store-implementation</artifactId>
-        <version>0.7.9-SNAPSHOT</version>
+        <version>1.0.0-RC2-SNAPSHOT</version>
     </parent>
 
     <artifactId>parquet-store</artifactId>
@@ -59,7 +59,7 @@
         <!-- Other dependencies -->
         <dependency>
             <groupId>uk.gov.gchq.koryphe</groupId>
-            <artifactId>koryphe</artifactId>
+            <artifactId>core</artifactId>
             <version>${koryphe.version}</version>
             <scope>compile</scope>
         </dependency>

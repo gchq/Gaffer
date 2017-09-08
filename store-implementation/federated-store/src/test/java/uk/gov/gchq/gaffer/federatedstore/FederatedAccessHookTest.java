@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import org.junit.Assert;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.gaffer.user.User.Builder;
 import java.util.Collection;

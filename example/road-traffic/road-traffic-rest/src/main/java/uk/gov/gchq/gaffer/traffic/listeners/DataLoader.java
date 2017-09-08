@@ -59,5 +59,4 @@ public class DataLoader implements ServletContextListener {
 
         LOGGER.info("Sample data has been loaded");
     }
-
 }

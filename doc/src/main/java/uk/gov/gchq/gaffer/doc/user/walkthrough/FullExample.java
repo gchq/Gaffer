@@ -43,7 +43,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
 import uk.gov.gchq.gaffer.traffic.ElementGroup;
-import uk.gov.gchq.gaffer.traffic.generator.RoadTrafficElementGenerator;
+import uk.gov.gchq.gaffer.traffic.generator.RoadTrafficCsvElementGenerator;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
@@ -92,7 +92,7 @@ public class FullExample extends UserWalkthrough {
         )) {
             final OperationChain<Void> addOpChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<CSVRecord>()
-                    .generator(new RoadTrafficElementGenerator())
+                    .generator(new RoadTrafficCsvElementGenerator())
                     .input(parser)
                     .build())
                 .then(new AddElements())
