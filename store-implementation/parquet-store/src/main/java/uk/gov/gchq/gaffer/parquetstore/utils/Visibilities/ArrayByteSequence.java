@@ -22,7 +22,7 @@ import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 
 /**
- * This class is copied fro org.apache.accumulo.core.data.ArrayByteSequence.
+ * This class is copied from org.apache.accumulo.core.data.ArrayByteSequence.
  */
 public class ArrayByteSequence implements Serializable, Comparable<ArrayByteSequence> {
     private static final long serialVersionUID = 4850846929226802566L;
