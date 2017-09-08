@@ -23,6 +23,10 @@ import org.apache.parquet.hadoop.ParquetReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.Authorisations;
+import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.ElementVisibility;
+import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.VisibilityEvaluator;
+import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.exception.VisibilityParseException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -31,10 +35,6 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.io.reader.ParquetElementReader;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
-import uk.gov.gchq.gaffer.parquetstore.utils.visibilities.Authorisations;
-import uk.gov.gchq.gaffer.parquetstore.utils.visibilities.ElementVisibility;
-import uk.gov.gchq.gaffer.parquetstore.utils.visibilities.VisibilityEvaluator;
-import uk.gov.gchq.gaffer.parquetstore.utils.visibilities.exception.VisibilityParseException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 

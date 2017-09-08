@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.parquetstore.utils.visibilities;
+package uk.gov.gchq.gaffer.commonutil.elementvisibilityutil;
 
 import org.apache.hadoop.io.WritableComparator;
 

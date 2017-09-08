@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.parquetstore.utils.visibilities.exception;
+package uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.exception;
 
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;

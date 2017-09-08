@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.parquetstore.utils.visibilities;
+package uk.gov.gchq.gaffer.commonutil.elementvisibilityutil;
 
-import uk.gov.gchq.gaffer.parquetstore.utils.visibilities.exception.VisibilityParseException;
+import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.exception.VisibilityParseException;
 
 /**
  * This class is copied from org.apache.accumulo.core.security.VisibilityEvaluator.
