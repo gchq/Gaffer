@@ -32,7 +32,7 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.koryphe</groupId>
-            <artifactId>koryphe</artifactId>
+            <artifactId>core</artifactId>
             <version>${koryphe.version}</version>
         </dependency>
         <dependency>
@@ -43,7 +43,7 @@
         <!-- Test dependencies -->
         <dependency>
             <groupId>uk.gov.gchq.koryphe</groupId>
-            <artifactId>koryphe</artifactId>
+            <artifactId>core</artifactId>
             <version>${koryphe.version}</version>
             <type>test-jar</type>
             <scope>test</scope>

@@ -24,12 +24,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MapFilterExample extends PredicateExample {
+public class PredicateMapExample extends PredicateExample {
     public static void main(final String[] args) {
-        new MapFilterExample().run();
+        new PredicateMapExample().run();
     }
 
-    public MapFilterExample() {
+    public PredicateMapExample() {
         super(PredicateMap.class);
     }
 
