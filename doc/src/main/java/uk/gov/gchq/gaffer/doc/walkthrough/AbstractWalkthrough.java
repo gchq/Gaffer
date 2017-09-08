@@ -58,7 +58,7 @@ public abstract class AbstractWalkthrough {
         storePropertiesLocation = "/mockaccumulostore.properties";
     }
 
-    public abstract Object run() throws OperationException, IOException;
+    public abstract Object run() throws Exception;
 
     protected String substituteParameters(final String walkthrough) {
         return substituteParameters(walkthrough, false);

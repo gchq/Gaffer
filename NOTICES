@@ -21,7 +21,7 @@ and their licenses, below. For information on the dependencies of these dependen
 projects below.
 
 
-Koryphe (uk.gov.gchq.koryphe:koryphe:0.1.4):
+Koryphe (uk.gov.gchq.koryphe:koryphe:1.0.0-RC1):
 
 - Apache License, Version 2.0
 
@@ -76,7 +76,7 @@ org.json4s:json4s-ast_2.10:3.2.11):
 - Apache License, Version 2.0
 
 
-Swagger (io.swagger:-jersey2-jaxrs:1.5.9):
+Swagger (io.swagger:-jersey2-jaxrs:1.5.15):
 
 - Apache License, Version 2.0
 

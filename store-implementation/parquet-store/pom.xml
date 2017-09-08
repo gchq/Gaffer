@@ -61,7 +61,7 @@
         <!-- Other dependencies -->
         <dependency>
             <groupId>uk.gov.gchq.koryphe</groupId>
-            <artifactId>koryphe</artifactId>
+            <artifactId>core</artifactId>
             <version>${koryphe.version}</version>
             <scope>compile</scope>
         </dependency>

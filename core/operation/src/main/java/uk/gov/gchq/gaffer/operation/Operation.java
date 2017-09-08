@@ -173,7 +173,7 @@ public interface Operation extends Closeable {
                     }
 
                     if (null == value) {
-                        result.addError(field.getName() + " is required");
+                        result.addError(field.getName() + " is required for: " + this.getClass().getSimpleName());
                     }
                 } else {
                     AccessController.doPrivileged((PrivilegedAction<Operation>) () -> {
@@ -186,7 +186,7 @@ public interface Operation extends Closeable {
                         }
 
                         if (null == value) {
-                            result.addError(field.getName() + " is required");
+                            result.addError(field.getName() + " is required for: " + this.getClass().getSimpleName());
                         }
                         return null;
                     });

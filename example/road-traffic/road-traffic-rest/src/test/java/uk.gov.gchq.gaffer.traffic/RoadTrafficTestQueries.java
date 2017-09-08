@@ -16,7 +16,14 @@
 
 package uk.gov.gchq.gaffer.traffic;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -38,7 +45,12 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
+import uk.gov.gchq.gaffer.rest.RestApiTestClient;
+import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.traffic.listeners.DataLoader;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
@@ -46,6 +58,7 @@ import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.predicate.PredicateMap;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -65,12 +78,45 @@ import static org.junit.Assume.assumeTrue;
  * correctly and that the store is capable of returning the correct answer when queries involving filters, aggregations,
  * transformations etc are submitted.
  */
-public class RoadTrafficTestQueries {
+public abstract class RoadTrafficTestQueries {
 
 	private static final Logger LOGGER = Logger.getLogger(RoadTrafficTestQueries.class.getName());
 
+    public static final String STORE_TYPE_PROPERTY = "store.type";
+    public static final String STORE_TYPE_DEFAULT = "accumulo";
+
+    protected final RestApiTestClient client = new RestApiV2TestClient();
+
+    @Rule
+    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+
+    @Before
+    public void before() throws IOException {
+        // Spin up the REST API
+        client.startServer();
+
+        // Connect it to a Gaffer store, as specified in the 'store.type' property
+        client.reinitialiseGraph(
+                testFolder,
+                Schema.fromJson(StreamUtil.schemas(ElementGroup.class)),
+                StoreProperties.loadStoreProperties(StreamUtil.openStream(RoadTrafficRestApiITs.class, System.getProperty(STORE_TYPE_PROPERTY, STORE_TYPE_DEFAULT) + StreamUtil.STORE_PROPERTIES))
+        );
+
+        // Load Road Traffic data into the store
+        final DataLoader loader = new DataLoader();
+        loader.contextInitialized(null);
+        prepareProxy();
+    }
+
+    @After
+    public void after() {
+        client.stopServer();
+    }
+
 	protected Graph graph;
 	protected User user;
+
+	public abstract void prepareProxy() throws IOException;
 
 	@Test
 	public void checkM4JunctionCount() throws OperationException {
@@ -85,7 +131,7 @@ public class RoadTrafficTestQueries {
 
 		try (final CloseableIterable<? extends Element> elements = this.graph.execute(query, this.user)) {
 			int x = 0;
-			for (Element element : elements) {
+			for (final Element element : elements) {
 				x++;
 			}
 			assertEquals(14, x);
@@ -101,14 +147,14 @@ public class RoadTrafficTestQueries {
 		Date startDate = null;
 		try {
 			startDate = dateFormat.parse("2000-10-10 07:00:00");
-		} catch (ParseException e) {
+		} catch (final ParseException e) {
 			LOGGER.info("Error parsing startDate: " + e.getMessage());
 		}
 
 		Date endDate = null;
 		try {
 			endDate = dateFormat.parse("2000-10-10 08:00:00");
-		} catch (ParseException e) {
+		} catch (final ParseException e) {
 			LOGGER.info("Error parsing endDate: " + e.getMessage());
 		}
 

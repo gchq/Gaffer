@@ -144,7 +144,8 @@ public abstract class Store {
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to aggregate the elements.
      */
-    private Schema schema;
+    protected Schema schema;
+
     /**
      * The store properties - contains specific configuration information for the store - such as database connection strings.
      */
@@ -172,14 +173,14 @@ public abstract class Store {
 
         final String storeClass = storeProperties.getStoreClass();
         if (null == storeClass) {
-            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS);
+            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS + ", GraphId: " + graphId);
         }
 
         final Store newStore;
         try {
             newStore = Class.forName(storeClass)
-                            .asSubclass(Store.class)
-                            .newInstance();
+                    .asSubclass(Store.class)
+                    .newInstance();
         } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
         }
@@ -283,9 +284,10 @@ public abstract class Store {
 
     /**
      * Execute a given operation and returns the result.
-     * @param operation     the operation to execute
-     * @param context       the context associated with the operation
-     * @param <O>           the output type of the operation
+     *
+     * @param operation the operation to execute
+     * @param context   the context associated with the operation
+     * @param <O>       the output type of the operation
      * @return the result of executing the operation
      * @throws OperationException thrown by the operation handler if the operation fails.
      */
@@ -328,7 +330,7 @@ public abstract class Store {
             }
             if (!hasExport) {
                 operationChain.getOperations()
-                              .add(new ExportToGafferResultCache());
+                        .add(new ExportToGafferResultCache());
             }
         }
 
@@ -388,7 +390,7 @@ public abstract class Store {
                 if (Input.class.isAssignableFrom(nextOp)) {
                     final Class<?> inputType = OperationUtil.getInputType((Class) nextOp);
                     if (OperationUtil.isValid(outputType, inputType)
-                                     .isValid()) {
+                            .isValid()) {
                         ops.add(nextOp);
                     }
                 }
@@ -466,34 +468,34 @@ public abstract class Store {
             validationResult.add(schema.validate());
 
             getSchemaElements().entrySet()
-                               .forEach(schemaElementDefinitionEntry -> schemaElementDefinitionEntry
-                                       .getValue()
-                                       .getProperties()
-                                       .forEach(propertyName -> {
-                                           final Class propertyClass = schemaElementDefinitionEntry
-                                                   .getValue()
-                                                   .getPropertyClass(propertyName);
-                                           final Serialiser serialisation = schemaElementDefinitionEntry
-                                                   .getValue()
-                                                   .getPropertyTypeDef(propertyName)
-                                                   .getSerialiser();
+                    .forEach(schemaElementDefinitionEntry -> schemaElementDefinitionEntry
+                            .getValue()
+                            .getProperties()
+                            .forEach(propertyName -> {
+                                final Class propertyClass = schemaElementDefinitionEntry
+                                        .getValue()
+                                        .getPropertyClass(propertyName);
+                                final Serialiser serialisation = schemaElementDefinitionEntry
+                                        .getValue()
+                                        .getPropertyTypeDef(propertyName)
+                                        .getSerialiser();
 
-                                           if (null == serialisation) {
-                                               validationResult.addError(
-                                                       String.format("Could not find a serialiser for property '%s' in the group '%s'.", propertyName, schemaElementDefinitionEntry
-                                                               .getKey()));
-                                           } else if (!serialisation.canHandle(propertyClass)) {
-                                               validationResult.addError(String.format("Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema", serialisation
-                                                       .getClass()
-                                                       .getName(), propertyName, schemaElementDefinitionEntry
-                                                       .getKey()));
-                                           }
-                                       }));
+                                if (null == serialisation) {
+                                    validationResult.addError(
+                                            String.format("Could not find a serialiser for property '%s' in the group '%s'.", propertyName, schemaElementDefinitionEntry
+                                                    .getKey()));
+                                } else if (!serialisation.canHandle(propertyClass)) {
+                                    validationResult.addError(String.format("Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema", serialisation
+                                            .getClass()
+                                            .getName(), propertyName, schemaElementDefinitionEntry
+                                            .getKey()));
+                                }
+                            }));
 
             validateSchema(validationResult, getSchema().getVertexSerialiser());
 
             getSchema().getTypes()
-                       .forEach((k, v) -> validateSchema(validationResult, v.getSerialiser()));
+                    .forEach((k, v) -> validateSchema(validationResult, v.getSerialiser()));
         }
 
         if (!validationResult.isValid()) {
@@ -518,8 +520,8 @@ public abstract class Store {
                 final Serialiser serialiser = propertyTypeDef.getSerialiser();
                 if (null != serialiser && !serialiser.isConsistent()) {
                     validationResult.addError("Serialiser for groupBy property: " + property
-                                                      + " is inconsistent. This store requires all groupBy property serialisers to be consistent. Serialiser "
-                                                      + serialiser.getClass().getName() + " is not consistent.");
+                            + " is inconsistent. This store requires all groupBy property serialisers to be consistent. Serialiser "
+                            + serialiser.getClass().getName() + " is not consistent.");
                 }
             }
         }
@@ -537,7 +539,7 @@ public abstract class Store {
                                 String.format("Could not find a serialiser for property '%s' in the group '%s'.", propertyName, schemaElementDefinitionEntry.getKey()));
                     } else if (!serialisation.canHandle(propertyClass)) {
                         validationResult.addError(String.format("Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema",
-                                                                serialisation.getClass().getName(), propertyName, schemaElementDefinitionEntry.getKey()));
+                                serialisation.getClass().getName(), propertyName, schemaElementDefinitionEntry.getKey()));
                     }
                 });
     }

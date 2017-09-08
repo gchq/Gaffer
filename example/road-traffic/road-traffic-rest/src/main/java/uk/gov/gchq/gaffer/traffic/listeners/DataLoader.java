@@ -27,7 +27,6 @@ import javax.servlet.ServletContextListener;
 import java.io.File;
 import java.util.logging.Logger;
 
-
 public class DataLoader implements ServletContextListener {
     public static final String DATA_PATH = "roadTraffic.dataLoader.dataPath";
 
@@ -60,5 +59,4 @@ public class DataLoader implements ServletContextListener {
 
         LOGGER.info("Sample data has been loaded");
     }
-
 }

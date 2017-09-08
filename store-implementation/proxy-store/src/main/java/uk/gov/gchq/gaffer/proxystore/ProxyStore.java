@@ -56,6 +56,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status.Family;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -63,7 +64,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Set;
-
 
 public class ProxyStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyStore.class);
@@ -91,7 +91,7 @@ public class ProxyStore extends Store {
     }
 
     protected void checkDelegateStoreStatus(final ProxyProperties proxyProps) throws StoreException {
-        final URL url = proxyProps.getGafferUrl("status");
+        final URL url = proxyProps.getGafferUrl("graph/status");
         final LinkedHashMap status = doGet(url, new TypeReferenceImpl.Map(), null);
         LOGGER.info("Delegate REST API status: {}", status.get("description"));
     }
@@ -114,7 +114,7 @@ public class ProxyStore extends Store {
     }
 
     protected Set<StoreTrait> fetchTraits(final ProxyProperties proxyProps) throws StoreException {
-        final URL url = proxyProps.getGafferUrl("graph/storeTraits");
+        final URL url = proxyProps.getGafferUrl("graph/config/storeTraits");
         Set<StoreTrait> newTraits = doGet(url, new TypeReferenceStoreImpl.StoreTraits(), null);
         if (null == newTraits) {
             newTraits = new HashSet<>(0);
@@ -127,7 +127,7 @@ public class ProxyStore extends Store {
 
     protected Schema fetchSchema(final ProxyProperties proxyProps) throws
             StoreException {
-        final URL url = proxyProps.getGafferUrl("graph/schema");
+        final URL url = proxyProps.getGafferUrl("graph/config/schema");
         return doGet(url, new TypeReferenceStoreImpl.Schema(), null);
     }
 
@@ -138,7 +138,7 @@ public class ProxyStore extends Store {
 
     @Override
     public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
-        final URL url = getProperties().getGafferUrl("graph/jobs/doOperation");
+        final URL url = getProperties().getGafferUrl("graph/jobs");
         try {
             return doPost(url, operationChain, new TypeReferenceImpl.JobDetail(), new Context(user));
         } catch (final StoreException e) {
@@ -155,7 +155,7 @@ public class ProxyStore extends Store {
             throw new OperationException("Unable to serialise operation chain into JSON.", e);
         }
 
-        final URL url = getProperties().getGafferUrl("graph/doOperation");
+        final URL url = getProperties().getGafferUrl("graph/operations/execute");
         try {
             return doPost(url, opChainJson, opChain.getOutputTypeReference(), context);
         } catch (final StoreException e) {
@@ -209,7 +209,7 @@ public class ProxyStore extends Store {
                                    final TypeReference<O> outputTypeReference)
             throws StoreException {
         final String outputJson = response.hasEntity() ? response.readEntity(String.class) : null;
-        if (200 != response.getStatus() && 204 != response.getStatus()) {
+        if (Family.SUCCESSFUL != response.getStatusInfo().getFamily()) {
             LOGGER.warn("Gaffer bad status {}", response.getStatus());
             LOGGER.warn("Detail: {}", outputJson);
             throw new StoreException("Delegate Gaffer store returned status: " + response.getStatus() + ". Response content was: " + outputJson);
