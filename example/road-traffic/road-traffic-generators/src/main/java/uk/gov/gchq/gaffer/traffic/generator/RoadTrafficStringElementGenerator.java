@@ -16,12 +16,11 @@
 
 package uk.gov.gchq.gaffer.traffic.generator;
 
-import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
-import org.apache.commons.csv.CSVRecord;
+import com.google.common.collect.Lists;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
-import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
-import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -31,12 +30,8 @@ import uk.gov.gchq.gaffer.types.FreqMap;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
 
 import static uk.gov.gchq.gaffer.traffic.generator.RoadTrafficDataField.A_Junction;
 import static uk.gov.gchq.gaffer.traffic.generator.RoadTrafficDataField.A_Ref_E;
@@ -50,27 +45,29 @@ import static uk.gov.gchq.gaffer.traffic.generator.RoadTrafficDataField.Region_N
 import static uk.gov.gchq.gaffer.traffic.generator.RoadTrafficDataField.Road;
 import static uk.gov.gchq.gaffer.traffic.generator.RoadTrafficDataField.dCount;
 
-public class RoadTrafficElementGenerator implements OneToManyElementGenerator<CSVRecord> {
+public class RoadTrafficStringElementGenerator implements OneToManyElementGenerator<String> {
 
     @Override
-    public Iterable<Element> _apply(final CSVRecord record) {
-        // Check that the record has the expected number of fields
-        if (!record.isConsistent()) {
+    public Iterable<Element> _apply(final String line) {
+        final String[] fields = extractFields(line);
+        if (null == fields) {
             return Collections.emptyList();
         }
 
-        final FreqMap vehicleCountsByType = getVehicleCounts(record);
-        final Date startDate = getDate(record.get(dCount.fieldName()), record.get(Hour.fieldName()));
-        final Date endDate = null != startDate ? DateUtils.addHours(startDate, 1) : null;
-        final String region = record.get(Region_Name.fieldName());
-        final String location = record.get(ONS_LA_Name.fieldName());
-        final String road = record.get(Road.fieldName());
-        final String junctionA = road + ":" + record.get(A_Junction.fieldName());
-        final String junctionB = road + ":" + record.get(B_Junction.fieldName());
-        final String junctionALocation = record.get(A_Ref_E.fieldName()) + "," + record.get(A_Ref_N.fieldName());
-        final String junctionBLocation = record.get(B_Ref_E.fieldName()) + "," + record.get(B_Ref_N.fieldName());
+        // Extract required fields
+        final FreqMap vehicleCountsByType = getVehicleCounts(fields);
+        final Date date = getDate(fields[dCount.ordinal()], fields[Hour.ordinal()]);
+        final Date endTime = null != date ? DateUtils.addHours(date, 1) : null;
+        final String region = fields[Region_Name.ordinal()];
+        final String location = fields[ONS_LA_Name.ordinal()];
+        final String road = fields[Road.ordinal()];
+        final String junctionA = road + ":" + fields[A_Junction.ordinal()];
+        final String junctionB = road + ":" + fields[B_Junction.ordinal()];
+        final String junctionALocation = fields[A_Ref_E.ordinal()] + "," + fields[A_Ref_N.ordinal()];
+        final String junctionBLocation = fields[B_Ref_E.ordinal()] + "," + fields[B_Ref_N.ordinal()];
 
-        final List<Edge> edges = Arrays.asList(
+        // Create elements
+        return Lists.newArrayList(
                 new Edge.Builder()
                         .group(ElementGroup.REGION_CONTAINS_LOCATION)
                         .source(region)
@@ -118,68 +115,36 @@ public class RoadTrafficElementGenerator implements OneToManyElementGenerator<CS
                         .source(junctionA)
                         .dest(junctionB)
                         .directed(true)
-                        .property("startDate", startDate)
-                        .property("endDate", endDate)
-                        .property("count", getTotalCount(vehicleCountsByType))
+                        .property("startTime", date)
+                        .property("endTime", endTime)
+                        .property("totalCount", getTotalCount(vehicleCountsByType))
                         .property("countByVehicleType", vehicleCountsByType)
-                        .build()
-        );
+                        .build(),
 
-        final List<Entity> entities = Arrays.asList(new Entity.Builder()
+                new Entity.Builder()
                         .group(ElementGroup.JUNCTION_USE)
                         .vertex(junctionA)
-                        .property("countByVehicleType", vehicleCountsByType)
-                        .property("startDate", startDate)
-                        .property("endDate", endDate)
-                        .property("count", getTotalCount(vehicleCountsByType))
+                        .property("trafficByType", vehicleCountsByType)
+                        .property("endTime", endTime)
+                        .property("startTime", date)
+                        .property("totalCount", getTotalCount(vehicleCountsByType))
                         .build(),
 
                 new Entity.Builder()
                         .group(ElementGroup.JUNCTION_USE)
                         .vertex(junctionB)
-                        .property("countByVehicleType", vehicleCountsByType)
-                        .property("endDate", endDate)
-                        .property("startDate", startDate)
-                        .property("count", getTotalCount(vehicleCountsByType))
-                        .build());
-
-        final List<Entity> cardinalityEntities = createCardinalities(edges);
-
-        // Create an iterable containing all the edges and entities
-        return new ChainedIterable<>(edges, entities, cardinalityEntities);
+                        .property("trafficByType", vehicleCountsByType)
+                        .property("endTime", endTime)
+                        .property("startTime", date)
+                        .property("totalCount", getTotalCount(vehicleCountsByType))
+                        .build()
+        );
     }
 
-    private List<Entity> createCardinalities(final List<Edge> edges) {
-        final List<Entity> cardinalities = new ArrayList<>(edges.size() * 2);
-
-        for (final Edge edge : edges) {
-            cardinalities.add(createCardinality(edge.getSource(), edge.getDestination(), edge));
-            cardinalities.add(createCardinality(edge.getDestination(), edge.getSource(), edge));
-        }
-
-        return cardinalities;
-    }
-
-    private Entity createCardinality(final Object source,
-                                     final Object destination,
-                                     final Edge edge) {
-        final HyperLogLogPlus hllp = new HyperLogLogPlus(5, 5);
-        hllp.offer(destination);
-
-        return new Entity.Builder()
-                .vertex(source)
-                .group("Cardinality")
-                .property("edgeGroup", CollectionUtil.treeSet(edge.getGroup()))
-                .property("hllp", hllp)
-                .property("count", 1L)
-                .build();
-    }
-
-    private FreqMap getVehicleCounts(final CSVRecord record) {
+    private FreqMap getVehicleCounts(final String[] fields) {
         final FreqMap freqMap = new FreqMap();
-        for (final RoadTrafficDataField field : RoadTrafficDataField.VEHICLE_COUNTS) {
-            final String value = record.get(field.fieldName());
-            freqMap.upsert(field.name(), value.isEmpty() ? 0 : Long.parseLong(value));
+        for (final RoadTrafficDataField fieldName : RoadTrafficDataField.VEHICLE_COUNTS) {
+            freqMap.upsert(fieldName.name(), Long.parseLong(fields[fieldName.ordinal()]));
         }
         return freqMap;
     }
@@ -196,29 +161,15 @@ public class RoadTrafficElementGenerator implements OneToManyElementGenerator<CS
     private Date getDate(final String dCountString, final String hour) {
         Date dCount = null;
         try {
-            final SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-            format.setTimeZone(TimeZone.getTimeZone("UTC"));
-            dCount = format.parse(dCountString);
-        } catch (final ParseException e) {
+            dCount = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(dCountString);
+        } catch (ParseException e) {
             // incorrect date format
         }
 
         if (null == dCount) {
             try {
-                final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                format.setTimeZone(TimeZone.getTimeZone("UTC"));
-                dCount = format.parse(dCountString);
-            } catch (final ParseException e) {
-                // another incorrect date format
-            }
-        }
-
-        if (null == dCount) {
-            try {
-                final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-                format.setTimeZone(TimeZone.getTimeZone("UTC"));
-                dCount = format.parse(dCountString);
-            } catch (final ParseException e) {
+                dCount = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(dCountString);
+            } catch (ParseException e) {
                 // another incorrect date format
             }
         }
@@ -230,4 +181,22 @@ public class RoadTrafficElementGenerator implements OneToManyElementGenerator<CS
         return DateUtils.addHours(dCount, Integer.parseInt(hour));
     }
 
+    public static boolean isHeader(final String line) {
+        return line.startsWith("\"Region Name (GO)\",");
+    }
+
+    @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "private method and the null result is handled properly")
+    public static String[] extractFields(final String line) {
+        if (isHeader(line)) {
+            return null;
+        }
+
+        final String trimStart = StringUtils.removeStart(line, "\"");
+        final String trimEnd = StringUtils.removeEnd(trimStart, "\"");
+        final String[] fields = trimEnd.split("\",\"");
+        if (fields.length != uk.gov.gchq.gaffer.traffic.generator.RoadTrafficDataField.values().length) {
+            return null;
+        }
+        return fields;
+    }
 }

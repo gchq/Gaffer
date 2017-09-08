@@ -74,7 +74,7 @@ public class RoadTrafficDataLoaderITs {
 
         int entityCount = 0;
         int edgeCount = 0;
-        for (Element element : elements) {
+        for (final Element element : elements) {
             if (element instanceof Entity) {
                 entityCount++;
             } else if (element instanceof Edge) {
@@ -111,7 +111,7 @@ public class RoadTrafficDataLoaderITs {
 
         int entityCount = 0;
         int edgeCount = 0;
-        for (Element element : elements) {
+        for (final Element element : elements) {
             if (element instanceof Entity) {
                 entityCount++;
             } else if (element instanceof Edge) {
