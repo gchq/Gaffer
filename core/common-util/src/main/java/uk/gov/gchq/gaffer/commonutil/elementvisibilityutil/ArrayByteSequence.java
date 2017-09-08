@@ -18,7 +18,10 @@ package uk.gov.gchq.gaffer.commonutil.elementvisibilityutil;
 
 import org.apache.hadoop.io.WritableComparator;
 
+import uk.gov.gchq.gaffer.commonutil.ByteBufferUtil;
+
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -48,6 +51,18 @@ public class ArrayByteSequence implements Serializable, Comparable<ArrayByteSequ
 
     public ArrayByteSequence(final String s) {
         this(s.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public ArrayByteSequence(ByteBuffer buffer) {
+        if (buffer.hasArray()) {
+            this.data = buffer.array();
+            this.offset = buffer.position() + buffer.arrayOffset();
+            this.length = buffer.remaining();
+        } else {
+            this.offset = 0;
+            this.data = ByteBufferUtil.toBytes(buffer);
+            this.length = data.length;
+        }
     }
 
     public byte byteAt(final int i) {

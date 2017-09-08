@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.commonutil;
 
 import org.apache.hadoop.io.Text;
 
+import java.nio.ByteBuffer;
+
 /**
  * Utility methods for Text.
  * This class is coped from org.apache.accumulo.core.util.TextUtil.
@@ -29,12 +31,19 @@ public final class TextUtil {
         // All methods are static and should be called directly.
     }
 
-    public static byte[] getBytes(final Text text) {
+    public static byte[] getBytes(Text text) {
         byte[] bytes = text.getBytes();
         if (bytes.length != text.getLength()) {
             bytes = new byte[text.getLength()];
             System.arraycopy(text.getBytes(), 0, bytes, 0, bytes.length);
         }
         return bytes;
+    }
+
+    public static ByteBuffer getByteBuffer(Text text) {
+        if (text == null)
+            return null;
+        byte[] bytes = text.getBytes();
+        return ByteBuffer.wrap(bytes, 0, text.getLength());
     }
 }
