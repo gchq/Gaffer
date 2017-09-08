@@ -66,7 +66,7 @@ public class RoadTrafficDataLoader {
             final OperationChain<Void> populateChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<CSVRecord>()
                     .input(parser)
-                    .generator(new RoadTrafficElementGenerator())
+                    .generator(new RoadTrafficCsvElementGenerator())
                     .build())
                 .then(new AddElements.Builder()
                     .skipInvalidElements(false)

@@ -17,7 +17,9 @@
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.google.common.collect.Sets;
+
 import uk.gov.gchq.gaffer.operation.OperationTest;
+
 import java.util.Set;
 
 public class GetAllGraphIdsTest extends OperationTest<GetAllGraphIds> {

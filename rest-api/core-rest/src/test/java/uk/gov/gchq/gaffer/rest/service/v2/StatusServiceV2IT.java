@@ -15,13 +15,8 @@
  */
 package uk.gov.gchq.gaffer.rest.service.v2;
 
-import org.junit.Test;
-
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
-import uk.gov.gchq.gaffer.rest.SystemStatus;
 import uk.gov.gchq.gaffer.rest.service.impl.StatusServiceIT;
-
-import static org.junit.Assert.assertEquals;
 
 public class StatusServiceV2IT extends StatusServiceIT {
 
