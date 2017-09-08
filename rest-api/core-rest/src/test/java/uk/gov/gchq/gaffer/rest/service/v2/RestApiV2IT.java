@@ -19,6 +19,7 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.rest.AbstractRestApiIT;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
+import uk.gov.gchq.gaffer.rest.SystemStatus;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import javax.ws.rs.client.Client;
@@ -36,17 +37,14 @@ public class RestApiV2IT extends AbstractRestApiIT {
 
     @Test
     public void shouldReturnOkStatusMessage() {
-        // Given
-        final Response response = client.target("http://localhost:8080/rest/v2")
+        // When
+        final SystemStatus status= client.target("http://localhost:8080/rest/v2")
                 .path("graph/status")
                 .request()
-                .get();
-
-        // When
-        final Map<String, String> statusMessage = response.readEntity(Map.class);
+                .get(SystemStatus.class);
 
         // Then
-        assertEquals("The system is working normally.", statusMessage.get("description"));
+        assertEquals("The system is working normally.", status.getStatus().getDescription());
     }
 
     @Test
