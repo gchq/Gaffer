@@ -16,6 +16,8 @@ limitations under the License.
 Federated Store
 ============
 
+This store is experimental, the API is unstable and may require breaking changes.
+
 The `FederatedStore` is simply a Gaffer store which forwards operations to a
 collection of sub-graphs and returns a single response as though it was a single graph.
 
