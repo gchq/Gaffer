@@ -20,6 +20,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.gaffer.user.User.Builder;
+import java.util.Collection;
 
 public class FederatedAccessHookTest {
 
@@ -141,15 +142,51 @@ public class FederatedAccessHookTest {
         final User user = new Builder()
                 .build();
 
-        String s = null;
-
         final FederatedAccessHook hook = new FederatedAccessHook.Builder()
-                .graphAuths(s)
+                .graphAuths((String) null)
                 .graphAuths("")
                 .build();
 
         Assert.assertTrue(hook.isValidToExecute(user));
     }
 
+    @Test
+    public void shouldValidateWithExplicitlyNullStringAuth() throws Exception {
+
+        final User user = new Builder()
+                .build();
+
+        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+                .graphAuths((String) null)
+                .build();
+
+        Assert.assertTrue(hook.isValidToExecute(user));
+    }
+
+    @Test
+    public void shouldValidateWithExplicitlyNullStringArrayAuth() throws Exception {
+
+        final User user = new Builder()
+                .build();
+
+        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+                .graphAuths((String[]) null)
+                .build();
+
+        Assert.assertTrue(hook.isValidToExecute(user));
+    }
+
+    @Test
+    public void shouldValidateWithExplicitlyNullCollectionAuth() throws Exception {
+
+        final User user = new Builder()
+                .build();
+
+        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+                .graphAuths((Collection) null)
+                .build();
+
+        Assert.assertTrue(hook.isValidToExecute(user));
+    }
 
 }

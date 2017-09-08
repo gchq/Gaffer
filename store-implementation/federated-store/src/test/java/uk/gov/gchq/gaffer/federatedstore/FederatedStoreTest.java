@@ -46,6 +46,7 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -466,8 +467,8 @@ public class FederatedStoreTest {
                         StoreProperties.loadStoreProperties(StreamUtil.openStream(this.getClass(), PATH_MAP_STORE_PROPERTIES))
                 ));
 
-        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
         store.setGraphLibrary(mockLibrary);
+        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         //When
         final int before = store.getGraphs(null).size();
@@ -510,8 +511,8 @@ public class FederatedStoreTest {
 
         final GraphLibrary mockLibrary = Mockito.mock(GraphLibrary.class);
 
-        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
         store.setGraphLibrary(mockLibrary);
+        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         //Then
         final int after = store.getGraphs(null).size();
@@ -689,9 +690,8 @@ public class FederatedStoreTest {
                 .json(StreamUtil.openStream(this.getClass(), PATH_BASIC_ENTITY_SCHEMA_JSON))
                 .build());
 
+        store.setGraphLibrary(mockLibrary);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
-        store.setGraphLibrary(mockLibrary);
-        store.setGraphLibrary(mockLibrary);
 
         //No exception to be thrown.
     }
@@ -752,5 +752,86 @@ public class FederatedStoreTest {
         Assert.assertNull(x);
     }
 
+    @Test
+    public void shouldAddGraphIdWithAuths() throws Exception {
+        //Given
+        final GraphLibrary mockLibrary = Mockito.mock(GraphLibrary.class);
+        Mockito.when(mockLibrary.exists(MAP_ID_1)).thenReturn(true);
+        Mockito.when(mockLibrary.get(MAP_ID_1)).thenReturn(
+                new Pair<>(
+                        new Schema.Builder()
+                                .json(StreamUtil.openStream(this.getClass(), PATH_BASIC_ENTITY_SCHEMA_JSON))
+                                .build(),
+                        StoreProperties.loadStoreProperties(StreamUtil.openStream(this.getClass(), PATH_MAP_STORE_PROPERTIES))
+                ));
+
+        store.setGraphLibrary(mockLibrary);
+        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
+
+        //When
+        final int before = store.getGraphs(null).size();
+        store.addGraphs(Optional.of(Sets.newHashSet("auth1")), MAP_ID_1);
+        final int after = store.getGraphs(null).size();
+        final CloseableIterable<? extends Element> elements = store.execute(new GetAllElements(),
+                new User.Builder()
+                        .userId(USER_ID)
+                        .opAuth("auth1")
+                        .build());
+
+        final CloseableIterable<? extends Element> x = store.execute(new GetAllElements(),
+                new User.Builder()
+                        .userId(USER_ID)
+                        .opAuths("x")
+                        .build());
+
+        //Then
+        assertEquals(0, before);
+        assertEquals(1, after);
+        Assert.assertNotNull(elements);
+        Assert.assertFalse(elements.iterator().hasNext());
+        Assert.assertNull(x);
+    }
+
+    @Test
+    public void shouldThrowWithPropertiesErrorFromGraphLibrary() throws Exception {
+        federatedProperties.set(GRAPH_IDS, MAP_ID_1);
+        federatedProperties.set(KEY_MAP_ID1_PROPERTIES_ID, PROPS_ID_1);
+        federatedProperties.set(KEY_MAP_ID1_SCHEMA_FILE, PATH_BASIC_EDGE_SCHEMA_JSON);
+        final GraphLibrary mockLibrary = Mockito.mock(GraphLibrary.class);
+        final String error = "Something went wrong";
+        Mockito.when(mockLibrary.getProperties(PROPS_ID_1)).thenThrow(new IllegalArgumentException(error));
+
+        store.setGraphLibrary(mockLibrary);
+
+        try {
+            store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
+            fail("exception not thrown");
+        } catch (IllegalArgumentException e) {
+            assertEquals(error, e.getCause().getMessage());
+        }
+
+        Mockito.verify(mockLibrary).getProperties(PROPS_ID_1);
+    }
+
+    @Test
+    public void shouldThrowWithSchemaErrorFromGraphLibrary() throws Exception {
+        federatedProperties.set(GRAPH_IDS, MAP_ID_1);
+        federatedProperties.set(KEY_MAP_ID1_PROPERTIES_FILE, PATH_MAP_STORE_PROPERTIES);
+        federatedProperties.set(KEY_MAP_ID1_SCHEMA_ID, SCHEMA_ID_1);
+        final GraphLibrary mockLibrary = Mockito.mock(GraphLibrary.class);
+        final String error = "Something went wrong";
+        Mockito.when(mockLibrary.getSchema(SCHEMA_ID_1)).thenThrow(new IllegalArgumentException(error));
+
+        store.setGraphLibrary(mockLibrary);
+
+        try {
+            store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
+            fail("exception not thrown");
+        } catch (IllegalArgumentException e) {
+            assertEquals(error, e.getCause().getMessage());
+        }
+
+        Mockito.verify(mockLibrary).getSchema(SCHEMA_ID_1);
+    }
 
 }
