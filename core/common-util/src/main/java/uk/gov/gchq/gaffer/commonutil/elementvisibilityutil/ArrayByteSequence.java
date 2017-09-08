@@ -53,7 +53,7 @@ public class ArrayByteSequence implements Serializable, Comparable<ArrayByteSequ
         this(s.getBytes(StandardCharsets.UTF_8));
     }
 
-    public ArrayByteSequence(ByteBuffer buffer) {
+    public ArrayByteSequence(final ByteBuffer buffer) {
         if (buffer.hasArray()) {
             this.data = buffer.array();
             this.offset = buffer.position() + buffer.arrayOffset();
@@ -103,6 +103,15 @@ public class ArrayByteSequence implements Serializable, Comparable<ArrayByteSequ
 
     public String toString() {
         return new String(this.data, this.offset, this.length, StandardCharsets.UTF_8);
+    }
+
+    public ArrayByteSequence subSequence(final int start, final int end) {
+
+        if (start > end || start < 0 || end > length) {
+            throw new IllegalArgumentException("Bad start and/end start = " + start + " end=" + end + " offset=" + offset + " length=" + length);
+        }
+
+        return new ArrayByteSequence(data, offset + start, end - start);
     }
 
     public static int compareBytes(final ArrayByteSequence bs1, final ArrayByteSequence bs2) {

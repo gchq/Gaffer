@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.PatternSyntaxException;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 /**
  * This class is coped from org.apache.accumulo.core.security.ColumnVisibility.
  */
@@ -47,6 +49,27 @@ public class ElementVisibility {
 
     public byte[] getExpression() {
         return this.expression;
+    }
+
+    public static String quote(final String term) {
+        return new String(quote(term.getBytes(UTF_8)), UTF_8);
+    }
+
+    public static byte[] quote(final byte[] term) {
+        boolean needsQuote = false;
+
+        for (int i = 0; i < term.length; i++) {
+            if (!Authorisations.isValidAuthChar(term[i])) {
+                needsQuote = true;
+                break;
+            }
+        }
+
+        if (!needsQuote) {
+            return term;
+        }
+
+        return VisibilityEvaluator.escape(term, true);
     }
 
     public String toString() {

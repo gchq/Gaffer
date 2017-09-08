@@ -40,9 +40,10 @@ public final class ByteBufferUtil {
         // All methods are static and should be called directly.
     }
 
-    public static byte[] toBytes(ByteBuffer buffer) {
-        if (buffer == null)
+    public static byte[] toBytes(final ByteBuffer buffer) {
+        if (buffer == null) {
             return null;
+        }
         if (buffer.hasArray()) {
             // did not use buffer.get() because it changes the position
             return Arrays.copyOfRange(buffer.array(), buffer.position() + buffer.arrayOffset(), buffer.limit() + buffer.arrayOffset());
@@ -54,7 +55,7 @@ public final class ByteBufferUtil {
         }
     }
 
-    public static void write(DataOutput out, ByteBuffer buffer) throws IOException {
+    public static void write(final DataOutput out, final ByteBuffer buffer) throws IOException {
         if (buffer.hasArray()) {
             out.write(buffer.array(), buffer.arrayOffset() + buffer.position(), buffer.remaining());
         } else {
@@ -62,7 +63,7 @@ public final class ByteBufferUtil {
         }
     }
 
-    public static String toString(ByteBuffer bytes) {
+    public static String toString(final ByteBuffer bytes) {
         if (bytes.hasArray()) {
             return new String(bytes.array(), bytes.arrayOffset() + bytes.position(), bytes.remaining(), UTF_8);
         } else {
@@ -70,9 +71,10 @@ public final class ByteBufferUtil {
         }
     }
 
-    public static Text toText(ByteBuffer byteBuffer) {
-        if (byteBuffer == null)
+    public static Text toText(final ByteBuffer byteBuffer) {
+        if (byteBuffer == null) {
             return null;
+        }
 
         if (byteBuffer.hasArray()) {
             Text result = new Text();
@@ -83,17 +85,18 @@ public final class ByteBufferUtil {
         }
     }
 
-    public static List<byte[]> toBytesList(Collection<ByteBuffer> bytesList) {
-        if (bytesList == null)
+    public static List<byte[]> toBytesList(final Collection<ByteBuffer> bytesList) {
+        if (bytesList == null) {
             return null;
+        }
         ArrayList<byte[]> result = new ArrayList<>(bytesList.size());
-        for (ByteBuffer bytes : bytesList) {
+        for (final ByteBuffer bytes : bytesList) {
             result.add(toBytes(bytes));
         }
         return result;
     }
 
-    public static ByteArrayInputStream toByteArrayInputStream(ByteBuffer buffer) {
+    public static ByteArrayInputStream toByteArrayInputStream(final ByteBuffer buffer) {
         if (buffer.hasArray()) {
             return new ByteArrayInputStream(buffer.array(), buffer.arrayOffset() + buffer.position(), buffer.remaining());
         } else {

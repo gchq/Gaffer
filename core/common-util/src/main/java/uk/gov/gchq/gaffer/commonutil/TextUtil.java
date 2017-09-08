@@ -31,7 +31,7 @@ public final class TextUtil {
         // All methods are static and should be called directly.
     }
 
-    public static byte[] getBytes(Text text) {
+    public static byte[] getBytes(final Text text) {
         byte[] bytes = text.getBytes();
         if (bytes.length != text.getLength()) {
             bytes = new byte[text.getLength()];
@@ -40,9 +40,10 @@ public final class TextUtil {
         return bytes;
     }
 
-    public static ByteBuffer getByteBuffer(Text text) {
-        if (text == null)
+    public static ByteBuffer getByteBuffer(final Text text) {
+        if (text == null) {
             return null;
+        }
         byte[] bytes = text.getBytes();
         return ByteBuffer.wrap(bytes, 0, text.getLength());
     }

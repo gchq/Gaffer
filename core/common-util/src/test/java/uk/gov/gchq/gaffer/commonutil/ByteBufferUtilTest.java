@@ -32,6 +32,9 @@ import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+/**
+ * This test class is copied from org.apache.accumulo.core.util.ByteByfferUtilTest.
+ */
 public class ByteBufferUtilTest {
 
     @Test
