@@ -27,20 +27,20 @@ import java.util.regex.PatternSyntaxException;
 /**
  * This class is coped from org.apache.accumulo.core.security.ColumnVisibility.
  */
-public class ColumnVisibility {
-    ColumnVisibility.Node node;
+public class ElementVisibility {
+    ElementVisibility.Node node;
     private byte[] expression;
-    private static final ColumnVisibility.Node EMPTY_NODE;
+    private static final ElementVisibility.Node EMPTY_NODE;
 
     static {
-        EMPTY_NODE = new ColumnVisibility.Node(ColumnVisibility.NodeType.EMPTY, 0);
+        EMPTY_NODE = new ElementVisibility.Node(ElementVisibility.NodeType.EMPTY, 0);
     }
 
-    public ColumnVisibility(final String expression) {
+    public ElementVisibility(final String expression) {
         this(expression.getBytes(StandardCharsets.UTF_8));
     }
 
-    public ColumnVisibility(final byte[] expression) {
+    public ElementVisibility(final byte[] expression) {
         this.node = null;
         this.validate(expression);
     }
@@ -54,10 +54,10 @@ public class ColumnVisibility {
     }
 
     public boolean equals(final Object obj) {
-        return obj instanceof ColumnVisibility ? this.equals((ColumnVisibility) obj) : false;
+        return obj instanceof ElementVisibility ? this.equals((ElementVisibility) obj) : false;
     }
 
-    public boolean equals(final ColumnVisibility otherLe) {
+    public boolean equals(final ElementVisibility otherLe) {
         return Arrays.equals(this.expression, otherLe.expression);
     }
 
@@ -65,13 +65,13 @@ public class ColumnVisibility {
         return Arrays.hashCode(this.expression);
     }
 
-    public ColumnVisibility.Node getParseTree() {
+    public ElementVisibility.Node getParseTree() {
         return this.node;
     }
 
     private void validate(final byte[] expression) {
         if (expression != null && expression.length > 0) {
-            ColumnVisibility.ColumnVisibilityParser p = new ColumnVisibility.ColumnVisibilityParser();
+            ElementVisibility.ColumnVisibilityParser p = new ElementVisibility.ColumnVisibilityParser();
             this.node = p.parse(expression);
         } else {
             this.node = EMPTY_NODE;
@@ -82,12 +82,12 @@ public class ColumnVisibility {
 
     public static class Node {
         public static final List<Node> EMPTY = Collections.emptyList();
-        ColumnVisibility.NodeType type;
+        ElementVisibility.NodeType type;
         int start;
         int end;
-        List<ColumnVisibility.Node> children;
+        List<ElementVisibility.Node> children;
 
-        public Node(final ColumnVisibility.NodeType type, final int start) {
+        public Node(final ElementVisibility.NodeType type, final int start) {
             this.children = EMPTY;
             this.type = type;
             this.start = start;
@@ -96,12 +96,12 @@ public class ColumnVisibility {
 
         public Node(final int start, final int end) {
             this.children = EMPTY;
-            this.type = ColumnVisibility.NodeType.TERM;
+            this.type = ElementVisibility.NodeType.TERM;
             this.start = start;
             this.end = end;
         }
 
-        public void add(final ColumnVisibility.Node child) {
+        public void add(final ElementVisibility.Node child) {
             if (this.children == EMPTY) {
                 this.children = new ArrayList();
             }
@@ -109,11 +109,11 @@ public class ColumnVisibility {
             this.children.add(child);
         }
 
-        public ColumnVisibility.NodeType getType() {
+        public ElementVisibility.NodeType getType() {
             return this.type;
         }
 
-        public List<ColumnVisibility.Node> getChildren() {
+        public List<ElementVisibility.Node> getChildren() {
             return this.children;
         }
 
@@ -126,7 +126,7 @@ public class ColumnVisibility {
         }
 
         public ArrayByteSequence getTerm(final byte[] expression) {
-            if (this.type != ColumnVisibility.NodeType.TERM) {
+            if (this.type != ElementVisibility.NodeType.TERM) {
                 throw new RuntimeException();
             } else if (expression[this.start] == 34) {
                 int qStart = this.start + 1;
@@ -155,9 +155,9 @@ public class ColumnVisibility {
         ColumnVisibilityParser() {
         }
 
-        ColumnVisibility.Node parse(final byte[] expression) {
+        ElementVisibility.Node parse(final byte[] expression) {
             if (expression.length > 0) {
-                ColumnVisibility.Node node = this.parse_(expression);
+                ElementVisibility.Node node = this.parse_(expression);
                 if (node == null) {
                     throw new PatternSyntaxException("operator or missing parens", new String(expression, StandardCharsets.UTF_8), this.index - 1);
                 } else if (this.parens != 0) {
@@ -170,12 +170,12 @@ public class ColumnVisibility {
             }
         }
 
-        ColumnVisibility.Node processTerm(final int start, final int end, final ColumnVisibility.Node expr, final byte[] expression) {
+        ElementVisibility.Node processTerm(final int start, final int end, final ElementVisibility.Node expr, final byte[] expression) {
             if (start != end) {
                 if (expr != null) {
                     throw new PatternSyntaxException("expression needs | or &", new String(expression, StandardCharsets.UTF_8), start);
                 } else {
-                    return new ColumnVisibility.Node(start, end);
+                    return new ElementVisibility.Node(start, end);
                 }
             } else if (expr == null) {
                 throw new PatternSyntaxException("empty term", new String(expression, StandardCharsets.UTF_8), start);
@@ -184,14 +184,14 @@ public class ColumnVisibility {
             }
         }
 
-        ColumnVisibility.Node parse_(final byte[] expression) {
-            ColumnVisibility.Node result = null;
-            ColumnVisibility.Node expr = null;
+        ElementVisibility.Node parse_(final byte[] expression) {
+            ElementVisibility.Node result = null;
+            ElementVisibility.Node expr = null;
             int wholeTermStart = this.index;
             int subtermStart = this.index;
             boolean subtermComplete = false;
 
-            ColumnVisibility.Node child;
+            ElementVisibility.Node child;
             while (this.index < expression.length) {
                 switch (expression[this.index++]) {
                     case 34:
@@ -222,11 +222,11 @@ public class ColumnVisibility {
                     case 38:
                         expr = this.processTerm(subtermStart, this.index - 1, expr, expression);
                         if (result != null) {
-                            if (!result.type.equals(ColumnVisibility.NodeType.AND)) {
+                            if (!result.type.equals(ElementVisibility.NodeType.AND)) {
                                 throw new PatternSyntaxException("cannot mix & and |", new String(expression, StandardCharsets.UTF_8), this.index - 1);
                             }
                         } else {
-                            result = new ColumnVisibility.Node(ColumnVisibility.NodeType.AND, wholeTermStart);
+                            result = new ElementVisibility.Node(ElementVisibility.NodeType.AND, wholeTermStart);
                         }
 
                         result.add(expr);
@@ -259,7 +259,7 @@ public class ColumnVisibility {
                             Iterator var8 = child.children.iterator();
 
                             while (var8.hasNext()) {
-                                ColumnVisibility.Node c = (ColumnVisibility.Node) var8.next();
+                                ElementVisibility.Node c = (ElementVisibility.Node) var8.next();
                                 result.add(c);
                             }
                         } else {
@@ -271,11 +271,11 @@ public class ColumnVisibility {
                     case 124:
                         expr = this.processTerm(subtermStart, this.index - 1, expr, expression);
                         if (result != null) {
-                            if (!result.type.equals(ColumnVisibility.NodeType.OR)) {
+                            if (!result.type.equals(ElementVisibility.NodeType.OR)) {
                                 throw new PatternSyntaxException("cannot mix | and &", new String(expression, StandardCharsets.UTF_8), this.index - 1);
                             }
                         } else {
-                            result = new ColumnVisibility.Node(ColumnVisibility.NodeType.OR, wholeTermStart);
+                            result = new ElementVisibility.Node(ElementVisibility.NodeType.OR, wholeTermStart);
                         }
 
                         result.add(expr);
@@ -303,7 +303,7 @@ public class ColumnVisibility {
                 result = child;
             }
 
-            if (result.type != ColumnVisibility.NodeType.TERM && result.children.size() < 2) {
+            if (result.type != ElementVisibility.NodeType.TERM && result.children.size() < 2) {
                 throw new PatternSyntaxException("missing term", new String(expression, StandardCharsets.UTF_8), this.index);
             } else {
                 return result;

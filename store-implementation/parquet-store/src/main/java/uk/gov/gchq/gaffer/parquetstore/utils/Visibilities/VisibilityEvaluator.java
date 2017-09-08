@@ -28,11 +28,11 @@ public class VisibilityEvaluator {
         this.auths = auths;
     }
 
-    public boolean evaluate(final ColumnVisibility visibility) throws VisibilityParseException {
+    public boolean evaluate(final ElementVisibility visibility) throws VisibilityParseException {
         return this.evaluate(visibility.getExpression(), visibility.getParseTree());
     }
 
-    private boolean evaluate(final byte[] expression, final ColumnVisibility.Node root) throws VisibilityParseException {
+    private boolean evaluate(final byte[] expression, final ElementVisibility.Node root) throws VisibilityParseException {
         if (expression.length == 0) {
             return true;
         }
@@ -43,7 +43,7 @@ public class VisibilityEvaluator {
                 if (root.children == null || root.children.size() < 2) {
                     throw new VisibilityParseException("AND has less than 2 children", expression, root.start);
                 }
-                for (final ColumnVisibility.Node child : root.children) {
+                for (final ElementVisibility.Node child : root.children) {
                     if (!evaluate(expression, child)) {
                         return false;
                     }
@@ -53,7 +53,7 @@ public class VisibilityEvaluator {
                 if (root.children == null || root.children.size() < 2) {
                     throw new VisibilityParseException("OR has less than 2 children", expression, root.start);
                 }
-                for (final ColumnVisibility.Node child : root.children) {
+                for (final ElementVisibility.Node child : root.children) {
                     if (evaluate(expression, child)) {
                         return true;
                     }
