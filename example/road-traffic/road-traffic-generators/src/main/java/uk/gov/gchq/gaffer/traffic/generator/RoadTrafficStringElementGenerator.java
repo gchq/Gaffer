@@ -162,14 +162,14 @@ public class RoadTrafficStringElementGenerator implements OneToManyElementGenera
         Date dCount = null;
         try {
             dCount = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(dCountString);
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             // incorrect date format
         }
 
         if (null == dCount) {
             try {
                 dCount = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(dCountString);
-            } catch (ParseException e) {
+            } catch (final ParseException e) {
                 // another incorrect date format
             }
         }
