@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.export.graph.handler;
 
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherAuthorisedGraph;
 import uk.gov.gchq.gaffer.operation.export.graph.OtherGraphExporter;
 import uk.gov.gchq.gaffer.store.Context;
@@ -27,6 +28,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.export.ExportToHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,8 +89,10 @@ public class ExportToOtherAuthorisedGraphHandler extends ExportToHandler<ExportT
 
     private Graph createGraphWithLibraryAndId(final GraphLibrary graphLibrary, final String graphId) {
         return new Graph.Builder()
-                .graphId(graphId)
-                .library(graphLibrary)
+                .config(new GraphConfig.Builder()
+                        .graphId(graphId)
+                        .library(graphLibrary)
+                        .build())
                 .build();
     }
 
@@ -100,8 +104,10 @@ public class ExportToOtherAuthorisedGraphHandler extends ExportToHandler<ExportT
         final StoreProperties storeProperties = resolveStoreProperties(graphLibrary, parentStorePropertiesId);
 
         return new Graph.Builder()
-                .graphId(graphId)
-                .library(graphLibrary)
+                .config(new GraphConfig.Builder()
+                        .graphId(graphId)
+                        .library(graphLibrary)
+                        .build())
                 .addSchema(schema)
                 .storeProperties(storeProperties)
                 .build();

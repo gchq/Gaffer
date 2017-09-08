@@ -18,7 +18,9 @@ package uk.gov.gchq.gaffer.data.element.comparison;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.ByteUtil;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -284,7 +286,7 @@ public class ComparableOrToStringComparatorTest {
         assertEquals(0, result);
     }
 
-    private final static class IntegerWrapper {
+    private static final class IntegerWrapper {
         private Integer field;
 
         private IntegerWrapper(final Integer field) {
@@ -310,7 +312,7 @@ public class ComparableOrToStringComparatorTest {
 
         @Override
         public int hashCode() {
-            return new HashCodeBuilder(17, 37)
+            return new HashCodeBuilder(13, 41)
                     .append(field)
                     .toHashCode();
         }

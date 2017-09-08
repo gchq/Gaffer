@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
@@ -28,6 +29,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -37,6 +39,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -51,7 +54,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 public class GafferResultCacheExporterTest {
-    private static final JSONSerialiser SERIALISER = new JSONSerialiser();
     private final User user = new User.Builder()
             .userId("user01")
             .opAuths("1", "2", "3")
@@ -70,7 +72,9 @@ public class GafferResultCacheExporterTest {
     public void before() {
         given(store.getSchema()).willReturn(new Schema());
         resultCache = new Graph.Builder()
-                .graphId("resultCacheGraph")
+                .config(new GraphConfig.Builder()
+                        .graphId("resultCacheGraph")
+                        .build())
                 .store(store)
                 .build();
     }
@@ -79,7 +83,7 @@ public class GafferResultCacheExporterTest {
     public void shouldAddResults() throws OperationException, SerialisationException {
         // Given
         final GafferResultCacheExporter exporter = new GafferResultCacheExporter(
-                user, jobId, resultCache, SERIALISER, visibility, requiredOpAuths
+                user, jobId, resultCache, visibility, requiredOpAuths
         );
 
         // When
@@ -98,7 +102,7 @@ public class GafferResultCacheExporterTest {
             if (null == results.get(i)) {
                 assertNull(elements.get(i).getProperty("result"));
             } else {
-                assertArrayEquals(SERIALISER.serialise(results.get(i)), (byte[]) elements.get(i).getProperty("result"));
+                assertArrayEquals(JSONSerialiser.serialise(results.get(i)), (byte[]) elements.get(i).getProperty("result"));
             }
         }
     }
@@ -107,7 +111,7 @@ public class GafferResultCacheExporterTest {
     public void shouldAddNotErrorWhenAddingANullResult() throws OperationException, SerialisationException {
         // Given
         final GafferResultCacheExporter exporter = new GafferResultCacheExporter(
-                user, jobId, resultCache, SERIALISER, visibility, requiredOpAuths
+                user, jobId, resultCache, visibility, requiredOpAuths
         );
 
         // When
@@ -126,7 +130,7 @@ public class GafferResultCacheExporterTest {
         given(store.execute(opChain.capture(), Mockito.eq(user))).willReturn(new WrappedCloseableIterable<>(cachedEdges));
 
         final GafferResultCacheExporter exporter = new GafferResultCacheExporter(
-                user, jobId, resultCache, SERIALISER, visibility, requiredOpAuths
+                user, jobId, resultCache, visibility, requiredOpAuths
         );
 
         // When
@@ -143,7 +147,7 @@ public class GafferResultCacheExporterTest {
         given(store.execute(opChain.capture(), Mockito.eq(user))).willReturn(null);
 
         final GafferResultCacheExporter exporter = new GafferResultCacheExporter(
-                user, jobId, resultCache, SERIALISER, visibility, requiredOpAuths
+                user, jobId, resultCache, visibility, requiredOpAuths
         );
 
         // When
@@ -193,7 +197,7 @@ public class GafferResultCacheExporterTest {
 
     private static byte[] serialise(final Object item) {
         try {
-            return SERIALISER.serialise(item);
+            return JSONSerialiser.serialise(item);
         } catch (final SerialisationException e) {
             throw new RuntimeException(e);
         }

@@ -76,4 +76,9 @@ public class RawLongSerialiser implements ToBytesSerialiser<Long> {
     public boolean preservesObjectOrdering() {
         return true;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

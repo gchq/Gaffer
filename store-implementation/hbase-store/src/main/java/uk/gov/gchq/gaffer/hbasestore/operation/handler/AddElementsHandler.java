@@ -16,8 +16,9 @@
 
 package uk.gov.gchq.gaffer.hbasestore.operation.handler;
 
-import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Table;
+
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
@@ -33,6 +34,7 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.element.ElementKey;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -63,7 +65,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         }
 
         try {
-            final HTable table = store.getTable();
+            final Table table = store.getTable();
             final boolean hasAggregators = store.getSchema().isAggregationEnabled();
             final String visibilityProperty = store.getSchema().getVisibilityProperty();
             final Iterator<? extends Element> elements = addElementsOperation.getInput().iterator();
@@ -126,13 +128,9 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         return puts;
     }
 
-    private void executePuts(final HTable table, final List<Put> puts) throws IOException {
+    private void executePuts(final Table table, final List<Put> puts) throws IOException {
         if (!puts.isEmpty()) {
             table.put(puts);
-            // Ensure the table has been flushed otherwise similar elements in the next batch may be skipped.
-            if (!table.isAutoFlush()) {
-                table.flushCommits();
-            }
         }
     }
 }

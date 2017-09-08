@@ -18,16 +18,17 @@ package uk.gov.gchq.gaffer.spark.operation.dataframe;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import org.apache.spark.sql.SQLContext;
+import org.apache.spark.sql.SparkSession;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
 import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
+
 import java.util.List;
 import java.util.Map;
 
@@ -48,11 +49,10 @@ import java.util.Map;
 public class GetDataFrameOfElements implements
         Operation,
         Output<Dataset<Row>>,
-        GraphFilters,
-        Options {
+        GraphFilters {
 
     @Required
-    private SQLContext sqlContext;
+    private SparkSession sparkSession;
     private List<Converter> converters;
     private Map<String, String> options;
     private View view;
@@ -61,19 +61,19 @@ public class GetDataFrameOfElements implements
     public GetDataFrameOfElements() {
     }
 
-    public GetDataFrameOfElements(final SQLContext sqlContext,
+    public GetDataFrameOfElements(final SparkSession sparkSession,
                                   final List<Converter> converters) {
         this();
-        this.sqlContext = sqlContext;
+        this.sparkSession = sparkSession;
         this.converters = converters;
     }
 
-    public void setSqlContext(final SQLContext sqlContext) {
-        this.sqlContext = sqlContext;
+    public void setSparkSession(final SparkSession sparkSession) {
+        this.sparkSession = sparkSession;
     }
 
-    public SQLContext getSqlContext() {
-        return sqlContext;
+    public SparkSession getSparkSession() {
+        return sparkSession;
     }
 
     public void setConverters(final List<Converter> converters) {
@@ -119,16 +119,26 @@ public class GetDataFrameOfElements implements
         this.directedType = directedType;
     }
 
+    @Override
+    public GetDataFrameOfElements shallowClone() {
+        return new GetDataFrameOfElements.Builder()
+                .sparkSession(sparkSession)
+                .converters(converters)
+                .options(options)
+                .directedType(directedType)
+                .view(view)
+                .build();
+    }
+
     public static class Builder extends Operation.BaseBuilder<GetDataFrameOfElements, Builder>
             implements Output.Builder<GetDataFrameOfElements, Dataset<Row>, Builder>,
-            Options.Builder<GetDataFrameOfElements, Builder>,
             GraphFilters.Builder<GetDataFrameOfElements, Builder> {
         public Builder() {
             super(new GetDataFrameOfElements());
         }
 
-        public Builder sqlContext(final SQLContext sqlContext) {
-            _getOp().setSqlContext(sqlContext);
+        public Builder sparkSession(final SparkSession sparkSession) {
+            _getOp().setSparkSession(sparkSession);
             return _self();
         }
 

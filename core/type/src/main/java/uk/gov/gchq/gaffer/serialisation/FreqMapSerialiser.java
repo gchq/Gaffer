@@ -20,6 +20,7 @@ import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
 import uk.gov.gchq.gaffer.types.FreqMap;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -119,6 +120,11 @@ public class FreqMapSerialiser implements ToBytesSerialiser<FreqMap> {
 
     @Override
     public boolean preservesObjectOrdering() {
+        return false;
+    }
+
+    @Override
+    public boolean isConsistent() {
         return false;
     }
 

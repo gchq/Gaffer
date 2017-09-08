@@ -16,9 +16,9 @@
 
 package uk.gov.gchq.gaffer.data.element;
 
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.koryphe.tuple.Tuple;
 
@@ -90,7 +90,7 @@ public class ElementTuple implements Tuple<String> {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(61, 5)
                 .append(element)
                 .toHashCode();
     }

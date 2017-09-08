@@ -16,11 +16,9 @@
 
 package uk.gov.gchq.gaffer.parquetstore.operation;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -28,15 +26,14 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.types.TypeValue;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
@@ -53,10 +50,9 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
-    
+
     @BeforeClass
     public static void genData() throws OperationException {
-        Logger.getRootLogger().setLevel(Level.WARN);
         getGraph().execute(new AddElements.Builder().input(getElements()).build(), USER);
     }
 
@@ -66,17 +62,17 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
     }
 
     private static Graph getGraph() {
-        final ParquetStoreProperties pp = (ParquetStoreProperties) StoreProperties.loadStoreProperties(
-                AbstractOperationsTest.class.getResourceAsStream("/multiUseStore.properties"));
         return new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("TypeValueVertexOperationsTest")
+                        .build())
                 .addSchema(getSchema())
-                .storeProperties(pp)
-                .graphId("test")
+                .storeProperties(TestUtils.getParquetStoreProperties())
                 .build();
     }
-    
+
     protected static Schema getSchema() {
-        return Schema.fromJson(StreamUtil.openStreams(TypeValueVertexOperationsTest.class, "schemaUsingTypeValueVertexType"));
+        return TestUtils.gafferSchema("schemaUsingTypeValueVertexType");
     }
 
     private static Iterable<? extends Element> getElements() {
@@ -95,30 +91,30 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
     @Override
     public void setupView() {
         view = new View.Builder()
-            .edge(TestGroups.EDGE,
-                new ViewElementDefinition.Builder()
-                    .preAggregationFilter(
-                        new ElementFilter.Builder()
-                            .select("treeSet", "double")
-                            .execute(
-                                new Or.Builder()
-                                    .select(0)
-                                    .execute(new Not<>(new IsEqual(TestUtils.MERGED_TREESET)))
-                                    .select(1)
-                                    .execute(new IsMoreThan(3.0, true))
-                                    .build())
-                            .build())
-                    .build())
-            .entity(TestGroups.ENTITY,
-                new ViewElementDefinition.Builder()
-                    .preAggregationFilter(
-                        new ElementFilter.Builder()
-                            .select(ParquetStoreConstants.VERTEX + "_type")
-                            .execute(new IsEqual("type0"))
-                            .build())
-                    .transientProperty(ParquetStoreConstants.VERTEX + "_type", String.class)
-                    .build())
-            .build();
+                .edge(TestGroups.EDGE,
+                        new ViewElementDefinition.Builder()
+                                .preAggregationFilter(
+                                        new ElementFilter.Builder()
+                                                .select("treeSet", "double")
+                                                .execute(
+                                                        new Or.Builder()
+                                                                .select(0)
+                                                                .execute(new Not<>(new IsEqual(TestUtils.MERGED_TREESET)))
+                                                                .select(1)
+                                                                .execute(new IsMoreThan(3.0, true))
+                                                                .build())
+                                                .build())
+                                .build())
+                .entity(TestGroups.ENTITY,
+                        new ViewElementDefinition.Builder()
+                                .preAggregationFilter(
+                                        new ElementFilter.Builder()
+                                                .select(ParquetStoreConstants.VERTEX + "_type")
+                                                .execute(new IsEqual("type0"))
+                                                .build())
+                                .transientProperty(ParquetStoreConstants.VERTEX + "_type", String.class)
+                                .build())
+                .build();
     }
 
     @Override
@@ -130,7 +126,7 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
         while (dataIter.hasNext()) {
             actual.add(dataIter.next());
         }
-        for (int x = 0 ; x < 25; x++) {
+        for (int x = 0; x < 25; x++) {
             final String type = "type" + (x % 5);
             final TypeValue src = new TypeValue(type, "src" + x);
             final TypeValue dst = new TypeValue(type, "dst" + (x + 1));

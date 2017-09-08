@@ -15,13 +15,14 @@
  */
 package uk.gov.gchq.gaffer.serialisation;
 
+import org.junit.Test;
+
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.pair.Pair;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
 
 public class FloatSerialiserTest extends ToBytesSerialisationTest<Float> {
 

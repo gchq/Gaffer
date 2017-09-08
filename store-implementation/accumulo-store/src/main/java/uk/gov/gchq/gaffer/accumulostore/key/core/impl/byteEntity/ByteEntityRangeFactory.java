@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity;
 
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
+
 import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyRangeFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
@@ -32,6 +33,7 @@ import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -46,7 +48,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
 
     @Override
     protected List<Range> getRange(final Object sourceVal, final Object destVal, final DirectedType directed,
-                                   final GraphFilters operation) throws RangeFactoryException {
+                                   final GraphFilters operation, final IncludeIncomingOutgoingType inOutType) throws RangeFactoryException {
         // To do EITHER we need to create 2 ranges
         if (DirectedType.isEither(directed)) {
             return Arrays.asList(

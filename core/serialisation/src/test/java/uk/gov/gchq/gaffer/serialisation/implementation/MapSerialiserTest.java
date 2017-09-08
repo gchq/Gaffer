@@ -15,18 +15,20 @@
  */
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.IntegerSerialiser;
 import uk.gov.gchq.gaffer.serialisation.LongSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
+
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 
 public class MapSerialiserTest extends ToBytesSerialisationTest<Map<? extends Object, ? extends Object>> {
 

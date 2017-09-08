@@ -18,10 +18,13 @@ package uk.gov.gchq.gaffer.data.element.function;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.ElementTuple;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicateComposite;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
@@ -68,10 +71,17 @@ public class ElementFilter extends TupleAdaptedPredicateComposite<String> {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(19, 53)
                 .appendSuper(super.hashCode())
                 .append(elementTuple)
                 .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("elementTuple", elementTuple)
+                .toString();
     }
 
     public static class Builder {

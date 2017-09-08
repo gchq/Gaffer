@@ -18,14 +18,17 @@ package uk.gov.gchq.gaffer.operation.export.graph;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.ExportTo;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class ExportToOtherAuthorisedGraph implements
         Operation,
@@ -37,6 +40,7 @@ public class ExportToOtherAuthorisedGraph implements
     private Iterable<? extends Element> input;
     private List<String> parentSchemaIds;
     private String parentStorePropertiesId;
+    private Map<String, String> options;
 
     public String getGraphId() {
         return graphId;
@@ -88,8 +92,30 @@ public class ExportToOtherAuthorisedGraph implements
         return (TypeReference) new TypeReferenceImpl.Object();
     }
 
+    @Override
+    public ExportToOtherAuthorisedGraph shallowClone() {
+        return new ExportToOtherAuthorisedGraph.Builder()
+                .graphId(graphId)
+                .input(input)
+                .parentSchemaIds(parentSchemaIds.toArray(new String[parentSchemaIds.size()]))
+                .parentStorePropertiesId(parentStorePropertiesId)
+                .options(options)
+                .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
     public static final class Builder extends BaseBuilder<ExportToOtherAuthorisedGraph, Builder>
             implements ExportTo.Builder<ExportToOtherAuthorisedGraph, Iterable<? extends Element>, Builder> {
+
         public Builder() {
             super(new ExportToOtherAuthorisedGraph());
         }
@@ -113,5 +139,13 @@ public class ExportToOtherAuthorisedGraph implements
             return _self();
         }
 
+        public Builder parentSchemaIds(final List<String> parentSchemaIds) {
+            if (null == _getOp().getParentSchemaIds()) {
+                _getOp().setParentSchemaIds(parentSchemaIds);
+            } else {
+                _getOp().getParentSchemaIds().addAll(parentSchemaIds);
+            }
+            return _self();
+        }
     }
 }

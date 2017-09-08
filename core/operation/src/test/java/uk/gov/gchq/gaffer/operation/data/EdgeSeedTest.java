@@ -19,12 +19,15 @@ package uk.gov.gchq.gaffer.operation.data;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.junit.Test;
+
+import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,10 +38,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class EdgeSeedTest {
+public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
     @Test
     public void shouldBeRelatedToEntityIdWhenSourceEqualsVertex() {
         // Given
@@ -234,11 +238,10 @@ public class EdgeSeedTest {
         final Integer destination = 2;
         final boolean directed = true;
         final EdgeId seed = new EdgeSeed(source, destination, directed);
-        final JSONSerialiser serialiser = new JSONSerialiser();
 
         // When
-        final byte[] bytes = serialiser.serialise(seed);
-        final EdgeId seedDeserialised = serialiser.deserialise(bytes, EdgeId.class);
+        final byte[] bytes = JSONSerialiser.serialise(seed);
+        final EdgeId seedDeserialised = JSONSerialiser.deserialise(bytes, EdgeId.class);
 
         // Then
         assertEquals(seed, seedDeserialised);
@@ -257,11 +260,10 @@ public class EdgeSeedTest {
         destination.setValue("destinationValue");
         final boolean directed = true;
         final EdgeId seed = new EdgeSeed(source, destination, directed);
-        final JSONSerialiser serialiser = new JSONSerialiser();
 
         // When
-        final byte[] bytes = serialiser.serialise(seed);
-        final EdgeId seedDeserialised = serialiser.deserialise(bytes, EdgeId.class);
+        final byte[] bytes = JSONSerialiser.serialise(seed);
+        final EdgeId seedDeserialised = JSONSerialiser.deserialise(bytes, EdgeId.class);
 
         // Then
         assertTrue(seedDeserialised.getSource() instanceof CustomVertex);
@@ -394,6 +396,86 @@ public class EdgeSeedTest {
         assertThat(edgeSeed1, equalTo(edgeSeed2));
     }
 
+    @Test
+    public void shouldDeserialiseFromJsonUsingDirectedTrueField() {
+        // Given
+        final String json = "{\"class\": \"uk.gov.gchq.gaffer.operation.data.EdgeSeed\", \"directed\": true}";
+
+        // When
+        final EdgeSeed deserialisedEdgeSeed = fromJson(json.getBytes());
+
+        // Then
+        assertEquals(DirectedType.DIRECTED, deserialisedEdgeSeed.getDirectedType());
+    }
+
+    @Test
+    public void shouldDeserialiseFromJsonUsingDirectedFalseField() {
+        // Given
+        final String json = "{\"class\": \"uk.gov.gchq.gaffer.operation.data.EdgeSeed\", \"directed\": false}";
+
+        // When
+        final EdgeSeed deserialisedEdgeSeed = fromJson(json.getBytes());
+
+        // Then
+        assertEquals(DirectedType.UNDIRECTED, deserialisedEdgeSeed.getDirectedType());
+    }
+
+    @Test
+    public void shouldDeserialiseFromJsonWhenDirectedTypeIsDirected() {
+        // Given
+        final String json = "{\"class\": \"uk.gov.gchq.gaffer.operation.data.EdgeSeed\", \"directedType\": \"DIRECTED\"}";
+
+        // When
+        final EdgeSeed deserialisedEdgeSeed = fromJson(json.getBytes());
+
+        // Then
+        assertEquals(DirectedType.DIRECTED, deserialisedEdgeSeed.getDirectedType());
+    }
+
+    @Test
+    public void shouldDeserialiseFromJsonWhenDirectedTypeIsUndirected() {
+        // Given
+        final String json = "{\"class\": \"uk.gov.gchq.gaffer.operation.data.EdgeSeed\", \"directedType\": \"UNDIRECTED\"}";
+
+        // When
+        final EdgeSeed deserialisedEdgeSeed = fromJson(json.getBytes());
+
+        // Then
+        assertEquals(DirectedType.UNDIRECTED, deserialisedEdgeSeed.getDirectedType());
+    }
+
+    @Test
+    public void shouldDeserialiseFromJsonWhenDirectedTypeIsEither() {
+        // Given
+        final String json = "{\"class\": \"uk.gov.gchq.gaffer.operation.data.EdgeSeed\", \"directedType\": \"EITHER\"}";
+
+        // When
+        final EdgeSeed deserialisedEdgeSeed = fromJson(json.getBytes());
+
+        // Then
+        assertEquals(DirectedType.EITHER, deserialisedEdgeSeed.getDirectedType());
+    }
+
+
+    @Test
+    public void shouldThrowExceptionWhenDeserialiseFromJsonUsingDirectedAndDirectedType() {
+        // Given
+        final String json = "{\"class\": \"uk.gov.gchq.gaffer.operation.data.EdgeSeed\", \"directed\": true, \"directedType\": \"DIRECTED\"}";
+
+        // When / Then
+        try {
+            fromJson(json.getBytes());
+            fail("Exception expected");
+        } catch (final Exception e) {
+            assertTrue(e.getMessage().contains("not both"));
+        }
+    }
+
+    @Override
+    protected EdgeSeed getTestObject() {
+        return new EdgeSeed();
+    }
+
     private class Vertex {
         private final String property;
 
@@ -406,16 +488,16 @@ public class EdgeSeedTest {
         }
 
         @Override
-        public boolean equals(final Object o) {
-            if (this == o) {
+        public boolean equals(final Object obj) {
+            if (this == obj) {
                 return true;
             }
 
-            if (o == null || getClass() != o.getClass()) {
+            if (obj == null || getClass() != obj.getClass()) {
                 return false;
             }
 
-            final Vertex vertex = (Vertex) o;
+            final Vertex vertex = (Vertex) obj;
 
             return new EqualsBuilder()
                     .append(property, vertex.property)
@@ -424,7 +506,7 @@ public class EdgeSeedTest {
 
         @Override
         public int hashCode() {
-            return new HashCodeBuilder(17, 37)
+            return new HashCodeBuilder(53, 41)
                     .append(property)
                     .toHashCode();
         }

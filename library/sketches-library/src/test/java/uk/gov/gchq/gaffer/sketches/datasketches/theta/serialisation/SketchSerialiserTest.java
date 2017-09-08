@@ -18,9 +18,13 @@ package uk.gov.gchq.gaffer.sketches.datasketches.theta.serialisation;
 import com.yahoo.sketches.theta.Sketch;
 import com.yahoo.sketches.theta.UpdateSketch;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class SketchSerialiserTest {
     private static final double DELTA = 0.01D;

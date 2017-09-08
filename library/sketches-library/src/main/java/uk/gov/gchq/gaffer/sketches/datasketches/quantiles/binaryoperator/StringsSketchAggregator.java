@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator;
 import com.google.common.collect.Ordering;
 import com.yahoo.sketches.quantiles.ItemsSketch;
 import com.yahoo.sketches.quantiles.ItemsUnion;
+
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**

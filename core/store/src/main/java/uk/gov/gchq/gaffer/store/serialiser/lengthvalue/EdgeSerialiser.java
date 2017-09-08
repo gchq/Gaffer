@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -99,5 +100,10 @@ public class EdgeSerialiser extends PropertiesSerialiser implements ToBytesSeria
     @Override
     public Edge deserialiseEmpty() throws SerialisationException {
         return null;
+    }
+
+    @Override
+    public boolean isConsistent() {
+        return false;
     }
 }

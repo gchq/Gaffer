@@ -19,7 +19,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>core</artifactId>
-        <version>0.7.8</version>
+        <version>1.0.0-RC1</version>
     </parent>
 
     <artifactId>common-util</artifactId>
@@ -49,7 +49,7 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.koryphe</groupId>
-            <artifactId>koryphe</artifactId>
+            <artifactId>core</artifactId>
             <version>${koryphe.version}</version>
         </dependency>
     </dependencies>

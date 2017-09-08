@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.sketches.datasketches.frequencies.binaryoperator;
 import com.yahoo.sketches.frequencies.LongsSketch;
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -69,14 +70,14 @@ public class LongsSketchAggregatorTest extends BinaryOperatorTest {
         final LongsSketchAggregator aggregator = new LongsSketchAggregator();
 
         // When 1
-        final String json = new String(new JSONSerialiser().serialise(aggregator, true));
+        final String json = new String(JSONSerialiser.serialise(aggregator, true));
         // Then 1
         JsonAssert.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.frequencies.binaryoperator.LongsSketchAggregator\"%n" +
                 "}"), json);
 
         // When 2
-        final LongsSketchAggregator deserialisedAggregator = new JSONSerialiser()
+        final LongsSketchAggregator deserialisedAggregator = JSONSerialiser
                 .deserialise(json.getBytes(), LongsSketchAggregator.class);
         // Then 2
         assertNotNull(deserialisedAggregator);

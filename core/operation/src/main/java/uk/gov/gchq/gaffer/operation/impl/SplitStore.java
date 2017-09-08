@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.operation.impl;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
+
 import java.util.Map;
 
 
@@ -27,7 +27,7 @@ import java.util.Map;
  *
  * @see SplitStore.Builder
  */
-public class SplitStore implements Operation, Options {
+public class SplitStore implements Operation {
     @Required
     private String inputPath;
     private Map<String, String> options;
@@ -50,8 +50,15 @@ public class SplitStore implements Operation, Options {
         this.options = options;
     }
 
-    public static class Builder extends Operation.BaseBuilder<SplitStore, Builder>
-            implements Options.Builder<SplitStore, Builder> {
+    @Override
+    public SplitStore shallowClone() {
+        return new SplitStore.Builder()
+                .inputPath(inputPath)
+                .options(options)
+                .build();
+    }
+
+    public static class Builder extends Operation.BaseBuilder<SplitStore, Builder> {
         public Builder() {
             super(new SplitStore());
         }

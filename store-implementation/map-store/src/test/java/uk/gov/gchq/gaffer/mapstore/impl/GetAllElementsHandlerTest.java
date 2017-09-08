@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.mapstore.impl;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -28,6 +29,7 @@ import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -36,6 +38,7 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -355,7 +358,9 @@ public class GetAllElementsHandlerTest {
     public static Graph getGraph() {
         final MapStoreProperties storeProperties = new MapStoreProperties();
         return new Graph.Builder()
-                .graphId("graph1")
+                .config(new GraphConfig.Builder()
+                        .graphId("graph1")
+                        .build())
                 .addSchema(getSchema())
                 .storeProperties(storeProperties)
                 .build();
@@ -364,7 +369,9 @@ public class GetAllElementsHandlerTest {
     static Graph getGraphNoAggregation() {
         final MapStoreProperties storeProperties = new MapStoreProperties();
         return new Graph.Builder()
-                .graphId("graph1")
+                .config(new GraphConfig.Builder()
+                        .graphId("graph1")
+                        .build())
                 .addSchema(getSchemaNoAggregation())
                 .storeProperties(storeProperties)
                 .build();
@@ -374,7 +381,9 @@ public class GetAllElementsHandlerTest {
         final MapStoreProperties storeProperties = new MapStoreProperties();
         storeProperties.setCreateIndex(false);
         return new Graph.Builder()
-                .graphId("graphWithNoIndices")
+                .config(new GraphConfig.Builder()
+                        .graphId("graphWithNoIndices")
+                        .build())
                 .addSchema(getSchema())
                 .storeProperties(storeProperties)
                 .build();

@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.doc.dev.walkthrough;
 
 import org.apache.commons.io.IOUtils;
+
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -29,6 +30,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.io.IOException;
 
 public class Visibilities extends DevWalkthrough {
@@ -40,7 +42,7 @@ public class Visibilities extends DevWalkthrough {
         /// [graph] create a graph using our schema and store properties
         // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
-                .graphId("graph1")
+                .config(StreamUtil.graphConfig(getClass()))
                 .addSchemas(StreamUtil.openStreams(getClass(), "RoadAndRoadUseWithSecurity/schema"))
                 .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();

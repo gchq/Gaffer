@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation;
 
 import com.yahoo.sketches.hll.Union;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
@@ -48,6 +49,11 @@ public class HllUnionSerialiser implements ToBytesSerialiser<Union> {
 
     @Override
     public boolean preservesObjectOrdering() {
+        return false;
+    }
+
+    @Override
+    public boolean isConsistent() {
         return false;
     }
 }

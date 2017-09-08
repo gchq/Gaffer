@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.data.element.id;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.util.Objects;
 
 public interface EntityId extends ElementId {

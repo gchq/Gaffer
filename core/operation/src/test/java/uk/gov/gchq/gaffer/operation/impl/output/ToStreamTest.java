@@ -16,41 +16,21 @@
 
 package uk.gov.gchq.gaffer.operation.impl.output;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
+
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 
-public class ToStreamTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return ToStream.class;
-    }
-
-    @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
-        // Given
-        final ToStream op = new ToStream();
-
-        // When
-        byte[] json = serialiser.serialise(op, true);
-        final ToStream deserialisedOp = serialiser.deserialise(json, ToStream.class);
-
-        // Then
-        assertNotNull(deserialisedOp);
-    }
+public class ToStreamTest extends OperationTest<ToStream> {
 
     @Test
     @Override
@@ -62,5 +42,25 @@ public class ToStreamTest extends OperationTest {
         assertThat(toStream.getInput(), is(notNullValue()));
         assertThat(toStream.getInput(), iterableWithSize(2));
         assertThat(toStream.getInput(), containsInAnyOrder("1", "2"));
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final String input = "1";
+        final ToStream toStream = new ToStream.Builder<>()
+                .input(input)
+                .build();
+
+        // When
+        final ToStream clone = toStream.shallowClone();
+
+        // Then
+        assertNotSame(toStream, clone);
+        assertEquals(Lists.newArrayList(input), clone.getInput());
+    }
+
+    protected ToStream getTestObject() {
+        return new ToStream();
     }
 }

@@ -20,6 +20,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewUtil;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -27,6 +28,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
 import java.util.stream.Stream;
 
 /**
@@ -62,6 +64,10 @@ public class GetAllElementsHandler implements OutputOperationHandler<GetAllEleme
             elements = GetElementsUtil.applyDirectedTypeFilter(elements, getAllElements.getView().hasEdges(), getAllElements.getDirectedType());
             elements = GetElementsUtil.applyView(elements, schema, getAllElements.getView());
             elements = elements.map(element -> mapImpl.cloneElement(element, schema));
+            elements = elements.map(element -> {
+                ViewUtil.removeProperties(getAllElements.getView(), element);
+                return element;
+            });
             return new WrappedCloseableIterator<>(elements.iterator());
         }
     }

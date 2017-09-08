@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.store.serialiser.lengthvalue;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -75,5 +76,10 @@ public class ElementSerialiser extends PropertiesSerialiser implements ToBytesSe
     @Override
     public Element deserialiseEmpty() throws SerialisationException {
         return null;
+    }
+
+    @Override
+    public boolean isConsistent() {
+        return false;
     }
 }

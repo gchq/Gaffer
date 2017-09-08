@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.parquetstore.index;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.parquet.bytes.BytesUtils;
+
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.store.StoreException;
 
@@ -52,6 +53,10 @@ public class ColumnIndex {
     public Iterator<MinValuesWithPath> getIterator() {
             return minValuesWithPaths.iterator();
         }
+
+    public int size() {
+        return minValuesWithPaths.size();
+    }
 
     protected void write(final FSDataOutputStream outputFile) throws StoreException {
         try {
@@ -150,5 +155,10 @@ public class ColumnIndex {
         } else {
             return value;
         }
+    }
+
+    @Override
+    public String toString() {
+        return minValuesWithPaths.toString();
     }
 }

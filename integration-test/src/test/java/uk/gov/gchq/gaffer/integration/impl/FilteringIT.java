@@ -19,6 +19,7 @@ import com.google.common.collect.Lists;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -38,6 +39,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -48,8 +50,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 public class FilteringIT extends AbstractStoreIT {
-    private static final JSONSerialiser SERIALISER = new JSONSerialiser();
-
     @Override
     @Before
     public void setup() throws Exception {
@@ -372,8 +372,8 @@ public class FilteringIT extends AbstractStoreIT {
     private Comparator<Element> getJsonSort() {
         return Comparator.comparing(a -> {
             try {
-                return new String(SERIALISER.serialise(a));
-            } catch (SerialisationException e) {
+                return new String(JSONSerialiser.serialise(a));
+            } catch (final SerialisationException e) {
                 throw new RuntimeException(e);
             }
         });

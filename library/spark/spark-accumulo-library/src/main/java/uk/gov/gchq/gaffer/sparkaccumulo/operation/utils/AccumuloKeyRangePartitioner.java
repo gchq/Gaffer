@@ -22,9 +22,11 @@ import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.data.Key;
 import org.apache.hadoop.io.Text;
 import org.apache.spark.Partitioner;
+
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.StoreException;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -60,8 +62,8 @@ public class AccumuloKeyRangePartitioner extends Partitioner {
     }
 
     @Override
-    public int getPartition(final Object o) {
-        return findPartition(((Key) o).getRow(), getNumSubBins());
+    public int getPartition(final Object obj) {
+        return findPartition(((Key) obj).getRow(), getNumSubBins());
     }
 
     private int findPartition(final Text key, final int numSubBins) {

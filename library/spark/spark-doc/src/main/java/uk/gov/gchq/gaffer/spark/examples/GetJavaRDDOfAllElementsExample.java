@@ -20,6 +20,7 @@ import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.doc.operation.OperationExample;
@@ -28,6 +29,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.spark.SparkConstants;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.util.List;
 
 /**
@@ -41,7 +43,7 @@ public class GetJavaRDDOfAllElementsExample extends OperationExample {
     }
 
     public GetJavaRDDOfAllElementsExample() {
-        super(GetJavaRDDOfAllElements.class);
+        super(GetJavaRDDOfAllElements.class, getDescription());
     }
 
     @Override
@@ -66,6 +68,20 @@ public class GetJavaRDDOfAllElementsExample extends OperationExample {
         }
         sc.stop();
         ROOT_LOGGER.setLevel(Level.INFO);
+    }
+
+    private static String getDescription() {
+        final String description = "All the elements in a graph can be returned "
+                + "as a JavaRDD by using the operation GetJavaRDDOfAllElements. "
+                + "Some examples follow. Note that there is an option to "
+                + "read the Rfiles directly rather than the usual approach of "
+                + "obtaining them from Accumulo's tablet servers. This requires "
+                + "the Hadoop user running the Spark job to have read access to "
+                + "the RFiles in the Accumulo tablet. Note that data that has "
+                + "not been minor compacted will not be read if this option "
+                + "is used. This option is enabled using the option "
+                + "gaffer.accumulo.spark.directrdd.use_rfile_reader=true";
+        return description;
     }
 
     public void getJavaRddOfAllElements(final JavaSparkContext sc, final Graph graph) throws OperationException {

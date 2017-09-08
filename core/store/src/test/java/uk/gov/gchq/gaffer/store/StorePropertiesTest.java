@@ -16,8 +16,15 @@
 
 package uk.gov.gchq.gaffer.store;
 
+import com.fasterxml.jackson.databind.Module;
+import com.google.common.collect.Sets;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
+
+import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -112,5 +119,42 @@ public class StorePropertiesTest {
 
     private StoreProperties createStoreProperties() {
         return StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
+    }
+
+    @Test
+    public void shouldSetJsonSerialiserModules() {
+        // Given
+        final StoreProperties props = createStoreProperties();
+        final Set<Class<? extends JSONSerialiserModules>> modules = Sets.newHashSet(
+                TestCustomJsonModules1.class,
+                TestCustomJsonModules2.class
+        );
+
+        // When
+        props.setJsonSerialiserModules(modules);
+
+        // Then
+        assertEquals(
+                TestCustomJsonModules1.class.getName() + "," + TestCustomJsonModules2.class.getName(),
+                props.getJsonSerialiserModules()
+        );
+    }
+
+    public static final class TestCustomJsonModules1 implements JSONSerialiserModules {
+        public static List<Module> modules;
+
+        @Override
+        public List<Module> getModules() {
+            return modules;
+        }
+    }
+
+    public static final class TestCustomJsonModules2 implements JSONSerialiserModules {
+        public static List<Module> modules;
+
+        @Override
+        public List<Module> getModules() {
+            return modules;
+        }
     }
 }

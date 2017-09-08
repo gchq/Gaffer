@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -34,6 +35,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser;
@@ -42,10 +44,10 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -89,7 +91,7 @@ public class AddElementsFromHdfsIT {
             addElementsFromHdfs();
             fail("Exception expected");
         } catch (final OperationException e) {
-            assertEquals("Output directory exists and is not empty: " + outputDir, e.getCause().getMessage());
+            assertEquals("Output directory file:" + outputDir + " already exists", e.getCause().getMessage());
         }
     }
 
@@ -100,10 +102,9 @@ public class AddElementsFromHdfsIT {
 
         // When
         graph.execute(new AddElementsFromHdfs.Builder()
-                .inputPaths(Collections.singletonList(inputDir))
+                .addinputMapperPair(new Path(inputDir).toString(), TextMapperGeneratorImpl.class.getName())
                 .outputPath(outputDir)
                 .failurePath(failureDir)
-                .mapperGenerator(TextMapperGeneratorImpl.class)
                 .jobInitialiser(new TextJobInitialiser())
                 .option(HBaseStoreConstants.OPERATION_HDFS_STAGING_PATH, stagingDir)
                 .build(), new User());
@@ -145,7 +146,9 @@ public class AddElementsFromHdfsIT {
 
     private Graph createGraph() throws StoreException {
         return new Graph.Builder()
-                .graphId("graph1")
+                .config(new GraphConfig.Builder()
+                        .graphId("graph1")
+                        .build())
                 .storeProperties(StreamUtil.storeProps(getClass()))
                 .addSchemas(StreamUtil.schemas(getClass()))
                 .build();

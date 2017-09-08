@@ -16,11 +16,9 @@
 
 package uk.gov.gchq.gaffer.parquetstore.operation;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -28,15 +26,14 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.impl.predicate.And;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
@@ -54,10 +51,9 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class LongVertexOperationsTest extends AbstractOperationsTest {
-    
+
     @BeforeClass
     public static void genData() throws OperationException {
-        Logger.getRootLogger().setLevel(Level.WARN);
         getGraph().execute(new AddElements.Builder().input(getElements()).build(), USER);
     }
 
@@ -67,17 +63,17 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
     }
 
     private static Graph getGraph() {
-        ParquetStoreProperties pp = (ParquetStoreProperties) StoreProperties.loadStoreProperties(
-                AbstractOperationsTest.class.getResourceAsStream("/multiUseStore.properties"));
         return new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("LongVertexOperationsTest")
+                        .build())
                 .addSchema(getSchema())
-                .storeProperties(pp)
-                .graphId("test")
+                .storeProperties(TestUtils.getParquetStoreProperties())
                 .build();
     }
-    
+
     protected static Schema getSchema() {
-        return Schema.fromJson(StreamUtil.openStreams(LongVertexOperationsTest.class, "schemaUsingLongVertexType"));
+        return TestUtils.gafferSchema("schemaUsingLongVertexType");
     }
 
     private static Iterable<Element> getElements() {
@@ -98,39 +94,39 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
     public void setupView() {
         view = new View.Builder()
                 .edge(TestGroups.EDGE,
-                    new ViewElementDefinition.Builder()
-                        .preAggregationFilter(
-                            new ElementFilter.Builder()
-                                .select("treeSet", "long")
-                                .execute(
-                                    new And.Builder()
-                                        .select(0)
-                                        .execute(new IsEqual(TestUtils.MERGED_TREESET))
-                                        .select(1)
-                                        .execute(
-                                            new And.Builder()
-                                                .select(0)
-                                                .execute(new IsMoreThan(89L, true))
-                                                .select(0)
-                                                .execute(new IsLessThan(95L, true))
+                        new ViewElementDefinition.Builder()
+                                .preAggregationFilter(
+                                        new ElementFilter.Builder()
+                                                .select("treeSet", "long")
+                                                .execute(
+                                                        new And.Builder()
+                                                                .select(0)
+                                                                .execute(new IsEqual(TestUtils.MERGED_TREESET))
+                                                                .select(1)
+                                                                .execute(
+                                                                        new And.Builder()
+                                                                                .select(0)
+                                                                                .execute(new IsMoreThan(89L, true))
+                                                                                .select(0)
+                                                                                .execute(new IsLessThan(95L, true))
+                                                                                .build())
+                                                                .build())
                                                 .build())
-                                        .build())
                                 .build())
-                        .build())
                 .entity(TestGroups.ENTITY,
-                    new ViewElementDefinition.Builder()
-                        .preAggregationFilter(
-                            new ElementFilter.Builder()
-                                .select("freqMap", ParquetStoreConstants.VERTEX)
-                                .execute(
-                                    new Or.Builder()
-                                            .select(0)
-                                            .execute(new Not<>(new IsEqual(TestUtils.MERGED_FREQMAP)))
-                                            .select(1)
-                                            .execute(new IsLessThan(2L, true))
-                                            .build())
+                        new ViewElementDefinition.Builder()
+                                .preAggregationFilter(
+                                        new ElementFilter.Builder()
+                                                .select("freqMap", ParquetStoreConstants.VERTEX)
+                                                .execute(
+                                                        new Or.Builder()
+                                                                .select(0)
+                                                                .execute(new Not<>(new IsEqual(TestUtils.MERGED_FREQMAP)))
+                                                                .select(1)
+                                                                .execute(new IsLessThan(2L, true))
+                                                                .build())
+                                                .build())
                                 .build())
-                        .build())
                 .build();
     }
 
@@ -143,7 +139,7 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
         while (dataIter.hasNext()) {
             actual.add(dataIter.next());
         }
-        for (long x = 0 ; x < 25; x++) {
+        for (long x = 0; x < 25; x++) {
             expected.add(DataGen.getEdge(TestGroups.EDGE, x, x + 1, true, (byte) 'b', (0.2 * x) + 0.3, 6f, TestUtils.MERGED_TREESET, (6L * x) + 5L, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
             expected.add(DataGen.getEdge(TestGroups.EDGE, x, x + 1, false, (byte) 'a', 0.2 * x, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1));
             expected.add(DataGen.getEdge(TestGroups.EDGE, x, x + 1, false, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * x, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1));
@@ -156,7 +152,7 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
         }
         assertThat(expected, containsInAnyOrder(actual.toArray()));
     }
-    
+
     @Override
     void checkGetSeededElementsData(final CloseableIterable<? extends Element> data) {
         final List<Element> expected = new ArrayList<>(48);

@@ -17,8 +17,10 @@
 package uk.gov.gchq.gaffer.parquetstore.serialisation.impl;
 
 import com.google.common.collect.Lists;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
+
 import java.util.ArrayList;
 
 /**
@@ -79,5 +81,10 @@ public class ArrayListStringParquetSerialiser implements ParquetSerialiser<Array
     @Override
     public boolean canHandle(final Class clazz) {
         return ArrayList.class.equals(clazz);
+    }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
     }
 }

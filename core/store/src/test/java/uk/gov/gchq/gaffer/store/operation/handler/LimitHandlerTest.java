@@ -18,10 +18,12 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
+
 import java.util.Arrays;
 import java.util.List;
 

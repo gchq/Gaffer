@@ -16,37 +16,33 @@
 
 package uk.gov.gchq.gaffer.operation.impl.generate;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.data.generator.ElementGeneratorImpl;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
+
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 
-public class GenerateElementsTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return GenerateElements.class;
-    }
-
+public class GenerateElementsTest extends OperationTest<GenerateElements> {
     @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet("elementGenerator");
     }
 
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final GenerateElements<String> op = new GenerateElements.Builder<String>()
                 .input("obj 1", "obj 2")
@@ -54,8 +50,8 @@ public class GenerateElementsTest extends OperationTest {
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(op, true);
-        final GenerateElements<String> deserialisedOp = serialiser.deserialise(json, GenerateElements.class);
+        byte[] json = JSONSerialiser.serialise(op, true);
+        final GenerateElements<String> deserialisedOp = JSONSerialiser.deserialise(json, GenerateElements.class);
 
         // Then
         final Iterator itr = deserialisedOp.getInput().iterator();
@@ -69,11 +65,35 @@ public class GenerateElementsTest extends OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        GenerateElements<?> generateElements = new GenerateElements.Builder<String>().generator(new ElementGeneratorImpl())
+        GenerateElements<?> generateElements = new GenerateElements.Builder<String>()
+                .generator(new ElementGeneratorImpl())
                 .input("Test1", "Test2")
                 .build();
         Iterator iter = generateElements.getInput().iterator();
         assertEquals("Test1", iter.next());
         assertEquals("Test2", iter.next());
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        List<String> input = Lists.newArrayList("test1", "test2");
+        ElementGeneratorImpl generator = new ElementGeneratorImpl();
+        GenerateElements<?> generateElements = new GenerateElements.Builder<String>()
+                .generator(generator)
+                .input(input)
+                .build();
+
+        // When
+        GenerateElements clone = generateElements.shallowClone();
+
+        // Then
+        assertNotSame(generateElements, clone);
+        assertEquals(input, clone.getInput());
+        assertEquals(generator, clone.getElementGenerator());
+    }
+
+    protected GenerateElements getTestObject() {
+        return new GenerateElements();
     }
 }

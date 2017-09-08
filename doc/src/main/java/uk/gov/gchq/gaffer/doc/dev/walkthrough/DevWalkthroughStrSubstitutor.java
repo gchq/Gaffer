@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.doc.dev.walkthrough;
 import uk.gov.gchq.gaffer.doc.dev.aggregator.VisibilityAggregator;
 import uk.gov.gchq.gaffer.doc.dev.serialiser.VisibilitySerialiser;
 import uk.gov.gchq.gaffer.doc.walkthrough.WalkthroughStrSubstitutor;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,8 +35,6 @@ public abstract class DevWalkthroughStrSubstitutor extends WalkthroughStrSubstit
                 "\n```json\n" + getResource("ResultCacheExportOperations.json", example.getClass()).replaceAll("#.*\\n", "") + "\n```\n");
         params.put("CACHE_STORE_PROPERTIES",
                 "\n```\n" + getResource("cache-store.properties", example.getClass()).replaceAll("#.*\\n", "") + "\n```\n");
-        params.put("NAMED_OPERATION_DECLARATIONS",
-                "\n```json\n" + getResource("NamedOperationDeclarations.json", example.getClass()).replaceAll("#.*\\n", "") + "\n```\n");
         return params;
     }
 }

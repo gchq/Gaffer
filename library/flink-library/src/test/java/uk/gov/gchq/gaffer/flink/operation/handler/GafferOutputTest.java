@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.flink.operation.handler;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
 
 import static org.mockito.Mockito.mock;

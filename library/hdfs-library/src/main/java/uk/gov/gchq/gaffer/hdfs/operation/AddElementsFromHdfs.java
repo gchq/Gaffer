@@ -15,22 +15,26 @@
  */
 package uk.gov.gchq.gaffer.hdfs.operation;
 
-import com.fasterxml.jackson.annotation.JsonSetter;
 import org.apache.hadoop.mapreduce.Partitioner;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser;
-import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
-import java.util.List;
+
 import java.util.Map;
 
 /**
  * An <code>AddElementsFromHdfs</code> operation is for adding {@link uk.gov.gchq.gaffer.data.element.Element}s from HDFS.
  * This operation requires an input, output and failure path.
- * It order to be generic and deal with any type of input file you also need to provide a
- * {@link MapperGenerator} class name and a
+ * For each input file you must also provide a {@link uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator} class name
+ * as part of a pair (input, mapperGeneratorClassName).
+ * In order to be generic and deal with any type of input file you also need to provide a
  * {@link uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser}.
+ * You will need to write your own {@link uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator} to convert the input
+ * data into gaffer {@link uk.gov.gchq.gaffer.data.element.Element}s. This can
+ * be as simple as delegating to your {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator}
+ * class, however it can be more complex and make use of the configuration in
+ * {@link org.apache.hadoop.mapreduce.MapContext}.
  * <p>
  * For normal operation handlers the operation {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View} will be ignored.
  * </p>
@@ -41,8 +45,7 @@ import java.util.Map;
  */
 public class AddElementsFromHdfs implements
         Operation,
-        MapReduce,
-        Options {
+        MapReduce {
     @Required
     private String failurePath;
 
@@ -59,10 +62,7 @@ public class AddElementsFromHdfs implements
      * For Text data see {@link uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.TextMapperGenerator}.
      */
     @Required
-    private String mapperGeneratorClassName;
-
-    @Required
-    private List<String> inputPaths;
+    private Map<String, String> inputMapperPairs;
 
     @Required
     private String outputPath;
@@ -100,27 +100,14 @@ public class AddElementsFromHdfs implements
         this.validate = validate;
     }
 
-    public String getMapperGeneratorClassName() {
-        return mapperGeneratorClassName;
-    }
-
-    @JsonSetter(value = "mapperGeneratorClassName")
-    public void setMapperGeneratorClassName(final String mapperGeneratorClassName) {
-        this.mapperGeneratorClassName = mapperGeneratorClassName;
-    }
-
-    public void setMapperGeneratorClassName(final Class<? extends MapperGenerator> mapperGeneratorClass) {
-        this.mapperGeneratorClassName = mapperGeneratorClass.getName();
+    @Override
+    public Map<String, String> getInputMapperPairs() {
+        return inputMapperPairs;
     }
 
     @Override
-    public List<String> getInputPaths() {
-        return inputPaths;
-    }
-
-    @Override
-    public void setInputPaths(final List<String> inputPaths) {
-        this.inputPaths = inputPaths;
+    public void setInputMapperPairs(final Map<String, String> inputMapperPairs) {
+        this.inputMapperPairs = inputMapperPairs;
     }
 
     @Override
@@ -251,9 +238,30 @@ public class AddElementsFromHdfs implements
         this.options = options;
     }
 
+    @Override
+    public AddElementsFromHdfs shallowClone() {
+        return new AddElementsFromHdfs.Builder()
+                .failurePath(failurePath)
+                .workingPath(workingPath)
+                .validate(validate)
+                .inputMapperPairs(inputMapperPairs)
+                .outputPath(outputPath)
+                .jobInitialiser(jobInitialiser)
+                .mappers(numMapTasks)
+                .reducers(numReduceTasks)
+                .minMappers(minMapTasks)
+                .minReducers(minReduceTasks)
+                .maxMappers(maxMapTasks)
+                .maxReducers(maxReduceTasks)
+                .useProvidedSplits(useProvidedSplits)
+                .splitsFilePath(splitsFilePath)
+                .partitioner(partitioner)
+                .options(options)
+                .build();
+    }
+
     public static final class Builder extends Operation.BaseBuilder<AddElementsFromHdfs, Builder>
-            implements MapReduce.Builder<AddElementsFromHdfs, Builder>,
-            Options.Builder<AddElementsFromHdfs, Builder> {
+            implements MapReduce.Builder<AddElementsFromHdfs, Builder> {
         public Builder() {
             super(new AddElementsFromHdfs());
         }
@@ -263,8 +271,8 @@ public class AddElementsFromHdfs implements
             return _self();
         }
 
-        public Builder mapperGenerator(final Class<? extends MapperGenerator> mapperGeneratorClass) {
-            _getOp().setMapperGeneratorClassName(mapperGeneratorClass);
+        public Builder inputMapperPairs(final Map<String, String> inputMapperPairs) {
+            _getOp().setInputMapperPairs(inputMapperPairs);
             return _self();
         }
 

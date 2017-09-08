@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.accumulostore.key.core;
 
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage;
@@ -44,7 +45,7 @@ import static org.mockito.Mockito.mock;
 public abstract class AbstractCoreKeyIteratorSettingsFactoryTest {
     private final AbstractCoreKeyIteratorSettingsFactory factory;
 
-    protected AbstractCoreKeyIteratorSettingsFactoryTest(AbstractCoreKeyIteratorSettingsFactory factory) {
+    protected AbstractCoreKeyIteratorSettingsFactoryTest(final AbstractCoreKeyIteratorSettingsFactory factory) {
         this.factory = factory;
     }
 

@@ -19,7 +19,9 @@ package uk.gov.gchq.gaffer.store.schema;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
+
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;

@@ -25,7 +25,9 @@ import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
+import uk.gov.gchq.gaffer.commonutil.PropertiesUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.iterable.TransformIterable;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
@@ -39,6 +41,7 @@ import uk.gov.gchq.koryphe.impl.predicate.IsA;
 import uk.gov.gchq.koryphe.tuple.Tuple;
 import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -65,7 +68,8 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     private final SchemaElementDefinitionValidator elementDefValidator;
 
     /**
-     * Property map of property name to accepted type.
+     * Map of property name to accepted type name.
+     * The type name relates to the types part of the schema
      */
     protected Map<String, String> properties;
 
@@ -480,16 +484,16 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
 
-        final SchemaElementDefinition that = (SchemaElementDefinition) o;
+        final SchemaElementDefinition that = (SchemaElementDefinition) obj;
 
         return new EqualsBuilder()
                 .append(elementDefValidator, that.elementDefValidator)
@@ -503,7 +507,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(73, 41)
                 .append(elementDefValidator)
                 .append(properties)
                 .append(identifiers)
@@ -724,6 +728,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         }
 
         public ELEMENT_DEF build() {
+            elDef.getProperties().forEach(PropertiesUtil::validateName);
             elDef.lock();
             return elDef;
         }

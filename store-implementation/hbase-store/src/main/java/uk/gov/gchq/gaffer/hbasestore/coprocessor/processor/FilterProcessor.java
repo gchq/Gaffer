@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.hbasestore.coprocessor.processor;
 
 import uk.gov.gchq.gaffer.hbasestore.serialisation.LazyElementCell;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Predicate;

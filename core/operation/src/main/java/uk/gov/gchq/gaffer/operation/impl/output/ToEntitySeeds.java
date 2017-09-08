@@ -16,11 +16,14 @@
 package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+
+import java.util.Map;
 
 /**
  * A <code>ToEntitySeeds</code> operation takes in an {@link java.lang.Iterable}
@@ -33,6 +36,7 @@ public class ToEntitySeeds implements
         InputOutput<Iterable<? extends Object>, Iterable<? extends EntitySeed>>,
         MultiInput<Object> {
     private Iterable<? extends Object> input;
+    private Map<String, String> options;
 
     @Override
     public Iterable<? extends Object> getInput() {
@@ -47,6 +51,24 @@ public class ToEntitySeeds implements
     @Override
     public TypeReference<Iterable<? extends EntitySeed>> getOutputTypeReference() {
         return new TypeReferenceImpl.IterableEntitySeed();
+    }
+
+    @Override
+    public ToEntitySeeds shallowClone() {
+        return new ToEntitySeeds.Builder()
+                .input(input)
+                .options(options)
+                .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static final class Builder

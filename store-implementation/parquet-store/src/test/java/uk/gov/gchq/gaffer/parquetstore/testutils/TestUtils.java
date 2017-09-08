@@ -1,10 +1,23 @@
 package uk.gov.gchq.gaffer.parquetstore.testutils;
 
+import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.SparkSession;
+
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
+import uk.gov.gchq.gaffer.parquetstore.operation.AbstractSparkOperationsTest;
+import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
+import uk.gov.gchq.gaffer.spark.SparkConstants;
+import uk.gov.gchq.gaffer.store.SerialisationFactory;
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.types.TypeValue;
 
@@ -18,6 +31,28 @@ public class TestUtils {
     public static FreqMap MERGED_FREQMAP = getMergedFreqMap();
     public static Date DATE = new Date();
     public static Date DATE1 = new Date(TestUtils.DATE.getTime() + 1000);
+
+    public static SparkSession spark = SparkSession.builder()
+            .appName("Parquet Gaffer Store tests")
+            .master(getParquetStoreProperties().getSparkMaster())
+            .config(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true")
+            .config(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
+            .config(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
+            .getOrCreate();
+    public static JavaSparkContext javaSparkContext = JavaSparkContext.fromSparkContext(spark.sparkContext());
+
+    public static ParquetStoreProperties getParquetStoreProperties() {
+        final ParquetStoreProperties parquetStoreProperties = (ParquetStoreProperties) StoreProperties.loadStoreProperties(
+                AbstractSparkOperationsTest.class.getResourceAsStream("/multiUseStore.properties"));
+        parquetStoreProperties.setTempFilesDir(CommonTestConstants.TMP_DIRECTORY.getAbsolutePath());
+        return parquetStoreProperties;
+    }
+
+    public static Schema gafferSchema(final String schemaFolder) {
+        final Schema schema = Schema.fromJson(StreamUtil.openStreams(TestUtils.class, schemaFolder));
+        final SchemaOptimiser schemaOptimiser = new SchemaOptimiser(new SerialisationFactory(ParquetStoreConstants.SERIALISERS));
+        return schemaOptimiser.optimise(schema, true);
+    }
 
     private static TreeSet<String> getMergedTreeSet() {
         final TreeSet<String> t = new TreeSet<>();

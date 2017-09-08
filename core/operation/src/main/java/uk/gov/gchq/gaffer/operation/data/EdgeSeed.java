@@ -19,10 +19,12 @@ package uk.gov.gchq.gaffer.operation.data;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.comparison.ComparableOrToStringComparator;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+
 import java.util.Comparator;
 
 /**
@@ -58,17 +60,25 @@ public class EdgeSeed extends ElementSeed implements EdgeId {
         this(source, destination, directed ? DirectedType.DIRECTED : DirectedType.UNDIRECTED, matchedVertex);
     }
 
-    @JsonCreator
-    public EdgeSeed(@JsonProperty("source")  final Object source,
-                    @JsonProperty("destination") final Object destination,
-                    @JsonProperty("directedType") final DirectedType directed,
-                    @JsonProperty("matchedVertex") final MatchedVertex matchedVertex) {
+    public EdgeSeed(final Object source,
+                    final Object destination,
+                    final DirectedType directed,
+                    final MatchedVertex matchedVertex) {
         this.matchedVertex = matchedVertex;
         this.source = source;
         this.destination = destination;
         this.directed = directed;
         this.matchedVertex = matchedVertex;
         orderVertices();
+    }
+
+    @JsonCreator
+    public EdgeSeed(@JsonProperty("source")  final Object source,
+                    @JsonProperty("destination") final Object destination,
+                    @JsonProperty("directed") final Boolean directed,
+                    @JsonProperty("directedType") final DirectedType directedType,
+                    @JsonProperty("matchedVertex") final MatchedVertex matchedVertex) {
+        this(source, destination, getDirectedType(directed, directedType), matchedVertex);
     }
 
     @Override
@@ -142,7 +152,7 @@ public class EdgeSeed extends ElementSeed implements EdgeId {
      */
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(21, 3)
+        return new HashCodeBuilder(21, 73)
                 .append(source)
                 .append(destination)
                 .append(directed)
@@ -155,6 +165,16 @@ public class EdgeSeed extends ElementSeed implements EdgeId {
                 .append("source", source)
                 .append("destination", destination)
                 .append("directed", directed)
-                .build();
+                .toString();
+    }
+
+    private static DirectedType getDirectedType(final Boolean directed, final DirectedType directedType) {
+        if (null != directed) {
+            if (null != directedType) {
+                throw new IllegalArgumentException("Use either 'directed' or 'directedType' - not both.");
+            }
+            return directed ? DirectedType.DIRECTED : DirectedType.UNDIRECTED;
+        }
+        return directedType;
     }
 }

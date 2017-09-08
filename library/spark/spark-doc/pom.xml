@@ -18,7 +18,7 @@
     <parent>
         <artifactId>spark</artifactId>
         <groupId>uk.gov.gchq.gaffer</groupId>
-        <version>0.7.8</version>
+        <version>1.0.0-RC1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -75,9 +75,13 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-assembly-plugin</artifactId>
+                        <configuration>
+                            <skipAssembly>${skip.jar-with-dependencies}
+                            </skipAssembly>
+                        </configuration>
                         <executions>
                             <execution>
-                                <id>spark-doc</id>
+                                <id>spark-doc-jar-with-dependencies</id>
                                 <phase>package</phase>
                                 <goals>
                                     <goal>single</goal>

@@ -64,6 +64,11 @@ public class ShortParquetSerialiser implements ParquetSerialiser<Short> {
     }
 
     @Override
+    public boolean isConsistent() {
+        return true;
+    }
+
+    @Override
     public Object[] serialiseNull() {
         return new Object[0];
     }

@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.accumulostore.key.core;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.accumulo.core.data.Range;
+
 import uk.gov.gchq.gaffer.accumulostore.key.RangeFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -27,6 +28,8 @@ import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +38,12 @@ public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
     @Override
     public List<Range> getRange(final ElementId elementId, final GraphFilters operation)
+            throws RangeFactoryException {
+        final SeededGraphFilters.IncludeIncomingOutgoingType inOutType = (operation instanceof SeededGraphFilters) ? ((SeededGraphFilters) operation).getIncludeIncomingOutGoing() : SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING;
+        return getRange(elementId, operation, inOutType);
+    }
+
+    private List<Range> getRange(final ElementId elementId, final GraphFilters operation, final SeededGraphFilters.IncludeIncomingOutgoingType inOutType)
             throws RangeFactoryException {
         if (elementId instanceof EntityId) {
             return getRange(((EntityId) elementId).getVertex(), operation, operation.getView().hasEdges());
@@ -45,7 +54,7 @@ public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
                     && DirectedType.areCompatible(operation.getDirectedType(), edgeId.getDirectedType())) {
                 // EQUALS and RELATED seed matching.
                 final DirectedType directed = DirectedType.and(operation.getDirectedType(), edgeId.getDirectedType());
-                ranges.addAll(getRange(edgeId.getSource(), edgeId.getDestination(), directed, operation));
+                ranges.addAll(getRange(edgeId.getSource(), edgeId.getDestination(), directed, operation, inOutType));
             }
 
             // Do related - if operation doesn't have seed matching or it has seed matching equal to RELATED
@@ -65,8 +74,9 @@ public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
     public Range getRangeFromPair(final Pair<ElementId, ElementId> pairRange, final GraphFilters operation)
             throws RangeFactoryException {
         final ArrayList<Range> ran = new ArrayList<>();
-        ran.addAll(getRange(pairRange.getFirst(), operation));
-        ran.addAll(getRange(pairRange.getSecond(), operation));
+        // set the in out flag to null to disable it
+        ran.addAll(getRange(pairRange.getFirst(), operation, null));
+        ran.addAll(getRange(pairRange.getSecond(), operation, null));
         Range min = null;
         Range max = null;
         for (final Range range : ran) {
@@ -84,7 +94,7 @@ public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
     }
 
     protected abstract List<Range> getRange(final Object sourceVal, final Object destVal, final DirectedType directed,
-                                            final GraphFilters operation) throws RangeFactoryException;
+                                            final GraphFilters operation, SeededGraphFilters.IncludeIncomingOutgoingType inOutType) throws RangeFactoryException;
 
     protected abstract List<Range> getRange(final Object vertex,
                                             final GraphFilters operation,

@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.serialisation.implementation;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
@@ -46,7 +47,7 @@ public class MapSerialiser implements ToBytesSerialiser<Map<? extends Object, ? 
                 builder.appendLengthValueFromObjectToByteStream(getKeySerialiser(), entry.getKey());
                 builder.appendLengthValueFromObjectToByteStream(getValueSerialiser(), entry.getValue());
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
         return builder.toArray();
@@ -83,6 +84,11 @@ public class MapSerialiser implements ToBytesSerialiser<Map<? extends Object, ? 
 
     @Override
     public boolean preservesObjectOrdering() {
+        return false;
+    }
+
+    @Override
+    public boolean isConsistent() {
         return false;
     }
 

@@ -18,10 +18,12 @@ package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator;
 import com.yahoo.sketches.quantiles.DoublesUnion;
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
+
 import java.util.function.BinaryOperator;
 
 import static org.junit.Assert.assertEquals;
@@ -70,14 +72,14 @@ public class DoublesUnionAggregatorTest extends BinaryOperatorTest {
         final DoublesUnionAggregator aggregator = new DoublesUnionAggregator();
 
         // When 1
-        final String json = new String(new JSONSerialiser().serialise(aggregator, true));
+        final String json = new String(JSONSerialiser.serialise(aggregator, true));
         // Then 1
         JsonAssert.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator.DoublesUnionAggregator\"%n" +
                 "}"), json);
 
         // When 2
-        final DoublesUnionAggregator deserialisedAggregator = new JSONSerialiser()
+        final DoublesUnionAggregator deserialisedAggregator = JSONSerialiser
                 .deserialise(json.getBytes(), DoublesUnionAggregator.class);
         // Then 2
         assertNotNull(deserialisedAggregator);

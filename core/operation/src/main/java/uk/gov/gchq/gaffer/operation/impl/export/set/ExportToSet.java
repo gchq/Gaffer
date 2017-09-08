@@ -17,9 +17,12 @@
 package uk.gov.gchq.gaffer.operation.impl.export.set;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.ExportTo;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+
+import java.util.Map;
 
 /**
  * An <code>ExportToSet</code> Export operation exports results to a Set.
@@ -32,6 +35,7 @@ public class ExportToSet<T> implements
         ExportTo<T> {
     private String key;
     private T input;
+    private Map<String, String> options;
 
     @Override
     public String getKey() {
@@ -56,6 +60,25 @@ public class ExportToSet<T> implements
     @Override
     public TypeReference<T> getOutputTypeReference() {
         return (TypeReference) new TypeReferenceImpl.Object();
+    }
+
+    @Override
+    public ExportToSet<T> shallowClone() {
+        return new ExportToSet.Builder<T>()
+                .key(key)
+                .input(input)
+                .options(options)
+                .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static final class Builder<T> extends Operation.BaseBuilder<ExportToSet<T>, Builder<T>>

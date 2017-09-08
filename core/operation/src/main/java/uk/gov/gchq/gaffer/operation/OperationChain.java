@@ -21,23 +21,31 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.exception.CloneFailedException;
+
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
-import java.io.Closeable;
+
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
+ * <p>
  * An <code>OperationChain</code> holds a list of {@link uk.gov.gchq.gaffer.operation.Operation}s that are chained together -
  * ie. the output of one operation is passed to the input of the next. For the chaining to be successful the operations
  * must be ordered correctly so the O and I types are compatible. The safest way to ensure they will be
  * compatible is to use the OperationChain.Builder to construct the chain.
- * <p>
+ * </p>
  * A couple of special cases:
  * <ul>
  * <li>An operation with no output can come before any operation.</li>
@@ -49,8 +57,9 @@ import java.util.List;
  *              {@link uk.gov.gchq.gaffer.operation.Operation} in the chain.
  * @see uk.gov.gchq.gaffer.operation.OperationChain.Builder
  */
-public class OperationChain<OUT> implements Closeable {
+public class OperationChain<OUT> implements Operation, Output<OUT> {
     private List<Operation> operations;
+    private Map<String, String> options;
 
     public OperationChain() {
         this(new ArrayList<>());
@@ -66,11 +75,27 @@ public class OperationChain<OUT> implements Closeable {
         operations.add(operation);
     }
 
+    public OperationChain(final Operation... operations) {
+        this(new ArrayList<>(operations.length));
+        for (final Operation operation : operations) {
+            this.operations.add(operation);
+        }
+    }
+
     public OperationChain(final List<Operation> operations) {
+        this(operations, false);
+    }
+
+    public OperationChain(final List<Operation> operations, final boolean flatten) {
         this.operations = new ArrayList<>(operations);
+
+        if (flatten) {
+            this.operations = flatten();
+        }
     }
 
     @JsonIgnore
+    @Override
     public TypeReference<OUT> getOutputTypeReference() {
         if (null != operations && !operations.isEmpty()) {
             final Operation lastOp = operations.get(operations.size() - 1);
@@ -96,8 +121,31 @@ public class OperationChain<OUT> implements Closeable {
         if (null != operations) {
             this.operations = Lists.newArrayList(operations);
         } else {
-            this.operations = null;
+            this.operations = new ArrayList<>();
         }
+    }
+
+    public OperationChain<OUT> shallowClone() throws CloneFailedException {
+        if (null == operations) {
+            return new OperationChain<>();
+        }
+
+        final List<Operation> clonedOps = operations.stream()
+                .map(Operation::shallowClone)
+                .collect(Collectors.toList());
+        final OperationChain<OUT> clone = new OperationChain<>(clonedOps);
+        clone.setOptions(options);
+        return clone;
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     @Override
@@ -116,7 +164,42 @@ public class OperationChain<OUT> implements Closeable {
         }
     }
 
+    @Override
+    public boolean equals(final Object obj) {
+        boolean isEqual = false;
+        if (obj != null && obj instanceof OperationChain) {
+            final OperationChain that = (OperationChain) obj;
+
+            isEqual = new EqualsBuilder()
+                    .append(this.getOperations(), that.getOperations())
+                    .isEquals();
+        }
+        return isEqual;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 21)
+                .append(operations)
+                .toHashCode();
+    }
+
+    public List<Operation> flatten() {
+        final List<Operation> tmp = new ArrayList<>(1);
+
+        for (final Operation operation : getOperations()) {
+            if (operation instanceof OperationChain) {
+                tmp.addAll(((OperationChain) operation).flatten());
+            } else {
+                tmp.add(operation);
+            }
+        }
+
+        return Collections.unmodifiableList(tmp);
+    }
+
     /**
+     * <p>
      * A <code>Builder</code> is a type safe way of building an {@link uk.gov.gchq.gaffer.operation.OperationChain}.
      * The builder instance is updated after each method call so it is best to chain the method calls together.
      * Usage:<br>
@@ -130,7 +213,7 @@ public class OperationChain<OUT> implements Closeable {
      * &nbsp;&nbsp;.build()<br>
      * &nbsp;)<br>
      * &nbsp;.build();
-     * <p>
+     * </p>
      * For a full example see the Example module.
      */
     public static class Builder {

@@ -1,0 +1,16 @@
+{
+  "entities": {
+    "Cardinality": {
+      "description": "An entity that is added to every vertex representing the connectivity of the vertex.",
+      "vertex": "anyVertex",
+      "properties": {
+        "edgeGroup": "set",
+        "hllp": "hllp",
+        "count": "count.long"
+      },
+      "groupBy": [
+        "edgeGroup"
+      ]
+    }
+  }
+}

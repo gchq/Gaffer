@@ -15,7 +15,10 @@
  */
 package uk.gov.gchq.gaffer.serialisation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+
 import java.io.Serializable;
 
 /**
@@ -86,4 +89,14 @@ public interface Serialiser<INPUT, OUTPUT> extends Serializable {
      * @return true if the serialisation will preserve the order of the INPUT, otherwise false.
      */
     boolean preservesObjectOrdering();
+
+    /**
+     * Indicates whether the serialisation process produces a predictable, consistent
+     * OUTPUT, from a given INPUT, ie the same object should always serialise in the same way
+     * for this to be true.
+     *
+     * @return true if serialisation is consistent for a given object, otherwise false.
+     */
+    @JsonIgnore
+    boolean isConsistent();
 }

@@ -24,10 +24,12 @@ import scala.Tuple2;
 import scala.math.Ordering;
 import scala.math.Ordering$;
 import scala.reflect.ClassTag;
+
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractImportKeyValuePairRDDToAccumuloHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.scalardd.ImportKeyValuePairRDDToAccumulo;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.AccumuloKeyRangePartitioner;
+
 import java.util.Comparator;
 
 public class ImportKeyValuePairRDDToAccumuloHandler extends AbstractImportKeyValuePairRDDToAccumuloHandler<ImportKeyValuePairRDDToAccumulo> {

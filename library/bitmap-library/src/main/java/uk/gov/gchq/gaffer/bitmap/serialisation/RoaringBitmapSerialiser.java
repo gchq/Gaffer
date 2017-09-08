@@ -16,9 +16,11 @@
 package uk.gov.gchq.gaffer.bitmap.serialisation;
 
 import org.roaringbitmap.RoaringBitmap;
+
 import uk.gov.gchq.gaffer.bitmap.serialisation.utils.RoaringBitmapUtils;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -67,6 +69,11 @@ public class RoaringBitmapSerialiser implements ToBytesSerialiser<RoaringBitmap>
 
     @Override
     public boolean preservesObjectOrdering() {
+        return false;
+    }
+
+    @Override
+    public boolean isConsistent() {
         return false;
     }
 

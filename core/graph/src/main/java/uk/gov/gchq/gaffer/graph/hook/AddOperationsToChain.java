@@ -16,19 +16,10 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.user.User;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -42,46 +33,8 @@ import java.util.Map;
  * the opAuths, the additional Operations will be added to the chain.
  */
 public class AddOperationsToChain implements GraphHook {
-    private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
-
     private final AdditionalOperations defaultOperations = new AdditionalOperations();
-    private LinkedHashMap<String, AdditionalOperations> authorisedOps;
-
-    /**
-     * Default constructor.
-     */
-    public AddOperationsToChain() {
-    }
-
-    /**
-     * Constructs a {@link AddOperationsToChain} using the path to json
-     * file specifying Operations to add.
-     *
-     * @param addOperationsPath Path to file containing Operations to add.
-     * @throws IOException if the file reading fails.
-     */
-    public AddOperationsToChain(final String addOperationsPath) throws IOException {
-
-        Path path = Paths.get(addOperationsPath);
-        AddOperationsToChain addOperations;
-        if (path.toFile().exists()) {
-            addOperations = fromJson(Files.readAllBytes(path));
-        } else {
-            addOperations = fromJson(StreamUtil.openStream(OperationDeclarations.class, addOperationsPath));
-        }
-        setOperations(addOperations);
-    }
-
-    /**
-     * Constructs a {@link AddOperationsToChain} using the json byte[]
-     * specifying Operations to add.
-     *
-     * @param addOperationsBytes byte[] containing Operations to add.
-     * @throws IOException if the byte[] fails to be deserialised.
-     */
-    public AddOperationsToChain(final byte[] addOperationsBytes) throws IOException {
-        setOperations(fromJson(addOperationsBytes));
-    }
+    private final LinkedHashMap<String, AdditionalOperations> authorisedOps = new LinkedHashMap<>();
 
     /**
      * Adds in the additional Operations specified.  The original opChain will
@@ -98,7 +51,12 @@ public class AddOperationsToChain implements GraphHook {
         if (!authorisedOps.isEmpty() && !user.getOpAuths().isEmpty()) {
             for (final String auth : authorisedOps.keySet()) {
                 if (user.getOpAuths().contains(auth)) {
-                    newOpList.addAll(addOperationsToChain(opChain, authorisedOps.get(auth)));
+                    final AdditionalOperations additionalOperations = authorisedOps.get(auth);
+
+                    newOpList.addAll(additionalOperations.getStart());
+                    newOpList.addAll(addOperationsToChain(opChain, additionalOperations));
+                    newOpList.addAll(additionalOperations.getEnd());
+
                     hasAuth = true;
                     break;
                 }
@@ -106,7 +64,9 @@ public class AddOperationsToChain implements GraphHook {
         }
 
         if (!hasAuth) {
+            newOpList.addAll(defaultOperations.getStart());
             newOpList.addAll(addOperationsToChain(opChain, defaultOperations));
+            newOpList.addAll(defaultOperations.getEnd());
         }
         opChain.getOperations().clear();
         opChain.getOperations().addAll(newOpList);
@@ -118,94 +78,74 @@ public class AddOperationsToChain implements GraphHook {
         return result;
     }
 
-    private static AddOperationsToChain fromJson(final byte[] json) {
-        try {
-            return JSON_SERIALISER.deserialise(json, AddOperationsToChain.class);
-        } catch (final SerialisationException e) {
-            throw new SchemaException("Failed to load element definitions from bytes", e);
-        }
-    }
-
-    private static AddOperationsToChain fromJson(final InputStream inputStream) {
-        try {
-            return JSON_SERIALISER.deserialise(inputStream, AddOperationsToChain.class);
-        } catch (final SerialisationException e) {
-            throw new SchemaException("Failed to load element definitions from bytes", e);
-        }
+    public List<Operation> getStart() {
+        return defaultOperations.getStart();
     }
 
     public void setStart(final List<Operation> start) {
         this.defaultOperations.setStart(start);
     }
 
-    public List<Operation> getStart() {
-        return defaultOperations.getStart();
+    public List<Operation> getEnd() {
+        return defaultOperations.getEnd();
     }
 
     public void setEnd(final List<Operation> end) {
         this.defaultOperations.setEnd(end);
     }
 
-    public List<Operation> getEnd() {
-        return defaultOperations.getEnd();
+    public Map<String, List<Operation>> getBefore() {
+        return defaultOperations.getBefore();
     }
 
     public void setBefore(final Map<String, List<Operation>> before) {
         this.defaultOperations.setBefore(before);
     }
 
-    public Map<String, List<Operation>> getBefore() {
-        return defaultOperations.getBefore();
+    public Map<String, List<Operation>> getAfter() {
+        return defaultOperations.getAfter();
     }
 
     public void setAfter(final Map<String, List<Operation>> after) {
         this.defaultOperations.setAfter(after);
     }
 
-    public Map<String, List<Operation>> getAfter() {
-        return defaultOperations.getAfter();
-    }
-
-    public void setAuthorisedOps(final LinkedHashMap<String, AdditionalOperations> authorisedOps) {
-        if (authorisedOps == null) {
-            this.authorisedOps = new LinkedHashMap<>();
-        } else {
-            this.authorisedOps = authorisedOps;
-        }
-
-    }
-
     public LinkedHashMap<String, AdditionalOperations> getAuthorisedOps() {
         return authorisedOps;
     }
 
-    private void setOperations(final AddOperationsToChain addOperations) {
-        this.setAuthorisedOps(addOperations.getAuthorisedOps());
-        this.defaultOperations.setStart(addOperations.defaultOperations.getStart());
-        this.defaultOperations.setEnd(addOperations.defaultOperations.getEnd());
-        this.defaultOperations.setBefore(addOperations.defaultOperations.getBefore());
-        this.defaultOperations.setAfter(addOperations.defaultOperations.getAfter());
+    public void setAuthorisedOps(final LinkedHashMap<String, AdditionalOperations> authorisedOps) {
+        this.authorisedOps.clear();
+        if (authorisedOps != null) {
+            this.authorisedOps.putAll(authorisedOps);
+        }
     }
 
     private List<Operation> addOperationsToChain(final OperationChain<?> opChain, final AdditionalOperations additionalOperations) {
-        List<Operation> newOpList = new ArrayList<>();
+        final List<Operation> opList = new ArrayList<>();
 
-        newOpList.addAll(additionalOperations.getStart());
         if (opChain != null && !opChain.getOperations().isEmpty()) {
             for (final Operation originalOp : opChain.getOperations()) {
-                List<Operation> beforeOps = additionalOperations.getBefore().get(originalOp.getClass().getName());
-                if (beforeOps != null) {
-                    newOpList.addAll(beforeOps);
-                }
-                newOpList.add(originalOp);
-                List<Operation> afterOps = additionalOperations.getAfter().get(originalOp.getClass().getName());
-                if (afterOps != null) {
-                    newOpList.addAll(afterOps);
+                if (originalOp instanceof OperationChain) {
+                    opList.addAll(addOperationsToChain((OperationChain) originalOp, additionalOperations));
+                } else {
+                    final List<Operation> beforeOps = additionalOperations.getBefore()
+                                                                          .get(originalOp.getClass()
+                                                                                        .getName());
+                    if (beforeOps != null) {
+                        opList.addAll(beforeOps);
+                    }
+                    opList.add(originalOp);
+                    final List<Operation> afterOps = additionalOperations.getAfter()
+                                                                         .get(originalOp.getClass()
+                                                                                        .getName());
+                    if (afterOps != null) {
+                        opList.addAll(afterOps);
+                    }
                 }
             }
         }
-        newOpList.addAll(additionalOperations.getEnd());
 
-        return newOpList;
+        return opList;
     }
 }

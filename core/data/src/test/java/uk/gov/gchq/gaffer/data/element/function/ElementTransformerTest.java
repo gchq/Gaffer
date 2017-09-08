@@ -17,12 +17,14 @@
 package uk.gov.gchq.gaffer.data.element.function;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.koryphe.impl.function.Identity;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
+
 import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;

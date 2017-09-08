@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.stream.StreamSupplier;
+
 import java.util.stream.Stream;
 
 /**

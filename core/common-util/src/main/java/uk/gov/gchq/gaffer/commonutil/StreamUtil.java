@@ -24,6 +24,7 @@ import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -37,15 +38,17 @@ public abstract class StreamUtil {
     public static final String ELEMENTS_SCHEMA = SCHEMA_FOLDER + "elements.json";
     public static final String TYPES_SCHEMA = SCHEMA_FOLDER + "types.json";
     public static final String STORE_PROPERTIES = "/store.properties";
-    public static final String OP_AUTHS = "/opAuths.properties";
-    public static final String OP_SCORES = "/opScores.properties";
-    public static final String AUTH_SCORES = "/authScores.properties";
+    public static final String GRAPH_CONFIG = "/graphConfig.json";
     public static final String FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH = "Failed to create input stream for path: ";
     public static final String LOG_FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH = FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH + "{}";
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamUtil.class);
 
     private StreamUtil() {
         // this class should not be instantiated - it contains only util methods and constants.
+    }
+
+    public static InputStream graphConfig(final Class clazz) {
+        return openStream(clazz, GRAPH_CONFIG);
     }
 
     public static InputStream view(final Class clazz) {
@@ -72,18 +75,6 @@ public abstract class StreamUtil {
         return openStream(clazz, STORE_PROPERTIES);
     }
 
-    public static InputStream opAuths(final Class clazz) {
-        return openStream(clazz, OP_AUTHS);
-    }
-
-    public static InputStream opScores(final Class clazz) {
-        return openStream(clazz, OP_SCORES);
-    }
-
-    public static InputStream authScores(final Class clazz) {
-        return openStream(clazz, AUTH_SCORES);
-    }
-
     public static InputStream[] openStreams(final Class clazz, final String folderPath) {
         if (null == folderPath) {
             return new InputStream[0];
@@ -103,7 +94,7 @@ public abstract class StreamUtil {
                 .forEach(schemaFile -> {
                             try {
                                 schemas.add(openStream(clazz, schemaFile));
-                            } catch (Exception e) {
+                            } catch (final Exception e) {
                                 int closedStreamsCount = closeStreams(schemas.toArray(new InputStream[schemas.size()]));
                                 LOGGER.info(String.format("Closed %s input streams", closedStreamsCount));
                             }
@@ -172,11 +163,10 @@ public abstract class StreamUtil {
         throw new IllegalArgumentException(FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH + path);
     }
 
-    private static String formatPathForOpenStream(final String path) {
+    public static String formatPathForOpenStream(final String path) {
         if (StringUtils.isEmpty(path)) {
             processException(path);
         }
         return path.startsWith("/") ? path : "/" + path;
     }
-
 }

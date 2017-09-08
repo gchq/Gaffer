@@ -16,10 +16,12 @@
 package uk.gov.gchq.gaffer.doc.walkthrough;
 
 import org.apache.commons.io.IOUtils;
+
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.operation.OperationException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -56,7 +58,7 @@ public abstract class AbstractWalkthrough {
         storePropertiesLocation = "/mockaccumulostore.properties";
     }
 
-    public abstract Object run() throws OperationException, IOException;
+    public abstract Object run() throws Exception;
 
     protected String substituteParameters(final String walkthrough) {
         return substituteParameters(walkthrough, false);

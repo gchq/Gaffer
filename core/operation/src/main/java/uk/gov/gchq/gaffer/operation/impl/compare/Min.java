@@ -18,14 +18,17 @@ package uk.gov.gchq.gaffer.operation.impl.compare;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A <code>Min</code> operation is intended as a terminal operation for
@@ -51,6 +54,7 @@ public class Min implements
     private Iterable<? extends Element> input;
     @Required
     private List<Comparator<Element>> comparators;
+    private Map<String, String> options;
 
     @Override
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
@@ -75,6 +79,25 @@ public class Min implements
     @Override
     public TypeReference<Element> getOutputTypeReference() {
         return new TypeReferenceImpl.Element();
+    }
+
+    @Override
+    public Min shallowClone() {
+        return new Min.Builder()
+                .input(input)
+                .comparators(comparators)
+                .options(options)
+                .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static final class Builder

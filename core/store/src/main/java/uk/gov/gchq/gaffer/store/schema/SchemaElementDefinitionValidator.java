@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.store.schema;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -25,6 +26,7 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.signature.Signature;
 import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -58,6 +60,25 @@ public class SchemaElementDefinitionValidator {
         result.add(validateComponentTypes(elementDef));
         result.add(validateFunctionArgumentTypes(validator, elementDef));
         result.add(validateFunctionArgumentTypes(aggregator, elementDef));
+        result.add(validateRequiredParameters(elementDef));
+
+        return result;
+    }
+
+    protected ValidationResult validateRequiredParameters(final SchemaElementDefinition elementDef) {
+        final ValidationResult result = new ValidationResult();
+
+        if (elementDef instanceof SchemaEntityDefinition &&
+                (null == ((SchemaEntityDefinition) elementDef).getVertex())) {
+            result.addError("Entity vertex type is not defined.");
+        } else if (elementDef instanceof SchemaEdgeDefinition) {
+            if (null == ((SchemaEdgeDefinition) elementDef).getSource()) {
+                result.addError("Edge source type is not defined.");
+            }
+            if (null == ((SchemaEdgeDefinition) elementDef).getDestination()) {
+                result.addError("Edge destination type is not defined.");
+            }
+        }
 
         return result;
     }
