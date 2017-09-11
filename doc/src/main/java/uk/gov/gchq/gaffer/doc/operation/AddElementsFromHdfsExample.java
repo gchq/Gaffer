@@ -82,7 +82,7 @@ public class AddElementsFromHdfsExample extends OperationExample {
                     .build();
 
             final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
-                    .addinputMapperPair(inputPath, TextMapperGeneratorImpl.class.getName())
+                    .addInputMapperPair(inputPath, TextMapperGeneratorImpl.class.getName())
                     .outputPath(outputPath)
                     .failurePath(failurePath)
                     .splitsFilePath("/tmp/splits")
@@ -106,7 +106,7 @@ public class AddElementsFromHdfsExample extends OperationExample {
     public void addElementsFromHdfs() {
         // ---------------------------------------------------------
         final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
-                .addinputMapperPair("/path/to/input/fileOrFolder", TextMapperGeneratorImpl.class.getName())
+                .addInputMapperPair("/path/to/input/fileOrFolder", TextMapperGeneratorImpl.class.getName())
                 .outputPath("/path/to/output/folder")
                 .failurePath("/path/to/failure/folder")
                 .splitsFilePath("/path/to/splits/file")
@@ -130,7 +130,7 @@ public class AddElementsFromHdfsExample extends OperationExample {
 
         final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
                 .inputMapperPairs(inputMapperMap)
-                .addinputMapperPair("/path/to/third/inputFileOrFolder", TextMapperGeneratorImpl.class.getName())
+                .addInputMapperPair("/path/to/third/inputFileOrFolder", TextMapperGeneratorImpl.class.getName())
                 .outputPath("/path/to/output/folder")
                 .failurePath("/path/to/failure/folder")
                 .splitsFilePath("/path/to/splits/file")

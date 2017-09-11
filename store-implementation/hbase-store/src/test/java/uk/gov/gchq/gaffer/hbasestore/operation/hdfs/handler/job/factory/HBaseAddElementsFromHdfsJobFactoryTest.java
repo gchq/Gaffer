@@ -66,7 +66,7 @@ public class HBaseAddElementsFromHdfsJobFactoryTest {
         final HBaseAddElementsFromHdfsJobFactory factory = new HBaseAddElementsFromHdfsJobFactory();
         final Job job = mock(Job.class);
         final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
-                .addinputMapperPair(new Path(inputDir).toString(), TextMapperGeneratorImpl.class.getName())
+                .addInputMapperPair(new Path(inputDir).toString(), TextMapperGeneratorImpl.class.getName())
                 .outputPath(outputDir)
                 .failurePath(failureDir)
                 .jobInitialiser(new TextJobInitialiser())
