@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.traffic.generator;
 
 import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
@@ -45,7 +46,7 @@ import static uk.gov.gchq.gaffer.traffic.generator.RoadTrafficDataField.Region_N
 import static uk.gov.gchq.gaffer.traffic.generator.RoadTrafficDataField.Road;
 import static uk.gov.gchq.gaffer.traffic.generator.RoadTrafficDataField.dCount;
 
-public class RoadTrafficStringElementGenerator implements OneToManyElementGenerator<String> {
+public class RoadTrafficStringElementGenerator extends RoadTrafficElementGenerator<String> {
 
     @Override
     public Iterable<Element> _apply(final String line) {
@@ -144,41 +145,16 @@ public class RoadTrafficStringElementGenerator implements OneToManyElementGenera
     private FreqMap getVehicleCounts(final String[] fields) {
         final FreqMap freqMap = new FreqMap();
         for (final RoadTrafficDataField fieldName : RoadTrafficDataField.VEHICLE_COUNTS) {
-            freqMap.upsert(fieldName.name(), Long.parseLong(fields[fieldName.ordinal()]));
+            Long value;
+            try {
+                value = Long.parseLong(fields[fieldName.ordinal()]);
+            } catch (final ArrayIndexOutOfBoundsException e) {
+                value = 0L;
+            }
+
+            freqMap.upsert(fieldName.name(), value);
         }
         return freqMap;
-    }
-
-    private long getTotalCount(final FreqMap freqmap) {
-        long sum = 0;
-        for (final Long count : freqmap.values()) {
-            sum += count;
-        }
-
-        return sum;
-    }
-
-    private Date getDate(final String dCountString, final String hour) {
-        Date dCount = null;
-        try {
-            dCount = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(dCountString);
-        } catch (final ParseException e) {
-            // incorrect date format
-        }
-
-        if (null == dCount) {
-            try {
-                dCount = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(dCountString);
-            } catch (final ParseException e) {
-                // another incorrect date format
-            }
-        }
-
-        if (null == dCount) {
-            return null;
-        }
-
-        return DateUtils.addHours(dCount, Integer.parseInt(hour));
     }
 
     public static boolean isHeader(final String line) {
@@ -194,7 +170,7 @@ public class RoadTrafficStringElementGenerator implements OneToManyElementGenera
         final String trimStart = StringUtils.removeStart(line, "\"");
         final String trimEnd = StringUtils.removeEnd(trimStart, "\"");
         final String[] fields = trimEnd.split("\",\"");
-        if (fields.length != uk.gov.gchq.gaffer.traffic.generator.RoadTrafficDataField.values().length) {
+        if (fields.length != uk.gov.gchq.gaffer.traffic.generator.RoadTrafficDataField.values().length - 2) {
             return null;
         }
         return fields;
