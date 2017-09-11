@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.serialisation.implementation.ordered.datetime;
 
 import uk.gov.gchq.gaffer.serialisation.DelegateSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedLongSerialiser;
+
 import java.time.LocalDate;
 
 public class OrderedLocalDateSerialiser extends DelegateSerialiser<LocalDate, Long> {
