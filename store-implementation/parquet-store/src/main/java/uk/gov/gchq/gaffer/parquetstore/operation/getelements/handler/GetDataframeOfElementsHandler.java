@@ -23,6 +23,10 @@ import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.Authorisations;
+import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.ElementVisibility;
+import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.VisibilityEvaluator;
+import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.exception.VisibilityParseException;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
@@ -46,22 +50,44 @@ public class GetDataframeOfElementsHandler implements OutputOperationHandler<Get
                                     final Store store) throws OperationException {
         final User user = context.getUser();
         final SparkSession spark;
+        final Authorisations auths;
+
         if (user instanceof SparkUser) {
             spark = ((SparkUser) user).getSparkSession();
         } else {
             throw new OperationException("This operation requires the user to be of type SparkUser.");
         }
-        return doOperation(operation, (ParquetStore) store, spark);
 
+        if (user != null && user.getDataAuths() != null) {
+            auths = new Authorisations(user.getDataAuths().toArray(new String[user.getDataAuths().size()]));
+        } else {
+            auths = new Authorisations();
+        }
+
+        return doOperation(operation, (ParquetStore) store, spark, auths);
     }
 
     private Dataset<Row> doOperation(final GetDataFrameOfElements operation,
                                      final ParquetStore store,
-                                     final SparkSession spark) throws OperationException {
+                                     final SparkSession spark,
+                                     final Authorisations auths) throws OperationException {
+        final String visibility;
+        final FilterFunction<Row> filter;
         if (operation.getView().equals(store.getSchemaUtils().getEmptyView())) {
             LOGGER.debug("Retrieving elements as a dataframe");
             final String rootDir = store.getDataDir() + "/" + store.getGraphIndex().getSnapshotTimestamp() + "/";
-            FilterFunction<Row> filter = e -> 1 == 1;
+
+            if (store.getSchema().getVisibilityProperty() != null) {
+                visibility = store.getSchema().getVisibilityProperty();
+            } else {
+                visibility = new String();
+            }
+
+            if (!visibility.isEmpty()) {
+                filter = e -> isVisible(e, visibility, auths);
+            } else {
+                filter = e -> true;
+            }
             final Dataset<Row> dataset = spark
                     .read()
                     .option("mergeSchema", true)
@@ -71,6 +97,16 @@ public class GetDataframeOfElementsHandler implements OutputOperationHandler<Get
             return dataset;
         } else {
             throw new OperationException("Views are not supported by this operation yet");
+        }
+    }
+
+    private boolean isVisible(final Row e, final String visibility, final Authorisations auths) throws VisibilityParseException {
+        if (e.getAs(visibility) != null) {
+            final VisibilityEvaluator visibilityEvaluator = new VisibilityEvaluator(auths);
+            final ElementVisibility elementVisibility = new ElementVisibility((String) e.getAs(visibility));
+            return visibilityEvaluator.evaluate(elementVisibility);
+        } else {
+            return true;
         }
     }
 }

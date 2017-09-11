@@ -56,6 +56,7 @@ public class DataGen {
         entity.putProperty("date", date);
         entity.putProperty("freqMap", freqMap);
         entity.putProperty("count", count);
+        entity.putProperty(TestTypes.VISIBILITY, "A");
         return entity;
     }
 
@@ -72,6 +73,7 @@ public class DataGen {
         edge.putProperty("date", date);
         edge.putProperty("freqMap", freqMap);
         edge.putProperty("count", count);
+        edge.putProperty(TestTypes.VISIBILITY, "A");
         return edge;
     }
 
@@ -99,6 +101,7 @@ public class DataGen {
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects("date", date)));
         list.add(map);
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects("count", 1)));
+        list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects(TestTypes.VISIBILITY, "A")));
 
         final Object[] objects = new Object[list.size()];
         list.toArray(objects);
@@ -132,6 +135,7 @@ public class DataGen {
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects("date", date)));
         list.add(map);
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects("count", 1)));
+        list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects(TestTypes.VISIBILITY, "A")));
 
         final Object[] objects = new Object[list.size()];
         list.toArray(objects);
@@ -262,9 +266,6 @@ public class DataGen {
 
     public static JavaRDD<Element> generate300LongElementsRDD(final JavaSparkContext spark) {
         final List<Element> elements = generate300LongElements();
-        for (Element e : elements) {
-            e.putProperty(TestTypes.VISIBILITY, "A,B,C");
-        }
         return spark.parallelize(elements);
     }
 

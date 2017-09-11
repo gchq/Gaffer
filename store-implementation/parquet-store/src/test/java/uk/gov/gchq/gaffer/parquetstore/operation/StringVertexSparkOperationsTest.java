@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
@@ -73,6 +74,7 @@ public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest
         expectedColumns.add(ParquetStoreConstants.SOURCE);
         expectedColumns.add(ParquetStoreConstants.DESTINATION);
         expectedColumns.add(ParquetStoreConstants.DIRECTED);
+        expectedColumns.add(TestTypes.VISIBILITY);
         expectedColumns.add("byte");
         expectedColumns.add("double");
         expectedColumns.add("float");
