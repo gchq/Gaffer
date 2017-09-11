@@ -16,9 +16,11 @@
 package uk.gov.gchq.gaffer.mapstore;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;

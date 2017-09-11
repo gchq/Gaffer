@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.doc.user.walkthrough;
 
 import com.google.common.collect.Iterables;
 import org.apache.commons.io.IOUtils;
+
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -32,6 +33,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.traffic.transform.DescriptionTransform;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +63,7 @@ public class Transforms extends UserWalkthrough {
         // [graph] Create a graph using our schema and store properties
         // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
-                .graphId("graph1")
+                .config(StreamUtil.graphConfig(getClass()))
                 .addSchemas(StreamUtil.openStreams(getClass(), "RoadAndRoadUse/schema"))
                 .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();
@@ -126,7 +128,28 @@ public class Transforms extends UserWalkthrough {
             log("GET_ELEMENTS_WITH_DESCRIPTION_RESULT", e.toString());
         }
 
-        return resultsWithDescription;
+
+        // [get with no count]
+        // ---------------------------------------------------------
+        final View viewWithExcludedProperties = new View.Builder()
+                .edge("RoadUse", new ViewElementDefinition.Builder()
+                        .transientProperty("description", String.class)
+                        .transformer(descriptionTransformer)
+                        .excludeProperties("count")
+                        .build())
+                .build();
+        final GetElements getEdgesWithDescriptionAndNoCount = new GetElements.Builder()
+                .input(new EntitySeed("10"))
+                .view(viewWithExcludedProperties)
+                .build();
+        final CloseableIterable<? extends Element> resultsWithDescriptionAndNoCount = graph.execute(getEdgesWithDescriptionAndNoCount, user);
+        // ---------------------------------------------------------
+        log("\nAnd the result without the count property:\n");
+        for (final Element e : resultsWithDescriptionAndNoCount) {
+            log("GET_ELEMENTS_WITH_DESCRIPTION_AND_NO_COUNT_RESULT", e.toString());
+        }
+
+        return resultsWithDescriptionAndNoCount;
     }
 
     public static void main(final String[] args) throws OperationException, IOException {

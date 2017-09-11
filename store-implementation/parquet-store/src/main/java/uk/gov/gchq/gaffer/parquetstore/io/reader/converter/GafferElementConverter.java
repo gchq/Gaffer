@@ -21,12 +21,18 @@ import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
+
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This class is used by the {@link uk.gov.gchq.gaffer.parquetstore.io.reader.ElementRecordMaterialiser} to materialises
+ * each element based on the objects added to the 'parquetColumnToObject' field by the {@link PrimitiveConverter}'s.
+ */
 public class GafferElementConverter extends GroupConverter {
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferElementConverter.class);
     private final boolean isEntity;

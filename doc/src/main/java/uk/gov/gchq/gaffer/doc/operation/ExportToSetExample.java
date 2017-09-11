@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.operation.impl.export.GetExports;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+
 import java.util.Map;
 
 public class ExportToSetExample extends OperationExample {

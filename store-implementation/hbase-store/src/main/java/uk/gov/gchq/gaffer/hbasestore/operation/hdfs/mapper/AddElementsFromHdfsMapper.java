@@ -17,10 +17,12 @@ package uk.gov.gchq.gaffer.hbasestore.operation.hdfs.mapper;
 
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
+
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.GafferMapper;
+
 import java.io.IOException;
 
 public class AddElementsFromHdfsMapper<KEY_IN, VALUE_IN>

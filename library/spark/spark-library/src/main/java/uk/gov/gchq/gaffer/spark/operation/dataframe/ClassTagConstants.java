@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.spark.operation.dataframe;
 import org.apache.spark.sql.Row;
 import scala.reflect.ClassTag;
 import scala.reflect.ClassTag$;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 
 /**

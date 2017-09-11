@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.mapstore.multimap.MultiMap;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.util.AggregatorUtil;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -246,7 +247,7 @@ public class MapImpl {
         } else {
             try {
                 mapFactory = Class.forName(factoryClass).asSubclass(MapFactory.class).newInstance();
-            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
                 throw new IllegalArgumentException("MapFactory is invalid: " + factoryClass, e);
             }
         }
@@ -258,7 +259,7 @@ public class MapImpl {
     private void addToGroupByMap(final String group) {
         final SchemaElementDefinition sed = schema.getElement(group);
         groupToGroupByProperties.put(group, sed.getGroupBy());
-        if (null == sed.getGroupBy() || sed.getGroupBy().isEmpty() || !aggregatedGroups.contains(group)) {
+        if (!aggregatedGroups.contains(group)) {
             groupsWithNoAggregation.add(group);
         }
         final Set<String> nonGroupByProperties = new HashSet<>(sed.getProperties());

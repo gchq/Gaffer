@@ -16,18 +16,17 @@
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
-import org.apache.spark.SparkConf;
-import org.apache.spark.SparkContext;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Row$;
-import org.apache.spark.sql.SQLContext;
+import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.DataTypes;
 import org.junit.Test;
 import scala.collection.mutable.Map;
 import scala.collection.mutable.Map$;
 import scala.collection.mutable.MutableList;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -36,15 +35,17 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.spark.SparkConstants;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.ConversionException;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.SparkSessionProvider;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -71,11 +72,11 @@ public class GetDataFrameOfElementsHandlerTest {
     @Test
     public void checkGetCorrectElementsInDataFrame() throws OperationException {
         final Graph graph = getGraph("/schema-DataFrame/elements.json", getElements());
-        final SQLContext sqlContext = getSqlContext("checkGetCorrectElementsInDataFrame");
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         // Edges group - check get correct edges
         GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
-                .sqlContext(sqlContext)
+                .sparkSession(sparkSession)
                 .view(new View.Builder().edge(EDGE_GROUP).build())
                 .build();
         Dataset<Row> dataFrame = graph.execute(dfOperation, new User());
@@ -109,7 +110,7 @@ public class GetDataFrameOfElementsHandlerTest {
 
         // Entities group - check get correct entities
         dfOperation = new GetDataFrameOfElements.Builder()
-                .sqlContext(sqlContext)
+                .sparkSession(sparkSession)
                 .view(new View.Builder().entity(ENTITY_GROUP).build())
                 .build();
         dataFrame = graph.execute(dfOperation, new User());
@@ -130,18 +131,16 @@ public class GetDataFrameOfElementsHandlerTest {
             expectedRows.add(Row$.MODULE$.fromSeq(fields1));
         }
         assertEquals(expectedRows, results);
-
-        sqlContext.sparkContext().stop();
     }
 
     @Test
     public void checkGetCorrectElementsInDataFrameMultipleGroups() throws OperationException {
         final Graph graph = getGraph("/schema-DataFrame/elements.json", getElements());
-        final SQLContext sqlContext = getSqlContext("checkGetCorrectElementsInDataFrameMultipleGroups");
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         // Use entity and edges group - check get correct data
         GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
-                .sqlContext(sqlContext)
+                .sparkSession(sparkSession)
                 .view(new View.Builder().entity(ENTITY_GROUP).edge(EDGE_GROUP).build())
                 .build();
         Dataset<Row> dataFrame = graph.execute(dfOperation, new User());
@@ -189,7 +188,7 @@ public class GetDataFrameOfElementsHandlerTest {
 
         // Entities group - check get correct entities
         dfOperation = new GetDataFrameOfElements.Builder()
-                .sqlContext(sqlContext)
+                .sparkSession(sparkSession)
                 .view(new View.Builder().entity(ENTITY_GROUP).build())
                 .build();
         dataFrame = graph.execute(dfOperation, new User());
@@ -210,18 +209,16 @@ public class GetDataFrameOfElementsHandlerTest {
             expectedRows.add(Row$.MODULE$.fromSeq(fields1));
         }
         assertEquals(expectedRows, results);
-
-        sqlContext.sparkContext().stop();
     }
 
     @Test
     public void checkGetCorrectElementsInDataFrameWithProjection() throws OperationException {
         final Graph graph = getGraph("/schema-DataFrame/elements.json", getElements());
-        final SQLContext sqlContext = getSqlContext("checkGetCorrectElementsInDataFrameWithProjection");
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         // Get all edges
         final GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
-                .sqlContext(sqlContext)
+                .sparkSession(sparkSession)
                 .view(new View.Builder().edge(EDGE_GROUP).build())
                 .build();
         final Dataset<Row> dataFrame = graph.execute(dfOperation, new User());
@@ -255,18 +252,16 @@ public class GetDataFrameOfElementsHandlerTest {
             expectedRows.add(Row$.MODULE$.fromSeq(fields2));
         }
         assertEquals(expectedRows, results);
-
-        sqlContext.sparkContext().stop();
     }
 
     @Test
     public void checkGetCorrectElementsInDataFrameWithProjectionAndFiltering() throws OperationException {
         final Graph graph = getGraph("/schema-DataFrame/elements.json", getElements());
-        final SQLContext sqlContext = getSqlContext("checkGetCorrectElementsInDataFrameWithProjectionAndFiltering");
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         // Get DataFrame
         final GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
-                .sqlContext(sqlContext)
+                .sparkSession(sparkSession)
                 .view(new View.Builder().edge(EDGE_GROUP).build())
                 .build();
         final Dataset<Row> dataFrame = graph.execute(dfOperation, new User());
@@ -299,18 +294,16 @@ public class GetDataFrameOfElementsHandlerTest {
             expectedRows.add(Row$.MODULE$.fromSeq(fields));
         }
         assertEquals(expectedRows, results);
-
-        sqlContext.sparkContext().stop();
     }
 
     @Test
     public void checkGetExceptionIfIncompatibleSchemas() throws OperationException {
         final Graph graph = getGraph("/schema-DataFrame/elementsIncompatible.json", Collections.<Element>emptyList());
-        final SQLContext sqlContext = getSqlContext("checkGetExceptionIfIncompatibleSchemas");
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         // Use entity and edges group - check get correct data
         final GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
-                .sqlContext(sqlContext)
+                .sparkSession(sparkSession)
                 .view(new View.Builder().entity(ENTITY_GROUP).edge(EDGE_GROUP).build())
                 .build();
         // NB Catch the exception rather than using expected annotation on test to ensure that the SparkContext
@@ -321,17 +314,16 @@ public class GetDataFrameOfElementsHandlerTest {
         } catch (final IllegalArgumentException e) {
             // Expected
         }
-        sqlContext.sparkContext().stop();
     }
 
     @Test
     public void checkCanDealWithNonStandardProperties() throws OperationException {
         final Graph graph = getGraph("/schema-DataFrame/elementsNonstandardTypes.json", getElementsWithNonStandardProperties());
-        final SQLContext sqlContext = getSqlContext("checkCanDealWithNonStandardProperties");
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         // Edges group - check get correct edges
         GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
-                .sqlContext(sqlContext)
+                .sparkSession(sparkSession)
                 .view(new View.Builder().edge(EDGE_GROUP).build())
                 .build();
         Dataset<Row> dataFrame = graph.execute(dfOperation, new User());
@@ -354,7 +346,7 @@ public class GetDataFrameOfElementsHandlerTest {
 
         // Entities group - check get correct entities
         dfOperation = new GetDataFrameOfElements.Builder()
-                .sqlContext(sqlContext)
+                .sparkSession(sparkSession)
                 .view(new View.Builder().entity(ENTITY_GROUP).build())
                 .build();
         dataFrame = graph.execute(dfOperation, new User());
@@ -373,20 +365,18 @@ public class GetDataFrameOfElementsHandlerTest {
         fields1.appendElem(hllpp2.cardinality());
         expectedRows.add(Row$.MODULE$.fromSeq(fields1));
         assertEquals(expectedRows, results);
-
-        sqlContext.sparkContext().stop();
     }
 
     @Test
     public void checkCanDealWithUserDefinedConversion() throws OperationException {
         final Graph graph = getGraph("/schema-DataFrame/elementsUserDefinedConversion.json", getElementsForUserDefinedConversion());
-        final SQLContext sqlContext = getSqlContext("checkCanDealWithUserDefinedConversion");
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         // Edges group - check get correct edges
         final List<Converter> converters = new ArrayList<>();
         converters.add(new MyPropertyConverter());
         GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
-                .sqlContext(sqlContext)
+                .sparkSession(sparkSession)
                 .view(new View.Builder().edge(EDGE_GROUP).build())
                 .converters(converters)
                 .build();
@@ -411,7 +401,7 @@ public class GetDataFrameOfElementsHandlerTest {
 
         // Entities group - check get correct entities
         dfOperation = new GetDataFrameOfElements.Builder()
-                .sqlContext(sqlContext)
+                .sparkSession(sparkSession)
                 .view(new View.Builder().entity(ENTITY_GROUP).build())
                 .converters(converters)
                 .build();
@@ -432,18 +422,16 @@ public class GetDataFrameOfElementsHandlerTest {
         fields1.appendElem(10);
         expectedRows.add(Row$.MODULE$.fromSeq(fields1));
         assertEquals(expectedRows, results);
-
-        sqlContext.sparkContext().stop();
     }
 
     @Test
     public void checkViewIsRespected() throws OperationException {
         final Graph graph = getGraph("/schema-DataFrame/elements.json", getElements());
-        final SQLContext sqlContext = getSqlContext("checkViewIsRespected");
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         // Edges group - check get correct edges
         GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
-                .sqlContext(sqlContext)
+                .sparkSession(sparkSession)
                 .view(new View.Builder()
                         .edge(EDGE_GROUP, new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
@@ -475,7 +463,7 @@ public class GetDataFrameOfElementsHandlerTest {
 
         // Entities group - check get correct entities
         dfOperation = new GetDataFrameOfElements.Builder()
-                .sqlContext(sqlContext)
+                .sparkSession(sparkSession)
                 .view(new View.Builder()
                         .entity(ENTITY_GROUP, new ViewElementDefinition.Builder()
                                 .postAggregationFilter(new ElementFilter.Builder()
@@ -503,29 +491,19 @@ public class GetDataFrameOfElementsHandlerTest {
             expectedRows.add(Row$.MODULE$.fromSeq(fields1));
         }
         assertEquals(expectedRows, results);
-
-        sqlContext.sparkContext().stop();
     }
 
     private Graph getGraph(final String elementsSchema, final List<Element> elements) throws OperationException {
         final Graph graph = new Graph.Builder()
-                .graphId("graphId")
+                .config(new GraphConfig.Builder()
+                        .graphId("graphId")
+                        .build())
                 .addSchema(getClass().getResourceAsStream(elementsSchema))
                 .addSchema(getClass().getResourceAsStream("/schema-DataFrame/types.json"))
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
                 .build();
         graph.execute(new AddElements.Builder().input(elements).build(), new User());
         return graph;
-    }
-
-    private SQLContext getSqlContext(final String appName) {
-        final SparkConf sparkConf = new SparkConf()
-                .setMaster("local")
-                .setAppName(appName)
-                .set(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
-                .set(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
-                .set(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true");
-        return new SQLContext(new SparkContext(sparkConf));
     }
 
     static List<Element> getElements() {

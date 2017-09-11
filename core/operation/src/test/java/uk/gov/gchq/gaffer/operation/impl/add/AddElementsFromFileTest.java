@@ -18,23 +18,23 @@ package uk.gov.gchq.gaffer.operation.impl.add;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Sets;
-import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
+import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
+
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
-public class AddElementsFromFileTest extends OperationTest {
-    @Override
-    protected Class<? extends Operation> getOperationClass() {
-        return AddElementsFromFile.class;
-    }
+public class AddElementsFromFileTest extends OperationTest<AddElementsFromFile> {
 
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException, JsonProcessingException {
+    @Test
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException, JsonProcessingException {
         // Given
         final boolean validate = true;
         final boolean skipInvalid = false;
@@ -50,8 +50,8 @@ public class AddElementsFromFileTest extends OperationTest {
                 .build();
 
         // When
-        final byte[] json = JSON_SERIALISER.serialise(op, true);
-        final AddElementsFromFile deserialisedOp = JSON_SERIALISER.deserialise(json, AddElementsFromFile.class);
+        final byte[] json = JSONSerialiser.serialise(op, true);
+        final AddElementsFromFile deserialisedOp = JSONSerialiser.deserialise(json, AddElementsFromFile.class);
 
         // Then
         JsonAssert.assertEquals(String.format("{%n" +
@@ -97,7 +97,39 @@ public class AddElementsFromFileTest extends OperationTest {
     }
 
     @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final String filename = "filename";
+        final Class<TestGeneratorImpl> generator = TestGeneratorImpl.class;
+        final AddElementsFromFile addElementsFromFile = new AddElementsFromFile.Builder()
+                .filename(filename)
+                .generator(generator)
+                .parallelism(2)
+                .validate(true)
+                .skipInvalidElements(false)
+                .option("testOption", "true")
+                .build();
+
+        // When
+        AddElementsFromFile clone = addElementsFromFile.shallowClone();
+
+        // Then
+        assertNotSame(addElementsFromFile, clone);
+        assertEquals(true, clone.isValidate());
+        assertEquals(false, clone.isSkipInvalidElements());
+        assertEquals(filename, clone.getFilename());
+        assertEquals(2, (int) clone.getParallelism());
+        assertEquals(generator, clone.getElementGenerator());
+        assertEquals("true", clone.getOption("testOption"));
+    }
+
+    @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet("filename", "elementGenerator");
+    }
+
+    @Override
+    protected AddElementsFromFile getTestObject() {
+        return new AddElementsFromFile();
     }
 }

@@ -16,11 +16,13 @@
 
 package uk.gov.gchq.gaffer.data.element.id;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
+@JsonFilter("filterFieldsByName")
 public interface EdgeId extends ElementId {
     enum MatchedVertex {
         SOURCE,

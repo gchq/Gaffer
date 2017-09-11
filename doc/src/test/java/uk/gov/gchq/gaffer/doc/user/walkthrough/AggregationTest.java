@@ -19,10 +19,12 @@ package uk.gov.gchq.gaffer.doc.user.walkthrough;
 import com.google.common.collect.Lists;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -50,9 +52,9 @@ public class AggregationTest {
                         .dest("11")
                         .directed(true)
                         .group("RoadUse")
-                        .property("count", 2L)
+                        .property("count", 1L)
                         .property("startDate", Aggregation.MAY_01_2000)
-                        .property("endDate", new Date(Aggregation.MAY_02_2000.getTime() - 1))
+                        .property("endDate", new Date(Aggregation.MAY_03_2000.getTime() - 1))
                         .build()
         };
 

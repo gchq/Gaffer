@@ -25,7 +25,9 @@ import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
+import uk.gov.gchq.gaffer.commonutil.PropertiesUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.iterable.TransformIterable;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
@@ -39,6 +41,7 @@ import uk.gov.gchq.koryphe.impl.predicate.IsA;
 import uk.gov.gchq.koryphe.tuple.Tuple;
 import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -65,7 +68,8 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     private final SchemaElementDefinitionValidator elementDefValidator;
 
     /**
-     * Property map of property name to accepted type.
+     * Map of property name to accepted type name.
+     * The type name relates to the types part of the schema
      */
     protected Map<String, String> properties;
 
@@ -249,40 +253,57 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     }
 
     @JsonIgnore
-    public ElementAggregator getQueryAggregator(final Set<String> viewGroupBy) {
-        ElementAggregator queryAggregatorCache = queryAggregatorCacheMap.get(viewGroupBy);
-        if (null == queryAggregatorCache) {
-            queryAggregatorCache = new ElementAggregator();
+    public ElementAggregator getQueryAggregator(final Set<String> viewGroupBy, final ElementAggregator viewAggregator) {
+        ElementAggregator queryAggregator = null;
+        if (null == viewAggregator) {
+            queryAggregator = queryAggregatorCacheMap.get(viewGroupBy);
+        }
+
+        if (null == queryAggregator) {
+            queryAggregator = new ElementAggregator();
             if (aggregate) {
                 final Set<String> mergedGroupBy = null == viewGroupBy ? groupBy : viewGroupBy;
+                final Set<String> viewAggregatorProps;
+                if (null == viewAggregator) {
+                    viewAggregatorProps = Collections.emptySet();
+                } else {
+                    viewAggregatorProps = new HashSet<>(getPropertyMap().size() - mergedGroupBy.size());
+                    for (final TupleAdaptedBinaryOperator<String, ?> component : viewAggregator.getComponents()) {
+                        Collections.addAll(viewAggregatorProps, component.getSelection());
+                        queryAggregator.getComponents().add(component);
+                    }
+                }
                 if (null == aggregator) {
                     for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
-                        if (!mergedGroupBy.contains(entry.getKey())) {
-                            addTypeAggregateFunction(queryAggregatorCache, entry.getKey(), entry.getValue());
+                        if (!mergedGroupBy.contains(entry.getKey()) && !viewAggregatorProps.contains(entry.getKey())) {
+                            addTypeAggregateFunction(queryAggregator, entry.getKey(), entry.getValue());
                         }
                     }
                 } else {
                     for (final TupleAdaptedBinaryOperator<String, ?> component : aggregator.getComponents()) {
                         final String[] selection = component.getSelection();
-                        if (selection.length == 1 && !mergedGroupBy.contains(selection[0])) {
-                            queryAggregatorCache.getComponents().add(component);
-                        } else if (CollectionUtil.anyMissing(mergedGroupBy, selection)) {
-                            queryAggregatorCache.getComponents().add(component);
+                        if (selection.length == 1 && !mergedGroupBy.contains(selection[0]) && !viewAggregatorProps.contains(selection[0])) {
+                            queryAggregator.getComponents().add(component);
+                        } else if (CollectionUtil.anyMissing(mergedGroupBy, selection) && CollectionUtil.anyMissing(viewAggregatorProps, selection)) {
+                            queryAggregator.getComponents().add(component);
                         }
                     }
                     final Set<String> aggregatorProperties = getAggregatorProperties();
                     for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
-                        if (!mergedGroupBy.contains(entry.getKey()) && !aggregatorProperties.contains(entry.getKey())) {
-                            addTypeAggregateFunction(queryAggregatorCache, entry.getKey(), entry.getValue());
+                        if (!mergedGroupBy.contains(entry.getKey()) && !viewAggregatorProps.contains(entry.getKey()) && !aggregatorProperties.contains(entry.getKey())) {
+                            addTypeAggregateFunction(queryAggregator, entry.getKey(), entry.getValue());
                         }
                     }
                 }
             }
-            queryAggregatorCache.lock();
-            queryAggregatorCacheMap.put(viewGroupBy, queryAggregatorCache);
+            queryAggregator.lock();
+            // Don't cache the aggregator if a view aggregator has been provided
+            if (null == viewAggregator) {
+                queryAggregatorCacheMap.put(viewGroupBy, queryAggregator);
+            }
         }
 
-        return queryAggregatorCache;
+        return queryAggregator;
     }
 
     /**
@@ -463,16 +484,16 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
 
-        final SchemaElementDefinition that = (SchemaElementDefinition) o;
+        final SchemaElementDefinition that = (SchemaElementDefinition) obj;
 
         return new EqualsBuilder()
                 .append(elementDefValidator, that.elementDefValidator)
@@ -486,7 +507,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
+        return new HashCodeBuilder(73, 41)
                 .append(elementDefValidator)
                 .append(properties)
                 .append(identifiers)
@@ -707,6 +728,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         }
 
         public ELEMENT_DEF build() {
+            elDef.getProperties().forEach(PropertiesUtil::validateName);
             elDef.lock();
             return elDef;
         }

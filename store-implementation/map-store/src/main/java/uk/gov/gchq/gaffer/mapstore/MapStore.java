@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.mapstore;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -40,6 +41,7 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -58,27 +60,32 @@ import java.util.Set;
  * </p>
  */
 public class MapStore extends Store {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MapStore.class);
     public static final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(
             StoreTrait.INGEST_AGGREGATION,
             StoreTrait.PRE_AGGREGATION_FILTERING,
             StoreTrait.POST_AGGREGATION_FILTERING,
             StoreTrait.TRANSFORMATION,
             StoreTrait.POST_TRANSFORMATION_FILTERING));
+    private static final Logger LOGGER = LoggerFactory.getLogger(MapStore.class);
+    private static MapImpl staticMapImpl;
     private MapImpl mapImpl;
+
+    public static void resetStaticMap() {
+        staticMapImpl = null;
+    }
 
     @Override
     public void initialise(final String graphId, final Schema schema, final StoreProperties storeProperties) throws StoreException {
         if (!(storeProperties instanceof MapStoreProperties)) {
-            throw new StoreException("storeProperties must be an instance of " + MapStoreProperties.class.getName());
+            throw new StoreException("storeProperties must be an instance of " + MapStoreProperties.class.getName()
+                    + ". found: " + storeProperties.getClass().getSimpleName());
         }
         // Initialise store
         final MapStoreProperties mapStoreProperties = (MapStoreProperties) storeProperties;
         super.initialise(graphId, schema, mapStoreProperties);
 
         // Initialise maps
-        mapImpl = new MapImpl(getSchema(), getProperties());
-        LOGGER.debug("Initialised MapStore");
+        mapImpl = createMapImpl();
     }
 
     public MapImpl getMapImpl() {
@@ -94,6 +101,19 @@ public class MapStore extends Store {
     @Override
     public MapStoreProperties getProperties() {
         return (MapStoreProperties) super.getProperties();
+    }
+
+    protected MapImpl createMapImpl() {
+        if (getProperties().isStaticMap()) {
+            LOGGER.debug("Using static map");
+            if (null == staticMapImpl) {
+                staticMapImpl = new MapImpl(getSchema(), getProperties());
+            }
+
+            return staticMapImpl;
+        }
+
+        return new MapImpl(getSchema(), getProperties());
     }
 
     @Override

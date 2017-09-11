@@ -15,8 +15,7 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.StreamIterable;
-import uk.gov.gchq.gaffer.commonutil.stream.Streams;
+import uk.gov.gchq.gaffer.commonutil.iterable.StreamFlatMapIterable;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -26,6 +25,7 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToVertices.EdgeVertices;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -37,8 +37,7 @@ public class ToVerticesHandler implements OutputOperationHandler<ToVertices, Ite
             return null;
         }
 
-        return new StreamIterable<>(Streams.toStream(operation.getInput())
-                .flatMap(elementIdsToVertices(operation)));
+        return new StreamFlatMapIterable<>(operation.getInput(), elementIdsToVertices(operation));
     }
 
     private Function<ElementId, Stream<Object>> elementIdsToVertices(final ToVertices operation) {

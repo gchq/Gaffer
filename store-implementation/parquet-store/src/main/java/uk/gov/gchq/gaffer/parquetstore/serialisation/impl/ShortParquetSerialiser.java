@@ -19,6 +19,10 @@ package uk.gov.gchq.gaffer.parquetstore.serialisation.impl;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
 
+/**
+ * This class is used to serialise and de-serialise a {@link Short} value for use by the
+ * {@link uk.gov.gchq.gaffer.parquetstore.ParquetStore}.
+ */
 public class ShortParquetSerialiser implements ParquetSerialiser<Short> {
     private static final long serialVersionUID = 2058053964286187588L;
 
@@ -56,6 +60,11 @@ public class ShortParquetSerialiser implements ParquetSerialiser<Short> {
 
     @Override
     public boolean preservesObjectOrdering() {
+        return true;
+    }
+
+    @Override
+    public boolean isConsistent() {
         return true;
     }
 

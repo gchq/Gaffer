@@ -70,10 +70,10 @@
     "hllp": {
       "class": "com.clearspring.analytics.stream.cardinality.HyperLogLogPlus",
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.sketches.binaryoperator.HyperLogLogPlusAggregator"
+        "class": "uk.gov.gchq.gaffer.sketches.clearspring.cardinality.binaryoperator.HyperLogLogPlusAggregator"
       },
       "serialiser": {
-        "class": "uk.gov.gchq.gaffer.sketches.serialisation.HyperLogLogPlusSerialiser"
+        "class": "uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.HyperLogLogPlusSerialiser"
       }
     }
   }

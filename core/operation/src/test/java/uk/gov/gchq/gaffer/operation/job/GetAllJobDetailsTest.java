@@ -17,46 +17,42 @@
 package uk.gov.gchq.gaffer.operation.job;
 
 import org.junit.Test;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
+
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 
 
-public class GetAllJobDetailsTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return GetAllJobDetails.class;
-    }
-
-    @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
-        // Given
-        final GetAllJobDetails operation = new GetAllJobDetails.Builder()
-                .build();
-
-        // When
-        byte[] json = serialiser.serialise(operation, true);
-        final GetAllJobDetails deserialisedOp = serialiser.deserialise(json, GetAllJobDetails.class);
-
-        // Then
-        assertNotNull(deserialisedOp);
-    }
+public class GetAllJobDetailsTest extends OperationTest<GetAllJobDetails> {
 
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // When
-        final GetAllJobDetails op = new GetAllJobDetails.Builder()
-                .build();
+        final GetAllJobDetails op = getTestObject();
 
         // Then
         assertNotNull(op);
+    }
+
+    @Override
+    protected GetAllJobDetails getTestObject() {
+        return new GetAllJobDetails.Builder().build();
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final GetAllJobDetails getAllJobDetails = new GetAllJobDetails.Builder()
+                .build();
+
+        // When
+        GetAllJobDetails clone = getAllJobDetails.shallowClone();
+
+        // Then
+        assertNotSame(getAllJobDetails, clone);
+        assertNotNull(clone);
     }
 }

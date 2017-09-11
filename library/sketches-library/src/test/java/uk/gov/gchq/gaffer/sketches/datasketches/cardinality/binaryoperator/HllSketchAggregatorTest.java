@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.binaryoperator;
 import com.yahoo.sketches.hll.HllSketch;
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -65,14 +66,14 @@ public class HllSketchAggregatorTest extends BinaryOperatorTest {
         final HllSketchAggregator aggregator = new HllSketchAggregator();
 
         // When 1
-        final String json = new String(new JSONSerialiser().serialise(aggregator, true));
+        final String json = new String(JSONSerialiser.serialise(aggregator, true));
         // Then 1
         JsonUtil.equals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.cardinality.binaryoperator.HllSketchAggregator\"%n" +
                 "}"), json);
 
         // When 2
-        final HllSketchAggregator deserialisedAggregator = new JSONSerialiser()
+        final HllSketchAggregator deserialisedAggregator = JSONSerialiser
                 .deserialise(json.getBytes(), HllSketchAggregator.class);
         // Then 2
         assertNotNull(deserialisedAggregator);

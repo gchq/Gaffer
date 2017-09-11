@@ -16,19 +16,20 @@
 package uk.gov.gchq.gaffer.spark.operation.scalardd;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
+import org.apache.spark.sql.SparkSession;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
+
 import java.util.Map;
 
 public class GetRDDOfElements implements
@@ -36,12 +37,11 @@ public class GetRDDOfElements implements
         InputOutput<Iterable<? extends ElementId>, RDD<Element>>,
         MultiInput<ElementId>,
         SeededGraphFilters,
-        Rdd,
-        Options {
+        Rdd {
 
     private Map<String, String> options;
     @Required
-    private SparkContext sparkContext;
+    private SparkSession sparkSession;
     private Iterable<? extends ElementId> input;
     private IncludeIncomingOutgoingType inOutType;
     private View view;
@@ -50,8 +50,8 @@ public class GetRDDOfElements implements
     public GetRDDOfElements() {
     }
 
-    public GetRDDOfElements(final SparkContext sparkContext) {
-        setSparkContext(sparkContext);
+    public GetRDDOfElements(final SparkSession sparkSession) {
+        setSparkSession(sparkSession);
     }
 
     @Override
@@ -70,13 +70,13 @@ public class GetRDDOfElements implements
     }
 
     @Override
-    public SparkContext getSparkContext() {
-        return sparkContext;
+    public SparkSession getSparkSession() {
+        return sparkSession;
     }
 
     @Override
-    public void setSparkContext(final SparkContext sparkContext) {
-        this.sparkContext = sparkContext;
+    public void setSparkSession(final SparkSession sparkSession) {
+        this.sparkSession = sparkSession;
     }
 
     @Override
@@ -119,12 +119,23 @@ public class GetRDDOfElements implements
         this.directedType = directedType;
     }
 
+    @Override
+    public GetRDDOfElements shallowClone() {
+        return new GetRDDOfElements.Builder()
+                .options(options)
+                .sparkSession(sparkSession)
+                .input(input)
+                .inOutType(inOutType)
+                .view(view)
+                .directedType(directedType)
+                .build();
+    }
+
     public static class Builder extends Operation.BaseBuilder<GetRDDOfElements, Builder>
             implements InputOutput.Builder<GetRDDOfElements, Iterable<? extends ElementId>, RDD<Element>, Builder>,
             MultiInput.Builder<GetRDDOfElements, ElementId, Builder>,
             SeededGraphFilters.Builder<GetRDDOfElements, Builder>,
-            Rdd.Builder<GetRDDOfElements, Builder>,
-            Options.Builder<GetRDDOfElements, Builder> {
+            Rdd.Builder<GetRDDOfElements, Builder> {
         public Builder() {
             super(new GetRDDOfElements());
         }

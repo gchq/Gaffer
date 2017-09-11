@@ -17,11 +17,17 @@
 package uk.gov.gchq.gaffer.parquetstore.serialisation.impl;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
 
 import java.io.IOException;
 
+/**
+ * This class is used to serialise and de-serialise a {@link HyperLogLogPlus} value for use by the
+ * {@link uk.gov.gchq.gaffer.parquetstore.ParquetStore}, storing the sketch as a {@link byte[]} and the cardinality as a
+ * {@link long} as a nested group containing two columns.
+ */
 public class NestedHyperLogLogPlusParquetSerialiser implements ParquetSerialiser<HyperLogLogPlus> {
     private static final long serialVersionUID = -8284005451029455563L;
 
@@ -69,6 +75,11 @@ public class NestedHyperLogLogPlusParquetSerialiser implements ParquetSerialiser
 
     @Override
     public boolean preservesObjectOrdering() {
+        return false;
+    }
+
+    @Override
+    public boolean isConsistent() {
         return false;
     }
 

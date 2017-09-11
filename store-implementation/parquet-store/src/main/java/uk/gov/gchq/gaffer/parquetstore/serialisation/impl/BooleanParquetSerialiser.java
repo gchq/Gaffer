@@ -19,6 +19,10 @@ package uk.gov.gchq.gaffer.parquetstore.serialisation.impl;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
 
+/**
+ * This class is used to serialise and de-serialise a {@link Boolean} value for use by the
+ * {@link uk.gov.gchq.gaffer.parquetstore.ParquetStore}.
+ */
 public class BooleanParquetSerialiser implements ParquetSerialiser<Boolean> {
     private static final long serialVersionUID = -940386367544733514L;
 
@@ -62,5 +66,10 @@ public class BooleanParquetSerialiser implements ParquetSerialiser<Boolean> {
     @Override
     public boolean canHandle(final Class clazz) {
         return Boolean.class.equals(clazz);
+    }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
     }
 }

@@ -66,4 +66,9 @@ public class CompactRawIntegerSerialiser implements ToBytesSerialiser<Integer> {
     public boolean preservesObjectOrdering() {
         return false;
     }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

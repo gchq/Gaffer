@@ -17,9 +17,13 @@ package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation;
 
 import com.yahoo.sketches.hll.HllSketch;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class HllSketchSerialiserTest {
     private static final HllSketchSerialiser SERIALISER = new HllSketchSerialiser();

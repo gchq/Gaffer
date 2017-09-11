@@ -16,16 +16,15 @@
 
 package uk.gov.gchq.gaffer.parquetstore.utils;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.store.SerialisationFactory;
+import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -38,14 +37,8 @@ public class SchemaUtilsTest {
 
     @Before
     public void setUp() throws StoreException {
-        Logger.getRootLogger().setLevel(Level.WARN);
-        final Schema schema = Schema.fromJson(
-                getClass().getResourceAsStream("/schemaUsingStringVertexType/dataSchema.json"),
-                getClass().getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
-                getClass().getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
-                getClass().getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
-        final SchemaOptimiser optimiser = new SchemaOptimiser(new SerialisationFactory(ParquetStoreConstants.SERIALISERS));
-        utils = new SchemaUtils(optimiser.optimise(schema, true));
+        final Schema schema = TestUtils.gafferSchema("schemaUsingStringVertexType");
+        utils = new SchemaUtils(schema);
     }
 
     @After
@@ -56,7 +49,7 @@ public class SchemaUtilsTest {
 
     @Test
     public void getColumnToSerialiserTest() throws SerialisationException {
-        final Map<String, String> columnToSerialiser = utils.getColumnToSerialiser("BasicEdge");
+        final Map<String, String> columnToSerialiser = utils.getColumnToSerialiser(TestGroups.EDGE);
         assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.StringParquetSerialiser",
                 columnToSerialiser.get(ParquetStoreConstants.SOURCE));
         assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.StringParquetSerialiser",
@@ -87,8 +80,8 @@ public class SchemaUtilsTest {
     public void getEntityGroupsTest() {
         final Set<String> entityGroups = utils.getEntityGroups();
         final LinkedHashSet<String> expected = new LinkedHashSet<>(2);
-        expected.add("BasicEntity");
-        expected.add("BasicEntity2");
+        expected.add(TestGroups.ENTITY);
+        expected.add(TestGroups.ENTITY_2);
         assertEquals(expected, entityGroups);
     }
 
@@ -96,8 +89,8 @@ public class SchemaUtilsTest {
     public void getEdgeGroupsTest() {
         final Set<String> edgeGroups = utils.getEdgeGroups();
         final LinkedHashSet<String> expected = new LinkedHashSet<>(2);
-        expected.add("BasicEdge");
-        expected.add("BasicEdge2");
+        expected.add(TestGroups.EDGE);
+        expected.add(TestGroups.EDGE_2);
         assertEquals(expected, edgeGroups);
     }
 }

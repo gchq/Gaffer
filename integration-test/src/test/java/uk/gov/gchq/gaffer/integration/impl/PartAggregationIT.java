@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.integration.impl;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
@@ -37,6 +38,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -44,8 +46,6 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 public class PartAggregationIT extends AbstractStoreIT {
-    private static final JSONSerialiser SERIALISER = new JSONSerialiser();
-
     @Test
     public void shouldAggregateOnlyRequiredGroups() throws OperationException {
         //Given
@@ -188,7 +188,7 @@ public class PartAggregationIT extends AbstractStoreIT {
     private Comparator<Element> getJsonSort() {
         return Comparator.comparing(a -> {
             try {
-                return new String(SERIALISER.serialise(a));
+                return new String(JSONSerialiser.serialise(a));
             } catch (final SerialisationException e) {
                 throw new RuntimeException(e);
             }

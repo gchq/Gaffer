@@ -16,10 +16,10 @@
 
 package uk.gov.gchq.gaffer.proxystore;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.StringUtils;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+
 import uk.gov.gchq.gaffer.store.StoreProperties;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -32,14 +32,14 @@ public class ProxyProperties extends StoreProperties {
     public static final String GAFFER_CONTEXT_ROOT = "gaffer.context-root";
     public static final String CONNECT_TIMEOUT = "gaffer.connect-timeout";
     public static final String READ_TIMEOUT = "gaffer.read-timeout";
-    public static final String JSON_SERIALISER_CLASS = "gaffer.jsonserialiser.class";
 
     public static final String DEFAULT_GAFFER_HOST = "localhost";
-    public static final String DEFAULT_GAFFER_CONTEXT_ROOT = "/rest/v1";
+    public static final String DEFAULT_GAFFER_CONTEXT_ROOT = "/rest";
     public static final int DEFAULT_GAFFER_PORT = 8080;
     public static final int DEFAULT_CONNECT_TIMEOUT = 10000;
     public static final int DEFAULT_READ_TIMEOUT = 10000;
-    public static final String DEFAULT_JSON_SERIALISER_CLASS = JSONSerialiser.class.getName();
+
+    private static final String GAFFER_REST_API_VERSION = "v2";
 
     public ProxyProperties() {
     }
@@ -113,23 +113,6 @@ public class ProxyProperties extends StoreProperties {
         set(GAFFER_CONTEXT_ROOT, checkedGafferContextRoot);
     }
 
-    public JSONSerialiser getJsonSerialiser() {
-        return JSONSerialiser.fromClass(getJsonSerialiserClass());
-    }
-
-    public String getJsonSerialiserClass() {
-        return get(JSON_SERIALISER_CLASS, DEFAULT_JSON_SERIALISER_CLASS);
-    }
-
-    @JsonIgnore
-    public void setJsonSerialiserClass(final Class<? extends JSONSerialiser> jsonSerialiserClass) {
-        setJsonSerialiserClass(jsonSerialiserClass.getName());
-    }
-
-    public void setJsonSerialiserClass(final String jsonSerialiserClass) {
-        set(JSON_SERIALISER_CLASS, jsonSerialiserClass);
-    }
-
     public URL getGafferUrl() {
         return getGafferUrl(null);
     }
@@ -148,7 +131,7 @@ public class ProxyProperties extends StoreProperties {
 
         try {
             String contextRoot = prepend("/", getGafferContextRoot());
-            contextRoot = removeSuffix("/", contextRoot);
+            contextRoot = addSuffix("/", contextRoot) + GAFFER_REST_API_VERSION;
             return new URL(protocol, getGafferHost(), getGafferPort(),
                     contextRoot + urlSuffix);
         } catch (final MalformedURLException e) {
@@ -158,9 +141,9 @@ public class ProxyProperties extends StoreProperties {
         }
     }
 
-    protected String removeSuffix(final String suffix, final String string) {
-        if (string.endsWith(suffix)) {
-            return string.substring(0, string.length() - suffix.length() - 1);
+    protected String addSuffix(final String suffix, final String string) {
+        if (!string.endsWith(suffix)) {
+            return string + suffix;
         }
 
         return string;

@@ -18,8 +18,10 @@ package uk.gov.gchq.gaffer.store.schema;
 
 import com.google.common.collect.Sets;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -28,12 +30,14 @@ import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.function.ExampleTransformFunction;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.koryphe.ValidationResult;
+import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.predicate.And;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.impl.predicate.Not;
 import uk.gov.gchq.koryphe.impl.predicate.Or;
+
 import java.util.Collections;
 import java.util.Set;
 
@@ -829,6 +833,31 @@ public class ViewValidatorTest {
     }
 
     @Test
+    public void shouldValidateAndReturnFalseWhenAggregatorSelectionMissingProperty() {
+        // Given
+        final ViewValidator validator = new ViewValidator();
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .aggregator(new ElementAggregator.Builder()
+                                .select(TestPropertyNames.PROP_1)
+                                .execute(new StringConcat())
+                                .build())
+                        .build())
+                .build();
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .build())
+                .build();
+
+        // When
+        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
+
+        // Then
+        assertFalse(result.isValid());
+    }
+
+
+    @Test
     public void shouldValidateAndReturnFalseWhenMissingTraits() {
         // Given
         final ViewValidator validator = new ViewValidator();
@@ -838,6 +867,10 @@ public class ViewValidatorTest {
                         .preAggregationFilter(new ElementFilter.Builder()
                                 .select(TestPropertyNames.PROP_1)
                                 .execute(new Exists())
+                                .build())
+                        .aggregator(new ElementAggregator.Builder()
+                                .select(TestPropertyNames.PROP_1)
+                                .execute(new StringConcat())
                                 .build())
                         .postAggregationFilter(new ElementFilter.Builder()
                                 .select(TestPropertyNames.PROP_2)
@@ -872,6 +905,7 @@ public class ViewValidatorTest {
         assertFalse(result.isValid());
         assertEquals(Sets.newHashSet(
                 errPrefix + StoreTrait.PRE_AGGREGATION_FILTERING.name(),
+                errPrefix + StoreTrait.QUERY_AGGREGATION.name(),
                 errPrefix + StoreTrait.POST_AGGREGATION_FILTERING.name(),
                 errPrefix + StoreTrait.TRANSFORMATION.name(),
                 errPrefix + StoreTrait.POST_TRANSFORMATION_FILTERING.name()

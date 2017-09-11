@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.serialisation.implementation.ordered;
 
 import uk.gov.gchq.gaffer.serialisation.DelegateSerialiser;
+
 import java.util.Date;
 
 public class OrderedDateSerialiser extends DelegateSerialiser<Date, Long> {
@@ -36,6 +37,11 @@ public class OrderedDateSerialiser extends DelegateSerialiser<Date, Long> {
     @Override
     public Long toDelegateType(final Date object) {
         return object.getTime();
+    }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
     }
 
     @Override

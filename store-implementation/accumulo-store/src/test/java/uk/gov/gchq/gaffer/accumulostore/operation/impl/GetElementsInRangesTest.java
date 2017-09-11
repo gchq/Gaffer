@@ -1,7 +1,7 @@
 package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
-
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloTestData;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
@@ -9,9 +9,9 @@ import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -19,18 +19,11 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 
-public class GetElementsInRangesTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    protected Class<? extends Operation> getOperationClass() {
-        return GetElementsInRanges.class;
-    }
-
+public class GetElementsInRangesTest extends OperationTest<GetElementsInRanges> {
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final List<Pair<ElementId, ElementId>> pairList = new ArrayList<>();
         final Pair<ElementId, ElementId> pair1 = new Pair<>(AccumuloTestData.SEED_SOURCE_1, AccumuloTestData.SEED_DESTINATION_1);
@@ -41,16 +34,15 @@ public class GetElementsInRangesTest extends OperationTest {
                 .input(pairList)
                 .build();
         // When
-        byte[] json = serialiser.serialise(op, true);
+        byte[] json = JSONSerialiser.serialise(op, true);
 
-        final GetElementsInRanges deserialisedOp = serialiser.deserialise(json, GetElementsInRanges.class);
+        final GetElementsInRanges deserialisedOp = JSONSerialiser.deserialise(json, GetElementsInRanges.class);
 
         // Then
         final Iterator<? extends Pair<? extends ElementId, ? extends ElementId>> itrPairs = deserialisedOp.getInput().iterator();
         assertEquals(pair1, itrPairs.next());
         assertEquals(pair2, itrPairs.next());
         assertFalse(itrPairs.hasNext());
-
     }
 
     @SuppressWarnings("unchecked")
@@ -70,5 +62,34 @@ public class GetElementsInRangesTest extends OperationTest {
         assertEquals(DirectedType.UNDIRECTED, getElementsInRanges.getDirectedType());
         assertEquals(seed, getElementsInRanges.getInput().iterator().next());
         assertNotNull(getElementsInRanges.getView());
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final Pair<ElementId, ElementId> seed = new Pair<>(AccumuloTestData.SEED_A, AccumuloTestData.SEED_B);
+        final View view = new View.Builder().edge("testEdgeGroup").build();
+        final GetElementsInRanges getElementsInRanges = new GetElementsInRanges.Builder()
+                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.EITHER)
+                .input(seed)
+                .directedType(DirectedType.UNDIRECTED)
+                .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
+                .view(view)
+                .build();
+
+        // When
+        final GetElementsInRanges clone = getElementsInRanges.shallowClone();
+
+        // Then
+        assertNotSame(getElementsInRanges, clone);
+        assertEquals("true", clone.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
+        assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.EITHER, clone.getIncludeIncomingOutGoing());
+        assertEquals(DirectedType.UNDIRECTED, clone.getDirectedType());
+        assertEquals(seed, clone.getInput().iterator().next());
+        assertEquals(view, clone.getView());
+    }
+
+    protected GetElementsInRanges getTestObject() {
+        return new GetElementsInRanges();
     }
 }

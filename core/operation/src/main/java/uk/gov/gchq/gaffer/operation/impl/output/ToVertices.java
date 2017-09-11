@@ -16,11 +16,14 @@
 package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+
+import java.util.Map;
 
 /**
  * A <code>ToVertices</code> takes an {@link java.lang.Iterable} of
@@ -37,6 +40,7 @@ public class ToVertices implements
     private Iterable<? extends ElementId> input;
     private UseMatchedVertex useMatchedVertex;
     private EdgeVertices edgeVertices;
+    private Map<String, String> options;
 
     @Override
     public Iterable<? extends ElementId> getInput() {
@@ -67,6 +71,26 @@ public class ToVertices implements
 
     public void setUseMatchedVertex(final UseMatchedVertex useMatchedVertex) {
         this.useMatchedVertex = useMatchedVertex;
+    }
+
+    @Override
+    public ToVertices shallowClone() {
+        return new ToVertices.Builder()
+                .input(input)
+                .useMatchedVertex(useMatchedVertex)
+                .edgeVertices(edgeVertices)
+                .options(options)
+                .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public enum EdgeVertices {

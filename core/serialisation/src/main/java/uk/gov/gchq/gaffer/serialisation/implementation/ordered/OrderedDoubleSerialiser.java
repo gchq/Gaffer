@@ -50,6 +50,11 @@ public class OrderedDoubleSerialiser extends DelegateSerialiser<Double, Long> {
     }
 
     @Override
+    public boolean isConsistent() {
+        return true;
+    }
+
+    @Override
     public boolean canHandle(final Class clazz) {
         return Double.class.equals(clazz);
     }

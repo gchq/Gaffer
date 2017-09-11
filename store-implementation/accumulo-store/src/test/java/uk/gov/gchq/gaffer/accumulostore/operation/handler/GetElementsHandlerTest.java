@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -44,6 +45,22 @@ public class GetElementsHandlerTest {
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("return_matched_id_as_edge_source"));
+        }
+    }
+
+    @Test
+    public void shouldFailIfOperationInputIsUndefined() {
+        // Given
+        final GetElementsHandler handler = new GetElementsHandler();
+        final GetElements op = new GetElements.Builder()
+                .build();
+
+        // When / Then
+        try {
+            handler.doOperation(op, new Context(), null);
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().equals("Operation input is undefined - please specify an input."));
         }
     }
 }

@@ -50,6 +50,11 @@ public class OrderedFloatSerialiser extends DelegateSerialiser<Float, Integer> {
     }
 
     @Override
+    public boolean isConsistent() {
+        return true;
+    }
+
+    @Override
     public boolean canHandle(final Class clazz) {
         return Float.class.equals(clazz);
     }

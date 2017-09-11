@@ -15,13 +15,14 @@
  */
 package uk.gov.gchq.gaffer.commonutil;
 
+import org.junit.Test;
+
+import java.io.InputStream;
+import java.net.URI;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
-
-import org.junit.Test;
-import java.io.InputStream;
-import java.net.URI;
 
 public class StreamUtilTest {
 

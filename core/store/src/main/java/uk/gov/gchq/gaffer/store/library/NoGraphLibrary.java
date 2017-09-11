@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.store.library;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.exception.OverwritingException;
@@ -27,6 +28,11 @@ public class NoGraphLibrary extends GraphLibrary {
 
     public NoGraphLibrary() {
         LOGGER.debug("Your schema will not be stored in a graph library. So you will need to provide it each time you create an instance of Graph.");
+    }
+
+    @Override
+    public void initialise(final String path) {
+        // Do nothing
     }
 
     @Override

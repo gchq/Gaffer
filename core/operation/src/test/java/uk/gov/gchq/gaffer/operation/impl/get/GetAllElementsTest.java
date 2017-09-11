@@ -17,42 +17,21 @@
 package uk.gov.gchq.gaffer.operation.impl.get;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 
-public class GetAllElementsTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return GetAllElements.class;
-    }
-
-    @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
-        // Given
-        final GetAllElements op = new GetAllElements();
-
-        // When
-        byte[] json = serialiser.serialise(op, true);
-        final GetAllElements deserialisedOp = serialiser.deserialise(json, GetAllElements.class);
-
-        // Then
-        assertNotNull(deserialisedOp);
-    }
+public class GetAllElementsTest extends OperationTest<GetAllElements> {
 
     @Test
     public void shouldSetDirectedTypeToBoth() {
@@ -87,5 +66,31 @@ public class GetAllElementsTest extends OperationTest {
                 .build();
 
         assertNotNull(getAllElements.getView().getEdge(TestGroups.EDGE));
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        View view = new View.Builder()
+                .edge(TestGroups.EDGE)
+                .build();
+        GetAllElements getAllElements = new GetAllElements.Builder()
+                .view(view)
+                .directedType(DirectedType.DIRECTED)
+                .option("testOption", "true")
+                .build();
+
+        // When
+        GetAllElements clone = getAllElements.shallowClone();
+
+        // Then
+        assertNotSame(getAllElements, clone);
+        assertEquals(view, clone.getView());
+        assertEquals(DirectedType.DIRECTED, clone.getDirectedType());
+        assertEquals("true", clone.getOption("testOption"));
+    }
+
+    protected GetAllElements getTestObject() {
+        return new GetAllElements();
     }
 }

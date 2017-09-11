@@ -19,7 +19,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>basic</artifactId>
-        <version>0.7.8-SNAPSHOT</version>
+        <version>1.0.0-RC2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -33,11 +33,6 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>named-operation-library</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>jcs-cache-service</artifactId>
@@ -117,11 +112,12 @@
                             <path>/${standalone-path}</path>
                             <port>${standalone-port}</port>
                             <systemProperties>
-                                <gaffer.graph.id>
-                                    basicGraph
-                                </gaffer.graph.id>
-                                <gaffer.rest-api.basePath>${standalone-path}/v1
+                                <gaffer.rest-api.basePath>
+                                    ${standalone-path}
                                 </gaffer.rest-api.basePath>
+                                <gaffer.graph.config>
+                                    ${project.build.outputDirectory}/graphConfig.json
+                                </gaffer.graph.config>
                                 <gaffer.schemas>
                                     ${project.parent.basedir}/basic-model/src/main/resources/schema
                                 </gaffer.schemas>

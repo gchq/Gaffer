@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.serialisation;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+
 import java.util.Date;
 
 /**
@@ -58,6 +59,11 @@ public class DateSerialiser extends ToBytesViaStringDeserialiser<Date> {
 
     @Override
     public boolean preservesObjectOrdering() {
+        return true;
+    }
+
+    @Override
+    public boolean isConsistent() {
         return true;
     }
 }

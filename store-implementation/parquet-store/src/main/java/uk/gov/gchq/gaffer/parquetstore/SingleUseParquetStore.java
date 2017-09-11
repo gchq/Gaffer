@@ -19,11 +19,17 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
 import java.io.IOException;
 
+/**
+ * A single use implementation of the {@link ParquetStore} that will delete the data directory upon initialisation of
+ * the store. This is mainly used for testing purposes.
+ */
 public class SingleUseParquetStore extends ParquetStore {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SingleUseParquetStore.class);

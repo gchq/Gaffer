@@ -18,17 +18,31 @@ package uk.gov.gchq.gaffer.parquetstore.io.reader;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.hadoop.ParquetReader;
 import org.apache.parquet.hadoop.api.ReadSupport;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 
 import java.io.IOException;
 
+/**
+ * This is the Parquet reader that can read the Parquet files directly to Elements provided the files are written the
+ * same way that the {@link uk.gov.gchq.gaffer.parquetstore.io.writer.ParquetElementWriter} does.
+ */
 public class ParquetElementReader extends ParquetReader<Element> {
 
     public static ParquetElementReader.Builder builder(final Path file) {
         return new ParquetElementReader.Builder(file);
     }
 
+    /**
+     * Required default constructor.
+     *
+     * @param file        the file to read
+     * @param readSupport to materialize records
+     * @throws IOException if there was an exception reading from the specified file
+     * @deprecated use the Builder to construct the ParquetElementReader
+     */
+    @Deprecated
     protected ParquetElementReader(final Path file, final ReadSupport<Element> readSupport) throws IOException {
         super(file, readSupport);
         throw new UnsupportedOperationException("Use the builder to construct the ParquetElementReader.");

@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.accumulostore.utils;
 
 import org.junit.Test;
+
 import java.security.InvalidParameterException;
 
 public class BytesAndRangeTest {

@@ -18,12 +18,15 @@ package uk.gov.gchq.gaffer.operation.impl.generate;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -40,6 +43,7 @@ public class GenerateElements<OBJ> implements
     @Required
     private Function<Iterable<? extends OBJ>, Iterable<? extends Element>> elementGenerator;
     private Iterable<? extends OBJ> input;
+    private Map<String, String> options;
 
     public GenerateElements() {
     }
@@ -88,6 +92,25 @@ public class GenerateElements<OBJ> implements
     @Override
     public TypeReference<Iterable<? extends Element>> getOutputTypeReference() {
         return new TypeReferenceImpl.IterableElement();
+    }
+
+    @Override
+    public GenerateElements<OBJ> shallowClone() {
+        return new GenerateElements.Builder<OBJ>()
+                .generator(elementGenerator)
+                .input(input)
+                .options(options)
+                .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static class Builder<OBJ> extends Operation.BaseBuilder<GenerateElements<OBJ>, Builder<OBJ>>

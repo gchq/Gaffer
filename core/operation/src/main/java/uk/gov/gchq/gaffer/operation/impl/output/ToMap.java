@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.MapGenerator;
@@ -24,6 +25,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+
 import java.util.Map;
 
 /**
@@ -41,6 +43,7 @@ public class ToMap implements
     @Required
     private MapGenerator elementGenerator;
     private Iterable<? extends Element> input;
+    private Map<String, String> options;
 
     public ToMap() {
     }
@@ -71,6 +74,25 @@ public class ToMap implements
     @Override
     public TypeReference<Iterable<? extends Map<String, Object>>> getOutputTypeReference() {
         return new TypeReferenceImpl.IterableMap();
+    }
+
+    @Override
+    public ToMap shallowClone() {
+        return new ToMap.Builder()
+                .generator(elementGenerator)
+                .input(input)
+                .options(options)
+                .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static final class Builder extends BaseBuilder<ToMap, Builder>

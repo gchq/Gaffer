@@ -21,7 +21,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>store-implementation</artifactId>
-        <version>0.7.8-SNAPSHOT</version>
+        <version>1.0.0-RC2-SNAPSHOT</version>
     </parent>
 
     <artifactId>hbase-store</artifactId>
@@ -177,7 +177,7 @@
                 <executions>
                     <execution>
                         <id>deploy</id>
-                        <phase>package</phase>
+                        <phase>${shaded.jar.phase}</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>

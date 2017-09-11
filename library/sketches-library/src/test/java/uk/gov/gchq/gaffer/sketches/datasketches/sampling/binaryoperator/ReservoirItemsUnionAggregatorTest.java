@@ -18,10 +18,12 @@ package uk.gov.gchq.gaffer.sketches.datasketches.sampling.binaryoperator;
 import com.yahoo.sketches.sampling.ReservoirItemsUnion;
 import org.junit.Before;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Random;
@@ -89,14 +91,14 @@ public class ReservoirItemsUnionAggregatorTest extends BinaryOperatorTest {
         final ReservoirItemsUnionAggregator aggregator = new ReservoirItemsUnionAggregator();
 
         // When 1
-        final String json = new String(new JSONSerialiser().serialise(aggregator, true));
+        final String json = new String(JSONSerialiser.serialise(aggregator, true));
         // Then 1
         JsonAssert.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.sampling.binaryoperator.ReservoirItemsUnionAggregator\"%n" +
                 "}"), json);
 
         // When 2
-        final ReservoirItemsUnionAggregator deserialisedAggregator = new JSONSerialiser()
+        final ReservoirItemsUnionAggregator deserialisedAggregator = JSONSerialiser
                 .deserialise(json.getBytes(), ReservoirItemsUnionAggregator.class);
         // Then 2
         assertNotNull(deserialisedAggregator);

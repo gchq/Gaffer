@@ -19,10 +19,17 @@ package uk.gov.gchq.gaffer.parquetstore;
 import org.apache.spark.SparkConf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.koryphe.impl.binaryoperator.StringDeduplicateConcat;
+
 import java.io.Serializable;
 import java.nio.file.Path;
 
+/**
+ * Stores all the user customisable properties required by the {@link ParquetStore}.
+ */
 public class ParquetStoreProperties extends StoreProperties implements Serializable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetStoreProperties.class);
@@ -31,17 +38,24 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
     public static final String TEMP_FILES_DIR = "parquet.temp_data.dir";
     public static final String PARQUET_ROW_GROUP_SIZE_IN_BYTES = "parquet.add_elements.row_group.size";
     public static final String PARQUET_PAGE_SIZE_IN_BYTES = "parquet.add_elements.page.size";
-    public static final String PARQUET_ADD_ELEMENTS_THREADS_AVAILABLE = "parquet.add_elements.threadsAvailable";
+    public static final String PARQUET_AGGREGATE_ON_INGEST = "parquet.add_elements.aggregate";
+    public static final String PARQUET_SORT_BY_SPLITS_ON_INGEST = "parquet.add_elements.sort_by_splits";
+    public static final String PARQUET_SPLIT_POINTS_SAMPLE_RATE = "parquet.add_elements.split_points.sample_rate";
+    public static final String PARQUET_THREADS_AVAILABLE = "parquet.threadsAvailable";
     public static final String PARQUET_ADD_ELEMENTS_OUTPUT_FILES_PER_GROUP = "parquet.add_elements.output_files_per_group";
     public static final String SPARK_MASTER = "spark.master";
+
 
     // Default values
     private static final String DATA_DIR_DEFAULT = "parquet_data";
     private static final String TEMP_FILES_DIR_DEFAULT = ".gaffer/temp_parquet_data";
     private static final String PARQUET_ROW_GROUP_SIZE_IN_BYTES_DEFAULT = "4194304"; //4MB
     private static final String PARQUET_PAGE_SIZE_IN_BYTES_DEFAULT = "1048576"; //1MB
-    private static final String PARQUET_ADD_ELEMENTS_THREADS_AVAILABLE_DEFAULT = "3";
-    private static final String PARQUET_ADD_ELEMENTS_OUTPUT_FILES_PER_GROUP_DEFAULT = "100";
+    public static final String PARQUET_AGGREGATE_ON_INGEST_DEFAULT = "true";
+    public static final String PARQUET_SORT_BY_SPLITS_ON_INGEST_DEFAULT = "false";
+    private static final String PARQUET_SPLIT_POINTS_SAMPLE_RATE_DEFAULT = "10";
+    private static final String PARQUET_THREADS_AVAILABLE_DEFAULT = "3";
+    private static final String PARQUET_ADD_ELEMENTS_OUTPUT_FILES_PER_GROUP_DEFAULT = "10";
     private static final String SPARK_MASTER_DEFAULT = "local[*]";
     private static final long serialVersionUID = 7695540336792378185L;
 
@@ -72,11 +86,18 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
     }
 
     public Integer getThreadsAvailable() {
-        return Integer.parseInt(get(PARQUET_ADD_ELEMENTS_THREADS_AVAILABLE, PARQUET_ADD_ELEMENTS_THREADS_AVAILABLE_DEFAULT));
+        return Integer.parseInt(get(PARQUET_THREADS_AVAILABLE, PARQUET_THREADS_AVAILABLE_DEFAULT));
     }
 
     public void setThreadsAvailable(final Integer threadsAvailable) {
-        set(PARQUET_ADD_ELEMENTS_THREADS_AVAILABLE, threadsAvailable.toString());
+        set(PARQUET_THREADS_AVAILABLE, threadsAvailable.toString());
+    }
+    public Integer getSampleRate() {
+        return Integer.parseInt(get(PARQUET_SPLIT_POINTS_SAMPLE_RATE, PARQUET_SPLIT_POINTS_SAMPLE_RATE_DEFAULT));
+    }
+
+    public void setSampleRate(final Integer sampleRate) {
+        set(PARQUET_SPLIT_POINTS_SAMPLE_RATE, sampleRate.toString());
     }
 
     public Integer getRowGroupSize() {
@@ -105,7 +126,8 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
 
     /**
      * If the Spark master is set in this class then that will be used. Otherwise the Spark default config set on the
-     * local machine will be used. Otherwise a local Spark master will be used.
+     * local machine will be used, if you run your code as a spark-submit command or from the spark-shell.
+     * Otherwise a local Spark master will be used.
      *
      * @return The Spark master to be used.
      */
@@ -119,5 +141,29 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
 
     public void setSparkMaster(final String sparkMaster) {
         set(SPARK_MASTER, sparkMaster);
+    }
+
+    @Override
+    public String getJsonSerialiserModules() {
+        return new StringDeduplicateConcat().apply(
+                SketchesJsonModules.class.getName(),
+                super.getJsonSerialiserModules()
+        );
+    }
+
+    public boolean getAggregateOnIngest() {
+        return Boolean.parseBoolean(get(PARQUET_AGGREGATE_ON_INGEST, PARQUET_AGGREGATE_ON_INGEST_DEFAULT));
+    }
+
+    public void setAggregateOnIngest(final boolean aggregateOnIngest) {
+        set(PARQUET_AGGREGATE_ON_INGEST, String.valueOf(aggregateOnIngest));
+    }
+
+    public boolean getSortBySplitsOnIngest() {
+        return Boolean.parseBoolean(get(PARQUET_SORT_BY_SPLITS_ON_INGEST, PARQUET_SORT_BY_SPLITS_ON_INGEST_DEFAULT));
+    }
+
+    public void setSortBySplitsOnIngest(final boolean sortBySplits) {
+        set(PARQUET_SORT_BY_SPLITS_ON_INGEST, String.valueOf(sortBySplits));
     }
 }

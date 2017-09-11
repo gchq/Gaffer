@@ -16,20 +16,20 @@
 
 package uk.gov.gchq.gaffer.parquetstore.operation;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.spark.rdd.RDD;
+import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import org.apache.spark.sql.SparkSession;
 import org.junit.Before;
 import org.junit.BeforeClass;
+
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
-import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
+import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
@@ -43,28 +43,23 @@ public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest
 
     @BeforeClass
     public static void genData() throws OperationException, StoreException {
-        Logger.getRootLogger().setLevel(Level.WARN);
-        getGraph(getSchema(), getParquetStoreProperties())
-                .execute(new ImportRDDOfElements.Builder()
-                        .input(getElements(spark))
-                        .sparkContext(spark.sparkContext())
+        getGraph(getSchema(), TestUtils.getParquetStoreProperties(), "StringVertexSparkOperationsTest")
+                .execute(new ImportJavaRDDOfElements.Builder()
+                        .input(getElements(javaSparkContext))
+                        .javaSparkContext(javaSparkContext)
                         .build(), USER);
     }
 
     @Before
     public void setup() throws StoreException {
-        graph = getGraph(getSchema(), getParquetStoreProperties());
+        graph = getGraph(getSchema(), TestUtils.getParquetStoreProperties(), "StringVertexSparkOperationsTest");
     }
 
     protected static Schema getSchema() {
-        return Schema.fromJson(
-                StringVertexSparkOperationsTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataSchema.json"),
-                StringVertexSparkOperationsTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
-                StringVertexSparkOperationsTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
-                StringVertexSparkOperationsTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
+        return TestUtils.gafferSchema("schemaUsingStringVertexType");
     }
 
-    private static RDD<Element> getElements(final SparkSession spark) {
+    private static JavaRDD<Element> getElements(final JavaSparkContext spark) {
         return DataGen.generate300StringElementsWithNullPropertiesRDD(spark);
     }
 
@@ -93,15 +88,15 @@ public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest
         //check returned elements are correct
         final List<Element> expected = new ArrayList<>(175);
         final List<Element> actual = TestUtils.convertStringRowsToElements(data);
-        for (long i = 0 ; i < 25; i++) {
-            expected.add(DataGen.getEdge("BasicEdge", "src" + i, "dst" + i, true, null, null, null, null, null, null, null, null, 2));
-            expected.add(DataGen.getEdge("BasicEdge", "src" + i, "dst" + i, false, null, null, null, null, null, null, null, null, 2));
+        for (long i = 0; i < 25; i++) {
+            expected.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, true, null, null, null, null, null, null, null, null, 2));
+            expected.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, false, null, null, null, null, null, null, null, null, 2));
 
-            expected.add(DataGen.getEdge("BasicEdge2", "src" + i, "dst" + i, true, null, null, null, null, null, null, null, null, 2));
-            expected.add(DataGen.getEdge("BasicEdge2", "src" + i, "dst" + i, false, null, null, null, null, null, null, null, null, 2));
+            expected.add(DataGen.getEdge(TestGroups.EDGE_2, "src" + i, "dst" + i, true, null, null, null, null, null, null, null, null, 2));
+            expected.add(DataGen.getEdge(TestGroups.EDGE_2, "src" + i, "dst" + i, false, null, null, null, null, null, null, null, null, 2));
 
-            expected.add(DataGen.getEntity("BasicEntity", "vert" + i, null, null, null, null, null, null, null, null, 2));
-            expected.add(DataGen.getEntity("BasicEntity2", "vert" + i, null, null, null, null, null, null, null, null, 2));
+            expected.add(DataGen.getEntity(TestGroups.ENTITY, "vert" + i, null, null, null, null, null, null, null, null, 2));
+            expected.add(DataGen.getEntity(TestGroups.ENTITY_2, "vert" + i, null, null, null, null, null, null, null, null, 2));
         }
         assertThat(expected, containsInAnyOrder(actual.toArray()));
     }

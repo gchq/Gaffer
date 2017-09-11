@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.data.element;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -190,11 +191,9 @@ public class EntityTest extends ElementTest {
         final Entity entity = newElement("group");
         entity.setVertex(1L);
 
-        final JSONSerialiser serialiser = new JSONSerialiser();
-
         // When
-        final byte[] serialisedElement = serialiser.serialise(entity);
-        final Entity deserialisedElement = serialiser.deserialise(serialisedElement, entity.getClass());
+        final byte[] serialisedElement = JSONSerialiser.serialise(entity);
+        final Entity deserialisedElement = JSONSerialiser.deserialise(serialisedElement, entity.getClass());
 
         // Then
         assertEquals(entity, deserialisedElement);

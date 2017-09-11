@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.operation.graph;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
-import uk.gov.gchq.gaffer.operation.Operation;
 
 public interface GraphFilters extends OperationView {
     /**
@@ -45,7 +44,6 @@ public interface GraphFilters extends OperationView {
     void setDirectedType(final DirectedType directedType);
 
     interface Builder<OP extends GraphFilters, B extends Builder<OP, ?>> extends
-            Operation.Builder<OP, B>,
             OperationView.Builder<OP, B> {
 
         default B directedType(final DirectedType directedType) {

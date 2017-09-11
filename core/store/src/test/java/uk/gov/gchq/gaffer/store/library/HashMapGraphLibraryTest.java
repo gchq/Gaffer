@@ -17,11 +17,14 @@
 package uk.gov.gchq.gaffer.store.library;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.exception.OverwritingException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -70,9 +73,29 @@ public class HashMapGraphLibraryTest {
         try {
             LIBRARY.add(GRAPH_ID + "@#", schema, storeProperties);
             fail("Exception expected");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertNotNull(e.getMessage());
         }
+    }
+
+    @Test
+    public void shouldNotThrowExceptionWhenGraphIdWithSameSchemaExists() {
+
+        // Given
+        Schema schema1 = new Schema.Builder()
+                .id("hashMapTestSchemaId1")
+                .edge(TestGroups.ENTITY, new SchemaEdgeDefinition.Builder()
+                        .description("some description")
+                        .build())
+                .build();
+        LIBRARY.add("someOtherGraph", schema1, storeProperties);
+
+        final Schema schema1Clone = schema1.clone();
+
+        // When
+        LIBRARY.checkExisting("someOtherGraph", schema1Clone, storeProperties);
+
+        // Then - no exceptions
     }
 
     @Test
@@ -88,7 +111,7 @@ public class HashMapGraphLibraryTest {
         try {
             LIBRARY.add(GRAPH_ID, schema1, storeProperties);
             fail("Exception expected");
-        } catch (OverwritingException e) {
+        } catch (final OverwritingException e) {
             assertTrue(e.getMessage().contains("already exists with a different schema"));
         }
     }
@@ -104,7 +127,7 @@ public class HashMapGraphLibraryTest {
         try {
             LIBRARY.add(GRAPH_ID, schema, storeProperties1);
             fail("Exception expected");
-        } catch (Exception e) {
+        } catch (final Exception e) {
             assertTrue(e.getMessage().contains("already exists with a different store properties"));
         }
     }

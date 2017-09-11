@@ -17,20 +17,21 @@ package uk.gov.gchq.gaffer.doc.user.walkthrough;
 
 import uk.gov.gchq.gaffer.doc.walkthrough.AbstractWalkthrough;
 import uk.gov.gchq.gaffer.doc.walkthrough.AbstractWalkthroughRunner;
+
 import java.util.Arrays;
 import java.util.List;
 
 public class UserWalkthroughRunner extends AbstractWalkthroughRunner {
-    private static final List<Class<? extends AbstractWalkthrough>> EXAMPLES = Arrays.asList(
-            TheBasics.class,
-            MultipleEdges.class,
-            Filtering.class,
-            Transforms.class,
-            OperationChains.class,
-            Aggregation.class,
-            Cardinalities.class,
-            Subgraphs.class,
-            FullExample.class
+    private static final List<AbstractWalkthrough> EXAMPLES = Arrays.asList(
+            new TheBasics(),
+            new MultipleEdges(),
+            new Filtering(),
+            new Transforms(),
+            new OperationChains(),
+            new Aggregation(),
+            new Cardinalities(),
+            new Subgraphs(),
+            new FullExample()
     );
 
     public UserWalkthroughRunner() {

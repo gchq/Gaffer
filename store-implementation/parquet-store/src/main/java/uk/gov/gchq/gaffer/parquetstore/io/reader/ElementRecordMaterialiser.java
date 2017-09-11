@@ -18,10 +18,15 @@ package uk.gov.gchq.gaffer.parquetstore.io.reader;
 import org.apache.parquet.io.api.GroupConverter;
 import org.apache.parquet.io.api.RecordMaterializer;
 import org.apache.parquet.schema.MessageType;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.parquetstore.io.reader.converter.GafferElementConverter;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 
+/**
+ * This class is used by the {@link ElementReadSupport} to materialise the Gaffer {@link Element}'s directly from the
+ * Parquet primitive types.
+ */
 public class ElementRecordMaterialiser extends RecordMaterializer<Element> {
 
     private GafferElementConverter root;

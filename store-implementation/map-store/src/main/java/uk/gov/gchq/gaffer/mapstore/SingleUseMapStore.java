@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.mapstore;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -24,6 +25,8 @@ public class SingleUseMapStore extends MapStore {
     @SuppressFBWarnings(value = "DE_MIGHT_IGNORE", justification = "Exception ignored while clearing previous maps before reinitialising.")
     @Override
     public void initialise(final String graphId, final Schema schema, final StoreProperties storeProperties) throws StoreException {
+        MapStore.resetStaticMap();
+
         try {
             super.initialise(graphId, schema, storeProperties);
         } catch (final Exception e) {

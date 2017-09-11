@@ -19,6 +19,10 @@ package uk.gov.gchq.gaffer.parquetstore.serialisation.impl;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
 
+/**
+ * This class is used to serialise and de-serialise a {@link Byte} value for use by the
+ * {@link uk.gov.gchq.gaffer.parquetstore.ParquetStore}.
+ */
 public class ByteParquetSerialiser implements ParquetSerialiser<Byte> {
     private static final long serialVersionUID = -3905036281210562157L;
 
@@ -69,4 +73,8 @@ public class ByteParquetSerialiser implements ParquetSerialiser<Byte> {
         return Byte.class.equals(clazz);
     }
 
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

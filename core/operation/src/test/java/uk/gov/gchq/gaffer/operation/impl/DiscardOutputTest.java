@@ -17,38 +17,16 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import org.junit.Test;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
+
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 
 
-public class DiscardOutputTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return DiscardOutput.class;
-    }
-
-    @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
-        // Given
-        final DiscardOutput op = new DiscardOutput();
-
-        // When
-        byte[] json = serialiser.serialise(op, true);
-        final DiscardOutput deserialisedOp = serialiser.deserialise(json, DiscardOutput.class);
-
-        // Then
-        assertNotNull(deserialisedOp);
-    }
+public class DiscardOutputTest extends OperationTest<DiscardOutput> {
 
     @Test
     @Override
@@ -58,5 +36,21 @@ public class DiscardOutputTest extends OperationTest {
 
         // Then
         assertThat(discardOutput.getInput(), is(nullValue()));
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final DiscardOutput op = getTestObject();
+
+        // When
+        final DiscardOutput clone = op.shallowClone();
+
+        // Then
+        assertNotSame(op, clone);
+    }
+
+    protected DiscardOutput getTestObject() {
+        return new DiscardOutput();
     }
 }

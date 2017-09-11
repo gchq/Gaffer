@@ -1,4 +1,4 @@
-Copyright 2016 Crown Copyright
+Copyright 2016-2017 Crown Copyright
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,9 +16,6 @@ limitations under the License.
 
 Gaffer
 ======
-[![Build Status](https://travis-ci.org/gchq/Gaffer.svg?branch=master)](https://travis-ci.org/gchq/Gaffer)
-[![codecov](https://codecov.io/gh/gchq/Gaffer/branch/master/graph/badge.svg)](https://codecov.io/gh/gchq/Gaffer)
-
 Gaffer is built for very large graphs.
 
 It's designed to be as flexible, scalable and extensible as possible, allowing for rapid prototyping and transition to production systems.

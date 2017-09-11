@@ -23,6 +23,7 @@ import org.apache.spark.sql.execution.datasources.parquet.ParquetReadSupport;
 import org.apache.spark.sql.types.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -32,6 +33,10 @@ import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This class provides the required {@link WriteSupport} to write out {@link Element}s to Parquet files. This is used to
+ * pass in the spark schema to the Parquet extra metadata (which will speed up the reading of the Parquet files by Spark).
+ */
 public class ElementWriteSupport extends WriteSupport<Element> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementWriteSupport.class);
     private boolean isEntity;

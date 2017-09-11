@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.store.serialiser.lengthvalue;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -101,6 +102,13 @@ public class ElementIdSerialiser implements ToBytesSerialiser<ElementId> {
 
     @Override
     public boolean preservesObjectOrdering() {
-        return false;
+        return null != edgeIdSerialiser && null != entityIdSerialiser
+                && edgeIdSerialiser.preservesObjectOrdering() && entityIdSerialiser.preservesObjectOrdering();
+    }
+
+    @Override
+    public boolean isConsistent() {
+        return null != edgeIdSerialiser && null != entityIdSerialiser
+                && edgeIdSerialiser.isConsistent() && entityIdSerialiser.isConsistent();
     }
 }

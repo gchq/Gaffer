@@ -21,6 +21,10 @@ import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
 
 import java.util.Date;
 
+/**
+ * This class is used to serialise and de-serialise a {@link Date} value for use by the
+ * {@link uk.gov.gchq.gaffer.parquetstore.ParquetStore}.
+ */
 public class DateParquetSerialiser implements ParquetSerialiser<Date> {
     private static final long serialVersionUID = 3798684785664364539L;
 
@@ -57,6 +61,11 @@ public class DateParquetSerialiser implements ParquetSerialiser<Date> {
 
     @Override
     public boolean preservesObjectOrdering() {
+        return true;
+    }
+
+    @Override
+    public boolean isConsistent() {
         return true;
     }
 

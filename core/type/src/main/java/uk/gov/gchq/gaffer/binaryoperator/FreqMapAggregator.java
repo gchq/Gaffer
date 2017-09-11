@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.binaryoperator;
 
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
+
 import java.util.Map.Entry;
 
 /**

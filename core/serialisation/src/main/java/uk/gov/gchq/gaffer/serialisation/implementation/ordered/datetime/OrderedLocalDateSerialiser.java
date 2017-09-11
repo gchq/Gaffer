@@ -43,4 +43,9 @@ public class OrderedLocalDateSerialiser extends DelegateSerialiser<LocalDate, Lo
     public boolean canHandle(final Class clazz) {
         return LocalDate.class.equals(clazz);
     }
+
+    @Override
+    public boolean isConsistent() {
+        return true;
+    }
 }

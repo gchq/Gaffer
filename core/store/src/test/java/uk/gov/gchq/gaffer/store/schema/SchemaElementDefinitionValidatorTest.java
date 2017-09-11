@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.store.schema;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.collections.Sets;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
@@ -26,6 +27,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -250,6 +252,7 @@ public class SchemaElementDefinitionValidatorTest {
         final BinaryOperator function2 = mock(BinaryOperator.class);
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex("int1")
                         .property(TestPropertyNames.PROP_1, "int1")
                         .property(TestPropertyNames.PROP_2, "int2")
                         .build())

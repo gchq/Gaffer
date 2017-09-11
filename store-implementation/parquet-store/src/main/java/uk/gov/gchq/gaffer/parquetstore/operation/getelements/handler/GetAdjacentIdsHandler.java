@@ -24,6 +24,10 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
+/**
+ * An {@link uk.gov.gchq.gaffer.store.operation.handler.OperationHandler} for the {@link GetAdjacentIds} operation on
+ * the {@link uk.gov.gchq.gaffer.parquetstore.ParquetStore}.
+ */
 public class GetAdjacentIdsHandler
         implements OutputOperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> {
 

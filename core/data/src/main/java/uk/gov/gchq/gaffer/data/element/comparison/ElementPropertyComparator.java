@@ -19,8 +19,10 @@ package uk.gov.gchq.gaffer.data.element.comparison;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -50,6 +52,7 @@ import java.util.Set;
         justification = "This class should not be serialised")
 public class ElementPropertyComparator implements ElementComparator {
     private Comparator comparator;
+    public static int count = 0;
 
     private String property = null;
     private Set<String> groups = Collections.emptySet();
@@ -57,6 +60,8 @@ public class ElementPropertyComparator implements ElementComparator {
 
     @Override
     public int compare(final Element e1, final Element e2) {
+        count++;
+
         if (e1 == null) {
             if (e2 == null) {
                 return 0;

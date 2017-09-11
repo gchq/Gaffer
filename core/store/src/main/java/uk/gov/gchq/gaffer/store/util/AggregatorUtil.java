@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -240,7 +241,8 @@ public final class AggregatorUtil {
             if (null == view) {
                 return schema.getElement(group).getIngestAggregator().apply(a, b);
             }
-            return schema.getElement(group).getQueryAggregator(view.getElement(group).getGroupBy()).apply(a, b);
+            final ViewElementDefinition elementDef = view.getElement(group);
+            return schema.getElement(group).getQueryAggregator(elementDef.getGroupBy(), elementDef.getAggregator()).apply(a, b);
         }
     }
 
@@ -269,7 +271,8 @@ public final class AggregatorUtil {
             if (null == view) {
                 schema.getElement(a.getGroup()).getIngestAggregator().apply(a, b);
             } else {
-                schema.getElement(group).getQueryAggregator(view.getElement(group).getGroupBy()).apply(a, b);
+                final ViewElementDefinition elementDef = view.getElement(group);
+                schema.getElement(group).getQueryAggregator(elementDef.getGroupBy(), elementDef.getAggregator()).apply(a, b);
             }
 
             // The aggregator will always return a so this is safe

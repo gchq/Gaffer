@@ -20,11 +20,16 @@ import org.apache.parquet.hadoop.api.InitContext;
 import org.apache.parquet.hadoop.api.ReadSupport;
 import org.apache.parquet.io.api.RecordMaterializer;
 import org.apache.parquet.schema.MessageType;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 
 import java.util.Map;
 
+/**
+ * This class provides the {@link ReadSupport} required by the {@link ParquetElementReader} making use of the
+ * {@link ElementRecordMaterialiser} to directly build the Gaffer Elements from the parquet types.
+ */
 public class ElementReadSupport extends ReadSupport<Element> {
     private final boolean isEntity;
     private final GafferGroupObjectConverter converter;

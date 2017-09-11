@@ -22,6 +22,7 @@ import org.apache.spark.sql.execution.datasources.parquet.ParquetSchemaConverter
 import org.apache.spark.sql.types.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -31,6 +32,7 @@ import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -38,7 +40,8 @@ import java.util.Set;
 
 /**
  * This class is responsible for converting a Gaffer {@link Schema} to an Parquet {@link MessageType} per group
- * and to a Spark schema (a {@link StructType} per group).
+ * and to a Spark schema (a {@link StructType} per group). It also provides a central place to get all the mappings from
+ * Gaffer Properties to columns, aggregator's to columns, serialiser's to columns, etc.
  */
 public class SchemaUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(SchemaUtils.class);
@@ -80,9 +83,8 @@ public class SchemaUtils {
      *
      * @param group the group
      * @return a map from column to full paths for the given group
-     * @throws SerialisationException if an exception occurs
      */
-    public Map<String, String[]> getColumnToPaths(final String group) throws SerialisationException {
+    public Map<String, String[]> getColumnToPaths(final String group) {
         return groupColumnToPaths.get(group);
     }
 
@@ -132,7 +134,7 @@ public class SchemaUtils {
     }
 
     public StructType buildSparkSchema(final String group) throws SerialisationException {
-        final StructType sType = new ParquetSchemaConverter(false, false, false).convert(getParquetSchema(group));
+        final StructType sType = new ParquetSchemaConverter(false, false, false, false).convert(getParquetSchema(group));
         groupToSparkSchema.put(group, sType);
         return sType;
     }
@@ -251,7 +253,7 @@ public class SchemaUtils {
         return serialiserNameToSerialiser;
     }
 
-    public Map<String, String> getColumnToSerialiser(final String group) throws SerialisationException {
+    public Map<String, String> getColumnToSerialiser(final String group) {
         return groupColumnToSerialiserName.get(group);
     }
 
@@ -275,7 +277,7 @@ public class SchemaUtils {
         return groupToObjectConverter.get(group);
     }
 
-    private void buildConverters() throws SerialisationException {
+    private void buildConverters() {
         for (final String group : gafferSchema.getGroups()) {
             final GafferGroupObjectConverter converter = new GafferGroupObjectConverter(group, getColumnToSerialiser(group),
                     getSerialisers(), getColumnToPaths(group));

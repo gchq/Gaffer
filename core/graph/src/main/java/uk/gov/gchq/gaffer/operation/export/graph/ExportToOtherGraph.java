@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -29,8 +30,10 @@ import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 public class ExportToOtherGraph implements
@@ -47,6 +50,7 @@ public class ExportToOtherGraph implements
 
     private String parentStorePropertiesId;
     private StoreProperties storeProperties;
+    private Map<String, String> options;
 
     @Override
     public String getKey() {
@@ -125,12 +129,36 @@ public class ExportToOtherGraph implements
     }
 
     @Override
+    public ExportToOtherGraph shallowClone() {
+        return new ExportToOtherGraph.Builder()
+                .graphId(graphId)
+                .input(input)
+                .parentSchemaIds(parentSchemaIds.toArray(new String[parentSchemaIds.size()]))
+                .schema(schema)
+                .parentStorePropertiesId(parentStorePropertiesId)
+                .storeProperties(storeProperties)
+                .options(options)
+                .build();
+    }
+
+    @Override
     public TypeReference<Iterable<? extends Element>> getOutputTypeReference() {
         return new TypeReferenceImpl.IterableElement();
     }
 
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
     public static final class Builder extends BaseBuilder<ExportToOtherGraph, Builder>
             implements ExportTo.Builder<ExportToOtherGraph, Iterable<? extends Element>, Builder> {
+
         public Builder() {
             super(new ExportToOtherGraph());
         }
@@ -163,6 +191,5 @@ public class ExportToOtherGraph implements
             _getOp().setSchema(schema);
             return _self();
         }
-
     }
 }

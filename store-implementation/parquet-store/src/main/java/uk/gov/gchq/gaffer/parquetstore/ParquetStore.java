@@ -26,13 +26,15 @@ import org.apache.spark.serializer.KryoSerializer;
 import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.AddElementsHandler;
-import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.ImportRDDOfElementsHandler;
+import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.ImportRDDOfElements.ImportJavaRDDOfElementsHandler;
+import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.ImportRDDOfElements.ImportRDDOfElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetDataframeOfElementsHandler;
@@ -43,6 +45,7 @@ import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.spark.SparkConstants;
 import uk.gov.gchq.gaffer.spark.SparkUser;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
+import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator;
 import uk.gov.gchq.gaffer.store.Context;
@@ -54,10 +57,14 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.ValidationResult;
+
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import static uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants.SPARK_SESSION_NAME;
@@ -65,6 +72,13 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
 
+/**
+ * An implementation of {@link Store} that uses Parquet files to store the {@link Element}s.
+ * <p>
+ * It is designed to make the most of the Parquet file types by serialising the {@link Element}s using
+ * {@link uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser}'s which also allows for Gaffer objects to be
+ * stored as multiple or nested columns of primitive types.
+ */
 public class ParquetStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetStore.class);
     private static final Set<StoreTrait> TRAITS =
@@ -87,7 +101,7 @@ public class ParquetStore extends Store {
             throw new StoreException("Could not connect to the file system", e);
         }
         schemaUtils = new SchemaUtils(getSchema());
-        loadIndex((ParquetStoreProperties) properties);
+        loadIndex();
     }
 
     public FileSystem getFS() {
@@ -145,6 +159,7 @@ public class ParquetStore extends Store {
             final SparkSession spark = SparkSession.builder()
                     .appName(SPARK_SESSION_NAME)
                     .master(getProperties().getSparkMaster())
+                    .config(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true")
                     .config(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
                     .config(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
                     .getOrCreate();
@@ -176,7 +191,9 @@ public class ParquetStore extends Store {
     @Override
     protected void addAdditionalOperationHandlers() {
         addOperationHandler(GetDataFrameOfElements.class, new GetDataframeOfElementsHandler());
+        addOperationHandler(ImportJavaRDDOfElements.class, new ImportJavaRDDOfElementsHandler());
         addOperationHandler(ImportRDDOfElements.class, new ImportRDDOfElementsHandler());
+
     }
 
     @Override
@@ -189,13 +206,25 @@ public class ParquetStore extends Store {
         return new SchemaOptimiser(new SerialisationFactory(ParquetStoreConstants.SERIALISERS));
     }
 
-    private void loadIndex(final ParquetStoreProperties properties) throws StoreException {
+    @Override
+    public void validateSchemas() {
+        super.validateSchemas();
+        validateConsistentVertex();
+    }
+
+    @Override
+    protected void validateSchemaElementDefinition(final Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry, final ValidationResult validationResult) {
+        super.validateSchemaElementDefinition(schemaElementDefinitionEntry, validationResult);
+        validateConsistentGroupByProperties(schemaElementDefinitionEntry, validationResult);
+    }
+
+    private void loadIndex() throws StoreException {
         final String rootDir = getDataDir();
         try {
             if (fs.exists(new Path(rootDir))) {
                 graphIndex = new GraphIndex();
                 final long snapshot = getLatestSnapshot(rootDir);
-                graphIndex.readGroups(schemaUtils.getGroups(), rootDir + "/" + snapshot, fs);
+                graphIndex.readGroups(schemaUtils, rootDir + "/" + snapshot, fs);
                 graphIndex.setSnapshotTimestamp(snapshot);
             }
         } catch (final IOException e) {

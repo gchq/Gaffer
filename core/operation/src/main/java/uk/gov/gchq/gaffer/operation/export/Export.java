@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.export;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import uk.gov.gchq.gaffer.operation.Operation;
 
 public interface Export {

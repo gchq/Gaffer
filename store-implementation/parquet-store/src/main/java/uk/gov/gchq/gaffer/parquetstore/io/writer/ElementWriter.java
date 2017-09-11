@@ -19,6 +19,7 @@ import org.apache.parquet.io.api.Binary;
 import org.apache.parquet.io.api.RecordConsumer;
 import org.apache.parquet.schema.GroupType;
 import org.apache.parquet.schema.Type;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
@@ -29,6 +30,9 @@ import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class writes the Gaffer {@link uk.gov.gchq.gaffer.data.element.Element}'s to Parquet files.
+ */
 public class ElementWriter {
     private final RecordConsumer recordConsumer;
     private final GroupType schema;

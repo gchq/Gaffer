@@ -22,6 +22,10 @@ import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
 import java.util.Arrays;
 import java.util.TreeSet;
 
+/**
+ * This class is used to serialise and de-serialise a {@link TreeSet} value for use by the
+ * {@link uk.gov.gchq.gaffer.parquetstore.ParquetStore}.
+ */
 public class TreeSetStringParquetSerialiser implements ParquetSerialiser<TreeSet<String>> {
 
     private static final long serialVersionUID = -8284005451029455563L;
@@ -70,12 +74,17 @@ public class TreeSetStringParquetSerialiser implements ParquetSerialiser<TreeSet
     }
 
     @Override
+    public boolean isConsistent() {
+        return true;
+    }
+
+    @Override
     public Object[] serialiseNull() {
         return new Object[0];
     }
 
     @Override
     public boolean canHandle(final Class clazz) {
-        return TreeSet.class.isAssignableFrom(clazz);
+        return TreeSet.class.equals(clazz);
     }
 }

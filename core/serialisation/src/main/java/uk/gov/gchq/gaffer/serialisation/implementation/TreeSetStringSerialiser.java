@@ -16,9 +16,11 @@
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
 import com.google.common.base.Splitter;
+
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesViaStringDeserialiser;
+
 import java.util.Iterator;
 import java.util.TreeSet;
 
@@ -76,6 +78,11 @@ public class TreeSetStringSerialiser extends ToBytesViaStringDeserialiser<TreeSe
 
     @Override
     public boolean preservesObjectOrdering() {
+        return true;
+    }
+
+    @Override
+    public boolean isConsistent() {
         return true;
     }
 }

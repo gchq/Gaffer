@@ -21,8 +21,10 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.junit.AfterClass;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -33,9 +35,10 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
-import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -64,8 +67,7 @@ public abstract class AbstractOperationsTest {
     @AfterClass
     public static void cleanUpData() throws IOException {
         try (final FileSystem fs = FileSystem.get(new Configuration())) {
-            final ParquetStoreProperties props = (ParquetStoreProperties) StoreProperties.loadStoreProperties(
-                    StreamUtil.storeProps(AbstractOperationsTest.class));
+            final ParquetStoreProperties props = TestUtils.getParquetStoreProperties();
             deleteFolder(props.getDataDir(), fs);
         }
     }
@@ -90,7 +92,7 @@ public abstract class AbstractOperationsTest {
 
     @Test
     public void getElementsTest() throws OperationException {
-        final CloseableIterable<? extends Element> data = graph.execute(new GetElements.Builder().build(), USER);
+        final CloseableIterable<? extends Element> data = graph.execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).build(), USER);
         assertFalse(data.iterator().hasNext());
         data.close();
     }
@@ -122,7 +124,7 @@ public abstract class AbstractOperationsTest {
 
     @Test
     public void getElementsWithPostAggregationFilterTest() throws OperationException {
-        final View view = new View.Builder().edge("BasicEdge",
+        final View view = new View.Builder().edge(TestGroups.EDGE,
                 new ViewElementDefinition.Builder()
                         .postAggregationFilter(
                                 new ElementFilter.Builder()
@@ -133,7 +135,7 @@ public abstract class AbstractOperationsTest {
                         .build())
                 .build();
         try {
-            graph.execute(new GetElements.Builder().view(view).build(), USER);
+            graph.execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).view(view).build(), USER);
             fail("IllegalArgumentException Exception expected");
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Operation chain"));
@@ -144,7 +146,7 @@ public abstract class AbstractOperationsTest {
 
     @Test
     public void getElementsWithPostTransformFilterTest() throws OperationException {
-        final View view = new View.Builder().edge("BasicEdge",
+        final View view = new View.Builder().edge(TestGroups.EDGE,
                 new ViewElementDefinition.Builder()
                         .postTransformFilter(
                                 new ElementFilter.Builder()
@@ -155,7 +157,7 @@ public abstract class AbstractOperationsTest {
                         .build())
                 .build();
         try {
-            graph.execute(new GetElements.Builder().view(view).build(), USER);
+            graph.execute(new GetElements.Builder().input(new EmptyClosableIterable<>()).view(view).build(), USER);
             fail("IllegalArgumentException Exception expected");
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Operation chain"));

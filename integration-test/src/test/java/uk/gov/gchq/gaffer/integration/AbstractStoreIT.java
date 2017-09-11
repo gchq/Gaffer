@@ -20,6 +20,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
@@ -28,6 +29,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
@@ -45,6 +47,7 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -162,7 +165,9 @@ public abstract class AbstractStoreIT {
         assumeTrue("Skipping test. Justification: " + skippedTests.get(getClass()), !skippedTests.containsKey(getClass()));
 
         graph = new Graph.Builder()
-                .graphId("integrationTestGraph")
+                .config(new GraphConfig.Builder()
+                        .graphId("integrationTestGraph")
+                        .build())
                 .storeProperties(storeProperties)
                 .addSchema(createSchema())
                 .addSchema(storeSchema)
@@ -225,6 +230,7 @@ public abstract class AbstractStoreIT {
                         .groupBy(TestPropertyNames.INT)
                         .build())
                 .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
+                        .vertex(TestTypes.ID_STRING)
                         .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP_2)
                         .property(TestPropertyNames.INT, TestTypes.PROP_INTEGER_2)
                         .build())

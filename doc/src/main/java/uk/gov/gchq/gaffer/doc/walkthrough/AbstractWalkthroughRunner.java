@@ -16,10 +16,12 @@
 package uk.gov.gchq.gaffer.doc.walkthrough;
 
 import org.apache.commons.io.IOUtils;
+
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -28,12 +30,11 @@ import java.util.Locale;
 public class AbstractWalkthroughRunner {
     public static final String EXAMPLE_DIVIDER = "\n\n";
 
-    private final List<Class<? extends AbstractWalkthrough>> examples;
+    private final List<AbstractWalkthrough> examples;
+    protected final String modulePath;
+    protected final String resourcePrefix;
 
-    private final String modulePath;
-    private final String resourcePrefix;
-
-    public AbstractWalkthroughRunner(final List<Class<? extends AbstractWalkthrough>> examples, final String modulePath, final String resourcePrefix) {
+    public AbstractWalkthroughRunner(final List<AbstractWalkthrough> examples, final String modulePath, final String resourcePrefix) {
         this.examples = examples;
         this.modulePath = modulePath;
         this.resourcePrefix = resourcePrefix;
@@ -44,25 +45,33 @@ public class AbstractWalkthroughRunner {
         printTableOfContents();
         printIntro();
         printWalkthroughTitle();
-        for (final Class<? extends AbstractWalkthrough> aClass : examples) {
+        for (final AbstractWalkthrough example : examples) {
             // Clear the caches so the output is not dependent on what's been run before
             try {
                 if (CacheServiceLoader.getService() != null) {
                     CacheServiceLoader.getService().clearCache("NamedOperation");
                     CacheServiceLoader.getService().clearCache("JobTracker");
                 }
-            } catch (CacheOperationException e) {
+            } catch (final CacheOperationException e) {
                 throw new RuntimeException(e);
             }
 
-            System.out.println(aClass.newInstance().walkthrough());
+            System.out.println(example.walkthrough());
             System.out.println(EXAMPLE_DIVIDER);
         }
     }
 
-    private void printIntro() {
+    protected void printIntro() {
+        printFile("Intro.md");
+    }
+
+    protected void printRunningTheExamples() {
+        printFile("RunningTheExamples.md");
+    }
+
+    protected void printFile(final String filename) {
         final String intro;
-        try (final InputStream stream = StreamUtil.openStream(getClass(), resourcePrefix + "/walkthrough/Intro.md")) {
+        try (final InputStream stream = StreamUtil.openStream(getClass(), resourcePrefix + "/walkthrough/" + filename)) {
             intro = new String(IOUtils.toByteArray(stream), CommonConstants.UTF_8);
         } catch (final IOException e) {
             throw new RuntimeException(e);
@@ -71,7 +80,7 @@ public class AbstractWalkthroughRunner {
         System.out.println(WalkthroughStrSubstitutor.substitute(intro, modulePath));
     }
 
-    private void printHeader() {
+    protected void printHeader() {
         System.out.println("Copyright 2016-2017 Crown Copyright\n"
                 + "\n"
                 + "Licensed under the Apache License, Version 2.0 (the \"License\");\n"
@@ -96,15 +105,15 @@ public class AbstractWalkthroughRunner {
         System.out.println(index + ". [Walkthroughs](#walkthroughs)");
 
         index = 1;
-        for (final Class<? extends AbstractWalkthrough> aClass : examples) {
-            final String header = aClass.newInstance().getHeader();
+        for (final AbstractWalkthrough example : examples) {
+            final String header = example.getHeader();
             System.out.println("   " + index + ". [" + header + "](#" + header.toLowerCase(Locale.getDefault()).replace(" ", "-") + ")");
             index++;
         }
         System.out.println("\n");
     }
 
-    private void printWalkthroughTitle() {
+    protected void printWalkthroughTitle() {
         System.out.println("## Walkthroughs");
     }
 }

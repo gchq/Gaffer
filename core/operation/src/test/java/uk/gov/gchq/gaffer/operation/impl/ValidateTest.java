@@ -17,33 +17,27 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
+
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 
-public class ValidateTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Override
-    public Class<? extends Operation> getOperationClass() {
-        return Validate.class;
-    }
-
+public class ValidateTest extends OperationTest<Validate> {
     @Test
-    @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final List<Element> elements = Arrays.asList(
                 new Entity.Builder()
@@ -66,8 +60,8 @@ public class ValidateTest extends OperationTest {
         op.setInput(elements);
 
         // When
-        byte[] json = serialiser.serialise(op, true);
-        final Validate deserialisedOp = serialiser.deserialise(json, Validate.class);
+        byte[] json = JSONSerialiser.serialise(op, true);
+        final Validate deserialisedOp = JSONSerialiser.deserialise(json, Validate.class);
 
         // Then
         final Iterator<? extends Element> itr = deserialisedOp.getInput().iterator();
@@ -92,14 +86,40 @@ public class ValidateTest extends OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        Element edge = new Edge.Builder()
+        final Element edge = new Edge.Builder()
                 .group("testGroup")
                 .build();
-        Validate validate = new Validate.Builder()
+        final Validate validate = new Validate.Builder()
                 .input(edge)
                 .skipInvalidElements(true)
                 .build();
         assertTrue(validate.isSkipInvalidElements());
         assertEquals(edge, validate.getInput().iterator().next());
+    }
+
+    @Override
+    public void shouldShallowCloneOperation() {
+        // Given
+        final Element input = new Edge.Builder()
+                .group("testGroup")
+                .build();
+        final Validate validate = new Validate.Builder()
+                .input(input)
+                .skipInvalidElements(true)
+                .validate(true)
+                .build();
+
+        // When
+        final Validate clone = validate.shallowClone();
+
+        // Then
+        assertNotSame(validate, clone);
+        assertTrue(clone.isSkipInvalidElements());
+        assertTrue(clone.isValidate());
+        assertEquals(input, clone.getInput().iterator().next());
+    }
+
+    protected Validate getTestObject() {
+        return new Validate();
     }
 }

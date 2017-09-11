@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.Test;
+
+import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.GroupCounts;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -41,9 +43,13 @@ import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
+
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -52,9 +58,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class OperationChainTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
+public class OperationChainTest extends JSONSerialisationTest<OperationChain> {
     @Test
     public void shouldSerialiseAndDeserialiseOperationChain() throws SerialisationException {
         // Given
@@ -64,18 +68,18 @@ public class OperationChainTest {
                 .build();
 
         // When
-        byte[] json = serialiser.serialise(opChain, true);
-        final OperationChain deserialisedOp = serialiser.deserialise(json, OperationChain.class);
+        byte[] json = JSONSerialiser.serialise(opChain, true);
+        final OperationChain deserialisedOp = JSONSerialiser.deserialise(json, OperationChain.class);
 
         // Then
         assertNotNull(deserialisedOp);
         assertEquals(2, deserialisedOp.getOperations().size());
         assertEquals(OperationImpl.class, deserialisedOp.getOperations()
-                .get(0)
-                .getClass());
+                                                        .get(0)
+                                                        .getClass());
         assertEquals(OperationImpl.class, deserialisedOp.getOperations()
-                .get(1)
-                .getClass());
+                                                        .get(1)
+                                                        .getClass());
     }
 
     @Test
@@ -214,4 +218,67 @@ public class OperationChainTest {
             verify(operation).close();
         }
     }
+
+    @Test
+    public void shouldFlattenNestedOperationChain() {
+        // Given
+        final AddElements addElements = mock(AddElements.class);
+        final GetElements getElements = mock(GetElements.class);
+        final Limit<Element> limit = mock(Limit.class);
+
+        final OperationChain opChain1 = new OperationChain.Builder().first(addElements)
+                                                                    .then(getElements)
+                                                                    .build();
+
+        final OperationChain<?> opChain2 = new OperationChain.Builder().first(opChain1)
+                                                                       .then(limit)
+                                                                       .build();
+        // When
+        final List<Operation> operations = opChain2.flatten();
+
+        // Then
+        final Operation first = operations.get(0);
+        final Operation second = operations.get(1);
+        final Operation third = operations.get(2);
+
+        assertThat(first, instanceOf(AddElements.class));
+        assertThat(second, instanceOf(GetElements.class));
+        assertThat(third, instanceOf(Limit.class));
+    }
+
+    @Test
+    public void shouldDoAShallowClone() throws IOException {
+        // Given
+        final List<Operation> ops = Arrays.asList(
+                mock(Operation.class),
+                mock(Input.class),
+                mock(Input.class),
+                mock(MultiInput.class),
+                mock(Input.class)
+        );
+        final List<Operation> clonedOps = Arrays.asList(
+                mock(Operation.class),
+                mock(Input.class),
+                mock(Input.class),
+                mock(MultiInput.class),
+                mock(Input.class)
+        );
+        for (int i = 0; i < ops.size(); i++) {
+            given(ops.get(i).shallowClone()).willReturn(clonedOps.get(i));
+        }
+
+        final OperationChain opChain = new OperationChain(ops);
+
+        // When
+        final OperationChain clone = opChain.shallowClone();
+
+        // Then
+        assertEquals(clonedOps, clone.getOperations());
+    }
+
+    @Override
+    protected OperationChain getTestObject() {
+        return new OperationChain();
+    }
+
 }

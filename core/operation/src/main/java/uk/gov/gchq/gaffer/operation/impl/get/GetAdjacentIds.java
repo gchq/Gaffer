@@ -18,16 +18,17 @@ package uk.gov.gchq.gaffer.operation.impl.get;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+
 import java.util.Collections;
 import java.util.Map;
 
@@ -41,8 +42,7 @@ public class GetAdjacentIds implements
         Operation,
         InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends EntityId>>,
         MultiInput<EntityId>,
-        SeededGraphFilters,
-        Options {
+        SeededGraphFilters {
     private View view;
     private Iterable<? extends EntityId> input;
     private DirectedType directedType;
@@ -117,11 +117,21 @@ public class GetAdjacentIds implements
         this.inOutType = inOutType;
     }
 
+    @Override
+    public GetAdjacentIds shallowClone() {
+        return new GetAdjacentIds.Builder()
+                .view(view)
+                .input(input)
+                .directedType(directedType)
+                .options(options)
+                .inOutType(inOutType)
+                .build();
+    }
+
     public static class Builder extends Operation.BaseBuilder<GetAdjacentIds, Builder>
             implements InputOutput.Builder<GetAdjacentIds, Iterable<? extends EntityId>, CloseableIterable<? extends EntityId>, Builder>,
             MultiInput.Builder<GetAdjacentIds, EntityId, Builder>,
-            SeededGraphFilters.Builder<GetAdjacentIds, Builder>,
-            Options.Builder<GetAdjacentIds, Builder> {
+            SeededGraphFilters.Builder<GetAdjacentIds, Builder> {
         public Builder() {
             super(new GetAdjacentIds());
         }

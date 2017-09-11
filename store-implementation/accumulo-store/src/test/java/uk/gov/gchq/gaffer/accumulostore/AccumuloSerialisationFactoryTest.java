@@ -18,9 +18,10 @@ package uk.gov.gchq.gaffer.accumulostore;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.sketches.serialisation.HyperLogLogPlusSerialiser;
+import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.HyperLogLogPlusSerialiser;
 import uk.gov.gchq.gaffer.store.SerialisationFactory;
 
 import static org.junit.Assert.assertEquals;

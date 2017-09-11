@@ -20,6 +20,10 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
 import uk.gov.gchq.gaffer.types.TypeValue;
 
+/**
+ * This class is used to serialise and de-serialise a {@link TypeValue} value for use by the
+ * {@link uk.gov.gchq.gaffer.parquetstore.ParquetStore}.
+ */
 public class TypeValueParquetSerialiser implements ParquetSerialiser<TypeValue> {
     private static final long serialVersionUID = 237193138266936512L;
 
@@ -56,6 +60,11 @@ public class TypeValueParquetSerialiser implements ParquetSerialiser<TypeValue> 
 
     @Override
     public boolean preservesObjectOrdering() {
+        return true;
+    }
+
+    @Override
+    public boolean isConsistent() {
         return true;
     }
 

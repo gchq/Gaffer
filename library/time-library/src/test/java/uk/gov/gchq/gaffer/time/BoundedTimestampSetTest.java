@@ -16,9 +16,12 @@
 package uk.gov.gchq.gaffer.time;
 
 import org.junit.Test;
+
+import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashSet;
@@ -31,13 +34,12 @@ import java.util.stream.IntStream;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class BoundedTimestampSetTest {
+public class BoundedTimestampSetTest extends JSONSerialisationTest<BoundedTimestampSet>{
 
     @Test
     public void shouldSerialiseAndDeserialise() throws SerialisationException {
         // Given
-        final JSONSerialiser serialiser = new JSONSerialiser();
-        final BoundedTimestampSet boundedTimestampSet = new BoundedTimestampSet(CommonTimeUtil.TimeBucket.SECOND, 10);
+        final BoundedTimestampSet boundedTimestampSet = getTestObject();
         IntStream.range(0, 20)
                 .forEach(i -> {
                     boundedTimestampSet.add(Instant.ofEpochMilli(i * 1000L));
@@ -50,8 +52,8 @@ public class BoundedTimestampSetTest {
 
 
         // When
-        final byte[] json = serialiser.serialise(boundedTimestampSet, true);
-        final BoundedTimestampSet deserialisedObj = serialiser.deserialise(json, BoundedTimestampSet.class);
+        final byte[] json = JSONSerialiser.serialise(boundedTimestampSet, true);
+        final BoundedTimestampSet deserialisedObj = JSONSerialiser.deserialise(json, BoundedTimestampSet.class);
 
         // Then
         assertEquals(boundedTimestampSet, deserialisedObj);
@@ -60,7 +62,7 @@ public class BoundedTimestampSetTest {
     @Test
     public void testStateTransitionsCorrectly() throws SerialisationException {
         // Given
-        final BoundedTimestampSet boundedTimestampSet = new BoundedTimestampSet(CommonTimeUtil.TimeBucket.SECOND, 10);
+        final BoundedTimestampSet boundedTimestampSet = getTestObject();
 
         // When / Then
         IntStream.range(0, 20)
@@ -72,8 +74,6 @@ public class BoundedTimestampSetTest {
                         assertEquals(BoundedTimestampSet.State.SAMPLE, boundedTimestampSet.getState());
                     }
                 });
-
-        System.out.println(new String(new JSONSerialiser().serialise(boundedTimestampSet)));
     }
 
     @Test
@@ -84,7 +84,7 @@ public class BoundedTimestampSetTest {
         final Set<Instant> instants = new HashSet<>();
         instants.add(instant1);
         instants.add(instant2);
-        final BoundedTimestampSet boundedTimestampSet = new BoundedTimestampSet(CommonTimeUtil.TimeBucket.SECOND, 10);
+        final BoundedTimestampSet boundedTimestampSet = getTestObject();
         boundedTimestampSet.add(instant1);
         boundedTimestampSet.add(instant2);
 
@@ -108,7 +108,7 @@ public class BoundedTimestampSetTest {
         final Set<Instant> instants = new HashSet<>();
         IntStream.range(0, 1000)
                 .forEach(i -> instants.add(Instant.ofEpochMilli(i * 1000L)));
-        final BoundedTimestampSet boundedTimestampSet = new BoundedTimestampSet(CommonTimeUtil.TimeBucket.SECOND, 10);
+        final BoundedTimestampSet boundedTimestampSet = getTestObject();
         instants.forEach(boundedTimestampSet::add);
 
         // When
@@ -142,7 +142,7 @@ public class BoundedTimestampSetTest {
         final Set<Instant> instants = new HashSet<>();
         IntStream.range(0, 1000)
                 .forEach(i -> instants.add(Instant.ofEpochMilli(i * 1000L)));
-        final BoundedTimestampSet boundedTimestampSet = new BoundedTimestampSet(CommonTimeUtil.TimeBucket.SECOND, 10);
+        final BoundedTimestampSet boundedTimestampSet = getTestObject();
         instants.forEach(boundedTimestampSet::add);
 
         // When
@@ -159,7 +159,7 @@ public class BoundedTimestampSetTest {
     @Test
     public void testGetNumberOfTimestampsWhenNotFull() {
         // Given
-        final BoundedTimestampSet timestampSet = new BoundedTimestampSet(CommonTimeUtil.TimeBucket.SECOND, 10);
+        final BoundedTimestampSet timestampSet = getTestObject();
         final Instant instant = Instant.ofEpochMilli(1000L);
         timestampSet.add(instant);
         timestampSet.add(instant.plus(Duration.ofDays(100L)));
@@ -181,7 +181,7 @@ public class BoundedTimestampSetTest {
         final Set<Instant> instants = new HashSet<>();
         IntStream.range(0, 1000)
                 .forEach(i -> instants.add(Instant.ofEpochMilli(i * 1000L)));
-        final BoundedTimestampSet boundedTimestampSet = new BoundedTimestampSet(CommonTimeUtil.TimeBucket.SECOND, 10);
+        final BoundedTimestampSet boundedTimestampSet = getTestObject();
         instants.forEach(boundedTimestampSet::add);
 
         // When
@@ -189,5 +189,10 @@ public class BoundedTimestampSetTest {
 
         // Then
         assertEquals(10, numberOfTimestamps);
+    }
+
+    @Override
+    protected BoundedTimestampSet getTestObject() {
+        return new BoundedTimestampSet(CommonTimeUtil.TimeBucket.SECOND, 10);
     }
 }

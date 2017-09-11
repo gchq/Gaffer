@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.serialisation.util;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawSerialisationUtils;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -42,7 +43,7 @@ public abstract class LengthValueBytesSerialiserUtil {
         CompactRawSerialisationUtils.write(serialisedObject.length, byteOut);
         try {
             byteOut.write(serialisedObject);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
         return byteOut;

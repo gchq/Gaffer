@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.mapstore.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -30,10 +31,12 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.ValidatedElements;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.util.AggregatorUtil;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +48,12 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
 
     @Override
     public Void doOperation(final AddElements addElements, final Context context, final Store store) throws OperationException {
-        addElements(addElements.getInput(), (MapStore) store);
+        Iterable<? extends Element> elements = addElements.getInput();
+        if (addElements.isValidate()) {
+            elements = new ValidatedElements(elements, store.getSchema(), addElements.isSkipInvalidElements());
+        }
+
+        addElements(elements, (MapStore) store);
         return null;
     }
 

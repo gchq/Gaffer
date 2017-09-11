@@ -18,7 +18,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>gaffer2</artifactId>
-        <version>0.7.8-SNAPSHOT</version>
+        <version>1.0.0-RC2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -29,7 +29,6 @@
         <module>hdfs-library</module>
         <module>sketches-library</module>
         <module>spark</module>
-        <module>named-operation-library</module>
         <module>bitmap-library</module>
         <module>cache-library</module>
         <module>flink-library</module>
@@ -46,9 +45,10 @@
             <modules>
                 <module>hdfs-library</module>
                 <module>sketches-library</module>
-                <module>named-operation-library</module>
                 <module>bitmap-library</module>
                 <module>cache-library</module>
+                <module>flink-library</module>
+                <module>time-library</module>
             </modules>
         </profile>
     </profiles>

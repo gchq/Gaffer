@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.BooleanSerialiser;
 import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -87,6 +88,11 @@ public class EdgeIdSerialiser implements ToBytesSerialiser<EdgeId> {
 
     @Override
     public boolean preservesObjectOrdering() {
-        return false;
+        return null != vertexSerialiser && vertexSerialiser.preservesObjectOrdering();
+    }
+
+    @Override
+    public boolean isConsistent() {
+        return null != vertexSerialiser && vertexSerialiser.isConsistent();
     }
 }

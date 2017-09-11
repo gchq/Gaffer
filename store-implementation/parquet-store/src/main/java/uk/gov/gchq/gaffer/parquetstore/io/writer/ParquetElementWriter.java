@@ -23,31 +23,22 @@ import org.apache.parquet.hadoop.api.WriteSupport;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.apache.parquet.schema.MessageType;
 import org.apache.spark.sql.types.StructType;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 
 import java.io.IOException;
 
+/**
+ * This class is the Parquet writer that will write out {@link Element}'s to a specific Parquet file.
+ */
 public class ParquetElementWriter extends ParquetWriter<Element> {
 
     public static Builder builder(final Path file) {
         return new Builder(file);
     }
 
-    /**
-     * Create a new {@link ParquetElementWriter}.
-     *
-     * @param file The file name to write to.
-     * @param writeSupport The schema to write with.
-     * @param compressionCodecName Compression code to use, or CompressionCodecName.UNCOMPRESSED
-     * @param blockSize the block size threshold.
-     * @param pageSize See parquet write up. Blocks are subdivided into pages for alignment and other purposes.
-     * @param enableDictionary Whether to use a dictionary to compress columns.
-     * @param enableValidation Whether to validate the data written
-     * @param writerVersion Which parquet writer version to use
-     * @param conf The Configuration to use.
-     * @throws IOException thrown if the file does not exist
-     */
+    @Deprecated
     ParquetElementWriter(final Path file, final WriteSupport<Element> writeSupport,
                          final CompressionCodecName compressionCodecName,
                          final int blockSize, final int pageSize, final boolean enableDictionary,

@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.doc.dev.serialiser;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+
 import java.io.UnsupportedEncodingException;
 
 public class VisibilitySerialiser implements ToBytesSerialiser<String> {
@@ -62,6 +63,11 @@ public class VisibilitySerialiser implements ToBytesSerialiser<String> {
 
     @Override
     public boolean preservesObjectOrdering() {
+        return true;
+    }
+
+    @Override
+    public boolean isConsistent() {
         return true;
     }
 }

@@ -17,17 +17,20 @@ package uk.gov.gchq.gaffer.parquetstore.index;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.store.StoreException;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * This class is used to store a file-based index for a single group, i.e. for each group it stores a set of
- * {@link ColumnIndex}s. Each {@link ColumnIndex} contains a set of {@link MinMaxPath} which contains the path to a file
+ * {@link ColumnIndex}s. Each {@link ColumnIndex} contains a set of {@link MinValuesWithPath} which contains the path to a file
  * that contains data for that group along with minimum and maximum values of the indexed columns within that file.
  * This allows queries for particular values of the indexed columns to skip files that do not contain relevant data.
  */
@@ -40,6 +43,10 @@ public class GroupIndex {
 
     public ColumnIndex getColumn(final String column) {
         return columnToIndex.get(column);
+    }
+
+    public Set<String> columnsIndexed() {
+        return Collections.unmodifiableSet(columnToIndex.keySet());
     }
 
     public void add(final String column, final ColumnIndex columnIndex) {
@@ -63,20 +70,26 @@ public class GroupIndex {
         }
     }
 
-    public void readColumns(final String group, final String rootDir, final FileSystem fs) throws StoreException {
+    public void readColumns(final String group, final String rootDir, final FileSystem fs, final String[] columns) throws StoreException {
         try {
-            final String[] columns = new String[]{ParquetStoreConstants.VERTEX, ParquetStoreConstants.SOURCE, ParquetStoreConstants.DESTINATION};
             for (final String column : columns) {
                 final String indexDir = ParquetStore.getGroupDirectory(group, column, rootDir) + "/";
                 final Path path = new Path(indexDir + ParquetStoreConstants.INDEX);
                 if (fs.exists(path)) {
                     final ColumnIndex colIndex = new ColumnIndex();
                     colIndex.read(fs.open(path));
-                    add(column, colIndex);
+                    if (colIndex.getIterator().hasNext()) {
+                        add(column, colIndex);
+                    }
                 }
             }
         } catch (final IOException e) {
             throw new StoreException(e.getMessage());
         }
+    }
+
+    @Override
+    public String toString() {
+        return columnToIndex.toString();
     }
 }

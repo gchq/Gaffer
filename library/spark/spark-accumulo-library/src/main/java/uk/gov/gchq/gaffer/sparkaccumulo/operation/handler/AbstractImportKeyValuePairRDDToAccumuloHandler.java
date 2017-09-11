@@ -16,22 +16,23 @@
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler;
 
 import org.apache.hadoop.conf.Configuration;
+
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.AccumuloKeyRangePartitioner;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-public abstract class AbstractImportKeyValuePairRDDToAccumuloHandler<OP extends Operation & Options> implements OperationHandler<OP> {
+public abstract class AbstractImportKeyValuePairRDDToAccumuloHandler<OP extends Operation> implements OperationHandler<OP> {
 
     protected abstract void prepareKeyValues(final OP operation, final AccumuloKeyRangePartitioner partitioner) throws OperationException;
 
@@ -62,7 +63,7 @@ public abstract class AbstractImportKeyValuePairRDDToAccumuloHandler<OP extends 
                         .inputPath(outputPath)
                         .failurePath(failurePath)
                         .build();
-        store._execute(new OperationChain<>(importAccumuloKeyValueFiles), context);
+        store.execute(new OperationChain<>(importAccumuloKeyValueFiles), context);
     }
 
     protected Configuration getConfiguration(final OP operation) throws OperationException {
