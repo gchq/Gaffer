@@ -22,6 +22,7 @@ import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema;
 import scala.collection.mutable.WrappedArray$;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -141,7 +142,7 @@ public class DataGen {
     private static List<Element> generateBasicStringEntitysWithNullProperties(final String group, final int size) {
         final List<Element> entities = new ArrayList<>();
 
-        for (int x = 0 ; x < size/2 ; x++){
+        for (int x = 0; x < size / 2; x++) {
             final Entity entity = DataGen.getEntity(group, "vert" + x, null, null, null, null, null, null, null, null, 1);
             final Entity entity1 = DataGen.getEntity(group, "vert" + x, null, null, null, null, null, null, null, null, 1);
             entities.add(entity);
@@ -153,7 +154,7 @@ public class DataGen {
     private static List<Element> generateBasicStringEdgesWithNullProperties(final String group, final int size) {
         final List<Element> edges = new ArrayList<>();
 
-        for (int x = 0 ; x < size/4 ; x++){
+        for (int x = 0; x < size / 4; x++) {
             final Edge edge = DataGen.getEdge(group, "src" + x, "dst" + x, true, null, null, null, null, null, null, null, null, 1);
             final Edge edge2 = DataGen.getEdge(group, "src" + x, "dst" + x, true, null, null, null, null, null, null, null, null, 1);
             final Edge edge3 = DataGen.getEdge(group, "src" + x, "dst" + x, false, null, null, null, null, null, null, null, null, 1);
@@ -169,7 +170,7 @@ public class DataGen {
     private static List<Element> generateBasicLongEntitys(final String group, final int size) {
         final List<Element> entities = new ArrayList<>();
 
-        for (int x = 0 ; x < size/2 ; x++){
+        for (int x = 0; x < size / 2; x++) {
             final Entity entity = DataGen.getEntity(group, (long) x, (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L * x, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1);
             final Entity entity1 = DataGen.getEntity(group, (long) x, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * x, (short) 7, TestUtils.DATE, TestUtils.getFreqMap2(), 1);
             entities.add(entity);
@@ -181,7 +182,7 @@ public class DataGen {
     private static List<Element> generateBasicLongEdges(final String group, final int size) {
         final List<Element> edges = new ArrayList<>();
 
-        for (int x = 0 ; x < size/4 ; x++){
+        for (int x = 0; x < size / 4; x++) {
             final Edge edge = DataGen.getEdge(group, (long) x, (long) x + 1, true, (byte) 'a', 0.2 * x, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1);
             final Edge edge2 = DataGen.getEdge(group, (long) x, (long) x + 1, true, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * x, (short) 7, TestUtils.DATE, TestUtils.getFreqMap2(), 1);
             final Edge edge3 = DataGen.getEdge(group, (long) x, (long) x + 1, false, (byte) 'a', 0.2 * x, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1);
@@ -197,7 +198,7 @@ public class DataGen {
     private static List<Element> generateBasicTypeValueEntitys(final String group, final int size) {
         final List<Element> entities = new ArrayList<>();
 
-        for (int x = 0 ; x < size/2 ; x++){
+        for (int x = 0; x < size / 2; x++) {
             final String type = "type" + (x % 5);
             final TypeValue vrt = new TypeValue(type, "vrt" + x);
             final Entity entity = DataGen.getEntity(group, vrt, (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L * x, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1);
@@ -211,7 +212,7 @@ public class DataGen {
     private static List<Element> generateBasicTypeValueEdges(final String group, final int size) {
         final List<Element> edges = new ArrayList<>();
 
-        for (int x = 0 ; x < size/4 ; x++){
+        for (int x = 0; x < size / 4; x++) {
             final String type = "type" + (x % 5);
             final TypeValue src = new TypeValue(type, "src" + x);
             final TypeValue dst = new TypeValue(type, "dst" + (x + 1));
@@ -261,6 +262,9 @@ public class DataGen {
 
     public static JavaRDD<Element> generate300LongElementsRDD(final JavaSparkContext spark) {
         final List<Element> elements = generate300LongElements();
+        for (Element e : elements) {
+            e.putProperty(TestTypes.VISIBILITY, "A,B,C");
+        }
         return spark.parallelize(elements);
     }
 

@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler;
 
+import org.apache.spark.api.java.function.FilterFunction;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
@@ -60,10 +61,12 @@ public class GetDataframeOfElementsHandler implements OutputOperationHandler<Get
         if (operation.getView().equals(store.getSchemaUtils().getEmptyView())) {
             LOGGER.debug("Retrieving elements as a dataframe");
             final String rootDir = store.getDataDir() + "/" + store.getGraphIndex().getSnapshotTimestamp() + "/";
+            FilterFunction<Row> filter = e -> 1 == 1;
             final Dataset<Row> dataset = spark
                     .read()
                     .option("mergeSchema", true)
-                    .parquet(rootDir + ParquetStoreConstants.GRAPH);
+                    .parquet(rootDir + ParquetStoreConstants.GRAPH)
+                    .filter(filter);
             LOGGER.debug("The merged schema that the data is being loaded using is: {}", dataset.schema().treeString());
             return dataset;
         } else {
