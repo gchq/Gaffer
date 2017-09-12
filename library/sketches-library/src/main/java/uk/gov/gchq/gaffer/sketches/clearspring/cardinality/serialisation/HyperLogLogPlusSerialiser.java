@@ -18,12 +18,12 @@ package uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation;
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.types.serialisation.ToBytesSerialiser;
 
 import java.io.IOException;
 
 /**
- * A <code>HyperLogLogPlusSerialiser</code> is used to serialise and deserialise
+ * A {@code HyperLogLogPlusSerialiser} is used to serialise and deserialise
  * {@link HyperLogLogPlus} objects.
  */
 public class HyperLogLogPlusSerialiser implements ToBytesSerialiser<HyperLogLogPlus> {

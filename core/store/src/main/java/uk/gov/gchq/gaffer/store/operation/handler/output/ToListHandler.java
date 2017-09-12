@@ -25,6 +25,16 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * The {@code ToListHandler} handles {@link ToList} operations by collecting the
+ * items in the input {@link Iterable} into a {@link List}.
+ *
+ * Use of this operation will cause all of the items present in the input iterable
+ * to be brought into memory, so this operation is not suitable for situations where
+ * the size of the input iterable is very large.
+ *
+ * @param <T> the type of object contained in the input iterable
+ */
 public class ToListHandler<T> implements OutputOperationHandler<ToList<T>, List<? extends T>> {
     @Override
     public List<T> doOperation(final ToList<T> operation, final Context context, final Store store) throws OperationException {

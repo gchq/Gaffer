@@ -17,7 +17,7 @@ We also added in the serialiser and aggregator for the HyperLogLogPlus object. G
 
 ${TYPES_JSON}
 
-Here are all the edges loaded into the graph (unfortunately the HyperLogLogPlus class we are using for the cardinaltity doesn't have a toString method, so just ignore that for now):
+Here are all the edges loaded into the graph (unfortunately the HyperLogLogPlus class we are using for the cardinality doesn't have a toString method, so just ignore that for now):
 
 ```
 ${GET_ALL_EDGES_RESULT}

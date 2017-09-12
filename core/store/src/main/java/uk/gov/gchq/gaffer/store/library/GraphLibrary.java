@@ -26,7 +26,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.regex.Pattern;
 
 /**
- * A <code>GraphLibrary</code> stores a graphId and its related Schema and StoreProperties.
+ * A {@code GraphLibrary} stores a graphId and its related Schema and StoreProperties.
  */
 public abstract class GraphLibrary {
     protected static final Pattern ID_ALLOWED_CHARACTERS = Pattern.compile("[a-zA-Z0-9_]*");

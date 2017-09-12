@@ -20,10 +20,10 @@ import com.yahoo.sketches.theta.Sketches;
 import com.yahoo.sketches.theta.Union;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.types.serialisation.ToBytesSerialiser;
 
 /**
- * A <code>UnionSerialiser</code> serialises an {@link Union} using the <code>toByteArray()</code> method from the
+ * A {@code UnionSerialiser} serialises an {@link Union} using the {@code toByteArray()} method from the
  * sketch
  */
 public class UnionSerialiser implements ToBytesSerialiser<Union> {

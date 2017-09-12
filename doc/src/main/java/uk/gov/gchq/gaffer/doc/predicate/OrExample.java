@@ -66,7 +66,7 @@ public class OrExample extends PredicateExample {
         runExample(function,
                 "When using an Or predicate with multiple selected values, you need to use the Or.Builder to build your Or predicate, using .select() then .execute(). " +
                         "When selecting values in the Or.Builder you need to refer to the position in the input array. I.e to use the first value use position 0 - select(0)." +
-                        "You can select multiple values to give to a predicate like isXLessThanY, this is achieved by passing 2 positions to the selec method - select(0, 1)",
+                        "You can select multiple values to give to a predicate like isXLessThanY, this is achieved by passing 2 positions to the select method - select(0, 1)",
                 new Tuple2<>(1, 15),
                 new Tuple2<>(1, 1),
                 new Tuple2<>(15, 15),

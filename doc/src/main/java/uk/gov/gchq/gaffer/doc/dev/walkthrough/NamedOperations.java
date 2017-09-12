@@ -47,6 +47,7 @@ public class NamedOperations extends DevWalkthrough {
         super("NamedOperations", "RoadAndRoadUseWithTimesAndCardinalities");
     }
 
+    @Override
     public CloseableIterable<? extends Element> run() throws OperationException, IOException {
         /// [graph] create a graph using our schema and store properties
         // ---------------------------------------------------------

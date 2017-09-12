@@ -22,9 +22,13 @@ import uk.gov.gchq.gaffer.cache.ICacheService;
 import java.util.HashMap;
 import java.util.Properties;
 
+/**
+ * Simple implementation of the {@link ICacheService} interface which uses a
+ * {@link HashMapCache} as the cache implementation.
+ */
 public class HashMapCacheService implements ICacheService {
 
-    private HashMap<String, HashMapCache> caches = new HashMap<>();
+    private final HashMap<String, HashMapCache> caches = new HashMap<>();
 
     @Override
     public void initialise(final Properties properties) {
@@ -40,7 +44,7 @@ public class HashMapCacheService implements ICacheService {
     public <K, V> ICache<K, V> getCache(final String cacheName) {
         HashMapCache<K, V> cache = caches.get(cacheName);
 
-        if (cache == null) {
+        if (null == cache) {
             cache = new HashMapCache<>();
             caches.put(cacheName, cache);
         }

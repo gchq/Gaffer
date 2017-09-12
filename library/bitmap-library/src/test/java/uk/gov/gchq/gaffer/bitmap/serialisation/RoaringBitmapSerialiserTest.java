@@ -20,8 +20,8 @@ import org.roaringbitmap.RoaringBitmap;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
+import uk.gov.gchq.gaffer.types.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.types.serialisation.ToBytesSerialisationTest;
 
 import static org.junit.Assert.assertEquals;
 
@@ -65,6 +65,7 @@ public class RoaringBitmapSerialiserTest extends ToBytesSerialisationTest<Roarin
         return new RoaringBitmapSerialiser();
     }
 
+    @Override
     public Pair<RoaringBitmap, byte[]>[] getHistoricSerialisationPairs() {
         RoaringBitmap testBitmap = getExampleValue();
         return new Pair[]{new Pair(testBitmap, new byte[]{58, 48, 0, 0, 2, 0, 0, 0, 0, 0, 1, 0, 4, 0, 0, 0, 24, 0, 0, 0, 28, 0, 0, 0, 2, 0, -72, 11, -32, -109})};

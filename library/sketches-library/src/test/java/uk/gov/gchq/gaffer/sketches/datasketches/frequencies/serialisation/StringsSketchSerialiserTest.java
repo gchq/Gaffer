@@ -19,7 +19,7 @@ import com.yahoo.sketches.frequencies.ItemsSketch;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
-import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.types.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.ViaCalculatedValueSerialiserTest;
 
 import static org.junit.Assert.assertFalse;
@@ -38,6 +38,7 @@ public class StringsSketchSerialiserTest extends ViaCalculatedValueSerialiserTes
         return new StringsSketchSerialiser();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Pair<ItemsSketch<String>, byte[]>[] getHistoricSerialisationPairs() {
         final ItemsSketch<String> sketch = getExampleOutput();

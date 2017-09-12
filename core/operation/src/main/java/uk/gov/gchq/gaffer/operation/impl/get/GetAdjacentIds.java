@@ -33,13 +33,12 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * A <code>GetAdjacentIds</code> operation will return the
+ * A {@code GetAdjacentIds} operation will return the
  * vertex at the opposite end of connected edges to a provided seed vertex.
  *
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds.Builder
  */
 public class GetAdjacentIds implements
-        Operation,
         InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends EntityId>>,
         MultiInput<EntityId>,
         SeededGraphFilters {

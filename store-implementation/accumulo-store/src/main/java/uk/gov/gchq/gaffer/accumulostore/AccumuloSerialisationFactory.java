@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.accumulostore;
 
-import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.types.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.HyperLogLogPlusSerialiser;
 import uk.gov.gchq.gaffer.sketches.datasketches.frequencies.serialisation.LongsSketchSerialiser;
 import uk.gov.gchq.gaffer.sketches.datasketches.frequencies.serialisation.StringsSketchSerialiser;
@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.sketches.datasketches.theta.serialisation.UnionSeriali
 import uk.gov.gchq.gaffer.store.SerialisationFactory;
 
 /**
- * An <code>AccumuloSerialisationFactory</code> holds a list of Accumulo serialisers and
+ * An {@code AccumuloSerialisationFactory} holds a list of Accumulo serialisers and
  * is design to provide compatible serialisers for given object classes.
  */
 public class AccumuloSerialisationFactory extends SerialisationFactory {

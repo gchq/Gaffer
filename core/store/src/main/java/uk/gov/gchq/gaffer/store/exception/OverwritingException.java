@@ -17,8 +17,8 @@
 package uk.gov.gchq.gaffer.store.exception;
 
 /**
- * An OverwritingException should be thrown when a
- * condition will cause something to be overwritten.
+ * An {@code OverwritingException} should be thrown when a condition will cause
+ * something to be overwritten.
  */
 public class OverwritingException extends IllegalArgumentException {
     private static final long serialVersionUID = -4189349368741071943L;

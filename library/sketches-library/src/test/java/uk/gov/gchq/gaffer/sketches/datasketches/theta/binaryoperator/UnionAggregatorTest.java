@@ -70,7 +70,7 @@ public class UnionAggregatorTest extends BinaryOperatorTest {
         final String json = new String(JSONSerialiser.serialise(aggregator, true));
         // Then 1
         JsonAssert.assertEquals(String.format("{%n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.theta.binaryoperator.UnionAggregator\"%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.theta.function.UnionAggregator\"%n" +
                 "}"), json);
 
         // When 2

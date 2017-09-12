@@ -20,11 +20,16 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
+import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
+/**
+ * A {@code GetJobResultsHandler} handles {@link GetJobResults} operations by querying
+ * the configured store's job tracker for the required job results.
+ */
 public class GetJobResultsHandler implements OutputOperationHandler<GetJobResults, CloseableIterable<?>> {
     @Override
     public CloseableIterable<?> doOperation(final GetJobResults operation, final Context context, final Store store) throws OperationException {

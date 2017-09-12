@@ -19,11 +19,11 @@ import com.yahoo.memory.Memory;
 import com.yahoo.sketches.theta.Sketch;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.types.serialisation.ToBytesSerialiser;
 
 /**
- * A <code>SketchSerialiser</code> serialises a {@link com.yahoo.sketches.theta.Sketch} using its
- * <code>toByteArray()</code>.
+ * A {@code SketchSerialiser} serialises a {@link com.yahoo.sketches.theta.Sketch} using its
+ * {@code toByteArray()}.
  */
 public class SketchSerialiser implements ToBytesSerialiser<Sketch> {
     private static final long serialVersionUID = 7334348024327614467L;

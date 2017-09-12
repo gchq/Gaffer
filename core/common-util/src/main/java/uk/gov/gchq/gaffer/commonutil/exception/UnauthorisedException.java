@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.commonutil.exception;
 
 /**
- * An <code>AuthorisationException</code> is a {@link RuntimeException} that
+ * An {@code AuthorisationException} is a {@link java.lang.RuntimeException} that
  * will be when an unauthorised action is attempted.
  */
 public class UnauthorisedException extends RuntimeException {

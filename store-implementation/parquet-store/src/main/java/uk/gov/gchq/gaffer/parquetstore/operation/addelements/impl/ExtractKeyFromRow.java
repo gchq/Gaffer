@@ -24,7 +24,6 @@ import scala.collection.mutable.Builder;
 
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -34,7 +33,7 @@ import java.util.Set;
 /**
  * This class is used to extract the key from each {@link Row} using the set of groupBy column names.
  */
-public class ExtractKeyFromRow implements Function<Row, Seq<Object>>, Serializable {
+public class ExtractKeyFromRow implements Function<Row, Seq<Object>> {
 
     private static final long serialVersionUID = -5811180619204002981L;
     private final Set<String> groupByColumns;

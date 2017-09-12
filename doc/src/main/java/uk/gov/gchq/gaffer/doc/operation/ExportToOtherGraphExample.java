@@ -245,7 +245,7 @@ public class ExportToOtherGraphExample extends OperationExample {
         // ---------------------------------------------------------
 
         showExample(opChain, "Similar to the previous example, this example will export all Edges with group 'edge' to another graph using a GraphLibrary. " +
-                "But in this example we show that you can export to a new graph with id newGraphId by chosing any combination of schema and store properties registered in the GraphLibrary. " +
+                "But in this example we show that you can export to a new graph with id newGraphId by choosing any combination of schema and store properties registered in the GraphLibrary. " +
                 "This is useful as a system administrator could register various different store properties, of different Accumulo/HBase clusters and a user could them just select which one to use by referring to the relevant store properties ID.");
     }
 

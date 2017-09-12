@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
+import uk.gov.gchq.gaffer.types.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;

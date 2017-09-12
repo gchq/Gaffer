@@ -20,6 +20,12 @@ import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 
 import java.util.Iterator;
 
+/**
+ * A {@code WrappedCloseableIterator} is an {@link CloseableIterator} which provides
+ * a wrapper around any non-closeable iterables.
+ *
+ * @param <T> the type of items in the iterable.
+ */
 public class WrappedCloseableIterator<T> implements CloseableIterator<T> {
     private final Iterator<T> iterator;
 

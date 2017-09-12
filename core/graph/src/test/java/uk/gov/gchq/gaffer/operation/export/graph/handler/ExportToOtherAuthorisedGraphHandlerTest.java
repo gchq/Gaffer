@@ -33,8 +33,8 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.FileGraphLibrary;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
-import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclaration;
-import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
+import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
+import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 

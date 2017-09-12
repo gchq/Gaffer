@@ -36,6 +36,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Simple POJO containing the details associated with a {@link NamedOperation}.
+ */
 public class NamedOperationDetail implements Serializable {
     private static final long serialVersionUID = -8831783492657131469L;
     private static final String CHARSET_NAME = CommonConstants.UTF_8;

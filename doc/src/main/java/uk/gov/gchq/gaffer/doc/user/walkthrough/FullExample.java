@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.generator.CsvGenerator;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.FreqMapExtractor;
+import uk.gov.gchq.gaffer.types.function.FreqMapExtractor;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;

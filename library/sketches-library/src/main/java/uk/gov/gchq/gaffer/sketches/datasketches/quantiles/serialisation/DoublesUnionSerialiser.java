@@ -19,10 +19,10 @@ import com.yahoo.memory.WritableMemory;
 import com.yahoo.sketches.quantiles.DoublesUnion;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.types.serialisation.ToBytesSerialiser;
 
 /**
- * A <code>DoublesUnionSerialiser</code> serialises a {@link DoublesUnion} using its <code>toByteArray()</code>
+ * A {@code DoublesUnionSerialiser} serialises a {@link DoublesUnion} using its {@code toByteArray()}
  * method.
  */
 public class DoublesUnionSerialiser implements ToBytesSerialiser<DoublesUnion> {

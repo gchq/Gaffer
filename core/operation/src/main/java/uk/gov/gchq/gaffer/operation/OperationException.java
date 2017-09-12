@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.core.exception.Status;
 import static uk.gov.gchq.gaffer.core.exception.Status.INTERNAL_SERVER_ERROR;
 
 /**
- * An <code>OperationException</code> is thrown when an operation fails.
+ * An {@code OperationException} is thrown when an operation fails.
  */
 public class OperationException extends GafferCheckedException {
     private static final long serialVersionUID = 3855512637690609379L;

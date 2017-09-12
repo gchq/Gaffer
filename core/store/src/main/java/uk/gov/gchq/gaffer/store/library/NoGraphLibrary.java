@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.exception.OverwritingException;
 
 /**
- * A <code>NoGraphLibrary</code> will not store any relationships between graphIds,
+ * A {@code NoGraphLibrary} will not store any relationships between graphIds,
  * storePropertiesIds or schemaIds.
  */
 public class NoGraphLibrary extends GraphLibrary {

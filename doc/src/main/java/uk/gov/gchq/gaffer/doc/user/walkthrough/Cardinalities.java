@@ -46,6 +46,7 @@ public class Cardinalities extends UserWalkthrough {
         super("Cardinalities", "RoadAndRoadUseWithTimesAndCardinalities", RoadAndRoadUseWithTimesAndCardinalitiesElementGenerator.class);
     }
 
+    @Override
     public CloseableIterable<? extends Element> run() throws OperationException, IOException {
         // [graph] create a graph using our schema and store properties
         // ---------------------------------------------------------

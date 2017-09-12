@@ -123,19 +123,11 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
                     && areGroupByPropertiesEqual(topKey, source.getTopKey());
         }
 
-        /**
-         * @return <code>true</code> if there is another Value
-         * @see java.util.Iterator#hasNext()
-         */
         @Override
         public boolean hasNext() {
             return hasNext;
         }
 
-        /**
-         * @return the next Value
-         * @see java.util.Iterator#next()
-         */
         @Override
         public Properties next() {
             if (!hasNext) {
@@ -178,7 +170,6 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
         /**
          * unsupported
          *
-         * @see java.util.Iterator#remove()
          */
         @Override
         public void remove() {

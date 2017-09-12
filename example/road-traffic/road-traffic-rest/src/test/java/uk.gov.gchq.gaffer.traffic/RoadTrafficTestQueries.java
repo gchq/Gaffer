@@ -34,7 +34,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.GlobalViewElementDefinitio
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.generator.CsvGenerator;
-import uk.gov.gchq.gaffer.function.FreqMapExtractor;
+import uk.gov.gchq.gaffer.types.function.FreqMapExtractor;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;

@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 /**
- * A <code>FileGraphLibrary</code> stores a {@link GraphLibrary} in a specified
+ * A {@code FileGraphLibrary} stores a {@link GraphLibrary} in a specified
  * location as files.  It will store a graphId file with the relationships between
  * the graphId, storePropertiesId and the schemaId.  It will also store the
  * StoreProperties and Schema in two other files.  They will be named using the ids.

@@ -45,7 +45,7 @@ public class FederatedAddAllElementsHandlerTest {
     }
 
     @Test
-    final public void shouldMergeResultsFromFieldObjects() throws Exception {
+    public final void shouldMergeResultsFromFieldObjects() throws Exception {
         // Given
         final AddElements op = Mockito.mock(AddElements.class);
         Mockito.when(op.shallowClone()).thenReturn(op);

@@ -19,11 +19,11 @@ import com.yahoo.memory.WritableMemory;
 import com.yahoo.sketches.sampling.ReservoirLongsSketch;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.types.serialisation.ToBytesSerialiser;
 
 /**
- * A <code>ReservoirLongsSketchSerialiser</code> serialises a {@link ReservoirLongsSketch} using its
- * <code>toByteArray()</code> method.
+ * A {@code ReservoirLongsSketchSerialiser} serialises a {@link ReservoirLongsSketch} using its
+ * {@code toByteArray()} method.
  */
 public class ReservoirLongsSketchSerialiser implements ToBytesSerialiser<ReservoirLongsSketch> {
     private static final long serialVersionUID = 2492278033004791488L;

@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.BooleanParquetSerialiser;
-import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.types.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
@@ -78,7 +78,7 @@ public class SchemaUtils {
     }
 
     /**
-     * This method returns, for the provided <code>group</code>, an array of {@link String}s giving the path to the
+     * This method returns, for the provided {@code group}, an array of {@link String}s giving the path to the
      * column or columns associated to that group.
      *
      * @param group the group

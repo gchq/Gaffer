@@ -16,28 +16,53 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
+/**
+ * Utility class for handling {@link java.io.Closeable}s.
+ */
 public final class CloseableUtil {
+
     private CloseableUtil() {
+        // Private constructor to prevent instantiation.
     }
 
+    /**
+     * Close a group of objects.
+     *
+     * @param objs the objects to attempt to close
+     */
     public static void close(final Object... objs) {
         for (final Object obj : objs) {
             close(obj);
         }
     }
 
+    /**
+     * Close an object.
+     *
+     * @param obj the object to attempt to close
+     */
     public static void close(final Object obj) {
         if (obj instanceof AutoCloseable) {
             close((AutoCloseable) obj);
         }
     }
 
+    /**
+     * Close a group of {@link AutoCloseable} objects.
+     *
+     * @param closeable the objects to close
+     */
     public static void close(final AutoCloseable... closeable) {
         for (final AutoCloseable autoCloseable : closeable) {
             close(autoCloseable);
         }
     }
 
+    /**
+     * Close an {@link AutoCloseable} object.
+     *
+     * @param closeable the object to close
+     */
     public static void close(final AutoCloseable closeable) {
         try {
             if (null != closeable) {

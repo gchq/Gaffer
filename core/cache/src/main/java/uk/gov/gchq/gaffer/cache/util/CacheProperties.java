@@ -16,15 +16,23 @@
 
 package uk.gov.gchq.gaffer.cache.util;
 
-
+/**
+ * System properties used by the Gaffer cache service implementations.
+ */
 public final class CacheProperties {
 
     private CacheProperties() {
-        // do not instantiate
+        // private constructor to prevent instantiation
     }
 
+    /**
+     * Name of the system property to use in order to define the cache service class.
+     */
     public static final String CACHE_SERVICE_CLASS = "gaffer.cache.service.class";
 
+    /**
+     * Name of the system property to use in order to locate the cache config file.
+     */
     public static final String CACHE_CONFIG_FILE = "gaffer.cache.config.file";
 
 }

@@ -59,6 +59,7 @@ public class ToEntitySeedsTest extends OperationTest<ToEntitySeeds> {
         assertEquals(input, clone.getInput().iterator().next());
     }
 
+    @Override
     protected ToEntitySeeds getTestObject() {
         return new ToEntitySeeds();
     }

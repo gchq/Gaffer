@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
-import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.types.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.SerialisationFactory;
 
 import java.util.HashSet;
@@ -29,6 +29,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * The {@link SchemaOptimiser} is used to reduce the size of a given {@link Schema}.
+ */
 public class SchemaOptimiser {
     private static final Logger LOGGER = LoggerFactory.getLogger(SchemaOptimiser.class);
 
@@ -42,6 +45,14 @@ public class SchemaOptimiser {
         this.serialisationFactory = serialisationFactory;
     }
 
+    /**
+     * Optimise the provided {@link Schema} by removing unused types.
+     *
+     * @param schema the schema to optimise
+     * @param isStoreOrdered determines whether to enforce ordering in the default
+     *                       serialisers or not
+     * @return the optimised schema object
+     */
     public Schema optimise(final Schema schema, final boolean isStoreOrdered) {
         if (null != schema && null != schema.getTypes()) {
             return new Schema.Builder()

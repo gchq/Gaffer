@@ -35,7 +35,7 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.scanner.QueryScanner;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.scanner.StoreScanner;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
-import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
+import uk.gov.gchq.gaffer.types.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;

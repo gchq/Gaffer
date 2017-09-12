@@ -75,6 +75,7 @@ public class ExportToSetTest extends OperationTest<ExportToSet> {
         assertEquals(input, clone.getInput());
     }
 
+    @Override
     protected ExportToSet getTestObject() {
         return new ExportToSet();
     }

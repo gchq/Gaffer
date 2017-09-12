@@ -75,7 +75,7 @@ public class DoublesUnionAggregatorTest extends BinaryOperatorTest {
         final String json = new String(JSONSerialiser.serialise(aggregator, true));
         // Then 1
         JsonAssert.assertEquals(String.format("{%n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator.DoublesUnionAggregator\"%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.quantiles.function.DoublesUnionAggregator\"%n" +
                 "}"), json);
 
         // When 2

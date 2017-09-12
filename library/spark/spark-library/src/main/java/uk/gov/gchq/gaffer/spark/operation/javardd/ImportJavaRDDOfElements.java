@@ -20,14 +20,15 @@ import org.apache.spark.api.java.JavaSparkContext;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.Input;
 
 import java.util.Map;
 
-
+/**
+ * A {@code ImportJavaRDDOfElements} takes a {@link JavaRDD} containing {@link Element}s
+ * and adds them to a target Gaffer store.
+ */
 public class ImportJavaRDDOfElements implements
-        Operation,
         Input<JavaRDD<Element>>,
         JavaRdd {
     public static final String HADOOP_CONFIGURATION_KEY = "Hadoop_Configuration_Key";

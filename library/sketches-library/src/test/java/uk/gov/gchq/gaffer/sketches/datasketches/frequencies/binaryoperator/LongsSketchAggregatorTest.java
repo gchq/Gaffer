@@ -73,7 +73,7 @@ public class LongsSketchAggregatorTest extends BinaryOperatorTest {
         final String json = new String(JSONSerialiser.serialise(aggregator, true));
         // Then 1
         JsonAssert.assertEquals(String.format("{%n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.frequencies.binaryoperator.LongsSketchAggregator\"%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.frequencies.function.LongsSketchAggregator\"%n" +
                 "}"), json);
 
         // When 2

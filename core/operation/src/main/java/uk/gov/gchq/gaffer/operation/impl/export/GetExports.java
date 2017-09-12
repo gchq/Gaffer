@@ -31,13 +31,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A <code>GetExports</code> operation gets multiple exports and returns then
+ * A {@code GetExports} operation gets multiple exports and returns then
  * in a Map.
  * The keys in the map are: "[ExportOperationClassName]: [key]"
  * The values in the map are the exported values.
  */
 public class GetExports implements
-        Operation,
         Output<Map<String, CloseableIterable<?>>> {
     private List<GetExport> getExports = new ArrayList<>();
     private Map<String, String> options;

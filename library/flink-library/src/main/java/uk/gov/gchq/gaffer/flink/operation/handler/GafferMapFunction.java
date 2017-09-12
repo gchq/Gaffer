@@ -25,6 +25,10 @@ import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 import java.util.Collections;
 import java.util.function.Function;
 
+/**
+ * Implementation of {@link MapFunction} to allow CSV strings representing {@link Element}s
+ * to be mapped to Element objects.
+ */
 public class GafferMapFunction implements MapFunction<String, Iterable<? extends Element>> {
     private static final long serialVersionUID = -2338397824952911347L;
     public static final Class<Iterable<? extends Element>> RETURN_CLASS = (Class) Iterable.class;

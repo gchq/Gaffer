@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.hbasestore.serialisation;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.binaryoperator.FreqMapAggregator;
+import uk.gov.gchq.gaffer.types.function.FreqMapAggregator;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -33,7 +33,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hbasestore.util.HBasePropertyNames;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
-import uk.gov.gchq.gaffer.serialisation.FreqMapSerialiser;
+import uk.gov.gchq.gaffer.types.serialisation.FreqMapSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;

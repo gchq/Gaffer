@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.doc.properties.serialiser;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.types.serialisation.ToBytesSerialiser;
 
 import java.io.UnsupportedEncodingException;
 

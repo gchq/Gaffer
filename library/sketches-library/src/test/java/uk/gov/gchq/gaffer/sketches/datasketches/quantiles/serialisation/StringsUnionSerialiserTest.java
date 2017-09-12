@@ -20,15 +20,15 @@ import com.yahoo.sketches.quantiles.ItemsUnion;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
-import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.types.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.ViaCalculatedValueSerialiserTest;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
- * NB: When Gaffer requires Java 8, <code>Ordering.natural()</code> can be replaced with
- * <code>Comparator.naturalOrder()</code>.
+ * NB: When Gaffer requires Java 8, {@code Ordering.natural()} can be replaced with
+ * {@code Comparator.naturalOrder()}.
  */
 public class StringsUnionSerialiserTest extends ViaCalculatedValueSerialiserTest<ItemsUnion<String>, String> {
 
@@ -42,6 +42,7 @@ public class StringsUnionSerialiserTest extends ViaCalculatedValueSerialiserTest
         return new StringsUnionSerialiser();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Pair<ItemsUnion<String>, byte[]>[] getHistoricSerialisationPairs() {
         final ItemsUnion<String> union = getExampleOutput();

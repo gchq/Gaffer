@@ -47,6 +47,7 @@ public class Log4jLoggerTest extends JSONSerialisationTest<Log4jLogger> {
         assertSame(result, returnedResult);
     }
 
+    @Override
     public Log4jLogger getTestObject() {
         return new Log4jLogger();
     }

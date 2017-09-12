@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionE
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.BytesAndRange;
-import uk.gov.gchq.gaffer.binaryoperator.FreqMapAggregator;
+import uk.gov.gchq.gaffer.types.function.FreqMapAggregator;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -38,7 +38,7 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.serialisation.FreqMapSerialiser;
+import uk.gov.gchq.gaffer.types.serialisation.FreqMapSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;

@@ -25,7 +25,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 
 /**
- * An <code>AccumuloProperties</code> contains specific configuration information for the
+ * An {@code AccumuloProperties} contains specific configuration information for the
  * {@link uk.gov.gchq.gaffer.accumulostore.AccumuloStore}, such as database connection strings. It wraps
  * {@link uk.gov.gchq.gaffer.data.element.Properties} and lazy loads the all properties from
  * a file when first used.

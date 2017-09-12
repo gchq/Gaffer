@@ -47,7 +47,7 @@ public class FederatedOperationHandlerTest {
     }
 
     @Test
-    final public void shouldMergeResultsFromFieldObjects() throws Exception {
+    public final void shouldMergeResultsFromFieldObjects() throws Exception {
         // Given
         final Operation op = Mockito.mock(Operation.class);
 
@@ -83,7 +83,7 @@ public class FederatedOperationHandlerTest {
     }
 
     @Test
-    final public void shouldMergeResultsFromFieldObjectsWithGivenGraphIds() throws Exception {
+    public final void shouldMergeResultsFromFieldObjectsWithGivenGraphIds() throws Exception {
         // Given
         final Operation op = Mockito.mock(Operation.class);
         given(op.getOption(FederatedStoreConstants.GRAPH_IDS)).willReturn("1,3");

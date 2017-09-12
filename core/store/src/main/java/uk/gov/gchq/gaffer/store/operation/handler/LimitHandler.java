@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
 /**
- * An <code>LimitHandler</code> handles for {@link Limit} operations.
+ * An {@code LimitHandler} handles for {@link Limit} operations.
  * It simply wraps the input iterable in a
  * {@link uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable} so the data is
  * not stored in memory.

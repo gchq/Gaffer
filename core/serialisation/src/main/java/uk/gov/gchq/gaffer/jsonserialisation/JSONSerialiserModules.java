@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.Module;
 import java.util.List;
 
 /**
- * A <code>JSONSerialiserModuleFactory</code> is a simple factory that returns
+ * A {@code JSONSerialiserModuleFactory} is a simple factory that returns
  * a list of {@link Module}s to be uses in an {@link com.fasterxml.jackson.databind.ObjectMapper}
  * in {@link JSONSerialiser}.
  */

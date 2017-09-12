@@ -60,6 +60,7 @@ public class ToSetTest extends OperationTest<ToSet> {
         assertEquals(Lists.newArrayList(input), clone.getInput());
     }
 
+    @Override
     protected ToSet getTestObject() {
         return new ToSet();
     }

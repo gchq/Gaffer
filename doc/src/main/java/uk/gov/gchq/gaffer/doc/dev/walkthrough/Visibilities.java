@@ -38,6 +38,7 @@ public class Visibilities extends DevWalkthrough {
         super("Visibilities", "RoadAndRoadUseWithSecurity", RoadAndRoadUseWithSecurityElementGenerator.class);
     }
 
+    @Override
     public CloseableIterable<? extends Element> run() throws OperationException, IOException {
         /// [graph] create a graph using our schema and store properties
         // ---------------------------------------------------------

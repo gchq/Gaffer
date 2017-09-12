@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * A <code>Context</code> contains operation chain execution information, such
+ * A {@code Context} contains operation chain execution information, such
  * as the user who executed the operation chain and a map of {@link Exporter}s.
  */
 public class Context {

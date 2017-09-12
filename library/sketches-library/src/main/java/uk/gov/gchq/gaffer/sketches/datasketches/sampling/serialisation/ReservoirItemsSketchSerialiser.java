@@ -20,11 +20,11 @@ import com.yahoo.sketches.ArrayOfItemsSerDe;
 import com.yahoo.sketches.sampling.ReservoirItemsSketch;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.types.serialisation.ToBytesSerialiser;
 
 /**
- * A <code>ReservoirItemsSketchSerialiser</code> serialises a {@link ReservoirItemsSketch} using its
- * <code>toByteArray()</code> method and the provided {@link ArrayOfItemsSerDe}.
+ * A {@code ReservoirItemsSketchSerialiser} serialises a {@link ReservoirItemsSketch} using its
+ * {@code toByteArray()} method and the provided {@link ArrayOfItemsSerDe}.
  */
 public class ReservoirItemsSketchSerialiser<T> implements ToBytesSerialiser<ReservoirItemsSketch<T>> {
     private final ArrayOfItemsSerDe<T> arrayOfItemsSerDe;

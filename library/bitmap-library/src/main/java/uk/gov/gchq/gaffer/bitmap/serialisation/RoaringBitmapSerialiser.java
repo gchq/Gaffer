@@ -19,7 +19,7 @@ import org.roaringbitmap.RoaringBitmap;
 
 import uk.gov.gchq.gaffer.bitmap.serialisation.utils.RoaringBitmapUtils;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.types.serialisation.ToBytesSerialiser;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -27,6 +27,10 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+/**
+ * A {@link uk.gov.gchq.gaffer.types.serialisation.Serialiser} implementation for {@link RoaringBitmap}
+ * instances.
+ */
 public class RoaringBitmapSerialiser implements ToBytesSerialiser<RoaringBitmap> {
 
     private static final long serialVersionUID = 3772387954385745791L;

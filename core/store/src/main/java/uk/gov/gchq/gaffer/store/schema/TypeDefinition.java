@@ -28,14 +28,14 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.types.serialisation.Serialiser;
 
 import java.util.List;
 import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 
 /**
- * A <code>TypeDefinition</code> contains the an object's java class along with how to validate and aggregate the object.
+ * A {@code TypeDefinition} contains the an object's java class along with how to validate and aggregate the object.
  * It is used to deserialise/serialise a {@link Schema} to/from JSON.
  */
 @JsonFilter(JSONSerialiser.FILTER_FIELDS_BY_NAME)

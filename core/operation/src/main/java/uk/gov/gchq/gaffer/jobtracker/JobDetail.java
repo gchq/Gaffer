@@ -23,6 +23,9 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 
 import java.io.Serializable;
 
+/**
+ * POJO containing details of a Gaffer job.
+ */
 public class JobDetail implements Serializable {
     private static final long serialVersionUID = -1677432285205724269L;
     private String jobId;

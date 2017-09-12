@@ -80,7 +80,7 @@ public class ExportToOtherAuthorisedGraphExample extends OperationExample {
         // ---------------------------------------------------------
 
         showExample(opChain, "This example will export all Edges with group 'edge' to another Gaffer graph with new ID 'newGraphId'. " +
-                "The new graph will have a parent Schema and Store Properties within the graph library specifed by the ID's schemaId1 and storePropsId1. " +
+                "The new graph will have a parent Schema and Store Properties within the graph library specified by the ID's schemaId1 and storePropsId1. " +
                 "In order to export to newGraphId with storePropsId1 and schemaId1 the user must have the required user authorisations that were configured for this operation to use each of these 3 ids.");
     }
 }

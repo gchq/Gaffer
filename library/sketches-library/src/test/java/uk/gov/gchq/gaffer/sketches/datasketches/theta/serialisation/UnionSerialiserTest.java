@@ -20,7 +20,7 @@ import com.yahoo.sketches.theta.Union;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
-import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.types.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.ViaCalculatedValueSerialiserTest;
 
 import static org.junit.Assert.assertFalse;
@@ -40,6 +40,7 @@ public class UnionSerialiserTest extends ViaCalculatedValueSerialiserTest<Union,
         return new UnionSerialiser();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Pair<Union, byte[]>[] getHistoricSerialisationPairs() {
         Union union = getExampleOutput();

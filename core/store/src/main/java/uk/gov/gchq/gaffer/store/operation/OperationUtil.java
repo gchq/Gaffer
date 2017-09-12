@@ -28,8 +28,12 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.Map;
 
+/**
+ * Utility methods for handling {@link Operation}s.s
+ */
 public final class OperationUtil {
     private OperationUtil() {
+        // Private constructor to prevent instantiation.
     }
 
     public static Class<?> getInputType(final Input input) {

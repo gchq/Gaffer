@@ -35,8 +35,8 @@ import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.StringParquetSerialise
 import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.TreeSetStringParquetSerialiser;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.TypeSubTypeValueParquetSerialiser;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.TypeValueParquetSerialiser;
-import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
+import uk.gov.gchq.gaffer.types.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.types.serialisation.implementation.JavaSerialiser;
 
 /**
  * A class to store all the constants regularly used throughout the Parquet store code.

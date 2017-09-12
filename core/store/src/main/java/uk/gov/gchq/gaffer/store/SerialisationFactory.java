@@ -17,27 +17,27 @@ package uk.gov.gchq.gaffer.store;
 
 import com.google.common.collect.Lists;
 
-import uk.gov.gchq.gaffer.serialisation.FreqMapSerialiser;
-import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.serialisation.TypeSubTypeValueSerialiser;
-import uk.gov.gchq.gaffer.serialisation.TypeValueSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.BooleanSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.BytesSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.TreeSetStringSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedDateSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedDoubleSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedFloatSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedLongSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
+import uk.gov.gchq.gaffer.types.serialisation.FreqMapSerialiser;
+import uk.gov.gchq.gaffer.types.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.types.serialisation.TypeSubTypeValueSerialiser;
+import uk.gov.gchq.gaffer.types.serialisation.TypeValueSerialiser;
+import uk.gov.gchq.gaffer.types.serialisation.implementation.BooleanSerialiser;
+import uk.gov.gchq.gaffer.types.serialisation.implementation.BytesSerialiser;
+import uk.gov.gchq.gaffer.types.serialisation.implementation.JavaSerialiser;
+import uk.gov.gchq.gaffer.types.serialisation.implementation.StringSerialiser;
+import uk.gov.gchq.gaffer.types.serialisation.implementation.TreeSetStringSerialiser;
+import uk.gov.gchq.gaffer.types.serialisation.implementation.ordered.OrderedDateSerialiser;
+import uk.gov.gchq.gaffer.types.serialisation.implementation.ordered.OrderedDoubleSerialiser;
+import uk.gov.gchq.gaffer.types.serialisation.implementation.ordered.OrderedFloatSerialiser;
+import uk.gov.gchq.gaffer.types.serialisation.implementation.ordered.OrderedIntegerSerialiser;
+import uk.gov.gchq.gaffer.types.serialisation.implementation.ordered.OrderedLongSerialiser;
+import uk.gov.gchq.gaffer.types.serialisation.implementation.raw.CompactRawIntegerSerialiser;
+import uk.gov.gchq.gaffer.types.serialisation.implementation.raw.CompactRawLongSerialiser;
 
 import java.util.List;
 
 /**
- * A <code>SerialisationFactory</code> holds a list of core serialisers and
+ * A {@code SerialisationFactory} holds a list of core serialisers and
  * is design to provide compatible serialisers for given object classes.
  */
 public class SerialisationFactory {
@@ -137,7 +137,7 @@ public class SerialisationFactory {
      * @param objClass      the class of an object to be serialised.
      * @param preserveOrder if true then the returned serialiser should preserve the order.
      * @param serialiser    a compatible serialiser.
-     * @return <code> true </code> if serialiser can serialise the class, <code> false </code> otherwise.
+     * @return {@code true } if serialiser can serialise the class, {@code false } otherwise.
      */
     private boolean canSerialiseClass(final Class<?> objClass, final boolean preserveOrder, final Serialiser serialiser) {
         return serialiser.canHandle(objClass) && (!preserveOrder || serialiser.preservesObjectOrdering());
@@ -147,7 +147,7 @@ public class SerialisationFactory {
      * Checks if the given serialiser is already in the serialisers list.
      *
      * @param newSerialiser new serialiser to be added to serialisers.
-     * @return <code> true </code> if given serialiser is already present in serialisers, <code> false </code> otherwise.
+     * @return {@code true } if given serialiser is already present in serialisers, {@code false } otherwise.
      */
     private boolean serialiserAlreadyinList(final Serialiser newSerialiser) {
         for (final Serialiser serialiser : serialisers) {

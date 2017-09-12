@@ -20,11 +20,11 @@ import com.yahoo.sketches.ArrayOfNumbersSerDe;
 import com.yahoo.sketches.sampling.ReservoirItemsUnion;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.types.serialisation.ToBytesSerialiser;
 
 /**
- * A <code>ReservoirNumbersUnionSerialiser</code> serialises a {@link ReservoirItemsUnion} of {@link Number}s using its
- * <code>toByteArray()</code> method.
+ * A {@code ReservoirNumbersUnionSerialiser} serialises a {@link ReservoirItemsUnion} of {@link Number}s using its
+ * {@code toByteArray()} method.
  */
 public class ReservoirNumbersUnionSerialiser implements ToBytesSerialiser<ReservoirItemsUnion<Number>> {
     private static final long serialVersionUID = -1935225742362536044L;

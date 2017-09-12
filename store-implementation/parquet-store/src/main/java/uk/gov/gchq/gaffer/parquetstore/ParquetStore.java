@@ -41,7 +41,7 @@ import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetDatafram
 import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
-import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.types.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.spark.SparkConstants;
 import uk.gov.gchq.gaffer.spark.SparkUser;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
@@ -112,6 +112,7 @@ public class ParquetStore extends Store {
         return schemaUtils;
     }
 
+    @Override
     public Set<StoreTrait> getTraits() {
         return TRAITS;
     }

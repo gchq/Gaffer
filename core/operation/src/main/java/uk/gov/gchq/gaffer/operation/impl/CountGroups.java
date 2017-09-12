@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Map;
 
 /**
- * A <code>CountGroups</code> operation takes in {@link Element}s and collects
+ * A {@code CountGroups} operation takes in {@link Element}s and collects
  * counts for the number of entity and edge groups used. To avoid counting all
  * elements in the store, this operation has a limit, which can be set to
  * skip counting the remaining groups.
@@ -36,7 +36,6 @@ import java.util.Map;
  * @see CountGroups.Builder
  */
 public class CountGroups implements
-        Operation,
         InputOutput<Iterable<? extends Element>, GroupCounts>,
         MultiInput<Element> {
     private Iterable<? extends Element> input;

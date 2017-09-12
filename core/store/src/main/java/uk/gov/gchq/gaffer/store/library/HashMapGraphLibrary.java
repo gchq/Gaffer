@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A <code>HashMapGraphLibrary</code> stores a {@link GraphLibrary} within three HashMaps.
+ * A {@code HashMapGraphLibrary} stores a {@link GraphLibrary} within three HashMaps.
  */
 public class HashMapGraphLibrary extends GraphLibrary {
     private static final Map<String, Pair<String, String>> GRAPHS = new HashMap<>();

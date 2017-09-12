@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation;
 import com.yahoo.sketches.ArrayOfNumbersSerDe;
 
 /**
- * A <code>ReservoirNumbersSketchSerialiser</code> serialises a {@link com.yahoo.sketches.sampling.ReservoirItemsSketch}
- * using its <code>toByteArray()</code> method.
+ * A {@code ReservoirNumbersSketchSerialiser} serialises a {@link com.yahoo.sketches.sampling.ReservoirItemsSketch}
+ * using its {@code toByteArray()} method.
  */
 public class ReservoirNumbersSketchSerialiser extends ReservoirItemsSketchSerialiser<Number> {
     private static final long serialVersionUID = 5004973617990086623L;

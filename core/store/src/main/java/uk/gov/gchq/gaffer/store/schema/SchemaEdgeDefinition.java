@@ -26,6 +26,10 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+/**
+ * A {@code SchemaEdgeDefinition} is the representation of a single edge in a
+ * {@link Schema}.
+ */
 @JsonDeserialize(builder = SchemaEdgeDefinition.Builder.class)
 public class SchemaEdgeDefinition extends SchemaElementDefinition {
     public String getSource() {

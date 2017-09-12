@@ -19,7 +19,7 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
+import uk.gov.gchq.gaffer.types.serialisation.ToBytesSerialisationTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;

@@ -27,6 +27,10 @@ import javax.servlet.ServletContextListener;
 import java.io.File;
 import java.util.logging.Logger;
 
+/**
+ * A {@link ServletContextListener} to load the road traffic dataset into the application
+ * automatically upon application startup.
+ */
 public class DataLoader implements ServletContextListener {
     public static final String DATA_PATH = "roadTraffic.dataLoader.dataPath";
 
