@@ -17,18 +17,21 @@ package uk.gov.gchq.gaffer.spark.serialisation.kryo;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.Registration;
 import com.yahoo.sketches.frequencies.ItemsSketch;
 import com.yahoo.sketches.frequencies.LongsSketch;
 import com.yahoo.sketches.hll.HllSketch;
 import com.yahoo.sketches.hll.Union;
-import com.yahoo.sketches.quantiles.DoublesSketch;
+import com.yahoo.sketches.quantiles.CompactDoublesSketch;
 import com.yahoo.sketches.quantiles.DoublesUnion;
 import com.yahoo.sketches.quantiles.ItemsUnion;
+import com.yahoo.sketches.quantiles.UpdateDoublesSketch;
 import com.yahoo.sketches.sampling.ReservoirLongsSketch;
 import com.yahoo.sketches.sampling.ReservoirLongsUnion;
 import com.yahoo.sketches.theta.Sketch;
 import org.apache.spark.serializer.KryoRegistrator;
 
+import org.objenesis.instantiator.basic.NewInstanceInstantiator;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
@@ -52,12 +55,29 @@ import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.TypeValueKryoSerializer;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
 import uk.gov.gchq.gaffer.types.TypeValue;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A custom {@link KryoRegistrator} that serializes Gaffer {@link Entity}s and {@link Edge}s. NB: It
  * is not necessary to implement one for Elements as that is an abstract class.
  */
 public class Registrator implements KryoRegistrator {
+
+    private List<Registration> setup() {
+        List<Registration> registrations = new ArrayList<>();
+        Registration compactDoublesReg = new Registration(CompactDoublesSketch.class, new DoublesSketchKryoSerializer(), 200);
+        compactDoublesReg.setInstantiator(new NewInstanceInstantiator(CompactDoublesSketch.class));
+        registrations.add(compactDoublesReg);
+
+        Registration updateDoublesReg = new Registration(UpdateDoublesSketch.class, new DoublesSketchKryoSerializer(), 201);
+        updateDoublesReg.setInstantiator(new NewInstanceInstantiator(UpdateDoublesSketch.class));
+        registrations.add(updateDoublesReg);
+
+        return registrations;
+    }
+
+
 
     @Override
     public void registerClasses(final Kryo kryo) {
@@ -70,7 +90,8 @@ public class Registrator implements KryoRegistrator {
         kryo.register(Union.class, new HllUnionKryoSerializer());
         kryo.register(LongsSketch.class, new LongsSketchKryoSerializer());
         kryo.register(ItemsSketch.class, new StringsSketchKryoSerializer());
-        kryo.register(DoublesSketch.class, new DoublesSketchKryoSerializer());
+        kryo.register(CompactDoublesSketch.class, new DoublesSketchKryoSerializer());
+        kryo.register(UpdateDoublesSketch.class, new DoublesSketchKryoSerializer());
         kryo.register(DoublesUnion.class, new DoublesUnionKryoSerializer());
         kryo.register(com.yahoo.sketches.quantiles.ItemsSketch.class, new uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.quantiles.StringsSketchKryoSerializer());
         kryo.register(ItemsUnion.class, new StringsUnionKryoSerializer());
@@ -80,5 +101,7 @@ public class Registrator implements KryoRegistrator {
         kryo.register(com.yahoo.sketches.theta.Union.class, new UnionKryoSerializer());
         kryo.register(TypeValue.class, new TypeValueKryoSerializer());
         kryo.register(TypeSubTypeValue.class, new TypeSubTypeValueKryoSerializer());
+
+        setup().forEach(kryo::register);
     }
 }
