@@ -21,6 +21,8 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
+import java.util.Arrays;
+
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNull;
 
@@ -44,6 +46,6 @@ public abstract class ToBytesSerialisationTest<T> extends SerialisationTest<T, b
     @Override
     protected void serialiseFirst(final Pair<T, byte[]> pair) throws SerialisationException {
         byte[] serialise = serialiser.serialise(pair.getFirst());
-        assertArrayEquals(serialise, pair.getSecond());
+        assertArrayEquals(Arrays.toString(serialise),pair.getSecond(), serialise);
     }
 }
