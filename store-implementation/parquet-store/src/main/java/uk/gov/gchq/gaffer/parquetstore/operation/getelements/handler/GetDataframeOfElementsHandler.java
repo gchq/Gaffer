@@ -51,11 +51,13 @@ public class GetDataframeOfElementsHandler implements OutputOperationHandler<Get
     public Dataset<Row> doOperation(final GetDataFrameOfElements operation,
                                     final Context context,
                                     final Store store) throws OperationException {
-        final User user = context.getUser();
+        final User user;
         final SparkSession spark;
         final Authorisations auths;
+        final String visibility;
 
-        if (user instanceof SparkUser) {
+        if (context.getUser() instanceof SparkUser) {
+            user = context.getUser();
             spark = ((SparkUser) user).getSparkSession();
         } else {
             throw new OperationException("This operation requires the user to be of type SparkUser.");
@@ -67,24 +69,24 @@ public class GetDataframeOfElementsHandler implements OutputOperationHandler<Get
             auths = new Authorisations();
         }
 
-        return doOperation(operation, (ParquetStore) store, spark, auths);
+        if (store.getSchema().getVisibilityProperty() != null) {
+            visibility = store.getSchema().getVisibilityProperty();
+        } else {
+            visibility = new String();
+        }
+
+        return doOperation(operation, (ParquetStore) store, spark, auths, visibility);
     }
 
     private Dataset<Row> doOperation(final GetDataFrameOfElements operation,
                                      final ParquetStore store,
                                      final SparkSession spark,
-                                     final Authorisations auths) throws OperationException {
-        final String visibility;
+                                     final Authorisations auths,
+                                     final String visibility) throws OperationException {
         final FilterFunction<Row> filter;
         if (operation.getView().equals(store.getSchemaUtils().getEmptyView())) {
             LOGGER.debug("Retrieving elements as a dataframe");
             final String rootDir = store.getDataDir() + "/" + store.getGraphIndex().getSnapshotTimestamp() + "/";
-
-            if (store.getSchema().getVisibilityProperty() != null) {
-                visibility = store.getSchema().getVisibilityProperty();
-            } else {
-                visibility = new String();
-            }
 
             if (!visibility.isEmpty()) {
                 filter = e -> isVisible(e, visibility, auths);

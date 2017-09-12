@@ -135,6 +135,7 @@ public class TestUtils {
                 e = new Edge(row.getString(13), row.get(0), row.get(1), row.getBoolean(2));
             }
             e.putProperty("count", row.getInt(11));
+            e.putProperty("visibility", row.getString(12));
             elementList.add(e);
         }
         return elementList;
