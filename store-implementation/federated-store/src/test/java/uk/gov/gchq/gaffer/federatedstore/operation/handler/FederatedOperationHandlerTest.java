@@ -24,6 +24,7 @@ import org.mockito.Mockito;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.store.Context;
@@ -114,14 +115,14 @@ public class FederatedOperationHandlerTest {
         verify(mockStore4, never()).execute(new OperationChain<>(op).shallowClone(), user);
     }
 
-    private Graph getGraphWithMockStore(final Store mockStore) throws uk.gov.gchq.gaffer.operation.OperationException {
+    private Graph getGraphWithMockStore(final Store mockStore){
         return new Graph.Builder()
-                .graphId("testGraphId")
+                .config(new GraphConfig("testGraphId"))
                 .store(mockStore)
                 .build();
     }
 
-    private Store getMockStore(final Schema unusedSchema) throws uk.gov.gchq.gaffer.operation.OperationException {
+    private Store getMockStore(final Schema unusedSchema) {
         Store mockStore1 = Mockito.mock(Store.class);
         given(mockStore1.getSchema()).willReturn(unusedSchema);
         return mockStore1;

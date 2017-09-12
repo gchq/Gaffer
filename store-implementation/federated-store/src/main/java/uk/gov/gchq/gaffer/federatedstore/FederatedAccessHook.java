@@ -60,9 +60,8 @@ public class FederatedAccessHook implements GraphHook {
                 || /*userHasASharedAuth*/ this.graphAuths != null && !Collections.disjoint(user.getOpAuths(), this.graphAuths);
     }
 
-    public FederatedAccessHook setGraphAuths(final Set<String> graphAuths) {
+    public void setGraphAuths(final Set<String> graphAuths) {
         this.graphAuths = graphAuths;
-        return this;
     }
 
     @Override
@@ -71,8 +70,8 @@ public class FederatedAccessHook implements GraphHook {
     }
 
     public static class Builder {
-        private FederatedAccessHook hook = new FederatedAccessHook();
-        private Builder self = this;
+        private final FederatedAccessHook hook = new FederatedAccessHook();
+        private final Builder self = this;
 
         public Builder graphAuths(final String... opAuth) {
             if (null == opAuth) {

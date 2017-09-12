@@ -142,10 +142,8 @@ public class FederatedAccessHookTest {
         final User user = new Builder()
                 .build();
 
-        String s = null;
-
         final FederatedAccessHook hook = new FederatedAccessHook.Builder()
-                .graphAuths(s)
+                .graphAuths((String) null)
                 .graphAuths("")
                 .build();
 

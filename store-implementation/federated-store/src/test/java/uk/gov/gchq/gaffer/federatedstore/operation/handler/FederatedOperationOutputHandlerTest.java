@@ -131,7 +131,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
 
     protected abstract boolean validateMergeResultsFromFieldObjects(final O result, final Object... resultParts);
 
-    private Graph getGraphWithMockStore(final Store mockStore) throws uk.gov.gchq.gaffer.operation.OperationException {
+    private Graph getGraphWithMockStore(final Store mockStore) {
         return new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("TestGraphId")

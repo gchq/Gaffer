@@ -179,7 +179,7 @@ public class FederatedStoreTest {
 
         try {
             store.addGraphs(new Graph.Builder()
-                    .graphId(ACC_ID_1)
+                    .config(new GraphConfig(ACC_ID_1))
                     .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_ACC_STORE_PROPERTIES))
                     .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_EDGE_SCHEMA_JSON))
                     .build());
@@ -207,7 +207,7 @@ public class FederatedStoreTest {
         Set<StoreTrait> before = store.getTraits();
 
         store.addGraphs(new Graph.Builder()
-                .graphId(MAP_ID_1)
+                .config(new GraphConfig(MAP_ID_1))
                 .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_MAP_STORE_PROPERTIES))
                 .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_ENTITY_SCHEMA_JSON))
                 .build());
@@ -231,7 +231,7 @@ public class FederatedStoreTest {
         Schema before = store.getSchema();
 
         store.addGraphs(new Graph.Builder()
-                .graphId(MAP_ID_1)
+                .config(new GraphConfig(MAP_ID_1))
                 .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_MAP_STORE_PROPERTIES))
                 .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_EDGE_SCHEMA_JSON))
                 .build());
@@ -410,7 +410,7 @@ public class FederatedStoreTest {
         assertFalse(allGraphId.contains(MAP_ID_1));
 
         store.addGraphs(new Graph.Builder()
-                .graphId(MAP_ID_1)
+                .config(new GraphConfig(MAP_ID_1))
                 .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_MAP_STORE_PROPERTIES))
                 .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_ENTITY_SCHEMA_JSON))
                 .build());
