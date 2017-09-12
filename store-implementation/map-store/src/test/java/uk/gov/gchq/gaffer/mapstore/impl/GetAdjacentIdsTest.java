@@ -194,12 +194,7 @@ public class GetAdjacentIdsTest {
         final GetAdjacentIds getAdjacentIds = new GetAdjacentIds.Builder()
                 .input(new EntitySeed("A"), new EntitySeed("Y2"))
                 .view(new View.Builder()
-                        .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
-                                .preAggregationFilter(new ElementFilter.Builder()
-                                        .select(GetAllElementsHandlerTest.COUNT)
-                                        .execute(new IsMoreThan(5))
-                                        .build())
-                                .build())
+                        .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder().build())
                         .build())
                 .build();
         final CloseableIterable<? extends EntityId> results = graph.execute(getAdjacentIds, new User());
@@ -216,7 +211,6 @@ public class GetAdjacentIdsTest {
                     return edge.getSource().equals("A") || edge.getDestination().equals("A")
                             || edge.getSource().equals("Y2") || edge.getDestination().equals("Y2");
                 })
-                .filter(element -> ((Integer) element.getProperty(GetAllElementsHandlerTest.COUNT)) > 5)
                 .map(element -> {
                     final Edge edge = (Edge) element;
                     final Set<EntityId> nodes = new HashSet<>();
@@ -244,12 +238,7 @@ public class GetAdjacentIdsTest {
         final GetAdjacentIds getAdjacentIds = new GetAdjacentIds.Builder()
                 .input(new EntitySeed("A"), new EntitySeed("Y2"))
                 .view(new View.Builder()
-                        .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
-                                .postAggregationFilter(new ElementFilter.Builder()
-                                        .select(GetAllElementsHandlerTest.COUNT)
-                                        .execute(new IsMoreThan(5))
-                                        .build())
-                                .build())
+                        .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder().build())
                         .build())
                 .build();
         final CloseableIterable<? extends EntityId> results = graph.execute(getAdjacentIds, new User());
@@ -266,7 +255,6 @@ public class GetAdjacentIdsTest {
                     return edge.getSource().equals("A") || edge.getDestination().equals("A")
                             || edge.getSource().equals("Y2") || edge.getDestination().equals("Y2");
                 })
-                .filter(element -> ((Integer) element.getProperty(GetAllElementsHandlerTest.COUNT)) > 5)
                 .map(element -> {
                     final Edge edge = (Edge) element;
                     final Set<EntityId> nodes = new HashSet<>();

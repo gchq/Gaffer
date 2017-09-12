@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
@@ -58,6 +59,12 @@ public class GetAdjacentIdsHandler implements
                                                     final MapStore mapStore) throws OperationException {
         if (null == operation.getInput() || !operation.getInput().iterator().hasNext()) {
             return new EmptyClosableIterable<>();
+        }
+
+        final View view = operation.getView();
+
+        if (view.hasPreAggregationFilters() || view.hasPostAggregationFilters() || view.hasPostTransformFilters()) {
+            throw new OperationException("GetAdjacentIds operation is invalid - one or more entities have filters.");
         }
         return new EntityIdIterable(mapStore.getMapImpl(), operation, mapStore.getSchema());
     }

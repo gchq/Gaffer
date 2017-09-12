@@ -21,6 +21,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.retriever.impl.AccumuloAdjacentIdRetriever;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.store.Context;
@@ -42,6 +43,12 @@ public class GetAdjacentIdsHandler implements OutputOperationHandler<GetAdjacent
                                                              final User user,
                                                              final AccumuloStore store)
             throws OperationException {
+        final View view = op.getView();
+
+        if (view.hasPreAggregationFilters() || view.hasPostAggregationFilters() || view.hasPostTransformFilters()) {
+            throw new OperationException("GetAdjacentIds operation is invalid - one or more entities have filters.");
+        }
+
         try {
             return new AccumuloAdjacentIdRetriever(store, op, user);
         } catch (final IteratorSettingException | StoreException e) {
