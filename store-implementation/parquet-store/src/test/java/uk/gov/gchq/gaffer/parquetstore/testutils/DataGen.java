@@ -101,7 +101,7 @@ public class DataGen {
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects("date", date)));
         list.add(map);
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects("count", 1)));
-        list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects(TestTypes.VISIBILITY, "A")));
+        //list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects(TestTypes.VISIBILITY, "A")));
 
         final Object[] objects = new Object[list.size()];
         list.toArray(objects);
@@ -135,7 +135,7 @@ public class DataGen {
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects("date", date)));
         list.add(map);
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects("count", 1)));
-        list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects(TestTypes.VISIBILITY, "A")));
+        //list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects(TestTypes.VISIBILITY, "A")));
 
         final Object[] objects = new Object[list.size()];
         list.toArray(objects);

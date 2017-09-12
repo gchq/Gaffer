@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -56,7 +57,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class EdgeCasesTest {
-    private static User USER = new User();
+    private static User USER = new User.Builder().dataAuth("A").build();
 
     @AfterClass
     public static void cleanUp() throws IOException {
@@ -189,6 +190,7 @@ public class EdgeCasesTest {
         final ArrayList<Element> elements = new ArrayList<>(1);
         final Edge A2A = new Edge(TestGroups.EDGE, "A", "A", false);
         A2A.putProperty("count", 1);
+        A2A.putProperty(TestTypes.VISIBILITY, "");
         elements.add(A2A);
         graph.execute(new AddElements.Builder().input(elements).build(), USER);
 

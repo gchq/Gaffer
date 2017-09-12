@@ -82,6 +82,7 @@ public class AggregateGafferRowsFunctionTest {
         expected.add(TestUtils.DATE.getTime());
         expected.add(JavaConversions$.MODULE$.mapAsScalaMap(TestUtils.MERGED_FREQMAP));
         expected.add(2);
+        expected.add("A");
         assertThat(expected, contains(actual.toArray()));
     }
 
@@ -115,6 +116,7 @@ public class AggregateGafferRowsFunctionTest {
         expected.add(TestUtils.DATE.getTime());
         expected.add(JavaConversions$.MODULE$.mapAsScalaMap(TestUtils.MERGED_FREQMAP));
         expected.add(2);
+        expected.add("A");
         assertThat(expected, contains(actual.toArray()));
     }
 }

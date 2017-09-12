@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
@@ -86,6 +87,7 @@ public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsT
         expectedColumns.add("date");
         expectedColumns.add("freqMap");
         expectedColumns.add("count");
+        expectedColumns.add(TestTypes.VISIBILITY);
 
         assertThat(expectedColumns, containsInAnyOrder(actualColumns));
 
