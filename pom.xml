@@ -42,7 +42,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skip.surefire.tests>false</skip.surefire.tests>
         <skip.failsafe.tests>false</skip.failsafe.tests>
-        <exclude.tests />
+        <exclude.tests/>
         <skip.jar-with-dependencies>false</skip.jar-with-dependencies>
         <shaded.jar.phase>package</shaded.jar.phase>
 
@@ -564,6 +564,11 @@
                     <excludes>
                         <exclude>${exclude.tests}</exclude>
                     </excludes>
+                    <systemPropertyVariables>
+                        <log4j.configuration>
+                            file:${project.build.testOutputDirectory}/log4j.xml
+                        </log4j.configuration>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
             <plugin>
@@ -593,6 +598,11 @@
                         <include>**/*ITs.java</include>
                         <include>**/*IntegrationTests.java</include>
                     </includes>
+                    <systemPropertyVariables>
+                        <log4j.configuration>
+                            file:${project.build.testOutputDirectory}/log4j.xml
+                        </log4j.configuration>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
             <plugin>
