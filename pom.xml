@@ -1070,6 +1070,11 @@
         </profile>
         <profile>
             <id>travis</id>
+            <properties>
+                <!-- The sparkaccumulo integration tests don't run on Travis CI -->
+                <exclude.tests>**/sparkaccumulo/integration/**/*IT.java
+                </exclude.tests>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
