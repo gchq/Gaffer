@@ -24,49 +24,28 @@
         </layout>
     </appender>
 
-    <logger name="org.reflections.Reflections">
-        <level value="WARN"/>
-    </logger>
-
-    <logger name="uk.gov.gchq.gaffer.accumulostore.utils.TableUtils">
-        <level value="WARN"/>
-    </logger>
-
-    <logger name="server.handler.ContextHandler">
-        <level value="WARN"/>
-    </logger>
-
-    <logger name="org.apache.spark">
-        <level value="WARN"/>
-    </logger>
-
-    <logger name="org.apache.storage">
-        <level value="WARN"/>
-    </logger>
-
-    <logger name="org.apache.hadoop.conf.Configuration.deprecation">
-        <level value="WARN"/>
-    </logger>
-
-    <logger name="org.apache.core.client.ClientConfiguration">
+    <logger name="org.apache.accumulo.core.client.ClientConfiguration">
         <level value="ERROR"/>
     </logger>
 
-    <logger name="apache.spark">
-        <level value="WARN"/>
-    </logger>
-
-    <logger name="hadoop.util.NativeCodeLoader">
+    <logger name="org.apache.accumulo.core.conf.SiteConfiguration">
         <level value="ERROR"/>
     </logger>
 
-    <logger name="org.apache.zookeeper">
-        <level value="WARN"/>
+    <logger name="org.apache.hadoop.util.NativeCodeLoader">
+        <level value="ERROR"/>
     </logger>
 
+    <logger name="org.apache.hadoop.util.NativeCodeLoader">
+        <level value="ERROR"/>
+    </logger>
+
+    <logger name="org.apache.spark.util.ClosureCleaner">
+        <level value="ERROR"/>
+    </logger>
 
     <root>
-        <priority value="info"></priority>
+        <priority value="warn"></priority>
         <appender-ref ref="console"></appender-ref>
     </root>
 </log4j:configuration>
