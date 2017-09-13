@@ -36,6 +36,35 @@
         <level value="WARN"/>
     </logger>
 
+    <logger name="org.apache.spark">
+        <level value="WARN"/>
+    </logger>
+
+    <logger name="org.apache.storage">
+        <level value="WARN"/>
+    </logger>
+
+    <logger name="org.apache.hadoop.conf.Configuration.deprecation">
+        <level value="WARN"/>
+    </logger>
+
+    <logger name="org.apache.core.client.ClientConfiguration">
+        <level value="ERROR"/>
+    </logger>
+
+    <logger name="apache.spark">
+        <level value="WARN"/>
+    </logger>
+
+    <logger name="hadoop.util.NativeCodeLoader">
+        <level value="ERROR"/>
+    </logger>
+
+    <logger name="org.apache.zookeeper">
+        <level value="WARN"/>
+    </logger>
+
+
     <root>
         <priority value="info"></priority>
         <appender-ref ref="console"></appender-ref>
