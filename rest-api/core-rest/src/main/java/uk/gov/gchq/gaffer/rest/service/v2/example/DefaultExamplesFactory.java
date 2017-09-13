@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
@@ -91,7 +92,10 @@ public class DefaultExamplesFactory implements ExamplesFactory {
         } else if (operation instanceof GenerateElements) {
             return generateElements();
         } else if (operation instanceof OperationChain) {
-            return new OperationChain<>(getAllElements());
+            return new OperationChain.Builder()
+                    .first(getAllElements())
+                    .then(new Limit<>(1))
+                    .build();
         } else {
 
             final List<Field> fields = Arrays.asList(opClass.getDeclaredFields());
