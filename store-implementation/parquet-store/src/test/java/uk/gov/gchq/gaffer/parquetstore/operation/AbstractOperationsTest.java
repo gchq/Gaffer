@@ -47,7 +47,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public abstract class AbstractOperationsTest {
-    static User USER = new User.Builder().dataAuth("A").build();
+    static User USER = new User();
     Graph graph;
     List<ElementSeed> seedsList;
     View view;

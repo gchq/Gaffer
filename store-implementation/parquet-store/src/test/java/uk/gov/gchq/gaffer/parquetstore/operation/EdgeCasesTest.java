@@ -57,7 +57,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class EdgeCasesTest {
-    private static User USER = new User.Builder().dataAuth("A").build();
+    private static User USER = new User();
 
     @AfterClass
     public static void cleanUp() throws IOException {
@@ -100,12 +100,12 @@ public class EdgeCasesTest {
         f2.upsert("B", 2L);
         final ArrayList<Element> elements = new ArrayList<>(1);
         elements.add(DataGen.getEntity(TestGroups.ENTITY, "vertex", (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L, (short) 6,
-                TestUtils.DATE, TestUtils.getFreqMap1(), 1));
+                TestUtils.DATE, TestUtils.getFreqMap1(), 1, null));
         graph.execute(new AddElements.Builder().input(elements).build(), USER);
         graph.execute(new AddElements.Builder().input(elements).build(), USER);
         CloseableIterator<? extends Element> results = graph.execute(new GetAllElements.Builder().build(), USER).iterator();
         final Entity expected = DataGen.getEntity(TestGroups.ENTITY, "vertex", (byte) 'a', 0.4, 6f, TestUtils.getTreeSet1(), 10L, (short) 12,
-                TestUtils.DATE, f2, 2);
+                TestUtils.DATE, f2, 2, "");
         assertTrue(results.hasNext());
         assertEquals(expected, results.next());
         assertFalse(results.hasNext());
@@ -114,8 +114,8 @@ public class EdgeCasesTest {
     @Test
     public void readElementsWithZeroElementFiles() throws IOException, OperationException, StoreException {
         final List<Element> elements = new ArrayList<>(2);
-        elements.add(DataGen.getEntity(TestGroups.ENTITY, "vert1", null, null, null, null, null, null, null, null, 1));
-        elements.add(DataGen.getEntity(TestGroups.ENTITY, "vert2", null, null, null, null, null, null, null, null, 1));
+        elements.add(DataGen.getEntity(TestGroups.ENTITY, "vert1", null, null, null, null, null, null, null, null, 1, ""));
+        elements.add(DataGen.getEntity(TestGroups.ENTITY, "vert2", null, null, null, null, null, null, null, null, 1, ""));
 
         final Schema gafferSchema = Schema.fromJson(StreamUtil.openStreams(EdgeCasesTest.class, "schemaUsingStringVertexType"));
         ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
@@ -221,7 +221,7 @@ public class EdgeCasesTest {
                 .addSchemas(gafferSchema)
                 .storeProperties(parquetStoreProperties)
                 .build();
-        final List<Element> input = DataGen.generate300StringElementsWithNullProperties();
+        final List<Element> input = DataGen.generate300StringElementsWithNullProperties(false);
         graph.execute(new AddElements.Builder().input(input).build(), USER);
         CloseableIterable<? extends Element> data = graph.execute(new GetAllElements.Builder().build(), USER);
         checkData(data, 1);
@@ -247,14 +247,14 @@ public class EdgeCasesTest {
             actual.add(dataIter.next());
         }
         for (int i = 0; i < 25; i++) {
-            expected.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, true, null, null, null, null, null, null, null, null, 2 * iteration));
-            expected.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, false, null, null, null, null, null, null, null, null, 2 * iteration));
+            expected.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, true, null, null, null, null, null, null, null, null, 2 * iteration, ""));
+            expected.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, false, null, null, null, null, null, null, null, null, 2 * iteration, ""));
 
-            expected.add(DataGen.getEdge(TestGroups.EDGE_2, "src" + i, "dst" + i, true, null, null, null, null, null, null, null, null, 2 * iteration));
-            expected.add(DataGen.getEdge(TestGroups.EDGE_2, "src" + i, "dst" + i, false, null, null, null, null, null, null, null, null, 2 * iteration));
+            expected.add(DataGen.getEdge(TestGroups.EDGE_2, "src" + i, "dst" + i, true, null, null, null, null, null, null, null, null, 2 * iteration, ""));
+            expected.add(DataGen.getEdge(TestGroups.EDGE_2, "src" + i, "dst" + i, false, null, null, null, null, null, null, null, null, 2 * iteration, ""));
 
-            expected.add(DataGen.getEntity(TestGroups.ENTITY, "vert" + i, null, null, null, null, null, null, null, null, 2 * iteration));
-            expected.add(DataGen.getEntity(TestGroups.ENTITY_2, "vert" + i, null, null, null, null, null, null, null, null, 2 * iteration));
+            expected.add(DataGen.getEntity(TestGroups.ENTITY, "vert" + i, null, null, null, null, null, null, null, null, 2 * iteration, ""));
+            expected.add(DataGen.getEntity(TestGroups.ENTITY_2, "vert" + i, null, null, null, null, null, null, null, null, 2 * iteration, ""));
         }
         assertThat(expected, containsInAnyOrder(actual.toArray()));
     }

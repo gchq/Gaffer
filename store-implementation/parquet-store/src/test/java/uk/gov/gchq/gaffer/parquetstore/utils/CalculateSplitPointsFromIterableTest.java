@@ -51,8 +51,8 @@ public class CalculateSplitPointsFromIterableTest {
     public void calculateSplitsFromIterableUsingEntites() {
         final List<Element> data = new ArrayList<>();
         for (long i = 0; i < 12; i++) {
-            data.add(DataGen.getEntity(TestGroups.ENTITY, i, null, null, null, null, null, null, null, null, 1));
-            data.add(DataGen.getEntity(TestGroups.ENTITY_2, i + 5, null, null, null, null, null, null, null, null, 1));
+            data.add(DataGen.getEntity(TestGroups.ENTITY, i, null, null, null, null, null, null, null, null, 1, null));
+            data.add(DataGen.getEntity(TestGroups.ENTITY_2, i + 5, null, null, null, null, null, null, null, null, 1, null));
         }
         final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromIterable(2, 2).calculateSplitsForGroup(data, TestGroups.ENTITY, true);
         final Map<Object, Integer> expected = new HashMap<>(2);
@@ -65,8 +65,8 @@ public class CalculateSplitPointsFromIterableTest {
     public void calculateSplitsFromIterableUsingEdges() {
         final List<Element> data = new ArrayList<>();
         for (long i = 0; i < 12; i++) {
-            data.add(DataGen.getEdge(TestGroups.EDGE, i, i + 2, true, null, null, null, null, null, null, null, null, 1));
-            data.add(DataGen.getEdge(TestGroups.EDGE_2, i + 5, i + 8, false,null, null, null, null, null, null, null, null, 1));
+            data.add(DataGen.getEdge(TestGroups.EDGE, i, i + 2, true, null, null, null, null, null, null, null, null, 1, null));
+            data.add(DataGen.getEdge(TestGroups.EDGE_2, i + 5, i + 8, false, null, null, null, null, null, null, null, null, 1, null));
         }
         final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromIterable(2, 2).calculateSplitsForGroup(data, TestGroups.EDGE, false);
         final Map<Object, Integer> expected = new HashMap<>(2);

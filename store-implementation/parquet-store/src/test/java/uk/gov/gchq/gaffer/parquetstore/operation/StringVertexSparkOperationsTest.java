@@ -61,7 +61,7 @@ public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest
     }
 
     private static JavaRDD<Element> getElements(final JavaSparkContext spark) {
-        return DataGen.generate300StringElementsWithNullPropertiesRDD(spark);
+        return DataGen.generate300StringElementsWithNullPropertiesRDD(spark, false);
     }
 
     @Override
@@ -91,15 +91,16 @@ public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest
         final List<Element> expected = new ArrayList<>(175);
         final List<Element> actual = TestUtils.convertStringRowsToElements(data);
         for (long i = 0; i < 25; i++) {
-            expected.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, true, null, null, null, null, null, null, null, null, 2));
-            expected.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, false, null, null, null, null, null, null, null, null, 2));
+            expected.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, true, null, null, null, null, null, null, null, null, 2, null));
+            expected.add(DataGen.getEdge(TestGroups.EDGE, "src" + i, "dst" + i, false, null, null, null, null, null, null, null, null, 2, null));
 
-            expected.add(DataGen.getEdge(TestGroups.EDGE_2, "src" + i, "dst" + i, true, null, null, null, null, null, null, null, null, 2));
-            expected.add(DataGen.getEdge(TestGroups.EDGE_2, "src" + i, "dst" + i, false, null, null, null, null, null, null, null, null, 2));
+            expected.add(DataGen.getEdge(TestGroups.EDGE_2, "src" + i, "dst" + i, true, null, null, null, null, null, null, null, null, 2, null));
+            expected.add(DataGen.getEdge(TestGroups.EDGE_2, "src" + i, "dst" + i, false, null, null, null, null, null, null, null, null, 2, null));
 
-            expected.add(DataGen.getEntity(TestGroups.ENTITY, "vert" + i, null, null, null, null, null, null, null, null, 2));
-            expected.add(DataGen.getEntity(TestGroups.ENTITY_2, "vert" + i, null, null, null, null, null, null, null, null, 2));
+            expected.add(DataGen.getEntity(TestGroups.ENTITY, "vert" + i, null, null, null, null, null, null, null, null, 2, null));
+            expected.add(DataGen.getEntity(TestGroups.ENTITY_2, "vert" + i, null, null, null, null, null, null, null, null, 2, null));
         }
         assertThat(expected, containsInAnyOrder(actual.toArray()));
     }
+
 }

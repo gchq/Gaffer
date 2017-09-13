@@ -53,8 +53,8 @@ public class CalculateSplitPointsFromJavaRDDTest {
     public void calculateSplitsFromJavaRDDUsingEntities() {
         final List<Element> data = new ArrayList<>();
         for (long i = 0; i < 12; i++) {
-            data.add(DataGen.getEntity(TestGroups.ENTITY, i, null, null, null, null, null, null, null, null, 1));
-            data.add(DataGen.getEntity(TestGroups.ENTITY_2, i + 5, null, null, null, null, null, null, null, null, 1));
+            data.add(DataGen.getEntity(TestGroups.ENTITY, i, null, null, null, null, null, null, null, null, 1, null));
+            data.add(DataGen.getEntity(TestGroups.ENTITY_2, i + 5, null, null, null, null, null, null, null, null, 1, null));
         }
         final JavaRDD<Element> dataRDD = TestUtils.javaSparkContext.parallelize(data);
         final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromJavaRDD(1, 2).calculateSplitsForGroup(dataRDD, TestGroups.ENTITY, true);
@@ -68,8 +68,8 @@ public class CalculateSplitPointsFromJavaRDDTest {
     public void calculateSplitsFromJavaRDDUsingEdges() {
         final List<Element> data = new ArrayList<>();
         for (long i = 0; i < 12; i++) {
-            data.add(DataGen.getEdge(TestGroups.EDGE, i, i + 2, true, null, null, null, null, null, null, null, null, 1));
-            data.add(DataGen.getEdge(TestGroups.EDGE_2, i + 5, i + 8, false, null, null, null, null, null, null, null, null,1));
+            data.add(DataGen.getEdge(TestGroups.EDGE, i, i + 2, true, null, null, null, null, null, null, null, null, 1, null));
+            data.add(DataGen.getEdge(TestGroups.EDGE_2, i + 5, i + 8, false, null, null, null, null, null, null, null, null, 1, null));
         }
         final JavaRDD<Element> dataRDD = TestUtils.javaSparkContext.parallelize(data);
         final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromJavaRDD(1, 2).calculateSplitsForGroup(dataRDD, TestGroups.EDGE, false);

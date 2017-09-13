@@ -52,9 +52,9 @@ public class AggregateDataTest {
                 .withType(schemaUtils.getParquetSchema(TestGroups.ENTITY))
                 .usingConverter(schemaUtils.getConverter(TestGroups.ENTITY))
                 .build();
-        for (int i = 0 ; i < 20 ; i++){
-            writer.write(DataGen.getEntity(TestGroups.ENTITY, (long) i, (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L * i, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1));
-            writer.write(DataGen.getEntity(TestGroups.ENTITY, (long) i, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * i, (short) 7, TestUtils.DATE, TestUtils.getFreqMap2(), 1));
+        for (int i = 0; i < 20; i++) {
+            writer.write(DataGen.getEntity(TestGroups.ENTITY, (long) i, (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L * i, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, null));
+            writer.write(DataGen.getEntity(TestGroups.ENTITY, (long) i, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * i, (short) 7, TestUtils.DATE, TestUtils.getFreqMap2(), 1, null));
         }
         writer.close();
     }
@@ -88,7 +88,7 @@ public class AggregateDataTest {
     @AfterClass
     public static void cleanUpData() throws IOException {
         final ParquetStoreProperties props = TestUtils.getParquetStoreProperties();
-        deleteFolder(props.getTempFilesDir() +"/AggregateDataTest", FileSystem.get(new Configuration()));
+        deleteFolder(props.getTempFilesDir() + "/AggregateDataTest", FileSystem.get(new Configuration()));
     }
 
     private static void deleteFolder(final String path, final FileSystem fs) throws IOException {

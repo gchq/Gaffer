@@ -51,7 +51,7 @@ public abstract class AbstractSparkOperationsTest {
     abstract void checkGetDataFrameOfElements(Dataset<Row> data);
 
     static JavaSparkContext javaSparkContext = JavaSparkContext.fromSparkContext(TestUtils.spark.sparkContext());
-    static User USER = new SparkUser(new User.Builder().dataAuth("A").build(), TestUtils.spark);
+    static User USER = new SparkUser(new User(), TestUtils.spark);
     Graph graph;
 
     static Graph getGraph(final Schema schema, final ParquetStoreProperties properties, final String graphID) throws StoreException {
