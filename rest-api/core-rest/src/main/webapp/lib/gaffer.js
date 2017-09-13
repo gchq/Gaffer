@@ -112,6 +112,8 @@ function initExampleOperations() {
           getVersion() + '/graph/operations',
           null,
           function(availableOperations){
+               // Sort operations based on name of operation (not including the package name)
+               availableOperations.sort(function(a,b){return a.split('.').pop().localeCompare(b.split('.').pop())})
                if(availableOperationsSelect && availableOperationsSelect.size() > 0 && availableOperations) {
                   $.each(availableOperations,function(index, item) {
                       if(item.indexOf("OperationChain") === -1) {
