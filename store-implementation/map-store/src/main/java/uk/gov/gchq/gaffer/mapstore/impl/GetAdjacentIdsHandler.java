@@ -61,11 +61,6 @@ public class GetAdjacentIdsHandler implements
             return new EmptyClosableIterable<>();
         }
 
-        final View view = operation.getView();
-
-        if (view.hasPreAggregationFilters() || view.hasPostAggregationFilters() || view.hasPostTransformFilters()) {
-            throw new OperationException("GetAdjacentIds operation is invalid - one or more entities have filters.");
-        }
         return new EntityIdIterable(mapStore.getMapImpl(), operation, mapStore.getSchema());
     }
 

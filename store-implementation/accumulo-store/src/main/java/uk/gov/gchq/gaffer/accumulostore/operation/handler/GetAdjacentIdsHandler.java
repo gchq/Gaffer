@@ -43,12 +43,6 @@ public class GetAdjacentIdsHandler implements OutputOperationHandler<GetAdjacent
                                                              final User user,
                                                              final AccumuloStore store)
             throws OperationException {
-        final View view = op.getView();
-
-        if (view.hasPreAggregationFilters() || view.hasPostAggregationFilters() || view.hasPostTransformFilters()) {
-            throw new OperationException("GetAdjacentIds operation is invalid - one or more entities have filters.");
-        }
-
         try {
             return new AccumuloAdjacentIdRetriever(store, op, user);
         } catch (final IteratorSettingException | StoreException e) {

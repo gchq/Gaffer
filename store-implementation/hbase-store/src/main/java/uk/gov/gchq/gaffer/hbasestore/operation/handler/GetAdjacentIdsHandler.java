@@ -56,12 +56,6 @@ public class GetAdjacentIdsHandler implements OutputOperationHandler<GetAdjacent
             return new WrappedCloseableIterable<>();
         }
 
-        final View view = op.getView();
-
-        if (view.hasPreAggregationFilters() || view.hasPostAggregationFilters() || view.hasPostTransformFilters()) {
-            throw new OperationException("GetAdjacentIds operation is invalid - one or more entities have filters.");
-        }
-
         final HBaseRetriever<?> edgeRetriever;
         final GetElements getEdges = new GetElements.Builder()
                 .options(op.getOptions())
