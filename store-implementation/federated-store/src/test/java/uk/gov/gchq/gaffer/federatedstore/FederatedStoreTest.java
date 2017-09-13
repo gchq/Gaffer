@@ -48,6 +48,7 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -754,5 +755,37 @@ public class FederatedStoreTest {
         Assert.assertNull(x);
     }
 
+    @Test
+    public void shouldReturnSpecificGraphsFromCSVString() throws Exception {
+        // Given
+        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
+        final Collection<Graph> expectedGraphs = new ArrayList<>();
+        final Collection<Graph> unexpectedGraphs = new ArrayList<>();
+        for(int i = 0; i < 5; i++) {
+            Graph tempGraph = new Graph.Builder()
+                                    .config(new GraphConfig.Builder()
+                                                    .graphId("mockGraphId" + i)
+                                                    .addHook(new FederatedAccessHook.Builder()
+                                                                     .graphAuths("auth" + i)
+                                                                     .build())
+                                                    .build())
+                                    .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_MAP_STORE_PROPERTIES))
+                                    .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_ENTITY_SCHEMA_JSON))
+                                    .build();
+            store.addGraphs(tempGraph);
+            if (i == 1 || i == 2 || i == 4) {
+                expectedGraphs.add(tempGraph);
+            } else {
+                unexpectedGraphs.add(tempGraph);
+            }
+        }
 
+        // When
+        final Collection<Graph> returnedGraphs = store.getGraphs("mockGraphId1,mockGraphId2,mockGraphId4");
+
+        // Then
+        assertTrue(returnedGraphs.size() == 3);
+        assertTrue(returnedGraphs.containsAll(expectedGraphs));
+        assertFalse(returnedGraphs.containsAll(unexpectedGraphs));
+    }
 }
