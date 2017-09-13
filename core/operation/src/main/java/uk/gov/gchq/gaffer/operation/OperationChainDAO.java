@@ -35,6 +35,10 @@ public class OperationChainDAO<OUT> extends OperationChain<OUT> {
         super();
     }
 
+    public OperationChainDAO(final Operation operation) {
+        super(operation);
+    }
+
     public OperationChainDAO(final List<Operation> operations) {
         super(operations);
     }
