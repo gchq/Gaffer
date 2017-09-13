@@ -37,8 +37,8 @@ import java.util.Set;
  * <tr><td> 'A'     </td><td> 'A','B'       </td><td> n/a               </td><td> T         </td></tr>
  * <tr><td> 'A'     </td><td> 'B'           </td><td> F                 </td><td> F         </td></tr>
  * <tr><td> 'A'     </td><td> 'B'           </td><td> T                 </td><td> T         </td></tr>
- * <tr><td> n/a     </td><td> {@code null}  </td><td> T                 </td><td> T        </td></tr>§
- * <tr><td> n/a     </td><td> {@code null}  </td><td> F                 </td><td> F        </td></tr>
+ * <tr><td> n/a     </td><td> {@code null}  </td><td> T                 </td><td> T         </td></tr>
+ * <tr><td> n/a     </td><td> {@code null}  </td><td> F                 </td><td> F         </td></tr>
  * <tr><td> n/a     </td><td> {@code empty} </td><td> T                 </td><td> T         </td></tr>
  * <tr><td> n/a     </td><td> {@code empty} </td><td> F                 </td><td> F         </td></tr>
  * </table>
