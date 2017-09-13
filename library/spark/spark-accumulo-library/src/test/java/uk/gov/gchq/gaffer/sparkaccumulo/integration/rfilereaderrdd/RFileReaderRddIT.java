@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.sparkaccumulo.rfilereaderrdd;
+package uk.gov.gchq.gaffer.sparkaccumulo.integration.rfilereaderrdd;
 
 import com.google.common.collect.Sets;
 import org.apache.accumulo.core.client.AccumuloException;
@@ -54,7 +54,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class RFileReaderRDDTest {
+public class RFileReaderRddIT {
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 

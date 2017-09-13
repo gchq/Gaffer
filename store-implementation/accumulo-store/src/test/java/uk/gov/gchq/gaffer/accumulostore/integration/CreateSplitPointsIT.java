@@ -96,7 +96,7 @@ public class CreateSplitPointsIT {
         graph.execute(new OperationChain.Builder()
                 .first(new SampleDataForSplitPoints.Builder()
                         .jobInitialiser(new TextJobInitialiser())
-                        .addinputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
+                        .addInputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
                         .outputPath(outputDir)
                         .proportionToSample(1f)
                         .validate(true)

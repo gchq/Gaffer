@@ -228,9 +228,9 @@ public class AccumuloStore extends Store {
             conf.set(ElementInputFormat.KEY_PACKAGE, getProperties().getKeyPackageClass());
             LOGGER.info("Updating configuration with key package of {}", getProperties().getKeyPackageClass());
             conf.set(ElementInputFormat.SCHEMA, new String(getSchema().toCompactJson(), CommonConstants.UTF_8));
-            LOGGER.info("Updating configuration with Schema of {}", getSchema());
+            LOGGER.debug("Updating configuration with Schema of {}", getSchema());
             conf.set(ElementInputFormat.VIEW, new String(view.toCompactJson(), CommonConstants.UTF_8));
-            LOGGER.info("Updating configuration with View of {}", view);
+            LOGGER.debug("Updating configuration with View of {}", view);
 
             if (view.hasGroups()) {
                 // Add the columns to fetch
