@@ -5,3 +5,7 @@ max-width: 95%;
 #operations_executeChunked .submit {
     display: none !important;
 }
+
+#operations_executeChunked_1 .submit {
+    display: none !important;
+}

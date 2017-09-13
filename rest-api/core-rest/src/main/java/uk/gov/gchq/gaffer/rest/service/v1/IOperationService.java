@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
@@ -52,7 +52,7 @@ public interface IOperationService {
 
     @POST
     @ApiOperation(value = "Performs the given operation chain on the graph", response = Object.class)
-    Object execute(final OperationChain opChain);
+    Object execute(final OperationChainDAO opChain);
 
     @POST
     @Path("/operation")
@@ -67,7 +67,7 @@ public interface IOperationService {
     @POST
     @Path("/chunked")
     @ApiOperation(value = "Performs the given operation chain on the graph, returned chunked output. NOTE - does not work in Swagger.", response = Object.class)
-    ChunkedOutput<String> executeChunkedChain(final OperationChain<CloseableIterable<Element>> opChain);
+    ChunkedOutput<String> executeChunkedChain(final OperationChainDAO<CloseableIterable<Element>> opChain);
 
     @POST
     @Path("/generate/objects")
