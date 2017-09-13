@@ -1,13 +1,14 @@
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.impl;
 
-
 import com.google.common.collect.Sets;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -63,7 +64,7 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
     @Override
     public void builderShouldCreatePopulatedOperation() {
         final SampleDataForSplitPoints sampleDataForSplitPoints = new SampleDataForSplitPoints.Builder()
-                .addinputMapperPair(INPUT_DIRECTORY, MapperGenerator.class.getName())
+                .addInputMapperPair(INPUT_DIRECTORY, MapperGenerator.class.getName())
                 .splitsFilePath("/test")
                 .proportionToSample(0.1f)
                 .mappers(5)
@@ -93,7 +94,7 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
     public void shouldShallowCloneOperation() {
         // Given
         final SampleDataForSplitPoints sampleDataForSplitPoints = new SampleDataForSplitPoints.Builder()
-                .addinputMapperPair(INPUT_DIRECTORY, MapperGenerator.class.getName())
+                .addInputMapperPair(INPUT_DIRECTORY, MapperGenerator.class.getName())
                 .splitsFilePath("/test")
                 .proportionToSample(0.1f)
                 .mappers(5)
@@ -118,7 +119,7 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
     public void shouldShallowCloneOperationWithMinAndMaxMappers() {
         // Given
         final SampleDataForSplitPoints sampleDataForSplitPoints = new SampleDataForSplitPoints.Builder()
-                .addinputMapperPair(INPUT_DIRECTORY, MapperGenerator.class.getName())
+                .addInputMapperPair(INPUT_DIRECTORY, MapperGenerator.class.getName())
                 .splitsFilePath("/test")
                 .proportionToSample(0.1f)
                 .maxMappers(10)

@@ -16,10 +16,11 @@
 package uk.gov.gchq.gaffer.hdfs.operation;
 
 import org.apache.hadoop.mapreduce.Partitioner;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
+
 import java.util.Map;
 
 /**
@@ -44,8 +45,7 @@ import java.util.Map;
  */
 public class AddElementsFromHdfs implements
         Operation,
-        MapReduce,
-        Options {
+        MapReduce {
     @Required
     private String failurePath;
 
@@ -261,8 +261,7 @@ public class AddElementsFromHdfs implements
     }
 
     public static final class Builder extends Operation.BaseBuilder<AddElementsFromHdfs, Builder>
-            implements MapReduce.Builder<AddElementsFromHdfs, Builder>,
-            Options.Builder<AddElementsFromHdfs, Builder> {
+            implements MapReduce.Builder<AddElementsFromHdfs, Builder> {
         public Builder() {
             super(new AddElementsFromHdfs());
         }

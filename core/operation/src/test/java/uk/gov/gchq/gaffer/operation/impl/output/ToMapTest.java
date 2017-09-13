@@ -19,10 +19,12 @@ package uk.gov.gchq.gaffer.operation.impl.output;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.MapGenerator;
 import uk.gov.gchq.gaffer.operation.OperationTest;
+
 import java.util.Set;
 
 import static org.hamcrest.Matchers.is;

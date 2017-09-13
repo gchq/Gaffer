@@ -17,9 +17,11 @@
 package uk.gov.gchq.gaffer.doc.user.generator;
 
 import org.apache.commons.lang3.time.DateUtils;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -37,7 +39,7 @@ public class RoadAndRoadUseWithTimesElementGenerator implements OneToManyElement
         final Date timestamp;
         try {
             timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(t[3]);
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             throw new IllegalArgumentException("Invalid date: " + t[3]);
         }
 

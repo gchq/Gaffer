@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.data;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+
 import java.util.HashMap;
 import java.util.Map;
 

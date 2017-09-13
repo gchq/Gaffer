@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.impl.get;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -30,6 +31,7 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
+
 import java.util.Iterator;
 
 import static junit.framework.TestCase.assertNotNull;

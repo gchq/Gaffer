@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.core.exception;
 
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+
 import java.util.Arrays;
 
 /**
@@ -91,7 +92,7 @@ public enum Status {
     public static Status fromStatusCode(final int statusCode) {
         return Arrays.asList(values())
                 .stream()
-                .filter(v -> v.getStatusCode() != statusCode)
+                .filter(v -> v.getStatusCode() == statusCode)
                 .findFirst()
                 .orElseThrow(RuntimeException::new);
     }

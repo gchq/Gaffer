@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -42,6 +43,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -62,13 +64,12 @@ public class ExportToOtherGraphHandlerTest {
     private static final String STORE_PROPS_ID = "storePropsId";
     private static final String SCHEMA_ID = "schemaId";
     private static final String ID = "gaffer.store.id";
+    @Rule
+    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     private final Store store = mock(Store.class);
     private final Schema schema = new Schema.Builder().id(SCHEMA_ID).build();
     private GraphLibrary graphLibrary;
     private StoreProperties storeProperties;
-
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     @Before
     public void before() throws IOException {
@@ -94,15 +95,20 @@ public class ExportToOtherGraphHandlerTest {
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID)
                 .build();
-        final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
 
         // When / Then
         try {
-            handler.createGraph(export, store);
+            createGraph(export);
             fail("Exception expected");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("same graph"));
         }
+    }
+
+    private Graph createGraph(final ExportToOtherGraph export) {
+        return CreateGraphDelegate.createGraph(store, export.getGraphId(),
+                export.getSchema(), export.getStoreProperties(), export.getParentSchemaIds(),
+                export.getParentStorePropertiesId());
     }
 
     @Test
@@ -151,10 +157,9 @@ public class ExportToOtherGraphHandlerTest {
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .build();
-        final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
 
         // When
-        Graph graph = handler.createGraph(export, store);
+        Graph graph = createGraph(export);
 
         // Then
         assertEquals(GRAPH_ID + 1, graph.getGraphId());
@@ -169,14 +174,13 @@ public class ExportToOtherGraphHandlerTest {
         given(store.getProperties()).willReturn(storeProperties);
         given(store.getGraphId()).willReturn(GRAPH_ID);
 
-        final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .schema(schema1)
                 .build();
 
         // When
-        Graph graph = handler.createGraph(export, store);
+        Graph graph = createGraph(export);
 
         // Then
         assertEquals(GRAPH_ID + 1, graph.getGraphId());
@@ -193,14 +197,13 @@ public class ExportToOtherGraphHandlerTest {
         given(store.getSchema()).willReturn(schema);
         given(store.getGraphId()).willReturn(GRAPH_ID);
 
-        final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .storeProperties(storeProperties1)
                 .build();
 
         // When
-        Graph graph = handler.createGraph(export, store);
+        Graph graph = createGraph(export);
 
         // Then
         assertEquals(GRAPH_ID + 1, graph.getGraphId());
@@ -219,7 +222,6 @@ public class ExportToOtherGraphHandlerTest {
         graphLibrary.addSchema(SCHEMA_ID + 1, schema1);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
 
-        final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 2)
                 .parentSchemaIds(SCHEMA_ID + 1)
@@ -227,7 +229,7 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         // When
-        Graph graph = handler.createGraph(export, store);
+        Graph graph = createGraph(export);
 
         // Then
         assertEquals(GRAPH_ID + 2, graph.getGraphId());
@@ -261,7 +263,6 @@ public class ExportToOtherGraphHandlerTest {
         graphLibrary.addSchema(SCHEMA_ID + 2, schema2);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
 
-        final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 2)
                 .parentSchemaIds(SCHEMA_ID + 1, SCHEMA_ID + 2)
@@ -270,7 +271,7 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         // When
-        Graph graph = handler.createGraph(export, store);
+        Graph graph = createGraph(export);
 
         // Then
         assertEquals(GRAPH_ID + 2, graph.getGraphId());
@@ -301,7 +302,6 @@ public class ExportToOtherGraphHandlerTest {
         graphLibrary.addProperties(STORE_PROPS_ID + 1, storeProperties1);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
 
-        final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 2)
                 .schema(schema)
@@ -309,7 +309,7 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         // When
-        Graph graph = handler.createGraph(export, store);
+        Graph graph = createGraph(export);
 
         // Then
         assertEquals(GRAPH_ID + 2, graph.getGraphId());
@@ -329,7 +329,6 @@ public class ExportToOtherGraphHandlerTest {
         graphLibrary.addProperties(STORE_PROPS_ID + 1, storeProperties1);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
 
-        final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 2)
                 .schema(schema)
@@ -338,7 +337,7 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         // When
-        Graph graph = handler.createGraph(export, store);
+        Graph graph = createGraph(export);
 
         // Then
         assertEquals(GRAPH_ID + 2, graph.getGraphId());
@@ -353,19 +352,23 @@ public class ExportToOtherGraphHandlerTest {
     public void shouldValidateGraphIdMustBeDifferent() {
         // Given
         given(store.getGraphId()).willReturn(GRAPH_ID);
-        final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID)
                 .build();
 
         // When / Then
         try {
-            handler.validate(export, store);
+            validate(export);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             assertEquals("Validation errors: \n" +
                     "Cannot export to the same graph: graphId", e.getMessage());
         }
+    }
+
+    private void validate(final ExportToOtherGraph export) {
+        CreateGraphDelegate.validate(store, export.getGraphId(), export.getSchema(), export.getStoreProperties(),
+                export.getParentSchemaIds(), export.getParentStorePropertiesId());
     }
 
 
@@ -374,7 +377,6 @@ public class ExportToOtherGraphHandlerTest {
         // Given
         given(store.getGraphId()).willReturn(GRAPH_ID);
         given(store.getGraphLibrary()).willReturn(null);
-        final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .parentStorePropertiesId(STORE_PROPS_ID + 1)
@@ -382,7 +384,7 @@ public class ExportToOtherGraphHandlerTest {
 
         // When / Then
         try {
-            handler.validate(export, store);
+            validate(export);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             assertEquals("Validation errors: \n" +
@@ -394,7 +396,6 @@ public class ExportToOtherGraphHandlerTest {
     public void shouldValidateSchemaIdCannotBeUsedWithoutGraphLibrary() {
         // Given
         given(store.getGraphLibrary()).willReturn(null);
-        final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .parentSchemaIds("schemaId")
@@ -402,7 +403,7 @@ public class ExportToOtherGraphHandlerTest {
 
         // When / Then
         try {
-            handler.validate(export, store);
+            validate(export);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             assertEquals("Validation errors: \n" +
@@ -416,7 +417,6 @@ public class ExportToOtherGraphHandlerTest {
         GraphLibrary mockLibrary = mock(GraphLibrary.class);
         given(store.getGraphLibrary()).willReturn(mockLibrary);
         given(mockLibrary.exists(GRAPH_ID + 1)).willReturn(true);
-        final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .parentSchemaIds("schemaId")
@@ -424,7 +424,7 @@ public class ExportToOtherGraphHandlerTest {
 
         // When / Then
         try {
-            handler.validate(export, store);
+            validate(export);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             assertEquals("Validation errors: \n" +
@@ -438,7 +438,6 @@ public class ExportToOtherGraphHandlerTest {
         GraphLibrary mockLibrary = mock(GraphLibrary.class);
         given(store.getGraphLibrary()).willReturn(mockLibrary);
         given(mockLibrary.exists(GRAPH_ID + 1)).willReturn(true);
-        final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .schema(new Schema())
@@ -446,7 +445,7 @@ public class ExportToOtherGraphHandlerTest {
 
         // When / Then
         try {
-            handler.validate(export, store);
+            validate(export);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             assertEquals("Validation errors: \n" +
@@ -460,7 +459,6 @@ public class ExportToOtherGraphHandlerTest {
         GraphLibrary mockLibrary = mock(GraphLibrary.class);
         given(store.getGraphLibrary()).willReturn(mockLibrary);
         given(mockLibrary.exists(GRAPH_ID + 1)).willReturn(true);
-        final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .parentStorePropertiesId("props1")
@@ -468,7 +466,7 @@ public class ExportToOtherGraphHandlerTest {
 
         // When / Then
         try {
-            handler.validate(export, store);
+            validate(export);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             assertEquals("Validation errors: \n" +
@@ -482,7 +480,6 @@ public class ExportToOtherGraphHandlerTest {
         GraphLibrary mockLibrary = mock(GraphLibrary.class);
         given(store.getGraphLibrary()).willReturn(mockLibrary);
         given(mockLibrary.exists(GRAPH_ID + 1)).willReturn(true);
-        final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .storeProperties(new StoreProperties())
@@ -490,7 +487,7 @@ public class ExportToOtherGraphHandlerTest {
 
         // When / Then
         try {
-            handler.validate(export, store);
+            validate(export);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             assertEquals("Validation errors: \n" +
@@ -504,7 +501,6 @@ public class ExportToOtherGraphHandlerTest {
         GraphLibrary mockLibrary = mock(GraphLibrary.class);
         given(store.getGraphLibrary()).willReturn(mockLibrary);
         given(mockLibrary.exists(GRAPH_ID + 1)).willReturn(false);
-        final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .parentSchemaIds("schemaId")
@@ -512,7 +508,7 @@ public class ExportToOtherGraphHandlerTest {
 
         // When / Then
         try {
-            handler.validate(export, store);
+            validate(export);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             assertEquals("Validation errors: \n" +
@@ -526,7 +522,6 @@ public class ExportToOtherGraphHandlerTest {
         GraphLibrary mockLibrary = mock(GraphLibrary.class);
         given(store.getGraphLibrary()).willReturn(mockLibrary);
         given(mockLibrary.exists(GRAPH_ID + 1)).willReturn(false);
-        final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .parentStorePropertiesId("propsId")
@@ -534,7 +529,7 @@ public class ExportToOtherGraphHandlerTest {
 
         // When / Then
         try {
-            handler.validate(export, store);
+            validate(export);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             assertEquals("Validation errors: \n" +
@@ -548,13 +543,12 @@ public class ExportToOtherGraphHandlerTest {
         GraphLibrary mockLibrary = mock(GraphLibrary.class);
         given(store.getGraphLibrary()).willReturn(mockLibrary);
         given(mockLibrary.exists(GRAPH_ID + 1)).willReturn(false);
-        final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .build();
 
         // When
-        handler.validate(export, store);
+        validate(export);
 
         // Then - no exceptions
     }

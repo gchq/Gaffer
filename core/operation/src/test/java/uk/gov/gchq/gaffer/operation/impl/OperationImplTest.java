@@ -18,11 +18,13 @@ package uk.gov.gchq.gaffer.operation.impl;
 
 import com.google.common.collect.Sets;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.CustomVertex;
 import uk.gov.gchq.koryphe.ValidationResult;
+
 import java.util.Date;
 import java.util.Set;
 
@@ -119,7 +121,7 @@ public class OperationImplTest extends OperationTest<OperationImpl> {
 
         // Then
         assertEquals(
-                Sets.newHashSet("requiredField2 is required"),
+                Sets.newHashSet("requiredField2 is required for: " + op.getClass().getSimpleName()),
                 validationResult.getErrors()
         );
     }

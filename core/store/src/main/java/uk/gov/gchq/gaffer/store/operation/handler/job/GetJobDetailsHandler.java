@@ -23,11 +23,13 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
+import static uk.gov.gchq.gaffer.core.exception.Status.SERVICE_UNAVAILABLE;
+
 public class GetJobDetailsHandler implements OutputOperationHandler<GetJobDetails, JobDetail> {
     @Override
     public JobDetail doOperation(final GetJobDetails operation, final Context context, final Store store) throws OperationException {
         if (null == store.getJobTracker()) {
-            throw new OperationException("The Job Tracker has not been configured");
+            throw new OperationException("The Job Tracker has not been configured", SERVICE_UNAVAILABLE);
         }
 
         final String jobId = null != operation.getJobId() ? operation.getJobId() : context.getJobId();

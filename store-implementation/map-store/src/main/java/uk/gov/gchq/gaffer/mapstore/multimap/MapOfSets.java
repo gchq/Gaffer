@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.mapstore.multimap;
 
 import com.google.common.collect.Sets;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -86,7 +87,7 @@ public class MapOfSets<K, V> implements MultiMap<K, V> {
         } else {
             try {
                 values = setClass.newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
+            } catch (final InstantiationException | IllegalAccessException e) {
                 throw new IllegalArgumentException("Unable to create new instance of set " + setClass.getName(), e);
             }
         }

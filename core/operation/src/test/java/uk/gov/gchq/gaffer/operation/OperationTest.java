@@ -17,8 +17,10 @@
 package uk.gov.gchq.gaffer.operation;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.koryphe.ValidationResult;
+
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -47,7 +49,7 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
         // Then
         final Set<String> requiredFields = getRequiredFields();
         final Set<String> requiredFieldsErrors = requiredFields.stream()
-                .map(f -> f + " is required")
+                .map(f -> f + " is required for: " + op.getClass().getSimpleName())
                 .collect(Collectors.toSet());
 
         assertEquals(

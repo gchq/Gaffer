@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.mapstore.impl;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
@@ -42,6 +43,7 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -1150,12 +1152,18 @@ public class GetElementsHandlerTest {
         final GetElements getElements = new GetElements.Builder()
                 .input(new EntitySeed("B9"))
                 .build();
-        final Edge result = (Edge) graph.execute(getElements, new User()).iterator().next();
+        final Edge result;
+        try (final CloseableIterable<? extends Element> results = graph.execute(getElements, new User())) {
+            result = (Edge) results.iterator().next();
+        }
         // Change a property
         result.putProperty(GetAllElementsHandlerTest.PROPERTY1, "qqq");
 
         // Then
-        final Edge result2 = (Edge) graph.execute(getElements, new User()).iterator().next();
+        final Edge result2;
+        try (final CloseableIterable<? extends Element> results2 = graph.execute(getElements, new User())) {
+            result2 = (Edge) results2.iterator().next();
+        }
         assertEquals("B9", result2.getDestination());
         assertEquals("q", result2.getProperty(GetAllElementsHandlerTest.PROPERTY1));
     }

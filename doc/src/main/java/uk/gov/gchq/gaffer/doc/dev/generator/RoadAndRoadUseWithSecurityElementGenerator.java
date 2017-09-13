@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.doc.dev.generator;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;
+
 import java.util.Arrays;
 
 public class RoadAndRoadUseWithSecurityElementGenerator implements OneToManyElementGenerator<String> {

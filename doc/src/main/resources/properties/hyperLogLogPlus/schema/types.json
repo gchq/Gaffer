@@ -1,0 +1,21 @@
+{
+  "types": {
+    "vertex.string": {
+      "class": "java.lang.String",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.koryphe.impl.predicate.Exists"
+        }
+      ]
+    },
+    "hyperloglogplus": {
+      "class": "com.clearspring.analytics.stream.cardinality.HyperLogLogPlus",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.sketches.clearspring.cardinality.binaryoperator.HyperLogLogPlusAggregator"
+      },
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.HyperLogLogPlusSerialiser"
+      }
+    }
+  }
+}

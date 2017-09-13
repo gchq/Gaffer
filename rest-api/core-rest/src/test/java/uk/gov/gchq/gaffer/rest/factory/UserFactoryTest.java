@@ -17,8 +17,8 @@
 package uk.gov.gchq.gaffer.rest.factory;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.rest.SystemProperty;
-import uk.gov.gchq.gaffer.rest.UserFactoryForTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;

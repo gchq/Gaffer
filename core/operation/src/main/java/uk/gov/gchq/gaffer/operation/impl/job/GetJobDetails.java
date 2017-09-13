@@ -17,15 +17,19 @@
 package uk.gov.gchq.gaffer.operation.impl.job;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
+import java.util.Map;
+
 public class GetJobDetails implements
         Operation,
         Output<JobDetail> {
     private String jobId;
+    private Map<String, String> options;
 
     public String getJobId() {
         return jobId;
@@ -44,7 +48,18 @@ public class GetJobDetails implements
     public GetJobDetails shallowClone() {
         return new GetJobDetails.Builder()
                 .jobId(jobId)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static class Builder extends Operation.BaseBuilder<GetJobDetails, Builder>

@@ -21,6 +21,7 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+
 import java.util.Collections;
 
 public class ToCsvHandler implements OutputOperationHandler<ToCsv, Iterable<? extends String>> {

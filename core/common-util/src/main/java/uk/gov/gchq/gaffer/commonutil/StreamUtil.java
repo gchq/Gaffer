@@ -24,6 +24,7 @@ import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -93,7 +94,7 @@ public abstract class StreamUtil {
                 .forEach(schemaFile -> {
                             try {
                                 schemas.add(openStream(clazz, schemaFile));
-                            } catch (Exception e) {
+                            } catch (final Exception e) {
                                 int closedStreamsCount = closeStreams(schemas.toArray(new InputStream[schemas.size()]));
                                 LOGGER.info(String.format("Closed %s input streams", closedStreamsCount));
                             }
@@ -162,11 +163,10 @@ public abstract class StreamUtil {
         throw new IllegalArgumentException(FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH + path);
     }
 
-    private static String formatPathForOpenStream(final String path) {
+    public static String formatPathForOpenStream(final String path) {
         if (StringUtils.isEmpty(path)) {
             processException(path);
         }
         return path.startsWith("/") ? path : "/" + path;
     }
-
 }

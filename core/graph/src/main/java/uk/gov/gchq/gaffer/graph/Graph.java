@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 
 package uk.gov.gchq.gaffer.graph;
 
-
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -43,6 +43,7 @@ import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -51,6 +52,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -479,6 +481,38 @@ public final class Graph {
             return this;
         }
 
+        public Builder addStoreProperties(final StoreProperties updateProperties) {
+            if (this.properties == null) {
+                storeProperties(updateProperties);
+            } else {
+                final Properties old = this.properties.getProperties();
+                old.putAll(updateProperties.getProperties());
+            }
+            return this;
+        }
+
+        public Builder addStoreProperties(final String updatePropertiesPath) {
+            return addStoreProperties(StoreProperties.loadStoreProperties(updatePropertiesPath));
+        }
+
+        public Builder addStoreProperties(final Path updatePropertiesPath) {
+            return addStoreProperties(StoreProperties.loadStoreProperties(updatePropertiesPath));
+        }
+
+        public Builder addStoreProperties(final InputStream updatePropertiesStream) {
+            return addStoreProperties(StoreProperties.loadStoreProperties(updatePropertiesStream));
+        }
+
+        public Builder addStoreProperties(final URI updatePropertiesURI) {
+            try {
+                addStoreProperties(StreamUtil.openStream(updatePropertiesURI));
+            } catch (final IOException e) {
+                throw new SchemaException("Unable to read storeProperties from URI: " + updatePropertiesURI, e);
+            }
+
+            return this;
+        }
+
         public Builder addParentSchemaIds(final String... parentSchemaIds) {
             this.parentSchemaIds = parentSchemaIds;
             return this;
@@ -670,6 +704,8 @@ public final class Graph {
                 config.setGraphId(store.getGraphId());
             }
 
+            updateSchema(config);
+
             if (null != config.getLibrary() && config.getLibrary().exists(config.getGraphId())) {
                 //Set Props & Schema if null.
                 final Pair<Schema, StoreProperties> pair = config.getLibrary().get(config.getGraphId());
@@ -677,7 +713,6 @@ public final class Graph {
                 schema = (null == schema) ? pair.getFirst() : schema;
             }
 
-            updateSchema(config);
             updateStore(config);
 
             if (null != config.getGraphId()) {
@@ -813,5 +848,6 @@ public final class Graph {
         private Schema cloneSchema(final Schema schema) {
             return null != schema ? schema.clone() : null;
         }
+
     }
 }

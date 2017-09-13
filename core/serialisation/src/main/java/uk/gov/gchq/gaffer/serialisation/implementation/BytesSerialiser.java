@@ -23,7 +23,7 @@ public class BytesSerialiser implements ToBytesSerialiser<byte[]> {
 
     @Override
     public boolean canHandle(final Class clazz) {
-        return byte[].class.equals(clazz);
+        return byte[].class.equals(clazz) || Byte[].class.equals(clazz);
     }
 
     @Override

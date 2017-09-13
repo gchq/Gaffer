@@ -18,12 +18,14 @@ package uk.gov.gchq.gaffer.hdfs.operation;
 import com.google.common.collect.Sets;
 import org.apache.hadoop.mapreduce.Partitioner;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -120,7 +122,7 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
         inputMapperPairs.put("inputPath2", MapperGenerator.class.getName());
         final AddElementsFromHdfs addElements = new AddElementsFromHdfs.Builder()
                 .inputMapperPairs(inputMapperPairs)
-                .addinputMapperPair("inputPath3", MapperGenerator.class.getName())
+                .addInputMapperPair("inputPath3", MapperGenerator.class.getName())
                 .outputPath("output")
                 .failurePath("fail")
                 .mappers(10)

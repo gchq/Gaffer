@@ -16,17 +16,19 @@
 
 package uk.gov.gchq.gaffer.named.operation;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
@@ -115,7 +117,7 @@ public class NamedOperationDetail implements Serializable {
                 try {
                     opStringWithDefaults = opStringWithDefaults.replace(buildParamNameString(paramKey),
                             new String(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue(), CHARSET_NAME), CHARSET_NAME));
-                } catch (SerialisationException | UnsupportedEncodingException e) {
+                } catch (final SerialisationException | UnsupportedEncodingException e) {
                     throw new IllegalArgumentException(e.getMessage());
                 }
             }
@@ -123,8 +125,8 @@ public class NamedOperationDetail implements Serializable {
 
         OperationChain opChain;
         try {
-            opChain = JSONSerialiser.deserialise(opStringWithDefaults.getBytes(CHARSET_NAME), OperationChain.class);
-        } catch (Exception e) {
+            opChain = JSONSerialiser.deserialise(opStringWithDefaults.getBytes(CHARSET_NAME), OperationChainDAO.class);
+        } catch (final Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
 
@@ -166,7 +168,7 @@ public class NamedOperationDetail implements Serializable {
                     } else {
                         throw new IllegalArgumentException("Missing parameter " + paramKey + " with no default");
                     }
-                } catch (SerialisationException | UnsupportedEncodingException e) {
+                } catch (final SerialisationException | UnsupportedEncodingException e) {
                     throw new IllegalArgumentException(e.getMessage());
                 }
             }
@@ -175,8 +177,8 @@ public class NamedOperationDetail implements Serializable {
         OperationChain opChain;
 
         try {
-            opChain = JSONSerialiser.deserialise(opStringWithParams.getBytes(CHARSET_NAME), OperationChain.class);
-        } catch (Exception e) {
+            opChain = JSONSerialiser.deserialise(opStringWithParams.getBytes(CHARSET_NAME), OperationChainDAO.class);
+        } catch (final Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
 
@@ -281,7 +283,7 @@ public class NamedOperationDetail implements Serializable {
         public Builder operationChain(final OperationChain opChain) {
             try {
                 this.opChain = new String(JSONSerialiser.serialise(opChain), Charset.forName(CHARSET_NAME));
-            } catch (SerialisationException se) {
+            } catch (final SerialisationException se) {
                 throw new IllegalArgumentException(se.getMessage());
             }
 

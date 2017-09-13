@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.doc.operation;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import uk.gov.gchq.gaffer.doc.operation.generator.TextMapperGeneratorImpl;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
@@ -24,6 +25,7 @@ import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitiali
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.SplitStore;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
@@ -80,7 +82,7 @@ public class AddElementsFromHdfsExample extends OperationExample {
                     .build();
 
             final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
-                    .addinputMapperPair(inputPath, TextMapperGeneratorImpl.class.getName())
+                    .addInputMapperPair(inputPath, TextMapperGeneratorImpl.class.getName())
                     .outputPath(outputPath)
                     .failurePath(failurePath)
                     .splitsFilePath("/tmp/splits")
@@ -104,7 +106,7 @@ public class AddElementsFromHdfsExample extends OperationExample {
     public void addElementsFromHdfs() {
         // ---------------------------------------------------------
         final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
-                .addinputMapperPair("/path/to/input/fileOrFolder", TextMapperGeneratorImpl.class.getName())
+                .addInputMapperPair("/path/to/input/fileOrFolder", TextMapperGeneratorImpl.class.getName())
                 .outputPath("/path/to/output/folder")
                 .failurePath("/path/to/failure/folder")
                 .splitsFilePath("/path/to/splits/file")
@@ -128,7 +130,7 @@ public class AddElementsFromHdfsExample extends OperationExample {
 
         final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
                 .inputMapperPairs(inputMapperMap)
-                .addinputMapperPair("/path/to/third/inputFileOrFolder", TextMapperGeneratorImpl.class.getName())
+                .addInputMapperPair("/path/to/third/inputFileOrFolder", TextMapperGeneratorImpl.class.getName())
                 .outputPath("/path/to/output/folder")
                 .failurePath("/path/to/failure/folder")
                 .splitsFilePath("/path/to/splits/file")

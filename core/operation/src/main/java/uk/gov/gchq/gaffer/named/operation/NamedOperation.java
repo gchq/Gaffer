@@ -16,12 +16,13 @@
 
 package uk.gov.gchq.gaffer.named.operation;
 
-
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+
 import java.util.Map;
 
 /**
@@ -48,6 +49,7 @@ public class NamedOperation<I_ITEM, O> implements
     @Required
     private String operationName;
     private Map<String, Object> parameters;
+    private Map<String, String> options;
 
     @Override
     public Iterable<? extends I_ITEM> getInput() {
@@ -59,12 +61,12 @@ public class NamedOperation<I_ITEM, O> implements
         this.input = input;
     }
 
-    public void setParameters(final Map<String, Object> parameters) {
-        this.parameters = parameters;
-    }
-
     public Map<String, Object> getParameters() {
         return parameters;
+    }
+
+    public void setParameters(final Map<String, Object> parameters) {
+        this.parameters = parameters;
     }
 
     public String getOperationName() {
@@ -85,7 +87,18 @@ public class NamedOperation<I_ITEM, O> implements
                 .input(input)
                 .name(operationName)
                 .parameters(parameters)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static class Builder<I_ITEM, O> extends BaseBuilder<NamedOperation<I_ITEM, O>, Builder<I_ITEM, O>>

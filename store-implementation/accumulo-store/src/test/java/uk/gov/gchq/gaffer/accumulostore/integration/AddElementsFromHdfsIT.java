@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
@@ -47,6 +48,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -121,15 +123,29 @@ public class AddElementsFromHdfsIT {
         try {
             addElementsFromHdfs(ByteEntityKeyPackage.class);
             fail("Exception expected");
-        } catch (final OperationException e) {
-            assertEquals("Output directory exists and is not empty: " + outputDir, e.getCause().getMessage());
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Output directory exists and is not empty: " + outputDir, e.getMessage());
         }
 
         try {
             addElementsFromHdfs(ClassicKeyPackage.class);
             fail("Exception expected");
-        } catch (final OperationException e) {
-            assertEquals("Output directory exists and is not empty: " + outputDir, e.getCause().getMessage());
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Output directory exists and is not empty: " + outputDir, e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldAddElementsWhenOutputDirectoryDoesNotExist() throws Exception {
+        final FileSystem fs = FileSystem.getLocal(createLocalConf());
+        if (fs.exists(new Path(outputDir))) {
+            fs.delete(new Path(outputDir));
+        }
+
+        try {
+            addElementsFromHdfs(ByteEntityKeyPackage.class);
+        } catch (final Exception e) {
+            fail("Error occured: " + e.getMessage());
         }
     }
 
@@ -185,7 +201,7 @@ public class AddElementsFromHdfsIT {
         // When
         graph.execute(new AddElementsFromHdfs.Builder()
                 .inputMapperPairs(inputMappers)
-                .addinputMapperPair(new Path(inputDir3).toString(), TextMapperGeneratorImpl.class.getName())
+                .addInputMapperPair(new Path(inputDir3).toString(), TextMapperGeneratorImpl.class.getName())
                 .outputPath(outputDir)
                 .failurePath(failureDir)
                 .jobInitialiser(new TextJobInitialiser())
@@ -234,7 +250,7 @@ public class AddElementsFromHdfsIT {
 
         // When
         graph.execute(new AddElementsFromHdfs.Builder()
-                .addinputMapperPair(new Path(inputDir).toString(), TextMapperGeneratorImpl.class.getName())
+                .addInputMapperPair(new Path(inputDir).toString(), TextMapperGeneratorImpl.class.getName())
                 .outputPath(outputDir)
                 .failurePath(failureDir)
                 .jobInitialiser(new TextJobInitialiser())

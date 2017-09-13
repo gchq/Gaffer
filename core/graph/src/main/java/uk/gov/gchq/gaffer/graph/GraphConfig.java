@@ -16,9 +16,9 @@
 
 package uk.gov.gchq.gaffer.graph;
 
-
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.io.FileUtils;
+
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -256,6 +257,11 @@ public final class GraphConfig {
             }
 
             return config;
+        }
+
+        @Override
+        public String toString() {
+            return config.toString();
         }
     }
 }

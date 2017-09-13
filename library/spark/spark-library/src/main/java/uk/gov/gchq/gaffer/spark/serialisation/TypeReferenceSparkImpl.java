@@ -21,6 +21,7 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 
 public final class TypeReferenceSparkImpl {

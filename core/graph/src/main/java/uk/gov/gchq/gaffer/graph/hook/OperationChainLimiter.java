@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,13 @@ package uk.gov.gchq.gaffer.graph.hook;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
+
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.store.operation.handler.ScoreOperationChainHandler;
 import uk.gov.gchq.gaffer.user.User;
-import java.util.LinkedHashMap;
+
 import java.util.Map;
 
 /**
@@ -40,7 +41,7 @@ import java.util.Map;
  * this is the score value someone with that auth can have, the maximum score value of a users auths is used.
  *
  * The class delegates the logic to {@link ScoreOperationChainHandler}. If you
- * wish to use the {@link ScoreOperationChain} operation and this graph hook,
+ * wish to use the {@link uk.gov.gchq.gaffer.operation.impl.ScoreOperationChain} operation and this graph hook,
  * then both need to have the same score configuration.
  */
 public class OperationChainLimiter implements GraphHook {
@@ -79,7 +80,7 @@ public class OperationChainLimiter implements GraphHook {
         return scorer.getOpScores();
     }
 
-    public void setOpScores(final LinkedHashMap<Class<? extends Operation>, Integer> opScores) {
+    public void setOpScores(final Map<Class<? extends Operation>, Integer> opScores) {
         scorer.setOpScores(opScores);
     }
 
@@ -89,7 +90,7 @@ public class OperationChainLimiter implements GraphHook {
     }
 
     @JsonSetter("opScores")
-    public void setOpScoresFromStrings(final LinkedHashMap<String, Integer> opScores) throws ClassNotFoundException {
+    public void setOpScoresFromStrings(final Map<String, Integer> opScores) throws ClassNotFoundException {
         scorer.setOpScoresFromStrings(opScores);
     }
 

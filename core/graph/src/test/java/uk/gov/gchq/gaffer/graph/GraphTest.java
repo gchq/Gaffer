@@ -28,6 +28,7 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
+
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -74,6 +75,7 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -713,7 +715,7 @@ public class GraphTest {
                     .build();
             fail("exception expected");
         } catch (final IllegalArgumentException e) {
-            assertEquals("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS, e.getMessage());
+            assertEquals("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS + ", GraphId: " + GRAPH_ID, e.getMessage());
         }
     }
 
@@ -863,42 +865,6 @@ public class GraphTest {
         }
     }
 
-    public static class TestStoreImpl extends Store {
-        @Override
-        public Set<StoreTrait> getTraits() {
-            return new HashSet<>(0);
-        }
-
-        @Override
-        protected void addAdditionalOperationHandlers() {
-        }
-
-        @Override
-        protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
-            return null;
-        }
-
-        @Override
-        protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
-            return null;
-        }
-
-        @Override
-        protected OutputOperationHandler<? extends GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
-            return null;
-        }
-
-        @Override
-        protected OperationHandler<? extends AddElements> getAddElementsHandler() {
-            return null;
-        }
-
-        @Override
-        protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
-            return ToBytesSerialiser.class;
-        }
-    }
-
     private File createSchemaDirectory() throws IOException {
         final File tmpDir = tempFolder.newFolder("tmpSchemaDir");
         writeToFile("elements.json", tmpDir);
@@ -908,19 +874,6 @@ public class GraphTest {
 
     private void writeToFile(final String schemaFile, final File dir) throws IOException {
         Files.copy(new SchemaStreamSupplier(schemaFile), new File(dir + "/" + schemaFile));
-    }
-
-    private static final class SchemaStreamSupplier implements InputSupplier<InputStream> {
-        private final String schemaFile;
-
-        private SchemaStreamSupplier(final String schemaFile) {
-            this.schemaFile = schemaFile;
-        }
-
-        @Override
-        public InputStream getInput() throws IOException {
-            return StreamUtil.openStream(getClass(), "/schema/" + schemaFile);
-        }
     }
 
     @Test
@@ -1268,5 +1221,54 @@ public class GraphTest {
         assertEquals(library1, graph.getGraphLibrary());
         assertEquals(Arrays.asList(hook2.getClass(), hook1.getClass(), hook3.getClass()),
                 graph.getGraphHooks());
+    }
+
+    public static class TestStoreImpl extends Store {
+        @Override
+        public Set<StoreTrait> getTraits() {
+            return new HashSet<>(0);
+        }
+
+        @Override
+        protected void addAdditionalOperationHandlers() {
+        }
+
+        @Override
+        protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
+            return null;
+        }
+
+        @Override
+        protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
+            return null;
+        }
+
+        @Override
+        protected OutputOperationHandler<? extends GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
+            return null;
+        }
+
+        @Override
+        protected OperationHandler<? extends AddElements> getAddElementsHandler() {
+            return null;
+        }
+
+        @Override
+        protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
+            return ToBytesSerialiser.class;
+        }
+    }
+
+    private static final class SchemaStreamSupplier implements InputSupplier<InputStream> {
+        private final String schemaFile;
+
+        private SchemaStreamSupplier(final String schemaFile) {
+            this.schemaFile = schemaFile;
+        }
+
+        @Override
+        public InputStream getInput() throws IOException {
+            return StreamUtil.openStream(getClass(), "/schema/" + schemaFile);
+        }
     }
 }

@@ -18,8 +18,10 @@ package uk.gov.gchq.gaffer.hdfs.operation;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.hadoop.mapreduce.Partitioner;
+
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -127,7 +129,7 @@ public interface MapReduce {
             return _self();
         }
 
-        default B addinputMapperPair(final String inputPath, final String mapperGeneratorClassName) {
+        default B addInputMapperPair(final String inputPath, final String mapperGeneratorClassName) {
             _getOp().addInputMapperPair(inputPath, mapperGeneratorClassName);
             return _self();
         }

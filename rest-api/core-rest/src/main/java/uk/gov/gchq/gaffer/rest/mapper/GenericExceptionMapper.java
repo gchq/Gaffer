@@ -18,9 +18,13 @@ package uk.gov.gchq.gaffer.rest.mapper;
 
 import uk.gov.gchq.gaffer.core.exception.Error;
 import uk.gov.gchq.gaffer.core.exception.ErrorFactory;
+
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
+
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
 
 /**
  * Jersey {@link javax.ws.rs.ext.ExceptionMapper} to be used when no specific
@@ -34,6 +38,7 @@ public class GenericExceptionMapper implements ExceptionMapper<Exception> {
         final Error error = ErrorFactory.from(ex);
 
         return Response.status(error.getStatusCode())
+                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                        .entity(error)
                        .build();
     }

@@ -21,6 +21,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
@@ -42,9 +43,10 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -55,8 +57,8 @@ public class GetElementsBetweenSetsHandlerTest {
 
     private final long TIMESTAMP = System.currentTimeMillis();
     // Query for all edges between the set {A0} and the set {A23}
-    private final List<EntityId> seedsA = Arrays.asList(new EntitySeed("A0"));
-    private final List<EntityId> inputB = Arrays.asList(new EntitySeed("A23"));
+    private final List<EntityId> seedsA = Collections.singletonList(new EntitySeed("A0"));
+    private final List<EntityId> inputB = Collections.singletonList(new EntitySeed("A23"));
 
     private static View defaultView;
     private static AccumuloStore byteEntityStore;
