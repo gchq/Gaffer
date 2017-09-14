@@ -56,9 +56,7 @@ public class DataGen {
         entity.putProperty("date", date);
         entity.putProperty("freqMap", freqMap);
         entity.putProperty("count", count);
-        if (visibility != null) {
-            entity.putProperty(TestTypes.VISIBILITY, visibility);
-        }
+        entity.putProperty(TestTypes.VISIBILITY, visibility);
         return entity;
     }
 
@@ -75,9 +73,7 @@ public class DataGen {
         edge.putProperty("date", date);
         edge.putProperty("freqMap", freqMap);
         edge.putProperty("count", count);
-        if (visibility != null) {
-            edge.putProperty(TestTypes.VISIBILITY, visibility);
-        }
+        edge.putProperty(TestTypes.VISIBILITY, visibility);
         return edge;
     }
 
@@ -105,9 +101,7 @@ public class DataGen {
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects("date", date)));
         list.add(map);
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects("count", 1)));
-        if (visibility != null) {
-            list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects(TestTypes.VISIBILITY, visibility)));
-        }
+        list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects(TestTypes.VISIBILITY, visibility)));
 
         final Object[] objects = new Object[list.size()];
         list.toArray(objects);
@@ -141,9 +135,7 @@ public class DataGen {
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects("date", date)));
         list.add(map);
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects("count", 1)));
-        if (visibility != null) {
-            list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects(TestTypes.VISIBILITY, visibility)));
-        }
+        list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects(TestTypes.VISIBILITY, visibility)));
 
         final Object[] objects = new Object[list.size()];
         list.toArray(objects);
@@ -153,12 +145,10 @@ public class DataGen {
 
     private static List<Element> generateBasicStringEntitysWithNullProperties(final String group, final int size, final boolean withVisibilities) {
         final List<Element> entities = new ArrayList<>();
-        final String visibility;
+        String visibility = null;
 
         if (withVisibilities) {
             visibility = "A";
-        } else {
-            visibility = null;
         }
 
         for (int x = 0; x < size / 2; x++) {
@@ -172,12 +162,10 @@ public class DataGen {
 
     private static List<Element> generateBasicStringEdgesWithNullProperties(final String group, final int size, final boolean withVisibilities) {
         final List<Element> edges = new ArrayList<>();
-        final String visibility;
+        String visibility = null;
 
         if (withVisibilities) {
             visibility = "A";
-        } else {
-            visibility = null;
         }
 
         for (int x = 0; x < size / 4; x++) {
@@ -195,12 +183,10 @@ public class DataGen {
 
     private static List<Element> generateBasicLongEntitys(final String group, final int size, final boolean withVisibilities) {
         final List<Element> entities = new ArrayList<>();
-        final String visibility;
+        String visibility = null;
 
         if (withVisibilities) {
             visibility = "A";
-        } else {
-            visibility = null;
         }
 
         for (int x = 0; x < size / 2; x++) {
@@ -214,12 +200,10 @@ public class DataGen {
 
     private static List<Element> generateBasicLongEdges(final String group, final int size, final boolean withVisibilities) {
         final List<Element> edges = new ArrayList<>();
-        final String visibility;
+        String visibility = null;
 
         if (withVisibilities) {
             visibility = "A";
-        } else {
-            visibility = null;
         }
 
         for (int x = 0; x < size / 4; x++) {
@@ -237,12 +221,10 @@ public class DataGen {
 
     private static List<Element> generateBasicTypeValueEntitys(final String group, final int size, final boolean withVisibilities) {
         final List<Element> entities = new ArrayList<>();
-        final String visibility;
+        String visibility = null;
 
         if (withVisibilities) {
             visibility = "A";
-        } else {
-            visibility = null;
         }
 
         for (int x = 0; x < size / 2; x++) {
@@ -258,12 +240,10 @@ public class DataGen {
 
     private static List<Element> generateBasicTypeValueEdges(final String group, final int size, final boolean withVisibilities) {
         final List<Element> edges = new ArrayList<>();
-        final String visibility;
+        String visibility = null;
 
         if (withVisibilities) {
             visibility = "A";
-        } else {
-            visibility = null;
         }
 
         for (int x = 0; x < size / 4; x++) {

@@ -72,5 +72,6 @@
         "visibility": "visibility"
       }
     }
-  }
+  },
+  "visibilityProperty": "visibility"
 }
