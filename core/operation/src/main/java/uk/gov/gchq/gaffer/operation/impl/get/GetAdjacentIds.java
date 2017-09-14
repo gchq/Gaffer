@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
-import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.Collections;
 import java.util.Map;
@@ -64,6 +63,9 @@ public class GetAdjacentIds implements
     @Override
     public void setView(final View view) {
         if (null != view && view.hasEntities()) {
+            if (view.hasAnyEntityFilter()) {
+                throw new IllegalArgumentException("View should not have entities with filters.");
+            }
             this.view = new View.Builder()
                     .merge(view)
                     .entities(Collections.emptyMap())
@@ -127,15 +129,6 @@ public class GetAdjacentIds implements
                 .options(options)
                 .inOutType(inOutType)
                 .build();
-    }
-
-    @Override
-    public ValidationResult validate() {
-        final ValidationResult result = InputOutput.super.validate();
-        if (view.hasPreAggregationFilters() || view.hasPostAggregationFilters() || view.hasPostTransformFilters()) {
-            result.addError("View should not have entity filters.");
-        }
-        return result;
     }
 
     public static class Builder extends Operation.BaseBuilder<GetAdjacentIds, Builder>
