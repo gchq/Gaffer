@@ -80,7 +80,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         final Job job = mock(Job.class);
         final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
                 .outputPath(outputDir)
-                .addinputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
+                .addInputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
                 .useProvidedSplits(true)
                 .splitsFilePath(splitsFile)
                 .build();
@@ -155,7 +155,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         // When
         AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
                 .outputPath(outputDir)
-                .addinputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
+                .addInputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
                 .maxReducers(10)
                 .splitsFilePath("target/data/splits.txt")
                 .build();
@@ -167,7 +167,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         // When
         operation = new AddElementsFromHdfs.Builder()
                 .outputPath(outputDir)
-                .addinputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
+                .addInputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
                 .maxReducers(100)
                 .splitsFilePath("target/data/splits.txt")
                 .build();
@@ -179,7 +179,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         // When
         operation = new AddElementsFromHdfs.Builder()
                 .outputPath(outputDir)
-                .addinputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
+                .addInputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
                 .maxReducers(1000)
                 .splitsFilePath("target/data/splits.txt")
                 .build();
@@ -216,7 +216,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         // When
         AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
                 .outputPath(outputDir)
-                .addinputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
+                .addInputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
                 .minReducers(10)
                 .splitsFilePath("target/data/splits.txt")
                 .build();
@@ -228,7 +228,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         // When
         operation = new AddElementsFromHdfs.Builder()
                 .outputPath(outputDir)
-                .addinputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
+                .addInputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
                 .minReducers(100)
                 .splitsFilePath("target/data/splits.txt")
                 .build();
@@ -240,7 +240,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         // When
         operation = new AddElementsFromHdfs.Builder()
                 .outputPath(outputDir)
-                .addinputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
+                .addInputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
                 .minReducers(1000)
                 .splitsFilePath("target/data/splits.txt")
                 .build();
@@ -277,7 +277,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         // When
         AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
                 .outputPath(outputDir)
-                .addinputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
+                .addInputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
                 .minReducers(10)
                 .maxReducers(20)
                 .splitsFilePath("target/data/splits.txt")
@@ -291,7 +291,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         // When
         operation = new AddElementsFromHdfs.Builder()
                 .outputPath(outputDir)
-                .addinputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
+                .addInputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
                 .minReducers(100)
                 .maxReducers(200)
                 .splitsFilePath("target/data/splits.txt")
@@ -305,7 +305,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         // When
         operation = new AddElementsFromHdfs.Builder()
                 .outputPath(outputDir)
-                .addinputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
+                .addInputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
                 .minReducers(1000)
                 .maxReducers(2000)
                 .splitsFilePath("target/data/splits.txt")

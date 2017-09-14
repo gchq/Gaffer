@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.spark.SparkConf;
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.SparkSession;
 import org.junit.Test;
@@ -34,7 +33,6 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.spark.SparkConstants;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.SparkSessionProvider;

@@ -201,7 +201,7 @@ public class AddElementsFromHdfsIT {
         // When
         graph.execute(new AddElementsFromHdfs.Builder()
                 .inputMapperPairs(inputMappers)
-                .addinputMapperPair(new Path(inputDir3).toString(), TextMapperGeneratorImpl.class.getName())
+                .addInputMapperPair(new Path(inputDir3).toString(), TextMapperGeneratorImpl.class.getName())
                 .outputPath(outputDir)
                 .failurePath(failureDir)
                 .jobInitialiser(new TextJobInitialiser())
@@ -250,7 +250,7 @@ public class AddElementsFromHdfsIT {
 
         // When
         graph.execute(new AddElementsFromHdfs.Builder()
-                .addinputMapperPair(new Path(inputDir).toString(), TextMapperGeneratorImpl.class.getName())
+                .addInputMapperPair(new Path(inputDir).toString(), TextMapperGeneratorImpl.class.getName())
                 .outputPath(outputDir)
                 .failurePath(failureDir)
                 .jobInitialiser(new TextJobInitialiser())

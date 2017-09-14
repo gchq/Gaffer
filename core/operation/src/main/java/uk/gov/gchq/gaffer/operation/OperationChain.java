@@ -87,7 +87,11 @@ public class OperationChain<OUT> implements Operation, Output<OUT> {
     }
 
     public OperationChain(final List<Operation> operations, final boolean flatten) {
-        this.operations = new ArrayList<>(operations);
+        if (null == operations) {
+            this.operations = new ArrayList<>();
+        } else {
+            this.operations = new ArrayList<>(operations);
+        }
 
         if (flatten) {
             this.operations = flatten();

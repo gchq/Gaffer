@@ -129,7 +129,7 @@ public interface MapReduce {
             return _self();
         }
 
-        default B addinputMapperPair(final String inputPath, final String mapperGeneratorClassName) {
+        default B addInputMapperPair(final String inputPath, final String mapperGeneratorClassName) {
             _getOp().addInputMapperPair(inputPath, mapperGeneratorClassName);
             return _self();
         }

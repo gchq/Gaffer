@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd;
+package uk.gov.gchq.gaffer.sparkaccumulo.integration.operation.handler.scalardd;
 
 import com.google.common.collect.Sets;
 import org.apache.accumulo.core.client.AccumuloException;
@@ -32,7 +32,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.spark.rdd.RDD;
-import org.apache.spark.sql.execution.columnar.BYTE;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -82,7 +81,7 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-public class GetRDDOfAllElementsHandlerTest {
+public class GetRDDOfAllElementsHandlerIT {
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 

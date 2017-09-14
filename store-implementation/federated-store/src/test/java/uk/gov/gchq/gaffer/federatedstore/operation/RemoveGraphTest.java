@@ -20,9 +20,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph.Builder;
 import uk.gov.gchq.gaffer.operation.OperationTest;
+
 import java.util.Set;
 
 public class RemoveGraphTest extends OperationTest<RemoveGraph> {

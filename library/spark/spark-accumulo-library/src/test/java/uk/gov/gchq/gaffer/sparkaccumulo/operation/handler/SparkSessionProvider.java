@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler;
 
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.SparkSession;
+
 import uk.gov.gchq.gaffer.spark.SparkConstants;
 
 public class SparkSessionProvider {
