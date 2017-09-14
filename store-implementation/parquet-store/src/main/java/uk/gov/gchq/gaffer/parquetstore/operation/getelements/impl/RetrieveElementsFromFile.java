@@ -76,8 +76,10 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
             Element e = fileReader.read();
             while (e != null) {
                 if (needsValidation) {
-                    if (elementFilter.test(e)) {
-                        queue.add(e);
+                    if (elementFilter != null) {
+                        if (elementFilter.test(e)) {
+                            queue.add(e);
+                        }
                     }
                 } else {
                     queue.add(e);
