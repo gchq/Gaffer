@@ -1,0 +1,93 @@
+/*
+ * Copyright 2017 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package uk.gov.gchq.gaffer.store.operation.handler.function;
+
+import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.stream.Streams;
+import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.function.Filter;
+import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.mockito.Mockito.mock;
+
+public class FilterHandlerTest {
+
+    @Test
+    public void shouldFilterInputBasedOnFilter() throws OperationException {
+        // Given
+        final List<Element> input = new ArrayList<>();
+        final List<Element> expected = new ArrayList<>();
+
+        final Store store = mock(Store.class);
+        final Context context = new Context();
+        final FilterHandler handler = new FilterHandler();
+
+        final Edge edge = new Edge.Builder()
+                .group("Test")
+                .source("junctionA")
+                .dest("junctionB")
+                .directed(true)
+                .property("count", 2L)
+                .build();
+
+        final Edge edge1 = new Edge.Builder()
+                .group("Test")
+                .source("junctionA")
+                .dest("junctionB")
+                .directed(true)
+                .property("count", 1L)
+                .build();
+
+        final Edge edge2 = new Edge.Builder()
+                .group("Test")
+                .source("junctionB")
+                .dest("junctionA")
+                .directed(true)
+                .property("count", 4L)
+                .build();
+
+        input.add(edge);
+        input.add(edge1);
+        input.add(edge2);
+
+        expected.add(edge);
+        expected.add(edge2);
+
+        final Filter filter = new Filter.Builder()
+                .input(input)
+                .elementFilter(new ElementFilter.Builder()
+                                       .select("count")
+                                       .execute(new IsMoreThan(1L))
+                                       .build())
+                .build();
+
+        // When
+        final Iterable<? extends Element> result = handler.doOperation(filter, context, store);
+        final List<Element> resultList = Streams.toStream(result).collect(Collectors.toList());
+
+        // Then
+        assertArrayEquals(expected.toArray(), resultList.toArray());
+    }
+}
