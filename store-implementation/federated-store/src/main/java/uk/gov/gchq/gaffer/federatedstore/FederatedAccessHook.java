@@ -30,12 +30,12 @@ import java.util.Set;
 
 /**
  * <table summary="FederatedAccessHook truth table">
- * <tr><td> User Ops</td><td>|</td><td> AccessHook Ops</td><td>|</td><td> User added graph</td><td>|</td><td> hasAccess?</td></tr>
- * <tr><td>  'A'    </td><td>|</td><td> 'A'     </td><td>|</td><td> Y/N </td><td>|</td><td> Y   </td></tr>
- * <tr><td>  'A', 'B' </td><td>|</td><td> 'A'     </td><td>|</td><td> Y/N </td><td>|</td><td> Y   </td></tr>
- * <tr><td>  'A'    </td><td>|</td><td> 'A', 'B'  </td><td>|</td><td> Y/N </td><td>|</td><td> Y   </td></tr>
- * <tr><td>  'A'    </td><td>|</td><td> 'B'     </td><td>|</td><td> N   </td><td>|</td><td> N   </td></tr>
- * <tr><td>  'A'    </td><td>|</td><td> 'B'     </td><td>|</td><td> Y   </td><td>|</td><td> Y   </td></tr>
+ * <tr><td> User Ops</td><td>|</td><td> Access Auths</td><td>|</td><td> User added graph</td><td>|</td><td> hasAccess?</td></tr>
+ * <tr><td>  'A'        </td><td>|</td><td> 'A'     </td><td>|</td><td> Y/N </td><td>|</td><td> Y   </td></tr>
+ * <tr><td>  'A', 'B'   </td><td>|</td><td> 'A'     </td><td>|</td><td> Y/N </td><td>|</td><td> Y   </td></tr>
+ * <tr><td>  'A'        </td><td>|</td><td> 'A', 'B'</td><td>|</td><td> Y/N </td><td>|</td><td> Y   </td></tr>
+ * <tr><td>  'A'        </td><td>|</td><td> 'B'     </td><td>|</td><td> N   </td><td>|</td><td> N   </td></tr>
+ * <tr><td>  'A'        </td><td>|</td><td> 'B'     </td><td>|</td><td> Y   </td><td>|</td><td> Y   </td></tr>
  * </table>
  */
 public class FederatedAccessHook implements GraphHook {
