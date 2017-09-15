@@ -41,6 +41,7 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.Graph.Builder;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
@@ -381,6 +382,11 @@ public class FederatedStore extends Store {
         addOperationHandler(RemoveGraph.class, new FederatedRemoveGraphHandler());
     }
 
+    @Override
+    protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
+        return new FederatedOperationChainHandler<>(opChainValidator, opChainOptimisers);
+    }
+
     public void remove(final String graphId) {
         graphs.remove(graphId);
         updateMergedGraphConfig();
@@ -394,6 +400,10 @@ public class FederatedStore extends Store {
     @Override
     public Set<StoreTrait> getTraits() {
         return traits;
+    }
+
+    public Collection<Graph> getAllGraph() {
+        return getGraphs(null);
     }
 
     public Collection<Graph> getGraphs(final String graphIdsCsv) {
