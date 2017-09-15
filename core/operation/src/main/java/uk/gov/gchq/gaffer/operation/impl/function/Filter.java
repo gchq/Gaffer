@@ -17,13 +17,14 @@ package uk.gov.gchq.gaffer.operation.impl.function;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Operation.Builder;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl.IterableElement;
+
 import java.util.Map;
 
 /**
@@ -85,7 +86,9 @@ public class Filter implements
     extends Operation.BaseBuilder<Filter, Builder>
     implements InputOutput.Builder<Filter, Iterable<? extends Element>, Iterable<? extends Element>, Builder>,
             MultiInput.Builder<Filter, Element, Builder> {
-        public Builder() { super(new Filter()); }
+        public Builder() {
+            super(new Filter());
+        }
 
         public Builder elementFilter(final ElementFilter elementFilter) {
             _getOp().setElementFilter(elementFilter);

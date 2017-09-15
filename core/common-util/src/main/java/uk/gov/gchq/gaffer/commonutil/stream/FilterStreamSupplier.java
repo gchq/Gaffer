@@ -16,7 +16,9 @@
 package uk.gov.gchq.gaffer.commonutil.stream;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
+
 import java.io.IOException;
+
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
