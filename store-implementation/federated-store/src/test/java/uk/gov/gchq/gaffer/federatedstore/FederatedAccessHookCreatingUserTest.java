@@ -16,111 +16,30 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import org.junit.Assert;
+import com.google.common.collect.Sets;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.gaffer.user.User.Builder;
 
-public class FederatedAccessHookTest {
+import java.util.Collection;
+import java.util.HashSet;
+
+import static org.junit.Assert.assertTrue;
+
+/**
+ * The user that created the graph should still have visibility/access of the graph,
+ * they created. However other mechanisms will stop them from
+ * performing operations that they do not have, else where in code.
+ */
+public class FederatedAccessHookCreatingUserTest {
 
     public static final String A = "A";
     public static final String B = "B";
-    public static final String AA = "AA";
     public static final String USER = "user";
 
-    //At least 1 ops.
-
     @Test
-    public void shouldValidateMatchingAuth() throws Exception {
-
-        final User user = new Builder()
-                .opAuth(A)
-                .build();
-
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
-                .graphAuths(A)
-                .build();
-
-        Assert.assertTrue(hook.isValidToExecute(user));
-    }
-
-    @Test
-    public void shouldInValidateNoAuthNoUser() throws Exception {
-
-        final User user = new Builder()
-                .build();
-
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
-                .build();
-
-        Assert.assertFalse(hook.isValidToExecute(user));
-    }
-
-    @Test
-    public void shouldInValidateMismatchingAuth() throws Exception {
-
-        final User user = new Builder()
-                .opAuth(A)
-                .build();
-
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
-                .graphAuths(B)
-                .build();
-
-        Assert.assertFalse(hook.isValidToExecute(user));
-    }
-
-    @Test
-    public void shouldInValidateMissingAuth() throws Exception {
-
-        final User user = new Builder()
-                .opAuth(A)
-                .build();
-
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
-                .build();
-
-        Assert.assertFalse(hook.isValidToExecute(user));
-    }
-
-    @Test
-    public void shouldValidatePartialMatchingAuth() throws Exception {
-
-        final User user = new Builder()
-                .opAuths(A, AA)
-                .build();
-
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
-                .graphAuths(A)
-                .build();
-
-        Assert.assertTrue(hook.isValidToExecute(user));
-    }
-
-    @Test
-    public void shouldValidateMatchingAuthWithSurplus() throws Exception {
-
-        final User user = new Builder()
-                .opAuths(A)
-                .build();
-
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
-                .graphAuths(A, AA)
-                .build();
-
-        Assert.assertTrue(hook.isValidToExecute(user));
-    }
-
-    /**
-     * The user that created the graph should still have visibility/access of the graph,
-     * they created, however other mechanisms will stop them from
-     * performing operations that they do not have.
-     *
-     * @throws Exception
-     */
-    @Test
-    public void shouldValidateCreatingUserRegardlessOfAuth() throws Exception {
+    public void shouldValidateWithWrongAuth() throws Exception {
 
         final User user = new Builder()
                 .opAuth(A)
@@ -133,22 +52,119 @@ public class FederatedAccessHookTest {
 
         hook.setAddingUserId(USER);
 
-        Assert.assertTrue(hook.isValidToExecute(user));
+        assertTrue(hook.isValidToExecute(user));
     }
 
     @Test
-    public void shouldValidateWithExplicitlySetEmptyPublicAuth() throws Exception {
+    public void shouldValidateWithNoAuth() throws Exception {
 
         final User user = new Builder()
+                .userId(USER)
                 .build();
 
         final FederatedAccessHook hook = new FederatedAccessHook.Builder()
-                .graphAuths((String) null)
+                .graphAuths(B)
+                .build();
+
+        hook.setAddingUserId(USER);
+
+        assertTrue(hook.isValidToExecute(user));
+    }
+
+    @Test
+    public void shouldValidateWithNullHookAuthCollection() throws Exception {
+
+        final User user = new Builder()
+                .userId(USER)
+                .build();
+
+        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+                .graphAuths((Collection) null)
+                .build();
+
+        hook.setAddingUserId(USER);
+
+        assertTrue(hook.isValidToExecute(user));
+    }
+
+    @Test
+    public void shouldValidateWithNullHookAuthStringArray() throws Exception {
+
+        final User user = new Builder()
+                .userId(USER)
+                .build();
+
+        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+                .graphAuths((String[]) null)
+                .build();
+
+        hook.setAddingUserId(USER);
+
+        assertTrue(hook.isValidToExecute(user));
+    }
+
+    @Test
+    public void shouldValidateWithEmptyHookAuthCollection() throws Exception {
+
+        final User user = new Builder()
+                .userId(USER)
+                .build();
+
+        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+                .graphAuths(new HashSet<>())
+                .build();
+
+        hook.setAddingUserId(USER);
+
+        assertTrue(hook.isValidToExecute(user));
+    }
+
+    @Test
+    public void shouldValidateWithEmptyHookAuthStringArray() throws Exception {
+
+        final User user = new Builder()
+                .userId(USER)
+                .build();
+
+        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+                .graphAuths(new String[0])
+                .build();
+
+        hook.setAddingUserId(USER);
+
+        assertTrue(hook.isValidToExecute(user));
+    }
+
+    @Test
+    public void shouldValidateWithEmptyHookAuthCollectionII() throws Exception {
+
+        final User user = new Builder()
+                .userId(USER)
+                .build();
+
+        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+                .graphAuths(Sets.newHashSet(""))
+                .build();
+
+        hook.setAddingUserId(USER);
+
+        assertTrue(hook.isValidToExecute(user));
+    }
+
+    @Test
+    public void shouldValidateWithEmptyHookAuthStringArrayII() throws Exception {
+
+        final User user = new Builder()
+                .userId(USER)
+                .build();
+
+        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
                 .graphAuths("")
                 .build();
 
-        Assert.assertTrue(hook.isValidToExecute(user));
-    }
+        hook.setAddingUserId(USER);
 
+        assertTrue(hook.isValidToExecute(user));
+    }
 
 }

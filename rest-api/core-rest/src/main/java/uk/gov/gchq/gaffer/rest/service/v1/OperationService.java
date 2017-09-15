@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
@@ -68,7 +69,7 @@ public class OperationService implements IOperationService {
     private UserFactory userFactory;
 
     @Override
-    public Object execute(final OperationChain opChain) {
+    public Object execute(final OperationChainDAO opChain) {
         return _execute(opChain);
     }
 
@@ -79,7 +80,7 @@ public class OperationService implements IOperationService {
 
     @SuppressFBWarnings
     @Override
-    public ChunkedOutput<String> executeChunkedChain(final OperationChain opChain) {
+    public ChunkedOutput<String> executeChunkedChain(final OperationChainDAO opChain) {
         // Create chunked output instance
         final ChunkedOutput<String> output = new ChunkedOutput<>(String.class, "\r\n");
 
@@ -103,10 +104,13 @@ public class OperationService implements IOperationService {
     @SuppressFBWarnings
     @Override
     public ChunkedOutput<String> executeChunked(final Operation operation) {
-        if (operation instanceof OperationChain) {
-            return executeChunkedChain((OperationChain) operation);
+        if (operation instanceof OperationChainDAO) {
+            return executeChunkedChain((OperationChainDAO) operation);
         }
-        return executeChunkedChain(new OperationChain(operation));
+        if (operation instanceof OperationChain) {
+            return executeChunkedChain(new OperationChainDAO(((OperationChain) operation).getOperations()));
+        }
+        return executeChunkedChain(new OperationChainDAO(operation));
     }
 
     @Override
@@ -148,11 +152,11 @@ public class OperationService implements IOperationService {
     }
 
     protected <O> O _execute(final Operation operation) {
-        return _execute(new OperationChain<>(operation));
+        return _execute(new OperationChainDAO<O>(operation));
     }
 
     @SuppressWarnings("ThrowFromFinallyBlock")
-    protected <O> O _execute(final OperationChain<O> opChain) {
+    protected <O> O _execute(final OperationChainDAO<O> opChain) {
         final User user = userFactory.createUser();
         preOperationHook(opChain, user);
 
