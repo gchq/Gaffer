@@ -57,7 +57,7 @@ Accumulo set up
 
 Gaffer has been extensively tested with Accumulo version 1.7.2. It should work with any of the 1.7.* versions of Accumulo.
 
-For the purposes of unit testing and very small-scale ephemeral examples, Gaffer offers a [MockAccumuloStore](accumulo-store/src/main/java/gaffer/accumulostore/MockAccumuloStore.java). This uses Accumulo's `MockInstance` to create an in-memory Accumulo store that runs within the same JVM as the client code. All data in this store will disappear when the JVM is shut down.
+For the purposes of unit testing and very small-scale ephemeral examples, Gaffer offers a [MockAccumuloStore](accumulo-store/src/main/java/uk/gov/gchq/gaffer/accumulostore/MockAccumuloStore.java). This uses Accumulo's `MockInstance` to create an in-memory Accumulo store that runs within the same JVM as the client code. All data in this store will disappear when the JVM is shut down.
 
 Gaffer can also be used with a `MiniAccumuloCluster`. This is an Accumulo cluster that runs in one JVM. To set up a `MiniAccumuloCluster` with Gaffer support, see the [mini-accumulo-cluster](https://github.com/gchq/gaffer-tools/tree/master/mini-accumulo-cluster) project in the Gaffer tools repository.
 
@@ -102,7 +102,7 @@ Other properties can be specified in this file. For details see [Advanced Proper
 Schema
 -----------------------------------------------
 
-See [Getting Started](Getting-Started.md) for details of how to write a schema that tells Gaffer what data will be stored, and how to aggregate it. Once the schema has been created, a `Graph` object can be created using:
+See [Getting Started](https://gchq.github.io/gaffer-doc/getting-started/dev-guide.html#schemas) for details of how to write a schema that tells Gaffer what data will be stored, and how to aggregate it. Once the schema has been created, a `Graph` object can be created using:
 
 ```java
 Graph graph = new Graph.Builder()
@@ -214,7 +214,7 @@ By default the number of reducers used in the MapReduce job that converts data i
 Queries
 -----------------------------------------------
 
-The Accumulo store supports all the standard queries. See [Getting Started](Getting-Started) for more details.
+The Accumulo store supports all the standard queries. See the [Operation Examples](https://gchq.github.io/gaffer-doc/getting-started/operation-examples.html) for more details.
 
 Visibility
 -----------------------------------------------
@@ -223,7 +223,7 @@ Gaffer can take advantage of Accumulo's built-in fine-grained security to ensure
 
 If no "visibilityProperty" is specified then the column visibility is empty which means that anyone who has read access to the table can view it.
 
-See [the aggregation example](Getting-Started#example-8---aggregation) in the [Getting Started](Getting-Started) guide for an example of how properties can be aggregated over different visibilities at query time.
+See [the visibility example](https://gchq.github.io/gaffer-doc/getting-started/dev-guide.html#visibilities) in the [Dev Guide](https://gchq.github.io/gaffer-doc/getting-started/dev-guide.html) guide for an example of how properties can be aggregated over different visibilities at query time.
 
 Timestamp
 -----------------------------------------------
