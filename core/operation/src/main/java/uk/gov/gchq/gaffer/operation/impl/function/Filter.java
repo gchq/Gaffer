@@ -18,7 +18,9 @@ package uk.gov.gchq.gaffer.operation.impl.function;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
+import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
@@ -30,8 +32,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A <code>Filter</code> operation applies a provided {@link ElementFilter} to the provided {@link Iterable} of {@link Element}s,
+ * A <code>Filter</code> operation applies {@link ElementFilter}(s) to the provided {@link Iterable} of {@link Element}s,
  * and returns an {@link Iterable}.
+ * The {@link ElementFilter} can be applied to a specific group of {@link Edge} or {@link Entity},
+ * to any {@link Edge} or {@link Entity}, or simply to any {@link Element} in the {@link Iterable}.
+ * For more complex queries, a {@link Map} of groups to {@link ElementFilter}s can also be provided to either
+ * {@link Edge}s or {@link Entity}s.
  */
 public class Filter implements
         Operation,
@@ -41,12 +47,12 @@ public class Filter implements
     private Iterable<? extends Element> input;
 
     /**
-     * Map of edge group to edge definition.
+     * Map of edge group to ElementFilter.
      */
     private Map<String, ElementFilter> edges;
 
     /**
-     * Map of entity group to entity definition.
+     * Map of entity group to ElementFilter.
      */
     private Map<String, ElementFilter> entities;
 

@@ -38,7 +38,8 @@ public class FilterStreamSupplier implements StreamSupplier<Element> {
     /**
      * Default constructor.
      *
-     * @param filter the ElementFilter used for filtering
+     * @param filter the Filter operation to be applied,
+     *               from which the input is pulled
      */
     public FilterStreamSupplier(final Filter filter) {
         this.input = filter.getInput();
