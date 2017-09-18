@@ -30,9 +30,6 @@ public class FilterHandler implements OutputOperationHandler<Filter, Iterable<? 
         if (null == operation.getInput()) {
             throw new OperationException("Filter operation has null iterable of elements");
         }
-        if (null == operation.getElementFilter()) {
-            return operation.getInput();
-        }
 
         return new StreamFilterIterable<>(operation.getInput(), operation.getElementFilter()::test);
     }

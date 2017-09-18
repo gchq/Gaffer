@@ -15,8 +15,6 @@
  */
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
-import uk.gov.gchq.gaffer.commonutil.stream.FilterStreamSupplier;
-
 import java.util.function.Predicate;
 
 public class StreamFilterIterable<I> extends StreamIterable<I> {

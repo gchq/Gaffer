@@ -25,6 +25,8 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl.IterableElement;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -37,14 +39,32 @@ public class Filter implements
         MultiInput<Element> {
 
     private Iterable<? extends Element> input;
-    private ElementFilter elementFilter;
+
+    /**
+     * Map of edge group to edge definition.
+     */
+    private Map<String, ElementFilter> edges;
+
+    /**
+     * Map of entity group to entity definition.
+     */
+    private Map<String, ElementFilter> entities;
+
+    private ElementFilter globalElements;
+    private ElementFilter globalEntities;
+    private ElementFilter globalEdges;
+
     private Map<String, String> options;
 
     @Override
     public Filter shallowClone() throws CloneFailedException {
         return new Filter.Builder()
                 .input(input)
-                .elementFilter(elementFilter)
+                .entities(entities)
+                .edges(edges)
+                .globalElements(globalElements)
+                .globalEdges(globalEdges)
+                .globalEntities(globalEntities)
                 .options(options)
                 .build();
     }
@@ -69,29 +89,121 @@ public class Filter implements
         this.input = input;
     }
 
+    public Map<String, ElementFilter> getEdges() {
+        return edges;
+    }
+
+    public void setEdges(final Map<String, ElementFilter> edges) {
+        this.edges = edges;
+    }
+
+    public Map<String, ElementFilter> getEntities() {
+        return entities;
+    }
+
+    public void setEntities(final Map<String, ElementFilter> entities) {
+        this.entities = entities;
+    }
+
+    public ElementFilter getGlobalElements() {
+        return globalElements;
+    }
+
+    public void setGlobalElements(final ElementFilter globalElements) {
+        this.globalElements = globalElements;
+    }
+
+    public ElementFilter getGlobalEntities() {
+        return globalEntities;
+    }
+
+    public void setGlobalEntities(final ElementFilter globalEntities) {
+        this.globalEntities = globalEntities;
+    }
+
+    public ElementFilter getGlobalEdges() {
+        return globalEdges;
+    }
+
+    public void setGlobalEdges(final ElementFilter globalEdges) {
+        this.globalEdges = globalEdges;
+    }
+
     @Override
     public TypeReference<Iterable<? extends Element>> getOutputTypeReference() {
         return new IterableElement();
     }
 
-    public ElementFilter getElementFilter() {
-        return elementFilter;
-    }
-
-    public void setElementFilter(final ElementFilter elementFilter) {
-        this.elementFilter = elementFilter;
-    }
 
     public static final class Builder
-    extends Operation.BaseBuilder<Filter, Builder>
-    implements InputOutput.Builder<Filter, Iterable<? extends Element>, Iterable<? extends Element>, Builder>,
+            extends Operation.BaseBuilder<Filter, Builder>
+            implements InputOutput.Builder<Filter, Iterable<? extends Element>, Iterable<? extends Element>, Builder>,
             MultiInput.Builder<Filter, Element, Builder> {
         public Builder() {
             super(new Filter());
         }
 
-        public Builder elementFilter(final ElementFilter elementFilter) {
-            _getOp().setElementFilter(elementFilter);
+
+        public Builder entity(final String group) {
+            return entity(group, new ElementFilter());
+        }
+
+        public Builder entity(final String group, final ElementFilter elementFilter) {
+            if (null == _getOp().entities) {
+                _getOp().entities = new HashMap<>();
+            }
+            _getOp().entities.put(group, elementFilter);
+            return _self();
+        }
+
+        public Builder entities(final Map<String, ElementFilter> entities) {
+            _getOp().entities = entities;
+            return _self();
+        }
+
+        public Builder entities(final Collection<String> groups) {
+            for (final String group : groups) {
+                entity(group);
+            }
+            return _self();
+        }
+
+        public Builder edge(final String group) {
+            return edge(group, new ElementFilter());
+        }
+
+        public Builder edge(final String group, final ElementFilter elementFilter) {
+            if (null == _getOp().edges) {
+                _getOp().edges = new HashMap<>();
+            }
+            _getOp().edges.put(group, elementFilter);
+            return _self();
+        }
+
+        public Builder edges(final Collection<String> groups) {
+            for (final String group : groups) {
+                edge(group);
+            }
+            return _self();
+        }
+
+        public Builder edges(final Map<String, ElementFilter> edges) {
+            _getOp().edges = edges;
+            return _self();
+        }
+
+        public Builder globalElements(final ElementFilter globalElements) {
+            _getOp().globalElements = globalElements;
+            return _self();
+        }
+
+        public Builder globalEntities(final ElementFilter globalEntities) {
+            _getOp().globalEntities = globalEntities;
+            return _self();
+        }
+
+        public Builder globalEdges(final ElementFilter globalEdges) {
+            _getOp().globalEdges = globalEdges;
             return _self();
         }
     }

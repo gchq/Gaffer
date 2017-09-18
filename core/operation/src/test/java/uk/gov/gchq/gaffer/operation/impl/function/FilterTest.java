@@ -16,10 +16,13 @@
 package uk.gov.gchq.gaffer.operation.impl.function;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.operation.OperationTest;
+import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +37,15 @@ public class FilterTest extends OperationTest {
     public void builderShouldCreatePopulatedOperation() {
         // Given
         final Filter filter = new Filter.Builder()
-                .input(new Edge("road"), new Edge("railway"))
-                .elementFilter(new ElementFilter())
+                .input(new Entity("road"), new Edge("railway"))
+                .entity("road", new ElementFilter.Builder()
+                        .select("count")
+                        .execute(new IsMoreThan(10))
+                        .build())
+                .entity("road2", new ElementFilter.Builder()
+                        .select("count")
+                        .execute(new IsMoreThan(20))
+                        .build())
                 .build();
 
         // Then
