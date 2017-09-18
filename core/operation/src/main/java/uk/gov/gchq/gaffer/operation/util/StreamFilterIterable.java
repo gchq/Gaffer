@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.commonutil.iterable;
+package uk.gov.gchq.gaffer.operation.util;
 
-import java.util.function.Predicate;
+import uk.gov.gchq.gaffer.commonutil.iterable.StreamIterable;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.operation.impl.function.Filter;
 
-public class StreamFilterIterable<I> extends StreamIterable<I> {
-    public StreamFilterIterable(final Iterable<I> input, final Predicate<I> predicate) {
-        super(new FilterStreamSupplier<>(input, predicate));
+public class StreamFilterIterable extends StreamIterable<Element> {
+    public StreamFilterIterable(final Filter operation) {
+        super(new FilterStreamSupplier(operation));
     }
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.operation.impl.function;
+package uk.gov.gchq.gaffer.operation.util;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.stream.StreamSupplier;
@@ -21,27 +21,27 @@ import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.operation.impl.function.Filter;
 
 import java.io.IOException;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
- * A {@link StreamSupplier} which uses a {@link Predicate}
+ * A {@link StreamSupplier} which uses a {@link Filter}
  * to filter the {@link Iterable} input into an {@link Iterable} output.
  */
 public class FilterStreamSupplier implements StreamSupplier<Element> {
-    private Iterable<Element> input;
+    private Iterable<? extends Element> input;
     private Filter filter;
 
     /**
      * Default constructor.
      *
-     * @param input  the input iterable
      * @param filter the ElementFilter used for filtering
      */
-    public FilterStreamSupplier(final Iterable<Element> input, final Filter filter) {
-        this.input = input;
+    public FilterStreamSupplier(final Filter filter) {
+        this.input = filter.getInput();
         this.filter = filter;
     }
 
@@ -52,25 +52,34 @@ public class FilterStreamSupplier implements StreamSupplier<Element> {
 
     @Override
     public Stream<Element> get() {
-        Stream<Element> stream = Streams.toStream(input);
-        Predicate predicate = null; // todo initialise this.
-        if (null != filter.getGlobalElements()) {
-            predicate.and(filter.getGlobalElements());
-        }
-        stream = stream.filter(e -> {
-            if (e instanceof Edge) {
-                final ElementFilter elementFilter = filter.getEdges().get(e.getGroup());
-                if (null != elementFilter) {
-                    predicate.and(elementFilter);
+        Stream<Element> stream = Streams.toStream((Iterable) input);
+        stream = stream.filter(element -> {
+            Predicate<Element> predicate = null;
+            if (null != filter.getGlobalElements()) {
+                predicate = e -> filter.getGlobalElements().test(e);
+            }
+            if (null != filter.getEdges() && element instanceof Edge) {
+                final ElementFilter elementFilter = filter.getEdges().get(element.getGroup());
+                if (null == elementFilter) {
+                    predicate = e -> false;
+                } else {
+                    predicate = elementFilter::test;
                 }
                 if (null != filter.getGlobalEdges()) {
-                    predicate.and(filter.getGlobalEdges());
+                    predicate = predicate.and(e -> filter.getGlobalEdges().test(e));
                 }
-            } else {
-//add entity filters
+            } else if (null != filter.getEntities()) {
+                final ElementFilter elementFilter = filter.getEntities().get(element.getGroup());
+                if (null == elementFilter) {
+                    predicate = e -> false;
+                } else {
+                    predicate = elementFilter::test;
+                }
+                if (null != filter.getGlobalEntities()) {
+                    predicate = predicate.and(e -> filter.getGlobalEntities().test(e));
+                }
             }
-
-            return predicate.test(e);
+            return null == predicate || predicate.test(element);
         });
 
         return stream;

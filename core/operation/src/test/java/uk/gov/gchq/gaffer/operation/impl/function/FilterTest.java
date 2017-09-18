@@ -61,7 +61,7 @@ public class FilterTest extends OperationTest {
         input.add(edge);
         final Filter filter = new Filter.Builder()
                 .input(input)
-                .elementFilter(new ElementFilter())
+                .globalElements(new ElementFilter())
                 .build();
 
         // When

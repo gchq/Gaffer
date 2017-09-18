@@ -15,10 +15,10 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler.function;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.StreamFilterIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.function.Filter;
+import uk.gov.gchq.gaffer.operation.util.StreamFilterIterable;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
@@ -31,6 +31,6 @@ public class FilterHandler implements OutputOperationHandler<Filter, Iterable<? 
             throw new OperationException("Filter operation has null iterable of elements");
         }
 
-        return new StreamFilterIterable<>(operation.getInput(), operation.getElementFilter()::test);
+        return new StreamFilterIterable(operation);
     }
 }
