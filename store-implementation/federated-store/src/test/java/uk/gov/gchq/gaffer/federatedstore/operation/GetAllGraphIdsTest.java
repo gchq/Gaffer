@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.google.common.collect.Sets;
+import org.junit.Assert;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
@@ -37,11 +38,14 @@ public class GetAllGraphIdsTest extends OperationTest<GetAllGraphIds> {
     @Override
     public void shouldShallowCloneOperation() {
         final GetAllGraphIds a = getTestObject().shallowClone();
-        final GetAllGraphIds b = a.shallowClone();
+        Assert.assertNotNull(a);
+        Assert.assertEquals("b", a.getOption("a"));
     }
 
     @Override
     protected GetAllGraphIds getTestObject() {
-        return new GetAllGraphIds.Builder().build();
+        return new GetAllGraphIds.Builder()
+                .option("a", "b")
+                .build();
     }
 }
