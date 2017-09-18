@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -32,7 +33,7 @@ public class PredefinedFederatedStore extends FederatedStore {
 
         // Accumulo store just contains edges
         addGraphs(new Graph.Builder()
-                .graphId("AccumuloStoreContainingEdges")
+                .config(new GraphConfig("AccumuloStoreContainingEdges"))
                 .addSchema(new Schema.Builder()
                         .merge(schema)
                         .entities(Collections.emptyMap())
@@ -42,7 +43,7 @@ public class PredefinedFederatedStore extends FederatedStore {
 
         // Map store just contains entities
         addGraphs(new Graph.Builder()
-                .graphId("MapStoreContainingEntities")
+                .config(new GraphConfig("MapStoreContainingEntities"))
                 .addSchema(new Schema.Builder()
                         .merge(schema)
                         .edges(Collections.emptyMap())
