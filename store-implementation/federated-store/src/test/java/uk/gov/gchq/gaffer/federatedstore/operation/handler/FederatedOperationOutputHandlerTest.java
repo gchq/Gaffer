@@ -27,14 +27,18 @@ import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -129,9 +133,78 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         verify(mockStore4, never()).execute(any(OperationChain.class), eq(user));
     }
 
+    @Test
+    final public void shouldThrowException() throws Exception {
+        // Given
+        final String graphID = "graphId";
+        final String message = "Test Exception";
+        final OP op = getExampleOperation();
+        op.addOption(FederatedStoreConstants.GRAPH_IDS, graphID);
+
+        Schema unusedSchema = new Schema.Builder().build();
+
+        Store mockStoreInner = Mockito.mock(Store.class);
+        given(mockStoreInner.getSchema()).willReturn(unusedSchema);
+        given(mockStoreInner.execute(any(OperationChain.class), eq(user))).willThrow(new RuntimeException(message));
+
+        FederatedStore mockStore = Mockito.mock(FederatedStore.class);
+        HashSet<Graph> filteredGraphs = Sets.newHashSet(getGraphWithMockStore(mockStoreInner));
+        Mockito.when(mockStore.getGraphs(graphID)).thenReturn(filteredGraphs);
+
+        // When
+        try {
+            getFederatedHandler().doOperation(op, new Context(user), mockStore);
+            fail("Exception not thrown");
+        } catch (OperationException e) {
+            assertEquals(message, e.getCause().getMessage());
+        }
+
+    }
+
+    @Test
+    final public void shouldNotThrowException() throws Exception {
+        // Given
+        // Given
+        final OP op = getExampleOperation();
+        op.addOption(FederatedStoreConstants.GRAPH_IDS, "1,3");
+        op.addOption(FederatedStoreConstants.SKIP_FAILED_FEDERATED_STORE_EXECUTE, String.valueOf(true));
+
+        Schema unusedSchema = new Schema.Builder().build();
+
+        Store mockStore1 = getMockStore(op, unusedSchema, o1);
+        Store mockStore2 = getMockStore(op, unusedSchema, o2);
+        Store mockStore3 = Mockito.mock(Store.class);
+        given(mockStore3.getSchema()).willReturn(unusedSchema);
+        given(mockStore3.execute(any(OperationChain.class), eq(user))).willThrow(new RuntimeException("Test Exception"));
+        Store mockStore4 = getMockStore(op, unusedSchema, o4);
+
+        FederatedStore mockStore = Mockito.mock(FederatedStore.class);
+        LinkedHashSet<Graph> filteredGraphs = Sets.newLinkedHashSet();
+        filteredGraphs.add(getGraphWithMockStore(mockStore1));
+        filteredGraphs.add(getGraphWithMockStore(mockStore3));
+        Mockito.when(mockStore.getGraphs("1,3")).thenReturn(filteredGraphs);
+
+        // When
+        O theMergedResultsOfOperation = null;
+        try {
+            theMergedResultsOfOperation = getFederatedHandler().doOperation(op, new Context(user), mockStore);
+        } catch (Exception e) {
+            fail("Exception should not have been thrown: " + e.getMessage());
+        }
+
+        //Then
+        validateMergeResultsFromFieldObjects(theMergedResultsOfOperation, o1);
+        verify(mockStore1).execute(any(OperationChain.class), eq(user));
+        verify(mockStore2, never()).execute(any(OperationChain.class), eq(user));
+        verify(mockStore3).execute(any(OperationChain.class), eq(user));
+        verify(mockStore4, never()).execute(any(OperationChain.class), eq(user));
+        // When
+
+    }
+
     protected abstract boolean validateMergeResultsFromFieldObjects(final O result, final Object... resultParts);
 
-    private Graph getGraphWithMockStore(final Store mockStore) throws uk.gov.gchq.gaffer.operation.OperationException {
+    private Graph getGraphWithMockStore(final Store mockStore) {
         return new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("TestGraphId")

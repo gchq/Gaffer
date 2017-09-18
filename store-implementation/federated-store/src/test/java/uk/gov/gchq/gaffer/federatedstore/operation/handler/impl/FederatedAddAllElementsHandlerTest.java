@@ -23,6 +23,7 @@ import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.Context;
@@ -81,15 +82,15 @@ public class FederatedAddAllElementsHandlerTest {
     }
 
 
-    private Graph getGraphWithMockStore(final Store mockStore) throws uk.gov.gchq.gaffer.operation.OperationException {
+    private Graph getGraphWithMockStore(final Store mockStore) {
         return new Graph.Builder()
-                .graphId("testGraphId")
+                .config(new GraphConfig("testGraphId"))
                 .store(mockStore)
                 .build();
     }
 
 
-    private Store getMockStore(final Schema unusedSchema) throws uk.gov.gchq.gaffer.operation.OperationException {
+    private Store getMockStore(final Schema unusedSchema) {
         Store mockStore1 = Mockito.mock(Store.class);
         given(mockStore1.getSchema()).willReturn(unusedSchema);
         return mockStore1;

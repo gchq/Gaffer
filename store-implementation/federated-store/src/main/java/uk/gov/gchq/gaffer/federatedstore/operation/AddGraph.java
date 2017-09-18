@@ -123,9 +123,8 @@ public class AddGraph implements Operation {
         return graphAuths;
     }
 
-    public AddGraph setGraphAuths(final Set<String> graphAuths) {
+    public void setGraphAuths(final Set<String> graphAuths) {
         this.graphAuths = graphAuths;
-        return this;
     }
 
     @JsonGetter("storeProperties")
@@ -175,8 +174,9 @@ public class AddGraph implements Operation {
         public Builder graphAuths(final String... graphAuths) {
             if (null == graphAuths) {
                 _getOp().setGraphAuths(null);
+            } else {
+                _getOp().setGraphAuths(Sets.newHashSet(graphAuths));
             }
-            _getOp().setGraphAuths(Sets.newHashSet(graphAuths));
             return _self();
         }
     }
