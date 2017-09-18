@@ -463,6 +463,7 @@ public class GetRDDOfAllElementsHandlerIT {
                 FileSystem.get(conf),
                 new Path(file),
                 Compression.COMPRESSION_NONE,
+                null,
                 conf,
                 AccumuloConfiguration.getDefaultConfiguration());
         final AccumuloElementConverter converter;
