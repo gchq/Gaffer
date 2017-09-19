@@ -73,7 +73,7 @@ public class HyperLogLogPlusAggregatorTest extends BinaryOperatorTest {
         final String json = new String(JSONSerialiser.serialise(aggregator, true));
         // Then 1
         JsonAssert.assertEquals(String.format("{%n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.clearspring.cardinality.function.HyperLogLogPlusAggregator\"%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.clearspring.cardinality.binaryoperator.HyperLogLogPlusAggregator\"%n" +
                 "}"), json);
 
         // When 2

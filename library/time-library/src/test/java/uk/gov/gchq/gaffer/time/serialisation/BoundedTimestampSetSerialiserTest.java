@@ -20,9 +20,9 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.types.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.types.serialisation.ToBytesSerialisationTest;
 import uk.gov.gchq.gaffer.time.BoundedTimestampSet;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 
 import java.time.Instant;
 import java.util.HashSet;

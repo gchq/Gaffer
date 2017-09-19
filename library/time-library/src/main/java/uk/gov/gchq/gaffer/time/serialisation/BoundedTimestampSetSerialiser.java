@@ -22,8 +22,8 @@ import org.roaringbitmap.RoaringBitmap;
 import uk.gov.gchq.gaffer.bitmap.serialisation.utils.RoaringBitmapUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.types.serialisation.ToBytesSerialiser;
-import uk.gov.gchq.gaffer.types.serialisation.implementation.raw.CompactRawSerialisationUtils;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawSerialisationUtils;
 import uk.gov.gchq.gaffer.time.BoundedTimestampSet;
 import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
 

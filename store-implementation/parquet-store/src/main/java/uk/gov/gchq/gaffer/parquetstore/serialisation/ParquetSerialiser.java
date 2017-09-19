@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.parquetstore.serialisation;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.types.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
 
 /**
  *  Allows for a custom Parquet schema to be passed to the Parquet store so it can store data in Parquet native types

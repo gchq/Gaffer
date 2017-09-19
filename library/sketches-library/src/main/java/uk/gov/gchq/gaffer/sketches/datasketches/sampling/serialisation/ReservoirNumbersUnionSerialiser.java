@@ -20,7 +20,7 @@ import com.yahoo.sketches.ArrayOfNumbersSerDe;
 import com.yahoo.sketches.sampling.ReservoirItemsUnion;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.types.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
 /**
  * A {@code ReservoirNumbersUnionSerialiser} serialises a {@link ReservoirItemsUnion} of {@link Number}s using its

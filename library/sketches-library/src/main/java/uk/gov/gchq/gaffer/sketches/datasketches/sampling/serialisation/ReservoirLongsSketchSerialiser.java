@@ -19,7 +19,7 @@ import com.yahoo.memory.WritableMemory;
 import com.yahoo.sketches.sampling.ReservoirLongsSketch;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.types.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
 /**
  * A {@code ReservoirLongsSketchSerialiser} serialises a {@link ReservoirLongsSketch} using its

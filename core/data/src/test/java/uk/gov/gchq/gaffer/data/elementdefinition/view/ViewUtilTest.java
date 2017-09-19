@@ -25,8 +25,8 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
-import uk.gov.gchq.gaffer.types.function.function.ExampleFilterFunction;
-import uk.gov.gchq.gaffer.types.function.function.ExampleTransformFunction;
+import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
+import uk.gov.gchq.gaffer.function.ExampleTransformFunction;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
 import java.util.ArrayList;
@@ -268,13 +268,13 @@ public class ViewUtilTest {
                 "      },%n" +
                 "      \"postTransformFilterFunctions\" : [ {%n" +
                 "        \"predicate\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.types.function.function.ExampleFilterFunction\"%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
                 "        \"selection\" : [ \"property3\" ]%n" +
                 "      } ],%n" +
                 "      \"transformFunctions\" : [ {%n" +
                 "        \"function\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.types.function.function.ExampleTransformFunction\"%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleTransformFunction\"%n" +
                 "        },%n" +
                 "        \"selection\" : [ \"property1\", \"property2\" ],%n" +
                 "        \"projection\" : [ \"property3\" ]%n" +
@@ -285,7 +285,7 @@ public class ViewUtilTest {
                 "    \"BasicEntity\" : {%n" +
                 "      \"preAggregationFilterFunctions\" : [ {%n" +
                 "        \"predicate\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.types.function.function.ExampleFilterFunction\"%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
                 "        \"selection\" : [ \"property1\" ]%n" +
                 "      } ]%n" +
@@ -392,13 +392,13 @@ public class ViewUtilTest {
                 "      },%n" +
                 "      \"preAggregationFilterFunctions\" : [ {%n" +
                 "        \"predicate\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.types.function.function.ExampleFilterFunction\"%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
                 "        \"selection\" : [ \"property1\" ]%n" +
                 "      } ],%n" +
                 "      \"postTransformFilterFunctions\" : [ {%n" +
                 "        \"predicate\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.types.function.function.ExampleFilterFunction\"%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
                 "        \"selection\" : [ \"SOURCE\" ]%n" +
                 "      } ]%n" +
@@ -410,13 +410,13 @@ public class ViewUtilTest {
                 "      },%n" +
                 "      \"preAggregationFilterFunctions\" : [ {%n" +
                 "        \"predicate\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.types.function.function.ExampleFilterFunction\"%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
                 "        \"selection\" : [ \"property1\" ]%n" +
                 "      } ],%n" +
                 "      \"postTransformFilterFunctions\" : [ {%n" +
                 "        \"predicate\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.types.function.function.ExampleFilterFunction\"%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
                 "        \"selection\" : [ \"SOURCE\" ]%n" +
                 "      } ]%n" +
@@ -428,7 +428,7 @@ public class ViewUtilTest {
                 "      },%n" +
                 "      \"preAggregationFilterFunctions\" : [ {%n" +
                 "        \"predicate\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.types.function.function.ExampleFilterFunction\"%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
                 "        \"selection\" : [ \"property1\" ]%n" +
                 "      } ]%n" +
@@ -442,13 +442,13 @@ public class ViewUtilTest {
                 "      },%n" +
                 "      \"preAggregationFilterFunctions\" : [ {%n" +
                 "        \"predicate\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.types.function.function.ExampleFilterFunction\"%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
                 "        \"selection\" : [ \"property1\" ]%n" +
                 "      } ],%n" +
                 "      \"postAggregationFilterFunctions\" : [ {%n" +
                 "        \"predicate\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.types.function.function.ExampleFilterFunction\"%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
                 "        \"selection\" : [ \"VERTEX\" ]%n" +
                 "      } ]%n" +
@@ -460,13 +460,13 @@ public class ViewUtilTest {
                 "      },%n" +
                 "      \"preAggregationFilterFunctions\" : [ {%n" +
                 "        \"predicate\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.types.function.function.ExampleFilterFunction\"%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
                 "        \"selection\" : [ \"property1\" ]%n" +
                 "      } ],%n" +
                 "      \"postAggregationFilterFunctions\" : [ {%n" +
                 "        \"predicate\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.types.function.function.ExampleFilterFunction\"%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
                 "        \"selection\" : [ \"VERTEX\" ]%n" +
                 "      } ]%n" +
@@ -478,12 +478,12 @@ public class ViewUtilTest {
                 "      },%n" +
                 "      \"preAggregationFilterFunctions\" : [ {%n" +
                 "        \"predicate\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.types.function.function.ExampleFilterFunction\"%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
                 "        \"selection\" : [ \"property1\" ]%n" +
                 "      }, {%n" +
                 "        \"predicate\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.types.function.function.ExampleFilterFunction\"%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
                 "        \"selection\" : [ \"dateProperty\" ]%n" +
                 "      } ]%n" +

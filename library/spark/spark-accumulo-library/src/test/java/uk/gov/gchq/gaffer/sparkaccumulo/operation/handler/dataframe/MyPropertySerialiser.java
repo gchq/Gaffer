@@ -16,8 +16,8 @@
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.types.serialisation.ToBytesSerialiser;
-import uk.gov.gchq.gaffer.types.serialisation.implementation.raw.CompactRawIntegerSerialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
 
 /**
  * A serialiser for {@link MyProperty}.

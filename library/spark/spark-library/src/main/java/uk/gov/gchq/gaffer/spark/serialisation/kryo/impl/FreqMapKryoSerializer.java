@@ -22,7 +22,7 @@ import com.esotericsoftware.kryo.io.Output;
 
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.types.serialisation.FreqMapSerialiser;
+import uk.gov.gchq.gaffer.serialisation.FreqMapSerialiser;
 import uk.gov.gchq.gaffer.types.FreqMap;
 
 /**

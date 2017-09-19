@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
-import uk.gov.gchq.gaffer.types.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
 
 import java.io.Serializable;
 import java.util.ArrayList;

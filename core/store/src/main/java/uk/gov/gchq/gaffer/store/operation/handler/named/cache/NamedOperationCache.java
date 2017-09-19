@@ -183,6 +183,8 @@ public class NamedOperationCache {
      * @param operation the details of the new named operation
      * @param overwrite if true, overwrite any existing entry which matches the
      *                  provided name
+     * @throws CacheOperationFailedException if there was an error adding the
+     * operation to the cache
      */
     public void addToCache(final String name, final NamedOperationDetail operation, final boolean overwrite) throws CacheOperationFailedException {
         try {

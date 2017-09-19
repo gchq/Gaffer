@@ -19,7 +19,7 @@ import com.yahoo.memory.Memory;
 import com.yahoo.sketches.quantiles.DoublesSketch;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.types.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
 /**
  * A {@code DoublesSketchSerialiser} serialises a {@link DoublesSketch} using its {@code toByteArray()}

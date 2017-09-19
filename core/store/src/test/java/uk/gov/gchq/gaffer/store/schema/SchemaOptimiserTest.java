@@ -22,9 +22,9 @@ import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.types.serialisation.implementation.JavaSerialiser;
-import uk.gov.gchq.gaffer.types.serialisation.implementation.StringSerialiser;
-import uk.gov.gchq.gaffer.types.serialisation.implementation.ordered.OrderedIntegerSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser;
 import uk.gov.gchq.gaffer.store.SerialisationFactory;
 
 import java.io.Serializable;

@@ -23,9 +23,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
-import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
-import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 
 import java.util.Collections;

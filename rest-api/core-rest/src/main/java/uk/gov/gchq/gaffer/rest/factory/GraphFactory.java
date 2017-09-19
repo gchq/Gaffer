@@ -49,7 +49,7 @@ public interface GraphFactory {
      *
      * By default this is created from the {@link Graph.Builder}.
      *
-     * @return
+     * @return the graph
      */
     default Graph createGraph() {
         return createGraphBuilder().build();

@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.hbasestore;
 
-import uk.gov.gchq.gaffer.types.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.HyperLogLogPlusSerialiser;
 import uk.gov.gchq.gaffer.sketches.datasketches.frequencies.serialisation.LongsSketchSerialiser;
 import uk.gov.gchq.gaffer.sketches.datasketches.frequencies.serialisation.StringsSketchSerialiser;

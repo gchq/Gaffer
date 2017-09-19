@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.store.operation.handler.export;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.export.ExportTo;
 import uk.gov.gchq.gaffer.operation.export.Exporter;
 import uk.gov.gchq.gaffer.operation.export.GetExport;
 import uk.gov.gchq.gaffer.store.Context;

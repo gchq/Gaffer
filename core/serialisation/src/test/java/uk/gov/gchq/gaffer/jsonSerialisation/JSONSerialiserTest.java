@@ -33,8 +33,8 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
-import uk.gov.gchq.gaffer.types.serialisation.ParameterisedTestObject;
-import uk.gov.gchq.gaffer.types.serialisation.SimpleTestObject;
+import uk.gov.gchq.gaffer.serialisation.ParameterisedTestObject;
+import uk.gov.gchq.gaffer.serialisation.SimpleTestObject;
 
 import java.io.IOException;
 import java.util.Arrays;

@@ -75,7 +75,10 @@ public interface ExamplesFactory {
     /**
      * Generates an example for any {@link Operation} class.
      *
+     * @param opClass the operation to create an example for
      * @return the example class
+     * @throws IllegalAccessException if the operation could not be created
+     * @throws InstantiationException if the operation could not be created
      */
     Operation generateExample(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException;
 }

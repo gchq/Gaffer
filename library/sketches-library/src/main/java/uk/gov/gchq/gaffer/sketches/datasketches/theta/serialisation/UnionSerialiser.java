@@ -20,7 +20,7 @@ import com.yahoo.sketches.theta.Sketches;
 import com.yahoo.sketches.theta.Union;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.types.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
 /**
  * A {@code UnionSerialiser} serialises an {@link Union} using the {@code toByteArray()} method from the

@@ -29,14 +29,14 @@ import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.types.function.function.ExampleAggregateFunction;
-import uk.gov.gchq.gaffer.types.function.function.ExampleFilterFunction;
-import uk.gov.gchq.gaffer.types.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.types.serialisation.ToBytesSerialiser;
-import uk.gov.gchq.gaffer.types.serialisation.implementation.JavaSerialiser;
-import uk.gov.gchq.gaffer.types.serialisation.implementation.MapSerialiser;
-import uk.gov.gchq.gaffer.types.serialisation.implementation.StringSerialiser;
-import uk.gov.gchq.gaffer.types.serialisation.implementation.raw.RawLongSerialiser;
+import uk.gov.gchq.gaffer.function.ExampleAggregateFunction;
+import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.MapSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawLongSerialiser;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 import uk.gov.gchq.koryphe.impl.predicate.IsA;
 import uk.gov.gchq.koryphe.impl.predicate.IsXMoreThanY;
@@ -341,7 +341,7 @@ public class SchemaTest {
                 "      \"destination\" : \"id.string\",%n" +
                 "      \"validateFunctions\" : [ {%n" +
                 "        \"predicate\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.types.function.function.ExampleFilterFunction\"%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
                 "        \"selection\" : [ \"property1\" ]%n" +
                 "      } ]%n" +
@@ -359,7 +359,7 @@ public class SchemaTest {
                 "      \"vertex\" : \"id.string\",%n" +
                 "      \"validateFunctions\" : [ {%n" +
                 "        \"predicate\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.types.function.function.ExampleFilterFunction\"%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
                 "        \"selection\" : [ \"property1\" ]%n" +
                 "      } ]%n" +
@@ -372,9 +372,9 @@ public class SchemaTest {
                 "    },%n" +
                 "    \"prop.map\" : {%n" +
                 "      \"serialiser\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.types.serialisation.implementation.MapSerialiser\",%n" +
-                "          \"keySerialiser\" : \"uk.gov.gchq.gaffer.types.serialisation.implementation.StringSerialiser\",%n" +
-                "          \"valueSerialiser\" : \"uk.gov.gchq.gaffer.types.serialisation.implementation.raw.RawLongSerialiser\",%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.serialisation.implementation.MapSerialiser\",%n" +
+                "          \"keySerialiser\" : \"uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser\",%n" +
+                "          \"valueSerialiser\" : \"uk.gov.gchq.gaffer.serialisation.implementation.raw.RawLongSerialiser\",%n" +
                 "          \"mapClass\" : \"java.util.LinkedHashMap\"%n" +
                 "      },%n" +
                 "      \"description\" : \"Map type description\",%n" +

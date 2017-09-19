@@ -17,22 +17,22 @@ package uk.gov.gchq.gaffer.store;
 
 import com.google.common.collect.Lists;
 
-import uk.gov.gchq.gaffer.types.serialisation.FreqMapSerialiser;
-import uk.gov.gchq.gaffer.types.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.types.serialisation.TypeSubTypeValueSerialiser;
-import uk.gov.gchq.gaffer.types.serialisation.TypeValueSerialiser;
-import uk.gov.gchq.gaffer.types.serialisation.implementation.BooleanSerialiser;
-import uk.gov.gchq.gaffer.types.serialisation.implementation.BytesSerialiser;
-import uk.gov.gchq.gaffer.types.serialisation.implementation.JavaSerialiser;
-import uk.gov.gchq.gaffer.types.serialisation.implementation.StringSerialiser;
-import uk.gov.gchq.gaffer.types.serialisation.implementation.TreeSetStringSerialiser;
-import uk.gov.gchq.gaffer.types.serialisation.implementation.ordered.OrderedDateSerialiser;
-import uk.gov.gchq.gaffer.types.serialisation.implementation.ordered.OrderedDoubleSerialiser;
-import uk.gov.gchq.gaffer.types.serialisation.implementation.ordered.OrderedFloatSerialiser;
-import uk.gov.gchq.gaffer.types.serialisation.implementation.ordered.OrderedIntegerSerialiser;
-import uk.gov.gchq.gaffer.types.serialisation.implementation.ordered.OrderedLongSerialiser;
-import uk.gov.gchq.gaffer.types.serialisation.implementation.raw.CompactRawIntegerSerialiser;
-import uk.gov.gchq.gaffer.types.serialisation.implementation.raw.CompactRawLongSerialiser;
+import uk.gov.gchq.gaffer.serialisation.FreqMapSerialiser;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.TypeSubTypeValueSerialiser;
+import uk.gov.gchq.gaffer.serialisation.TypeValueSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.BooleanSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.BytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.TreeSetStringSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedDateSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedDoubleSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedFloatSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedLongSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
 
 import java.util.List;
 
