@@ -29,6 +29,14 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.List;
 
 /**
+ * Delegation class used to create a graph from the various combinations of
+ * settings.
+ * <ul>
+ * <li>graphId
+ * <li>storeProperties and/or parentPropertiesId</li>
+ * <li>schema and/or parentSchemaIds</li>
+ * </ul>
+ *
  * @see ExportToOtherGraphHandler
  */
 public final class CreateGraphDelegate {
