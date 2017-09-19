@@ -62,6 +62,9 @@ public class GetAdjacentIds implements
     @Override
     public void setView(final View view) {
         if (null != view && view.hasEntities()) {
+            if (view.hasEntityFilters()) {
+                throw new IllegalArgumentException("View should not have entities with filters.");
+            }
             this.view = new View.Builder()
                     .merge(view)
                     .entities(Collections.emptyMap())

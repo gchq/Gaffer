@@ -25,7 +25,6 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
-import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 
@@ -132,6 +131,18 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         return hasFilters(ViewElementDefinition::hasPostTransformFilters);
     }
 
+    public boolean hasEntityFilters() {
+        return hasEntityFilters(ViewElementDefinition::hasPostAggregationFilters)
+                || hasEntityFilters(ViewElementDefinition::hasPostTransformFilters)
+                || hasEntityFilters(ViewElementDefinition::hasPreAggregationFilters);
+    }
+
+    public boolean hasEdgeFilters() {
+        return hasEdgeFilters(ViewElementDefinition::hasPostAggregationFilters)
+                || hasEdgeFilters(ViewElementDefinition::hasPostTransformFilters)
+                || hasEdgeFilters(ViewElementDefinition::hasPreAggregationFilters);
+    }
+
 
     @SuppressWarnings("CloneDoesntCallSuperClone")
     @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Only inherits from Object")
@@ -226,11 +237,22 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     }
 
     private boolean hasFilters(final Function<ViewElementDefinition, Boolean> hasFilters) {
-        for (final Map.Entry<String, ViewElementDefinition> entry : new ChainedIterable<Map.Entry<String, ViewElementDefinition>>(getEntities().entrySet(), getEdges().entrySet())) {
-            if (null != entry.getValue()) {
-                if (hasFilters.apply(entry.getValue())) {
-                    return true;
-                }
+        return hasEdgeFilters(hasFilters) || hasEntityFilters(hasFilters);
+    }
+
+    private boolean hasEntityFilters(final Function<ViewElementDefinition, Boolean> hasEntityFilters) {
+        for (final ViewElementDefinition value : getEntities().values()) {
+            if (null != value && hasEntityFilters.apply(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean hasEdgeFilters(final Function<ViewElementDefinition, Boolean> hasEdgeFilters) {
+        for (final ViewElementDefinition value : getEdges().values()) {
+            if (null != value && hasEdgeFilters.apply(value)) {
+                return true;
             }
         }
         return false;

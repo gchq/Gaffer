@@ -29,13 +29,19 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.List;
 
 /**
- * A {@code GraphDelegate} is a factory class for creating {@link Graph} objects
- * to export results to.
+ * Delegation class used to create a graph from the various combinations of
+ * settings.
+ * <ul>
+ * <li>graphId
+ * <li>storeProperties and/or parentPropertiesId</li>
+ * <li>schema and/or parentSchemaIds</li>
+ * </ul>
  *
  * @see ExportToOtherGraphHandler
  */
 public final class GraphDelegate {
     private GraphDelegate() {
+        // Private constructor to prevent instantiation.
     }
 
     public static Graph createGraph(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId, final GraphHook... graphHooks) {

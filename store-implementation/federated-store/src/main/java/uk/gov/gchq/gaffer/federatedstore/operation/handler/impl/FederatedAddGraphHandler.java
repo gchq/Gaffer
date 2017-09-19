@@ -30,17 +30,10 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.Set;
 
 /**
- * A handler for AddGraph operation for the FederatedStore.
- * To load a graph into the FederatedStore you need to provide three things.
- * <ul>
- * <li>GraphID
- * <li>Graph Schema
- * <li>Graph Properties file
- * </ul>
+ * A handler for {@link AddGraph} operation for the FederatedStore.
  *
  * @see OperationHandler
  * @see FederatedStore
- * @see AddGraph
  * @see GraphDelegate
  */
 public class FederatedAddGraphHandler implements OperationHandler<AddGraph> {

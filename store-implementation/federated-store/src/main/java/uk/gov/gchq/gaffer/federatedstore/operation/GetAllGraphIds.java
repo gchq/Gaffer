@@ -24,7 +24,9 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 import java.util.Map;
 
-
+/**
+ * An Operation to get all the graphIds within scope of the FederatedStore.
+ */
 public class GetAllGraphIds implements Output<Iterable<? extends String>> {
     private Map<String, String> options;
 
