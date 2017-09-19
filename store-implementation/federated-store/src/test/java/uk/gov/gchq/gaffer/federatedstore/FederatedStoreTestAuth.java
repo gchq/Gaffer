@@ -51,7 +51,7 @@ public class FederatedStoreTestAuth {
         FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
-                        .setGraphId(expectedGraphId)
+                        .graphId(expectedGraphId)
                         .schema(expectedSchema)
                         .storeProperties(storeProperties)
                         .graphAuths("auth1")
