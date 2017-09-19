@@ -59,7 +59,7 @@ public class FederatedAddGraphHandlerTest {
         FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
-                        .setGraphId(expectedGraphId)
+                        .graphId(expectedGraphId)
                         .schema(expectedSchema)
                         .storeProperties(storeProperties)
                         .build(),
@@ -75,7 +75,7 @@ public class FederatedAddGraphHandlerTest {
 
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
-                        .setGraphId(expectedGraphId + "b")
+                        .graphId(expectedGraphId + "b")
                         .schema(expectedSchema)
                         .storeProperties(storeProperties)
                         .build(),
@@ -109,7 +109,7 @@ public class FederatedAddGraphHandlerTest {
         FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
-                        .setGraphId(expectedGraphId)
+                        .graphId(expectedGraphId)
                         .schema(expectedSchema)
                         .storeProperties(storeProperties)
                         .build(),
@@ -131,7 +131,7 @@ public class FederatedAddGraphHandlerTest {
 
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
-                        .setGraphId(graphIdB)
+                        .graphId(graphIdB)
                         .build(),
                 new Context(new User("TestUser")),
                 store);
@@ -164,7 +164,7 @@ public class FederatedAddGraphHandlerTest {
 
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
-                        .setGraphId(expectedGraphId)
+                        .graphId(expectedGraphId)
                         .schema(expectedSchema)
                         .storeProperties(storeProperties)
                         .build(),
@@ -174,7 +174,7 @@ public class FederatedAddGraphHandlerTest {
         try {
             federatedAddGraphHandler.doOperation(
                     new AddGraph.Builder()
-                            .setGraphId(expectedGraphId)
+                            .graphId(expectedGraphId)
                             .schema(expectedSchema)
                             .storeProperties(storeProperties)
                             .build(),
@@ -208,7 +208,7 @@ public class FederatedAddGraphHandlerTest {
         try {
             federatedAddGraphHandler.doOperation(
                     new AddGraph.Builder()
-                            .setGraphId(expectedGraphId)
+                            .graphId(expectedGraphId)
                             .schema(expectedSchema)
                             .storeProperties(graphStoreProperties)
                             .build(),
@@ -224,7 +224,7 @@ public class FederatedAddGraphHandlerTest {
 
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
-                        .setGraphId(expectedGraphId)
+                        .graphId(expectedGraphId)
                         .schema(expectedSchema)
                         .storeProperties(graphStoreProperties)
                         .build(),

@@ -70,7 +70,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -347,48 +346,6 @@ public class FederatedStore extends Store {
             throw new OverwritingException((String.format(USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S, graphId)));
         }
         graphs.put(graphId, graph);
-    }
-
-    /**
-     * Adds graphs to the scope of FederatedStore.
-     * <p>
-     * To be used by the FederatedStore and Handlers only. Users should add
-     * graphs via the {@link AddGraph} operation.
-     *
-     * @param graphId the graphId to add, known by the {@link GraphLibrary}.
-     * @deprecated Due to {@link uk.gov.gchq.gaffer.operation.export.graph.handler.CreateGraphDelegate}
-     * A lot of the public AddGraphs() methods are not used in production code.
-     */
-    @Deprecated
-    protected void addGraphs(final String... graphId) {
-        addGraphs(Optional.<Collection<String>>empty(), graphId);
-    }
-
-    /**
-     * Adds graphs to the scope of FederatedStore.
-     * <p>
-     * To be used by the FederatedStore and Handlers only. Users should add
-     * graphs via the {@link AddGraph} operation.
-     *
-     * @param graphAuths Optional access auths for the graph being added
-     * @param graphId    to be added to scope
-     * @deprecated Due to {@link uk.gov.gchq.gaffer.operation.export.graph.handler.CreateGraphDelegate}
-     * A lot of the public AddGraphs() methods are not used in production code.
-     */
-    @Deprecated
-    public void addGraphs(final Optional<Collection<String>> graphAuths, final String... graphId) {
-        for (final String id : graphId) {
-            final GraphConfig.Builder configBuilder = new GraphConfig.Builder()
-                    .graphId(id)
-                    .library(getGraphLibrary());
-
-            if (graphAuths.isPresent()) {
-                configBuilder.addHooks(new FederatedAccessHook.Builder().graphAuths(graphAuths.get()).build());
-            }
-
-            final Builder graphBuilder = new Builder().config(configBuilder.build());
-            addGraphs(graphBuilder);
-        }
     }
 
     private void updateMergedGraphConfig() {

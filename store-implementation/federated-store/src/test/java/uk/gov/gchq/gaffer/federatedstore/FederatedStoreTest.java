@@ -31,6 +31,8 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federatedstore.integration.FederatedStoreITs;
+import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
+import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
@@ -91,6 +93,7 @@ public class FederatedStoreTest {
     public void setUp() throws Exception {
         store = new FederatedStore();
         federatedProperties = new StoreProperties();
+        HashMapGraphLibrary.clear();
     }
 
     @Test
@@ -476,7 +479,12 @@ public class FederatedStoreTest {
 
         //When
         final int before = store.getGraphs(null).size();
-        store.addGraphs(MAP_ID_1);
+        store.execute(new AddGraph.Builder()
+                .graphId(MAP_ID_1)
+                .build(), new User.Builder()
+                .userId(USER_ID)
+                .build());
+
         final int after = store.getGraphs(null).size();
         //Then
         assertEquals(0, before);
@@ -807,31 +815,63 @@ public class FederatedStoreTest {
 
     @Test
     public void shouldAddGraphIdWithAuths() throws Exception {
-        //Given
-        final GraphLibrary mockLibrary = Mockito.mock(GraphLibrary.class);
-        Mockito.when(mockLibrary.exists(MAP_ID_1)).thenReturn(true);
-        Mockito.when(mockLibrary.get(MAP_ID_1)).thenReturn(
-                new Pair<>(
-                        new Schema.Builder()
-                                .json(StreamUtil.openStream(this.getClass(), PATH_BASIC_ENTITY_SCHEMA_JSON))
-                                .build(),
-                        StoreProperties.loadStoreProperties(StreamUtil.openStream(this.getClass(), PATH_MAP_STORE_PROPERTIES))
-                ));
+        federatedProperties.set("gaffer.store.class", "uk.gov.gchq.gaffer.federatedstore.FederatedStore");
+        federatedProperties.set("gaffer.store.properties.class", "uk.gov.gchq.gaffer.store.StoreProperties");
+        federatedProperties.set(FederatedStoreConstants.SKIP_FAILED_FEDERATED_STORE_EXECUTE, "false");
 
-        store.setGraphLibrary(mockLibrary);
-        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
+        //Given
+        final HashMapGraphLibrary hashMapGraphLibrary = new HashMapGraphLibrary();
+        hashMapGraphLibrary.add(MAP_ID_1, new Schema.Builder()
+                .json(StreamUtil.openStream(this.getClass(), PATH_BASIC_ENTITY_SCHEMA_JSON))
+                .build(), StoreProperties.loadStoreProperties(StreamUtil.openStream(this.getClass(), PATH_MAP_STORE_PROPERTIES)));
+
+        final Graph store = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(FEDERATED_STORE_ID)
+                        .library(hashMapGraphLibrary)
+                        .build())
+                .addStoreProperties(federatedProperties)
+                .build();
 
         //When
-        final int before = store.getGraphs(null).size();
-        store.addGraphs(Optional.of(Sets.newHashSet("auth1")), MAP_ID_1);
-        final int after = store.getGraphs(null).size();
-        final CloseableIterable<? extends Element> elements = store.execute(new GetAllElements(),
+        int before = 0;
+        for (String ignore : store.execute(
+                new GetAllGraphIds(),
                 new User.Builder()
                         .userId(USER_ID)
-                        .opAuth("auth1")
+                        .build())) {
+            before++;
+        }
+
+        store.execute(
+                new AddGraph.Builder()
+                        .graphAuths("auth")
+                        .graphId(MAP_ID_1)
+                        .build(),
+                new User.Builder()
+                        .userId(USER_ID)
                         .build());
 
-        final CloseableIterable<? extends Element> x = store.execute(new GetAllElements(),
+
+        int after = 0;
+        for (String ignore : store.execute(
+                new GetAllGraphIds(),
+                new User.Builder()
+                        .userId(USER_ID)
+                        .build())) {
+            after++;
+        }
+
+
+        final CloseableIterable<? extends Element> elements = store.execute(
+                new GetAllElements(),
+                new User.Builder()
+                        .userId(USER_ID)
+                        .opAuth("auth")
+                        .build());
+
+        final CloseableIterable<? extends Element> x = store.execute(
+                new GetAllElements(),
                 new User.Builder()
                         .userId(USER_ID)
                         .opAuths("x")
@@ -842,7 +882,7 @@ public class FederatedStoreTest {
         assertEquals(1, after);
         Assert.assertNotNull(elements);
         Assert.assertFalse(elements.iterator().hasNext());
-        Assert.assertNull(x);
+        Assert.assertFalse(x.iterator().hasNext());
     }
 
     @Test
