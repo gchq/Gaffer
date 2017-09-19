@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.operation.impl.function.Filter;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -53,36 +54,47 @@ public class FilterStreamSupplier implements StreamSupplier<Element> {
 
     @Override
     public Stream<Element> get() {
-        Stream<Element> stream = Streams.toStream((Iterable) input);
-        stream = stream.filter(element -> {
-            Predicate<Element> predicate = null;
-            if (null != filter.getGlobalElements()) {
-                predicate = e -> filter.getGlobalElements().test(e);
-            }
-            if (null != filter.getEdges() && element instanceof Edge) {
-                final ElementFilter elementFilter = filter.getEdges().get(element.getGroup());
-                if (null == elementFilter) {
-                    predicate = e -> false;
-                } else {
-                    predicate = elementFilter::test;
-                }
-                if (null != filter.getGlobalEdges()) {
-                    predicate = predicate.and(e -> filter.getGlobalEdges().test(e));
-                }
-            } else if (null != filter.getEntities()) {
-                final ElementFilter elementFilter = filter.getEntities().get(element.getGroup());
-                if (null == elementFilter) {
-                    predicate = e -> false;
-                } else {
-                    predicate = elementFilter::test;
-                }
-                if (null != filter.getGlobalEntities()) {
-                    predicate = predicate.and(e -> filter.getGlobalEntities().test(e));
-                }
-            }
-            return null == predicate || predicate.test(element);
-        });
+        return Streams.toStream((Iterable<Element>) input)
+                .filter(new ElementFilterPredicate(filter));
+    }
 
-        return stream;
+    private static final class ElementFilterPredicate implements Predicate<Element> {
+        private final Filter filter;
+
+        private ElementFilterPredicate(final Filter filter) {
+            this.filter = filter;
+        }
+
+        @Override
+        public boolean test(final Element element) {
+            if (element instanceof Edge) {
+                return test(element, filter.getGlobalEdges(), filter.getEdges());
+            }
+
+            return test(element, filter.getGlobalEntities(), filter.getEntities());
+        }
+
+        private boolean test(final Element element,
+                             final ElementFilter globalFilter,
+                             final Map<String, ElementFilter> elementFilters) {
+            if (null == elementFilters) {
+                return false;
+            }
+
+            final ElementFilter elementFilter = elementFilters.get(element.getGroup());
+            if (null == elementFilter) {
+                return false;
+            }
+
+            if (null != filter.getGlobalElements() && !filter.getGlobalElements().test(element)) {
+                return false;
+            }
+
+            if (null != globalFilter && !globalFilter.test(element)) {
+                return false;
+            }
+
+            return elementFilter.test(element);
+        }
     }
 }
