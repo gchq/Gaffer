@@ -36,12 +36,19 @@ import java.util.Set;
  * <p>Requires:
  * <ul>
  * <li>graphId
- * <li>properties
- * <li>schema
+ * <li>storeProperties and/or parentPropertiesId</li>
+ * <li>schema and/or parentSchemaIds</li>
  * </ul>
  *
+ * <p>parentId can be used solely, if known by the graphLibrary.
+ * <p>schema can be used solely.
+ * <p>storeProperties can be used, if authorised to by {@link uk.gov.gchq.gaffer.federatedstore.FederatedStore#isLimitedToLibraryProperties(uk.gov.gchq.gaffer.user.User)}
+ * <p>both non-parentId and parentId can be used, and will be merged together.
+ * <p>Optionally Requires:
+ * <ul>
+ * <li>graphAuths</li>
+ * </ul>
  * @see uk.gov.gchq.gaffer.federatedstore.FederatedStore
- * @see uk.gov.gchq.gaffer.operation.Operation
  * @see uk.gov.gchq.gaffer.store.schema.Schema
  * @see uk.gov.gchq.gaffer.data.element.Properties
  * @see uk.gov.gchq.gaffer.graph.Graph
