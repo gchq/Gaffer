@@ -77,24 +77,26 @@ public class FilterStreamSupplier implements StreamSupplier<Element> {
         private boolean test(final Element element,
                              final ElementFilter globalFilter,
                              final Map<String, ElementFilter> elementFilters) {
-            if (null == elementFilters) {
-                return false;
+            boolean result = false;
+
+            if (null == elementFilters && null == globalFilter) {
+                result = true;
             }
 
-            final ElementFilter elementFilter = elementFilters.get(element.getGroup());
-            if (null == elementFilter) {
-                return false;
+            if (null != filter.getGlobalElements()) {
+                result = filter.getGlobalElements().test(element);
             }
 
-            if (null != filter.getGlobalElements() && !filter.getGlobalElements().test(element)) {
-                return false;
+            if (null != globalFilter) {
+                result = globalFilter.test(element);
             }
 
-            if (null != globalFilter && !globalFilter.test(element)) {
-                return false;
+            if (null != elementFilters) {
+                ElementFilter elementFilter = elementFilters.get(element.getGroup());
+                result = null != elementFilter && elementFilter.test(element);
             }
 
-            return elementFilter.test(element);
+            return result;
         }
     }
 }
