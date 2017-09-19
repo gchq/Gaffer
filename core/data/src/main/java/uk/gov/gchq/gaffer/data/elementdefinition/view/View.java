@@ -131,13 +131,13 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         return hasFilters(ViewElementDefinition::hasPostTransformFilters);
     }
 
-    public boolean hasAnyEntityFilter() {
+    public boolean hasEntityFilters() {
         return hasEntityFilters(ViewElementDefinition::hasPostAggregationFilters)
                 || hasEntityFilters(ViewElementDefinition::hasPostTransformFilters)
                 || hasEntityFilters(ViewElementDefinition::hasPreAggregationFilters);
     }
 
-    public boolean hasAnyEdgeFilter() {
+    public boolean hasEdgeFilters() {
         return hasEdgeFilters(ViewElementDefinition::hasPostAggregationFilters)
                 || hasEdgeFilters(ViewElementDefinition::hasPostTransformFilters)
                 || hasEdgeFilters(ViewElementDefinition::hasPreAggregationFilters);

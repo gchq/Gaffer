@@ -42,7 +42,7 @@ import static org.junit.Assert.fail;
 public class GetAdjacentIdsTest {
 
     @Test
-    public void testGetAdjacentIdsWhenThereAreNone() throws OperationException {
+    public void shouldGetAdjacentIdsWhenThereAreNone() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -63,7 +63,7 @@ public class GetAdjacentIdsTest {
     }
 
     @Test
-    public void testGetAdjacentEntityId() throws OperationException {
+    public void shouldGetAdjacentEntityId() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -139,7 +139,7 @@ public class GetAdjacentIdsTest {
     }
 
     @Test
-    public void testGetAdjacentEntityIdWithViewRestrictedByGroup() throws OperationException {
+    public void shouldGetAdjacentEntityIdWithViewRestrictedByGroup() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -183,7 +183,7 @@ public class GetAdjacentIdsTest {
     }
 
     @Test
-    public void testGetElementsByEntityIdWithViewRestrictedByGroupAndAPreAggregationFilter() throws OperationException {
+    public void shouldGetElementsByEntityIdWithViewRestrictedByGroupAndAPreAggregationFilter() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -233,7 +233,7 @@ public class GetAdjacentIdsTest {
     }
 
     @Test
-    public void testGetElementsByEntityIdWithViewRestrictedByGroupAndAPostAggregationFilter() throws OperationException {
+    public void shouldGetElementsByEntityIdWithViewRestrictedByGroupAndAPostAggregationFilter() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
@@ -315,5 +315,57 @@ public class GetAdjacentIdsTest {
         } catch (IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("View should not have entities with filters."));
         }
+    }
+
+    @Test
+    public void shouldPassValidationOnEntitiesWithoutFilters() throws OperationException {
+        // Given
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
+        final AddElements addElements = new AddElements.Builder()
+                .input(GetAllElementsHandlerTest.getElements())
+                .build();
+        graph.execute(addElements, new User());
+
+        // When
+        final GetAdjacentIds getAdjacentIds = new GetAdjacentIds.Builder()
+                .input(new EntitySeed("A"), new EntitySeed("Y2"))
+                .view(new View.Builder()
+                      .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
+                            .postAggregationFilter(new ElementFilter.Builder()
+                                                   .select(GetAllElementsHandlerTest.COUNT)
+                                                   .execute(new IsMoreThan(5))
+                                                   .build())
+                            .build())
+                      .entity(GetAllElementsHandlerTest.BASIC_ENTITY, new ViewElementDefinition())
+                      .build())
+                .build();
+
+        final CloseableIterable<? extends EntityId> results = graph.execute(getAdjacentIds, new User());
+
+        // Then
+        final Set<EntityId> resultsSet = new HashSet<>();
+        Streams.toStream(results).forEach(resultsSet::add);
+        final Set<EntityId> expectedResults = new HashSet<>();
+        GetAllElementsHandlerTest.getElements().stream()
+                .filter(element -> element instanceof Edge)
+                .filter(element -> element.getGroup().equals(GetAllElementsHandlerTest.BASIC_EDGE1))
+                .filter(element -> {
+                    final Edge edge = (Edge) element;
+                    return edge.getSource().equals("A") || edge.getDestination().equals("A")
+                            || edge.getSource().equals("Y2") || edge.getDestination().equals("Y2");
+                })
+                .filter(element -> ((Integer) element.getProperty(GetAllElementsHandlerTest.COUNT)) > 5)
+                .map(element -> {
+                    final Edge edge = (Edge) element;
+                    final Set<EntityId> nodes = new HashSet<>();
+                    nodes.add(new EntitySeed(edge.getSource()));
+                    nodes.add(new EntitySeed(edge.getDestination()));
+                    return nodes;
+                })
+                .flatMap(nodes -> nodes.stream())
+                .forEach(expectedResults::add);
+        expectedResults.remove(new EntitySeed("A"));
+        expectedResults.remove(new EntitySeed("Y2"));
+        assertEquals(expectedResults, resultsSet);
     }
 }
