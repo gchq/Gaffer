@@ -175,13 +175,15 @@ public final class ParquetFilterUtils {
                 pathToFilterMap.put(new Path(ParquetStore.getGroupDirectory(group, ParquetStoreConstants.SOURCE, dataDir)), null);
             }
         } else {
-            // Build up the path to filters based on the seeds and then apply the view (group) filters
+            // Build up the path to filters based on the seeds, then validation and then apply the view (group) filters
             for (final String edgeGroup : edgeGroups) {
                 buildSeedFilter(edgeGroup, false);
+                applyGroupValidationFilter(edgeGroup);
                 applyGroupFilter(edgeGroup, false);
             }
             for (final String entityGroup : entityGroups) {
                 buildSeedFilter(entityGroup, true);
+                applyGroupValidationFilter(entityGroup);
                 applyGroupFilter(entityGroup, true);
             }
         }
@@ -505,6 +507,12 @@ public final class ParquetFilterUtils {
         return paths;
     }
 
+    private void applyGroupValidationFilter(final String group) throws SerialisationException {
+        if (seeds == null || !pathToFilterMap.isEmpty()) {
+            applyGroupFilter(group, buildGroupValidatorFilter(group));
+        }
+    }
+
     /**
      * For any filters in the pathToFilterMap that apply to the provided Gaffer group then the filter should also require
      * that the group filter is true.
@@ -515,27 +523,30 @@ public final class ParquetFilterUtils {
      */
     private void applyGroupFilter(final String group, final boolean isEntity) throws SerialisationException {
         if (seeds == null || !pathToFilterMap.isEmpty()) {
-            boolean appliedGroup = false;
-            final Pair<FilterPredicate, Set<Path>> groupFilterAndPaths = buildGroupFilter(group, isEntity);
-            if (groupFilterAndPaths != null) {
-                final Set<Path> groupPaths = groupFilterAndPaths.getSecond();
-                final FilterPredicate groupFilter = groupFilterAndPaths.getFirst();
-                for (final Path path : pathToFilterMap.keySet()) {
-                    if (path.getParent().getName().endsWith(group)) {
-                        final FilterPredicate seedFilter = pathToFilterMap.get(path);
-                        pathToFilterMap.put(path, andFilter(seedFilter, groupFilter));
-                        appliedGroup = true;
-                    }
+            applyGroupFilter(group, buildGroupFilter(group, isEntity));
+        }
+    }
+
+    private void applyGroupFilter(final String group, final Pair<FilterPredicate, Set<Path>> groupFilterAndPaths) {
+        boolean appliedGroup = false;
+        if (groupFilterAndPaths != null) {
+            final Set<Path> groupPaths = groupFilterAndPaths.getSecond();
+            final FilterPredicate groupFilter = groupFilterAndPaths.getFirst();
+            for (final Path path : pathToFilterMap.keySet()) {
+                if (path.getParent().getName().endsWith(group)) {
+                    final FilterPredicate seedFilter = pathToFilterMap.get(path);
+                    pathToFilterMap.put(path, andFilter(seedFilter, groupFilter));
+                    appliedGroup = true;
                 }
-                if (!appliedGroup && seeds == null) {
-                    for (final Path path : groupPaths) {
-                        pathToFilterMap.put(path, groupFilter);
-                    }
+            }
+            if (!appliedGroup && seeds == null) {
+                for (final Path path : groupPaths) {
+                    pathToFilterMap.put(path, groupFilter);
                 }
-            } else if (seeds == null) {
-                for (final Path path : getAllPathsForColumn(group)) {
-                    pathToFilterMap.put(path, andFilter(pathToFilterMap.getOrDefault(path, null), null));
-                }
+            }
+        } else if (seeds == null) {
+            for (final Path path : getAllPathsForColumn(group)) {
+                pathToFilterMap.put(path, andFilter(pathToFilterMap.getOrDefault(path, null), null));
             }
         }
     }
@@ -648,6 +659,19 @@ public final class ParquetFilterUtils {
         }
     }
 
+    protected Pair<FilterPredicate, Set<Path>> buildGroupValidatorFilter(final String group) throws SerialisationException {
+        Pair<FilterPredicate, Set<Path>> groupFilter = null;
+        final SchemaElementDefinition schemaElementDefinition = schemaUtils.getGafferSchema().getElement(group);
+        final List<TupleAdaptedPredicate<String, ?>> validationFunctions = schemaElementDefinition.getValidator(false).getComponents();
+        if (null != validationFunctions) {
+            for (final TupleAdaptedPredicate<String, ?> filterFunctionContext : validationFunctions) {
+                final Pair<FilterPredicate, Set<Path>> filter = buildFilter(filterFunctionContext.getPredicate(), filterFunctionContext.getSelection(), group);
+                groupFilter = andFilter(groupFilter, filter, filterFunctionContext.getSelection().length > 0);
+            }
+        }
+        return groupFilter;
+    }
+
     /**
      * Builds up the filter to be applied to the given group's files based on the pre-aggregation view filters.
      * This method handles the group level looping over all filters for that group in the view
@@ -665,9 +689,6 @@ public final class ParquetFilterUtils {
             List<TupleAdaptedPredicate<String, ?>> preAggFilterFunctions = new ArrayList<>();
             if (groupView.getPreAggregationFilterFunctions() != null) {
                 preAggFilterFunctions.addAll(groupView.getPreAggregationFilterFunctions());
-            }
-            if (schemaElementDefinition.getValidator(false).getComponents() != null) {
-                preAggFilterFunctions.addAll(schemaElementDefinition.getValidator(false).getComponents());
             }
             if (!preAggFilterFunctions.isEmpty()) {
                 for (final TupleAdaptedPredicate<String, ?> filterFunctionContext : preAggFilterFunctions) {
