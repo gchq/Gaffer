@@ -16,6 +16,8 @@
 package uk.gov.gchq.gaffer.store.operation.handler.function;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -38,6 +40,68 @@ import static org.mockito.Mockito.mock;
 public class FilterHandlerTest {
 
     @Test
+    public void shouldFilterByGroup() throws OperationException {
+        // Given
+        final List<Element> input = new ArrayList<>();
+        final List<Element> expected = new ArrayList<>();
+
+        final Store store = mock(Store.class);
+        final Context context = new Context();
+        final FilterHandler handler = new FilterHandler();
+
+        final Edge edge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("junctionA")
+                .dest("junctionB")
+                .directed(true)
+                .property(TestPropertyNames.COUNT, 2L)
+                .build();
+
+        final Edge edge1 = new Edge.Builder()
+                .group(TestGroups.EDGE_2)
+                .source("junctionA")
+                .dest("junctionB")
+                .directed(true)
+                .property(TestPropertyNames.COUNT, 1L)
+                .build();
+
+        final Edge edge2 = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("junctionB")
+                .dest("junctionA")
+                .directed(true)
+                .property(TestPropertyNames.COUNT, 4L)
+                .build();
+
+        final Edge edge3 = new Edge.Builder()
+                .group(TestGroups.EDGE_3)
+                .source("junctionC")
+                .dest("junctionB")
+                .directed(true)
+                .property(TestPropertyNames.COUNT, 3L)
+                .build();
+
+        input.add(edge);
+        input.add(edge1);
+        input.add(edge2);
+        input.add(edge3);
+
+        expected.add(edge1);
+
+        final Filter filter = new Filter.Builder()
+                .input(input)
+                .edge(TestGroups.EDGE_2)
+                .build();
+
+        // When
+        final Iterable<? extends Element> results = handler.doOperation(filter, context, store);
+        final List<Element> resultsList = Streams.toStream(results).collect(Collectors.toList());
+
+        // Then
+        assertEquals(expected, resultsList);
+    }
+
+    @Test
     public void shouldFilterInputBasedOnGroupAndCount() throws OperationException {
         // Given
         final List<Element> input = new ArrayList<>();
@@ -48,35 +112,35 @@ public class FilterHandlerTest {
         final FilterHandler handler = new FilterHandler();
 
         final Edge edge = new Edge.Builder()
-                .group("Test")
+                .group(TestGroups.EDGE)
                 .source("junctionA")
                 .dest("junctionB")
                 .directed(true)
-                .property("count", 2L)
+                .property(TestPropertyNames.COUNT, 2L)
                 .build();
 
         final Edge edge1 = new Edge.Builder()
-                .group("Test")
+                .group(TestGroups.EDGE)
                 .source("junctionA")
                 .dest("junctionB")
                 .directed(true)
-                .property("count", 1L)
+                .property(TestPropertyNames.COUNT, 1L)
                 .build();
 
         final Edge edge2 = new Edge.Builder()
-                .group("Test")
+                .group(TestGroups.EDGE)
                 .source("junctionB")
                 .dest("junctionA")
                 .directed(true)
-                .property("count", 4L)
+                .property(TestPropertyNames.COUNT, 4L)
                 .build();
 
         final Edge edge3 = new Edge.Builder()
-                .group("Other")
+                .group(TestGroups.EDGE_2)
                 .source("junctionC")
                 .dest("junctionD")
                 .directed(true)
-                .property("count", 3L)
+                .property(TestPropertyNames.COUNT, 3L)
                 .build();
 
         input.add(edge);
@@ -89,8 +153,8 @@ public class FilterHandlerTest {
 
         final Filter filter = new Filter.Builder()
                 .input(input)
-                .edge("Test", new ElementFilter.Builder()
-                        .select("count")
+                .edge(TestGroups.EDGE, new ElementFilter.Builder()
+                        .select(TestPropertyNames.COUNT)
                         .execute(new IsMoreThan(1L))
                         .build())
                 .build();
@@ -104,7 +168,7 @@ public class FilterHandlerTest {
     }
 
     @Test
-    public void shouldReturnAllValuesWithNullElementFilter() throws OperationException {
+    public void shouldReturnNoValuesWithNullElementFilter() throws OperationException {
         // Given
         final List<Element> input = new ArrayList<>();
         final List<Element> expected = new ArrayList<>();
@@ -114,36 +178,32 @@ public class FilterHandlerTest {
         final FilterHandler handler = new FilterHandler();
 
         final Edge edge = new Edge.Builder()
-                .group("Test")
+                .group(TestGroups.EDGE)
                 .source("junctionA")
                 .dest("junctionB")
                 .directed(true)
-                .property("count", 2L)
+                .property(TestPropertyNames.COUNT, 2L)
                 .build();
 
         final Edge edge1 = new Edge.Builder()
-                .group("Test")
+                .group(TestGroups.EDGE)
                 .source("junctionA")
                 .dest("junctionB")
                 .directed(true)
-                .property("count", 1L)
+                .property(TestPropertyNames.COUNT, 1L)
                 .build();
 
         final Edge edge2 = new Edge.Builder()
-                .group("Test")
+                .group(TestGroups.EDGE)
                 .source("junctionB")
                 .dest("junctionA")
                 .directed(true)
-                .property("count", 4L)
+                .property(TestPropertyNames.COUNT, 4L)
                 .build();
 
         input.add(edge);
         input.add(edge1);
         input.add(edge2);
-
-        expected.add(edge);
-        expected.add(edge1);
-        expected.add(edge2);
 
         final Filter filter = new Filter.Builder()
                 .input(input)
@@ -168,37 +228,37 @@ public class FilterHandlerTest {
         final FilterHandler handler = new FilterHandler();
 
         final Edge edge = new Edge.Builder()
-                .group("Test")
+                .group(TestGroups.EDGE)
                 .source("junctionA")
                 .dest("junctionB")
                 .directed(true)
-                .property("count", 2L)
+                .property(TestPropertyNames.COUNT, 2L)
                 .build();
 
         final Edge edge1 = new Edge.Builder()
-                .group("notTest")
+                .group(TestGroups.EDGE_2)
                 .source("junctionA")
                 .dest("junctionB")
                 .directed(true)
-                .property("count", 1L)
+                .property(TestPropertyNames.COUNT, 1L)
                 .build();
 
         final Edge edge2 = new Edge.Builder()
-                .group("Test")
+                .group(TestGroups.EDGE)
                 .source("junctionB")
                 .dest("junctionA")
                 .directed(true)
-                .property("count", 4L)
+                .property(TestPropertyNames.COUNT, 4L)
                 .build();
 
         final Entity entity = new Entity.Builder()
-                .group("Test")
-                .property("count", 3L)
+                .group(TestGroups.ENTITY)
+                .property(TestPropertyNames.COUNT, 3L)
                 .build();
 
         final Entity entity1 = new Entity.Builder()
-                .group("notTest")
-                .property("count", 4L)
+                .group(TestGroups.ENTITY_2)
+                .property(TestPropertyNames.COUNT, 4L)
                 .build();
 
         input.add(edge);
@@ -214,7 +274,7 @@ public class FilterHandlerTest {
         final Filter filter = new Filter.Builder()
                 .input(input)
                 .globalElements(new ElementFilter.Builder()
-                                        .select("count")
+                                        .select(TestPropertyNames.COUNT)
                                         .execute(new IsMoreThan(2L))
                                         .build())
                 .build();
@@ -238,55 +298,55 @@ public class FilterHandlerTest {
         final FilterHandler handler = new FilterHandler();
 
         final Edge edge = new Edge.Builder()
-                .group("Test")
+                .group(TestGroups.EDGE)
                 .source("junctionA")
                 .dest("junctionB")
                 .directed(true)
-                .property("count", 2L)
+                .property(TestPropertyNames.COUNT, 2L)
                 .build();
 
         final Edge edge1 = new Edge.Builder()
-                .group("Other")
+                .group(TestGroups.EDGE_2)
                 .source("junctionA")
                 .dest("junctionB")
                 .directed(true)
-                .property("count", 1L)
+                .property(TestPropertyNames.COUNT, 1L)
                 .build();
 
         final Edge edge2 = new Edge.Builder()
-                .group("Test")
+                .group(TestGroups.EDGE)
                 .source("junctionB")
                 .dest("junctionA")
                 .directed(true)
-                .property("count", 4L)
+                .property(TestPropertyNames.COUNT, 4L)
                 .build();
 
         final Entity entity = new Entity.Builder()
-                .group("Test")
-                .property("count", 3L)
+                .group(TestGroups.ENTITY)
+                .property(TestPropertyNames.COUNT, 3L)
                 .build();
 
         final Entity entity1 = new Entity.Builder()
-                .group("Other")
-                .property("count", 4L)
+                .group(TestGroups.ENTITY_2)
+                .property(TestPropertyNames.COUNT, 4L)
                 .build();
 
         final Entity entity2 = new Entity.Builder()
-                .group("Another")
-                .property("count", 6L)
+                .group(TestGroups.ENTITY_3)
+                .property(TestPropertyNames.COUNT, 6L)
                 .build();
 
         final Filter filter = new Filter.Builder()
                 .input(input)
                 .globalElements(new ElementFilter.Builder()
-                                        .select("count")
+                                        .select(TestPropertyNames.COUNT)
                                         .execute(new IsMoreThan(1L))
                                         .build())
-                .edge("Test", new ElementFilter.Builder()
-                        .select("count")
+                .edge(TestGroups.EDGE, new ElementFilter.Builder()
+                        .select(TestPropertyNames.COUNT)
                         .execute(new IsMoreThan(2L))
                         .build())
-                .entity("Another")
+                .entity(TestGroups.ENTITY_2)
                 .build();
 
         input.add(edge);
@@ -297,7 +357,7 @@ public class FilterHandlerTest {
         input.add(entity2);
 
         expected.add(edge2);
-        expected.add(entity2);
+        expected.add(entity1);
 
         // When
         final Iterable<? extends Element> results = handler.doOperation(filter, context, store);
@@ -305,7 +365,6 @@ public class FilterHandlerTest {
 
         // Then
         assertEquals(expected, resultsList);
-
     }
 
     @Test

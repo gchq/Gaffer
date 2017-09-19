@@ -79,10 +79,6 @@ public class FilterStreamSupplier implements StreamSupplier<Element> {
                              final Map<String, ElementFilter> elementFilters) {
             boolean result = false;
 
-            if (null == elementFilters && null == globalFilter) {
-                result = true;
-            }
-
             if (null != filter.getGlobalElements()) {
                 result = filter.getGlobalElements().test(element);
             }
@@ -92,7 +88,7 @@ public class FilterStreamSupplier implements StreamSupplier<Element> {
             }
 
             if (null != elementFilters) {
-                ElementFilter elementFilter = elementFilters.get(element.getGroup());
+                final ElementFilter elementFilter = elementFilters.get(element.getGroup());
                 result = null != elementFilter && elementFilter.test(element);
             }
 
