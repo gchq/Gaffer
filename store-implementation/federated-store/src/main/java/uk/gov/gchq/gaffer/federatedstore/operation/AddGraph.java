@@ -83,7 +83,7 @@ public class AddGraph implements Operation {
     @Override
     public AddGraph shallowClone() throws CloneFailedException {
         return new Builder()
-                .setGraphId(graphId)
+                .graphId(graphId)
                 .schema(schema)
                 .storeProperties(storeProperties)
                 .parentSchemaIds(parentSchemaIds)
@@ -153,7 +153,7 @@ public class AddGraph implements Operation {
             super(new AddGraph());
         }
 
-        public Builder setGraphId(final String graphId) {
+        public Builder graphId(final String graphId) {
             _getOp().setGraphId(graphId);
             return this;
         }
