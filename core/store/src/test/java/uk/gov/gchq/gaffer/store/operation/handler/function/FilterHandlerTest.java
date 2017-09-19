@@ -386,4 +386,82 @@ public class FilterHandlerTest {
             assertEquals("Filter operation has null iterable of elements", e.getMessage());
         }
     }
+
+    // todo - another test where a global fails but subsequent "should" pass
+
+    @Test
+    public void shouldReturnNoResultsWhenGlobalElementsFails() throws OperationException {
+        // Given
+        final List<Element> input = new ArrayList<>();
+        final List<Element> expected = new ArrayList<>();
+
+        final Store store = mock(Store.class);
+        final Context context = new Context();
+        final FilterHandler handler = new FilterHandler();
+
+        final Edge edge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("junctionA")
+                .dest("junctionB")
+                .directed(true)
+                .property(TestPropertyNames.COUNT, 2L)
+                .build();
+
+        final Edge edge1 = new Edge.Builder()
+                .group(TestGroups.EDGE_2)
+                .source("junctionA")
+                .dest("junctionB")
+                .directed(true)
+                .property(TestPropertyNames.COUNT, 1L)
+                .build();
+
+        final Edge edge2 = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("junctionB")
+                .dest("junctionA")
+                .directed(true)
+                .property(TestPropertyNames.COUNT, 4L)
+                .build();
+
+        final Entity entity = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .property(TestPropertyNames.COUNT, 3L)
+                .build();
+
+        final Entity entity1 = new Entity.Builder()
+                .group(TestGroups.ENTITY_2)
+                .property(TestPropertyNames.COUNT, 4L)
+                .build();
+
+        final Entity entity2 = new Entity.Builder()
+                .group(TestGroups.ENTITY_3)
+                .property(TestPropertyNames.COUNT, 6L)
+                .build();
+
+        input.add(edge);
+        input.add(edge1);
+        input.add(edge2);
+        input.add(entity);
+        input.add(entity1);
+        input.add(entity2);
+
+        final Filter filter = new Filter.Builder()
+                .input(input)
+                .globalElements(new ElementFilter.Builder()
+                                .select(TestPropertyNames.COUNT)
+                                .execute(new IsMoreThan(10L))
+                                .build())
+                .globalEdges(new ElementFilter.Builder()
+                             .select(TestPropertyNames.COUNT)
+                             .execute(new IsMoreThan(2L))
+                             .build())
+                .build();
+
+        // When
+        final Iterable<? extends Element> results = handler.doOperation(filter, context, store);
+        final List<Element> resultsList = Streams.toStream(results).collect(Collectors.toList());
+
+        // Then
+        assertEquals(expected, resultsList);
+    }
 }
