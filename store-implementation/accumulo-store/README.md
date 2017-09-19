@@ -55,7 +55,7 @@ Gaffer's `AccumuloStore` is particularly well-suited to graphs where the propert
 Accumulo set up
 -----------------------------------------------
 
-Gaffer has been extensively tested with Accumulo version 1.8.1. It is recommended to use this version, although it should work with any of the 1.7.* versions of Accumulo as well.
+Gaffer has been extensively tested with Accumulo version 1.8.1. It is recommended to use this version, although it should work with any of the 1.7.* and 1.8.* versions of Accumulo as well.
 
 For the purposes of unit testing and very small-scale ephemeral examples, Gaffer offers a [MockAccumuloStore](accumulo-store/src/main/java/gaffer/accumulostore/MockAccumuloStore.java). This uses Accumulo's `MockInstance` to create an in-memory Accumulo store that runs within the same JVM as the client code. All data in this store will disappear when the JVM is shut down.
 
