@@ -130,10 +130,7 @@ public final class StreamUtil {
      * Open all of the files found in the specified subdirectory of the provided
      * class.
      *
-     * Note that this method is specific to finding {@link InputStream}s for
-     * split file schemas.
-     *
-     * @param clazz the class location
+     * @param clazz      the class location
      * @param folderPath the subdirectory in the class location
      * @return an array of {@link InputStream}s representing the files found
      */
@@ -144,29 +141,29 @@ public final class StreamUtil {
 
         String folderPathChecked = getFormattedPath(folderPath);
 
-        final HashSet<InputStream> schemas = Sets.newHashSet();
+        final HashSet<InputStream> inputStreams = Sets.newHashSet();
 
         new Reflections(new ConfigurationBuilder()
                 .setScanners(new ResourcesScanner())
                 .setUrls(ClasspathHelper.forClass(clazz)))
                 .getResources(Pattern.compile(".*"))
                 .stream()
-                .filter(schemaFile -> schemaFile.startsWith(folderPathChecked))
-                .forEach(schemaFile -> {
+                .filter(file -> file.startsWith(folderPathChecked))
+                .forEach(file -> {
                             try {
-                                schemas.add(openStream(clazz, schemaFile));
+                                inputStreams.add(openStream(clazz, file));
                             } catch (final Exception e) {
-                                int closedStreamsCount = closeStreams(schemas.toArray(new InputStream[schemas.size()]));
+                                int closedStreamsCount = closeStreams(inputStreams.toArray(new InputStream[inputStreams.size()]));
                                 LOGGER.info(String.format("Closed %s input streams", closedStreamsCount));
                             }
                         }
                 );
 
-        if (schemas.isEmpty()) {
-            throw new IllegalArgumentException("No schemas could be found in path: " + folderPath);
+        if (inputStreams.isEmpty()) {
+            throw new IllegalArgumentException("No file could be found in path: " + folderPath);
         }
 
-        return schemas.toArray(new InputStream[schemas.size()]);
+        return inputStreams.toArray(new InputStream[inputStreams.size()]);
     }
 
     private static String getFormattedPath(final String folderPath) {
@@ -218,7 +215,6 @@ public final class StreamUtil {
      * Safely close the supplied list of {@link InputStream}s.
      *
      * @param inputStreams the input streams to close
-     *
      * @return an integer indicating the number of streams which were successfully closed.
      */
     public static int closeStreams(final InputStream... inputStreams) {
@@ -239,7 +235,7 @@ public final class StreamUtil {
      * class.
      *
      * @param clazz the class location
-     * @param path the path in the class location
+     * @param path  the path in the class location
      * @return an input stream representating the requested file
      * @throws IllegalArgumentException if there was an error opening the stream
      */

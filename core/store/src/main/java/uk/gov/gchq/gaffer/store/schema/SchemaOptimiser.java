@@ -46,9 +46,10 @@ public class SchemaOptimiser {
     }
 
     /**
-     * Optimise the provided {@link Schema} by removing unused types.
+     * Optimise the provided {@link Schema} by removing unused types and adding
+     * default serialisers.
      *
-     * @param schema the schema to optimise
+     * @param schema         the schema to optimise
      * @param isStoreOrdered determines whether to enforce ordering in the default
      *                       serialisers or not
      * @return the optimised schema object
@@ -175,12 +176,12 @@ public class SchemaOptimiser {
 
             if (null == serialiser) {
                 throw new IllegalArgumentException("No default serialiser could be found that would support all vertex class types "
-                                                           + vertexClasses.toString() + ", please implement your own or change your vertex class types.");
+                        + vertexClasses.toString() + ", please implement your own or change your vertex class types.");
             }
 
             if (isStoreOrdered && !serialiser.preservesObjectOrdering()) {
                 LOGGER.info("{} serialiser is used for vertex serialisation in an ordered store and it does not preserve the order of bytes. See https://github.com/gchq/Gaffer/wiki/Dev-Guide#serialisers.",
-                            serialiser.getClass().getName());
+                        serialiser.getClass().getName());
             }
 
             return serialiser;

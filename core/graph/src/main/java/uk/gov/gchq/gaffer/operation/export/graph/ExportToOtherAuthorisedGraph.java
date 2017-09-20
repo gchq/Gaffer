@@ -33,6 +33,8 @@ import java.util.Map;
  * A {@code ExportToOtherAuthorisedGraph} operation is used to export the results
  * of carrying out a query on a Gaffer {@link uk.gov.gchq.gaffer.graph.Graph} to
  * a different graph.
+ * The graphs that are available to be exported to are limited to predefined set.
+ * This is a more restricted version of {@link ExportToOtherGraph}.
  */
 public class ExportToOtherAuthorisedGraph implements
         MultiInput<Element>,

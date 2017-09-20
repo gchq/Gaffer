@@ -28,7 +28,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 /**
- * Seriailser to serialise and deserialise {@link Entity} objects in a byte array
+ * Serialiser to serialise and deserialise {@link Entity} objects in a byte array
  * representation.
  */
 public class EntitySerialiser extends PropertiesSerialiser<Entity> {

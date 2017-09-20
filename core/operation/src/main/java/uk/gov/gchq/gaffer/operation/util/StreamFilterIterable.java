@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package uk.gov.gchq.gaffer.operation.util;
 
-package uk.gov.gchq.gaffer.commonutil.exception;
+import uk.gov.gchq.gaffer.commonutil.iterable.StreamIterable;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.operation.impl.function.Filter;
 
-/**
- * An {@code UnauthorisedException} is a {@link java.lang.RuntimeException} that
- * will be when an unauthorised action is attempted.
- */
-public class UnauthorisedException extends RuntimeException {
-    private static final long serialVersionUID = -7137572738792227437L;
-
-    public UnauthorisedException(final String message) {
-        super(message);
-    }
-
-    public UnauthorisedException(final String message, final Throwable cause) {
-        super(message, cause);
+public class StreamFilterIterable extends StreamIterable<Element> {
+    public StreamFilterIterable(final Filter operation) {
+        super(new FilterStreamSupplier(operation));
     }
 }
