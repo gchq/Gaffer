@@ -20,36 +20,11 @@
                      debug="false">
     <appender name="console" class="org.apache.log4j.ConsoleAppender">
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%m%n"/>
+            <param name="ConversionPattern" value="%c{3} %p %x - %m%n"/>
         </layout>
     </appender>
-
-    <logger name="org.apache.spark">
-        <level value="ERROR"/>
-    </logger>
-    <logger name="org.apache.parquet">
-        <level value="ERROR"/>
-    </logger>
-    <logger name="org.apache.hadoop">
-        <level value="ERROR"/>
-    </logger>
-    <logger name="uk.gov.gchq.gaffer.parquetstore">
-        <level value="WARN"/>
-    </logger>
-    <logger name="uk.gov.gchq.gaffer.spark">
-        <level value="WARN"/>
-    </logger>
-    <logger name="org.reflections.Reflections">
-        <level value="WARN"/>
-    </logger>
-    <logger name="uk.gov.gchq.gaffer.jsonserialisation">
-        <level value="WARN"/>
-    </logger>
-    <logger name="uk.gov.gchq.gaffer.store">
-        <level value="WARN"/>
-    </logger>
-    <logger name="uk.gov.gchq.gaffer.cache">
-        <level value="WARN"/>
-    </logger>
-
+    <root>
+        <priority value="warn"></priority>
+        <appender-ref ref="console"></appender-ref>
+    </root>
 </log4j:configuration>

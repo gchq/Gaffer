@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!--
-  ~ Copyright 2016 Crown Copyright
+  ~ Copyright 2017 Crown Copyright
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -23,27 +23,6 @@
             <param name="ConversionPattern" value="%c{3} %p %x - %m%n"/>
         </layout>
     </appender>
-
-    <logger name="org.apache.accumulo.core.client.ClientConfiguration">
-        <level value="ERROR"/>
-    </logger>
-
-    <logger name="org.apache.accumulo.core.conf.SiteConfiguration">
-        <level value="ERROR"/>
-    </logger>
-
-    <logger name="org.apache.hadoop.util.NativeCodeLoader">
-        <level value="ERROR"/>
-    </logger>
-
-    <logger name="org.apache.hadoop.util.NativeCodeLoader">
-        <level value="ERROR"/>
-    </logger>
-
-    <logger name="org.apache.spark.util.ClosureCleaner">
-        <level value="ERROR"/>
-    </logger>
-
     <root>
         <priority value="warn"></priority>
         <appender-ref ref="console"></appender-ref>
