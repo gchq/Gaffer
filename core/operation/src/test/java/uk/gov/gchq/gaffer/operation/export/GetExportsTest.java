@@ -87,6 +87,7 @@ public class GetExportsTest extends OperationTest<GetExports> {
         assertEquals(getSetExport, clone.getGetExports().iterator().next());
     }
 
+    @Override
     protected GetExports getTestObject() {
         return new GetExports();
     }

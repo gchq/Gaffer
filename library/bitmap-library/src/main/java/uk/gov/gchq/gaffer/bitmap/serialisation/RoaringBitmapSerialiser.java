@@ -27,6 +27,10 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+/**
+ * A {@link uk.gov.gchq.gaffer.serialisation.Serialiser} implementation for {@link RoaringBitmap}
+ * instances.
+ */
 public class RoaringBitmapSerialiser implements ToBytesSerialiser<RoaringBitmap> {
 
     private static final long serialVersionUID = 3772387954385745791L;

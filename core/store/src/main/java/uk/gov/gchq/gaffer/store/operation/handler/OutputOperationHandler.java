@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
 /**
- * An <code>OutputOperationHandler</code> defines how to handle a specific {@link Output} operations.
+ * An {@code OutputOperationHandler} defines how to handle a specific {@link Output} operations.
  */
 public interface OutputOperationHandler<OP extends Output<O>, O> extends OperationHandler<OP> {
     /**

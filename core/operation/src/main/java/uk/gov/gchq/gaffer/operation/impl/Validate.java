@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Map;
 
 /**
- * A <code>Validate</code> operation takes in {@link uk.gov.gchq.gaffer.data.element.Element}s validates them using the
+ * A {@code Validate} operation takes in {@link uk.gov.gchq.gaffer.data.element.Element}s validates them using the
  * store schema and returns the valid {@link uk.gov.gchq.gaffer.data.element.Element}s.
  * If skipInvalidElements is set to false, the handler should stop the operation if invalid elements are found.
  * The Graph will automatically add this operation prior to all {@link uk.gov.gchq.gaffer.operation.Validatable} operations when
@@ -37,7 +37,6 @@ import java.util.Map;
  * @see uk.gov.gchq.gaffer.operation.impl.Validate.Builder
  */
 public class Validate implements
-        Operation,
         Validatable,
         InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,
         MultiInput<Element> {

@@ -32,7 +32,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * An <code>SchemaElementDefinitionValidator</code> validates a {@link SchemaElementDefinition}.
+ * An {@code SchemaElementDefinitionValidator} validates a {@link SchemaElementDefinition}.
  * Checks all function input and output types are compatible with the
  * properties and identifiers provided.
  * To be able to aggregate 2 similar elements together ALL properties have to

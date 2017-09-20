@@ -32,7 +32,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * An <code>ApplicationConfig</code> sets up the application resources.
+ * An {@code ApplicationConfig} sets up the application resources.
  */
 public abstract class ApplicationConfig extends ResourceConfig {
     protected final Set<Class<?>> resources = new HashSet<>();

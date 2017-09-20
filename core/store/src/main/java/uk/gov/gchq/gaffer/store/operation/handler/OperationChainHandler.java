@@ -27,6 +27,11 @@ import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.List;
 
+/**
+ * A {@code OperationChainHandler} handles {@link OperationChain}s.
+ *
+ * @param <OUT> the output type of the operation chain
+ */
 public class OperationChainHandler<OUT> implements OutputOperationHandler<OperationChain<OUT>, OUT> {
     private final OperationChainValidator opChainValidator;
     private final List<OperationChainOptimiser> opChainOptimisers;

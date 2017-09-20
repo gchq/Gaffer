@@ -24,7 +24,7 @@ import java.util.List;
 
 /**
  * Simple data access object which enables the serialisation and deserialisation
- * @param <OUT> the output type of the <code>OperationChainDAO</code>. This should
+ * @param <OUT> the output type of the {@code OperationChainDAO}. This should
  *             match the output type of the last {@link uk.gov.gchq.gaffer.operation.Operation}
  *             in the chain.
  */
@@ -43,6 +43,14 @@ public class OperationChainDAO<OUT> extends OperationChain<OUT> {
         super(operations);
     }
 
+    /**
+     * Get the class name of this class. This is set to always return {@code null}
+     * in order to prevent the serialised version of this class from containing
+     * the JSON type information that Jackson would use to deserialise JSON representations
+     * of this class.
+     *
+     * @return null
+     */
     @JsonGetter("class")
     public String getClassName() {
         return null;

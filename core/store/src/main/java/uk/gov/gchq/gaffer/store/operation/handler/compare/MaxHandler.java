@@ -27,6 +27,12 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * A {@code MaxHandler} handles the {@link Max} operation.
+ *
+ * It uses the {@link Comparator}s instances on the operation to determine the
+ * object with the maximum value.
+ */
 public class MaxHandler implements OutputOperationHandler<Max, Element> {
     @Override
     public Element doOperation(final Max operation, final Context context, final Store store) throws OperationException {

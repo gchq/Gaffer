@@ -24,6 +24,10 @@ import uk.gov.gchq.gaffer.operation.export.Exporter;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.user.User;
 
+/**
+ * Implementation of the {@link Exporter} interface for exporting elements from
+ * one Gaffer {@link Graph} to another.
+ */
 public class OtherGraphExporter implements Exporter {
     private final Graph graph;
     private final User user;

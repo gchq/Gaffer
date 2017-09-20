@@ -23,6 +23,13 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
+/**
+ * A {@code AddElementsFromSocketHandler} handles the {@link AddElementsFromSocket}
+ * operation.
+ *
+ * This uses Flink to stream the {@link uk.gov.gchq.gaffer.data.element.Element}
+ * objects from a socket into Gaffer.
+ */
 public class AddElementsFromSocketHandler implements OperationHandler<AddElementsFromSocket> {
     @Override
     public Object doOperation(final AddElementsFromSocket op, final Context context, final Store store) throws OperationException {

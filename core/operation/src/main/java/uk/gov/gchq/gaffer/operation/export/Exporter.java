@@ -20,10 +20,10 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 
 /**
- * An <code>Exporter</code> can store data of any kind and retrieve it.
+ * An {@code Exporter} can store data of any kind and retrieve it.
  */
 public interface Exporter {
-    void add(String key, Iterable<?> results) throws OperationException;
+    void add(final String key, final Iterable<?> results) throws OperationException;
 
-    CloseableIterable<?> get(String key) throws OperationException;
+    CloseableIterable<?> get(final String key) throws OperationException;
 }

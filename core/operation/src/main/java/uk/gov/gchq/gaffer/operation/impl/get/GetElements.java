@@ -61,7 +61,6 @@ import java.util.Map;
  * </ul>
  */
 public class GetElements implements
-        Operation,
         InputOutput<Iterable<? extends ElementId>, CloseableIterable<? extends Element>>,
         MultiInput<ElementId>,
         SeededGraphFilters,

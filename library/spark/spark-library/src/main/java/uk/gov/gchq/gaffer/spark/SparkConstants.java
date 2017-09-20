@@ -20,6 +20,9 @@ import org.apache.spark.serializer.KryoSerializer;
 
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator;
 
+/**
+ * Utility class containing constants for use with the Spark library.
+ */
 public final class SparkConstants {
     public static final String KRYO_REGISTRATOR = "spark.kryo.registrator";
     public static final String SERIALIZER = "spark.serializer";
@@ -29,5 +32,6 @@ public final class SparkConstants {
     public static final String DEFAULT_SERIALIZER = KryoSerializer.class.getName();
 
     private SparkConstants() {
+        // Private constructor to prevent instantiation.
     }
 }

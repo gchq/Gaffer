@@ -69,6 +69,7 @@ public class RawDoubleSerialiserTest extends ToBytesSerialisationTest<Double> {
         return new RawDoubleSerialiser();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Pair<Double, byte[]>[] getHistoricSerialisationPairs() {
         return new Pair[]{

@@ -42,7 +42,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 /**
- * The <code>View</code> defines the {@link uk.gov.gchq.gaffer.data.element.Element}s to be returned for an operation.
+ * The {@code View} defines the {@link uk.gov.gchq.gaffer.data.element.Element}s to be returned for an operation.
  * A view should contain {@link uk.gov.gchq.gaffer.data.element.Edge} and {@link uk.gov.gchq.gaffer.data.element.Entity} types required and
  * for each group it can optionally contain an {@link uk.gov.gchq.gaffer.data.element.function.ElementFilter} and a
  * {@link uk.gov.gchq.gaffer.data.element.function.ElementTransformer}.

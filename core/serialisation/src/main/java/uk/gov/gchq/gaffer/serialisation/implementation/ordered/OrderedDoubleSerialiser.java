@@ -19,6 +19,12 @@ package uk.gov.gchq.gaffer.serialisation.implementation.ordered;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
+/**
+ * An {@code OrderedDoubleSerialser} serialises a {@link Double} to
+ * an array of bytes by directly converting the double to a raw long and
+ * then converting this to a byte array.
+ * This serialiser preserves ordering.
+ */
 public class OrderedDoubleSerialiser implements ToBytesSerialiser<Double> {
 
     private static final long serialVersionUID = -4750738170126596560L;

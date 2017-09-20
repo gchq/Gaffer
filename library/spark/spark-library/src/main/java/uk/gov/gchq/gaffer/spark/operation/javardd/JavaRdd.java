@@ -19,6 +19,9 @@ import org.apache.spark.api.java.JavaSparkContext;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 
+/**
+ * Base interface for all operations involving {@link org.apache.spark.api.java.JavaRDD}s.
+ */
 public interface JavaRdd {
     JavaSparkContext getJavaSparkContext();
 

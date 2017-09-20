@@ -17,10 +17,12 @@
 package uk.gov.gchq.gaffer.commonutil.exception;
 
 /**
- * An <code>AuthorisationException</code> is a {@link RuntimeException} that
+ * An {@code UnauthorisedException} is a {@link java.lang.RuntimeException} that
  * will be when an unauthorised action is attempted.
  */
 public class UnauthorisedException extends RuntimeException {
+    private static final long serialVersionUID = -7137572738792227437L;
+
     public UnauthorisedException(final String message) {
         super(message);
     }

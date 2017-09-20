@@ -25,6 +25,9 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 import java.io.IOException;
 
+/**
+ * A {@code HyperLogLogPlusJsonSerialiser} serialises {@link HyperLogLogPlus} objects.
+ */
 public class HyperLogLogPlusJsonSerialiser extends JsonSerializer<HyperLogLogPlus> {
 
     // TODO - See 'Can't create HyperLogLogPlus sketches in JSON'

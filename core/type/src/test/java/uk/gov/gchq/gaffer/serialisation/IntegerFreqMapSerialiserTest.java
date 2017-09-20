@@ -79,6 +79,7 @@ public class IntegerFreqMapSerialiserTest extends ToBytesSerialisationTest<Integ
         return new IntegerFreqMapSerialiser();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Pair<IntegerFreqMap, byte[]>[] getHistoricSerialisationPairs() {
         IntegerFreqMap freqMap = new IntegerFreqMap();

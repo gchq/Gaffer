@@ -75,6 +75,7 @@ public class ToMapTest extends OperationTest<ToMap> {
         assertEquals(Lists.newArrayList(input), clone.getInput());
     }
 
+    @Override
     protected ToMap getTestObject() {
         return new ToMap();
     }

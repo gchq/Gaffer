@@ -30,7 +30,10 @@ import java.util.Properties;
 
 import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_CONFIG_FILE;
 
-
+/**
+ * Implementation of the {@link ICacheService} interface which uses a {@link HazelcastCache}
+ * as the cache implementation.
+ */
 public class HazelcastCacheService implements ICacheService {
     private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastCacheService.class);
     private HazelcastInstance hazelcast;

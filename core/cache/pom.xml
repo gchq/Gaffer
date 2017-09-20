@@ -9,5 +9,12 @@
 
     <artifactId>cache</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>exception</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
+    </dependencies>
 
 </project>

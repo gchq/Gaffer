@@ -33,21 +33,20 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * An <code>Operation</code> that returns an Apache Spark <code>DataFrame</code> (i.e. a {@link Dataset} of
- * {@link Row}s) consisting of the <code>Element</code>s converted to {@link Row}s. The fields in the {@link Row}
- * are ordered according to the ordering of the groups in the view, with <code>Entity</code>s first,
- * followed by <code>Edge</code>s.
+ * An {@code Operation} that returns an Apache Spark {@code DataFrame} (i.e. a {@link Dataset} of
+ * {@link Row}s) consisting of the {@code Element}s converted to {@link Row}s. The fields in the {@link Row}
+ * are ordered according to the ordering of the groups in the view, with {@code Entity}s first,
+ * followed by {@code Edge}s.
  * <p>
  * Implementations of this operation should automatically convert all properties that have natural equivalents
- * as a Spark <code>DataType</code> to that <code>DataType</code>. An implementation may allow the user to
+ * as a Spark {@code DataType} to that {@code DataType}. An implementation may allow the user to
  * specify a conversion function for properties that do not have natural equivalents. Thus not all properties
- * from each <code>Element</code> will necessarily make it into the <code>DataFrame</code>.
+ * from each {@code Element} will necessarily make it into the {@code DataFrame}.
  * <p>
- * The schema of the <code>Dataframe</code> is formed of all properties from the first group, followed by all
+ * The schema of the {@code Dataframe} is formed of all properties from the first group, followed by all
  * properties from the second group, with the exception of properties already found in the first group, etc.
  */
 public class GetDataFrameOfElements implements
-        Operation,
         Output<Dataset<Row>>,
         GraphFilters {
 

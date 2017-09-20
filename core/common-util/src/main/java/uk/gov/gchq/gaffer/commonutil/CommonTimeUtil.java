@@ -34,7 +34,7 @@ import static java.time.temporal.TemporalAdjusters.firstDayOfMonth;
 public final class CommonTimeUtil {
 
     private CommonTimeUtil() {
-        // this class should not be instantiated - it contains only util methods and constants.
+        // Private constructor to prevent instantiation.
     }
 
     /**
