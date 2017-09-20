@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 /**
- * Seriailser to serialise and deserialise {@link ElementId} objects in a byte array
+ * Serialiser to serialise and deserialise {@link ElementId} objects in a byte array
  * representation.
  */
 public class ElementIdSerialiser implements ToBytesSerialiser<ElementId> {

@@ -15,6 +15,6 @@
  */
 
 /**
- *
+ * Serialiser implementations for stores.
  */
 package uk.gov.gchq.gaffer.store.serialiser;

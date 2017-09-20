@@ -28,7 +28,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.Iterator;
 
 /**
- * Seriailser to serialise and deserialise objects containing {@link Properties}
+ * Serialiser to serialise and deserialise objects containing {@link Properties}
  * in a byte array representation.
  */
 public abstract class PropertiesSerialiser<T> implements ToBytesSerialiser<T> {

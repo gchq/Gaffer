@@ -27,6 +27,8 @@ public final class CloseableUtil {
 
     /**
      * Close a group of objects.
+     * If an object implements {@link AutoCloseable} then the object will be closed.
+     * Any exceptions that are thrown are caught and ignored.
      *
      * @param objs the objects to attempt to close
      */
@@ -38,6 +40,8 @@ public final class CloseableUtil {
 
     /**
      * Close an object.
+     * If the object implements {@link AutoCloseable} then the object will be closed.
+     * Any exceptions that are thrown are caught and ignored.
      *
      * @param obj the object to attempt to close
      */
@@ -49,6 +53,7 @@ public final class CloseableUtil {
 
     /**
      * Close a group of {@link AutoCloseable} objects.
+     * Any exceptions that are thrown are caught and ignored.
      *
      * @param closeable the objects to close
      */
@@ -60,6 +65,7 @@ public final class CloseableUtil {
 
     /**
      * Close an {@link AutoCloseable} object.
+     * Any exceptions that are thrown are caught and ignored.
      *
      * @param closeable the object to close
      */
