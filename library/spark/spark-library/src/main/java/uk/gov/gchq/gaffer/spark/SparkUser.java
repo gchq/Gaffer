@@ -49,7 +49,7 @@ public class SparkUser extends User {
             return true;
         }
 
-        if (user == null || getClass() != user.getClass()) {
+        if (null == user || getClass() != user.getClass()) {
             return false;
         }
 

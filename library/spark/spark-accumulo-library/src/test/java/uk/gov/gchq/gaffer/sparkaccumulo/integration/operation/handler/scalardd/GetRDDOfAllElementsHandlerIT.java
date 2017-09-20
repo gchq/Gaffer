@@ -175,7 +175,7 @@ public class GetRDDOfAllElementsHandlerIT {
         final Set<Element> expectedElements = new HashSet<>(getElements());
         final RDD<Element> rdd = graph.execute(getRDD, USER);
         if (rdd == null) {
-            fail("No RDD returned");
+            fail("No rdd returned");
         }
         final Set<Element> results = new HashSet<>();
         final Element[] returnedElements = (Element[]) rdd.collect();
@@ -216,7 +216,7 @@ public class GetRDDOfAllElementsHandlerIT {
                 .build());
         final RDD<Element> rdd = graph.execute(getRDD, USER);
         if (rdd == null) {
-            fail("No RDD returned");
+            fail("No rdd returned");
         }
 
         final Set<Element> results = new HashSet<>();
@@ -239,7 +239,7 @@ public class GetRDDOfAllElementsHandlerIT {
                 .forEach(expectedElements::add);
         RDD<Element> rdd = graph.execute(getRDD, USER_WITH_PUBLIC);
         if (rdd == null) {
-            fail("No RDD returned");
+            fail("No rdd returned");
         }
         final Set<Element> results = new HashSet<>();
         Element[] returnedElements = (Element[]) rdd.collect();
@@ -252,7 +252,7 @@ public class GetRDDOfAllElementsHandlerIT {
         getElementsWithVisibilities().forEach(expectedElements::add);
         rdd = graph.execute(getRDD, USER_WITH_PUBLIC_AND_PRIVATE);
         if (rdd == null) {
-            fail("No RDD returned");
+            fail("No rdd returned");
         }
         results.clear();
         returnedElements = (Element[]) rdd.collect();
@@ -264,7 +264,7 @@ public class GetRDDOfAllElementsHandlerIT {
         // Test with user with no visibilities
         rdd = graph.execute(getRDD, USER);
         if (rdd == null) {
-            fail("No RDD returned");
+            fail("No rdd returned");
         }
         results.clear();
         returnedElements = (Element[]) rdd.collect();
@@ -278,7 +278,7 @@ public class GetRDDOfAllElementsHandlerIT {
 
         final RDD<Element> rdd = graph.execute(getRDD, USER);
         if (rdd == null) {
-            fail("No RDD returned");
+            fail("No rdd returned");
         }
 
         // Should get Entity B but not Entity A
@@ -291,7 +291,7 @@ public class GetRDDOfAllElementsHandlerIT {
             throws OperationException {
         final RDD<Element> rdd = graph.execute(getRDD, USER);
         if (rdd == null) {
-            fail("No RDD returned");
+            fail("No rdd returned");
         }
 
         // Should get aggregated data

@@ -54,7 +54,7 @@ public final class OperationUtil {
 
     public static ValidationResult isValid(final Class<?> output, final Class<?> input) {
         ValidationResult result = new ValidationResult();
-        if (input != null && null != output
+        if (null != input && null != output
                 && !UnknownGenericType.class.equals(output)
                 && !UnknownGenericType.class.equals(input)
                 && !input.isAssignableFrom(output)) {

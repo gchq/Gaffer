@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.RDD;
+package uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.rdd;
 
 import org.apache.spark.api.java.function.Function2;
 
@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 /**
- * Used to aggregate Elements. Used by {@link uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.ImportRDDOfElements.AddElementsFromRDD}
+ * Used to aggregate Elements. Used by {@link uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.AddElementsFromRDD}.
  */
 public class AggregateGafferElements implements Function2<Element, Element, Element> {
     private static final long serialVersionUID = -256158555820968598L;

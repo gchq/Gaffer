@@ -48,7 +48,7 @@ public class AbstractWalkthroughRunner {
         for (final AbstractWalkthrough example : examples) {
             // Clear the caches so the output is not dependent on what's been run before
             try {
-                if (CacheServiceLoader.getService() != null) {
+                if (null != CacheServiceLoader.getService()) {
                     CacheServiceLoader.getService().clearCache("NamedOperation");
                     CacheServiceLoader.getService().clearCache("JobTracker");
                 }

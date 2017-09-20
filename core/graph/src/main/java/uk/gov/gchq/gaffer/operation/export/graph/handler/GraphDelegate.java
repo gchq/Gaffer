@@ -78,7 +78,7 @@ public final class GraphDelegate {
     private static StoreProperties resolveStoreProperties(final Store store, final StoreProperties properties, final String parentStorePropertiesId) {
         StoreProperties rtn = null;
 
-        if (parentStorePropertiesId != null) {
+        if (null != parentStorePropertiesId) {
             rtn = store.getGraphLibrary().getProperties(parentStorePropertiesId);
         }
         if (null != properties) {

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.RDD;
+package uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.rdd;
 
 import org.apache.spark.api.java.JavaRDD;
 
@@ -65,7 +65,7 @@ public class CalculateSplitPointsFromJavaRDD {
         final Map<Object, Integer> splitPoints = new TreeMap<>(COMPARATOR);
         int i = 0;
         for (final Object split : splits) {
-            if (split != null) {
+            if (null != split) {
                 splitPoints.put(split, i);
             }
             i++;

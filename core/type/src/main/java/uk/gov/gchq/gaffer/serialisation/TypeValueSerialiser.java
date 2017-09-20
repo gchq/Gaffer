@@ -45,7 +45,7 @@ public class TypeValueSerialiser implements ToBytesSerialiser<TypeValue> {
             throw new SerialisationException("TypeValue passed to serialiser is blank");
         }
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        if (type != null) {
+        if (null != type) {
             try {
                 out.write(ByteArrayEscapeUtils.escape(type.getBytes(CommonConstants.UTF_8)));
             } catch (final IOException e) {
@@ -53,7 +53,7 @@ public class TypeValueSerialiser implements ToBytesSerialiser<TypeValue> {
             }
         }
         out.write(ByteArrayEscapeUtils.DELIMITER);
-        if (value != null) {
+        if (null != value) {
             try {
                 out.write(ByteArrayEscapeUtils.escape(value.getBytes(CommonConstants.UTF_8)));
             } catch (final IOException e) {

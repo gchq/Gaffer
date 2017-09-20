@@ -206,7 +206,7 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
 
     @Override
     public Key getTopKey() {
-        if (topKey == null) {
+        if (null == topKey) {
             return super.getTopKey();
         }
 
@@ -215,7 +215,7 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
 
     @Override
     public Value getTopValue() {
-        if (topKey == null) {
+        if (null == topKey) {
             return super.getTopValue();
         }
 
@@ -224,12 +224,12 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
 
     @Override
     public boolean hasTop() {
-        return topKey != null || super.hasTop();
+        return null != topKey || super.hasTop();
     }
 
     @Override
     public void next() throws IOException {
-        if (topKey != null) {
+        if (null != topKey) {
             topKey = null;
             topValue = null;
         } else {
@@ -300,7 +300,7 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
         super.seek(seekRange, columnFamilies, inclusive);
         findTop();
 
-        if (range.getStartKey() != null) {
+        if (null != range.getStartKey()) {
             while (hasTop() && getTopKey().equals(range.getStartKey(), PartialKey.ROW_COLFAM)
                     && getTopKey().getTimestamp() > range.getStartKey().getTimestamp()) {
                 // The value has a more recent time stamp, so pass it up

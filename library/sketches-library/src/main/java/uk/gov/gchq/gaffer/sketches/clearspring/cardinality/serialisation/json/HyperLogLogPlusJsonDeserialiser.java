@@ -38,7 +38,7 @@ public class HyperLogLogPlusJsonDeserialiser extends JsonDeserializer<HyperLogLo
         final TreeNode treeNode = jsonParser.getCodec().readTree(jsonParser);
 
         final TreeNode coreHyperLogLogPlusObject = treeNode.get("hyperLogLogPlus");
-        if (coreHyperLogLogPlusObject != null) {
+        if (null != coreHyperLogLogPlusObject) {
             final TextNode jsonNodes = (TextNode) coreHyperLogLogPlusObject.get(HyperLogLogPlusJsonConstants.HYPER_LOG_LOG_PLUS_SKETCH_BYTES_FIELD);
 
             final byte[] nodeAsString = jsonNodes.binaryValue();

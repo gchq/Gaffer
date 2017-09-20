@@ -148,8 +148,8 @@ public interface EdgeId extends ElementId {
      * @return An instance of {@link ElementId.Matches} to describe how the ids are related.
      */
     default Matches isRelated(final EntityId that) {
-        boolean matchesSource = (getSource() == null) ? that.getVertex() == null : getSource().equals(that.getVertex());
-        boolean matchesDestination = (getDestination() == null) ? that.getVertex() == null : getDestination().equals(that.getVertex());
+        boolean matchesSource = (null == getSource()) ? null == that.getVertex() : getSource().equals(that.getVertex());
+        boolean matchesDestination = (null == getDestination()) ? null == that.getVertex() : getDestination().equals(that.getVertex());
         if (matchesSource) {
             if (matchesDestination) {
                 return Matches.BOTH;

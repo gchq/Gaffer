@@ -25,7 +25,9 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.Properties;
 
-
+/**
+ * Additional store properties for the {@link ProxyStore}.
+ */
 public class ProxyProperties extends StoreProperties {
     public static final String GAFFER_HOST = "gaffer.host";
     public static final String GAFFER_PORT = "gaffer.port";

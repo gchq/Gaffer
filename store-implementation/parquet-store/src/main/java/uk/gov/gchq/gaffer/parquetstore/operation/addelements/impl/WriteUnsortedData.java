@@ -92,7 +92,7 @@ public class WriteUnsortedData {
             } else {
                 writer = getWriter(splitToWriter, groupToSplitPoints.get(group), ((Edge) element).getSource(), group, ParquetStoreConstants.SOURCE);
             }
-            if (writer != null) {
+            if (null != writer) {
                 writer.write(element);
             } else {
                 LOGGER.warn("Skipped the adding of an Element with Group = {} as that group does not exist in the schema.", group);

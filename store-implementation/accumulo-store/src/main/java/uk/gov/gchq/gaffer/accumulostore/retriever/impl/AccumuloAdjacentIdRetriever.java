@@ -228,7 +228,7 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
 
         @Override
         public void close() {
-            if (scanner != null) {
+            if (null != scanner) {
                 scanner.close();
             }
         }

@@ -73,7 +73,7 @@ public class ElementSerialisation {
             propertyName = propertyNames.next();
             final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
             if (isStoredInValue(propertyName, elementDefinition)) {
-                final ToBytesSerialiser serialiser = (typeDefinition != null) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
+                final ToBytesSerialiser serialiser = (null != typeDefinition) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
                 try {
                     if (null != serialiser) {
                         Object value = properties.get(propertyName);
@@ -99,7 +99,7 @@ public class ElementSerialisation {
     public Properties getPropertiesFromValue(final String group, final byte[] value)
             throws SerialisationException {
         final Properties properties = new Properties();
-        if (value == null || value.length == 0) {
+        if (null == value || value.length == 0) {
             return properties;
         }
         int lastDelimiter = 0;
@@ -113,7 +113,7 @@ public class ElementSerialisation {
             final String propertyName = propertyNames.next();
             if (isStoredInValue(propertyName, elementDefinition)) {
                 final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
-                final ToBytesSerialiser serialiser = (typeDefinition != null) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
+                final ToBytesSerialiser serialiser = (null != typeDefinition) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
                 if (null != serialiser) {
                     final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(value[lastDelimiter]);
                     int currentPropLength;
@@ -175,7 +175,7 @@ public class ElementSerialisation {
             if (null != propertyDef) {
                 final Object property = properties.get(schema.getVisibilityProperty());
                 final ToBytesSerialiser serialiser = (ToBytesSerialiser) propertyDef.getSerialiser();
-                if (property != null) {
+                if (null != property) {
                     try {
                         return serialiser.serialise(property);
                     } catch (final SerialisationException e) {
@@ -211,7 +211,7 @@ public class ElementSerialisation {
 
         for (final String propertyName : elementDefinition.getGroupBy()) {
             final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
-            final ToBytesSerialiser serialiser = (typeDefinition != null) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
+            final ToBytesSerialiser serialiser = (null != typeDefinition) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
             try {
                 if (null != serialiser) {
                     Object value = properties.get(propertyName);
@@ -241,7 +241,7 @@ public class ElementSerialisation {
         }
 
         final Properties properties = new Properties();
-        if (bytes == null || bytes.length == 0) {
+        if (null == bytes || bytes.length == 0) {
             return properties;
         }
 
@@ -252,7 +252,7 @@ public class ElementSerialisation {
         while (propertyNames.hasNext() && carriage < arrayLength) {
             final String propertyName = propertyNames.next();
             final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
-            final ToBytesSerialiser serialiser = (typeDefinition != null) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
+            final ToBytesSerialiser serialiser = (null != typeDefinition) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
             if (null != serialiser) {
                 final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(bytes[carriage]);
                 int currentPropLength;
@@ -285,7 +285,7 @@ public class ElementSerialisation {
 
     public byte[] getPropertiesAsBytesFromColumnQualifier(final String group, final byte[] bytes, final int numProps)
             throws SerialisationException {
-        if (numProps == 0 || bytes == null || bytes.length == 0) {
+        if (numProps == 0 || null == bytes || bytes.length == 0) {
             return HBaseStoreConstants.EMPTY_BYTES;
         }
         final SchemaElementDefinition elementDefinition = schema.getElement(group);
@@ -335,7 +335,7 @@ public class ElementSerialisation {
     public long getTimestamp(final Properties properties) throws SerialisationException {
         if (null != schema.getTimestampProperty()) {
             final Object property = properties.get(schema.getTimestampProperty());
-            if (property == null) {
+            if (null == property) {
                 return System.currentTimeMillis();
             } else {
                 return (Long) property;

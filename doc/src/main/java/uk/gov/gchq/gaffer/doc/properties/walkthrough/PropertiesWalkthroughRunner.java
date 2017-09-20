@@ -181,7 +181,7 @@ public class PropertiesWalkthroughRunner extends AbstractWalkthroughRunner {
         for (final AbstractWalkthrough example : walkthroughs) {
             // Clear the caches so the output is not dependent on what's been run before
             try {
-                if (CacheServiceLoader.getService() != null) {
+                if (null != CacheServiceLoader.getService()) {
                     CacheServiceLoader.getService().clearCache("NamedOperation");
                     CacheServiceLoader.getService().clearCache("JobTracker");
                 }
@@ -199,7 +199,7 @@ public class PropertiesWalkthroughRunner extends AbstractWalkthroughRunner {
         for (final AbstractWalkthrough example : EXAMPLES) {
             // Clear the caches so the output is not dependent on what's been run before
             try {
-                if (CacheServiceLoader.getService() != null) {
+                if (null != CacheServiceLoader.getService()) {
                     CacheServiceLoader.getService().clearCache("NamedOperation");
                     CacheServiceLoader.getService().clearCache("JobTracker");
                 }

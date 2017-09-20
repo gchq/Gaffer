@@ -63,7 +63,7 @@ public class HyperLogLogPlusIsLessThan extends KoryphePredicate<HyperLogLogPlus>
 
     @Override
     public boolean test(final HyperLogLogPlus input) {
-        if (input == null) {
+        if (null == input) {
             return false;
         }
         final long cardinality = input.cardinality();
@@ -85,7 +85,7 @@ public class HyperLogLogPlusIsLessThan extends KoryphePredicate<HyperLogLogPlus>
             return true;
         }
 
-        if (obj == null || getClass() != obj.getClass()) {
+        if (null == obj || getClass() != obj.getClass()) {
             return false;
         }
 

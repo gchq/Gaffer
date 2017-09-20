@@ -114,7 +114,7 @@ public class GetJavaRDDOfAllElementsHandlerTest {
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         final JavaRDD<Element> rdd = graph1.execute(rddQuery, user);
         if (rdd == null) {
-            fail("No RDD returned");
+            fail("No rdd returned");
         }
         final Set<Element> results = new HashSet<>(rdd.collect());
         assertEquals(expectedElements, results);
@@ -199,7 +199,7 @@ public class GetJavaRDDOfAllElementsHandlerTest {
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         JavaRDD<Element> rdd = graph1.execute(rddQuery, userWithPublicNotPrivate);
         if (rdd == null) {
-            fail("No RDD returned");
+            fail("No rdd returned");
         }
         final Set<Element> results = new HashSet<>(rdd.collect());
         assertEquals(expectedElementsPublicNotPrivate, results);
@@ -211,7 +211,7 @@ public class GetJavaRDDOfAllElementsHandlerTest {
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         rdd = graph1.execute(rddQuery, userWithPrivate);
         if (rdd == null) {
-            fail("No RDD returned");
+            fail("No rdd returned");
         }
         results.clear();
         results.addAll(rdd.collect());

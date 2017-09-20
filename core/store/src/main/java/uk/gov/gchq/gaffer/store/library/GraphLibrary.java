@@ -144,7 +144,7 @@ public abstract class GraphLibrary {
      * @return True if a relationship exists.
      */
     public boolean exists(final String graphId) {
-        return getIds(graphId) != null;
+        return null != getIds(graphId);
     }
 
     /**
@@ -170,7 +170,7 @@ public abstract class GraphLibrary {
      * @throws OverwritingException If there is already a relationship.
      */
     public void addProperties(final String propertiesId, final StoreProperties properties) {
-        if (properties != null) {
+        if (null != properties) {
             validateId(propertiesId);
             _addProperties(propertiesId, properties);
         }

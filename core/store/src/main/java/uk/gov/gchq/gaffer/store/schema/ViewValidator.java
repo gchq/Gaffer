@@ -157,8 +157,8 @@ public class ViewValidator {
 
     private void validateStoreTrait(final Composite functions, final StoreTrait storeTrait, final Set<StoreTrait> storeTraits, final ValidationResult result) {
         if (!storeTraits.contains(storeTrait)
-                && functions != null
-                && functions.getComponents() != null
+                && null != functions
+                && null != functions.getComponents()
                 && !functions.getComponents().isEmpty()) {
             result.addError("This store does not currently support " + storeTrait.name());
         }
