@@ -16,12 +16,16 @@
 
 package uk.gov.gchq.gaffer.operation;
 
+import com.google.common.collect.Maps;
+import org.junit.Assert;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -56,6 +60,17 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
                 requiredFieldsErrors,
                 validationResult.getErrors()
         );
+    }
+
+    @Test
+    public void shouldSetGetOption() throws Exception {
+        final Operation testObject = getTestObject();
+        final HashMap<String, String> expected = Maps.newHashMap();
+        expected.put("one", "two");
+        testObject.setOptions(expected);
+        final Map<String, String> actual = testObject.getOptions();
+        Assert.assertEquals(expected, actual);
+        assertEquals("two", testObject.getOption("one"));
     }
 }
 
