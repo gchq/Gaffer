@@ -36,12 +36,19 @@ import java.util.Set;
  * <p>Requires:
  * <ul>
  * <li>graphId
- * <li>properties
- * <li>schema
+ * <li>storeProperties and/or parentPropertiesId</li>
+ * <li>schema and/or parentSchemaIds</li>
  * </ul>
  *
+ * <p>parentId can be used solely, if known by the graphLibrary.
+ * <p>schema can be used solely.
+ * <p>storeProperties can be used, if authorised to by {@link uk.gov.gchq.gaffer.federatedstore.FederatedStore#isLimitedToLibraryProperties(uk.gov.gchq.gaffer.user.User)}
+ * <p>both non-parentId and parentId can be used, and will be merged together.
+ * <p>Optionally Requires:
+ * <ul>
+ * <li>graphAuths</li>
+ * </ul>
  * @see uk.gov.gchq.gaffer.federatedstore.FederatedStore
- * @see uk.gov.gchq.gaffer.operation.Operation
  * @see uk.gov.gchq.gaffer.store.schema.Schema
  * @see uk.gov.gchq.gaffer.data.element.Properties
  * @see uk.gov.gchq.gaffer.graph.Graph
@@ -76,7 +83,7 @@ public class AddGraph implements Operation {
     @Override
     public AddGraph shallowClone() throws CloneFailedException {
         return new Builder()
-                .setGraphId(graphId)
+                .graphId(graphId)
                 .schema(schema)
                 .storeProperties(storeProperties)
                 .parentSchemaIds(parentSchemaIds)
@@ -123,9 +130,8 @@ public class AddGraph implements Operation {
         return graphAuths;
     }
 
-    public AddGraph setGraphAuths(final Set<String> graphAuths) {
+    public void setGraphAuths(final Set<String> graphAuths) {
         this.graphAuths = graphAuths;
-        return this;
     }
 
     @JsonGetter("storeProperties")
@@ -147,7 +153,7 @@ public class AddGraph implements Operation {
             super(new AddGraph());
         }
 
-        public Builder setGraphId(final String graphId) {
+        public Builder graphId(final String graphId) {
             _getOp().setGraphId(graphId);
             return this;
         }
@@ -175,8 +181,9 @@ public class AddGraph implements Operation {
         public Builder graphAuths(final String... graphAuths) {
             if (null == graphAuths) {
                 _getOp().setGraphAuths(null);
+            } else {
+                _getOp().setGraphAuths(Sets.newHashSet(graphAuths));
             }
-            _getOp().setGraphAuths(Sets.newHashSet(graphAuths));
             return _self();
         }
     }

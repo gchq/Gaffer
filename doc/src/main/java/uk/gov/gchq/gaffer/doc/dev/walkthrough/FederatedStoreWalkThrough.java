@@ -66,7 +66,7 @@ public class FederatedStoreWalkThrough extends DevWalkthrough {
         // [add graph] add a graph to the federated store.
         // ---------------------------------------------------------
         AddGraph addAnotherGraph = new AddGraph.Builder()
-                .setGraphId("AnotherGraph")
+                .graphId("AnotherGraph")
                 .schema(new Schema.Builder()
                         .json(StreamUtil.openStreams(getClass(), "RoadAndRoadUseWithTimesAndCardinalitiesForFederatedStore/schema"))
                         .build())
@@ -147,7 +147,7 @@ public class FederatedStoreWalkThrough extends DevWalkthrough {
         // [add secure graph] add a graph to the federated store.
         // ---------------------------------------------------------
         AddGraph addSecureGraph = new AddGraph.Builder()
-                .setGraphId("SecureGraph")
+                .graphId("SecureGraph")
                 .schema(new Schema.Builder()
                         .json(StreamUtil.openStreams(getClass(), "RoadAndRoadUseWithTimesAndCardinalities/schema"))
                         .build())

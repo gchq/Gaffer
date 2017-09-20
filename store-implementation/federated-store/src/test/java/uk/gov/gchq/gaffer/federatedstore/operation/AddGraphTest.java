@@ -42,7 +42,7 @@ public class AddGraphTest extends OperationTest<AddGraph> {
         String expectedValue = "uk.gov.gchq.gaffer.federatedstore.FederatedStore";
         storeProperties.set(expectedKey, expectedValue);
         AddGraph op = new AddGraph.Builder()
-                .setGraphId(expectedGraphId)
+                .graphId(expectedGraphId)
                 .schema(expectedSchema)
                 .storeProperties(storeProperties)
                 .build();
