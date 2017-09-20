@@ -47,7 +47,7 @@ We have a demo available to try that is based around a small uk road use dataset
 
 To build Gaffer run `mvn clean install -Pquick` in the top-level directory. This will build all of Gaffer's core libraries and some examples of how to load and query data.
 
-See our [Github io page](https://gchq.github.io/gaffer-doc) for a list of available Gaffer Stores to chose from and the relevant documentation for each.
+See our [Store](https://gchq.github.io/gaffer-doc/summaries/stores.html) documentation page for a list of available Gaffer Stores to chose from and the relevant documentation for each.
 
 ### Inclusion in other projects
 
