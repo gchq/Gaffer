@@ -15,11 +15,13 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler.function;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
+import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
@@ -31,23 +33,87 @@ import uk.gov.gchq.koryphe.impl.function.Identity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class TransformHandlerTest {
+    private List<Element> input;
+    private List<Element> expected;
+    private Store store;
+    private Context context;
+    private TransformHandler handler;
+
+    @Before
+    public void setup() {
+        input = new ArrayList<>();
+        expected = new ArrayList<>();
+        store = mock(Store.class);
+        context = new Context();
+        handler = new TransformHandler();
+
+    }
+
+    @Test
+    public void shouldTransformElementsUsingMockFunction() throws OperationException {
+        // Given
+        final Function<String, Integer> function = mock(Function.class);
+        given(function.apply(TestPropertyNames.STRING)).willReturn(6);
+
+        final Edge edge = new Edge.Builder()
+                .property(TestPropertyNames.PROP_1, TestPropertyNames.STRING)
+                .build();
+
+        final Entity entity = new Entity.Builder()
+                .property(TestPropertyNames.PROP_1, TestPropertyNames.STRING)
+                .property(TestPropertyNames.PROP_2, 3)
+                .build();
+
+        final ElementTransformer transformer = new ElementTransformer.Builder()
+                .select(TestPropertyNames.PROP_1)
+                .execute(function)
+                .project(TestPropertyNames.PROP_3)
+                .build();
+
+        final Edge expectedEdge = new Edge.Builder()
+                .property(TestPropertyNames.PROP_3, 6)
+                .build();
+
+        final Entity expectedEntity = new Entity.Builder()
+                .property(TestPropertyNames.PROP_3, 6)
+                .property(TestPropertyNames.PROP_2, 3)
+                .build();
+
+        final Transform transform = new Transform.Builder()
+                .input(input)
+                .elementTransformer(transformer)
+                .build();
+
+        input.add(edge);
+        input.add(entity);
+
+        expected.add(expectedEdge);
+        expected.add(expectedEntity);
+
+        // When
+        final Iterable<? extends Element> results = handler.doOperation(transform, context, store);
+        final List<Element> resultsList = Streams.toStream(results).collect(Collectors.toList());
+
+        // Then
+        boolean isSame = false;
+        for (int i = 0; i < resultsList.size(); i++) {
+            isSame = expected.get(i).getProperty(TestPropertyNames.PROP_3).equals(resultsList.get(i).getProperty(TestPropertyNames.PROP_3));
+        }
+
+        assertTrue(isSame);
+    }
+
     @Test
     public void shouldTransformElementsUsingIdentityFunction() throws OperationException {
         // Given
-        final List<Element> input = new ArrayList<>();
-        final List<Element> expected = new ArrayList<>();
-
-        final Store store = mock(Store.class);
-        final Context context = new Context();
-        final TransformHandler handler = new TransformHandler();
-
         final Entity entity = new Entity.Builder()
                 .group(TestGroups.ENTITY)
                 .property(TestPropertyNames.PROP_1, TestPropertyNames.INT)
@@ -91,14 +157,70 @@ public class TransformHandlerTest {
         final Iterable<? extends Element> results = handler.doOperation(transform, context, store);
         final List<Element> resultsList = Streams.toStream(results).collect(Collectors.toList());
 
-        assertTrue(check(expected, resultsList));
-    }
-
-    private boolean check(final List<Element> expected, final List<Element> resultsList) {
+        // Then
         boolean isSame = false;
         for (int i = 0; i < expected.size(); i++) {
             isSame = expected.get(i).getProperty(TestPropertyNames.PROP_3).equals(resultsList.get(i).getProperty(TestPropertyNames.PROP_3));
         }
-        return isSame;
+        assertTrue(isSame);
+    }
+
+    @Test
+    public void shouldTransformElementsUsingInlineFunction() throws OperationException {
+        // Given
+        final Function<String, Integer> function = String::length;
+
+        final Entity entity = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .property(TestPropertyNames.PROP_1, "value")
+                .property(TestPropertyNames.PROP_2, 1)
+                .build();
+
+        final Entity entity1 = new Entity.Builder()
+                .group(TestGroups.ENTITY_2)
+                .property(TestPropertyNames.PROP_1, "otherValue")
+                .property(TestPropertyNames.PROP_2, 3)
+                .build();
+
+        final ElementTransformer transformer = new ElementTransformer.Builder()
+                .select(TestPropertyNames.PROP_1)
+                .execute(function)
+                .project(TestPropertyNames.PROP_3)
+                .build();
+
+        final Entity expectedEntity = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .property(TestPropertyNames.PROP_3, 5)
+                .property(TestPropertyNames.PROP_2, 1)
+                .build();
+
+        final Entity expectedEntity1 = new Entity.Builder()
+                .group(TestGroups.ENTITY_2)
+                .property(TestPropertyNames.PROP_3, 10)
+                .property(TestPropertyNames.PROP_2, 3)
+                .build();
+
+        final Transform transform = new Transform.Builder()
+                .input(input)
+                .elementTransformer(transformer)
+                .build();
+
+        input.add(entity);
+        input.add(entity1);
+
+        expected.add(expectedEntity);
+        expected.add(expectedEntity1);
+
+        // When
+        final Iterable<? extends Element> results = handler.doOperation(transform, context, store);
+        final List<Element> resultsList = Streams.toStream(results).collect(Collectors.toList());
+
+        // Then
+        boolean isSame = false;
+        for (int i = 0; i < resultsList.size(); i++) {
+            isSame = expected.get(i).getProperty(TestPropertyNames.PROP_3).equals(resultsList.get(i).getProperty(TestPropertyNames.PROP_3));
+        }
+
+        assertTrue(isSame);
     }
 }
