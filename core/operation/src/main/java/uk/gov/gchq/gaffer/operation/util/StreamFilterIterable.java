@@ -13,17 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.federatedstore.integration;
+package uk.gov.gchq.gaffer.operation.util;
 
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
-import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.commonutil.iterable.StreamIterable;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.operation.impl.function.Filter;
 
-public class FederatedStoreITs extends AbstractStoreITs {
-    private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(
-            StreamUtil.openStream(FederatedStoreITs.class, "predefinedFederatedStore.properties"));
-
-    public FederatedStoreITs() {
-        super(STORE_PROPERTIES);
+public class StreamFilterIterable extends StreamIterable<Element> {
+    public StreamFilterIterable(final Filter operation) {
+        super(new FilterStreamSupplier(operation));
     }
 }

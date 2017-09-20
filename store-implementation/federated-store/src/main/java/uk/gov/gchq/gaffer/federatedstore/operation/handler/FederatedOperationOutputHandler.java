@@ -70,5 +70,5 @@ public abstract class FederatedOperationOutputHandler<OP extends Output<O>, O> i
         return mergeResults(results, operation, context, store);
     }
 
-    protected abstract O mergeResults(final List<O> results, final OP operation, final Context context, final Store store) throws OperationException;
+    protected abstract O mergeResults(final List<O> results, final OP operation, final Context context, final Store store);
 }
