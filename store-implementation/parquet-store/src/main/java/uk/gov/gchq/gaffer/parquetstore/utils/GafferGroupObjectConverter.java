@@ -133,9 +133,7 @@ public class GafferGroupObjectConverter implements Serializable {
         if (paths[0].contains(".")) {
             final Object nestedRow = row.getAs(gafferColumn);
             if (nestedRow != null) {
-                if (nestedRow instanceof String[]) {
-                    objectsList.add(nestedRow);
-                } else if (nestedRow instanceof GenericRowWithSchema) {
+                if (nestedRow instanceof GenericRowWithSchema) {
                     getObjectsFromNestedRow(objectsList, (GenericRowWithSchema) nestedRow);
                 } else if (nestedRow instanceof WrappedArray) {
                     objectsList.add(((WrappedArray) nestedRow).array());

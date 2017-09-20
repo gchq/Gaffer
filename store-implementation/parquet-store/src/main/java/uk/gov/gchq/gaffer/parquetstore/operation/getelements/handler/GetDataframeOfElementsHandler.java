@@ -83,21 +83,24 @@ public class GetDataframeOfElementsHandler implements OutputOperationHandler<Get
                                      final SparkSession spark,
                                      final Authorisations auths,
                                      final String visibility) throws OperationException {
-        final FilterFunction<Row> filter;
         if (operation.getView().equals(store.getSchemaUtils().getEmptyView())) {
             LOGGER.debug("Retrieving elements as a dataframe");
             final String rootDir = store.getDataDir() + "/" + store.getGraphIndex().getSnapshotTimestamp() + "/";
 
+            final Dataset<Row> dataset;
             if (!visibility.isEmpty()) {
-                filter = e -> isVisible(e, visibility, auths);
+                final FilterFunction<Row> filter = e -> isVisible(e, visibility, auths);
+                dataset = spark
+                        .read()
+                        .option("mergeSchema", true)
+                        .parquet(rootDir + ParquetStoreConstants.GRAPH)
+                        .filter(filter);
             } else {
-                filter = e -> true;
+                dataset = spark
+                        .read()
+                        .option("mergeSchema", true)
+                        .parquet(rootDir + ParquetStoreConstants.GRAPH);
             }
-            final Dataset<Row> dataset = spark
-                    .read()
-                    .option("mergeSchema", true)
-                    .parquet(rootDir + ParquetStoreConstants.GRAPH)
-                    .filter(filter);
             LOGGER.debug("The merged schema that the data is being loaded using is: {}", dataset.schema().treeString());
             return dataset;
         } else {
