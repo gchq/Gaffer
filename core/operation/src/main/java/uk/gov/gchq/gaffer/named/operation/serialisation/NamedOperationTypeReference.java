@@ -21,6 +21,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 
+/**
+ * {@link TypeReference} objects for named operations.
+ */
 public final class NamedOperationTypeReference {
     private NamedOperationTypeReference() {
         // Private constructor to prevent instantiation.

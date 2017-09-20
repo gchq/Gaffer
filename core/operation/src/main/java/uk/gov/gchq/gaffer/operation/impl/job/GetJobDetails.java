@@ -25,8 +25,11 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 import java.util.Map;
 
+/**
+ * A {@code GetJobDetails} operation is used to retrieve the details of a single
+ * job from a Gaffer graph.
+ */
 public class GetJobDetails implements
-        Operation,
         Output<JobDetail> {
     private String jobId;
     private Map<String, String> options;

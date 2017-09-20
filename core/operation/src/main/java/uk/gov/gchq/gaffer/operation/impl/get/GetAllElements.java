@@ -29,14 +29,12 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 import java.util.Map;
 
-
 /**
  * Extends {@link GetAllElements}, but fetches all elements from the graph that are
  * compatible with the provided view.
  * There are also various flags to filter out the elements returned.
  */
 public class GetAllElements implements
-        Operation,
         Output<CloseableIterable<? extends Element>>,
         GraphFilters {
     private View view;

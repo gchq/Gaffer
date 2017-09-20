@@ -38,7 +38,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * <code>GraphConfig</code> contains configuration for Graphs. This configuration
+ * {@code GraphConfig} contains configuration for Graphs. This configuration
  * is used along side a {@link uk.gov.gchq.gaffer.store.schema.Schema} and
  * {@link uk.gov.gchq.gaffer.store.StoreProperties} to create a {@link Graph}.
  * This configuration is made up of graph properties such as a graphId, {@link GraphLibrary},

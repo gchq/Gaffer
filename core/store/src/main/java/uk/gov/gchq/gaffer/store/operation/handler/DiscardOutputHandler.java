@@ -21,6 +21,9 @@ import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
+/**
+ * A {@code DiscardOutputHandler} handles {@link DiscardOutput} operations.
+ */
 public class DiscardOutputHandler implements OperationHandler<DiscardOutput> {
     @Override
     public Void doOperation(final DiscardOutput operation, final Context context, final Store store)

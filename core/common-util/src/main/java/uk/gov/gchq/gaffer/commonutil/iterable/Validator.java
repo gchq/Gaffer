@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
 /**
- * An <code>Validator</code> validates objects of type T and returns true if they are valid.
+ * An {@code Validator} validates objects of type T and returns true if they are valid.
  *
  * @param <T> the type of object the validator will validate.
  */

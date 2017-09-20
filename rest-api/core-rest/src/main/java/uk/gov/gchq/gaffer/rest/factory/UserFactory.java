@@ -18,6 +18,10 @@ package uk.gov.gchq.gaffer.rest.factory;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.user.User;
 
+/**
+ * A {@code UserFactory} creates instances of {@link User}s for use when executing
+ * queries on a graph.
+ */
 public interface UserFactory {
 
     static UserFactory createUserFactory() {
@@ -33,5 +37,10 @@ public interface UserFactory {
         }
     }
 
+    /**
+     * Create a new {@link User} object.
+     *
+     * @return a new user
+     */
     User createUser();
 }

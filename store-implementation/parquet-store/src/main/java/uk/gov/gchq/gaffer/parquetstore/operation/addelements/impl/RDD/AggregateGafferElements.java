@@ -21,12 +21,10 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import java.io.Serializable;
-
 /**
  * Used to aggregate Elements. Used by {@link uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.ImportRDDOfElements.AddElementsFromRDD}
  */
-public class AggregateGafferElements implements Function2<Element, Element, Element>, Serializable {
+public class AggregateGafferElements implements Function2<Element, Element, Element> {
     private static final long serialVersionUID = -256158555820968598L;
     private final byte[] jsonGafferSchema;
     private transient Schema gafferSchema;

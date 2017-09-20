@@ -73,7 +73,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
     protected abstract OP getExampleOperation();
 
     @Test
-    final public void shouldMergeResultsFromFieldObjects() throws Exception {
+    public final void shouldMergeResultsFromFieldObjects() throws Exception {
         // Given
         final OP op = getExampleOperation();
 
@@ -104,7 +104,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
     }
 
     @Test
-    final public void shouldMergeResultsFromFieldObjectsWithGivenGraphIds() throws Exception {
+    public final void shouldMergeResultsFromFieldObjectsWithGivenGraphIds() throws Exception {
         // Given
         final OP op = getExampleOperation();
         op.addOption(FederatedStoreConstants.GRAPH_IDS, "1,3");

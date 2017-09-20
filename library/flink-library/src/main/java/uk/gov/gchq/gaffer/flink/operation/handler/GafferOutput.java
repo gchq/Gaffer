@@ -25,6 +25,10 @@ import uk.gov.gchq.gaffer.store.Store;
 
 import java.io.IOException;
 
+/**
+ * Implementation of {@link RichOutputFormat} for Gaffer to allow {@link Element}s
+ * to be consumed from external sources.
+ */
 @SuppressFBWarnings(value = "SE_TRANSIENT_FIELD_NOT_RESTORED", justification = "There are null checks that will initialise the fields")
 public class GafferOutput extends RichOutputFormat<Iterable<? extends Element>> {
     private static final long serialVersionUID = 1569145256866410621L;

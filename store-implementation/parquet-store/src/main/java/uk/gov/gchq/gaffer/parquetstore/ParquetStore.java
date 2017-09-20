@@ -112,6 +112,7 @@ public class ParquetStore extends Store {
         return schemaUtils;
     }
 
+    @Override
     public Set<StoreTrait> getTraits() {
         return TRAITS;
     }

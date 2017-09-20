@@ -29,13 +29,25 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * An <code>ElementComparison</code> operation is an operation which is used
+ * An {@code ElementComparison} operation is an operation which is used
  * to make comparisons between elements. It is required to have an array of
  * {@link Comparator}s of {@link Element}s
  */
 public interface ElementComparison {
+
+    /**
+     * Get the list of {@link Element} comparators registered to the operation.
+     *
+     * @return an ordered {@link List} containing the comparators
+     */
     List<Comparator<Element>> getComparators();
 
+    /**
+     * Combine all currently registered comparators into a single {@link Comparator}
+     * object.
+     *
+     * @return the combined comparator
+     */
     @JsonIgnore
     default Comparator<Element> getCombinedComparator() {
         final List<Comparator<Element>> comparators = getComparators();
@@ -53,7 +65,12 @@ public interface ElementComparison {
         return combinedComparator;
     }
 
-
+    /**
+     * Get all of the Group-Property pairs which implement the {@link Comparable}
+     * interface.
+     *
+     * @return a {@link Set} containing the pairs
+     */
     @JsonIgnore
     default Set<Pair<String, String>> getComparableGroupPropertyPairs() {
         final List<Comparator<Element>> comparators = getComparators();
@@ -64,7 +81,6 @@ public interface ElementComparison {
                     pairs.addAll(((ElementComparator) comparator).getComparableGroupPropertyPairs());
                 }
             }
-
             return pairs;
         }
 

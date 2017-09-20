@@ -50,6 +50,7 @@ public class DiscardOutputTest extends OperationTest<DiscardOutput> {
         assertNotSame(op, clone);
     }
 
+    @Override
     protected DiscardOutput getTestObject() {
         return new DiscardOutput();
     }

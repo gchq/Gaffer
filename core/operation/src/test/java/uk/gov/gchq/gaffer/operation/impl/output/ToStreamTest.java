@@ -60,6 +60,7 @@ public class ToStreamTest extends OperationTest<ToStream> {
         assertEquals(Lists.newArrayList(input), clone.getInput());
     }
 
+    @Override
     protected ToStream getTestObject() {
         return new ToStream();
     }

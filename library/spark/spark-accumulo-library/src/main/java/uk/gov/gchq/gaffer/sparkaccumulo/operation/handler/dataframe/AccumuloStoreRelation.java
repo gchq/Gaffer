@@ -48,29 +48,29 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Allows Apache Spark to retrieve data from an {@link AccumuloStore} as a <code>DataFrame</code>. Spark's Java API
- * does not expose the <code>DataFrame</code> class, but it is just a type alias for a {@link
- * org.apache.spark.sql.Dataset} of {@link Row}s. The schema of the <code>DataFrame</code> is formed from the schemas
+ * Allows Apache Spark to retrieve data from an {@link AccumuloStore} as a {@code DataFrame}. Spark's Java API
+ * does not expose the {@code DataFrame} class, but it is just a type alias for a {@link
+ * org.apache.spark.sql.Dataset} of {@link Row}s. The schema of the {@code DataFrame} is formed from the schemas
  * of the groups specified in the view.
  * <p>
  * If two of the specified groups have properties with the same name, then the types of those properties must be
  * the same.
  * <p>
- * <code>AccumuloStoreRelation</code> implements the {@link TableScan} interface which allows all {@link Element}s to
- * of the specified groups to be returned to the <code>DataFrame</code>.
+ * {@code AccumuloStoreRelation} implements the {@link TableScan} interface which allows all {@link Element}s to
+ * of the specified groups to be returned to the {@code DataFrame}.
  * <p>
- * <code>AccumuloStoreRelation</code> implements the {@link PrunedScan} interface which allows all {@link Element}s
- * of the specified groups to be returned to the <code>DataFrame</code> but with only the specified columns returned.
+ * {@code AccumuloStoreRelation} implements the {@link PrunedScan} interface which allows all {@link Element}s
+ * of the specified groups to be returned to the {@code DataFrame} but with only the specified columns returned.
  * Currently, {@link AccumuloStore} does not allow projection of properties in the tablet server, so this projection
  * is performed within the Spark executors, rather than in Accumulo's tablet servers. Once {@link AccumuloStore}
  * supports this projection in the tablet servers, then this will become more efficient.
  * <p>
- * <code>AccumuloStoreRelation</code> implements the {@link PrunedFilteredScan} interface which allows only
+ * {@code AccumuloStoreRelation} implements the {@link PrunedFilteredScan} interface which allows only
  * {@link Element}s that match the the provided {@link Filter}s to be returned. The majority of these are implemented
  * by adding them to the {@link View}, which causes them to be applied on Accumulo's tablet server (i.e. before
  * the data is sent to a Spark executor). If a {@link Filter} is specified that specifies either the vertex in an
- * <code>Entity</code> or either the source or destination vertex in an <code>Edge</code> then this is applied by
- * using the appropriate range scan on Accumulo. Queries against this <code>DataFrame</code> that do this should be
+ * {@code Entity} or either the source or destination vertex in an {@code Edge} then this is applied by
+ * using the appropriate range scan on Accumulo. Queries against this {@code DataFrame} that do this should be
  * very quick.
  */
 public class AccumuloStoreRelation extends BaseRelation implements TableScan, PrunedScan, PrunedFilteredScan {
@@ -116,9 +116,9 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
     }
 
     /**
-     * Creates a <code>DataFrame</code> of all {@link Element}s from the specified groups.
+     * Creates a {@code DataFrame} of all {@link Element}s from the specified groups.
      *
-     * @return An {@link RDD} of {@link Row}s containing {@link Element}s whose group is in <code>groups</code>.
+     * @return An {@link RDD} of {@link Row}s containing {@link Element}s whose group is in {@code groups}.
      */
     @Override
     public RDD<Row> buildScan() {
@@ -136,7 +136,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
     }
 
     /**
-     * Creates a <code>DataFrame</code> of all {@link Element}s from the specified groups with columns that are not
+     * Creates a {@code DataFrame} of all {@link Element}s from the specified groups with columns that are not
      * required filtered out.
      * <p>
      * Currently this does not push the projection down to the store (i.e. it should be implemented in an iterator,
@@ -163,7 +163,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
     }
 
     /**
-     * Creates a <code>DataFrame</code> of all {@link Element}s from the specified groups with columns that are not
+     * Creates a {@code DataFrame} of all {@link Element}s from the specified groups with columns that are not
      * required filtered out and with (some of) the supplied {@link Filter}s applied.
      * <p>
      * Note that Spark also applies the provided {@link Filter}s - applying them here is an optimisation to reduce

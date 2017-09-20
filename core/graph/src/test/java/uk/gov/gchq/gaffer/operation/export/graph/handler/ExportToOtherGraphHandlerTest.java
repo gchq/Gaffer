@@ -106,7 +106,7 @@ public class ExportToOtherGraphHandlerTest {
     }
 
     private Graph createGraph(final ExportToOtherGraph export) {
-        return CreateGraphDelegate.createGraph(store, export.getGraphId(),
+        return GraphDelegate.createGraph(store, export.getGraphId(),
                 export.getSchema(), export.getStoreProperties(), export.getParentSchemaIds(),
                 export.getParentStorePropertiesId());
     }
@@ -367,7 +367,7 @@ public class ExportToOtherGraphHandlerTest {
     }
 
     private void validate(final ExportToOtherGraph export) {
-        CreateGraphDelegate.validate(store, export.getGraphId(), export.getSchema(), export.getStoreProperties(),
+        GraphDelegate.validate(store, export.getGraphId(), export.getSchema(), export.getStoreProperties(),
                 export.getParentSchemaIds(), export.getParentStorePropertiesId());
     }
 

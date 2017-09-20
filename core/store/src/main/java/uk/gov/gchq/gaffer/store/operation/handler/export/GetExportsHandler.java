@@ -29,6 +29,9 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * Handler for {@link GetExports} operations.
+ */
 public class GetExportsHandler implements OutputOperationHandler<GetExports, Map<String, CloseableIterable<?>>> {
     @Override
     public Map<String, CloseableIterable<?>> doOperation(final GetExports getExports, final Context context, final Store store) throws OperationException {

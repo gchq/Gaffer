@@ -25,12 +25,11 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Map;
 
 /**
- * A <code>Count</code> operation counts how many items there are in the provided {@link Iterable}.
+ * A {@code Count} operation counts how many items there are in the provided {@link Iterable}.
  *
  * @see Count.Builder
  */
 public class Count<T> implements
-        Operation,
         InputOutput<Iterable<? extends T>, Long>,
         MultiInput<T> {
     private Iterable<? extends T> input;

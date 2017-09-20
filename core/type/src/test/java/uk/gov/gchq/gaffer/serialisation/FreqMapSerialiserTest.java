@@ -132,6 +132,7 @@ public class FreqMapSerialiserTest extends ToBytesSerialisationTest<FreqMap> {
         return new FreqMapSerialiser();
     }
 
+    @Override
     public Pair<FreqMap, byte[]>[] getHistoricSerialisationPairs() {
         final FreqMap freqMap = new FreqMap();
         freqMap.put("x", 10L);

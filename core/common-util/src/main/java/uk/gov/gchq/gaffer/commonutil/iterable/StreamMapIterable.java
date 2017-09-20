@@ -19,7 +19,13 @@ package uk.gov.gchq.gaffer.commonutil.iterable;
 import uk.gov.gchq.gaffer.commonutil.stream.MapStreamSupplier;
 
 import java.util.function.Function;
-
+/**
+ * A {@code StreamMapIterable} is an {@link StreamIterable} which uses a {@link MapStreamSupplier}
+ * to combine {@link Iterable}s.
+ *
+ * @param <I> the type of items in the input iterable
+ * @param <O> the type of items in the output stream
+ */
 public class StreamMapIterable<I, O> extends StreamIterable<O> {
     public StreamMapIterable(final Iterable<I> input, final Function<I, O> function) {
         super(new MapStreamSupplier<>(input, function));

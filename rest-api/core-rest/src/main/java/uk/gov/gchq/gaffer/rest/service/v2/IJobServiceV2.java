@@ -45,7 +45,7 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.OK;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.OPERATION_NOT_IMPLEMENTED;
 
 /**
- * An <code>IJobService</code> handles jobs - executing Jobs and getting Job
+ * An {@code IJobService} handles jobs - executing Jobs and getting Job
  * statuses.
  */
 @Path("/graph/jobs")

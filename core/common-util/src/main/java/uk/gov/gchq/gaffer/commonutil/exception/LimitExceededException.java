@@ -15,6 +15,10 @@
  */
 package uk.gov.gchq.gaffer.commonutil.exception;
 
+/**
+ * A {@code LimitExceededException} is a {@link java.lang.RuntimeException} that will be
+ * thrown when an operation exceeds, or would exceed, some constraining limit.
+ */
 public class LimitExceededException extends RuntimeException {
 
     public LimitExceededException(final String message) {

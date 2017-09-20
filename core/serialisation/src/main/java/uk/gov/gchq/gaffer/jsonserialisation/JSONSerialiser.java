@@ -53,7 +53,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * A <code>JSONSerialiser</code> provides the ability to serialise and deserialise to/from JSON.
+ * A {@code JSONSerialiser} provides the ability to serialise and deserialise to/from JSON.
  * The serialisation is set to not include nulls or default values.
  * <p>
  * JSONSerialiser is a singleton. The behaviour of the {@link ObjectMapper}
@@ -91,14 +91,14 @@ public class JSONSerialiser {
     private final ObjectMapper mapper;
 
     /**
-     * Constructs a <code>JSONSerialiser</code> that skips nulls and default values.
+     * Constructs a {@code JSONSerialiser} that skips nulls and default values.
      */
     protected JSONSerialiser() {
         this(createDefaultMapper());
     }
 
     /**
-     * Constructs a <code>JSONSerialiser</code> with a custom {@link ObjectMapper}.
+     * Constructs a {@code JSONSerialiser} with a custom {@link ObjectMapper}.
      * To create the custom ObjectMapper it is advised that you start with the
      * default mapper provided from JSONSerialiser.createDefaultMapper() then
      * add your custom configuration.
