@@ -33,8 +33,8 @@ import java.util.stream.Stream;
  * to filter the {@link Iterable} input into an {@link Iterable} output.
  */
 public class FilterStreamSupplier implements StreamSupplier<Element> {
-    private Iterable<? extends Element> input;
-    private Filter filter;
+    private final Iterable<? extends Element> input;
+    private final Filter filter;
 
     /**
      * Default constructor.
@@ -77,25 +77,24 @@ public class FilterStreamSupplier implements StreamSupplier<Element> {
         private boolean test(final Element element,
                              final ElementFilter globalFilter,
                              final Map<String, ElementFilter> elementFilters) {
-            boolean result = true;
-            if (null == globalFilter && null == elementFilters && null == filter.getGlobalElements()) {
+            if (null == elementFilters) {
                 return false;
             }
 
-            if (null != filter.getGlobalElements()) {
-                result = filter.getGlobalElements().test(element);
+            final ElementFilter elementFilter = elementFilters.get(element.getGroup());
+            if (null == elementFilter) {
+                return false;
             }
 
-            if (null != globalFilter) {
-                result = result && globalFilter.test(element);
+            if (null != filter.getGlobalElements() && !filter.getGlobalElements().test(element)) {
+                return false;
             }
 
-            if (null != elementFilters) {
-                final ElementFilter elementFilter = elementFilters.get(element.getGroup());
-                result = result && null != elementFilter && elementFilter.test(element);
+            if (null != globalFilter && !globalFilter.test(element)) {
+                return false;
             }
 
-            return result;
+            return elementFilter.test(element);
         }
     }
 }

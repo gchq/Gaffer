@@ -15,7 +15,9 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler.function;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
@@ -27,6 +29,9 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.function.Filter;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
 import java.util.ArrayList;
@@ -35,9 +40,16 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class FilterHandlerTest {
+    private static final Schema SCHEMA = new Schema.Builder()
+            .edge(TestGroups.EDGE, new SchemaEdgeDefinition())
+            .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition())
+            .entity(TestGroups.ENTITY, new SchemaEntityDefinition())
+            .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition())
+            .build();
 
     @Test
     public void shouldFilterByGroup() throws OperationException {
@@ -48,6 +60,8 @@ public class FilterHandlerTest {
         final Store store = mock(Store.class);
         final Context context = new Context();
         final FilterHandler handler = new FilterHandler();
+
+        given(store.getSchema()).willReturn(SCHEMA);
 
         final Edge edge = new Edge.Builder()
                 .group(TestGroups.EDGE)
@@ -95,9 +109,9 @@ public class FilterHandlerTest {
 
         // When
         final Iterable<? extends Element> results = handler.doOperation(filter, context, store);
-        final List<Element> resultsList = Streams.toStream(results).collect(Collectors.toList());
 
         // Then
+        final List<Element> resultsList = Lists.newArrayList(results);
         assertEquals(expected, resultsList);
     }
 
@@ -110,6 +124,8 @@ public class FilterHandlerTest {
         final Store store = mock(Store.class);
         final Context context = new Context();
         final FilterHandler handler = new FilterHandler();
+
+        given(store.getSchema()).willReturn(SCHEMA);
 
         final Edge edge = new Edge.Builder()
                 .group(TestGroups.EDGE)
@@ -161,14 +177,14 @@ public class FilterHandlerTest {
 
         // When
         final Iterable<? extends Element> result = handler.doOperation(filter, context, store);
-        final List<Element> resultList = Streams.toStream(result).collect(Collectors.toList());
 
         // Then
+        final List<Element> resultList = Streams.toStream(result).collect(Collectors.toList());
         assertEquals(expected, resultList);
     }
 
     @Test
-    public void shouldReturnNoValuesWithNullElementFilter() throws OperationException {
+    public void shouldReturnAllValuesWithNullElementFilters() throws OperationException {
         // Given
         final List<Element> input = new ArrayList<>();
         final List<Element> expected = new ArrayList<>();
@@ -176,6 +192,8 @@ public class FilterHandlerTest {
         final Store store = mock(Store.class);
         final Context context = new Context();
         final FilterHandler handler = new FilterHandler();
+
+        given(store.getSchema()).willReturn(SCHEMA);
 
         final Edge edge = new Edge.Builder()
                 .group(TestGroups.EDGE)
@@ -205,15 +223,90 @@ public class FilterHandlerTest {
         input.add(edge1);
         input.add(edge2);
 
+        expected.add(edge);
+        expected.add(edge1);
+        expected.add(edge2);
+
         final Filter filter = new Filter.Builder()
                 .input(input)
                 .build();
 
         // When
         final Iterable<? extends Element> results = handler.doOperation(filter, context, store);
-        final List<Element> resultsList = Streams.toStream(results).collect(Collectors.toList());
 
         // Then
+        final List<Element> resultsList = Lists.newArrayList(results);
+        assertEquals(expected, resultsList);
+    }
+
+    @Test
+    public void shouldApplyGlobalFilterAndReturnOnlySpecifiedEdges() throws OperationException {
+        // Given
+        final List<Element> input = new ArrayList<>();
+        final List<Element> expected = new ArrayList<>();
+
+        final Store store = mock(Store.class);
+        final Context context = new Context();
+        final FilterHandler handler = new FilterHandler();
+
+        given(store.getSchema()).willReturn(SCHEMA);
+
+        final Edge edge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("junctionA")
+                .dest("junctionB")
+                .directed(true)
+                .property(TestPropertyNames.COUNT, 2L)
+                .build();
+
+        final Edge edge1 = new Edge.Builder()
+                .group(TestGroups.EDGE_2)
+                .source("junctionA")
+                .dest("junctionB")
+                .directed(true)
+                .property(TestPropertyNames.COUNT, 1L)
+                .build();
+
+        final Edge edge2 = new Edge.Builder()
+                .group(TestGroups.EDGE_2)
+                .source("junctionB")
+                .dest("junctionA")
+                .directed(true)
+                .property(TestPropertyNames.COUNT, 4L)
+                .build();
+
+        final Entity entity = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .property(TestPropertyNames.COUNT, 3L)
+                .build();
+
+        final Entity entity1 = new Entity.Builder()
+                .group(TestGroups.ENTITY_2)
+                .property(TestPropertyNames.COUNT, 4L)
+                .build();
+
+        input.add(edge);
+        input.add(edge1);
+        input.add(edge2);
+        input.add(entity);
+        input.add(entity1);
+
+        expected.add(edge2);
+
+        final Filter filter = new Filter.Builder()
+                .input(input)
+                .globalElements(new ElementFilter.Builder()
+                        .select(TestPropertyNames.COUNT)
+                        .execute(new IsMoreThan(2L))
+                        .build())
+                .edge(TestGroups.EDGE_2)
+                .build();
+
+        // When
+        final Iterable<? extends Element> results = handler.doOperation(filter, context, store);
+
+        // Then
+        final List<Element> resultsList = Lists.newArrayList(results);
         assertEquals(expected, resultsList);
     }
 
@@ -226,6 +319,8 @@ public class FilterHandlerTest {
         final Store store = mock(Store.class);
         final Context context = new Context();
         final FilterHandler handler = new FilterHandler();
+
+        given(store.getSchema()).willReturn(SCHEMA);
 
         final Edge edge = new Edge.Builder()
                 .group(TestGroups.EDGE)
@@ -274,16 +369,16 @@ public class FilterHandlerTest {
         final Filter filter = new Filter.Builder()
                 .input(input)
                 .globalElements(new ElementFilter.Builder()
-                                        .select(TestPropertyNames.COUNT)
-                                        .execute(new IsMoreThan(2L))
-                                        .build())
+                        .select(TestPropertyNames.COUNT)
+                        .execute(new IsMoreThan(2L))
+                        .build())
                 .build();
 
         // When
         final Iterable<? extends Element> results = handler.doOperation(filter, context, store);
-        final List<Element> resultsList = Streams.toStream(results).collect(Collectors.toList());
 
         // Then
+        final List<Element> resultsList = Lists.newArrayList(results);
         assertEquals(expected, resultsList);
     }
 
@@ -296,6 +391,8 @@ public class FilterHandlerTest {
         final Store store = mock(Store.class);
         final Context context = new Context();
         final FilterHandler handler = new FilterHandler();
+
+        given(store.getSchema()).willReturn(SCHEMA);
 
         final Edge edge = new Edge.Builder()
                 .group(TestGroups.EDGE)
@@ -339,9 +436,9 @@ public class FilterHandlerTest {
         final Filter filter = new Filter.Builder()
                 .input(input)
                 .globalElements(new ElementFilter.Builder()
-                                        .select(TestPropertyNames.COUNT)
-                                        .execute(new IsMoreThan(1L))
-                                        .build())
+                        .select(TestPropertyNames.COUNT)
+                        .execute(new IsMoreThan(1L))
+                        .build())
                 .edge(TestGroups.EDGE, new ElementFilter.Builder()
                         .select(TestPropertyNames.COUNT)
                         .execute(new IsMoreThan(2L))
@@ -361,9 +458,9 @@ public class FilterHandlerTest {
 
         // When
         final Iterable<? extends Element> results = handler.doOperation(filter, context, store);
-        final List<Element> resultsList = Streams.toStream(results).collect(Collectors.toList());
 
         // Then
+        final List<Element> resultsList = Lists.newArrayList(results);
         assertEquals(expected, resultsList);
     }
 
@@ -374,20 +471,20 @@ public class FilterHandlerTest {
         final Context context = new Context();
         final FilterHandler handler = new FilterHandler();
 
+        given(store.getSchema()).willReturn(SCHEMA);
+
         final Filter filter = new Filter.Builder()
                 .globalElements(new ElementFilter())
                 .build();
 
         // When / Then
         try {
-            final Iterable<? extends Element> results = handler.doOperation(filter, context, store);
+            handler.doOperation(filter, context, store);
             fail("Exception expected");
         } catch (OperationException e) {
             assertEquals("Filter operation has null iterable of elements", e.getMessage());
         }
     }
-
-    // todo - another test where a global fails but subsequent "should" pass
 
     @Test
     public void shouldReturnNoResultsWhenGlobalElementsFails() throws OperationException {
@@ -398,6 +495,8 @@ public class FilterHandlerTest {
         final Store store = mock(Store.class);
         final Context context = new Context();
         final FilterHandler handler = new FilterHandler();
+
+        given(store.getSchema()).willReturn(SCHEMA);
 
         final Edge edge = new Edge.Builder()
                 .group(TestGroups.EDGE)
@@ -448,20 +547,20 @@ public class FilterHandlerTest {
         final Filter filter = new Filter.Builder()
                 .input(input)
                 .globalElements(new ElementFilter.Builder()
-                                .select(TestPropertyNames.COUNT)
-                                .execute(new IsMoreThan(10L))
-                                .build())
+                        .select(TestPropertyNames.COUNT)
+                        .execute(new IsMoreThan(10L))
+                        .build())
                 .globalEdges(new ElementFilter.Builder()
-                             .select(TestPropertyNames.COUNT)
-                             .execute(new IsMoreThan(2L))
-                             .build())
+                        .select(TestPropertyNames.COUNT)
+                        .execute(new IsMoreThan(2L))
+                        .build())
                 .build();
 
         // When
         final Iterable<? extends Element> results = handler.doOperation(filter, context, store);
-        final List<Element> resultsList = Streams.toStream(results).collect(Collectors.toList());
 
         // Then
+        final List<Element> resultsList = Lists.newArrayList(results);
         assertEquals(expected, resultsList);
     }
 }
