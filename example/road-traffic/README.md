@@ -54,4 +54,4 @@ We can start with a uk region, such as the South West, and find the locations wi
 
 There will be multiple edges representing the traffic counts between the same two junctions: one for each hour of observation recorded in the data. Each of the RoadUse edges has properties attached to it representing the start of the hour during which the traffic was counted, the end of the hour, the total vehicle count for the hour and a map of vehicle type to count for the hour.
 
-There are some in-depth examples based around the Java API here: [Getting Started](https://github.com/gchq/Gaffer/wiki/Getting-Started).
+There are some in-depth examples based around the Java API here: [Getting Started](https://gchq.github.io/gaffer-doc/summaries/getting-started.html).
