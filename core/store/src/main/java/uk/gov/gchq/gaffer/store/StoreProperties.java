@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
-import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
+import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.IOException;
@@ -44,7 +44,7 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
- * A <code>StoreProperties</code> contains specific configuration information for the store, such as database
+ * A {@code StoreProperties} contains specific configuration information for the store, such as database
  * connection strings. It wraps {@link Properties} and lazy loads the all properties from a file when first used.
  * <p>
  * All StoreProperties classes must be JSON serialisable.

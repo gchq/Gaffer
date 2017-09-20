@@ -16,16 +16,34 @@
 
 package uk.gov.gchq.gaffer.store.exception;
 
+/**
+ * An {@code OverwritingException} should be thrown when a condition will cause
+ * something to be overwritten.
+ */
 public class OverwritingException extends IllegalArgumentException {
     private static final long serialVersionUID = -4189349368741071943L;
 
+    /**
+     * Constructs a new overwriting exception with null as its detail message.
+     */
     public OverwritingException() {
     }
 
+    /**
+     * Constructs a new overwriting exception with the specified detail message.
+     *
+     * @param message Overwriting exception detail message.
+     */
     public OverwritingException(final String message) {
         super(message);
     }
 
+    /**
+     * Constructs a new overwriting exception with the specified detail message and cause.
+     *
+     * @param message Overwriting exception detail message.
+     * @param cause   Overwriting exception cause.
+     */
     public OverwritingException(final String message, final Throwable cause) {
         super(message, cause);
     }

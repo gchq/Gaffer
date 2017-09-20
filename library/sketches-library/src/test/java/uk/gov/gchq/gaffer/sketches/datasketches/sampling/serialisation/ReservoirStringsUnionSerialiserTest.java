@@ -19,8 +19,8 @@ import com.yahoo.sketches.sampling.ReservoirItemsUnion;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
-import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.ViaCalculatedArrayValueSerialiserTest;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -51,6 +51,7 @@ public class ReservoirStringsUnionSerialiserTest extends ViaCalculatedArrayValue
         return new ReservoirStringsUnionSerialiser();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Pair<ReservoirItemsUnion<String>, byte[]>[] getHistoricSerialisationPairs() {
         ReservoirItemsUnion<String> union = getExampleOutput();

@@ -35,10 +35,12 @@ public class ElementRecordMaterialiser extends RecordMaterializer<Element> {
         this.root = new GafferElementConverter(isEntity, parquetSchema, converter);
     }
 
+    @Override
     public Element getCurrentRecord() {
         return this.root.getCurrentRecord();
     }
 
+    @Override
     public GroupConverter getRootConverter() {
         return this.root;
     }

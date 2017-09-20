@@ -25,8 +25,11 @@ import uk.gov.gchq.gaffer.operation.io.Input;
 
 import java.util.Map;
 
+/**
+ * A {@code ImportRDDOfElements} takes a {@link RDD} containing {@link Element}s
+ * and adds them to a target Gaffer store.
+ */
 public class ImportRDDOfElements implements
-        Operation,
         Input<RDD<Element>>,
         Rdd {
     public static final String HADOOP_CONFIGURATION_KEY = "Hadoop_Configuration_Key";

@@ -26,6 +26,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Simple representation of a user in Gaffer. Users execute operations on the
+ * graph, which passes this User object to the underlying store. The store then
+ * uses the values of the dataAuths and opAuths objects associated with the user
+ * to determine if they are allowed to perform the operation or not.
+ */
 public class User {
     public static final String UNKNOWN_USER_ID = "UNKNOWN";
     private final String userId;

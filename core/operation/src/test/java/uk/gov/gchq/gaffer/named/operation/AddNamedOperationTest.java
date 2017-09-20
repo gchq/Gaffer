@@ -129,6 +129,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         assertEquals(parameters, clone.getParameters());
     }
 
+    @Override
     protected AddNamedOperation getTestObject() {
         return new AddNamedOperation.Builder()
                 .operationChain(OPERATION_CHAIN)

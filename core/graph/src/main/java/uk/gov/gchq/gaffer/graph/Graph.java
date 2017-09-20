@@ -88,7 +88,7 @@ public final class Graph {
     private GraphConfig config;
 
     /**
-     * Constructs a <code>Graph</code> with the given {@link uk.gov.gchq.gaffer.store.Store} and
+     * Constructs a {@code Graph} with the given {@link uk.gov.gchq.gaffer.store.Store} and
      * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.
      *
      * @param config a {@link GraphConfig} used to store the configuration for a Graph.

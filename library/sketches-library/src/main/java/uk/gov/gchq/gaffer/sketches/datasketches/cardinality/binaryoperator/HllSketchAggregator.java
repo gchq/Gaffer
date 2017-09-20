@@ -21,7 +21,7 @@ import com.yahoo.sketches.hll.Union;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
- * A <code>HllSketchAggregator</code> is a {@link java.util.function.BinaryOperator} that takes in
+ * A {@code HllSketchAggregator} is a {@link java.util.function.BinaryOperator} that takes in
  * {@link HllSketch}s and merges them together using a {@link Union}.
  */
 public class HllSketchAggregator extends KorypheBinaryOperator<HllSketch> {

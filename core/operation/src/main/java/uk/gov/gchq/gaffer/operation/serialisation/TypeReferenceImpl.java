@@ -23,7 +23,12 @@ import uk.gov.gchq.gaffer.data.GroupCounts;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 
-
+/**
+ * Utility class which contains a number of inner classes for different {@link TypeReference}s
+ * used by the Gaffer project to denote the output type of an {@link uk.gov.gchq.gaffer.operation.io.Output}.
+ *
+ * @see uk.gov.gchq.gaffer.operation.io.Output#getOutputTypeReference()
+ */
 public final class TypeReferenceImpl {
     private TypeReferenceImpl() {
     }

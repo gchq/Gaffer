@@ -19,6 +19,9 @@ import org.apache.spark.sql.SparkSession;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 
+/**
+ * Base interface for all operations involving {@link org.apache.spark.rdd.RDD}s.
+ */
 public interface Rdd {
     SparkSession getSparkSession();
 

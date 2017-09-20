@@ -26,8 +26,8 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Map;
 
 /**
- * Named operations enable encapsulation of an OperationChain into a new single <code>NamedOperation</code>.
- * The <code>NamedOperation</code> can be added to OperationChains and executed, just like any other Operation.
+ * Named operations enable encapsulation of an OperationChain into a new single {@code NamedOperation}.
+ * The {@code NamedOperation} can be added to OperationChains and executed, just like any other Operation.
  * When run it executes the encapsulated OperationChain.
  * There are various possible uses for NamedOperations, including:
  * <ul>
@@ -82,6 +82,7 @@ public class NamedOperation<I_ITEM, O> implements
         return (TypeReference) new TypeReferenceImpl.Object();
     }
 
+    @Override
     public NamedOperation shallowClone() {
         return new NamedOperation.Builder<I_ITEM, O>()
                 .input(input)

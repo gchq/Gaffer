@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 
 /**
- * An <code>Entity</code> in an {@link uk.gov.gchq.gaffer.data.element.Element} containing a single vertex.
+ * An {@code Entity} in an {@link uk.gov.gchq.gaffer.data.element.Element} containing a single vertex.
  * The vertex can be any type of {@link java.lang.Object}.
  * There is no requirement for this vertex to connect to an {@link uk.gov.gchq.gaffer.data.element.Entity}'s source or
  * destination vertex - for example you could have a 'graph' of just entities.

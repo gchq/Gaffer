@@ -357,7 +357,7 @@ public class FiltersToOperationConverter {
     /**
      * Converts a Spark {@link Filter} to a map from group to a list of Gaffer {@link TupleAdaptedPredicate}s.
      * <p>
-     * Note that Spark also applies all the filters provided to the <code>buildScan(String[], Filter[])</code> method
+     * Note that Spark also applies all the filters provided to the {@code buildScan(String[], Filter[])} method
      * so not implementing some of the provided {@link Filter}s in Gaffer will not cause errors. However, as many as
      * possible should be implemented so that as much filtering as possible happens in iterators running in Accumulo's
      * tablet servers (this avoids unnecessary data transfer from Accumulo to Spark).
@@ -545,7 +545,7 @@ public class FiltersToOperationConverter {
      * value.
      *
      * @param filter The {@link Filter} that will be checked for groups.
-     * @return A set of strings containing the required groups, <code>null</code> if no groups are specified in the
+     * @return A set of strings containing the required groups, {@code null} if no groups are specified in the
      * filter.
      */
     private Set<String> checkForGroups(final Filter filter) {

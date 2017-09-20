@@ -30,6 +30,9 @@ import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 
+/**
+ * Validation class for validating {@link OperationChain}s against {@link ViewValidator}s.
+ */
 public class OperationChainValidator {
     private final ViewValidator viewValidator;
 
@@ -37,6 +40,14 @@ public class OperationChainValidator {
         this.viewValidator = viewValidator;
     }
 
+    /**
+     * Validate the provided {@link OperationChain} against the {@link ViewValidator}.
+     *
+     * @param operationChain the operation chain to validate
+     * @param user the user making the request
+     * @param store the target store
+     * @return the {@link ValidationResult}
+     */
     public ValidationResult validate(final OperationChain<?> operationChain, final User user, final Store store) {
         final ValidationResult validationResult = new ValidationResult();
         if (operationChain.getOperations().isEmpty()) {

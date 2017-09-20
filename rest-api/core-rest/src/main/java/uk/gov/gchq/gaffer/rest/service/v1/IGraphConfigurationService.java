@@ -34,7 +34,7 @@ import java.util.Set;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 /**
- * An <code>IGraphConfigurationService</code> has methods to get {@link uk.gov.gchq.gaffer.graph.Graph} configuration information
+ * An {@code IGraphConfigurationService} has methods to get {@link uk.gov.gchq.gaffer.graph.Graph} configuration information
  * such as the {@link Schema} and available {@link uk.gov.gchq.gaffer.operation.Operation}s.
  */
 @Path("/graph")

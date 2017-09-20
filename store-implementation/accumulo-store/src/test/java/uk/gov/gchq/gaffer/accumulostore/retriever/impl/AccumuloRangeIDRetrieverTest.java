@@ -78,16 +78,16 @@ public class AccumuloRangeIDRetrieverTest {
     }
 
     @Test
-    public void shouldRetieveElementsInRangeBetweenSeedsByteEntityStore() throws StoreException {
-        shouldRetieveElementsInRangeBetweenSeeds(byteEntityStore);
+    public void shouldRetrieveElementsInRangeBetweenSeedsByteEntityStore() throws StoreException {
+        shouldRetrieveElementsInRangeBetweenSeeds(byteEntityStore);
     }
 
     @Test
-    public void shouldRetieveElementsInRangeBetweenSeedsGaffer1Store() throws StoreException {
-        shouldRetieveElementsInRangeBetweenSeeds(gaffer1KeyStore);
+    public void shouldRetrieveElementsInRangeBetweenSeedsGaffer1Store() throws StoreException {
+        shouldRetrieveElementsInRangeBetweenSeeds(gaffer1KeyStore);
     }
 
-    private void shouldRetieveElementsInRangeBetweenSeeds(final AccumuloStore store) throws StoreException {
+    private void shouldRetrieveElementsInRangeBetweenSeeds(final AccumuloStore store) throws StoreException {
         // Create set to query for
         final Set<Pair<ElementId, ElementId>> simpleEntityRanges = new HashSet<>();
         simpleEntityRanges.add(new Pair<>(new EntitySeed("0000"), new EntitySeed("0999")));

@@ -199,7 +199,7 @@ public class AccumuloAggregationIT {
     }
 
     @Test
-    public void shouldHandleAggregatationWhenGroupByPropertiesAreNull() throws OperationException, UnsupportedEncodingException {
+    public void shouldHandleAggregationWhenGroupByPropertiesAreNull() throws OperationException, UnsupportedEncodingException {
         final Graph graph = createGraphNoVisibility();
         final Entity entity1 = new Entity.Builder()
                 .vertex(VERTEX)
@@ -247,7 +247,7 @@ public class AccumuloAggregationIT {
     }
 
     @Test
-    public void shouldHandleAggregatationWhenAllColumnQualifierPropertiesAreGroupByProperties() throws OperationException, UnsupportedEncodingException {
+    public void shouldHandleAggregationWhenAllColumnQualifierPropertiesAreGroupByProperties() throws OperationException, UnsupportedEncodingException {
         final Graph graph = createGraphNoVisibility();
         final Entity entity1 = new Entity.Builder()
                 .vertex(VERTEX)
@@ -293,7 +293,7 @@ public class AccumuloAggregationIT {
     }
 
     @Test
-    public void shouldHandleAggregatationWhenGroupByPropertiesAreNotSet() throws OperationException, UnsupportedEncodingException {
+    public void shouldHandleAggregationWhenGroupByPropertiesAreNotSet() throws OperationException, UnsupportedEncodingException {
         final Graph graph = createGraphNoVisibility();
         final Entity entity1 = new Entity.Builder()
                 .vertex(VERTEX)
@@ -339,7 +339,7 @@ public class AccumuloAggregationIT {
     }
 
     @Test
-    public void shouldHandleAggregatationWithMultipleCombinations() throws OperationException, UnsupportedEncodingException {
+    public void shouldHandleAggregationWithMultipleCombinations() throws OperationException, UnsupportedEncodingException {
         final Graph graph = createGraphNoVisibility();
         final Entity entity1 = new Entity.Builder()
                 .vertex(VERTEX)
@@ -468,7 +468,7 @@ public class AccumuloAggregationIT {
     }
 
     @Test
-    public void shouldHandleAggregatationWhenNoAggregatorsAreProvided() throws OperationException {
+    public void shouldHandleAggregationWhenNoAggregatorsAreProvided() throws OperationException {
 
         final Graph graph = createGraphNoAggregators();
         final Entity entity1 = new Entity.Builder()

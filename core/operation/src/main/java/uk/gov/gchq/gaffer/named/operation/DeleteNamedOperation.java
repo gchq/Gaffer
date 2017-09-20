@@ -21,6 +21,10 @@ import uk.gov.gchq.gaffer.operation.Operation;
 
 import java.util.Map;
 
+/**
+ * A {@code DeleteNamedOperation} is an {@link Operation} for removing an existing
+ * {@link NamedOperation} from a Gaffer graph.
+ */
 public class DeleteNamedOperation implements Operation {
     @Required
     private String operationName;
@@ -34,6 +38,7 @@ public class DeleteNamedOperation implements Operation {
         this.operationName = operationName;
     }
 
+    @Override
     public DeleteNamedOperation shallowClone() {
         return new DeleteNamedOperation.Builder()
                 .name(operationName)

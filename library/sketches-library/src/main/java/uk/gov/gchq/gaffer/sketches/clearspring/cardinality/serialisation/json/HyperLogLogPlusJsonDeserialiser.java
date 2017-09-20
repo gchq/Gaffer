@@ -26,6 +26,9 @@ import com.fasterxml.jackson.databind.node.TextNode;
 
 import java.io.IOException;
 
+/**
+ * A {@code HyperLogLogPlusJsonSerialiser} deserialises {@link HyperLogLogPlus} objects.
+ */
 public class HyperLogLogPlusJsonDeserialiser extends JsonDeserializer<HyperLogLogPlus> {
 
     // TODO - See 'Can't create HyperLogLogPlus sketches in JSON'
@@ -43,7 +46,7 @@ public class HyperLogLogPlusJsonDeserialiser extends JsonDeserializer<HyperLogLo
 
             return hyperLogLogPlus;
         } else {
-            throw new IllegalArgumentException("Recieved null or empty HyperLogLogPlus sketch");
+            throw new IllegalArgumentException("Receieved null or empty HyperLogLogPlus sketch");
         }
     }
 }

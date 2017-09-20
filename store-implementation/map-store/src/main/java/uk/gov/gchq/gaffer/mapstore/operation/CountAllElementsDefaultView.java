@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Map;
 
 public class CountAllElementsDefaultView implements
-        Operation,
         InputOutput<Iterable<? extends Element>, Long>,
         MultiInput<Element> {
     private Iterable<? extends Element> input;

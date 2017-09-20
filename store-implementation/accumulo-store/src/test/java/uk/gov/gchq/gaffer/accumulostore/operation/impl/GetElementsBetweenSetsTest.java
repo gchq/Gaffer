@@ -97,6 +97,7 @@ public class GetElementsBetweenSetsTest extends OperationTest<GetElementsBetween
         assertEquals(view, clone.getView());
     }
 
+    @Override
     protected GetElementsBetweenSets getTestObject() {
         return new GetElementsBetweenSets();
     }

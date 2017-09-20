@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import java.util.Objects;
 
 /**
- * An <code>EntitySeed</code> contains a single vertex for an {@link uk.gov.gchq.gaffer.data.element.Entity}.
+ * An {@code EntitySeed} contains a single vertex for an {@link uk.gov.gchq.gaffer.data.element.Entity}.
  * It is mainly used as a seed for queries.
  */
 public class EntitySeed extends ElementSeed implements EntityId {

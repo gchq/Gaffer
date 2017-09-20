@@ -201,7 +201,7 @@ A common approach is simply to delete data that is older than a certain date. In
     "class": "java.lang.Long",
     "validateFunctions": [
         {
-            "class": "uk.gov.gchq.gaffer.function.simple.filter.AgeOff",
+            "class": "uk.gov.gchq.gaffer.types.function.function.simple.filter.AgeOff",
             "ageOffDays": "100"
         }
     ]

@@ -22,7 +22,7 @@ import com.yahoo.sketches.theta.Union;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
- * A <code>SketchAggregator</code> is a {@link java.util.function.BinaryOperator} that aggregates {@link Sketch}s
+ * A {@code SketchAggregator} is a {@link java.util.function.BinaryOperator} that aggregates {@link Sketch}s
  * using a {@link Union}.
  */
 public class SketchAggregator extends KorypheBinaryOperator<Sketch> {

@@ -74,6 +74,8 @@ import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.OperationUtil;
+import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
+import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DiscardOutputHandler;
@@ -105,8 +107,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.output.ToMapHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToSetHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToStreamHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToVerticesHandler;
-import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclaration;
-import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
@@ -128,7 +128,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * A <code>Store</code> backs a Graph and is responsible for storing the {@link uk.gov.gchq.gaffer.data.element.Element}s and
+ * A {@code Store} backs a Graph and is responsible for storing the {@link uk.gov.gchq.gaffer.data.element.Element}s and
  * handling {@link Operation}s.
  * {@link Operation}s and their corresponding {@link OperationHandler}s are registered in a map and used to handle
  * provided operations - allowing different store implementations to handle the same operations in their own store specific way.
@@ -504,6 +504,9 @@ public abstract class Store {
         }
     }
 
+    /**
+     * Throws a {@link SchemaException} if the Vertex Serialiser is inconsistent.
+     */
     protected void validateConsistentVertex() {
         if (null != getSchema().getVertexSerialiser() && !getSchema().getVertexSerialiser()
                 .isConsistent()) {
@@ -511,6 +514,13 @@ public abstract class Store {
         }
     }
 
+    /**
+     * Ensures that each of the GroupBy properties in the {@link SchemaElementDefinition} is consistent,
+     * otherwise an error is added to the {@link ValidationResult}.
+     *
+     * @param schemaElementDefinitionEntry A map of SchemaElementDefinitions
+     * @param validationResult             The validation result
+     */
     protected void validateConsistentGroupByProperties(final Map.Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry, final ValidationResult validationResult) {
         for (final String property : schemaElementDefinitionEntry.getValue()
                 .getGroupBy()) {

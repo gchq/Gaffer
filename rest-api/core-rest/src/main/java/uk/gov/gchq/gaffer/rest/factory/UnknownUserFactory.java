@@ -17,6 +17,10 @@ package uk.gov.gchq.gaffer.rest.factory;
 
 import uk.gov.gchq.gaffer.user.User;
 
+/**
+ * Default implementation of the {@link UserFactory} interface. This default implementation
+ * always returns an empty {@link User} object (representing an unknown user).
+ */
 public class UnknownUserFactory implements UserFactory {
 
     public UnknownUserFactory() {

@@ -41,7 +41,7 @@ import javax.ws.rs.Produces;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 /**
- * An <code>IOperationService</code> has methods to execute {@link uk.gov.gchq.gaffer.operation.Operation}s on the
+ * An {@code IOperationService} has methods to execute {@link uk.gov.gchq.gaffer.operation.Operation}s on the
  * {@link uk.gov.gchq.gaffer.graph.Graph}.
  */
 @Path("/graph/doOperation")

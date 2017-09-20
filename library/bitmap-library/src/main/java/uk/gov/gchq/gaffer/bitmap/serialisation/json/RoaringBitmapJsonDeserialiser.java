@@ -26,6 +26,9 @@ import uk.gov.gchq.gaffer.bitmap.serialisation.RoaringBitmapSerialiser;
 
 import java.io.IOException;
 
+/**
+ * Custom deserialisation logic for {@link RoaringBitmap} instances.
+ */
 public class RoaringBitmapJsonDeserialiser extends JsonDeserializer<RoaringBitmap> {
 
     private final RoaringBitmapSerialiser bitmapSerialiser = new RoaringBitmapSerialiser();

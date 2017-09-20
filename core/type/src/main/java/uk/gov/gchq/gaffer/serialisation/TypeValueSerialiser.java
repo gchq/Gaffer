@@ -24,6 +24,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+/**
+ * A {@code TypeValueSerialiser} is used to serialise and deserialise {@link TypeValue}
+ * instances.
+ */
 public class TypeValueSerialiser implements ToBytesSerialiser<TypeValue> {
 
     private static final long serialVersionUID = 8675867261911636738L;

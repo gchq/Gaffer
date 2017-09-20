@@ -26,14 +26,13 @@ import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.WriteUnsortedD
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
 
 /**
  * This is a function used by Spark to write out a Spark RDD's partition of data to file.
  */
-public class WriteUnsortedDataFunction implements Serializable, VoidFunction<Iterator<Element>> {
+public class WriteUnsortedDataFunction implements VoidFunction<Iterator<Element>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WriteUnsortedDataFunction.class);
     private static final long serialVersionUID = 1420859039414174311L;

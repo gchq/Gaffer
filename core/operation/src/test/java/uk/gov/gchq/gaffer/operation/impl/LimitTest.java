@@ -74,6 +74,7 @@ public class LimitTest extends OperationTest<Limit> {
         assertFalse(clone.getTruncate());
     }
 
+    @Override
     protected Limit getTestObject() {
         return new Limit();
     }

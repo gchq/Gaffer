@@ -28,7 +28,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * A <code>FreqMapSerialiser</code> serialises and deserialises {@code FreqMap}s.
+ * A {@code FreqMapSerialiser} serialises and deserialises {@code FreqMap}s.
  * Any null keys or values are skipped.
  */
 public class FreqMapSerialiser implements ToBytesSerialiser<FreqMap> {
