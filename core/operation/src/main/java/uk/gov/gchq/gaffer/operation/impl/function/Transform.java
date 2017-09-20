@@ -91,7 +91,7 @@ public class Transform implements
             super(new Transform());
         }
 
-        public Builder elementTransformer(ElementTransformer elementTransformer) {
+        public Builder elementTransformer(final ElementTransformer elementTransformer) {
             _getOp().setElementTransformer(elementTransformer);
             return _self();
         }
