@@ -25,6 +25,10 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 import java.util.Map;
 
+/**
+ * A {@code CountAllElementsDefaultView} operation counts all of the {@link Element}s
+ * present in a {@link uk.gov.gchq.gaffer.mapstore.MapStore}.
+ */
 public class CountAllElementsDefaultView implements
         InputOutput<Iterable<? extends Element>, Long>,
         MultiInput<Element> {

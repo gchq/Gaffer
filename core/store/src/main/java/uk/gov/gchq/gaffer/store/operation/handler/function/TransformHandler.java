@@ -13,23 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.proxystore.operation.handler;
+package uk.gov.gchq.gaffer.store.operation.handler.function;
 
-import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.proxystore.ProxyStore;
+import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.util.StreamTransformIterable;
 
-public class ProxyStoreOperationChainHandler<OUT> implements OutputOperationHandler<OperationChain<OUT>, OUT> {
-
-    public ProxyStoreOperationChainHandler() {
-        // Empty
-    }
-
+public class TransformHandler implements OutputOperationHandler<Transform, Iterable<? extends Element>> {
     @Override
-    public OUT doOperation(final OperationChain<OUT> operationChain, final Context context, final Store store) throws OperationException {
-        return ((ProxyStore) store).executeOpChainViaUrl(operationChain, context);
+    public Iterable<? extends Element> doOperation(final Transform operation, final Context context, final Store store) throws OperationException {
+        if (null == operation.getInput()) {
+            throw new OperationException("Transform operation has null iterable of elements");
+        }
+        return new StreamTransformIterable(operation);
     }
 }

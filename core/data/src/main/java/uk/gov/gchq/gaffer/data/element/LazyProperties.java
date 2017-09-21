@@ -22,7 +22,6 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -106,12 +105,7 @@ public class LazyProperties extends Properties {
     @Override
     public void keepOnly(final Collection<String> propertiesToKeep) {
         properties.keepOnly(propertiesToKeep);
-        Iterator<String> it = loadedProperties.iterator();
-        while (it.hasNext()) {
-            if (!propertiesToKeep.contains(it.next())) {
-                it.remove();
-            }
-        }
+        loadedProperties.removeIf(s -> !propertiesToKeep.contains(s));
     }
 
     @Override
@@ -161,7 +155,7 @@ public class LazyProperties extends Properties {
             return true;
         }
 
-        if (obj == null || getClass() != obj.getClass()) {
+        if (null == obj || getClass() != obj.getClass()) {
             return false;
         }
 

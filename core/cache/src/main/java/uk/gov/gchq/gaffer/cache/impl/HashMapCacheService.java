@@ -42,12 +42,7 @@ public class HashMapCacheService implements ICacheService {
 
     @Override
     public <K, V> ICache<K, V> getCache(final String cacheName) {
-        HashMapCache<K, V> cache = caches.get(cacheName);
-
-        if (null == cache) {
-            cache = new HashMapCache<>();
-            caches.put(cacheName, cache);
-        }
+        HashMapCache<K, V> cache = caches.computeIfAbsent(cacheName, k -> new HashMapCache<>());
 
         return cache;
     }

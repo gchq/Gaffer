@@ -77,7 +77,7 @@ public class ElementTuple implements Tuple<String> {
             return true;
         }
 
-        if (obj == null || getClass() != obj.getClass()) {
+        if (null == obj || getClass() != obj.getClass()) {
             return false;
         }
 

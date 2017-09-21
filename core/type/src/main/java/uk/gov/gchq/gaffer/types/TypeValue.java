@@ -67,7 +67,7 @@ public class TypeValue implements Comparable<TypeValue>, Serializable {
             return true;
         }
 
-        if (obj == null || getClass() != obj.getClass()) {
+        if (null == obj || getClass() != obj.getClass()) {
             return false;
         }
 
@@ -97,7 +97,7 @@ public class TypeValue implements Comparable<TypeValue>, Serializable {
 
     @Override
     public int compareTo(final TypeValue typeValue) {
-        if (typeValue == null) {
+        if (null == typeValue) {
             return 1;
         }
         int i = stringComparator.compare(type, typeValue.getType());

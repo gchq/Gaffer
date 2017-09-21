@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.parquetstore.index.ColumnIndex;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.index.GroupIndex;
 import uk.gov.gchq.gaffer.parquetstore.index.MinValuesWithPath;
-import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.RDD.CalculateSplitPointsFromJavaRDD;
+import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.rdd.CalculateSplitPointsFromJavaRDD;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;

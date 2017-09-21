@@ -42,7 +42,7 @@ public class FederatedAddGraphHandler implements OperationHandler<AddGraph> {
         final User user = context.getUser();
         boolean isLimitedToLibraryProperties = ((FederatedStore) store).isLimitedToLibraryProperties(user);
 
-        if (isLimitedToLibraryProperties && operation.getStoreProperties() != null) {
+        if (isLimitedToLibraryProperties && null != operation.getStoreProperties()) {
             throw new OperationException("User is limited to only using parentPropertiesId from the graphLibrary, but found storeProperties:" + operation.getProperties().toString());
         }
 

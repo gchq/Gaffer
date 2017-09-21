@@ -35,7 +35,7 @@ public class TypeValueParquetSerialiser implements ParquetSerialiser<TypeValue> 
 
     @Override
     public Object[] serialise(final TypeValue object) throws SerialisationException {
-        if (object != null) {
+        if (null != object) {
             return new Object[]{object.getType(), object.getValue()};
         }
         return new Object[]{null, null};
@@ -46,7 +46,7 @@ public class TypeValueParquetSerialiser implements ParquetSerialiser<TypeValue> 
         if (objects.length == 2) {
             if (objects[0] instanceof String && objects[1] instanceof String) {
                 return new TypeValue((String) objects[0], (String) objects[1]);
-            } else if (objects[0] == null) {
+            } else if (null == objects[0]) {
                 return null;
             }
         }

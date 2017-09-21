@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.RDD;
+package uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.rdd;
 
 import org.apache.spark.api.java.function.VoidFunction;
 import org.slf4j.Logger;
