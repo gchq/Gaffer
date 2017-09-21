@@ -133,7 +133,7 @@ public class Transform implements
             return _self();
         }
 
-        public Builder edges(Map<String, ElementTransformer> edges) {
+        public Builder edges(final Map<String, ElementTransformer> edges) {
             _getOp().edges = edges;
             return _self();
         }
