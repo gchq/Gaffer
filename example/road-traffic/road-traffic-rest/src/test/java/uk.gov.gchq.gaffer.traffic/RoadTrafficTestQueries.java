@@ -82,40 +82,10 @@ public abstract class RoadTrafficTestQueries {
 
 	private static final Logger LOGGER = Logger.getLogger(RoadTrafficTestQueries.class.getName());
 
-    public static final String STORE_TYPE_PROPERTY = "store.type";
-    public static final String STORE_TYPE_DEFAULT = "accumulo";
-
-    protected final RestApiTestClient client = new RestApiV2TestClient();
-
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
-    @Before
-    public void before() throws IOException {
-        // Spin up the REST API
-        client.startServer();
-
-        // Connect it to a Gaffer store, as specified in the 'store.type' property
-        client.reinitialiseGraph(
-                testFolder,
-                Schema.fromJson(StreamUtil.schemas(ElementGroup.class)),
-                StoreProperties.loadStoreProperties(StreamUtil.openStream(RoadTrafficRestApiITs.class, System.getProperty(STORE_TYPE_PROPERTY, STORE_TYPE_DEFAULT) + StreamUtil.STORE_PROPERTIES))
-        );
-
-        // Load Road Traffic data into the store
-        final DataLoader loader = new DataLoader();
-        loader.contextInitialized(null);
-        prepareProxy();
-    }
-
-    @After
-    public void after() {
-        client.stopServer();
-    }
-
 	protected Graph graph;
 	protected User user;
 
+	@Before
 	public abstract void prepareProxy() throws IOException;
 
 	@Test
