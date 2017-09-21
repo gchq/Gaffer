@@ -18,10 +18,14 @@ package uk.gov.gchq.gaffer.store.operation.util;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.stream.StreamSupplier;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
+import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
@@ -51,6 +55,12 @@ public class TransformStreamSupplier implements StreamSupplier<Element> {
 
     @Override
     public Stream<Element> get() {
-        return Streams.toStream((Iterable<Element>) input).map(transform.getElementTransformer()::apply);
+
+        final Function<Element, Element> toTransformedElement = e -> {
+            final ElementTransformer elementTransformer = e instanceof Edge ? transform.getEdges().get(e.getGroup()) : transform.getEntities().get(e.getGroup());
+            return elementTransformer.apply(e);
+        };
+
+        return Streams.toStream((Iterable<Element>) input).map(toTransformedElement);
     }
 }

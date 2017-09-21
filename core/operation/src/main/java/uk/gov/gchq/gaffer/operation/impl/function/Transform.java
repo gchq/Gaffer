@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl.IterableElement;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -39,11 +40,8 @@ public class Transform implements
     private Iterable<? extends Element> input;
     private Map<String, String> options;
 
-    public ElementTransformer getElementTransformer() {
-        return elementTransformer;
-    }
-
-    private ElementTransformer elementTransformer;
+    private Map<String, ElementTransformer> edges;
+    private Map<String, ElementTransformer> entities;
 
     @Override
     public Iterable<? extends Element> getInput() {
@@ -64,8 +62,9 @@ public class Transform implements
     public Operation shallowClone() throws CloneFailedException {
         return new Transform.Builder()
                 .input(input)
-                .elementTransformer(elementTransformer)
                 .options(options)
+                .edges(edges)
+                .entities(entities)
                 .build();
     }
 
@@ -79,8 +78,20 @@ public class Transform implements
         this.options = options;
     }
 
-    public void setElementTransformer(final ElementTransformer elementTransformer) {
-        this.elementTransformer = elementTransformer;
+    public Map<String, ElementTransformer> getEdges() {
+        return edges;
+    }
+
+    public void setEdges(final Map<String, ElementTransformer> edges) {
+        this.edges = edges;
+    }
+
+    public Map<String, ElementTransformer> getEntities() {
+        return entities;
+    }
+
+    public void setEntities(final Map<String, ElementTransformer> entities) {
+        this.entities = entities;
     }
 
     public static final class Builder
@@ -91,8 +102,29 @@ public class Transform implements
             super(new Transform());
         }
 
-        public Builder elementTransformer(final ElementTransformer elementTransformer) {
-            _getOp().setElementTransformer(elementTransformer);
+        public Builder entity(final String group, final ElementTransformer elementTransformer) {
+            if (null == _getOp().entities) {
+                _getOp().entities = new HashMap<>();
+            }
+            _getOp().entities.put(group, elementTransformer);
+            return _self();
+        }
+
+        public Builder entities(final Map<String, ElementTransformer> entities) {
+            _getOp().entities = entities;
+            return _self();
+        }
+
+        public Builder edge(final String group, final ElementTransformer elementTransformer) {
+            if (null == _getOp().edges) {
+                _getOp().edges = new HashMap<>();
+            }
+            _getOp().edges.put(group, elementTransformer);
+            return _self();
+        }
+
+        public Builder edges(Map<String, ElementTransformer> edges) {
+            _getOp().edges = edges;
             return _self();
         }
     }
