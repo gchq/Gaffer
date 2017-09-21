@@ -118,7 +118,13 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
             try {
                 parquetFilterUtils.buildPathToFilterMap(view, directedType, includeIncomingOutgoingType, seedMatchingType, seeds, graphIndex);
                 final Map<Path, FilterPredicate> pathToFilterMap = parquetFilterUtils.getPathToFilterMap();
-                this.needsValidation = parquetFilterUtils.requiresValidation();
+                
+                if (properties.getSkipValidation()) {
+                    this.needsValidation = false;
+                } else {
+                    this.needsValidation = parquetFilterUtils.requiresValidation();
+                }
+
                 this.gafferSchema = gafferSchema;
                 LOGGER.debug("pathToFilterMap: {}", pathToFilterMap);
                 if (!pathToFilterMap.isEmpty()) {

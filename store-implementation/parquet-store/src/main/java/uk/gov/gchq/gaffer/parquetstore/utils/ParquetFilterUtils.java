@@ -685,7 +685,6 @@ public final class ParquetFilterUtils {
     protected Pair<FilterPredicate, Set<Path>> buildGroupFilter(final String group, final boolean isEntity) throws SerialisationException {
         Pair<FilterPredicate, Set<Path>> groupFilter = null;
         final ViewElementDefinition groupView = view.getElement(group);
-        final SchemaElementDefinition schemaElementDefinition = schemaUtils.getGafferSchema().getElement(group);
         if (groupView != null) {
             List<TupleAdaptedPredicate<String, ?>> preAggFilterFunctions = new ArrayList<>();
             if (groupView.getPreAggregationFilterFunctions() != null) {
@@ -727,26 +726,28 @@ public final class ParquetFilterUtils {
      * @throws SerialisationException If any of the Gaffer objects are unable to be serialised to Parquet objects
      */
     private Pair<FilterPredicate, Set<Path>> buildFilter(final Predicate filterFunction, final String[] selection, final String group) throws SerialisationException {
+        Pair<FilterPredicate, Set<Path>> filterResult;
         if (filterFunction instanceof AgeOff) {
-            return addAgeOffFilter(((AgeOff) filterFunction), selection, group);
+            filterResult = addAgeOffFilter(((AgeOff) filterFunction), selection, group);
         } else if (filterFunction instanceof And) {
-            return addAndFilter(((And) filterFunction).getComponents(), selection, group);
+            filterResult = addAndFilter(((And) filterFunction).getComponents(), selection, group);
         } else if (filterFunction instanceof Or) {
-            return addOrFilter(((Or) filterFunction).getComponents(), selection, group);
+            filterResult = addOrFilter(((Or) filterFunction).getComponents(), selection, group);
         } else if (filterFunction instanceof Not) {
-            final Pair<FilterPredicate, Set<Path>> filterResult = buildFilter(((Not) filterFunction).getPredicate(), selection, group);
-            if (filterResult == null) {
-                return null;
-            } else {
-                return new Pair<>(not(filterResult.getFirst()), getAllPathsForColumn(group));
+            filterResult = buildFilter(((Not) filterFunction).getPredicate(), selection, group);
+            if (filterResult != null) {
+                filterResult = new Pair<>(not(filterResult.getFirst()), getAllPathsForColumn(group));
             }
         } else {
-            final Pair<FilterPredicate, Set<Path>> filterResult = addPrimitiveFilter(filterFunction, selection[0], group);
+            filterResult = addPrimitiveFilter(filterFunction, selection[0], group);
             if (filterResult == null) {
                 requiresValidation = true;
             }
-            return filterResult;
         }
+        /*if (1 != 1) {
+            requiresValidation = false;
+        }*/
+        return filterResult;
     }
 
     private Pair<FilterPredicate, Set<Path>> addAgeOffFilter(final AgeOff ageOff,
