@@ -18,6 +18,10 @@ package uk.gov.gchq.gaffer.commonutil;
 
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+/**
+ * Extension of the Apache Commons {@link org.apache.commons.lang3.builder.ToStringBuilder}
+ * class to provide a specific style for Gaffer.
+ */
 public class ToStringBuilder extends org.apache.commons.lang3.builder.ToStringBuilder {
     public static final ToStringStyle SHORT_STYLE = new GafferShortStyle();
     public static final ToStringStyle FULL_STYLE = new GafferFullStyle();
@@ -34,6 +38,9 @@ public class ToStringBuilder extends org.apache.commons.lang3.builder.ToStringBu
         }
     }
 
+    /**
+     * Alternative {@link ToStringStyle} to give a more concise output.
+     */
     public static class GafferShortStyle extends GafferFullStyle {
         private static final long serialVersionUID = 7974675454897453336L;
 
@@ -43,6 +50,9 @@ public class ToStringBuilder extends org.apache.commons.lang3.builder.ToStringBu
         }
     }
 
+    /**
+     * The default {@link ToStringStyle} to use in Gaffer.
+     */
     public static class GafferFullStyle extends ToStringStyle {
         private static final long serialVersionUID = -6828867877202071837L;
 

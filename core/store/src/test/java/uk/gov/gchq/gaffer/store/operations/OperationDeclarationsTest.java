@@ -23,10 +23,10 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
+import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
+import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandler;
-import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclaration;
-import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

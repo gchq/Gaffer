@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A <code>SetExporter</code> is an in memory temporary {@link Exporter}
+ * A {@code SetExporter} is an in memory temporary {@link Exporter}
  * using a {@link Set}.
  * The values are stored in a {@link LinkedHashSet} in order to ensure there is
  * a predictable iteration order.

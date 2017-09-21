@@ -119,7 +119,7 @@ public class GafferGroupObjectConverter implements Serializable {
     }
 
     /**
-     * Extracts an object corresponding to column <code>gafferColumn</code> from the provided {@link GenericRowWithSchema}.
+     * Extracts an object corresponding to column {@code gafferColumn} from the provided {@link GenericRowWithSchema}.
      *
      * @param gafferColumn the column to extract
      * @param row          the row to extract from
@@ -177,7 +177,7 @@ public class GafferGroupObjectConverter implements Serializable {
     }
 
     /**
-     * Converts the provided <code>gafferObject</code> into objects as specified by the <code>sparkSchema</code>.
+     * Converts the provided {@code gafferObject} into objects as specified by the {@code sparkSchema}.
      *
      * @param column        the column that the gafferObject has come from
      * @param gafferObject  the gafferObject to be converted

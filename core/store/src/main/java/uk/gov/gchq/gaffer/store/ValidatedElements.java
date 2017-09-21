@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 /**
- * An <code>ValidatedElements</code> extends {@link TransformIterable} and uses an
+ * An {@code ValidatedElements} extends {@link TransformIterable} and uses an
  * {@link ElementValidator} to validate the {@link Element}s.
  * It does not transform the element items - just simply returns them if they are valid.
  * <p>
@@ -33,7 +33,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 public class ValidatedElements extends TransformIterable<Element, Element> {
 
     /**
-     * Constructs an <code>TransformIterable</code> with the given {@link Iterable} of
+     * Constructs an {@code TransformIterable} with the given {@link Iterable} of
      * {@link Element}s, a {@link Schema} containing the
      * {@link java.util.function.Predicate}s to use to validate the {@link Element}s and a
      * skipInvalid flag to determine whether invalid items should be skipped.
@@ -48,7 +48,7 @@ public class ValidatedElements extends TransformIterable<Element, Element> {
     }
 
     /**
-     * Constructs an <code>TransformIterable</code> with the given {@link Iterable} of
+     * Constructs an {@code TransformIterable} with the given {@link Iterable} of
      * {@link Element}s, a {@link View} containing the
      * {@link java.util.function.Predicate}s to use to validate the {@link Element}s and a
      * skipInvalid flag to determine whether invalid items should be skipped.

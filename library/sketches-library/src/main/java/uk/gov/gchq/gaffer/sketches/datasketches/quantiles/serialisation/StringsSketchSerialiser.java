@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.serialisation;
 
-import com.google.common.collect.Ordering;
 import com.yahoo.memory.WritableMemory;
 import com.yahoo.sketches.ArrayOfStringsSerDe;
 import com.yahoo.sketches.quantiles.ItemsSketch;
@@ -23,12 +22,11 @@ import com.yahoo.sketches.quantiles.ItemsSketch;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
+import java.util.Comparator;
+
 /**
- * A <code>StringsSketchSerialiser</code> serialises an {@link com.yahoo.sketches.quantiles.ItemsSketch} of
- * {@link String}s using its <code>toByteArray()</code> method.
- *
- * NB: When Gaffer requires Java 8, <code>Ordering.natural()</code> can be replaced with
- * <code>Comparator.naturalOrder()</code>.
+ * A {@code StringsSketchSerialiser} serialises an {@link com.yahoo.sketches.quantiles.ItemsSketch} of
+ * {@link String}s using its {@code toByteArray()} method.
  */
 public class StringsSketchSerialiser implements ToBytesSerialiser<ItemsSketch<String>> {
     private static final long serialVersionUID = 7091724743812159058L;
@@ -46,7 +44,7 @@ public class StringsSketchSerialiser implements ToBytesSerialiser<ItemsSketch<St
 
     @Override
     public ItemsSketch<String> deserialise(final byte[] bytes) throws SerialisationException {
-       return ItemsSketch.getInstance(WritableMemory.wrap(bytes), Ordering.<String>natural(), SERIALISER);
+       return ItemsSketch.getInstance(WritableMemory.wrap(bytes), Comparator.naturalOrder(), SERIALISER);
     }
 
     @Override

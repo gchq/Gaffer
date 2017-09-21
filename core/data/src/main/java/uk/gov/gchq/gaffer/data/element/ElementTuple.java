@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.koryphe.tuple.Tuple;
 
 /**
- * An <code>ElementTuple</code> implements {@link Tuple} wrapping an
+ * An {@code ElementTuple} implements {@link Tuple} wrapping an
  * {@link Element} and providing a getter and setter for the element's identifiers and properties.
  * This class allows Elements to be used with the function module whilst minimising dependencies.
  */

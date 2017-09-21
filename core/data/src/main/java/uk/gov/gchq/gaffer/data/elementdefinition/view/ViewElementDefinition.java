@@ -48,11 +48,11 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * A <code>ViewElementDefinition</code> is an {@link ElementDefinition} containing
- * transient properties, an {@link ElementTransformer} and two {@link ElementFilter}'s.
+ * A {@code ViewElementDefinition} is an {@link ElementDefinition} containing
+ * transient properties, an {@link ElementTransformer} and two {@link ElementFilter}s.
  */
 @JsonDeserialize(builder = ViewElementDefinition.Builder.class)
-public class ViewElementDefinition implements ElementDefinition, Cloneable {
+public class ViewElementDefinition implements ElementDefinition {
     protected ElementFilter preAggregationFilter;
     protected ElementFilter postAggregationFilter;
     protected ElementAggregator aggregator;

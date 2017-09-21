@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.data.element;
 
 /**
- * An <code>LazyEntity</code> wraps an {@link uk.gov.gchq.gaffer.data.element.Entity} and lazily loads the identifier and properties when
+ * An {@code LazyEntity} wraps an {@link uk.gov.gchq.gaffer.data.element.Entity} and lazily loads the identifier and properties when
  * requested using a provided {@link uk.gov.gchq.gaffer.data.element.ElementValueLoader}. This will avoid loading all of an
  * entity's properties just for it to be filtered out by a filter function.
  */
@@ -29,7 +29,7 @@ public class LazyEntity extends Entity {
     private boolean identifiersLoaded = false;
 
     /**
-     * Constructs a {@link uk.gov.gchq.gaffer.data.element.LazyEntity} by wrapping the provided {@link uk.gov.gchq.gaffer.data.element.Entity}
+     * Constructs a  by wrapping the provided {@link uk.gov.gchq.gaffer.data.element.Entity}
      * and using the {@link uk.gov.gchq.gaffer.data.element.ElementValueLoader} to lazily load the element's identifiers and
      * properties when requested.
      *

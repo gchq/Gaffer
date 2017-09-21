@@ -25,22 +25,60 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
 /**
- * An <code>ExamplesFactory</code> creates example operations for use with Gaffer's
+ * An {@code ExamplesFactory} creates example operations for use with Gaffer's
  * REST API.
  */
 public interface ExamplesFactory {
 
+    /**
+     * Generates an example for the {@link GetAdjacentIds} operation.
+     *
+     * @return the example class
+     */
     GetAdjacentIds getAdjacentIds();
 
+    /**
+     * Generates an example for the {@link GetAllElements} operation.
+     *
+     * @return the example class
+     */
     GetAllElements getAllElements();
 
+    /**
+     * Generates an example for the {@link GetElements} operation.
+     *
+     * @return the example class
+     */
     GetElements getElements();
 
+    /**
+     * Generates an example for the {@link AddElements} operation.
+     *
+     * @return the example class
+     */
     AddElements addElements();
 
+    /**
+     * Generates an example for the {@link GenerateObjects} operation.
+     *
+     * @return the example class
+     */
     GenerateObjects generateObjects();
 
+    /**
+     * Generates an example for the {@link GenerateElements} operation.
+     *
+     * @return the example class
+     */
     GenerateElements generateElements();
 
+    /**
+     * Generates an example for any {@link Operation} class.
+     *
+     * @param opClass the operation to create an example for
+     * @return the example class
+     * @throws IllegalAccessException if the operation could not be created
+     * @throws InstantiationException if the operation could not be created
+     */
     Operation generateExample(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException;
 }

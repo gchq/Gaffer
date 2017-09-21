@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A <code>AddOperationsToChain</code> is a {@link GraphHook} that allows a
+ * A {@code AddOperationsToChain} is a {@link GraphHook} that allows a
  * user to insert additional operations at certain points on the operation chain.
  * At the start, before a specific Operation, after a specific Operation, or at the end.
  * A user can also specify authorised Operations to add, and if the user has

@@ -220,7 +220,7 @@ public final class ParquetFilterUtils {
     /**
      * Returns a {@link Pair} in which the first entry is a sorted {@link Set} of the seeds converted to the form in
      * which they appear in the Parquet files, and the second entry is a {@link Map} from the seeds to a {@link Pair}
-     * which is <code>null</code> if the seed is an {@link EntitySeed} and consists of the destination vertex and
+     * which is {@code null} if the seed is an {@link EntitySeed} and consists of the destination vertex and
      * directed type if the seed is an {@link EdgeSeed}.
      *
      * @param identifier the column that the seed relates to
@@ -228,7 +228,7 @@ public final class ParquetFilterUtils {
      * @param isEntityGroup is the group provided an entity group
      * @return a {@link Pair} in which the first entry is a sorted {@link Set} of the seeds converted to the form in
      * which they appear in the Parquet files, and the second entry is a {@link Map} from the seeds to a {@link Pair}
-     * which is <code>null</code> if the seed is an {@link EntitySeed} and consists of the destination vertex and
+     * which is {@code null} if the seed is an {@link EntitySeed} and consists of the destination vertex and
      * directed type if the seed is an {@link EdgeSeed}.
      * @throws SerialisationException if the conversion from the seed to corresponding Parquet objects fails
      */

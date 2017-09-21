@@ -21,8 +21,8 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
 /**
- * A <code>HllSketchSerialiser</code> serialises a {@link com.yahoo.sketches.hll.HllSketch} using its
- * <code>toCompactByteArray()</code> method.
+ * A {@code HllSketchSerialiser} serialises a {@link com.yahoo.sketches.hll.HllSketch} using its
+ * {@code toCompactByteArray()} method.
  */
 public class HllSketchSerialiser implements ToBytesSerialiser<HllSketch> {
     private static final long serialVersionUID = 5903372368174309494L;

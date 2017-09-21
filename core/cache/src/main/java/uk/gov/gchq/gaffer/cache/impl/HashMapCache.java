@@ -17,15 +17,21 @@
 package uk.gov.gchq.gaffer.cache.impl;
 
 import uk.gov.gchq.gaffer.cache.ICache;
-import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
 
+/**
+ * Simple implementation of the {@link ICache} interface, using a {@link HashMap}
+ * as the cache data store.
+ *
+ * @param <K> The object type that acts as the key for the HashMap
+ * @param <V> The value that is stored in the HashMap
+ */
 public class HashMapCache <K, V> implements ICache<K, V> {
 
-    private HashMap<K, V> cache = new HashMap<>();
+    private final HashMap<K, V> cache = new HashMap<>();
 
     @Override
     public V get(final K key) {
@@ -35,15 +41,6 @@ public class HashMapCache <K, V> implements ICache<K, V> {
     @Override
     public void put(final K key, final V value) {
         cache.put(key, value);
-    }
-
-    @Override
-    public void putSafe(final K key, final V value) throws CacheOperationException {
-        if (get(key) == null) {
-            put(key, value);
-        } else {
-            throw new CacheOperationException("Cache entry already exists for key: " + key);
-        }
     }
 
     @Override

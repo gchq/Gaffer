@@ -21,7 +21,6 @@ import com.google.common.collect.Lists;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
@@ -31,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A <code>Sort</code> operation can be used to sort a {@link java.lang.Iterable}
+ * A {@code Sort} operation can be used to sort a {@link java.lang.Iterable}
  * of {@link uk.gov.gchq.gaffer.data.element.Element}s using provided
  * {@link java.util.Comparator}s. Either implement your own comparators or use the
  * {@link uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator}.
@@ -49,7 +48,6 @@ import java.util.Map;
  * @see uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator
  */
 public class Sort implements
-        Operation,
         InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,
         MultiInput<Element>,
         ElementComparison {

@@ -306,7 +306,7 @@ public class GetRDDOfAllElementsHandlerIT {
         assertEquals(entity1, returnedElements[0]);
     }
 
-    private StoreProperties getAccumuloPropreties(final KeyPackage keyPackage) {
+    private StoreProperties getAccumuloProperties(final KeyPackage keyPackage) {
         final AccumuloProperties storeProperties = AccumuloProperties
                 .loadStoreProperties(StreamUtil.storeProps(getClass()));
         switch (keyPackage) {
@@ -327,7 +327,7 @@ public class GetRDDOfAllElementsHandlerIT {
                         .graphId(GRAPH_ID)
                         .build())
                 .addSchema(schema)
-                .storeProperties(getAccumuloPropreties(keyPackage))
+                .storeProperties(getAccumuloProperties(keyPackage))
                 .build();
         graph.execute(new AddElements.Builder()
                 .input(elements)

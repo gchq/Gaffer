@@ -25,12 +25,11 @@ import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class ElementConverterFunction implements PairFlatMapFunction<Element, Key, Value>, Serializable {
+public class ElementConverterFunction implements PairFlatMapFunction<Element, Key, Value> {
     private static final long serialVersionUID = -3259752069724639102L;
 
     private final Broadcast<AccumuloElementConverter> converterBroadcast;

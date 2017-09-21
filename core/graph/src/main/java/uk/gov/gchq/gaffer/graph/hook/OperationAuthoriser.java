@@ -35,7 +35,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * An <code>OperationAuthoriser</code> is a {@link GraphHook} that checks a
+ * An {@code OperationAuthoriser} is a {@link GraphHook} that checks a
  * user is authorised to execute an operation chain. This class requires a map
  * of operation authorisations.
  */

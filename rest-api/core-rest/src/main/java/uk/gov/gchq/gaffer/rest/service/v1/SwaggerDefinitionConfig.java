@@ -24,6 +24,10 @@ import io.swagger.annotations.SwaggerDefinition;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
+/**
+ * Empty interface containing the Swagger API definitions for the v1 Gaffer REST
+ * API.
+ */
 @SwaggerDefinition(
         info = @Info(
                 description = "The Gaffer REST service.",

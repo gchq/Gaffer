@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * <code>LazyProperties</code> wraps {@link Properties} and lazily loads property values when
+ * {@code LazyProperties} wraps {@link Properties} and lazily loads property values when
  * requested using a provided {@link uk.gov.gchq.gaffer.data.element.ElementValueLoader}.
  */
 public class LazyProperties extends Properties {
@@ -37,7 +37,7 @@ public class LazyProperties extends Properties {
     private final Properties properties;
 
     /**
-     * Constructs a {@link LazyProperties} by wrapping the provided {@link Properties}
+     * Constructs a  by wrapping the provided {@link Properties}
      * and using the {@link uk.gov.gchq.gaffer.data.element.ElementValueLoader} to lazily load the property values when requested.
      *
      * @param properties  the properties to wrap.
