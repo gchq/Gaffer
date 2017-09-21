@@ -42,13 +42,13 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.spark.Partition;
 import org.apache.spark.TaskContext;
-import org.apache.spark.util.TaskCompletionListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -140,17 +140,12 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
 
         // Apply iterator stack
         final List<IteratorSetting> iteratorSettings = getIteratorSettings();
-        iteratorSettings.sort((is1, is2) -> is1.getPriority() - is2.getPriority());
+        iteratorSettings.sort(Comparator.comparingInt(IteratorSetting::getPriority));
         for (final IteratorSetting is : iteratorSettings) {
             iteratorAfterIterators = applyIterator(iteratorAfterIterators, is);
         }
 
-        taskContext.addTaskCompletionListener(new TaskCompletionListener() {
-            @Override
-            public void onTaskCompletion(final TaskContext context) {
-                close();
-            }
-        });
+        taskContext.addTaskCompletionListener(context -> close());
 
         final Range range = new Range(accumuloTablet.getStartRow(), true, accumuloTablet.getEndRow(), false);
         iteratorAfterIterators.seek(range, requiredColumnFamilies, true);

@@ -102,18 +102,15 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         final ChunkedOutput<String> output = new ChunkedOutput<>(String.class, "\r\n");
 
         // write chunks to the chunked output object
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    final Object result = _execute(opChain);
-                    chunkResult(result, output);
-                } finally {
-                    CloseableUtil.close(output);
-                    CloseableUtil.close(opChain);
-                }
+        new Thread(() -> {
+            try {
+                final Object result = _execute(opChain);
+                chunkResult(result, output);
+            } finally {
+                CloseableUtil.close(output);
+                CloseableUtil.close(opChain);
             }
-        }.start();
+        }).start();
 
         return output;
     }
@@ -303,7 +300,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
                              boolean required = false;
                              final Required[] annotations = f.getAnnotationsByType(Required.class);
 
-                             if (annotations != null && annotations.length > 0) {
+                             if (null != annotations && annotations.length > 0) {
                                  required = true;
                              }
                              return new OperationField(f.getName(), required);

@@ -70,6 +70,6 @@ public class HashMapGraphLibrary extends GraphLibrary {
     @Override
     protected StoreProperties _getProperties(final String propertiesId) {
         final StoreProperties storeProperties = PROPERTIES.get(propertiesId);
-        return (storeProperties == null) ? null : storeProperties.clone();
+        return (null == storeProperties) ? null : storeProperties.clone();
     }
 }

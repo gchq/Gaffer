@@ -57,7 +57,7 @@ public class JcsCache <K, V> implements ICache<K, V> {
 
     @Override
     public void put(final K key, final V value) throws CacheOperationException {
-        if (key == null) {
+        if (null == key) {
             throw new CacheOperationException("Key must not be null");
         }
         try {

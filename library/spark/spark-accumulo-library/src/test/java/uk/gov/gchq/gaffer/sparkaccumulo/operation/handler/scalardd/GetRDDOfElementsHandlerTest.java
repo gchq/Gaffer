@@ -15,13 +15,11 @@
  */
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd;
 
-import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.SparkSession;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -38,7 +36,6 @@ import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.SparkSessionProvider;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -100,9 +97,8 @@ public class GetRDDOfElementsHandlerTest {
 
         // Create Hadoop configuration and serialise to a string
         final Configuration configuration = new Configuration();
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        configuration.write(new DataOutputStream(baos));
-        final String configurationString = new String(baos.toByteArray(), CommonConstants.UTF_8);
+        final String configurationString = AbstractGetRDDHandler
+                .convertConfigurationToString(configuration);
 
         // Check get correct edges for "1"
         GetRDDOfElements rddQuery = new GetRDDOfElements.Builder()
@@ -283,9 +279,8 @@ public class GetRDDOfElementsHandlerTest {
 
         // Create Hadoop configuration and serialise to a string
         final Configuration configuration = new Configuration();
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        configuration.write(new DataOutputStream(baos));
-        final String configurationString = new String(baos.toByteArray(), CommonConstants.UTF_8);
+        final String configurationString = AbstractGetRDDHandler
+                .convertConfigurationToString(configuration);
 
         // Check get correct edges for EdgeSeed 1 -> B
         GetRDDOfElements rddQuery = new GetRDDOfElements.Builder()

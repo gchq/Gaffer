@@ -87,7 +87,7 @@ public class SerialisationFactory {
      * @param newSerialisers a list of Serialisers.
      */
     public void addSerialisers(final Serialiser... newSerialisers) {
-        if (newSerialisers != null) {
+        if (null != newSerialisers) {
             for (final Serialiser newSerialiser : newSerialisers) {
                 if (!serialiserAlreadyinList(newSerialiser)) {
                     serialisers.add(newSerialiser);

@@ -36,7 +36,7 @@ public final class SparkParquetUtils {
     public static void configureSparkForAddElements(final SparkSession spark, final ParquetStoreProperties props) {
         final Integer numberOfOutputFiles = props.getAddElementsOutputFilesPerGroup();
         String shufflePartitions = spark.conf().getOption("spark.sql.shuffle.partitions").get();
-        if (shufflePartitions == null) {
+        if (null == shufflePartitions) {
             shufflePartitions = SQLConf.SHUFFLE_PARTITIONS().defaultValueString();
         }
         if (numberOfOutputFiles > Integer.parseInt(shufflePartitions)) {

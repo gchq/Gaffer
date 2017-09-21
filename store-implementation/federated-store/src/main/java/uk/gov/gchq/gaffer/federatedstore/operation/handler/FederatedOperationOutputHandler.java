@@ -62,7 +62,7 @@ public abstract class FederatedOperationOutputHandler<OP extends Output<O>, O> i
                                 operation.getClass().getSimpleName(), graph.getGraphId(), additionalInfo), e);
                     }
                 }
-                if (execute != null) {
+                if (null != execute) {
                     results.add(execute);
                 }
             }

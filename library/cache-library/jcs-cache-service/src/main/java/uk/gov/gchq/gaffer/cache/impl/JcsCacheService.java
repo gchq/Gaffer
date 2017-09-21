@@ -45,7 +45,7 @@ public class JcsCacheService implements ICacheService {
         String configFile = properties.getProperty(CacheProperties.CACHE_CONFIG_FILE);
         manager = CompositeCacheManager.getUnconfiguredInstance();
 
-        if (configFile != null) {
+        if (null != configFile) {
             try {
                 Properties cacheProperties = readProperties(configFile);
                 manager.configure(cacheProperties);

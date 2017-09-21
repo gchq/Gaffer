@@ -45,7 +45,7 @@ public class ElementConverterFunction implements PairFlatMapFunction<Element, Ke
         final Value value = converterBroadcast.value().getValueFromElement(e);
         tuples.add(new Tuple2<>(keys.getFirst(), value));
         final Key second = keys.getSecond();
-        if (second != null) {
+        if (null != second) {
             tuples.add(new Tuple2<>(second, value));
         }
         return tuples.listIterator();

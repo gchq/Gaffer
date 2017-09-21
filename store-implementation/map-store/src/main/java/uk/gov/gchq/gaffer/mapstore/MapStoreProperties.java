@@ -22,6 +22,9 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import java.io.InputStream;
 import java.nio.file.Path;
 
+/**
+ * Additional {@link StoreProperties} for the {@link MapStore}.
+ */
 public class MapStoreProperties extends StoreProperties {
     public static final String CREATE_INDEX = "gaffer.store.mapstore.createIndex";
     public static final String CREATE_INDEX_DEFAULT = "true";

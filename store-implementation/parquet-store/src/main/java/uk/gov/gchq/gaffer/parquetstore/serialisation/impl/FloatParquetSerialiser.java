@@ -41,7 +41,7 @@ public class FloatParquetSerialiser implements ParquetSerialiser<Float> {
         if (objects.length == 1) {
             if (objects[0] instanceof Float) {
                 return (Float) objects[0];
-            } else if (objects[0] == null) {
+            } else if (null == objects[0]) {
                 return null;
             }
         }

@@ -223,9 +223,9 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
         public Element apply(final Map.Entry<Key, Value> entry) {
             final Element element = converter.getFullElement(entry.getKey(), entry.getValue(), false);
             final ViewElementDefinition viewDef = view.getElement(element.getGroup());
-            if (viewDef != null) {
+            if (null != viewDef) {
                 final ElementTransformer transformer = viewDef.getTransformer();
-                if (transformer != null) {
+                if (null != transformer) {
                     transformer.apply(element);
                 }
                 if (ElementInputFormat.doPostFilter(element, view)) {
