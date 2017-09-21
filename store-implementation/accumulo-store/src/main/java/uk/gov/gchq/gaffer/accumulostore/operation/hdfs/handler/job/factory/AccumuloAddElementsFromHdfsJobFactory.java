@@ -57,7 +57,7 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
 
         LOGGER.info("Setting up job conf");
         jobConf.set(SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
-        LOGGER.info("Added {} {} to job conf", SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
+        LOGGER.debug("Added {} {} to job conf", SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
         jobConf.set(MAPPER_GENERATOR, mapperGeneratorClassName);
         LOGGER.info("Added {} of {} to job conf", MAPPER_GENERATOR, mapperGeneratorClassName);
         jobConf.set(VALIDATE, String.valueOf(operation.isValidate()));
@@ -128,7 +128,7 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
     }
 
     protected void setupPartitioner(final Job job, final AddElementsFromHdfs operation, final AccumuloStore store) throws IOException {
-        if (operation.getSplitsFilePath() == null) {
+        if (null == operation.getSplitsFilePath()) {
             // Provide a default path if the splits file path is missing
             operation.setSplitsFilePath("");
             LOGGER.warn("HDFS splits file path not set - using the current directory as the default path.");

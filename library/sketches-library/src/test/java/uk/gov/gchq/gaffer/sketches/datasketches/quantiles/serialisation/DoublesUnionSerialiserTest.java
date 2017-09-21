@@ -33,6 +33,7 @@ public class DoublesUnionSerialiserTest extends ViaCalculatedValueSerialiserTest
         return new DoublesUnionSerialiser();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Pair<DoublesUnion, byte[]>[] getHistoricSerialisationPairs() {
         final DoublesUnion union = getExampleOutput();

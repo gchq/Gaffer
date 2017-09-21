@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <code>FreqMap</code> extends {@link HashMap} with String keys and Long values, adding an upsert operation.
+ * {@code FreqMap} extends {@link HashMap} with String keys and Long values, adding an upsert operation.
  */
 public class FreqMap extends HashMap<String, Long> {
     private static final long serialVersionUID = -851105369975081220L;

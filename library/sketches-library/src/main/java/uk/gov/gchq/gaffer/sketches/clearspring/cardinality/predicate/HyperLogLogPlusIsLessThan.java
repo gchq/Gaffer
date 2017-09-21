@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 
 /**
- * An <code>HyperLogLogPlus</code> is a {@link java.util.function.Predicate} that simply checks that the input
+ * An {@code HyperLogLogPlus} is a {@link java.util.function.Predicate} that simply checks that the input
  * {@link HyperLogLogPlus} cardinality is less than a control value.
  */
 public class HyperLogLogPlusIsLessThan extends KoryphePredicate<HyperLogLogPlus> {
@@ -63,7 +63,7 @@ public class HyperLogLogPlusIsLessThan extends KoryphePredicate<HyperLogLogPlus>
 
     @Override
     public boolean test(final HyperLogLogPlus input) {
-        if (input == null) {
+        if (null == input) {
             return false;
         }
         final long cardinality = input.cardinality();
@@ -85,7 +85,7 @@ public class HyperLogLogPlusIsLessThan extends KoryphePredicate<HyperLogLogPlus>
             return true;
         }
 
-        if (obj == null || getClass() != obj.getClass()) {
+        if (null == obj || getClass() != obj.getClass()) {
             return false;
         }
 

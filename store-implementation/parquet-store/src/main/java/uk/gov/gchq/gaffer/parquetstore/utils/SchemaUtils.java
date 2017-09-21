@@ -78,7 +78,7 @@ public class SchemaUtils {
     }
 
     /**
-     * This method returns, for the provided <code>group</code>, an array of {@link String}s giving the path to the
+     * This method returns, for the provided {@code group}, an array of {@link String}s giving the path to the
      * column or columns associated to that group.
      *
      * @param group the group
@@ -105,7 +105,7 @@ public class SchemaUtils {
                 newPath = firstPath;
             }
             final String[] oldPaths = columnToPaths.getOrDefault(col, null);
-            if (oldPaths == null) {
+            if (null == oldPaths) {
                 columnToPaths.put(col, new String[]{newPath});
             } else {
                 final String[] newPaths = new String[oldPaths.length + 1];

@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
 /**
- * An <code>AlwaysValid</code> is an {@link Validator} in which it always returns true.
+ * An {@code AlwaysValid} is an {@link uk.gov.gchq.gaffer.commonutil.iterable.Validator} in which it always returns true.
  *
  * @param <T> the type of object to validate
  */

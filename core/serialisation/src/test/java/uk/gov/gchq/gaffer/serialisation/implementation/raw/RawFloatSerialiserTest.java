@@ -69,6 +69,7 @@ public class RawFloatSerialiserTest extends ToBytesSerialisationTest<Float> {
         return new RawFloatSerialiser();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Pair<Float, byte[]>[] getHistoricSerialisationPairs() {
         return new Pair[]{

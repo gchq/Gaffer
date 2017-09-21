@@ -26,7 +26,6 @@ import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import scala.Tuple2;
 import scala.collection.Iterator;
 import scala.runtime.AbstractFunction1;
@@ -62,13 +61,13 @@ import static uk.gov.gchq.gaffer.spark.operation.dataframe.ClassTagConstants.ELE
 /**
  * A handler for the {@link GetRDDOfAllElements} operation.
  *
- * <p>If the <code>gaffer.accumulo.spark.directrdd.use_rfile_reader</code> option is set to <code>true</code> then the
+ * <p>If the {@code gaffer.accumulo.spark.directrdd.use_rfile_reader} option is set to {@code true} then the
  * RDD will be produced by directly reading the RFiles in the Accumulo table, rather than using
  * {@link ElementInputFormat} to get data via the tablet servers. In order to read the RFiles directly, the user must
  * have read access to the files. Also note that any data that has not been minor compacted will not be read. Reading
  * the Rfiles directly can increase the performance.
  *
- * <p>If the <code>gaffer.accumulo.spark.directrdd.use_rfile_reader</code> option is not set then the standard approach
+ * <p>If the {@code gaffer.accumulo.spark.directrdd.use_rfile_reader} option is not set then the standard approach
  * of obtaining data via the tablet servers is used.
  */
 public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAllElements, RDD<Element>> {
@@ -224,9 +223,9 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
         public Element apply(final Map.Entry<Key, Value> entry) {
             final Element element = converter.getFullElement(entry.getKey(), entry.getValue(), false);
             final ViewElementDefinition viewDef = view.getElement(element.getGroup());
-            if (viewDef != null) {
+            if (null != viewDef) {
                 final ElementTransformer transformer = viewDef.getTransformer();
-                if (transformer != null) {
+                if (null != transformer) {
                     transformer.apply(element);
                 }
                 if (ElementInputFormat.doPostFilter(element, view)) {

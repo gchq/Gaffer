@@ -102,6 +102,7 @@ public class TreeSetStringSerialiserTest extends ToBytesSerialisationTest<TreeSe
         assertTrue(tree.isEmpty());
     }
 
+    @Override
     public Pair<TreeSet<String>, byte[]>[] getHistoricSerialisationPairs() {
         TreeSet<String> set = Sets.newTreeSet();
         set.add("this");

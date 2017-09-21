@@ -76,13 +76,13 @@ public abstract class AbstractGetRDDHandler<OP extends Output<O> & GraphFilters,
             final IteratorSetting queryTimeAggregator = accumuloStore.getKeyPackage()
                     .getIteratorFactory()
                     .getQueryTimeAggregatorIteratorSetting(operation.getView(), accumuloStore);
-            if (queryTimeAggregator != null) {
+            if (null != queryTimeAggregator) {
                 InputConfigurator.addIterator(AccumuloInputFormat.class, conf, queryTimeAggregator);
             }
             final IteratorSetting propertyFilter = accumuloStore.getKeyPackage()
                     .getIteratorFactory()
                     .getElementPropertyRangeQueryFilter(derivedOperation);
-            if (propertyFilter != null) {
+            if (null != propertyFilter) {
                 InputConfigurator.addIterator(AccumuloInputFormat.class, conf, propertyFilter);
             }
         } catch (final StoreException | IteratorSettingException e) {
@@ -119,7 +119,7 @@ public abstract class AbstractGetRDDHandler<OP extends Output<O> & GraphFilters,
     protected Configuration getConfiguration(final OP operation) throws OperationException {
         final Configuration conf = new Configuration();
         final String serialisedConf = operation.getOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY);
-        if (serialisedConf != null) {
+        if (null != serialisedConf) {
             try {
                 final ByteArrayInputStream bais = new ByteArrayInputStream(serialisedConf.getBytes(CommonConstants.UTF_8));
                 conf.readFields(new DataInputStream(bais));

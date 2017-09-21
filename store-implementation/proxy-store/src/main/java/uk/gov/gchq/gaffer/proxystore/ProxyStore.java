@@ -65,6 +65,12 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
+/**
+ * Gaffer {@code ProxyStore} implementation.
+ *
+ * The ProxyStore is simply a Gaffer store which delegates all operations to a Gaffer
+ * REST API.
+ */
 public class ProxyStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyStore.class);
     private Client client;
@@ -177,7 +183,6 @@ public class ProxyStore extends Store {
                            final TypeReference<O> clazz,
                            final Context context) throws StoreException {
 
-
         final Invocation.Builder request = createRequest(jsonBody, url, context);
         final Response response;
         try {
@@ -260,7 +265,6 @@ public class ProxyStore extends Store {
     @Override
     protected void addAdditionalOperationHandlers() {
         // no operation handlers to add.
-//        addOperationHandler(OperationChain.class, new OperationChainHandler());
     }
 
     @Override

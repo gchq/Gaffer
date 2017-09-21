@@ -119,6 +119,7 @@ public class ValidateTest extends OperationTest<Validate> {
         assertEquals(input, clone.getInput().iterator().next());
     }
 
+    @Override
     protected Validate getTestObject() {
         return new Validate();
     }

@@ -33,7 +33,7 @@ import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import java.util.Comparator;
 
 /**
- * An <code>Edge</code> in an {@link uk.gov.gchq.gaffer.data.element.Element} containing a source, destination and a directed flag.
+ * An {@code Edge} in an {@link uk.gov.gchq.gaffer.data.element.Element} containing a source, destination and a directed flag.
  * The source and destination vertices can be any type of {@link java.lang.Object}.
  * There is no requirement for these vertices to connect to an {@link uk.gov.gchq.gaffer.data.element.Entity} vertex -
  * for example you could have a 'graph' of just edges.
@@ -156,6 +156,7 @@ public class Edge extends Element implements EdgeId {
         return directed;
     }
 
+    @Override
     public MatchedVertex getMatchedVertex() {
         return matchedVertex;
     }
@@ -225,6 +226,7 @@ public class Edge extends Element implements EdgeId {
      * @param destination  the destination vertex
      * @param directedType the edge directedType
      */
+    @Override
     public void setIdentifiers(final Object source, final Object destination, final DirectedType directedType) {
         setIdentifiers(source, destination, directedType.isDirected());
     }

@@ -79,7 +79,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
         this.seedMatchingType = seedMatchingType;
         this.seeds = seeds;
         this.graphIndex = store.getGraphIndex();
-        if (graphIndex == null) {
+        if (null == graphIndex) {
             throw new OperationException("Can not perform a Get operation when there is no index set, which is " +
                     "indicative of there being no data or the data ingest failed.");
         }
@@ -118,7 +118,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
             try {
                 parquetFilterUtils.buildPathToFilterMap(view, directedType, includeIncomingOutgoingType, seedMatchingType, seeds, graphIndex);
                 final Map<Path, FilterPredicate> pathToFilterMap = parquetFilterUtils.getPathToFilterMap();
-                
+
                 if (properties.getSkipValidation()) {
                     this.needsValidation = false;
                 } else {
@@ -149,7 +149,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
 
         @Override
         public boolean hasNext() {
-            if (queue != null) {
+            if (null != queue) {
                 if (queue.isEmpty()) {
                     boolean finishedAllTasks = runningTasks.isEmpty();
                     while (!finishedAllTasks && queue.isEmpty()) {
@@ -177,7 +177,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
             for (final Future<OperationException> task : runningTasks) {
                 if (task.isDone()) {
                     final OperationException taskResult = task.get();
-                    if (taskResult != null) {
+                    if (null != taskResult) {
                         throw taskResult;
                     } else {
                         completedTasks.add(task);
@@ -194,7 +194,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
             Element e;
             while (hasNext()) {
                 e = queue.poll();
-                if (e != null) {
+                if (null != e) {
                     if (needsValidation) {
                         final String group = e.getGroup();
                         final ElementFilter validatorFilter = gafferSchema.getElement(group).getValidator(false);
@@ -218,7 +218,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
 
         @Override
         public void close() {
-            if (executorServicePool != null) {
+            if (null != executorServicePool) {
                 executorServicePool.shutdown();
                 executorServicePool = null;
             }

@@ -41,7 +41,7 @@ public class StringParquetSerialiser implements ParquetSerialiser<String> {
         if (objects.length == 1) {
             if (objects[0] instanceof String) {
                 return (String) objects[0];
-            } else if (objects[0] == null) {
+            } else if (null == objects[0]) {
                 return null;
             }
         }

@@ -18,9 +18,11 @@ package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.google.common.collect.Sets;
 import org.junit.Assert;
+
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
 import java.util.Set;
 
 public class AddGraphTest extends OperationTest<AddGraph> {
@@ -40,7 +42,7 @@ public class AddGraphTest extends OperationTest<AddGraph> {
         String expectedValue = "uk.gov.gchq.gaffer.federatedstore.FederatedStore";
         storeProperties.set(expectedKey, expectedValue);
         AddGraph op = new AddGraph.Builder()
-                .setGraphId(expectedGraphId)
+                .graphId(expectedGraphId)
                 .schema(expectedSchema)
                 .storeProperties(storeProperties)
                 .build();

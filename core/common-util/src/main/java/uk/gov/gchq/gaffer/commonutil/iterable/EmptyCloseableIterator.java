@@ -18,6 +18,13 @@ package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import java.util.NoSuchElementException;
 
+/**
+ * An {@code EmptyCloseableIterator} is an {@link java.util.Iterator} which contains
+ * no objects. This is achieved by forcing the {@link java.util.Iterator#hasNext()} method
+ * to always return false.
+ *
+ * @param <T> the type of items in the iterator.
+ */
 public class EmptyCloseableIterator<T> implements CloseableIterator<T> {
     @Override
     public void close() {

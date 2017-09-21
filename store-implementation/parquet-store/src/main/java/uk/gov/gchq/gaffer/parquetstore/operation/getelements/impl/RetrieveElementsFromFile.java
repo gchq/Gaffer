@@ -68,13 +68,13 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
 
     @Override
     public OperationException call() throws Exception {
-        if (elementFilter == null) {
+        if (null == elementFilter) {
             elementFilter = new ViewElementDefinition.Builder().json(elementDefinitionJson).build().getPreAggregationFilter();
         }
         try {
             final ParquetReader<Element> fileReader = openParquetReader();
             Element e = fileReader.read();
-            while (e != null) {
+            while (null != e) {
                 if (needsValidation) {
                     if (elementFilter != null) {
                         if (elementFilter.test(e)) {
@@ -98,7 +98,7 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
         final boolean isEntity = schemaUtils.getEntityGroups().contains(group);
         final GafferGroupObjectConverter converter = schemaUtils.getConverter(group);
         LOGGER.debug("Opening a new Parquet reader for file: {}", filePath);
-        if (filter != null) {
+        if (null != filter) {
             return new ParquetElementReader.Builder<Element>(filePath)
                     .isEntity(isEntity)
                     .usingConverter(converter)

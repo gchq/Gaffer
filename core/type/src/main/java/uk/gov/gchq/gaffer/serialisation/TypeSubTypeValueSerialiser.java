@@ -24,6 +24,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+/**
+ * A {@code TypeSubTypeValueSerialiser} is used to serialise and deserialise {@link TypeSubTypeValue}
+ * instances.
+ */
 public class TypeSubTypeValueSerialiser implements ToBytesSerialiser<TypeSubTypeValue> {
 
     private static final long serialVersionUID = 4687862916179832187L;
@@ -42,7 +46,7 @@ public class TypeSubTypeValueSerialiser implements ToBytesSerialiser<TypeSubType
             throw new SerialisationException("TypeSubTypeValue passed to serialiser is blank");
         }
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        if (type != null) {
+        if (null != type) {
             try {
                 out.write(ByteArrayEscapeUtils.escape(type.getBytes(CommonConstants.UTF_8)));
             } catch (final IOException e) {
@@ -50,7 +54,7 @@ public class TypeSubTypeValueSerialiser implements ToBytesSerialiser<TypeSubType
             }
         }
         out.write(ByteArrayEscapeUtils.DELIMITER);
-        if (subType != null) {
+        if (null != subType) {
             try {
                 out.write(ByteArrayEscapeUtils.escape(subType.getBytes(CommonConstants.UTF_8)));
             } catch (final IOException e) {
@@ -58,7 +62,7 @@ public class TypeSubTypeValueSerialiser implements ToBytesSerialiser<TypeSubType
             }
         }
         out.write(ByteArrayEscapeUtils.DELIMITER);
-        if (value != null) {
+        if (null != value) {
             try {
                 out.write(ByteArrayEscapeUtils.escape(value.getBytes(CommonConstants.UTF_8)));
             } catch (final IOException e) {

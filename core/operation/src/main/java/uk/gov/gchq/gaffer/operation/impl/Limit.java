@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Map;
 
 /**
- * A <code>Limit</code> operation takes in an {@link Iterable} of items
+ * A {@code Limit} operation takes in an {@link Iterable} of items
  * and limits the iterable to a given number of items. It simply wraps the input
  * iterable in a {@link uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable} so
  * the data is not stored in memory.
@@ -35,7 +35,6 @@ import java.util.Map;
  * @see Limit.Builder
  */
 public class Limit<T> implements
-        Operation,
         InputOutput<Iterable<? extends T>, Iterable<? extends T>>,
         MultiInput<T> {
     @Required

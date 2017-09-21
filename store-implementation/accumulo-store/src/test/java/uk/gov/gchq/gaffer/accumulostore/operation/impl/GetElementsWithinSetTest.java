@@ -83,6 +83,7 @@ public class GetElementsWithinSetTest extends OperationTest<GetElementsWithinSet
         assertEquals(view, clone.getView());
     }
 
+    @Override
     protected GetElementsWithinSet getTestObject() {
         return new GetElementsWithinSet();
     }

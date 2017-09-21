@@ -72,6 +72,7 @@ public class RawLongSerialiserTest extends ToBytesSerialisationTest<Long> {
     }
 
 
+    @Override
     @SuppressWarnings("unchecked")
     public Pair<Long, byte[]>[] getHistoricSerialisationPairs() {
         return new Pair[]{

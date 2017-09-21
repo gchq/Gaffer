@@ -27,9 +27,15 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import java.util.Set;
 
 /**
- * An <code>ToSetHandler</code> handles for {@link uk.gov.gchq.gaffer.operation.impl.output.ToSet}
- * operations. Adds all the operation input items into a {@link java.util.LinkedHashSet}
- * to remove duplicate items.
+ * The {@code ToSetHandler} handles {@link ToSet} operations by collecting the
+ * items in the input {@link Iterable} into a {@link Set}, removing duplicate items
+ * in the process.
+ *
+ * Use of this operation will cause all of the items present in the input iterable
+ * to be brought into memory, so this operation is not suitable for situations where
+ * the size of the input iterable is very large.
+ *
+ * @param <T> the type of object contained in the input iterable
  */
 public class ToSetHandler<T> implements OutputOperationHandler<ToSet<T>, Set<? extends T>> {
     @Override

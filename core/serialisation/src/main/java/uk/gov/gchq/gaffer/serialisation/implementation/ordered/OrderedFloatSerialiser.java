@@ -19,6 +19,12 @@ package uk.gov.gchq.gaffer.serialisation.implementation.ordered;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
+/**
+ * An {@code OrderedFloatSerialser} serialises a {@link Float} to
+ * an array of bytes by directly converting the float to a raw int and
+ * then converting this to a byte array.
+ * This serialiser preserves ordering.
+ */
 public class OrderedFloatSerialiser implements ToBytesSerialiser<Float> {
 
     private static final long serialVersionUID = 6829577492677279853L;

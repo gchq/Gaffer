@@ -24,12 +24,16 @@ import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
-import uk.gov.gchq.gaffer.named.operation.cache.CacheOperationFailedException;
+import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Wrapper around the {@link CacheServiceLoader} to provide an interface for handling
+ * the {@link uk.gov.gchq.gaffer.named.operation.NamedOperation}s for a Gaffer graph.
+ */
 public class NamedOperationCache {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NamedOperationCache.class);
@@ -54,7 +58,7 @@ public class NamedOperationCache {
         } catch (final NullPointerException e) {
             throw new CacheOperationFailedException("NamedOperation cannot be null", e);
         }
-        if (name == null) {
+        if (null == name) {
             throw new CacheOperationFailedException("NamedOperation name cannot be null");
         }
         if (!overwrite) {
@@ -87,10 +91,10 @@ public class NamedOperationCache {
      *                                       write permission on the NamedOperationDetail.
      */
     public void deleteNamedOperation(final String name, final User user) throws CacheOperationFailedException {
-        if (name == null) {
+        if (null == name) {
             throw new CacheOperationFailedException("NamedOperation name cannot be null");
         }
-        NamedOperationDetail existing = getFromCache(name);
+        final NamedOperationDetail existing = getFromCache(name);
         if (existing.hasWriteAccess(user)) {
             deleteFromCache(name);
         } else {
@@ -111,7 +115,7 @@ public class NamedOperationCache {
      *                                       to read it.
      */
     public NamedOperationDetail getNamedOperation(final String name, final User user) throws CacheOperationFailedException {
-        NamedOperationDetail op = getFromCache(name);
+        final NamedOperationDetail op = getFromCache(name);
         if (op.hasReadAccess(user)) {
             return op;
         } else {
@@ -119,9 +123,15 @@ public class NamedOperationCache {
         }
     }
 
+    /**
+     * Get all the named operations held in the cache.
+     *
+     * @param user The {@link User} object that is used for checking read permissions.
+     * @return a {@link CloseableIterable} containing the named operation details
+     */
     public CloseableIterable<NamedOperationDetail> getAllNamedOperations(final User user) {
-        Set<String> keys = CacheServiceLoader.getService().getAllKeysFromCache(CACHE_NAME);
-        Set<NamedOperationDetail> executables = new HashSet<>();
+        final Set<String> keys = CacheServiceLoader.getService().getAllKeysFromCache(CACHE_NAME);
+        final Set<NamedOperationDetail> executables = new HashSet<>();
         for (final String key : keys) {
             try {
                 NamedOperationDetail op = getFromCache(key);
@@ -136,6 +146,12 @@ public class NamedOperationCache {
         return new WrappedCloseableIterable<>(executables);
     }
 
+    /**
+     * Clear the named operation cache.
+     *
+     * @throws CacheOperationFailedException if there was an error clearing the
+     * cache
+     */
     public void clear() throws CacheOperationFailedException {
         try {
             CacheServiceLoader.getService().clearCache(CACHE_NAME);
@@ -144,14 +160,32 @@ public class NamedOperationCache {
         }
     }
 
+    /**
+     * Delete the specified {@link uk.gov.gchq.gaffer.named.operation.NamedOperation}
+     * from the cache.
+     *
+     * @param name the name of the operation to delete
+     * @throws CacheOperationFailedException if there was an error deleting the
+     * operation from the cache
+     */
     public void deleteFromCache(final String name) throws CacheOperationFailedException {
         CacheServiceLoader.getService().removeFromCache(CACHE_NAME, name);
 
-        if (CacheServiceLoader.getService().getFromCache(CACHE_NAME, name) != null) {
+        if (null != CacheServiceLoader.getService().getFromCache(CACHE_NAME, name)) {
             throw new CacheOperationFailedException("Failed to remove " + name + " from cache");
         }
     }
 
+    /**
+     * Add the specified named operation to the cache.
+     *
+     * @param name      the name of the operation to add
+     * @param operation the details of the new named operation
+     * @param overwrite if true, overwrite any existing entry which matches the
+     *                  provided name
+     * @throws CacheOperationFailedException if there was an error adding the
+     * operation to the cache
+     */
     public void addToCache(final String name, final NamedOperationDetail operation, final boolean overwrite) throws CacheOperationFailedException {
         try {
             if (overwrite) {
@@ -164,13 +198,21 @@ public class NamedOperationCache {
         }
     }
 
+    /**
+     * Retrieve the specified named operation from the cache.
+     *
+     * @param name the name of the named operation to retrieve
+     * @return the details of the requested named operation
+     * @throws CacheOperationFailedException if there was an error accessing the
+     * cache
+     */
     public NamedOperationDetail getFromCache(final String name) throws CacheOperationFailedException {
-        if (name == null) {
+        if (null == name) {
             throw new CacheOperationFailedException("Operation name cannot be null");
         }
-        NamedOperationDetail op = CacheServiceLoader.getService().getFromCache(CACHE_NAME, name);
+        final NamedOperationDetail op = CacheServiceLoader.getService().getFromCache(CACHE_NAME, name);
 
-        if (op != null) {
+        if (null != op) {
             return op;
         }
         throw new CacheOperationFailedException("No named operation with the name " + name + " exists in the cache");

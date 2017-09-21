@@ -100,7 +100,7 @@ public final class TableUtils {
 
         GraphLibrary library;
 
-        if (getFileGraphLibraryPathString(args) == null) {
+        if (null == getFileGraphLibraryPathString(args)) {
             library = new NoGraphLibrary();
         } else {
             library = new FileGraphLibrary(getFileGraphLibraryPathString(args));

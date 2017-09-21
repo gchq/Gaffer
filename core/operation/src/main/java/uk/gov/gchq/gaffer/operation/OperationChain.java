@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 
 /**
  * <p>
- * An <code>OperationChain</code> holds a list of {@link uk.gov.gchq.gaffer.operation.Operation}s that are chained together -
+ * An {@code OperationChain} holds a list of {@link uk.gov.gchq.gaffer.operation.Operation}s that are chained together -
  * ie. the output of one operation is passed to the input of the next. For the chaining to be successful the operations
  * must be ordered correctly so the O and I types are compatible. The safest way to ensure they will be
  * compatible is to use the OperationChain.Builder to construct the chain.
@@ -53,11 +53,11 @@ import java.util.stream.Collectors;
  * just be lost.</li>
  * </ul>
  *
- * @param <OUT> the output type of the <code>OperationChain</code>. This should match the output type of the last
+ * @param <OUT> the output type of the {@code OperationChain}. This should match the output type of the last
  *              {@link uk.gov.gchq.gaffer.operation.Operation} in the chain.
  * @see uk.gov.gchq.gaffer.operation.OperationChain.Builder
  */
-public class OperationChain<OUT> implements Operation, Output<OUT> {
+public class OperationChain<OUT> implements Output<OUT> {
     private List<Operation> operations;
     private Map<String, String> options;
 
@@ -87,7 +87,11 @@ public class OperationChain<OUT> implements Operation, Output<OUT> {
     }
 
     public OperationChain(final List<Operation> operations, final boolean flatten) {
-        this.operations = new ArrayList<>(operations);
+        if (null == operations) {
+            this.operations = new ArrayList<>();
+        } else {
+            this.operations = new ArrayList<>(operations);
+        }
 
         if (flatten) {
             this.operations = flatten();
@@ -167,7 +171,7 @@ public class OperationChain<OUT> implements Operation, Output<OUT> {
     @Override
     public boolean equals(final Object obj) {
         boolean isEqual = false;
-        if (obj != null && obj instanceof OperationChain) {
+        if (null != obj && obj instanceof OperationChain) {
             final OperationChain that = (OperationChain) obj;
 
             isEqual = new EqualsBuilder()
@@ -200,7 +204,7 @@ public class OperationChain<OUT> implements Operation, Output<OUT> {
 
     /**
      * <p>
-     * A <code>Builder</code> is a type safe way of building an {@link uk.gov.gchq.gaffer.operation.OperationChain}.
+     * A {@code Builder} is a type safe way of building an {@link uk.gov.gchq.gaffer.operation.OperationChain}.
      * The builder instance is updated after each method call so it is best to chain the method calls together.
      * Usage:<br>
      * new Builder()<br>

@@ -38,7 +38,7 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.INTERNAL_SERVER_ERROR;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.OK;
 
 /**
- * An <code>IGraphConfigurationService</code> has methods to get {@link uk.gov.gchq.gaffer.graph.Graph} configuration information
+ * An {@code IGraphConfigurationService} has methods to get {@link uk.gov.gchq.gaffer.graph.Graph} configuration information
  * such as the {@link uk.gov.gchq.gaffer.store.schema.Schema} and available {@link uk.gov.gchq.gaffer.operation.Operation}s.
  */
 @Path("/graph/config")

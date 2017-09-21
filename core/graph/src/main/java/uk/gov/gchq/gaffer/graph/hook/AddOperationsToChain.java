@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A <code>AddOperationsToChain</code> is a {@link GraphHook} that allows a
+ * A {@code AddOperationsToChain} is a {@link GraphHook} that allows a
  * user to insert additional operations at certain points on the operation chain.
  * At the start, before a specific Operation, after a specific Operation, or at the end.
  * A user can also specify authorised Operations to add, and if the user has
@@ -116,7 +116,7 @@ public class AddOperationsToChain implements GraphHook {
 
     public void setAuthorisedOps(final LinkedHashMap<String, AdditionalOperations> authorisedOps) {
         this.authorisedOps.clear();
-        if (authorisedOps != null) {
+        if (null != authorisedOps) {
             this.authorisedOps.putAll(authorisedOps);
         }
     }
@@ -124,7 +124,7 @@ public class AddOperationsToChain implements GraphHook {
     private List<Operation> addOperationsToChain(final OperationChain<?> opChain, final AdditionalOperations additionalOperations) {
         final List<Operation> opList = new ArrayList<>();
 
-        if (opChain != null && !opChain.getOperations().isEmpty()) {
+        if (null != opChain && !opChain.getOperations().isEmpty()) {
             for (final Operation originalOp : opChain.getOperations()) {
                 if (originalOp instanceof OperationChain) {
                     opList.addAll(addOperationsToChain((OperationChain) originalOp, additionalOperations));
@@ -132,14 +132,14 @@ public class AddOperationsToChain implements GraphHook {
                     final List<Operation> beforeOps = additionalOperations.getBefore()
                                                                           .get(originalOp.getClass()
                                                                                         .getName());
-                    if (beforeOps != null) {
+                    if (null != beforeOps) {
                         opList.addAll(beforeOps);
                     }
                     opList.add(originalOp);
                     final List<Operation> afterOps = additionalOperations.getAfter()
                                                                          .get(originalOp.getClass()
                                                                                         .getName());
-                    if (afterOps != null) {
+                    if (null != afterOps) {
                         opList.addAll(afterOps);
                     }
                 }

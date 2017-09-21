@@ -20,14 +20,17 @@ import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.util.LinkedHashSet;
 
 import static org.mockito.BDDMockito.given;
@@ -43,7 +46,7 @@ public class FederatedAddAllElementsHandlerTest {
     }
 
     @Test
-    final public void shouldMergeResultsFromFieldObjects() throws Exception {
+    public final void shouldMergeResultsFromFieldObjects() throws Exception {
         // Given
         final AddElements op = Mockito.mock(AddElements.class);
         Mockito.when(op.shallowClone()).thenReturn(op);
@@ -79,15 +82,15 @@ public class FederatedAddAllElementsHandlerTest {
     }
 
 
-    private Graph getGraphWithMockStore(final Store mockStore) throws uk.gov.gchq.gaffer.operation.OperationException {
+    private Graph getGraphWithMockStore(final Store mockStore) {
         return new Graph.Builder()
-                .graphId("testGraphId")
+                .config(new GraphConfig("testGraphId"))
                 .store(mockStore)
                 .build();
     }
 
 
-    private Store getMockStore(final Schema unusedSchema) throws uk.gov.gchq.gaffer.operation.OperationException {
+    private Store getMockStore(final Schema unusedSchema) {
         Store mockStore1 = Mockito.mock(Store.class);
         given(mockStore1.getSchema()).willReturn(unusedSchema);
         return mockStore1;

@@ -37,6 +37,7 @@ public class ReservoirNumbersUnionSerialiserTest extends ViaCalculatedArrayValue
         return new ReservoirNumbersUnionSerialiser();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Pair<ReservoirItemsUnion<Number>, byte[]>[] getHistoricSerialisationPairs() {
         final ReservoirItemsUnion<Number> union = getExampleOutput();

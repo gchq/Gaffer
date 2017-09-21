@@ -29,18 +29,25 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * Conditions required for a {@link User} to have access to a graph within the {@link FederatedStore} via a {@link FederatedAccessHook}
  * <table summary="FederatedAccessHook truth table">
- * <tr><td> User Ops</td><td>|</td><td> AccessHook Ops</td><td>|</td><td> User added graph</td><td>|</td><td> hasAccess?</td></tr>
- * <tr><td>  'A'    </td><td>|</td><td> 'A'     </td><td>|</td><td> Y/N </td><td>|</td><td> Y   </td></tr>
- * <tr><td>  'A', 'B' </td><td>|</td><td> 'A'     </td><td>|</td><td> Y/N </td><td>|</td><td> Y   </td></tr>
- * <tr><td>  'A'    </td><td>|</td><td> 'A', 'B'  </td><td>|</td><td> Y/N </td><td>|</td><td> Y   </td></tr>
- * <tr><td>  'A'    </td><td>|</td><td> 'B'     </td><td>|</td><td> N   </td><td>|</td><td> N   </td></tr>
- * <tr><td>  'A'    </td><td>|</td><td> 'B'     </td><td>|</td><td> Y   </td><td>|</td><td> Y   </td></tr>
+ * <tr><td> User Ops</td><td> AccessHook Ops</td><td> User added graph  </td><td> hasAccess?</td></tr>
+ * <tr><td> 'A'     </td><td> 'A'           </td><td> n/a               </td><td> T         </td></tr>
+ * <tr><td> 'A','B' </td><td> 'A'           </td><td> n/a               </td><td> T         </td></tr>
+ * <tr><td> 'A'     </td><td> 'A','B'       </td><td> n/a               </td><td> T         </td></tr>
+ * <tr><td> 'A'     </td><td> 'B'           </td><td> F                 </td><td> F         </td></tr>
+ * <tr><td> 'A'     </td><td> 'B'           </td><td> T                 </td><td> T         </td></tr>
+ * <tr><td> n/a     </td><td> {@code null}  </td><td> T                 </td><td> T         </td></tr>
+ * <tr><td> n/a     </td><td> {@code null}  </td><td> F                 </td><td> F         </td></tr>
+ * <tr><td> n/a     </td><td> {@code empty} </td><td> T                 </td><td> T         </td></tr>
+ * <tr><td> n/a     </td><td> {@code empty} </td><td> F                 </td><td> F         </td></tr>
  * </table>
+ *
+ * @see #isValidToExecute(User)
  */
 public class FederatedAccessHook implements GraphHook {
     public static final String USER_DOES_NOT_HAVE_CORRECT_AUTHS_TO_ACCESS_THIS_GRAPH_USER_S = "User does not have correct auths to access this graph. User: %s";
-    private Set<String> graphAuths;
+    private Set<String> graphAuths = new HashSet<>();
     private String addingUserId;
 
     public void setAddingUserId(final String creatorUserId) {
@@ -54,15 +61,37 @@ public class FederatedAccessHook implements GraphHook {
         }
     }
 
+    /**
+     * <table summary="isValidToExecute truth table">
+     * <tr><td> hookAuthsEmpty  </td><td> isAddingUser</td><td> userHasASharedAuth</td><td> isValid?</td></tr>
+     * <tr><td>  T              </td><td> T           </td><td> n/a               </td><td> T   </td></tr>
+     * <tr><td>  T              </td><td> F           </td><td> n/a               </td><td> F   </td></tr>
+     * <tr><td>  F              </td><td> T           </td><td> n/a               </td><td> T   </td></tr>
+     * <tr><td>  F              </td><td> n/a         </td><td> T                 </td><td> T   </td></tr>
+     * <tr><td>  F              </td><td> F           </td><td> F                 </td><td> F   </td></tr>
+     * </table>
+     *
+     * @param user User request permission.
+     * @return boolean permission for user.
+     */
     protected boolean isValidToExecute(final User user) {
-        return /*authsIsEmpty*/ this.graphAuths != null && this.graphAuths.isEmpty()
-                || /*isAddingUser*/ null != user.getUserId() && user.getUserId().equals(addingUserId)
-                || /*userHasASharedAuth*/ this.graphAuths != null && !Collections.disjoint(user.getOpAuths(), this.graphAuths);
+        return isAddingUser(user) || (!isAuthsNullOrEmpty() && isUserHasASharedAuth(user));
     }
 
-    public FederatedAccessHook setGraphAuths(final Set<String> graphAuths) {
+    private boolean isUserHasASharedAuth(final User user) {
+        return !Collections.disjoint(user.getOpAuths(), this.graphAuths);
+    }
+
+    private boolean isAddingUser(final User user) {
+        return null != user.getUserId() && user.getUserId().equals(addingUserId);
+    }
+
+    private boolean isAuthsNullOrEmpty() {
+        return (null == this.graphAuths || this.graphAuths.isEmpty());
+    }
+
+    public void setGraphAuths(final Set<String> graphAuths) {
         this.graphAuths = graphAuths;
-        return this;
     }
 
     @Override
@@ -71,8 +100,8 @@ public class FederatedAccessHook implements GraphHook {
     }
 
     public static class Builder {
-        private FederatedAccessHook hook = new FederatedAccessHook();
-        private Builder self = this;
+        private final FederatedAccessHook hook = new FederatedAccessHook();
+        private final Builder self = this;
 
         public Builder graphAuths(final String... opAuth) {
             if (null == opAuth) {

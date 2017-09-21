@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.operation.io.Input;
 import java.util.Map;
 
 public class ImportKeyValueJavaPairRDDToAccumulo implements
-        Operation,
         Input<JavaPairRDD<Key, Value>> {
     @Required
     private String outputPath;

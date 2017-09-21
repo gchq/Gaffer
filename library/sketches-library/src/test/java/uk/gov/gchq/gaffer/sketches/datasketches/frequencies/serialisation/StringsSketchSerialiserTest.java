@@ -38,6 +38,7 @@ public class StringsSketchSerialiserTest extends ViaCalculatedValueSerialiserTes
         return new StringsSketchSerialiser();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Pair<ItemsSketch<String>, byte[]>[] getHistoricSerialisationPairs() {
         final ItemsSketch<String> sketch = getExampleOutput();

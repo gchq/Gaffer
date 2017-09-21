@@ -67,7 +67,7 @@ public class AddElementsFromHdfsMapper<KEY_IN, VALUE_IN>
         }
 
         context.write(keyPair.getFirst(), value);
-        if (keyPair.getSecond() != null) {
+        if (null != keyPair.getSecond()) {
             context.write(keyPair.getSecond(), value);
         }
         context.getCounter("Bulk import", element.getClass().getSimpleName() + " count").increment(1L);

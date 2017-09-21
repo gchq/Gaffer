@@ -17,13 +17,16 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import org.junit.Test;
+
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
@@ -40,7 +43,7 @@ public class FederatedRemoveGraphHandlerTest {
 
         FederatedStore store = new FederatedStore();
         store.addGraphs(new Graph.Builder()
-                .graphId(graphId)
+                .config(new GraphConfig(graphId))
                 .addSchema(new Schema.Builder().build())
                 .storeProperties(storeProperties)
                 .build());

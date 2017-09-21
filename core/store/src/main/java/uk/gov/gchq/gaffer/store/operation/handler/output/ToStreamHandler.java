@@ -25,7 +25,8 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import java.util.stream.Stream;
 
 /**
- * A <code>ToStreamHandler</code> handles for {@link ToStream} operations.
+ * A {@code ToStreamHandler} handles for {@link ToStream} operations.
+ *
  * Simply wraps the operation input items into a {@link java.util.stream.Stream}
  * for further processing.
  */

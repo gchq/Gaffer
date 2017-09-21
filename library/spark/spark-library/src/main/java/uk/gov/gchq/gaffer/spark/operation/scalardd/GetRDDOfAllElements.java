@@ -29,8 +29,11 @@ import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
 
 import java.util.Map;
 
+/**
+ * A {@code GetRDDOfAllElements} operation retrieves all the {@link Element}s
+ * from the target store, and returns them inside a {@link RDD}.
+ */
 public class GetRDDOfAllElements implements
-        Operation,
         Output<RDD<Element>>,
         GraphFilters,
         Rdd {
