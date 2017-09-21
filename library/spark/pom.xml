@@ -28,7 +28,6 @@
     <modules>
         <module>spark-library</module>
         <module>spark-accumulo-library</module>
-        <module>spark-doc</module>
     </modules>
 
     <properties>
