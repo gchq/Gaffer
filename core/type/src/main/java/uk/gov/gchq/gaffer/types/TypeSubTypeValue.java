@@ -85,7 +85,7 @@ public class TypeSubTypeValue implements Comparable<TypeSubTypeValue>, Serializa
             return true;
         }
 
-        if (object == null || getClass() != object.getClass()) {
+        if (null == object || getClass() != object.getClass()) {
             return false;
         }
 
@@ -109,7 +109,7 @@ public class TypeSubTypeValue implements Comparable<TypeSubTypeValue>, Serializa
 
     @Override
     public int compareTo(final TypeSubTypeValue typeSubTypeValue) {
-        if (typeSubTypeValue == null) {
+        if (null == typeSubTypeValue) {
             return 1;
         }
         int i = stringComparator.compare(type, typeSubTypeValue.getType());

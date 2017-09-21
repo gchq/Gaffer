@@ -52,11 +52,7 @@ public class SetExporter implements Exporter {
     }
 
     private Set<Object> getExport(final String key) {
-        Set<Object> export = exports.get(key);
-        if (null == export) {
-            export = new LinkedHashSet<>();
-            exports.put(key, export);
-        }
+        Set<Object> export = exports.computeIfAbsent(key, k -> new LinkedHashSet<>());
 
         return export;
     }

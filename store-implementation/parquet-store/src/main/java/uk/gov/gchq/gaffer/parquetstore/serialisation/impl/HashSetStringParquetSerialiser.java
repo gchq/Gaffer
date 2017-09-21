@@ -41,7 +41,7 @@ public class HashSetStringParquetSerialiser implements ParquetSerialiser<HashSet
 
     @Override
     public Object[] serialise(final HashSet<String> object) throws SerialisationException {
-        if (object != null) {
+        if (null != object) {
             final String[] objects = new String[object.size()];
             object.toArray(objects);
             return new Object[]{objects};
@@ -55,7 +55,7 @@ public class HashSetStringParquetSerialiser implements ParquetSerialiser<HashSet
             if (objects[0] instanceof String[]) {
                 final String[] objectsToDeserialise = (String[]) objects[0];
                 return Sets.newHashSet(objectsToDeserialise);
-            } else if (objects[0] == null) {
+            } else if (null == objects[0]) {
                 return null;
             }
         }

@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
+import java.util.Arrays;
+
 /**
  * Utility methods for bytes
  */
@@ -53,7 +55,7 @@ public final class ByteUtil {
      * @return true if the provided bytes are equal
      */
     public static boolean areSortedBytesEqual(final byte[] bytes1, final byte[] bytes2) {
-        if (bytes1 == bytes2) {
+        if (Arrays.equals(bytes1, bytes2)) {
             return true;
         }
 

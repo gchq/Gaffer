@@ -24,9 +24,19 @@ import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
+/**
+ * Utility class to create a clone of an {@link Element}.
+ */
 public class ElementCloner {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementCloner.class);
 
+    /**
+     * Clone an {@link Element}, based on a target {@link Schema}.
+     *
+     * @param element the element to clone
+     * @param schema the schema
+     * @return the cloned element
+     */
     public Element cloneElement(final Element element, final Schema schema) {
         try {
             final Element clone = element.emptyClone();

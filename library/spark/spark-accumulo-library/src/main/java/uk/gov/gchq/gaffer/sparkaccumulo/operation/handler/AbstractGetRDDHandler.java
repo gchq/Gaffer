@@ -78,13 +78,13 @@ public abstract class AbstractGetRDDHandler<OP extends Output<O> & GraphFilters,
             final IteratorSetting queryTimeAggregator = accumuloStore.getKeyPackage()
                     .getIteratorFactory()
                     .getQueryTimeAggregatorIteratorSetting(operation.getView(), accumuloStore);
-            if (queryTimeAggregator != null) {
+            if (null != queryTimeAggregator) {
                 InputConfigurator.addIterator(AccumuloInputFormat.class, conf, queryTimeAggregator);
             }
             final IteratorSetting propertyFilter = accumuloStore.getKeyPackage()
                     .getIteratorFactory()
                     .getElementPropertyRangeQueryFilter(derivedOperation);
-            if (propertyFilter != null) {
+            if (null != propertyFilter) {
                 InputConfigurator.addIterator(AccumuloInputFormat.class, conf, propertyFilter);
             }
         } catch (final StoreException | IteratorSettingException e) {
