@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
