@@ -38,6 +38,7 @@ import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.index.GroupIndex;
 import uk.gov.gchq.gaffer.parquetstore.index.MinValuesWithPath;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
+import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
 import uk.gov.gchq.koryphe.impl.predicate.And;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import uk.gov.gchq.koryphe.impl.predicate.IsFalse;
@@ -726,7 +727,9 @@ public final class ParquetFilterUtils {
      * @throws SerialisationException If any of the Gaffer objects are unable to be serialised to Parquet objects
      */
     private Pair<FilterPredicate, Set<Path>> buildFilter(final Predicate filterFunction, final String[] selection, final String group) throws SerialisationException {
-        if (filterFunction instanceof And) {
+        if (filterFunction instanceof AgeOff) {
+            return addAgeOffFilter(((AgeOff) filterFunction), selection, group);
+        } else if (filterFunction instanceof And) {
             return addAndFilter(((And) filterFunction).getComponents(), selection, group);
         } else if (filterFunction instanceof Or) {
             return addOrFilter(((Or) filterFunction).getComponents(), selection, group);
@@ -744,6 +747,30 @@ public final class ParquetFilterUtils {
             }
             return filterResult;
         }
+    }
+
+    private Pair<FilterPredicate, Set<Path>> addAgeOffFilter(final AgeOff ageOff,
+                                                             final String[] selection,
+                                                             final String group) throws SerialisationException {
+        String[] paths = schemaUtils.getPaths(group, selection[0]);
+        if (paths == null) {
+            paths = new String[1];
+            paths[0] = selection[0];
+        }
+        FilterPredicate filter = null;
+        for (int i = 0; i < paths.length; i++) {
+            final String path = paths[i];
+            FilterPredicate tempFilter;
+            Long ageOffTime = System.currentTimeMillis() - ageOff.getAgeOffTime();
+            tempFilter = gt(longColumn(path), ageOffTime);
+
+            if (filter == null) {
+                filter = tempFilter;
+            } else {
+                filter = and(filter, tempFilter);
+            }
+        }
+        return new Pair<>(filter, getAllPathsForColumn(group));
     }
 
     private Pair<FilterPredicate, Set<Path>> addOrFilter(final List<Predicate> predicateList,
