@@ -115,7 +115,7 @@ public class GetJavaRDDOfElementsHandlerTest {
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         JavaRDD<Element> rdd = graph1.execute(rddQuery, user);
         if (rdd == null) {
-            fail("No rdd returned");
+            fail("No RDD returned");
         }
         final Set<Element> results = new HashSet<>(rdd.collect());
         final Set<Element> expectedElements = new HashSet<>();
@@ -151,7 +151,7 @@ public class GetJavaRDDOfElementsHandlerTest {
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         rdd = graph1.execute(rddQuery, user);
         if (rdd == null) {
-            fail("No rdd returned");
+            fail("No RDD returned");
         }
         results.clear();
         results.addAll(rdd.collect());
@@ -170,7 +170,7 @@ public class GetJavaRDDOfElementsHandlerTest {
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         rdd = graph1.execute(rddQuery, user);
         if (rdd == null) {
-            fail("No rdd returned");
+            fail("No RDD returned");
         }
         results.clear();
         results.addAll(rdd.collect());
@@ -187,7 +187,7 @@ public class GetJavaRDDOfElementsHandlerTest {
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         rdd = graph1.execute(rddQuery, user);
         if (rdd == null) {
-            fail("No rdd returned");
+            fail("No RDD returned");
         }
         results.clear();
         results.addAll(rdd.collect());
@@ -278,7 +278,7 @@ public class GetJavaRDDOfElementsHandlerTest {
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         JavaRDD<Element> rdd = graph1.execute(rddQuery, user);
         if (rdd == null) {
-            fail("No rdd returned");
+            fail("No RDD returned");
         }
         final Set<Element> results = new HashSet<>();
         results.addAll(rdd.collect());
@@ -304,7 +304,7 @@ public class GetJavaRDDOfElementsHandlerTest {
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         rdd = graph1.execute(rddQuery, user);
         if (rdd == null) {
-            fail("No rdd returned");
+            fail("No RDD returned");
         }
         results.clear();
         results.addAll(rdd.collect());
@@ -327,7 +327,7 @@ public class GetJavaRDDOfElementsHandlerTest {
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         rdd = graph1.execute(rddQuery, user);
         if (rdd == null) {
-            fail("No rdd returned");
+            fail("No RDD returned");
         }
         results.clear();
         results.addAll(rdd.collect());
@@ -346,7 +346,7 @@ public class GetJavaRDDOfElementsHandlerTest {
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         rdd = graph1.execute(rddQuery, user);
         if (rdd == null) {
-            fail("No rdd returned");
+            fail("No RDD returned");
         }
         results.clear();
         results.addAll(rdd.collect());

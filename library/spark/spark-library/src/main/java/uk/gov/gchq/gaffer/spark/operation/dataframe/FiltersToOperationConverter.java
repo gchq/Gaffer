@@ -86,7 +86,7 @@ public class FiltersToOperationConverter {
     }
 
     /**
-     * Creates an operation to return an rdd in which as much filtering as possible has been carried out by Gaffer
+     * Creates an operation to return an RDD in which as much filtering as possible has been carried out by Gaffer
      * in Accumulo's tablet servers before the data is sent to a Spark executor.
      * <p>
      * Note that when this is used within an operation to return a Dataframe, Spark will also carry out the

@@ -62,7 +62,7 @@ import static uk.gov.gchq.gaffer.spark.operation.dataframe.ClassTagConstants.ELE
  * A handler for the {@link GetRDDOfAllElements} operation.
  *
  * <p>If the {@code gaffer.accumulo.spark.directrdd.use_rfile_reader} option is set to {@code true} then the
- * rdd will be produced by directly reading the RFiles in the Accumulo table, rather than using
+ * RDD will be produced by directly reading the RFiles in the Accumulo table, rather than using
  * {@link ElementInputFormat} to get data via the tablet servers. In order to read the RFiles directly, the user must
  * have read access to the files. Also note that any data that has not been minor compacted will not be read. Reading
  * the Rfiles directly can increase the performance.

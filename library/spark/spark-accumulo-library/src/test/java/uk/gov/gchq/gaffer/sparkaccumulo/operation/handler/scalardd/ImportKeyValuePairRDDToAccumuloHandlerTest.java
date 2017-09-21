@@ -131,7 +131,7 @@ public class ImportKeyValuePairRDDToAccumuloHandlerTest {
 
         final RDD<Element> rdd = graph1.execute(rddQuery, user);
         if (rdd == null) {
-            fail("No rdd returned");
+            fail("No RDD returned");
         }
         final Set<Element> results = new HashSet<>();
         final Element[] returnedElements = (Element[]) rdd.collect();

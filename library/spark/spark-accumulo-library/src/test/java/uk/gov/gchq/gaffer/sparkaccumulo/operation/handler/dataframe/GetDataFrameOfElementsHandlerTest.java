@@ -58,7 +58,7 @@ import static org.junit.Assert.fail;
 /**
  * These tests test that the handler for {@link GetDataFrameOfElements} operate correctly. Note however that
  * Spark will filter out results that don't match the supplied predicates itself. The unit tests of
- * {@link AccumuloStoreRelation} ensure that the rdd that is returned has already had the correct filtering
+ * {@link AccumuloStoreRelation} ensure that the RDD that is returned has already had the correct filtering
  * applied in Accumulo.
  */
 public class GetDataFrameOfElementsHandlerTest {

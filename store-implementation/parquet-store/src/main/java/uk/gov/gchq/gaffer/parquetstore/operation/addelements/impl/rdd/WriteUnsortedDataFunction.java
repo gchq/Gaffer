@@ -30,7 +30,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * This is a function used by Spark to write out a Spark rdd's partition of data to file.
+ * This is a function used by Spark to write out a Spark RDD's partition of data to file.
  */
 public class WriteUnsortedDataFunction implements VoidFunction<Iterator<Element>> {
 

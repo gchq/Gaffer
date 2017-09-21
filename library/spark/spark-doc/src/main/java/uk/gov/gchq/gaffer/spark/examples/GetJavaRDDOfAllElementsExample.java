@@ -87,7 +87,7 @@ public class GetJavaRDDOfAllElementsExample extends OperationExample {
     public void getJavaRddOfAllElements(final JavaSparkContext sc, final Graph graph) throws OperationException {
         ROOT_LOGGER.setLevel(Level.INFO);
         // Avoid using getMethodNameAsSentence as it messes up the formatting of the "rdd" part
-        log("#### get Java rdd of elements\n");
+        log("#### get JavaRDD of elements\n");
         printGraph();
         ROOT_LOGGER.setLevel(Level.OFF);
         final GetJavaRDDOfAllElements operation = new GetJavaRDDOfAllElements.Builder()
@@ -112,7 +112,7 @@ public class GetJavaRDDOfAllElementsExample extends OperationExample {
 
     public void getJavaRddOfAllElementsReturningEdgesOnly(final JavaSparkContext sc, final Graph graph) throws OperationException {
         ROOT_LOGGER.setLevel(Level.INFO);
-        log("#### get Java rdd of elements returning edges only\n");
+        log("#### get JavaRDD of elements returning edges only\n");
         printGraph();
         ROOT_LOGGER.setLevel(Level.OFF);
         final GetJavaRDDOfAllElements operation = new GetJavaRDDOfAllElements.Builder()
