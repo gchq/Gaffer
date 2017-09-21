@@ -265,7 +265,6 @@ public class ProxyStore extends Store {
     @Override
     protected void addAdditionalOperationHandlers() {
         // no operation handlers to add.
-//        addOperationHandler(OperationChain.class, new OperationChainHandler());
     }
 
     @Override
