@@ -23,6 +23,10 @@ import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import java.io.Serializable;
 import java.util.Comparator;
 
+/**
+ * A {@code TypeSubTypeValue} is used to store information relating to types,
+ * sub-types and associated values.
+ */
 public class TypeSubTypeValue implements Comparable<TypeSubTypeValue>, Serializable {
 
     private static Comparator<String> stringComparator = Comparator
@@ -81,7 +85,7 @@ public class TypeSubTypeValue implements Comparable<TypeSubTypeValue>, Serializa
             return true;
         }
 
-        if (object == null || getClass() != object.getClass()) {
+        if (null == object || getClass() != object.getClass()) {
             return false;
         }
 
@@ -105,7 +109,7 @@ public class TypeSubTypeValue implements Comparable<TypeSubTypeValue>, Serializa
 
     @Override
     public int compareTo(final TypeSubTypeValue typeSubTypeValue) {
-        if (typeSubTypeValue == null) {
+        if (null == typeSubTypeValue) {
             return 1;
         }
         int i = stringComparator.compare(type, typeSubTypeValue.getType());

@@ -56,7 +56,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 /**
- * A <code>SchemaElementDefinition</code> is the representation of a single group in a
+ * A {@code SchemaElementDefinition} is the representation of a single group in a
  * {@link Schema}.
  * Each element needs identifiers and can optionally have properties, an aggregator and a validator.
  */
@@ -194,13 +194,6 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         return null != aggregator ? aggregator.getComponents() : null;
     }
 
-    /**
-     * @return a cloned instance of {@link ElementAggregator} fully populated with all the
-     * {@link java.util.function.BinaryOperator}s defined in this
-     * {@link SchemaElementDefinition} and also the
-     * {@link java.util.function.BinaryOperator}s defined in the corresponding property value
-     * {@link TypeDefinition}s.
-     */
     @JsonIgnore
     public ElementAggregator getFullAggregator() {
         if (null == fullAggregatorCache) {
@@ -306,14 +299,6 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         return queryAggregator;
     }
 
-    /**
-     * @return a cloned instance of {@link ElementFilter} fully populated with all the
-     * {@link java.util.function.Predicate}s defined in this
-     * {@link SchemaElementDefinition} and also the
-     * {@link SchemaElementDefinition} and also the
-     * {@link java.util.function.Predicate}s defined in the corresponding identifier and property value
-     * {@link TypeDefinition}s.
-     */
     @JsonIgnore
     public ElementFilter getValidator() {
         return getValidator(true);
@@ -489,7 +474,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             return true;
         }
 
-        if (obj == null || getClass() != obj.getClass()) {
+        if (null == obj || getClass() != obj.getClass()) {
             return false;
         }
 

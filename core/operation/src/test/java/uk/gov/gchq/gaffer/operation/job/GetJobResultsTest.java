@@ -88,6 +88,7 @@ public class GetJobResultsTest extends OperationTest<GetJobResults> {
         assertEquals(getJobResults.getJobId(), clone.getJobId());
     }
 
+    @Override
     protected GetJobResults getTestObject() {
         return new GetJobResults();
     }

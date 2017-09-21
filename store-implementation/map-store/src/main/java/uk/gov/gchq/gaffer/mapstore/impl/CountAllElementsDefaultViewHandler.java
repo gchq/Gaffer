@@ -22,6 +22,10 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
+/**
+ * An {@link uk.gov.gchq.gaffer.store.operation.handler.OperationHandler} for the
+ * {@link CountAllElementsDefaultView} operation on the {@link MapStore}.
+ */
 public class CountAllElementsDefaultViewHandler implements OutputOperationHandler<CountAllElementsDefaultView, Long> {
     @Override
     public Long doOperation(final CountAllElementsDefaultView operation, final Context context, final Store store)

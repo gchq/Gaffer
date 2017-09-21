@@ -26,6 +26,10 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+/**
+ * A {@code SchemaEntityDefinition} is the representation of a single entity in a
+ * {@link Schema}.
+ */
 @JsonDeserialize(builder = SchemaEntityDefinition.Builder.class)
 public class SchemaEntityDefinition extends SchemaElementDefinition {
     public String getVertex() {

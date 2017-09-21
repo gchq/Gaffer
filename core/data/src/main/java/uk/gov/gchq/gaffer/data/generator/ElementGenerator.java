@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import java.util.function.Function;
 
 /**
- * An <code>ElementGenerator</code> converts domain objects to {@link uk.gov.gchq.gaffer.data.element.Element}s.
+ * An {@code ElementGenerator} converts domain objects to {@link uk.gov.gchq.gaffer.data.element.Element}s.
  * <p>
  * Implementations should be JSON serialisable.
  *
@@ -33,4 +33,5 @@ import java.util.function.Function;
  */
 @JsonTypeInfo(use = Id.CLASS, include = As.PROPERTY, property = "class")
 public interface ElementGenerator<OBJ> extends Function<Iterable<? extends OBJ>, Iterable<? extends Element>> {
+    // Empty marker interface
 }

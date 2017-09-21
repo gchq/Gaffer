@@ -24,6 +24,10 @@ import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import java.io.Serializable;
 import java.util.Comparator;
 
+/**
+ * A {@code TypeValue} is used to store information relating to types and associated
+ * values.
+ */
 public class TypeValue implements Comparable<TypeValue>, Serializable {
 
     private static Comparator<String> stringComparator = Comparator
@@ -63,7 +67,7 @@ public class TypeValue implements Comparable<TypeValue>, Serializable {
             return true;
         }
 
-        if (obj == null || getClass() != obj.getClass()) {
+        if (null == obj || getClass() != obj.getClass()) {
             return false;
         }
 
@@ -93,7 +97,7 @@ public class TypeValue implements Comparable<TypeValue>, Serializable {
 
     @Override
     public int compareTo(final TypeValue typeValue) {
-        if (typeValue == null) {
+        if (null == typeValue) {
             return 1;
         }
         int i = stringComparator.compare(type, typeValue.getType());

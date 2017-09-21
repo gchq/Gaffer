@@ -32,7 +32,7 @@ import javax.ws.rs.Produces;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 /**
- * An <code>IExamplesService</code> has methods to produce example {@link uk.gov.gchq.gaffer.operation.Operation}s to be applied
+ * An {@code IExamplesService} has methods to produce example {@link uk.gov.gchq.gaffer.operation.Operation}s to be applied
  * to the methods in {@link uk.gov.gchq.gaffer.rest.service.v1.IOperationService}.
  * Each example method path should be equal to the corresponding IOperationService method with /example as a prefix.
  * Each example method should return a populated {@link uk.gov.gchq.gaffer.operation.Operation} which can be used to call the

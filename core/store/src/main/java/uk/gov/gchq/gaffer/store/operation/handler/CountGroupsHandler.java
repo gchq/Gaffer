@@ -25,6 +25,9 @@ import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
+/**
+ * A {@code CountGroupsHandler} handles {@link CountGroups} operations.
+ */
 public class CountGroupsHandler implements OutputOperationHandler<CountGroups, GroupCounts> {
     @Override
     public GroupCounts doOperation(final CountGroups operation,

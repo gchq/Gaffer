@@ -93,6 +93,7 @@ public class CompactRawLongSerialiserTest extends ToBytesSerialisationTest<Long>
         return new CompactRawLongSerialiser();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Pair<Long, byte[]>[] getHistoricSerialisationPairs() {
         return new Pair[]{

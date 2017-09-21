@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.operation.impl.output;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
@@ -26,14 +25,13 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Map;
 
 /**
- * A <code>ToVertices</code> takes an {@link java.lang.Iterable} of
+ * A {@code ToVertices} takes an {@link java.lang.Iterable} of
  * {@link uk.gov.gchq.gaffer.data.element.id.ElementId}s and converts them into
  * vertices.
  *
  * @see uk.gov.gchq.gaffer.operation.impl.output.ToVertices.Builder
  */
 public class ToVertices implements
-        Operation,
         InputOutput<Iterable<? extends ElementId>, Iterable<? extends Object>>,
         MultiInput<ElementId> {
 

@@ -28,7 +28,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * A <code>FreqMapSerialiser</code> serialises and deserialises {@code FreqMap}s.
+ * A {@code FreqMapSerialiser} serialises and deserialises {@code FreqMap}s.
  * Any null keys or values are skipped.
  */
 public class FreqMapSerialiser implements ToBytesSerialiser<FreqMap> {
@@ -41,7 +41,7 @@ public class FreqMapSerialiser implements ToBytesSerialiser<FreqMap> {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         boolean isFirst = true;
         for (final Entry<String, Long> entry : entrySet) {
-            if (entry.getKey() != null && entry.getValue() != null) {
+            if (null != entry.getKey() && null != entry.getValue()) {
                 if (isFirst) {
                     isFirst = false;
                 } else {

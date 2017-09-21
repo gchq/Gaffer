@@ -22,6 +22,10 @@ import org.apache.spark.sql.SparkSession;
 
 import uk.gov.gchq.gaffer.user.User;
 
+/**
+ * Implementation of the {@link User} class for creating users which can access
+ * a {@link SparkSession}.
+ */
 public class SparkUser extends User {
 
     private SparkSession sparkSession;
@@ -45,7 +49,7 @@ public class SparkUser extends User {
             return true;
         }
 
-        if (user == null || getClass() != user.getClass()) {
+        if (null == user || getClass() != user.getClass()) {
             return false;
         }
 

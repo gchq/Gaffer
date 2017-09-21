@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd;
 
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
-import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -27,7 +26,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -44,7 +42,6 @@ import uk.gov.gchq.gaffer.sparkaccumulo.operation.javardd.ImportKeyValueJavaPair
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.java.ElementConverterFunction;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -103,9 +100,9 @@ public class ImportKeyValueJavaPairRDDToAccumuloHandlerTest {
 
         // Create Hadoop configuration and serialise to a string
         final Configuration configuration = new Configuration();
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        configuration.write(new DataOutputStream(baos));
-        final String configurationString = new String(baos.toByteArray(), CommonConstants.UTF_8);
+        final String configurationString = AbstractGetRDDHandler
+                .convertConfigurationToString(configuration);
+
         final String outputPath = testFolder.getRoot().getAbsolutePath() + "/output";
         final String failurePath = testFolder.getRoot().getAbsolutePath() + "/failure";
 

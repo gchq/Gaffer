@@ -31,7 +31,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
- * A <code>SortHandler</code> handles the {@link Sort} operation. It does that
+ * A {@code SortHandler} handles the {@link Sort} operation. It does that
  * in memory using the {@link uk.gov.gchq.gaffer.commonutil.iterable.LimitedInMemorySortedIterable}.
  * If the resultLimit is set to one that it just deletes the operation to the
  * {@link MaxHandler}.
@@ -60,7 +60,7 @@ public class SortHandler implements OutputOperationHandler<Sort, Iterable<? exte
             return Collections.singletonList(max);
         }
 
-        try (Stream<? extends Element> stream =
+        try (final Stream<? extends Element> stream =
                      Streams.toStream(operation.getInput())
                              .filter(Objects::nonNull)) {
             return stream.collect(

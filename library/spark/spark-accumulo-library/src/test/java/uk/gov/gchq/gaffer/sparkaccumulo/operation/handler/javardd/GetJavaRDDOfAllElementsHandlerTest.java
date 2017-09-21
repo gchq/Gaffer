@@ -15,14 +15,12 @@
  */
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd;
 
-import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.SparkSession;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -37,7 +35,6 @@ import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.SparkSessionProvider;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -102,9 +99,8 @@ public class GetJavaRDDOfAllElementsHandlerTest {
 
         // Create Hadoop configuration and serialise to a string
         final Configuration configuration = new Configuration();
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        configuration.write(new DataOutputStream(baos));
-        final String configurationString = new String(baos.toByteArray(), CommonConstants.UTF_8);
+        final String configurationString = AbstractGetRDDHandler
+                .convertConfigurationToString(configuration);
 
         // Check get correct edges for "1"
         final GetJavaRDDOfAllElements rddQuery = new GetJavaRDDOfAllElements.Builder()
@@ -169,9 +165,8 @@ public class GetJavaRDDOfAllElementsHandlerTest {
 
         // Create Hadoop configuration and serialise to a string
         final Configuration configuration = new Configuration();
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        configuration.write(new DataOutputStream(baos));
-        final String configurationString = new String(baos.toByteArray(), CommonConstants.UTF_8);
+        final String configurationString = AbstractGetRDDHandler
+                .convertConfigurationToString(configuration);
 
         // Create user with just public auth, and user with both private and public
         final Set<String> publicNotPrivate = new HashSet<>();

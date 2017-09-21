@@ -15,8 +15,23 @@
  */
 package uk.gov.gchq.gaffer.jobtracker;
 
+/**
+ * Denotes the status of a Gaffer job.
+ */
 public enum JobStatus {
+
+    /**
+     * The Gaffer job has been submitted and is running.
+     */
     RUNNING,
+
+    /**
+     * The Gaffer job has completed successfully.
+     */
     FINISHED,
+
+    /**
+     * An error occured while executing the Gaffer job.
+     */
     FAILED
 }

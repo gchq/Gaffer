@@ -34,6 +34,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A {@code AddNamedOperation} is an {@link Operation} for creating a new {@link NamedOperation}
+ * and adding it to a Gaffer graph.
+ */
 public class AddNamedOperation implements Operation {
     private String operations = null;
     private String operationName;
@@ -43,7 +47,6 @@ public class AddNamedOperation implements Operation {
     private boolean overwriteFlag = false;
     private Map<String, ParameterDetail> parameters;
     private Map<String, String> options;
-
 
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
 
@@ -131,6 +134,7 @@ public class AddNamedOperation implements Operation {
         return parameters;
     }
 
+    @Override
     public AddNamedOperation shallowClone() {
         return new AddNamedOperation.Builder()
                 .operationChain(operations)

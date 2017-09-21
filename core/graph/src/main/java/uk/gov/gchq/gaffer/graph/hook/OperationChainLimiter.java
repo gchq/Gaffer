@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.Map;
 
 /**
- * An <code>OperationChainLimiter</code> is a {@link GraphHook} that checks a
+ * An {@code OperationChainLimiter} is a {@link GraphHook} that checks a
  * user is authorised to execute an operation chain based on that user's maximum chain score and the configured score value for each operation in the chain.
  * This class requires a map of operation scores.
  * When using a properties file the last entry in the file that an operation can be assigned to will be the score that is used for that operation.
@@ -48,8 +48,7 @@ public class OperationChainLimiter implements GraphHook {
     private ScoreOperationChainHandler scorer = new ScoreOperationChainHandler();
 
     /**
-     * Checks the {@link OperationChain}
-     * is allowed to be executed by the user.
+     * Checks the {@link OperationChain} is allowed to be executed by the user.
      * This is done by checking the user's auths against the auth scores getting the users maximum score limit value.
      * Then checking the operation score of all operations in the chain and comparing the total score value of the chain against a users maximum score limit.
      * If an operation cannot be executed then an {@link IllegalAccessError} is thrown.

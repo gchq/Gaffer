@@ -19,7 +19,7 @@ import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.DataTypes;
 import scala.collection.JavaConverters;
 
-import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.ConversionException;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.exception.ConversionException;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
 import uk.gov.gchq.gaffer.types.FreqMap;
 

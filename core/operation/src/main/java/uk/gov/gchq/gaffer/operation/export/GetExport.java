@@ -16,6 +16,10 @@
 
 package uk.gov.gchq.gaffer.operation.export;
 
+/**
+ * A {@code GetExport} is an {@link uk.gov.gchq.gaffer.operation.Operation} to
+ * retrieve the details of an {@link Export} operation.
+ */
 public interface GetExport extends Export {
     String getJobId();
 

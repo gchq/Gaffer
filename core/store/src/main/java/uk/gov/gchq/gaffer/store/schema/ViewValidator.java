@@ -40,7 +40,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * An <code>ViewValidator</code> validates a view against a {@link Schema}
+ * An {@code ViewValidator} validates a view against a {@link Schema}
  * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition}.
  * Checks all function input and output types are compatible with the
  * properties and identifiers in the Schema and the transient properties in the
@@ -157,8 +157,8 @@ public class ViewValidator {
 
     private void validateStoreTrait(final Composite functions, final StoreTrait storeTrait, final Set<StoreTrait> storeTraits, final ValidationResult result) {
         if (!storeTraits.contains(storeTrait)
-                && functions != null
-                && functions.getComponents() != null
+                && null != functions
+                && null != functions.getComponents()
                 && !functions.getComponents().isEmpty()) {
             result.addError("This store does not currently support " + storeTrait.name());
         }

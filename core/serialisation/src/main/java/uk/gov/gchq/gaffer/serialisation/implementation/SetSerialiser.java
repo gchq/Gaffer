@@ -57,7 +57,7 @@ public class SetSerialiser implements ToBytesSerialiser<Set<? extends Object>> {
     @Override
     public Set<? extends Object> deserialise(final byte[] bytes) throws SerialisationException {
         Set set;
-        if (getSetClass() == null) {
+        if (null == getSetClass()) {
             set = new HashSet<>();
         } else {
             try {
@@ -80,7 +80,7 @@ public class SetSerialiser implements ToBytesSerialiser<Set<? extends Object>> {
     @Override
     public Set<? extends Object> deserialiseEmpty() throws SerialisationException {
         Set set;
-        if (getSetClass() == null) {
+        if (null == getSetClass()) {
             set = new HashSet<>();
         } else {
             try {

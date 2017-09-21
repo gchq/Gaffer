@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.data.element;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 
 /**
- * An <code>LazyEdge</code> wraps an {@link uk.gov.gchq.gaffer.data.element.Edge} and lazily loads identifiers and properties when
+ * An {@code LazyEdge} wraps an {@link uk.gov.gchq.gaffer.data.element.Edge} and lazily loads identifiers and properties when
  * requested using a provided {@link uk.gov.gchq.gaffer.data.element.ElementValueLoader}. This will avoid loading all of an
  * edge's properties just for it to be filtered out by a filter function.
  */
@@ -31,7 +31,7 @@ public class LazyEdge extends Edge {
     private boolean identifiersLoaded = false;
 
     /**
-     * Constructs a {@link uk.gov.gchq.gaffer.data.element.LazyEdge} by wrapping the provided {@link uk.gov.gchq.gaffer.data.element.Edge}
+     * Constructs a  by wrapping the provided {@link uk.gov.gchq.gaffer.data.element.Edge}
      * and using the {@link uk.gov.gchq.gaffer.data.element.ElementValueLoader} to lazily load the element's identifiers and
      * properties when requested.
      *

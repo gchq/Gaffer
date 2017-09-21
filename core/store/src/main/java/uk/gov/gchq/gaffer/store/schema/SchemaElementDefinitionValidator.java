@@ -32,7 +32,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * An <code>SchemaElementDefinitionValidator</code> validates a {@link SchemaElementDefinition}.
+ * An {@code SchemaElementDefinitionValidator} validates a {@link SchemaElementDefinition}.
  * Checks all function input and output types are compatible with the
  * properties and identifiers provided.
  * To be able to aggregate 2 similar elements together ALL properties have to
@@ -176,10 +176,10 @@ public class SchemaElementDefinitionValidator {
         // if aggregate functions are defined then check all properties are aggregated
         // also check that no identifiers are selected
         final Set<String> aggregatedProperties = new HashSet<>();
-        if (aggregator.getComponents() != null) {
+        if (null != aggregator.getComponents()) {
             for (final TupleAdaptedBinaryOperator<String, ?> adaptedFunction : aggregator.getComponents()) {
                 final String[] selection = adaptedFunction.getSelection();
-                if (selection != null) {
+                if (null != selection) {
                     for (final String key : selection) {
                         final IdentifierType idType = IdentifierType.fromName(key);
                         if (null == idType) {

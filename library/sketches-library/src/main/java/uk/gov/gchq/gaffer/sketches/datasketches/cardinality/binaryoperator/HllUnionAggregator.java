@@ -20,7 +20,7 @@ import com.yahoo.sketches.hll.Union;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
- * A <code>HllUnionAggregator</code> is a {@link java.util.function.BinaryOperator} that takes in
+ * A {@code HllUnionAggregator} is a {@link java.util.function.BinaryOperator} that takes in
  * {@link com.yahoo.sketches.hll.Union}s and merges them together using
  * {@link Union#update(com.yahoo.sketches.hll.HllSketch)}.
  */

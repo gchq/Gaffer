@@ -22,6 +22,6 @@ public final class RoaringBitmapConstants {
     public static final String BITMAP_MODULE_NAME = "RoaringBitmapModule";
 
     private RoaringBitmapConstants() {
-
+        // Private constructor to prevent instantiation.
     }
 }

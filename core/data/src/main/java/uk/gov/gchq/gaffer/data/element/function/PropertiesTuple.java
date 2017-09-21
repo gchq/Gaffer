@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.koryphe.tuple.Tuple;
 
 /**
- * An <code>PropertiesTuple</code> implements {@link Tuple} wrapping a
+ * An {@code PropertiesTuple} implements {@link Tuple} wrapping a
  * {@link Properties} and providing a getter and setter for the element's property values.
  * This class allows Properties to be used with the function module whilst minimising dependencies.
  */

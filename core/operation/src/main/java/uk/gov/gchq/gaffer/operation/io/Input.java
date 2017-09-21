@@ -23,6 +23,11 @@ import uk.gov.gchq.gaffer.operation.Operation;
 
 import java.io.IOException;
 
+/**
+ * {@code Input} operations are any Gaffer operations which consume a single input.
+ *
+ * @param <I> the type of input object
+ */
 public interface Input<I> extends Operation {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     I getInput();
