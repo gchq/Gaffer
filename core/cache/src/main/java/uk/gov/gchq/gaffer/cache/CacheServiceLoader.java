@@ -65,12 +65,7 @@ public final class CacheServiceLoader {
         service.initialise(properties);
 
         if (!shutdownHookAdded) {
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                @Override
-                public void run() {
-                    shutdown();
-                }
-            });
+            Runtime.getRuntime().addShutdownHook(new Thread(CacheServiceLoader::shutdown));
             shutdownHookAdded = true;
         }
     }

@@ -41,7 +41,7 @@ public class ArrayListStringParquetSerialiser implements ParquetSerialiser<Array
 
     @Override
     public Object[] serialise(final ArrayList<String> object) throws SerialisationException {
-        if (object != null) {
+        if (null != object) {
             final String[] objects = new String[object.size()];
             object.toArray(objects);
             return new Object[]{objects};
@@ -56,7 +56,7 @@ public class ArrayListStringParquetSerialiser implements ParquetSerialiser<Array
             if (objects[0] instanceof String[]) {
                 final String[] objectsToDeserialise = (String[]) objects[0];
                 return Lists.newArrayList(objectsToDeserialise);
-            } else if (objects[0] == null) {
+            } else if (null == objects[0]) {
                 return null;
             }
         }

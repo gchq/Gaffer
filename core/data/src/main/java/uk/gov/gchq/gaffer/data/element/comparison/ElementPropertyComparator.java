@@ -62,13 +62,13 @@ public class ElementPropertyComparator implements ElementComparator {
     public int compare(final Element e1, final Element e2) {
         count++;
 
-        if (e1 == null) {
-            if (e2 == null) {
+        if (null == e1) {
+            if (null == e2) {
                 return 0;
             }
             return 1;
         }
-        if (e2 == null) {
+        if (null == e2) {
             return -1;
         }
 
@@ -86,13 +86,13 @@ public class ElementPropertyComparator implements ElementComparator {
     }
 
     public int _compare(final Object val1, final Object val2) {
-        if (val1 == null) {
-            if (val2 == null) {
+        if (null == val1) {
+            if (null == val2) {
                 return 0;
             }
             return 1;
         }
-        if (val2 == null) {
+        if (null == val2) {
             return -1;
         }
 

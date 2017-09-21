@@ -384,7 +384,7 @@ public class AccumuloStore extends Store {
         // BatchWriter.as
         // The BatchWriter takes care of batching them up, sending them without
         // too high a latency, etc.
-        if (elements != null) {
+        if (null != elements) {
             for (final Element element : elements) {
 
                 final Pair<Key, Key> keys;
@@ -413,7 +413,7 @@ public class AccumuloStore extends Store {
                 // If the GraphElement is a Vertex then there will only be 1 key,
                 // and the second will be null.
                 // If the GraphElement is an Edge then there will be 2 keys.
-                if (keys.getSecond() != null) {
+                if (null != keys.getSecond()) {
                     final Mutation m2 = new Mutation(keys.getSecond().getRow());
                     m2.put(keys.getSecond().getColumnFamily(), keys.getSecond().getColumnQualifier(),
                             new ColumnVisibility(keys.getSecond().getColumnVisibility()), keys.getSecond().getTimestamp(),

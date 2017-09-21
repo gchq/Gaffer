@@ -69,7 +69,7 @@ public abstract class AbstractImportKeyValuePairRDDToAccumuloHandler<OP extends 
     protected Configuration getConfiguration(final OP operation) throws OperationException {
         final Configuration conf = new Configuration();
         final String serialisedConf = operation.getOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY);
-        if (serialisedConf != null) {
+        if (null != serialisedConf) {
             try {
                 final ByteArrayInputStream bais = new ByteArrayInputStream(serialisedConf.getBytes(CommonConstants.UTF_8));
                 conf.readFields(new DataInputStream(bais));

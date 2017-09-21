@@ -79,7 +79,7 @@ public class AccumuloTablet implements Partition {
             return true;
         }
 
-        if (obj == null || getClass() != obj.getClass()) {
+        if (null == obj || getClass() != obj.getClass()) {
             return false;
         }
 

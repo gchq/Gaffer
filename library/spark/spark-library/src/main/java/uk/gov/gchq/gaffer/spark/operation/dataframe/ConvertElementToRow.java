@@ -82,14 +82,14 @@ public class ConvertElementToRow extends AbstractFunction1<Element, Row>
                     break;
                 default:
                     final Object value = element.getProperties().get(property);
-                    if (value == null) {
+                    if (null == value) {
                         fields.appendElem(null);
                     } else {
                         if (!propertyNeedsConversion.get(property)) {
                             fields.appendElem(element.getProperties().get(property));
                         } else {
                             final Converter converter = convertersByProperty.get(property);
-                            if (converter != null) {
+                            if (null != converter) {
                                 try {
                                     fields.appendElem(converter.convert(value));
                                 } catch (final ConversionException e) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017. Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.ImportRDDOfElements;
+package uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -30,8 +30,8 @@ import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.AggregateAndSortTempData;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.CalculateSplitPointsFromIndex;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.GenerateIndices;
-import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.RDD.CalculateSplitPointsFromJavaRDD;
-import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.RDD.WriteUnsortedDataFunction;
+import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.rdd.CalculateSplitPointsFromJavaRDD;
+import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.rdd.WriteUnsortedDataFunction;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SparkParquetUtils;
 import uk.gov.gchq.gaffer.spark.SparkUser;

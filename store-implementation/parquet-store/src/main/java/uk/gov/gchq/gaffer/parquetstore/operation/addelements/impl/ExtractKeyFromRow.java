@@ -56,7 +56,7 @@ public class ExtractKeyFromRow implements Function<Row, Seq<Object>> {
 
     private void addGroupByColumns(final Map<String, String[]> columnToPaths, final String col) {
         final String[] paths = columnToPaths.get(col);
-        if (paths != null) {
+        if (null != paths) {
             if (paths[0].contains(".")) {
                 groupByColumns.add(col);
             } else {
