@@ -74,7 +74,6 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                                    final SeedMatching.SeedMatchingType seedMatchingType,
                                    final Iterable<? extends ElementId> seeds) throws OperationException, StoreException {
         this.view = view;
-        this.gafferSchema = store.getSchema();
         this.directedType = directedType;
         this.includeIncomingOutgoingType = includeIncomingOutgoingType;
         this.seedMatchingType = seedMatchingType;
@@ -86,6 +85,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
         }
         this.parquetFilterUtils = new ParquetFilterUtils(store);
         this.properties = store.getProperties();
+        this.gafferSchema = store.getSchema();
     }
 
     @Override
@@ -104,6 +104,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
         private ConcurrentLinkedQueue<Element> queue;
         private List<Future<OperationException>> runningTasks;
         private ExecutorService executorServicePool;
+        private Schema gafferSchema;
 
         protected ParquetIterator(final View view,
                                   final DirectedType directedType,
@@ -118,6 +119,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                 parquetFilterUtils.buildPathToFilterMap(view, directedType, includeIncomingOutgoingType, seedMatchingType, seeds, graphIndex);
                 final Map<Path, FilterPredicate> pathToFilterMap = parquetFilterUtils.getPathToFilterMap();
                 this.needsValidation = parquetFilterUtils.requiresValidation();
+                this.gafferSchema = gafferSchema;
                 LOGGER.debug("pathToFilterMap: {}", pathToFilterMap);
                 if (!pathToFilterMap.isEmpty()) {
                     queue = new ConcurrentLinkedQueue<>();
@@ -188,12 +190,15 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                 e = queue.poll();
                 if (e != null) {
                     if (needsValidation) {
-                        String group = e.getGroup();
-                        ElementFilter preAggFilter = view.getElement(group).getPreAggregationFilter();
-                        if (preAggFilter != null) {
-                            if (preAggFilter.test(e)) {
-                                ViewUtil.removeProperties(view, e);
-                                return e;
+                        final String group = e.getGroup();
+                        final ElementFilter validatorFilter = gafferSchema.getElement(group).getValidator(false);
+                        if (validatorFilter == null || validatorFilter.test(e)) {
+                            final ElementFilter preAggFilter = view.getElement(group).getPreAggregationFilter();
+                            if (preAggFilter != null) {
+                                if (preAggFilter.test(e)) {
+                                    ViewUtil.removeProperties(view, e);
+                                    return e;
+                                }
                             }
                         }
                     } else {
