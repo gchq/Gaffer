@@ -29,8 +29,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A <code>Transform</code> operation applies a provided {@link ElementTransformer} to the provided {@link Iterable} of {@link Element}s,
+ * A <code>Transform</code> operation applies provided {@link ElementTransformer}(s) to the provided {@link Iterable} of {@link Element}s,
  * and returns an {@link Iterable}.
+ * If only one group is to be queried, simply provide that group and the relevant {@link ElementTransformer}.
+ * For multiple groups, a {@link Map} of {@link uk.gov.gchq.gaffer.data.element.Edge}s, or {@link uk.gov.gchq.gaffer.data.element.Entity}s
+ * to their relevant {@link ElementTransformer}s can be provided.
  */
 public class Transform implements
         Operation,
@@ -40,7 +43,14 @@ public class Transform implements
     private Iterable<? extends Element> input;
     private Map<String, String> options;
 
+    /**
+     * Map of {@link uk.gov.gchq.gaffer.data.element.Edge} Group to {@link ElementTransformer} to be applied to that group
+     */
     private Map<String, ElementTransformer> edges;
+
+    /**
+     * Map of {@link uk.gov.gchq.gaffer.data.element.Entity} Group to {@link ElementTransformer} to be applied to that group
+     */
     private Map<String, ElementTransformer> entities;
 
     @Override
