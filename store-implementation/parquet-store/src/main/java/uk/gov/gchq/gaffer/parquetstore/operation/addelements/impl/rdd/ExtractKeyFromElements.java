@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.RDD;
+package uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.rdd;
 
 import org.apache.spark.api.java.function.PairFunction;
 import scala.Tuple2;

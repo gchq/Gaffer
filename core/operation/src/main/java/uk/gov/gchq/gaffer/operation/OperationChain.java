@@ -171,7 +171,7 @@ public class OperationChain<OUT> implements Output<OUT> {
     @Override
     public boolean equals(final Object obj) {
         boolean isEqual = false;
-        if (obj != null && obj instanceof OperationChain) {
+        if (null != obj && obj instanceof OperationChain) {
             final OperationChain that = (OperationChain) obj;
 
             isEqual = new EqualsBuilder()

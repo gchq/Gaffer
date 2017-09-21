@@ -368,7 +368,7 @@ public abstract class Store {
      */
     public boolean isSupported(final Class<? extends Operation> operationClass) {
         final OperationHandler operationHandler = operationHandlers.get(operationClass);
-        return operationHandler != null;
+        return null != operationHandler;
     }
 
     /**
@@ -467,30 +467,24 @@ public abstract class Store {
         } else {
             validationResult.add(schema.validate());
 
-            getSchemaElements().entrySet()
-                    .forEach(schemaElementDefinitionEntry -> schemaElementDefinitionEntry
-                            .getValue()
-                            .getProperties()
-                            .forEach(propertyName -> {
-                                final Class propertyClass = schemaElementDefinitionEntry
-                                        .getValue()
-                                        .getPropertyClass(propertyName);
-                                final Serialiser serialisation = schemaElementDefinitionEntry
-                                        .getValue()
-                                        .getPropertyTypeDef(propertyName)
-                                        .getSerialiser();
+            getSchemaElements().forEach((key, value) -> value
+                    .getProperties()
+                    .forEach(propertyName -> {
+                        final Class propertyClass = value
+                                .getPropertyClass(propertyName);
+                        final Serialiser serialisation = value
+                                .getPropertyTypeDef(propertyName)
+                                .getSerialiser();
 
-                                if (null == serialisation) {
-                                    validationResult.addError(
-                                            String.format("Could not find a serialiser for property '%s' in the group '%s'.", propertyName, schemaElementDefinitionEntry
-                                                    .getKey()));
-                                } else if (!serialisation.canHandle(propertyClass)) {
-                                    validationResult.addError(String.format("Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema", serialisation
-                                            .getClass()
-                                            .getName(), propertyName, schemaElementDefinitionEntry
-                                            .getKey()));
-                                }
-                            }));
+                        if (null == serialisation) {
+                            validationResult.addError(
+                                    String.format("Could not find a serialiser for property '%s' in the group '%s'.", propertyName, key));
+                        } else if (!serialisation.canHandle(propertyClass)) {
+                            validationResult.addError(String.format("Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema", serialisation
+                                    .getClass()
+                                    .getName(), propertyName, key));
+                        }
+                    }));
 
             validateSchema(validationResult, getSchema().getVertexSerialiser());
 
@@ -555,7 +549,7 @@ public abstract class Store {
     }
 
     protected void validateSchema(final ValidationResult validationResult, final Serialiser serialiser) {
-        if ((serialiser != null) && !requiredParentSerialiserClass.isInstance(serialiser)) {
+        if ((null != serialiser) && !requiredParentSerialiserClass.isInstance(serialiser)) {
             validationResult.addError(
                     String.format("Schema serialiser (%s) is not instance of %s",
                             serialiser.getClass().getSimpleName(),

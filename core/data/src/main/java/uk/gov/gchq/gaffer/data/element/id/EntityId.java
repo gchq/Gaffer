@@ -81,8 +81,8 @@ public interface EntityId extends ElementId {
      * @return An instance of {@link ElementId.Matches} to describe how the seeds are related.
      */
     default Matches isRelated(final EdgeId that) {
-        boolean matchesSource = (getVertex() == null) ? that.getSource() == null : getVertex().equals(that.getSource());
-        boolean matchesDestination = (getVertex() == null) ? that.getDestination() == null : getVertex().equals(that.getDestination());
+        boolean matchesSource = (null == getVertex()) ? null == that.getSource() : getVertex().equals(that.getSource());
+        boolean matchesDestination = (null == getVertex()) ? null == that.getDestination() : getVertex().equals(that.getDestination());
         if (matchesSource) {
             if (matchesDestination) {
                 return Matches.BOTH;

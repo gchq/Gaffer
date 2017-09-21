@@ -53,10 +53,10 @@ public class NamedOperationDetail implements Serializable {
     public NamedOperationDetail(final String operationName, final String description, final String userId,
                                 final String operations, final List<String> readers,
                                 final List<String> writers, final Map<String, ParameterDetail> parameters) {
-        if (operations == null) {
+        if (null == operations) {
             throw new IllegalArgumentException("Operation Chain must not be empty");
         }
-        if (operationName == null || operationName.isEmpty()) {
+        if (null == operationName || operationName.isEmpty()) {
             throw new IllegalArgumentException("Operation Name must not be empty");
         }
 
@@ -113,7 +113,7 @@ public class NamedOperationDetail implements Serializable {
     public OperationChain getOperationChainWithDefaultParams() {
         String opStringWithDefaults = operations;
 
-        if (parameters != null) {
+        if (null != parameters) {
             for (final Map.Entry<String, ParameterDetail> parameterDetailPair : parameters.entrySet()) {
                 String paramKey = parameterDetailPair.getKey();
 
@@ -147,8 +147,8 @@ public class NamedOperationDetail implements Serializable {
         String opStringWithParams = operations;
 
         // First check all the parameters supplied are expected parameter names
-        if (parameters != null) {
-            if (executionParams != null) {
+        if (null != parameters) {
+            if (null != executionParams) {
                 Set<String> paramDetailKeys = parameters.keySet();
                 Set<String> paramKeys = executionParams.keySet();
 
@@ -160,7 +160,7 @@ public class NamedOperationDetail implements Serializable {
             for (final Map.Entry<String, ParameterDetail> parameterDetailPair : parameters.entrySet()) {
                 String paramKey = parameterDetailPair.getKey();
                 try {
-                    if (executionParams != null && executionParams.containsKey(paramKey)) {
+                    if (null != executionParams && executionParams.containsKey(paramKey)) {
                         Object paramObj = JSONSerialiser.deserialise(JSONSerialiser.serialise(executionParams.get(paramKey)), parameterDetailPair.getValue().getValueClass());
 
                         opStringWithParams = opStringWithParams.replace(buildParamNameString(paramKey),
@@ -194,7 +194,7 @@ public class NamedOperationDetail implements Serializable {
             return true;
         }
 
-        if (obj == null || getClass() != obj.getClass()) {
+        if (null == obj || getClass() != obj.getClass()) {
             return false;
         }
 

@@ -87,7 +87,7 @@ public class AggregateGroupSplit implements Callable<OperationException>, Serial
         final SchemaElementDefinition groupGafferSchema = gafferSchema.getElement(group);
         this.isEntity = groupGafferSchema instanceof SchemaEntityDefinition;
         final String aggregateOnIngest = store.getProperties().get(ParquetStoreProperties.PARQUET_AGGREGATE_ON_INGEST, null);
-        if (aggregateOnIngest == null) {
+        if (null == aggregateOnIngest) {
             this.aggregate = groupGafferSchema.isAggregate();
         } else {
             this.aggregate = Boolean.valueOf(aggregateOnIngest);
@@ -118,7 +118,7 @@ public class AggregateGroupSplit implements Callable<OperationException>, Serial
             if (fs.exists(new Path(inputDir))) {
                 paths.add(inputDir);
             }
-            if (currentGraphFiles != null && !currentGraphFiles.isEmpty()) {
+            if (null != currentGraphFiles && !currentGraphFiles.isEmpty()) {
                 for (final String currentGraphFile : currentGraphFiles) {
                     final Path currentGraphFilePath = new Path(currentGraphFile);
                     if (fs.exists(currentGraphFilePath.getParent())) {

@@ -62,7 +62,7 @@ public class AggregateAndSortTempData {
         final SchemaUtils schemaUtils = store.getSchemaUtils();
         final GraphIndex index = store.getGraphIndex();
         final String currentDataDir;
-        if (index != null) {
+        if (null != index) {
             currentDataDir = store.getDataDir()
                     + "/" + index.getSnapshotTimestamp();
         } else {
@@ -88,7 +88,7 @@ public class AggregateAndSortTempData {
             List<Future<OperationException>> results = pool.invokeAll(tasks);
             for (int i = 0; i < tasks.size(); i++) {
                 final OperationException result = results.get(i).get();
-                if (result != null) {
+                if (null != result) {
                     throw result;
                 }
             }
@@ -169,7 +169,7 @@ public class AggregateAndSortTempData {
                                     final SparkSession spark) throws SerialisationException {
         if (groupToSplitPoints.containsKey(group)) {
             final String currentDataInThisGroupDir;
-            if (currentDataDir != null) {
+            if (null != currentDataDir) {
                 currentDataInThisGroupDir = ParquetStore.getGroupDirectory(group, column, currentDataDir);
             } else {
                 currentDataInThisGroupDir = null;
@@ -177,7 +177,7 @@ public class AggregateAndSortTempData {
             final Collection<Integer> splits = groupToSplitPoints.get(group).values();
             for (final int i : splits) {
                 final Set<String> currentGraphFiles = new HashSet<>();
-                if (currentDataInThisGroupDir != null) {
+                if (null != currentDataInThisGroupDir) {
                     currentGraphFiles.add(currentDataInThisGroupDir + "/part-" + zeroPad(String.valueOf(i), 5) + "*.parquet");
                 }
                 tasks.add(new AggregateGroupSplit(group, column, store, currentGraphFiles, spark, i));

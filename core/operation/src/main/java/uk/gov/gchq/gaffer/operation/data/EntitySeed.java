@@ -53,7 +53,7 @@ public class EntitySeed extends ElementSeed implements EntityId {
         if (this == obj) {
             return true;
         }
-        if (obj == null || getClass() != obj.getClass()) {
+        if (null == obj || getClass() != obj.getClass()) {
             return false;
         }
 
