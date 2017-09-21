@@ -36,7 +36,7 @@ public class CoreKeyBloomFunctor implements KeyFunctor {
      */
     @Override
     public org.apache.hadoop.util.bloom.Key transform(final Range range) {
-        if (range.getStartKey() == null || range.getEndKey() == null) {
+        if (null == range.getStartKey() || null == range.getEndKey()) {
             return null;
         }
         final byte[] startKeyFirstIdentifier = getVertexFromRangeKey(

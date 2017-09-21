@@ -41,7 +41,7 @@ public class FreqMapSerialiser implements ToBytesSerialiser<FreqMap> {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         boolean isFirst = true;
         for (final Entry<String, Long> entry : entrySet) {
-            if (entry.getKey() != null && entry.getValue() != null) {
+            if (null != entry.getKey() && null != entry.getValue()) {
                 if (isFirst) {
                     isFirst = false;
                 } else {

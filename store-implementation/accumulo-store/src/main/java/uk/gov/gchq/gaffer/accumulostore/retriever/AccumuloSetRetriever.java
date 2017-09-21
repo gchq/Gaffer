@@ -234,7 +234,7 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
 
         @Override
         public void close() {
-            if (parentRetriever != null) {
+            if (null != parentRetriever) {
                 parentRetriever.close();
             }
         }
@@ -335,7 +335,7 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
 
         @Override
         public void close() {
-            if (scanner != null) {
+            if (null != scanner) {
                 scanner.close();
             }
         }

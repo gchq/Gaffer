@@ -59,7 +59,7 @@ public class MapSerialiser implements ToBytesSerialiser<Map<? extends Object, ? 
     @Override
     public Map<? extends Object, ? extends Object> deserialise(final byte[] bytes) throws SerialisationException {
         Map map;
-        if (getMapClass() == null) {
+        if (null == getMapClass()) {
             map = new HashMap<>();
         } else {
             try {

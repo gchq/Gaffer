@@ -76,7 +76,7 @@ public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM
      */
     public void doTransformation(final Element element) {
         final ViewElementDefinition viewDef = operation.getView().getElement(element.getGroup());
-        if (viewDef != null) {
+        if (null != viewDef) {
             transform(element, viewDef.getTransformer());
         }
     }
@@ -89,7 +89,7 @@ public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM
      */
     public boolean doPostFilter(final Element element) {
         final ViewElementDefinition viewDef = operation.getView().getElement(element.getGroup());
-        if (viewDef != null) {
+        if (null != viewDef) {
             return postFilter(element, viewDef.getPostTransformFilter());
         }
         return true;
@@ -97,7 +97,7 @@ public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM
 
     @Override
     public void close() {
-        if (iterator != null) {
+        if (null != iterator) {
             iterator.close();
         }
     }
@@ -115,9 +115,9 @@ public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM
     protected BatchScanner getScanner(final Set<Range> ranges) throws TableNotFoundException, StoreException {
         final BatchScanner scanner = store.getConnection().createBatchScanner(store.getTableName(),
                 authorisations, store.getProperties().getThreadsForBatchScanner());
-        if (iteratorSettings != null) {
+        if (null != iteratorSettings) {
             for (final IteratorSetting iteratorSetting : iteratorSettings) {
-                if (iteratorSetting != null) {
+                if (null != iteratorSetting) {
                     scanner.addScanIterator(iteratorSetting);
                 }
             }
@@ -134,12 +134,12 @@ public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM
     }
 
     protected void transform(final Element element, final ElementTransformer transformer) {
-        if (transformer != null) {
+        if (null != transformer) {
             transformer.apply(element);
         }
     }
 
     protected boolean postFilter(final Element element, final ElementFilter postFilter) {
-        return postFilter == null || postFilter.test(element);
+        return null == postFilter || postFilter.test(element);
     }
 }

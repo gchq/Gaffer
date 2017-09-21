@@ -171,7 +171,7 @@ public class NamedOperationCache {
     public void deleteFromCache(final String name) throws CacheOperationFailedException {
         CacheServiceLoader.getService().removeFromCache(CACHE_NAME, name);
 
-        if (CacheServiceLoader.getService().getFromCache(CACHE_NAME, name) != null) {
+        if (null != CacheServiceLoader.getService().getFromCache(CACHE_NAME, name)) {
             throw new CacheOperationFailedException("Failed to remove " + name + " from cache");
         }
     }

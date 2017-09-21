@@ -482,7 +482,7 @@ public final class Graph {
         }
 
         public Builder addStoreProperties(final StoreProperties updateProperties) {
-            if (this.properties == null) {
+            if (null == this.properties) {
                 storeProperties(updateProperties);
             } else {
                 final Properties old = this.properties.getProperties();

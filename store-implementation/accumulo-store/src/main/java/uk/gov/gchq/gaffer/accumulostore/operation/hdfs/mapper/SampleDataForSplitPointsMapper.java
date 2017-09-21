@@ -84,7 +84,7 @@ public class SampleDataForSplitPointsMapper<KEY_IN, VALUE_IN> extends GafferMapp
                 throw new IllegalArgumentException(e.getMessage(), e);
             }
             context.write(keyPair.getFirst(), value);
-            if (keyPair.getSecond() != null) {
+            if (null != keyPair.getSecond()) {
                 context.write(keyPair.getSecond(), value);
             }
         } else {
