@@ -31,6 +31,9 @@ import java.io.Serializable;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+/**
+ * Helper class to add {@link Element}s to a Gaffer store.
+ */
 @SuppressFBWarnings(value = "SE_TRANSIENT_FIELD_NOT_RESTORED", justification = "There are null checks that will initialise the fields")
 public class GafferAdder implements Serializable {
     private static final long serialVersionUID = -3418606107861031989L;

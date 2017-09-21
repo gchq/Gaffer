@@ -31,7 +31,7 @@ public class CoreKeyBloomFunctor implements KeyFunctor {
      * range are the same, then we can create the appropriate BloomFilter key.
      * If the key does not correspond to either an
      * {@link uk.gov.gchq.gaffer.data.element.Entity} or an {@link uk.gov.gchq.gaffer.data.element.Edge}
-     * then we return <code>null</code> to indicate that the range cannot be
+     * then we return {@code null} to indicate that the range cannot be
      * converted into a single key for the Bloom filter.
      */
     @Override
@@ -53,7 +53,7 @@ public class CoreKeyBloomFunctor implements KeyFunctor {
      * corresponding key for the Bloom filter. If the key does not correspond to
      * either an {@link uk.gov.gchq.gaffer.data.element.Entity} or an
      * {@link uk.gov.gchq.gaffer.data.element.Edge} then an {@link java.io.IOException} will
-     * be thrown by the method which will be caught and then <code>null</code>
+     * be thrown by the method which will be caught and then {@code null}
      * is returned.
      */
     @Override

@@ -54,7 +54,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * A <code>RFileReaderIterator</code> is a {@link java.util.Iterator} formed by merging iterators over
+ * A {@code RFileReaderIterator} is a {@link java.util.Iterator} formed by merging iterators over
  * a set of RFiles.
  */
 public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Value>> {

@@ -59,7 +59,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
 
-
+/**
+ * Implementation of the {@link IExamplesService}.
+ */
 public class ExamplesService implements IExamplesService {
     public static final String TRANSFORMED_PROPERTIES = "transformedProperties";
 

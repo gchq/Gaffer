@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
 /**
- * A <code>LongsSketchSerialiser</code> serialises a {@link LongsSketch} using its <code>toByteArray()</code>
+ * A {@code LongsSketchSerialiser} serialises a {@link LongsSketch} using its {@code toByteArray()}
  * method.
  */
 public class LongsSketchSerialiser implements ToBytesSerialiser<LongsSketch> {

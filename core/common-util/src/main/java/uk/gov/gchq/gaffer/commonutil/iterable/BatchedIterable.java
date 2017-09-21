@@ -23,7 +23,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * A <code>BatchedIterable</code> is an iterable of batches.
+ * A {@code BatchedIterable} is an iterable of batches.
  * To use, extend this class and implement the createBatch method. When you have
  * no more batches of items left, return null.
  * <p>

@@ -23,14 +23,13 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * A function that will extract the key of an Element ready to aggregateByKey
  */
-public class ExtractKeyFromElements implements PairFunction<Element, List<Object>, Element>, Serializable {
+public class ExtractKeyFromElements implements PairFunction<Element, List<Object>, Element> {
     private static final long serialVersionUID = 6741839811757475786L;
 
     private final byte[] jsonGafferSchema;

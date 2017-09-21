@@ -63,7 +63,7 @@ public class OneToManyElementGeneratorTest {
          * Note this is a strange way of generating elements - but it makes the testing easier.
          *
          * @param domainObject the domain object to convert
-         * @return
+         * @return an {@link Iterable} of elements
          */
         @Override
         public Iterable<Element> _apply(final String domainObject) {

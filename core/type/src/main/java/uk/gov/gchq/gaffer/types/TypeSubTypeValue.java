@@ -23,6 +23,10 @@ import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import java.io.Serializable;
 import java.util.Comparator;
 
+/**
+ * A {@code TypeSubTypeValue} is used to store information relating to types,
+ * sub-types and associated values.
+ */
 public class TypeSubTypeValue implements Comparable<TypeSubTypeValue>, Serializable {
 
     private static Comparator<String> stringComparator = Comparator

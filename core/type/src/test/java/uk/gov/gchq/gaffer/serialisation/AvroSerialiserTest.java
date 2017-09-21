@@ -43,6 +43,7 @@ public class AvroSerialiserTest extends ToBytesSerialisationTest<Object> {
         return new AvroSerialiser();
     }
 
+    @Override
     public Pair<Object, byte[]>[] getHistoricSerialisationPairs() {
         return null;
     }

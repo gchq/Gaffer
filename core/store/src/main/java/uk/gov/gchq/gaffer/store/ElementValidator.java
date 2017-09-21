@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
 /**
- * An <code>ElementValidator</code> is a {@link Validator} for {@link Element}s
+ * An {@code ElementValidator} is a {@link Validator} for {@link Element}s
  * It is capable of validating an {@link Element} based on {@link java.util.function.Predicate}s
  * in {@link Schema} or {@link View}.
  */
@@ -46,7 +46,7 @@ public class ElementValidator implements Validator<Element> {
     }
 
     /**
-     * Constructs a <code>ElementValidator</code> with a {@link Schema} to use to
+     * Constructs a {@code ElementValidator} with a {@link Schema} to use to
      * validate {@link Element}s.
      *
      * @param schema the {@link Schema} to use to
@@ -57,7 +57,7 @@ public class ElementValidator implements Validator<Element> {
     }
 
     /**
-     * Constructs a <code>ElementValidator</code> with a {@link Schema} to use to
+     * Constructs a {@code ElementValidator} with a {@link Schema} to use to
      * validate {@link uk.gov.gchq.gaffer.data.element.Element}s. Uses the includeIsA flag
      * to determine whether the IsA validate functions should be used. Disabling
      * them can be useful when you already know the data is of the correct type
@@ -74,7 +74,7 @@ public class ElementValidator implements Validator<Element> {
     }
 
     /**
-     * Constructs a <code>ElementValidator</code> with a {@link View} to use to
+     * Constructs a {@code ElementValidator} with a {@link View} to use to
      * validate {@link Element}s.
      *
      * @param view the {@link View} to use to

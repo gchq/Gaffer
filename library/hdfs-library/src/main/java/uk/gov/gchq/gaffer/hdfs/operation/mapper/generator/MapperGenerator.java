@@ -20,7 +20,7 @@ import org.apache.hadoop.mapreduce.MapContext;
 import uk.gov.gchq.gaffer.data.element.Element;
 
 /**
- * A <code>MapperGenerator</code> is used by the Hadoop job {@link org.apache.hadoop.mapreduce.Mapper} to convert the
+ * A {@code MapperGenerator} is used by the Hadoop job {@link org.apache.hadoop.mapreduce.Mapper} to convert the
  * input key and value to an {@link Iterable} of {@link Element}s
  *
  * @param <KEY_IN>   the input key for the mapper

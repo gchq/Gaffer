@@ -44,7 +44,6 @@ import java.util.Map;
  * {@link uk.gov.gchq.gaffer.data.element.id.EntityId}s in set A.
  */
 public class GetElementsBetweenSets implements
-        Operation,
         InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends Element>>,
         MultiInput<EntityId>,
         MultiInputB<EntityId>,

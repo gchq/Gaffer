@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.user.User;
 
 /**
- * A <code>Log4jLogger</code> is a simple {@link GraphHook} that sends logs of the
+ * A {@code Log4jLogger} is a simple {@link GraphHook} that sends logs of the
  * operation chains executed by users on a graph to a {@link Logger}.
  */
 public class Log4jLogger implements GraphHook {

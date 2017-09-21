@@ -19,8 +19,8 @@ import com.yahoo.sketches.quantiles.DoublesUnion;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
-import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.ViaCalculatedValueSerialiserTest;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -33,6 +33,7 @@ public class DoublesUnionSerialiserTest extends ViaCalculatedValueSerialiserTest
         return new DoublesUnionSerialiser();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Pair<DoublesUnion, byte[]>[] getHistoricSerialisationPairs() {
         final DoublesUnion union = getExampleOutput();

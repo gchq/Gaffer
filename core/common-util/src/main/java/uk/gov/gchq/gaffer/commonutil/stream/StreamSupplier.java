@@ -21,11 +21,11 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
- * A <code>StreamSupplier</code> is a {@link Supplier} that supplies a {@link Stream}
+ * A {@code StreamSupplier} is a {@link Supplier} that supplies a {@link Stream}
  * This supplier also implements closeable.
  *
  * @param <T> the type of the stream elements
  */
 public interface StreamSupplier<T> extends Supplier<Stream<T>>, Closeable {
-    // Empty
+    // Empty marker interface
 }

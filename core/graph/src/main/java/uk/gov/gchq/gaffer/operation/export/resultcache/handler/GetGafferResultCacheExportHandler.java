@@ -24,6 +24,10 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.export.GetExportHandler;
 
+/**
+ * Specific handler for handling {@link GetGafferResultCacheExport} operations using
+ * a {@link GafferResultCacheExporter} as the exporter class.
+ */
 public class GetGafferResultCacheExportHandler extends GetExportHandler<GetGafferResultCacheExport, GafferResultCacheExporter> {
     private String graphId = "gafferResultCache";
 

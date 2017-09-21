@@ -21,7 +21,7 @@ import com.yahoo.sketches.sampling.ReservoirItemsUnion;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
- * A <code>ReservoirItemsSketchAggregator</code> is a {@link java.util.function.BinaryOperator} that aggregates
+ * A {@code ReservoirItemsSketchAggregator} is a {@link java.util.function.BinaryOperator} that aggregates
  * {@link ReservoirItemsSketch}s using a {@link ReservoirItemsUnion}.
  */
 public class ReservoirItemsSketchAggregator<T> extends KorypheBinaryOperator<ReservoirItemsSketch<T>> {

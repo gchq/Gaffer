@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * An <code>Operation</code> defines an operation to be processed on a graph.
+ * An {@code Operation} defines an operation to be processed on a graph.
  * All operations must to implement this interface.
  * Operations should be written to be as generic as possible to allow them to be applied to different graph/stores.
  * NOTE - operations should not contain the operation logic. The logic should be separated out into a operation handler.

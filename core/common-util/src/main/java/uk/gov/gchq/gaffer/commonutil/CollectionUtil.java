@@ -24,9 +24,8 @@ import java.util.TreeSet;
 public final class CollectionUtil {
 
     private CollectionUtil() {
-        // this class should not be instantiated - it contains only util methods and constants.
+        // Private constructor to prevent instantiation.
     }
-
 
     public static <T> TreeSet<T> treeSet(final T item) {
         final TreeSet<T> treeSet = new TreeSet<>();
@@ -97,7 +96,7 @@ public final class CollectionUtil {
     public static boolean anyMissing(final Collection collection, final Object[] objects) {
         boolean result = false;
         if (null == collection || collection.isEmpty()) {
-            if (null != objects && objects.length > 0) {
+            if (null != objects && 0 < objects.length) {
                 result = true;
             }
         } else if (null != objects) {

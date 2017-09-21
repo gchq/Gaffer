@@ -21,7 +21,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 
 /**
- * A <code>IsEdgeValidator</code> is a simple {@link Validator} to validate if an
+ * A {@code IsEdgeValidator} is a simple {@link Validator} to validate if an
  * {@link uk.gov.gchq.gaffer.data.element.Element} is an instance of an {@link uk.gov.gchq.gaffer.data.element.Entity}.
  */
 public class IsEntityValidator implements Validator<Element> {

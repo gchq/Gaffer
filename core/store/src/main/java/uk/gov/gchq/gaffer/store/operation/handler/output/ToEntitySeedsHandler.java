@@ -23,6 +23,10 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
+/**
+ * The {@code ToEntitySeedsHandler} handles {@link ToEntitySeeds} operations by
+ * wrapping each object in the input {@link Iterable} in an {@link EntitySeed} object.
+ */
 public class ToEntitySeedsHandler implements OutputOperationHandler<ToEntitySeeds, Iterable<? extends EntitySeed>> {
     @Override
     public Iterable<EntitySeed> doOperation(final ToEntitySeeds operation, final Context context, final Store store) throws OperationException {
