@@ -844,7 +844,7 @@ public class FederatedStoreTest {
 
         store.execute(
                 new AddGraph.Builder()
-                        .graphAuths("auth")
+                        .setGraphAuths("auth")
                         .graphId(MAP_ID_1)
                         .build(),
                 new User.Builder()
@@ -881,7 +881,7 @@ public class FederatedStoreTest {
         assertEquals(1, after);
         Assert.assertNotNull(elements);
         Assert.assertFalse(elements.iterator().hasNext());
-        Assert.assertFalse(x.iterator().hasNext());
+        Assert.assertNull(x);
     }
 
     @Test

@@ -16,9 +16,11 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Assert;
 
+import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph.Builder;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -55,12 +57,23 @@ public class AddGraphTest extends OperationTest<AddGraph> {
 
     @Override
     public void shouldShallowCloneOperation() {
-        final AddGraph a = getTestObject();
+        final AddGraph a = new Builder()
+                .graphId("testAddGraph")
+                .parentPropertiesId("testPropID")
+                .parentSchemaIds(Lists.newArrayList("testSchemaID"))
+                .schema(new Schema.Builder()
+                        .id("testSchema")
+                        .build())
+                .setGraphAuths("testAuth")
+                .storeProperties(new StoreProperties("testProps"))
+                .build();
+
         final AddGraph b = a.shallowClone();
 
         Assert.assertEquals(a.getGraphId(), b.getGraphId());
         Assert.assertEquals(a.getStoreProperties(), b.getStoreProperties());
         Assert.assertEquals(a.getSchema(), b.getSchema());
+        Assert.assertEquals(a.getGraphAuths(), b.getGraphAuths());
     }
 
     @Override

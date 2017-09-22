@@ -89,6 +89,7 @@ public class AddGraph implements Operation {
                 .parentSchemaIds(parentSchemaIds)
                 .parentPropertiesId(parentPropertiesId)
                 .options(options)
+                .setGraphAuths(graphAuths.toArray(new String[graphAuths.size()]))
                 .build();
     }
 
@@ -178,7 +179,7 @@ public class AddGraph implements Operation {
             return _self();
         }
 
-        public Builder graphAuths(final String... graphAuths) {
+        public Builder setGraphAuths(final String... graphAuths) {
             if (null == graphAuths) {
                 _getOp().setGraphAuths(null);
             } else {
