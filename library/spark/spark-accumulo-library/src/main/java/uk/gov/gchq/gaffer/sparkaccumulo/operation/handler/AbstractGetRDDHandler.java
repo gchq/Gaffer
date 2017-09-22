@@ -19,6 +19,8 @@ import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
 import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
 import org.apache.accumulo.core.data.Range;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.NullWritable;
 import scala.Tuple2;
@@ -27,7 +29,6 @@ import scala.runtime.AbstractFunction1;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -43,6 +44,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -117,16 +119,29 @@ public abstract class AbstractGetRDDHandler<OP extends Output<O> & GraphFilters,
     }
 
     protected Configuration getConfiguration(final OP operation) throws OperationException {
-        final Configuration conf = new Configuration();
         final String serialisedConf = operation.getOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY);
-        if (null != serialisedConf) {
-            try {
-                final ByteArrayInputStream bais = new ByteArrayInputStream(serialisedConf.getBytes(CommonConstants.UTF_8));
-                conf.readFields(new DataInputStream(bais));
-            } catch (final IOException e) {
-                throw new OperationException("Exception decoding Configuration from options", e);
-            }
+        if (null == serialisedConf) {
+            return new Configuration();
         }
+        try {
+            return AbstractGetRDDHandler.convertStringToConfiguration(serialisedConf);
+        } catch (final IOException e) {
+            throw new OperationException("Exception decoding Configuration from options", e);
+        }
+    }
+
+    public static String convertConfigurationToString(final Configuration conf) throws IOException {
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        conf.write(new DataOutputStream(baos));
+        return Base64.encodeBase64String(baos.toByteArray());
+    }
+
+    public static Configuration convertStringToConfiguration(final String encodedConf) throws IOException {
+        final byte[] serialisedConf = Base64.decodeBase64(encodedConf);
+        final ByteArrayInputStream baos = new ByteArrayInputStream(serialisedConf);
+        final DataInputStream dis = new DataInputStream(baos);
+        final Configuration conf = new Configuration();
+        conf.readFields(dis);
         return conf;
     }
 
