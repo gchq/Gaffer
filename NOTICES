@@ -31,7 +31,7 @@ Apache Hadoop (org.apache.hadoop:hadoop-common:2.6.3):
 - Apache License, Version 2.0
 
 
-Apache Accumulo (org.apache.accumulo:accumulo-core:1.7.2):
+Apache Accumulo (org.apache.accumulo:accumulo-core:1.8.1):
 
 - Apache License, Version 2.0
 
