@@ -704,7 +704,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             elDef.ingestAggregatorCache = null;
             elDef.queryAggregatorCacheMap.clear();
 
-            if (!elementDef.groupBy.isEmpty()) {
+            if (null != elementDef.groupBy && !elementDef.groupBy.isEmpty()) {
                 elDef.groupBy = new LinkedHashSet<>(elementDef.groupBy);
             }
 
