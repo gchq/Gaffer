@@ -718,7 +718,7 @@
                     </checkinComment>
                     <content>${project.reporting.outputDirectory}/apidocs
                     </content>
-                    <skipDeletedFiles>true</skipDeletedFiles>
+                    <skipDeletedFiles>false</skipDeletedFiles>
                     <pubScmUrl>${scm.connection}</pubScmUrl>
                     <scmBranch>gh-pages</scmBranch>
                 </configuration>
