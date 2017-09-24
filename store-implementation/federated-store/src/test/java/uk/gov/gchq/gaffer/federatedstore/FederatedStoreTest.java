@@ -844,7 +844,7 @@ public class FederatedStoreTest {
 
         store.execute(
                 new AddGraph.Builder()
-                        .setGraphAuths("auth")
+                        .graphAuths("auth")
                         .graphId(MAP_ID_1)
                         .build(),
                 new User.Builder()

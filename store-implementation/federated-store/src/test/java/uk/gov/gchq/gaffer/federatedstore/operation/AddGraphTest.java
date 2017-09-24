@@ -64,7 +64,7 @@ public class AddGraphTest extends OperationTest<AddGraph> {
                 .schema(new Schema.Builder()
                         .id("testSchema")
                         .build())
-                .setGraphAuths("testAuth")
+                .graphAuths("testAuth")
                 .storeProperties(new StoreProperties("testProps"))
                 .build();
 

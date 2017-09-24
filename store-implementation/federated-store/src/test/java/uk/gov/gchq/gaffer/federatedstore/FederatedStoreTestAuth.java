@@ -54,7 +54,7 @@ public class FederatedStoreTestAuth {
                         .graphId(expectedGraphId)
                         .schema(expectedSchema)
                         .storeProperties(storeProperties)
-                        .setGraphAuths("auth1")
+                        .graphAuths("auth1")
                         .build(),
                 new Context(new User("TestUser")),
                 store);
