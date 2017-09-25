@@ -18,12 +18,12 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Lists;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
+import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -33,6 +33,10 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class FederatedStoreSchemaTest {
 
@@ -99,7 +103,7 @@ public class FederatedStoreSchemaTest {
 
         library.addSchema("bSchema", bSchema);
 
-        Assert.assertFalse(library.exists("b"));
+        assertFalse(library.exists("b"));
 
         boolean addingGraphBWasSuccessful = true;
 
@@ -111,6 +115,10 @@ public class FederatedStoreSchemaTest {
                     .build()), TEST_USER);
         } catch (final Exception e) {
             addingGraphBWasSuccessful = false;
+            assertTrue(e instanceof SchemaException);
+            assertEquals("Element group properties cannot be defined in different" +
+                    " schema parts, they must all be defined in a single " +
+                    "schema part. Please fix this group: e1",e.getMessage());
         }
 
         try {
@@ -120,15 +128,15 @@ public class FederatedStoreSchemaTest {
                     .parentSchemaIds(Lists.newArrayList("aSchema"))
                     .build()), TEST_USER);
 
-            Assert.assertFalse("If this assertion failed then it is possible this " +
+            assertFalse("If this assertion failed then it is possible this " +
                     "test is no longer needed, because Schema Collisions are not" +
                     " being thrown when adding graph \"a\". So deadlock will not" +
                     " occur, please examine.", addingGraphBWasSuccessful);
 
         } catch (final Exception e) {
-            Assert.assertFalse("This test is not behaving how it was designed, " +
+            assertFalse("This test is not behaving how it was designed, " +
                     "Adding graph\"c\" should never fail if adding graph \"b\" was successful!", addingGraphBWasSuccessful);
-            Assert.assertFalse("Deadlock has occurred, If exception is thrown, then graph \"b\" should not have been added to the library", library.exists("b"));
+            assertFalse("Deadlock has occurred, If exception is thrown, then graph \"b\" should not have been added to the library", library.exists("b"));
         }
     }
 

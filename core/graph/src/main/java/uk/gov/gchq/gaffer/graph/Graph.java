@@ -58,19 +58,25 @@ import java.util.stream.Collectors;
 
 /**
  * <p>
- * The Graph separates the user from the {@link Store}. It holds an instance of the {@link Store} and
+ * The Graph separates the user from the {@link Store}. It holds an instance of
+ * the {@link Store} and
  * acts as a proxy for the store, delegating {@link Operation}s to the store.
  * </p>
  * <p>
- * The Graph provides users with a single point of entry for executing operations on a store.
- * This allows the underlying store to be swapped and the same operations can still be applied.
+ * The Graph provides users with a single point of entry for executing
+ * operations on a store.
+ * This allows the underlying store to be swapped and the same operations can
+ * still be applied.
  * </p>
  * <p>
- * Graphs also provides a view of the data with a instance of {@link View}. The view filters out unwanted information
- * and can transform {@link uk.gov.gchq.gaffer.data.element.Properties} into transient properties such as averages.
+ * Graphs also provides a view of the data with a instance of {@link View}. The
+ * view filters out unwanted information
+ * and can transform {@link uk.gov.gchq.gaffer.data.element.Properties} into
+ * transient properties such as averages.
  * </p>
  * <p>
- * When executing operations on a graph, an operation view would override the graph view.
+ * When executing operations on a graph, an operation view would override the
+ * graph view.
  * </p>
  *
  * @see uk.gov.gchq.gaffer.graph.Graph.Builder
@@ -88,12 +94,16 @@ public final class Graph {
     private GraphConfig config;
 
     /**
-     * Constructs a {@code Graph} with the given {@link uk.gov.gchq.gaffer.store.Store} and
+     * Constructs a {@code Graph} with the given {@link uk.gov.gchq.gaffer.store.Store}
+     * and
      * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.
      *
-     * @param config a {@link GraphConfig} used to store the configuration for a Graph.
-     * @param schema a {@link Schema} that defines the graph. Should be the copy of the schema that the store is initialised with.
-     * @param store  a {@link Store} used to store the elements and handle operations.
+     * @param config a {@link GraphConfig} used to store the configuration for a
+     *               Graph.
+     * @param schema a {@link Schema} that defines the graph. Should be the copy
+     *               of the schema that the store is initialised with.
+     * @param store  a {@link Store} used to store the elements and handle
+     *               operations.
      */
     private Graph(final GraphConfig config, final Schema schema, final Store store) {
         this.config = config;
@@ -281,9 +291,11 @@ public final class Graph {
     }
 
     /**
-     * Returns all the {@link StoreTrait}s for the contained {@link Store} implementation
+     * Returns all the {@link StoreTrait}s for the contained {@link Store}
+     * implementation
      *
-     * @return a {@link Set} of all of the {@link StoreTrait}s that the store has.
+     * @return a {@link Set} of all of the {@link StoreTrait}s that the store
+     * has.
      */
     public Set<StoreTrait> getStoreTraits() {
         return store.getTraits();
@@ -319,7 +331,8 @@ public final class Graph {
      * <p>
      * Builder for {@link Graph}.
      * </p>
-     * We recommend instantiating a Graph from a graphConfig.json file, a schema directory and a store.properties file.
+     * We recommend instantiating a Graph from a graphConfig.json file, a schema
+     * directory and a store.properties file.
      * For example:
      * <pre>
      * new Graph.Builder()
@@ -338,6 +351,7 @@ public final class Graph {
         private Schema schema;
         private String[] parentSchemaIds;
         private String parentStorePropertiesId;
+        private boolean addToLibrary = true;
 
         /**
          * @param graphId the graph id to set
@@ -372,6 +386,11 @@ public final class Graph {
 
         public Builder config(final GraphConfig config) {
             configBuilder.merge(config);
+            return this;
+        }
+
+        public Builder addToLibrary(final boolean addToLibrary) {
+            this.addToLibrary = addToLibrary;
             return this;
         }
 
@@ -730,7 +749,13 @@ public final class Graph {
             }
 
             updateGraphHooks(config);
-            config.getLibrary().add(config.getGraphId(), schema, store.getProperties());
+
+
+            if (addToLibrary) {
+                config.getLibrary().add(config.getGraphId(), schema, store.getProperties());
+            }
+
+
             return new Graph(config, schema, store);
         }
 
