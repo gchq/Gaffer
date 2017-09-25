@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.rfilereaderrdd;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
 import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
+import org.apache.accumulo.core.client.sample.SamplerConfiguration;
 import org.apache.accumulo.core.conf.AccumuloConfiguration;
 import org.apache.accumulo.core.conf.DefaultConfiguration;
 import org.apache.accumulo.core.conf.SiteConfiguration;
@@ -184,6 +185,21 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
 
                 @Override
                 public Authorizations getAuthorizations() {
+                    return null;
+                }
+
+                @Override
+                public IteratorEnvironment cloneWithSamplingEnabled() {
+                    return null;
+                }
+
+                @Override
+                public boolean isSamplingEnabled() {
+                    return false;
+                }
+
+                @Override
+                public SamplerConfiguration getSamplerConfiguration() {
                     return null;
                 }
             });
