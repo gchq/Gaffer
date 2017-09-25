@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federatedstore.integration.FederatedStoreITs;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
@@ -862,17 +863,28 @@ public class FederatedStoreTest {
         }
 
 
+        store.execute(new AddElements.Builder()
+                        .input(new Entity.Builder()
+                                .group("BasicEntity")
+                                .vertex("hi")
+                                .build())
+                        .build(),
+                new User.Builder()
+                        .userId(USER_ID)
+                        .opAuth("auth")
+                        .build());
+
         final CloseableIterable<? extends Element> elements = store.execute(
                 new GetAllElements(),
                 new User.Builder()
-                        .userId(USER_ID)
+                        .userId(USER_ID + "Other")
                         .opAuth("auth")
                         .build());
 
         final CloseableIterable<? extends Element> x = store.execute(
                 new GetAllElements(),
                 new User.Builder()
-                        .userId(USER_ID)
+                        .userId(USER_ID + "Other")
                         .opAuths("x")
                         .build());
 
@@ -880,7 +892,7 @@ public class FederatedStoreTest {
         assertEquals(0, before);
         assertEquals(1, after);
         Assert.assertNotNull(elements);
-        Assert.assertFalse(elements.iterator().hasNext());
+        Assert.assertTrue(elements.iterator().hasNext());
         Assert.assertNull(x);
     }
 
@@ -933,7 +945,7 @@ public class FederatedStoreTest {
         final List<Collection<Graph>> graphLists = populateGraphs(1);
         final Collection<Graph> expectedGraphs = graphLists.get(0);
         final Collection<Graph> unexpectedGraphs = graphLists.get(1);
-  
+
         // When
         final Collection<Graph> returnedGraphs = store.getGraphs("mockGraphId1");
 
@@ -955,14 +967,14 @@ public class FederatedStoreTest {
     private List<Collection<Graph>> populateGraphs(int... expectedIds) {
         final Collection<Graph> expectedGraphs = new ArrayList<>();
         final Collection<Graph> unexpectedGraphs = new ArrayList<>();
-        for(int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++) {
             Graph tempGraph = new Graph.Builder()
                     .config(new GraphConfig.Builder()
-                                    .graphId("mockGraphId" + i)
-                                    .addHook(new FederatedAccessHook.Builder()
-                                                     .graphAuths("auth" + i)
-                                                     .build())
+                            .graphId("mockGraphId" + i)
+                            .addHook(new FederatedAccessHook.Builder()
+                                    .graphAuths("auth" + i)
                                     .build())
+                            .build())
                     .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_MAP_STORE_PROPERTIES))
                     .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_ENTITY_SCHEMA_JSON))
                     .build();
