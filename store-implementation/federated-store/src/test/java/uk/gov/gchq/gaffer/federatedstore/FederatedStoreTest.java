@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federatedstore.integration.FederatedStoreITs;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
@@ -883,17 +884,28 @@ public class FederatedStoreTest {
         }
 
 
+        store.execute(new AddElements.Builder()
+                        .input(new Entity.Builder()
+                                .group("BasicEntity")
+                                .vertex("hi")
+                                .build())
+                        .build(),
+                new User.Builder()
+                        .userId(USER_ID)
+                        .opAuth("auth")
+                        .build());
+
         final CloseableIterable<? extends Element> elements = store.execute(
                 new GetAllElements(),
                 new User.Builder()
-                        .userId(USER_ID)
+                        .userId(USER_ID + "Other")
                         .opAuth("auth")
                         .build());
 
         final CloseableIterable<? extends Element> x = store.execute(
                 new GetAllElements(),
                 new User.Builder()
-                        .userId(USER_ID)
+                        .userId(USER_ID + "Other")
                         .opAuths("x")
                         .build());
 
@@ -901,8 +913,8 @@ public class FederatedStoreTest {
         assertEquals(0, before);
         assertEquals(1, after);
         Assert.assertNotNull(elements);
-        Assert.assertFalse(elements.iterator().hasNext());
-        Assert.assertFalse(x.iterator().hasNext());
+        Assert.assertTrue(elements.iterator().hasNext());
+        Assert.assertNull(x);
     }
 
     @Test
