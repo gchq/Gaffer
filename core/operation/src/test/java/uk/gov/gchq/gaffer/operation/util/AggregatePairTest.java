@@ -21,8 +21,9 @@ import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
 
 public class AggregatePairTest extends JSONSerialisationTest<AggregatePair> {
     @Override
@@ -34,22 +35,28 @@ public class AggregatePairTest extends JSONSerialisationTest<AggregatePair> {
     public void shouldSetAndGetProperties() {
         // Given
         final AggregatePair pair = new AggregatePair();
-        pair.setGroupBys(new String[] {"timestamp"});
+        pair.setGroupBy(new String[] {"timestamp"});
         pair.setElementAggregator(new ElementAggregator());
 
         // When / Then
-        assertArrayEquals(new String[]{"timestamp"}, pair.getGroupBys());
+        assertArrayEquals(new String[]{"timestamp"}, pair.getGroupBy());
         assertNotNull(pair.getElementAggregator());
     }
 
     @Test
     public void shouldCreateObjectFromConstructorsCorrectly() {
         // Given
-        final AggregatePair pair = new AggregatePair(new String[]{"timestamp"});
-        final AggregatePair pair1 = new AggregatePair(new ElementAggregator());
+        final String[] groupBy = new String[] {"timestamp"};
+        final ElementAggregator elementAggregator = new ElementAggregator();
+
+        final AggregatePair pair = new AggregatePair(groupBy);
+        final AggregatePair pair1 = new AggregatePair(elementAggregator);
 
         // When / Then
-        assertTrue(null == pair.getElementAggregator());
-        assertTrue(null == pair1.getGroupBys());
+
+        assertNull(pair.getElementAggregator());
+        assertNull(pair1.getGroupBy());
+        assertArrayEquals(pair.getGroupBy(), groupBy);
+        assertEquals(pair1.getElementAggregator(), elementAggregator);
     }
 }

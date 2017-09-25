@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.operation.util;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 
 public class AggregatePair {
-    private String[] groupBys = null;
+    private String[] groupBy = null;
     private ElementAggregator elementAggregator = null;
 
     public AggregatePair() {
@@ -29,21 +29,21 @@ public class AggregatePair {
         this.elementAggregator = aggregator;
     }
 
-    public AggregatePair(final String[] groupBys) {
-        this.groupBys = groupBys;
+    public AggregatePair(final String[] groupBy) {
+        this.groupBy = groupBy;
     }
 
-    public AggregatePair(final String[] groupBys, final ElementAggregator aggregator) {
-        this.groupBys = groupBys;
+    public AggregatePair(final String[] groupBy, final ElementAggregator aggregator) {
+        this.groupBy = groupBy;
         this.elementAggregator = aggregator;
     }
 
-    public String[] getGroupBys() {
-        return groupBys;
+    public String[] getGroupBy() {
+        return groupBy;
     }
 
-    public void setGroupBys(final String[] groupBys) {
-        this.groupBys = groupBys;
+    public void setGroupBy(final String[] groupBy) {
+        this.groupBy = groupBy;
     }
 
     public ElementAggregator getElementAggregator() {

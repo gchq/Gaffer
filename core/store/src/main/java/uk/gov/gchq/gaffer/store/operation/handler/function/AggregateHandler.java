@@ -46,7 +46,7 @@ public class AggregateHandler implements OutputOperationHandler<Aggregate, Itera
                 final AggregatePair pair = entry.getValue();
 
                 builder = builder.entity(group, new ViewElementDefinition.Builder()
-                        .groupBy(pair.getGroupBys())
+                        .groupBy(pair.getGroupBy())
                         .aggregator(pair.getElementAggregator())
                         .build());
             }
@@ -57,7 +57,7 @@ public class AggregateHandler implements OutputOperationHandler<Aggregate, Itera
                 final AggregatePair pair = entry.getValue();
 
                 builder = builder.edge(group, new ViewElementDefinition.Builder()
-                        .groupBy(pair.getGroupBys())
+                        .groupBy(pair.getGroupBy())
                         .aggregator(pair.getElementAggregator())
                         .build());
             }
