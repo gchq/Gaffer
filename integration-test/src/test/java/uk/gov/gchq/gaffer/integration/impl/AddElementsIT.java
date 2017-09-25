@@ -31,7 +31,7 @@ public class AddElementsIT extends AbstractStoreIT {
     public static final Entity VALID = new Entity.Builder()
             .group(TestGroups.ENTITY_2)
             .vertex("1")
-            .property(TestPropertyNames.TIMESTAMP, System.currentTimeMillis())
+            .property(TestPropertyNames.TIMESTAMP, Long.MAX_VALUE)
             .property(TestPropertyNames.INT, 1)
             .build();
     public static final Entity INVALID = new Entity.Builder()
