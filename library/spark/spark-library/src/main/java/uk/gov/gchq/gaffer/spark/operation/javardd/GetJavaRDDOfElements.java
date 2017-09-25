@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
@@ -33,8 +32,11 @@ import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
 
 import java.util.Map;
 
+/**
+ * A {@code GetJavaRDDOfElements} operation retrieves all the {@link Element}s
+ * for the input seeds from the target store, and returns them inside a {@link JavaRDD}.
+ */
 public class GetJavaRDDOfElements implements
-        Operation,
         InputOutput<Iterable<? extends ElementId>, JavaRDD<Element>>,
         MultiInput<ElementId>,
         SeededGraphFilters,

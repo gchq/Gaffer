@@ -85,18 +85,15 @@ public class OperationService implements IOperationService {
         final ChunkedOutput<String> output = new ChunkedOutput<>(String.class, "\r\n");
 
         // write chunks to the chunked output object
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    final Object result = _execute(opChain);
-                    chunkResult(result, output);
-                } finally {
-                    CloseableUtil.close(output);
-                    CloseableUtil.close(opChain);
-                }
+        new Thread(() -> {
+            try {
+                final Object result = _execute(opChain);
+                chunkResult(result, output);
+            } finally {
+                CloseableUtil.close(output);
+                CloseableUtil.close(opChain);
             }
-        }.start();
+        }).start();
 
         return output;
     }

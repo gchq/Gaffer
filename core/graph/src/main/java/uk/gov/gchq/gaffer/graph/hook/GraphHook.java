@@ -21,7 +21,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.user.User;
 
 /**
- * A <code>GraphHook</code> can be registered with a {@link uk.gov.gchq.gaffer.graph.Graph} and will be
+ * A {@code GraphHook} can be registered with a {@link uk.gov.gchq.gaffer.graph.Graph} and will be
  * triggered before and after operation chains are executed on the graph.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")

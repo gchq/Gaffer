@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 
 /**
- * An <code>ElementSeed</code> contains the identifiers for an {@link uk.gov.gchq.gaffer.data.element.Entity} or
+ * An {@code ElementSeed} contains the identifiers for an {@link uk.gov.gchq.gaffer.data.element.Entity} or
  * {@link uk.gov.gchq.gaffer.data.element.Edge}.
  * It is used as a mainly used as a seed for queries.
  */

@@ -31,7 +31,7 @@ Gaffer does
 
 Gaffer can be run on various databases, including Accumulo and HBase. It is also integrated with Spark for fast and flexible data analysis.
 
-To get going with Gaffer, visit our [getting started pages](https://github.com/GovernmentCommunicationsHeadquarters/Gaffer/wiki/Getting-Started).
+To get going with Gaffer, visit our [getting started pages](https://gchq.github.io/gaffer-doc/summaries/getting-started.html).
 
 Gaffer is still under active development and isn't a finished product yet. There are still plenty of new features
 to be added and additional documentation to write. Please contribute.
@@ -47,7 +47,7 @@ We have a demo available to try that is based around a small uk road use dataset
 
 To build Gaffer run `mvn clean install -Pquick` in the top-level directory. This will build all of Gaffer's core libraries and some examples of how to load and query data.
 
-See our [wiki](https://github.com/gchq/Gaffer/wiki) for a list of available Gaffer Stores to chose from and the relevant documentation for each.
+See our [Store](https://gchq.github.io/gaffer-doc/summaries/stores.html) documentation page for a list of available Gaffer Stores to chose from and the relevant documentation for each.
 
 ### Inclusion in other projects
 
@@ -74,11 +74,11 @@ This will include all other mandatory dependencies. Other (optional) components 
 
 Our Javadoc can be found [here](http://gchq.github.io/Gaffer/).
 
-We have some user guides on our [wiki](https://github.com/gchq/Gaffer/wiki). 
+We have some user guides in our [docs](https://gchq.github.io/gaffer-doc/getting-started/user-guide.html).
 
 ### Contributing
 
-We have some detailed information on our ways of working [pages](https://github.com/gchq/Gaffer/wiki/Ways-of-Working)
+We have some detailed information on our ways of working [pages](https://gchq.github.io/gaffer-doc/other/ways-of-working.html)
 
 But in brief:
 

@@ -90,6 +90,7 @@ public class GetAllElementsTest extends OperationTest<GetAllElements> {
         assertEquals("true", clone.getOption("testOption"));
     }
 
+    @Override
     protected GetAllElements getTestObject() {
         return new GetAllElements();
     }

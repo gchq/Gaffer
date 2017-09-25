@@ -24,6 +24,11 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import java.util.Collections;
 
+/**
+ * A {@code ToCsvHandler} handles {@link ToCsv} operations by applying the provided
+ * {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to each item in the
+ * input {@link Iterable}.
+ */
 public class ToCsvHandler implements OutputOperationHandler<ToCsv, Iterable<? extends String>> {
     @Override
     public Iterable<? extends String> doOperation(final ToCsv operation, final Context context, final Store store) throws OperationException {

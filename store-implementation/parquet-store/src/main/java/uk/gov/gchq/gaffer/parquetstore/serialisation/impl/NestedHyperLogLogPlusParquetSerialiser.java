@@ -43,7 +43,7 @@ public class NestedHyperLogLogPlusParquetSerialiser implements ParquetSerialiser
     @Override
     public Object[] serialise(final HyperLogLogPlus object) throws SerialisationException {
         try {
-            if (object != null) {
+            if (null != object) {
                 return new Object[]{object.getBytes(), object.cardinality()};
             }
         } catch (final IOException e) {
@@ -57,7 +57,7 @@ public class NestedHyperLogLogPlusParquetSerialiser implements ParquetSerialiser
         try {
             if (objects.length == 2 && objects[0] instanceof byte[]) {
                 return HyperLogLogPlus.Builder.build(((byte[]) objects[0]));
-            } else if (objects.length == 2 && objects[0] == null) {
+            } else if (objects.length == 2 && null == objects[0]) {
                 return null;
             }
             throw new SerialisationException("Could not de-serialise the HyperLogLogPlus object from objects");

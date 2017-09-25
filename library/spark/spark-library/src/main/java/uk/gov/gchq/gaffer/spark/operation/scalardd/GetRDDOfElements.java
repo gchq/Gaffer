@@ -32,8 +32,11 @@ import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
 
 import java.util.Map;
 
+/**
+ * A {@code GetRDDOfElements} operation retrieves all the {@link Element}s for the
+ * input seeds from the target store, and returns them inside a {@link RDD}.
+ */
 public class GetRDDOfElements implements
-        Operation,
         InputOutput<Iterable<? extends ElementId>, RDD<Element>>,
         MultiInput<ElementId>,
         SeededGraphFilters,

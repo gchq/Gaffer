@@ -41,7 +41,7 @@ public class TreeSetStringParquetSerialiser implements ParquetSerialiser<TreeSet
 
     @Override
     public Object[] serialise(final TreeSet<String> object) throws SerialisationException {
-        if (object != null) {
+        if (null != object) {
             final String[] objects = new String[object.size()];
             object.toArray(objects);
             return new Object[]{objects};
@@ -56,7 +56,7 @@ public class TreeSetStringParquetSerialiser implements ParquetSerialiser<TreeSet
                 final TreeSet<String> treeSet = new TreeSet<>();
                 treeSet.addAll(Arrays.asList(((String[]) objects[0])));
                 return treeSet;
-            } else if (objects[0] == null) {
+            } else if (null == objects[0]) {
                 return null;
             }
         }

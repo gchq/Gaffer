@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.ValidatedElements;
 
 /**
- * An <code>ValidateHandler</code> handles for {@link uk.gov.gchq.gaffer.operation.impl.Validate} operations.
+ * An {@code ValidateHandler} handles for {@link uk.gov.gchq.gaffer.operation.impl.Validate} operations.
  * Takes an {@link Iterable} of {@link Element}s and returns an
  * {@link Iterable} containing only valid {@link Element}s, specifically an instance of {@link ValidatedElements}.
  * The {@link uk.gov.gchq.gaffer.store.schema.Schema} is used to validate the elements.

@@ -20,7 +20,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.Validator;
 import uk.gov.gchq.gaffer.data.element.Element;
 
 /**
- * A <code>IsElementValidator</code> is a simple {@link Validator} to validate if an
+ * A {@code IsElementValidator} is a simple {@link Validator} to validate if an
  * object is an instance of {@link Element}.
  */
 public class IsElementValidator implements Validator<Object> {

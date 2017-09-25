@@ -20,7 +20,7 @@ import com.yahoo.sketches.theta.Union;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
- * A <code>UnionAggregator</code> is a {@link java.util.function.BinaryOperator} that aggregates {@link Union}s.
+ * A {@code UnionAggregator} is a {@link java.util.function.BinaryOperator} that aggregates {@link Union}s.
  * It does this by extracting a {@link com.yahoo.sketches.theta.CompactSketch} from each {@link Union}
  * and merges that using {@link Union#update(com.yahoo.sketches.theta.Sketch)}.
  */

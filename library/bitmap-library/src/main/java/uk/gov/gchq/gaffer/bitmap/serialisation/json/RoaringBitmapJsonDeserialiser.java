@@ -26,6 +26,9 @@ import uk.gov.gchq.gaffer.bitmap.serialisation.RoaringBitmapSerialiser;
 
 import java.io.IOException;
 
+/**
+ * Custom deserialisation logic for {@link RoaringBitmap} instances.
+ */
 public class RoaringBitmapJsonDeserialiser extends JsonDeserializer<RoaringBitmap> {
 
     private final RoaringBitmapSerialiser bitmapSerialiser = new RoaringBitmapSerialiser();
@@ -34,7 +37,7 @@ public class RoaringBitmapJsonDeserialiser extends JsonDeserializer<RoaringBitma
     public RoaringBitmap deserialize(final JsonParser jsonParser, final DeserializationContext deserializationContext) throws IOException {
         final TreeNode treeNode = jsonParser.getCodec().readTree(jsonParser);
         final TreeNode bitmapObject = treeNode.get(RoaringBitmapConstants.BITMAP_WRAPPER_OBJECT_NAME);
-        if (bitmapObject != null) {
+        if (null != bitmapObject) {
             final TextNode jsonNodes = (TextNode) bitmapObject.get(RoaringBitmapConstants.BITMAP_VALUE_FIELD_NAME);
             return (RoaringBitmap) bitmapSerialiser.deserialise(jsonNodes.binaryValue());
         } else {

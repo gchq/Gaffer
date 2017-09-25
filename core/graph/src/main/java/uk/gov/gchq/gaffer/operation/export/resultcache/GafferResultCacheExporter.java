@@ -46,6 +46,10 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
+/**
+ * Implementation of the {@link Exporter} interface for exporting the results of
+ * a Gaffer query to a {@link Graph}-backed results cache.
+ */
 public class GafferResultCacheExporter implements Exporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferResultCacheExporter.class);
     private final String jobId;

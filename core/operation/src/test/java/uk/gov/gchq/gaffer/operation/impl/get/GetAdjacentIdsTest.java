@@ -160,6 +160,7 @@ public class GetAdjacentIdsTest extends OperationTest<GetAdjacentIds> {
         assertEquals(Lists.newArrayList(input), clone.getInput());
     }
 
+    @Override
     protected GetAdjacentIds getTestObject() {
         return new GetAdjacentIds();
     }

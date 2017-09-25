@@ -97,6 +97,7 @@ public class HyperLogLogPlusSerialiserTest extends ViaCalculatedValueSerialiserT
         return new HyperLogLogPlusSerialiser();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Pair<HyperLogLogPlus, byte[]>[] getHistoricSerialisationPairs() {
         HyperLogLogPlus hyperLogLogPlus = getExampleOutput();

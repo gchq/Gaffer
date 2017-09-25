@@ -26,27 +26,35 @@ import java.util.function.Predicate;
  * Utility methods for a field
  */
 public final class FieldUtil {
-    private FieldUtil() {
 
+    private FieldUtil() {
+        // Private constructor to prevent instantiation.
     }
 
     /**
-     * Checks the second value of a @Pair is not null
+     * Checks the second value of a {@link Pair} is not null
      *
      * @param fields the fields to validate
-     * @return a validationResult
+     * @return the validation result
      */
     @SafeVarargs
     public static ValidationResult validateRequiredFields(final Pair<String, Object>... fields) {
         final ValidationResult validationResult = new ValidationResult();
         for (final Pair field : fields) {
-            if (field.getSecond() == null) {
+            if (null == field.getSecond()) {
                 validationResult.addError(field.getFirst() + " is required.");
             }
         }
         return validationResult;
     }
 
+    /**
+     * Checks that the second value of a {@link Tuple3} satisfies the associated
+     * {@link Predicate} condition.
+     *
+     * @param fields the fields to validate
+     * @return the validation result
+     */
     @SafeVarargs
     public static ValidationResult validateRequiredFields(final Tuple3<String, Object, Predicate>... fields) {
         final ValidationResult validationResult = new ValidationResult();

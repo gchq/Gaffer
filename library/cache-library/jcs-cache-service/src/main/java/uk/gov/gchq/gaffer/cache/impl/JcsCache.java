@@ -29,6 +29,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
+/**
+ * Implementation of the {@link ICache} interface, using a JCS {@link GroupCacheAccess}
+ * object as the cache data store.
+ *
+ * @param <K> The object type that acts as the key for the cache
+ * @param <V> The value that is stored in the cache
+ */
 public class JcsCache <K, V> implements ICache<K, V> {
 
     private final GroupCacheAccess<K, V> cache;
@@ -50,22 +57,13 @@ public class JcsCache <K, V> implements ICache<K, V> {
 
     @Override
     public void put(final K key, final V value) throws CacheOperationException {
-        if (key == null) {
+        if (null == key) {
             throw new CacheOperationException("Key must not be null");
         }
         try {
             cache.putInGroup(key, groupName, value);
         } catch (final CacheException e) {
             throw new CacheOperationException("Failed to add item to cache", e);
-        }
-    }
-
-    @Override
-    public void putSafe(final K key, final V value) throws CacheOperationException {
-        if (get(key) == null) {
-            put(key, value);
-        } else {
-            throw new CacheOperationException("Entry for key " + key + " already exists");
         }
     }
 

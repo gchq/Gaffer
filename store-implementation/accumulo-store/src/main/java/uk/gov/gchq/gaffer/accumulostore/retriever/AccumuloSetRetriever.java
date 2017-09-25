@@ -234,7 +234,7 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
 
         @Override
         public void close() {
-            if (parentRetriever != null) {
+            if (null != parentRetriever) {
                 parentRetriever.close();
             }
         }
@@ -242,7 +242,7 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
         protected abstract boolean checkIfBothEndsInSet(final Object source, final Object destination);
 
         /**
-         * Returns <code>true</code> if either an
+         * Returns {@code true} if either an
          * {@link uk.gov.gchq.gaffer.data.element.Entity} or if an
          * {@link uk.gov.gchq.gaffer.data.element.Edge} then need both ends to be in the
          * set.
@@ -335,7 +335,7 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
 
         @Override
         public void close() {
-            if (scanner != null) {
+            if (null != scanner) {
                 scanner.close();
             }
         }

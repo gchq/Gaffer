@@ -16,14 +16,9 @@
 
 package uk.gov.gchq.gaffer.traffic;
 
-import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
-import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -34,7 +29,6 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.GlobalViewElementDefinitio
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.generator.CsvGenerator;
-import uk.gov.gchq.gaffer.function.FreqMapExtractor;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -45,13 +39,9 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
-import uk.gov.gchq.gaffer.rest.RestApiTestClient;
-import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
-import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.traffic.listeners.DataLoader;
 import uk.gov.gchq.gaffer.types.FreqMap;
+import uk.gov.gchq.gaffer.types.function.FreqMapExtractor;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
@@ -82,40 +72,10 @@ public abstract class RoadTrafficTestQueries {
 
 	private static final Logger LOGGER = Logger.getLogger(RoadTrafficTestQueries.class.getName());
 
-    public static final String STORE_TYPE_PROPERTY = "store.type";
-    public static final String STORE_TYPE_DEFAULT = "accumulo";
-
-    protected final RestApiTestClient client = new RestApiV2TestClient();
-
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
-    @Before
-    public void before() throws IOException {
-        // Spin up the REST API
-        client.startServer();
-
-        // Connect it to a Gaffer store, as specified in the 'store.type' property
-        client.reinitialiseGraph(
-                testFolder,
-                Schema.fromJson(StreamUtil.schemas(ElementGroup.class)),
-                StoreProperties.loadStoreProperties(StreamUtil.openStream(RoadTrafficRestApiITs.class, System.getProperty(STORE_TYPE_PROPERTY, STORE_TYPE_DEFAULT) + StreamUtil.STORE_PROPERTIES))
-        );
-
-        // Load Road Traffic data into the store
-        final DataLoader loader = new DataLoader();
-        loader.contextInitialized(null);
-        prepareProxy();
-    }
-
-    @After
-    public void after() {
-        client.stopServer();
-    }
-
 	protected Graph graph;
 	protected User user;
 
+	@Before
 	public abstract void prepareProxy() throws IOException;
 
 	@Test

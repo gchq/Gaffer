@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 /**
- * An <code>GenerateElementsHandler</code> handles {@link uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements} operations.
+ * An {@code GenerateElementsHandler} handles {@link uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements} operations.
  * It uses the {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} from the operation to generate
  * {@link uk.gov.gchq.gaffer.data.element.Element}s from the operation input objects.
  *

@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.sketches.datasketches.theta.serialisation.UnionSeriali
 import uk.gov.gchq.gaffer.store.SerialisationFactory;
 
 /**
- * A <code>AccumuloSerialisationFactory</code> holds a list of Accumulo serialisers and
+ * An {@code AccumuloSerialisationFactory} holds a list of Accumulo serialisers and
  * is design to provide compatible serialisers for given object classes.
  */
 public class AccumuloSerialisationFactory extends SerialisationFactory {
@@ -47,7 +47,7 @@ public class AccumuloSerialisationFactory extends SerialisationFactory {
 
     /**
      * Constructor.
-     * Adds default serialisers from super constructor and custom Accumulo serialisers
+     * Adds default serialisers from super constructor and custom Accumulo serialisers.
      */
     public AccumuloSerialisationFactory() {
         super();

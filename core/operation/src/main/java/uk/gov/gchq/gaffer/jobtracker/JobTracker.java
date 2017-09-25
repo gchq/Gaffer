@@ -22,14 +22,25 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+/**
+ * A {@code JobTracker} is an entry in a Gaffer cache service which is used to store
+ * details of jobs submitted to the graph.
+ */
 public class JobTracker {
 
     private static final String CACHE_NAME = "JobTracker";
 
+    /**
+     * Add or update the job details relating to a job in the job tracker cache.
+     *
+     * @param jobDetail the job details to update
+     * @param user the user making the request
+     */
     public void addOrUpdateJob(final JobDetail jobDetail, final User user) {
         validateJobDetail(jobDetail);
 
@@ -40,26 +51,38 @@ public class JobTracker {
         }
     }
 
-
+    /**
+     * Get the details of a specific job.
+     *
+     * @param jobId the ID of the job to lookup
+     * @param user the user making the request to the job tracker
+     *
+     * @return the {@link JobDetail} object for the requested job
+     */
     public JobDetail getJob(final String jobId, final User user) {
         return CacheServiceLoader.getService().getFromCache(CACHE_NAME, jobId);
     }
 
+    /**
+     * Get all jobs from the job tracker cache.
+     *
+     * @param user the user making the request to the job tracker
+     * @return a {@link CloseableIterable} containing all of the job details
+     */
     public CloseableIterable<JobDetail> getAllJobs(final User user) {
-        Set<String> jobIds = CacheServiceLoader.getService().getAllKeysFromCache(CACHE_NAME);
-        final List<JobDetail> jobs = new ArrayList<>(jobIds.size());
-        jobIds.stream()
-                .filter(jobId -> null != jobId)
-                .forEach(jobId -> {
-                    final JobDetail job = getJob(jobId, user);
-                    if (null != job) {
-                        jobs.add(job);
-                    }
-                });
+        final Set<String> jobIds = CacheServiceLoader.getService().getAllKeysFromCache(CACHE_NAME);
+        final List<JobDetail> jobs = jobIds.stream()
+                .filter(Objects::nonNull)
+                .map(jobId -> getJob(jobId, user))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
 
         return new WrappedCloseableIterable<>(jobs);
     }
 
+    /**
+     * Clear the job tracker cache.
+     */
     public void clear() {
         try {
             CacheServiceLoader.getService().clearCache(CACHE_NAME);

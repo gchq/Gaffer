@@ -48,6 +48,18 @@ import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultM
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
 
+/**
+ * An implementation of {@link IOperationServiceV2}. By default it will use a singleton
+ * {@link uk.gov.gchq.gaffer.graph.Graph} generated using the {@link uk.gov.gchq.gaffer.rest.factory.GraphFactory}.
+ * All operations are simple delegated to the graph.
+ * Pre and post operation hooks are available by extending this class and implementing preOperationHook and/or
+ * postOperationHook.
+ * <p>
+ * By default queries will be executed with an UNKNOWN user containing no auths.
+ * The createUser() method should be overridden and a {@link User} object should
+ * be created from the http request.
+ * </p>
+ */
 public class OperationServiceV2 implements IOperationServiceV2 {
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationServiceV2.class);
 
@@ -90,18 +102,15 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         final ChunkedOutput<String> output = new ChunkedOutput<>(String.class, "\r\n");
 
         // write chunks to the chunked output object
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    final Object result = _execute(opChain);
-                    chunkResult(result, output);
-                } finally {
-                    CloseableUtil.close(output);
-                    CloseableUtil.close(opChain);
-                }
+        new Thread(() -> {
+            try {
+                final Object result = _execute(opChain);
+                chunkResult(result, output);
+            } finally {
+                CloseableUtil.close(output);
+                CloseableUtil.close(opChain);
             }
-        }.start();
+        }).start();
 
         return output;
     }
@@ -291,7 +300,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
                              boolean required = false;
                              final Required[] annotations = f.getAnnotationsByType(Required.class);
 
-                             if (annotations != null && annotations.length > 0) {
+                             if (null != annotations && annotations.length > 0) {
                                  required = true;
                              }
                              return new OperationField(f.getName(), required);

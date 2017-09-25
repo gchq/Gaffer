@@ -46,7 +46,7 @@ public class IntegerFreqMapSerialiser implements ToBytesSerialiser<IntegerFreqMa
         int start = 0;
         for (final Entry<String, Integer> entry : entrySet) {
             Integer value = entry.getValue();
-            if (value == null) {
+            if (null == value) {
                 continue;
             }
             builder.append(entry.getKey() + SEPERATOR + value);

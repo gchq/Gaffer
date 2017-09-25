@@ -26,6 +26,12 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+/**
+ * Wrapper class around {@link ConcurrentLinkedQueue} to prevent consumers from
+ * being able to iterate over the queue more than once.
+ *
+ * @param <T> the type of object in the queue
+ */
 public class GafferQueue<T> implements Iterable<T> {
     private final ConcurrentLinkedQueue<T> queue;
     private boolean iteratorAvailable = true;
@@ -71,7 +77,7 @@ public class GafferQueue<T> implements Iterable<T> {
             return true;
         }
 
-        if (obj == null || getClass() != obj.getClass()) {
+        if (null == obj || getClass() != obj.getClass()) {
             return false;
         }
 

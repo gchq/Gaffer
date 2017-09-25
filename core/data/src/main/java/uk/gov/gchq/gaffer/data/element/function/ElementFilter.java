@@ -29,6 +29,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
+/**
+ * An {@code ElementFiler} is a {@link Predicate} which evaluates a condition against
+ * a provided {@link Element} object.
+ */
 public class ElementFilter extends TupleAdaptedPredicateComposite<String> {
     private final ElementTuple elementTuple = new ElementTuple();
     private boolean readOnly;
@@ -57,7 +61,7 @@ public class ElementFilter extends TupleAdaptedPredicateComposite<String> {
             return true;
         }
 
-        if (obj == null || getClass() != obj.getClass()) {
+        if (null == obj || getClass() != obj.getClass()) {
             return false;
         }
 

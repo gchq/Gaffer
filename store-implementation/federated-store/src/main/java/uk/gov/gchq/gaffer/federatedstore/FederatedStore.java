@@ -260,7 +260,7 @@ public class FederatedStore extends Store {
         final String schemaIdValue = getValueOf(graphId, SCHEMA, ID);
         if (!Strings.isNullOrEmpty(schemaIdValue)) {
             final GraphLibrary graphLibrary = getGraphLibrary();
-            if (graphLibrary != null) {
+            if (null != graphLibrary) {
                 try {
                     builder.addSchema(graphLibrary.getSchema(schemaIdValue));
                 } catch (final Exception e) {
@@ -388,10 +388,10 @@ public class FederatedStore extends Store {
 
 
     /**
-     * @return All the graphId within scope of this FederatedStore.
+     * @return All the graphId(s) within scope of this FederatedStore.
      */
     public Set<String> getAllGraphIds() {
-        return graphs.keySet();
+        return Collections.unmodifiableSet(graphs.keySet());
     }
 
     /**
@@ -471,6 +471,6 @@ public class FederatedStore extends Store {
      * @return boolean permission
      */
     public boolean isLimitedToLibraryProperties(final User user) {
-        return this.customPropertiesAuths != null && Collections.disjoint(user.getOpAuths(), this.customPropertiesAuths);
+        return null != this.customPropertiesAuths && Collections.disjoint(user.getOpAuths(), this.customPropertiesAuths);
     }
 }
