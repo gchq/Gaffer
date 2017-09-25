@@ -407,10 +407,10 @@ public class FederatedStore extends Store {
 
 
     /**
-     * @return All the graphId within scope of this FederatedStore.
+     * @return All the graphId(s) within scope of this FederatedStore.
      */
     public Set<String> getAllGraphIds() {
-        return graphs.keySet();
+        return Collections.unmodifiableSet(graphs.keySet());
     }
 
     /**
