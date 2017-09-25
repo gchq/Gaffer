@@ -65,7 +65,7 @@ import static org.junit.Assume.assumeTrue;
  */
 public abstract class AbstractStoreIT {
     protected static final String USER_01 = "user01";
-    protected static final long AGE_OFF_TIME = 4L * 1000; // 4 seconds;
+    protected static final long AGE_OFF_TIME = 10L * 1000; // 4 seconds;
 
     // Identifier prefixes
     public static final String SOURCE = "1-Source";

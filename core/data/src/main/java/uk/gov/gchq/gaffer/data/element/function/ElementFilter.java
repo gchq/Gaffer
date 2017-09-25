@@ -22,6 +22,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.ElementTuple;
+import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicateComposite;
 
@@ -40,6 +41,39 @@ public class ElementFilter extends TupleAdaptedPredicateComposite<String> {
     public boolean test(final Element element) {
         elementTuple.setElement(element);
         return test(elementTuple);
+    }
+
+    public ValidationResult testWithValidationResult(final Element element) {
+        final ValidationResult result = new ValidationResult();
+        elementTuple.setElement(element);
+        components.stream()
+                .filter(predicate -> !predicate.test(elementTuple))
+                .forEach(predicate -> result.addError(getErrorMsg(predicate)));
+        return result;
+    }
+
+    private String getErrorMsg(final TupleAdaptedPredicate<String, ?> predicate) {
+        final StringBuilder builder = new StringBuilder();
+        builder.append("Filter: ")
+                .append(predicate.getPredicate())
+                .append(" returned false for properties: {");
+
+        boolean firstProp = true;
+        for (final String selection : predicate.getSelection()) {
+            final Object value = elementTuple.get(selection);
+            final String valueStr = null != value ? String.format("<%s>%s", value.getClass().getCanonicalName(), value) : "null";
+            if (firstProp) {
+                firstProp = false;
+            } else {
+                builder.append(", ");
+            }
+            builder.append(selection)
+                    .append(": ")
+                    .append(valueStr);
+        }
+        builder.append("}");
+
+        return builder.toString();
     }
 
     @Override
