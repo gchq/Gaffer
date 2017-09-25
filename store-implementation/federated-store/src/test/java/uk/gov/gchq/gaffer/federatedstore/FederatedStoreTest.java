@@ -58,6 +58,7 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStore.S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2;
@@ -448,6 +449,26 @@ public class FederatedStoreTest {
                         .build(), TEST_USER);
 
         return (null == elements) ? Sets.newHashSet() : Sets.newHashSet(elements);
+    }
+
+    @Test
+    public void shouldGetAllGraphIdsInUnmodifiableSet() throws Exception {
+        // Given
+        federatedProperties.set(GRAPH_IDS, MAP_ID_1);
+        federatedProperties.set(KEY_MAP_ID1_PROPERTIES_ID, PROPS_ID_1);
+        federatedProperties.set(KEY_MAP_ID1_SCHEMA_FILE, PATH_BASIC_EDGE_SCHEMA_JSON);
+        final GraphLibrary mockLibrary = Mockito.mock(GraphLibrary.class);
+        Mockito.when(mockLibrary.getProperties(PROPS_ID_1)).thenReturn(StoreProperties.loadStoreProperties(PATH_MAP_STORE_PROPERTIES));
+        store.setGraphLibrary(mockLibrary);
+        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
+
+        // When / Then
+        try {
+            store.getAllGraphIds().add("newId");
+            fail("Exception expected");
+        } catch (UnsupportedOperationException e) {
+            assertNotNull(e);
+        }
     }
 
     @Test
