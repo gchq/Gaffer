@@ -20,8 +20,8 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.impl.predicate.Not;
@@ -45,14 +45,6 @@ public class ElementFilterTest extends JSONSerialisationTest<ElementFilter> {
     @Override
     protected ElementFilter getTestObject() {
         return new ElementFilter();
-    }
-
-    public static class MockPredicate implements Predicate<Element> {
-
-        @Override
-        public boolean test(final Element element) {
-            return true;
-        }
     }
 
     @Test
@@ -85,6 +77,40 @@ public class ElementFilterTest extends JSONSerialisationTest<ElementFilter> {
         // Then
         assertTrue(result1);
         assertFalse(result2);
+    }
+
+    @Test
+    public void shouldTestElementOnPredicate2WithValidationResult() {
+        // Given
+        final KoryphePredicate2<String, String> predicate2 = new KoryphePredicate2<String, String>() {
+            @Override
+            public boolean test(final String o, final String o2) {
+                return "value".equals(o) && "value2".equals(o2);
+            }
+        };
+        final ElementFilter filter = new ElementFilter.Builder()
+                .select("prop1", "prop2")
+                .execute(predicate2)
+                .build();
+
+        final Entity element1 = new Entity.Builder()
+                .property("prop1", "value")
+                .property("prop2", "value2")
+                .build();
+
+        final Entity element2 = new Entity.Builder()
+                .property("prop1", "unknown")
+                .property("prop2", "value2")
+                .build();
+
+        // When
+        final ValidationResult result1 = filter.testWithValidationResult(element1);
+        final ValidationResult result2 = filter.testWithValidationResult(element2);
+
+        // Then
+        assertTrue(result1.isValid());
+        assertFalse(result2.isValid());
+        assertTrue("Result was: " + result2.getErrorString(), result2.getErrorString().contains("{prop1: <java.lang.String>unknown, prop2: <java.lang.String>value2}"));
     }
 
     @Test

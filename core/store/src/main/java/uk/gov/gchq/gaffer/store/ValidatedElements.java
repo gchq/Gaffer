@@ -20,6 +20,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.TransformIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.ValidationResult;
 
 /**
  * An {@code ValidatedElements} extends {@link TransformIterable} and uses an
@@ -31,7 +32,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
  * {@link View} {@link java.util.function.Predicate}s.
  */
 public class ValidatedElements extends TransformIterable<Element, Element> {
-
     /**
      * Constructs an {@code TransformIterable} with the given {@link Iterable} of
      * {@link Element}s, a {@link Schema} containing the
@@ -64,8 +64,15 @@ public class ValidatedElements extends TransformIterable<Element, Element> {
 
     @Override
     protected void handleInvalidItem(final Element item) {
+        final ValidationResult result = getValidator().validateWithValidationResult(item);
         final String elementDescription = null != item ? item.toString() : "<unknown>";
-        throw new IllegalArgumentException("Element of type " + elementDescription + " is not valid.");
+        String validationResultErrors;
+        if (result.isValid()) {
+            validationResultErrors = "";
+        } else {
+            validationResultErrors = " \n" + result.getErrorString();
+        }
+        throw new IllegalArgumentException("Element of type " + elementDescription + " is not valid." + validationResultErrors);
 
     }
 

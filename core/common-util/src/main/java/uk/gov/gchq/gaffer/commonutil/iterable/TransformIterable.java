@@ -177,6 +177,10 @@ public abstract class TransformIterable<I, O> implements CloseableIterable<O> {
         return this.input;
     }
 
+    protected Validator<I> getValidator() {
+        return validator;
+    }
+
     private Class<? extends TransformIterable> getIterableClass() {
         return getClass();
     }
