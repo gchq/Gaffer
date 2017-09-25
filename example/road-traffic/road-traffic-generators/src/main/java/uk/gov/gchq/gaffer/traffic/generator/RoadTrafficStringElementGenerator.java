@@ -16,23 +16,22 @@
 
 package uk.gov.gchq.gaffer.traffic.generator;
 
-import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
+import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;
 import uk.gov.gchq.gaffer.traffic.ElementGroup;
 import uk.gov.gchq.gaffer.types.FreqMap;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 import static uk.gov.gchq.gaffer.traffic.generator.RoadTrafficDataField.A_Junction;
 import static uk.gov.gchq.gaffer.traffic.generator.RoadTrafficDataField.A_Ref_E;
@@ -67,8 +66,7 @@ public class RoadTrafficStringElementGenerator extends RoadTrafficElementGenerat
         final String junctionALocation = fields[A_Ref_E.ordinal()] + "," + fields[A_Ref_N.ordinal()];
         final String junctionBLocation = fields[B_Ref_E.ordinal()] + "," + fields[B_Ref_N.ordinal()];
 
-        // Create elements
-        return Lists.newArrayList(
+        final List<Edge> edges = Arrays.asList(
                 new Edge.Builder()
                         .group(ElementGroup.REGION_CONTAINS_LOCATION)
                         .source(region)
@@ -120,8 +118,9 @@ public class RoadTrafficStringElementGenerator extends RoadTrafficElementGenerat
                         .property("endTime", endTime)
                         .property("totalCount", getTotalCount(vehicleCountsByType))
                         .property("countByVehicleType", vehicleCountsByType)
-                        .build(),
+                        .build());
 
+        final List<Entity> entities = Arrays.asList(
                 new Entity.Builder()
                         .group(ElementGroup.JUNCTION_USE)
                         .vertex(junctionA)
@@ -140,6 +139,10 @@ public class RoadTrafficStringElementGenerator extends RoadTrafficElementGenerat
                         .property("totalCount", getTotalCount(vehicleCountsByType))
                         .build()
         );
+
+        final List<Entity> cardinalityEntities = createCardinalities(edges);
+
+        return new ChainedIterable<>(edges, entities, cardinalityEntities);
     }
 
     private FreqMap getVehicleCounts(final String[] fields) {
@@ -170,9 +173,16 @@ public class RoadTrafficStringElementGenerator extends RoadTrafficElementGenerat
         final String trimStart = StringUtils.removeStart(line, "\"");
         final String trimEnd = StringUtils.removeEnd(trimStart, "\"");
         final String[] fields = trimEnd.split("\",\"");
-        if (fields.length != uk.gov.gchq.gaffer.traffic.generator.RoadTrafficDataField.values().length - 2) {
+
+        // Must pad out the list of fields due to a change to the input data
+        final List<String> expandedFields = new LinkedList<String>(Arrays.asList(fields));
+        expandedFields.add(6, "");
+        expandedFields.add(7, "");
+
+        if (expandedFields.size() != uk.gov.gchq.gaffer.traffic.generator.RoadTrafficDataField.values().length) {
             return null;
         }
-        return fields;
+
+        return expandedFields.toArray(new String[]{});
     }
 }
