@@ -85,6 +85,7 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
                                      final Context context,
                                      final AccumuloStore accumuloStore)
             throws OperationException {
+        operation.getSparkSession().sparkContext().hadoopConfiguration().addResource(getConfiguration(operation));
         final String useRFileReaderRDD = operation.getOption(USE_RFILE_READER_RDD);
         if (Boolean.parseBoolean(useRFileReaderRDD)) {
             return doOperationUsingRFileReaderRDD(operation, context, accumuloStore);
