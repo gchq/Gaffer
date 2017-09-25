@@ -58,10 +58,15 @@ public class AddElementsIT extends AbstractStoreIT {
         try {
             graph.execute(addElements, getUser());
         } catch (final Exception e) {
-            assertTrue("Message was: " + e.getMessage(), e.getMessage().contains("IsLessThan"));
-            assertTrue("Message was: " + e.getMessage(), e.getMessage().contains("returned false for properties: {intProperty: <java.lang.Integer>21}"));
-            assertTrue("Message was: " + e.getMessage(), e.getMessage().contains("AgeOff"));
-            assertTrue("Message was: " + e.getMessage(), e.getMessage().contains("returned false for properties: {timestamp: <java.lang.Long>1}"));
+            String msg = e.getMessage();
+            if (!msg.contains("Element of type Entity") && null != e.getCause()) {
+                msg = e.getCause().getMessage();
+            }
+
+            assertTrue("Message was: " + msg, msg.contains("IsLessThan"));
+            assertTrue("Message was: " + msg, msg.contains("returned false for properties: {intProperty: <java.lang.Integer>21}"));
+            assertTrue("Message was: " + msg, msg.contains("AgeOff"));
+            assertTrue("Message was: " + msg, msg.contains("returned false for properties: {timestamp: <java.lang.Long>1}"));
         }
     }
 
