@@ -89,6 +89,7 @@ public class AddGraph implements Operation {
                 .parentSchemaIds(parentSchemaIds)
                 .parentPropertiesId(parentPropertiesId)
                 .options(options)
+                .graphAuths(graphAuths.toArray(new String[graphAuths.size()]))
                 .build();
     }
 
