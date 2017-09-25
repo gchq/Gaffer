@@ -18,38 +18,37 @@ package uk.gov.gchq.gaffer.operation.function;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
-import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl.IterableElement;
+import uk.gov.gchq.gaffer.operation.util.AggregatePair;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * An <code>Aggregate</code> operation applies {@link ElementAggregator}(s) to the provided
- * {@link Iterable} of {@link Element}s, and returns an {@link Iterable}.
+ * An <code>Aggregate</code> operation applies {@link uk.gov.gchq.gaffer.data.element.function.ElementAggregator}(s) to the provided
+ * {@link Iterable} of {@link Element}s by their group, and returns an {@link Iterable}.
  */
 public class Aggregate implements
         Operation,
         InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,
         MultiInput<Element> {
     private Iterable<? extends Element> input;
-    private Map<String,String> options;
+    private Map<String, String> options;
 
     /**
-     * A map of the {@link uk.gov.gchq.gaffer.data.element.Edge} group to a {@link Pair}, containing groupBy properties in a {@link String} array,
-     * and an {@link ElementAggregator}.
+     * A map of the {@link uk.gov.gchq.gaffer.data.element.Edge} group to an {@link AggregatePair}, which can contain groupBy properties in a {@link String} array,
+     * and an {@link uk.gov.gchq.gaffer.data.element.function.ElementAggregator}.
      */
-    private Map<String, Pair<String[], ElementAggregator>> edges;
+    private Map<String, AggregatePair> edges;
     /**
-     * A map of the {@link uk.gov.gchq.gaffer.data.element.Entity} group to a {@link Pair}, containing groupBy properties in a {@link String} array,
-     * and an {@link ElementAggregator}.
+     * A map of the {@link uk.gov.gchq.gaffer.data.element.Entity} group to an {@link AggregatePair}, which can contain groupBy properties in a {@link String} array,
+     * and an {@link uk.gov.gchq.gaffer.data.element.function.ElementAggregator}.
      */
-    private Map<String, Pair<String[], ElementAggregator>> entities;
+    private Map<String, AggregatePair> entities;
 
     @Override
     public Iterable<? extends Element> getInput() {
@@ -86,19 +85,19 @@ public class Aggregate implements
         this.options = options;
     }
 
-    public Map<String, Pair<String[], ElementAggregator>> getEdges() {
+    public Map<String, AggregatePair> getEdges() {
         return edges;
     }
 
-    public void setEdges(final Map<String, Pair<String[], ElementAggregator>> edges) {
+    public void setEdges(final Map<String, AggregatePair> edges) {
         this.edges = edges;
     }
 
-    public Map<String, Pair<String[], ElementAggregator>> getEntities() {
+    public Map<String, AggregatePair> getEntities() {
         return entities;
     }
 
-    public void setEntities(final Map<String, Pair<String[], ElementAggregator>> entities) {
+    public void setEntities(final Map<String, AggregatePair> entities) {
         this.entities = entities;
     }
 
@@ -110,7 +109,7 @@ public class Aggregate implements
             super(new Aggregate());
         }
 
-        public Builder edge(final String group, final Pair<String[], ElementAggregator> pair) {
+        public Builder edge(final String group, final AggregatePair pair) {
             if (null == _getOp().edges) {
                 _getOp().edges = new HashMap<>();
             }
@@ -118,12 +117,12 @@ public class Aggregate implements
             return _self();
         }
 
-        public Builder edges(final Map<String, Pair<String[], ElementAggregator>> edges) {
+        public Builder edges(final Map<String, AggregatePair> edges) {
             _getOp().edges = edges;
             return _self();
         }
 
-        public Builder entity(final String group, final Pair<String[], ElementAggregator> pair ) {
+        public Builder entity(final String group, final AggregatePair pair) {
             if (null == _getOp().entities) {
                 _getOp().entities = new HashMap<>();
             }
@@ -131,7 +130,7 @@ public class Aggregate implements
             return _self();
         }
 
-        public Builder entities(final Map<String, Pair<String[], ElementAggregator>> entities) {
+        public Builder entities(final Map<String, AggregatePair> entities) {
             _getOp().entities = entities;
             return _self();
         }
