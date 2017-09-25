@@ -418,4 +418,31 @@ public class GetRDDOfElementsHandlerTest {
             assertNotNull(e.getMessage());
         }
     }
+
+    @Test
+    public void checkHadoopConfIsPassedThrough() throws OperationException, IOException {
+        final Graph graph1 = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("graphId")
+                        .build())
+                .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/types.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
+                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .build();
+        final User user = new User();
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
+        final Configuration conf = new Configuration();
+        conf.set("AN_OPTION", "A_VALUE");
+        final String encodedConf = AbstractGetRDDHandler.convertConfigurationToString(conf);
+        final GetRDDOfElements rddQuery = new GetRDDOfElements.Builder()
+                .input(new EdgeSeed("1", "B", false))
+                .sparkSession(sparkSession)
+                .option(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, encodedConf)
+                .build();
+        final RDD<Element> rdd = graph1.execute(rddQuery, user);
+
+        assertEquals(encodedConf, rddQuery.getOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY));
+        assertEquals("A_VALUE", rdd.sparkContext().hadoopConfiguration().get("AN_OPTION"));
+    }
 }
