@@ -16,16 +16,17 @@
 
 package uk.gov.gchq.gaffer.rest.service.v1;
 
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.SystemStatus;
 import uk.gov.gchq.gaffer.rest.application.ApplicationConfigV1;
 
+import java.io.IOException;
+
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
-
-import java.io.IOException;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
@@ -39,45 +40,43 @@ public class RestApiV1TestClient extends RestApiTestClient {
     public Response executeOperation(final Operation operation) throws IOException {
         startServer();
         return client.target(uriString)
-                     .path("/graph/doOperation/operation")
-                     .request()
-                     .post(Entity.entity(JSON_SERIALISER.serialise(operation), APPLICATION_JSON_TYPE));
+                .path("/graph/doOperation/operation")
+                .request()
+                .post(Entity.entity(JSONSerialiser.serialise(operation), APPLICATION_JSON_TYPE));
     }
 
     @Override
     public Response executeOperationChain(final OperationChain opChain) throws IOException {
         startServer();
         return client.target(uriString)
-                     .path("/graph/doOperation")
-                     .request()
-                     .post(Entity.entity(JSON_SERIALISER.serialise(opChain), APPLICATION_JSON_TYPE));
+                .path("/graph/doOperation")
+                .request()
+                .post(Entity.entity(JSONSerialiser.serialise(opChain), APPLICATION_JSON_TYPE));
     }
 
     @Override
     public Response executeOperationChainChunked(final OperationChain opChain) throws IOException {
         startServer();
         return client.target(uriString)
-                     .path("/graph/doOperation/chunked")
-                     .request()
-                     .post(Entity.entity(JSON_SERIALISER.serialise(opChain), APPLICATION_JSON_TYPE));
+                .path("/graph/doOperation/chunked")
+                .request()
+                .post(Entity.entity(JSONSerialiser.serialise(opChain), APPLICATION_JSON_TYPE));
     }
 
     @Override
     public Response executeOperationChunked(final Operation operation) throws IOException {
         startServer();
         return client.target(uriString)
-                     .path("/graph/doOperation/chunked/operation")
-                     .request()
-                     .post(Entity.entity(JSON_SERIALISER.serialise(operation), APPLICATION_JSON_TYPE));
+                .path("/graph/doOperation/chunked/operation")
+                .request()
+                .post(Entity.entity(JSONSerialiser.serialise(operation), APPLICATION_JSON_TYPE));
     }
 
     @Override
     public SystemStatus getRestServiceStatus() {
         return client.target(uriString)
-                     .path("status")
-                     .request()
-                     .get(SystemStatus.class);
-
-
+                .path("status")
+                .request()
+                .get(SystemStatus.class);
     }
 }

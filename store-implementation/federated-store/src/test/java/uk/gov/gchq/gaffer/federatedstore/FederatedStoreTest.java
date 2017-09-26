@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federatedstore.integration.FederatedStoreITs;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
@@ -57,6 +58,7 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStore.S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2;
@@ -447,6 +449,26 @@ public class FederatedStoreTest {
                         .build(), TEST_USER);
 
         return (null == elements) ? Sets.newHashSet() : Sets.newHashSet(elements);
+    }
+
+    @Test
+    public void shouldGetAllGraphIdsInUnmodifiableSet() throws Exception {
+        // Given
+        federatedProperties.set(GRAPH_IDS, MAP_ID_1);
+        federatedProperties.set(KEY_MAP_ID1_PROPERTIES_ID, PROPS_ID_1);
+        federatedProperties.set(KEY_MAP_ID1_SCHEMA_FILE, PATH_BASIC_EDGE_SCHEMA_JSON);
+        final GraphLibrary mockLibrary = Mockito.mock(GraphLibrary.class);
+        Mockito.when(mockLibrary.getProperties(PROPS_ID_1)).thenReturn(StoreProperties.loadStoreProperties(PATH_MAP_STORE_PROPERTIES));
+        store.setGraphLibrary(mockLibrary);
+        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
+
+        // When / Then
+        try {
+            store.getAllGraphIds().add("newId");
+            fail("Exception expected");
+        } catch (UnsupportedOperationException e) {
+            assertNotNull(e);
+        }
     }
 
     @Test
@@ -862,17 +884,28 @@ public class FederatedStoreTest {
         }
 
 
+        store.execute(new AddElements.Builder()
+                        .input(new Entity.Builder()
+                                .group("BasicEntity")
+                                .vertex("hi")
+                                .build())
+                        .build(),
+                new User.Builder()
+                        .userId(USER_ID)
+                        .opAuth("auth")
+                        .build());
+
         final CloseableIterable<? extends Element> elements = store.execute(
                 new GetAllElements(),
                 new User.Builder()
-                        .userId(USER_ID)
+                        .userId(USER_ID + "Other")
                         .opAuth("auth")
                         .build());
 
         final CloseableIterable<? extends Element> x = store.execute(
                 new GetAllElements(),
                 new User.Builder()
-                        .userId(USER_ID)
+                        .userId(USER_ID + "Other")
                         .opAuths("x")
                         .build());
 
@@ -880,8 +913,8 @@ public class FederatedStoreTest {
         assertEquals(0, before);
         assertEquals(1, after);
         Assert.assertNotNull(elements);
-        Assert.assertFalse(elements.iterator().hasNext());
-        Assert.assertFalse(x.iterator().hasNext());
+        Assert.assertTrue(elements.iterator().hasNext());
+        Assert.assertNull(x);
     }
 
     @Test
@@ -933,7 +966,7 @@ public class FederatedStoreTest {
         final List<Collection<Graph>> graphLists = populateGraphs(1);
         final Collection<Graph> expectedGraphs = graphLists.get(0);
         final Collection<Graph> unexpectedGraphs = graphLists.get(1);
-  
+
         // When
         final Collection<Graph> returnedGraphs = store.getGraphs("mockGraphId1");
 
@@ -955,14 +988,14 @@ public class FederatedStoreTest {
     private List<Collection<Graph>> populateGraphs(int... expectedIds) {
         final Collection<Graph> expectedGraphs = new ArrayList<>();
         final Collection<Graph> unexpectedGraphs = new ArrayList<>();
-        for(int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++) {
             Graph tempGraph = new Graph.Builder()
                     .config(new GraphConfig.Builder()
-                                    .graphId("mockGraphId" + i)
-                                    .addHook(new FederatedAccessHook.Builder()
-                                                     .graphAuths("auth" + i)
-                                                     .build())
+                            .graphId("mockGraphId" + i)
+                            .addHook(new FederatedAccessHook.Builder()
+                                    .graphAuths("auth" + i)
                                     .build())
+                            .build())
                     .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_MAP_STORE_PROPERTIES))
                     .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_ENTITY_SCHEMA_JSON))
                     .build();

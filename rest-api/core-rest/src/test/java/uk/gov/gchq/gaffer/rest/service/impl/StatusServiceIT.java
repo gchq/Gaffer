@@ -29,8 +29,6 @@ public abstract class StatusServiceIT extends AbstractRestApiIT {
         // When
         final SystemStatus status = client.getRestServiceStatus();
 
-        System.out.println(status);
-
         // Then
         assertEquals(SystemStatus.UP, status);
     }

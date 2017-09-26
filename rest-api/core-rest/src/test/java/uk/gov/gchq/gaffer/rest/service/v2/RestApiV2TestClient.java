@@ -16,16 +16,17 @@
 
 package uk.gov.gchq.gaffer.rest.service.v2;
 
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 import uk.gov.gchq.gaffer.rest.SystemStatus;
 import uk.gov.gchq.gaffer.rest.application.ApplicationConfigV2;
 
+import java.io.IOException;
+
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
-
-import java.io.IOException;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
@@ -39,18 +40,18 @@ public class RestApiV2TestClient extends RestApiTestClient {
     public Response executeOperation(final Operation operation) throws IOException {
         startServer();
         return client.target(uriString)
-                     .path("/graph/operations/execute")
-                     .request()
-                     .post(Entity.entity(JSON_SERIALISER.serialise(operation), APPLICATION_JSON_TYPE));
+                .path("/graph/operations/execute")
+                .request()
+                .post(Entity.entity(JSONSerialiser.serialise(operation), APPLICATION_JSON_TYPE));
     }
 
     @Override
     public Response executeOperationChain(final OperationChain opChain) throws IOException {
         startServer();
         return client.target(uriString)
-                     .path("/graph/operations/execute")
-                     .request()
-                     .post(Entity.entity(JSON_SERIALISER.serialise(opChain), APPLICATION_JSON_TYPE));
+                .path("/graph/operations/execute")
+                .request()
+                .post(Entity.entity(JSONSerialiser.serialise(opChain), APPLICATION_JSON_TYPE));
     }
 
     @Override
@@ -62,24 +63,16 @@ public class RestApiV2TestClient extends RestApiTestClient {
     public Response executeOperationChunked(final Operation operation) throws IOException {
         startServer();
         return client.target(uriString)
-                     .path("/graph/operations/execute/chunked")
-                     .request()
-                     .post(Entity.entity(JSON_SERIALISER.serialise(operation), APPLICATION_JSON_TYPE));
+                .path("/graph/operations/execute/chunked")
+                .request()
+                .post(Entity.entity(JSONSerialiser.serialise(operation), APPLICATION_JSON_TYPE));
     }
 
     @Override
     public SystemStatus getRestServiceStatus() {
-        final Response response = client.target(uriString)
+        return client.target(uriString)
                 .path("/graph/status")
                 .request()
-                .get();
-
-
-        System.out.println(response.readEntity(String.class));
-
-        return client.target(uriString)
-                     .path("/graph/status")
-                     .request()
-                     .get(SystemStatus.class);
+                .get(SystemStatus.class);
     }
 }
