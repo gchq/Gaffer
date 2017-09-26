@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
+import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -63,12 +64,14 @@ public class ValidatedElementsTest {
             final String group = "group " + i;
             given(elements.get(i).getGroup()).willReturn(group);
             given(filters.get(i).test(elements.get(i))).willReturn(true);
+            given(filters.get(i).testWithValidationResult(elements.get(i))).willReturn(new ValidationResult());
 
             final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
             given(schema.getElement(group)).willReturn(elementDef);
             given(elementDef.getValidator(true)).willReturn(filters.get(i));
         }
         given(filters.get(1).test(elements.get(1))).willReturn(false);
+        given(filters.get(1).testWithValidationResult(elements.get(1))).willReturn(new ValidationResult("Some error"));
     }
 
     @Test
@@ -128,7 +131,7 @@ public class ValidatedElementsTest {
             itr.hasNext();
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
-            assertNotNull(e);
+            assertTrue(e.getMessage().contains("Some error"));
         }
 
         verify(filters.get(2), never()).test(elements.get(2));

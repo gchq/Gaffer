@@ -72,6 +72,7 @@ public final class GraphDelegate {
                         .build())
                 .addSchema(resolvedSchema)
                 .storeProperties(resolvedStoreProperties)
+                .addToLibrary(false)
                 .build();
     }
 
@@ -140,6 +141,7 @@ public final class GraphDelegate {
                         .build())
                 .storeProperties(graphLibrary.get(graphId).getSecond())
                 .addSchema(graphLibrary.get(graphId).getFirst())
+                .addToLibrary(false)
                 .build();
     }
 
@@ -155,6 +157,7 @@ public final class GraphDelegate {
                         .build())
                 .addSchema(resolveSchema)
                 .storeProperties(resolveProperties)
+                .addToLibrary(false)
                 .build();
     }
 
