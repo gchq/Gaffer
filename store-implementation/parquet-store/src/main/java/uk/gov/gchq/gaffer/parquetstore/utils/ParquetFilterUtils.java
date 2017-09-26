@@ -685,12 +685,9 @@ public final class ParquetFilterUtils {
     protected Pair<FilterPredicate, Set<Path>> buildGroupFilter(final String group, final boolean isEntity) throws SerialisationException {
         Pair<FilterPredicate, Set<Path>> groupFilter = null;
         final ViewElementDefinition groupView = view.getElement(group);
-        if (groupView != null) {
-            List<TupleAdaptedPredicate<String, ?>> preAggFilterFunctions = new ArrayList<>();
-            if (groupView.getPreAggregationFilterFunctions() != null) {
-                preAggFilterFunctions.addAll(groupView.getPreAggregationFilterFunctions());
-            }
-            if (!preAggFilterFunctions.isEmpty()) {
+        if (null != groupView) {
+            List<TupleAdaptedPredicate<String, ?>> preAggFilterFunctions = groupView.getPreAggregationFilterFunctions();
+            if (null != preAggFilterFunctions) {
                 for (final TupleAdaptedPredicate<String, ?> filterFunctionContext : preAggFilterFunctions) {
                     final Pair<FilterPredicate, Set<Path>> filter = buildFilter(filterFunctionContext.getPredicate(), filterFunctionContext.getSelection(), group);
                     groupFilter = andFilter(groupFilter, filter, filterFunctionContext.getSelection().length > 0);
@@ -740,13 +737,10 @@ public final class ParquetFilterUtils {
             }
         } else {
             filterResult = addPrimitiveFilter(filterFunction, selection[0], group);
-            if (filterResult == null) {
+            if (null == filterResult) {
                 requiresValidation = true;
             }
         }
-        /*if (1 != 1) {
-            requiresValidation = false;
-        }*/
         return filterResult;
     }
 
