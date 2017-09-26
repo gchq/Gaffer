@@ -80,7 +80,7 @@ public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
         Range min = null;
         Range max = null;
         for (final Range range : ran) {
-            if (min == null) {
+            if (null == min) {
                 min = range;
                 max = range;
             }

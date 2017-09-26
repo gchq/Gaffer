@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.function.Function;
 
 /**
- * A <code>OneOrMore</code> in an {@link Iterable} that allows items
+ * A {@code OneOrMore} in an {@link Iterable} that allows items
  * to be added. It wraps an {@link ArrayList} or {@link HashSet} depending
  * on whether deduplication is enabled.
  * This class is designed to be used in the case when the iterable quite often
@@ -153,7 +153,7 @@ public class OneOrMore<T> implements Iterable<T> {
             return true;
         }
 
-        if (obj == null || getClass() != obj.getClass()) {
+        if (null == obj || getClass() != obj.getClass()) {
             return false;
         }
 

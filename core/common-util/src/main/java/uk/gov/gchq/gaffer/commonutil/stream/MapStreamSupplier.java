@@ -29,8 +29,8 @@ import java.util.stream.Stream;
  * @param <U> the type of output objects
  */
 public class MapStreamSupplier<T, U> implements StreamSupplier<U> {
-    private Iterable<T> input;
-    private Function<T, U> function;
+    private final Iterable<T> input;
+    private final Function<T, U> function;
 
     /**
      * Default constructor.

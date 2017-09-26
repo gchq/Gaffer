@@ -32,6 +32,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+/**
+ * Implementation of the {@link ICacheService} interface which uses a {@link JcsCache}
+ * as the cache implementation.
+ */
 public class JcsCacheService implements ICacheService {
     private static final Logger LOGGER = LoggerFactory.getLogger(JcsCacheService.class);
     private CompositeCacheManager manager;
@@ -41,7 +45,7 @@ public class JcsCacheService implements ICacheService {
         String configFile = properties.getProperty(CacheProperties.CACHE_CONFIG_FILE);
         manager = CompositeCacheManager.getUnconfiguredInstance();
 
-        if (configFile != null) {
+        if (null != configFile) {
             try {
                 Properties cacheProperties = readProperties(configFile);
                 manager.configure(cacheProperties);

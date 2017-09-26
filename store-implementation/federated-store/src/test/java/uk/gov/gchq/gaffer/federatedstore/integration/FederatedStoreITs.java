@@ -20,7 +20,7 @@ import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
 public class FederatedStoreITs extends AbstractStoreITs {
-    private static StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(
+    private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(
             StreamUtil.openStream(FederatedStoreITs.class, "predefinedFederatedStore.properties"));
 
     public FederatedStoreITs() {

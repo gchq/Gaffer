@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe;
 
 /**
  * A simple object used to test that custom properties can be converted into a type suitable for inclusion in a
- * <code>Dataframe</code> if the user provides a suitable <code>Converter</code>.
+ * {@code Dataframe} if the user provides a suitable {@code Converter}.
  */
 public class MyProperty {
     private int a;

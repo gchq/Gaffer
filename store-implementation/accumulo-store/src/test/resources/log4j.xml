@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!--
-  ~ Copyright 2016 Crown Copyright
+  ~ Copyright 2017 Crown Copyright
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -23,21 +23,8 @@
             <param name="ConversionPattern" value="%c{3} %p %x - %m%n"/>
         </layout>
     </appender>
-
-    <logger name="org.reflections.Reflections">
-        <level value="WARN"/>
-    </logger>
-
-    <logger name="uk.gov.gchq.gaffer.accumulostore.utils.TableUtils">
-        <level value="WARN"/>
-    </logger>
-
-    <logger name="server.handler.ContextHandler">
-        <level value="WARN"/>
-    </logger>
-
     <root>
-        <priority value="info"></priority>
+        <priority value="warn"></priority>
         <appender-ref ref="console"></appender-ref>
     </root>
 </log4j:configuration>

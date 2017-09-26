@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * An <code>ElementKey</code> wraps an element and overrides hashcode and equals
+ * An {@code ElementKey} wraps an element and overrides hashcode and equals
  * to only select the parts of the element that make up the key - i.e the Group,
  * vertex/source/destination/directed and the group by properties.
  * <p>
@@ -104,7 +104,7 @@ public interface ElementKey {
                 return true;
             }
 
-            if (obj == null || getClass() != obj.getClass()) {
+            if (null == obj || getClass() != obj.getClass()) {
                 return false;
             }
 

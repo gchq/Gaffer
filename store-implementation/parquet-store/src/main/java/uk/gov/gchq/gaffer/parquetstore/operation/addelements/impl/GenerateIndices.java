@@ -87,7 +87,7 @@ public class GenerateIndices {
             for (int i = 0; i < tasks.size(); i++) {
                 final Tuple4<String, String, ColumnIndex, OperationException> result = results.get(i).get();
                 final OperationException error = result.get3();
-                if (error != null) {
+                if (null != error) {
                     throw error;
                 }
                 final ColumnIndex colIndex = result.get2();
@@ -106,7 +106,7 @@ public class GenerateIndices {
 
     private void addColumnIndexToGraphIndex(final ColumnIndex columnIndex, final String group, final String column) {
         GroupIndex groupIndex = graphIndex.getGroup(group);
-        if (groupIndex == null) {
+        if (null == groupIndex) {
             groupIndex = new GroupIndex();
             graphIndex.add(group, groupIndex);
         }

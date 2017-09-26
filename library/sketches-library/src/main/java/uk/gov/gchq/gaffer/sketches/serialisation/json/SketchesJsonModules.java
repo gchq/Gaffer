@@ -28,6 +28,10 @@ import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.json.Hy
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Factory class to create the required modules for serialisation and deserialising
+ * {@link HyperLogLogPlus} instances in Jackson.
+ */
 public class SketchesJsonModules implements JSONSerialiserModules {
     @Override
     public List<Module> getModules() {

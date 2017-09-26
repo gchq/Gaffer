@@ -22,6 +22,10 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import static org.junit.Assert.assertNotNull;
 
+/**
+ * Provides a common interface for testing classes that should be JSON serialisable.
+ * @param <T> Object of type T that is to be tested
+ */
 public abstract class JSONSerialisationTest<T> {
     @Test
     public void shouldJsonSerialiseAndDeserialise() {
@@ -36,6 +40,13 @@ public abstract class JSONSerialisationTest<T> {
         assertNotNull(deserialisedObj);
     }
 
+    /**
+     * This method should be used to generate an instance of the object under test,
+     * eg. return new foo();
+     * The object can be no arg, or as complex as is necessary for the test(s),
+     * eg. return new bar(arg1, arg2, ...);
+     * @return an instance of the object under test of type T
+     */
     protected abstract T getTestObject();
 
     protected byte[] toJson(final T testObj) {

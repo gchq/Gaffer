@@ -22,6 +22,14 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
+/**
+ * Handler for {@link OperationChain}s.
+ *
+ * The default behaviour must be overridden by the {@link ProxyStore} to ensure
+ * that the operation chain is executed via the REST API.
+ *
+ * @param <OUT> the ouptut type of the operation chain
+ */
 public class OperationChainHandler<OUT> implements OutputOperationHandler<OperationChain<OUT>, OUT> {
 
     @Override

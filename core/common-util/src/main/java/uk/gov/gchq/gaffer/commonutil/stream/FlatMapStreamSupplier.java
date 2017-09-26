@@ -29,8 +29,8 @@ import java.util.stream.Stream;
  * @param <U> the type of output objects
  */
 public class FlatMapStreamSupplier<T, U> implements StreamSupplier<U> {
-    private Iterable<T> input;
-    private Function<? super T, ? extends Stream<U>> function;
+    private final Iterable<T> input;
+    private final Function<? super T, ? extends Stream<U>> function;
 
     /**
      * Default constructor.

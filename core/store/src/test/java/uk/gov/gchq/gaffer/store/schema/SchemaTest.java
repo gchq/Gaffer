@@ -412,9 +412,9 @@ public class SchemaTest {
 
         assertEquals(JavaSerialiser.class,
                 store.getElement(TestGroups.EDGE)
-                     .getPropertyTypeDef(TestPropertyNames.PROP_1)
-                     .getSerialiser()
-                     .getClass());
+                        .getPropertyTypeDef(TestPropertyNames.PROP_1)
+                        .getSerialiser()
+                        .getClass());
     }
 
     @Test
@@ -722,8 +722,8 @@ public class SchemaTest {
 
         // Then
         assertArrayEquals(new String[]{TestGroups.EDGE}, schema.getEdge(TestGroups.EDGE_2)
-                                                               .getParents()
-                                                               .toArray());
+                .getParents()
+                .toArray());
     }
 
     @Test
@@ -801,8 +801,8 @@ public class SchemaTest {
                         TestPropertyNames.PROP_3,
                         TestPropertyNames.PROP_4},
                 schema.getEntity(TestGroups.ENTITY_4)
-                      .getProperties()
-                      .toArray());
+                        .getProperties()
+                        .toArray());
 
         // Check order of properties and overrides is from order of parents
         assertArrayEquals(new String[]{
@@ -812,8 +812,8 @@ public class SchemaTest {
                         TestPropertyNames.PROP_4,
                         TestPropertyNames.PROP_5},
                 schema.getEntity(TestGroups.ENTITY_5)
-                      .getProperties()
-                      .toArray());
+                        .getProperties()
+                        .toArray());
 
         assertEquals("A parent entity with a single property", schema.getEntity(TestGroups.ENTITY).getDescription());
         assertEquals("An entity that should have properties: 1, 2, 3, 4 and 5", schema.getEntity(TestGroups.ENTITY_5).getDescription());
@@ -905,7 +905,66 @@ public class SchemaTest {
     }
 
     @Test
-    public void shouldOverrideInheritedParentGroupByEvenWhenEmpty() {
+    public void shouldOverrideInheritedParentDescriptionWhenSet() {
+        // When
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, "prop.string")
+                        .property(TestPropertyNames.PROP_2, "prop.integer")
+                        .groupBy(TestPropertyNames.PROP_1)
+                        .description("A description")
+                        .build())
+                .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
+                        .parents(TestGroups.EDGE)
+                        .description("A new description")
+                        .build())
+                .build();
+
+        // Then
+        assertEquals("A new description", schema.getEdge(TestGroups.EDGE_2).getDescription());
+    }
+
+    @Test
+    public void shouldNotOverrideInheritedParentDescriptionWhenNotSet() {
+        // When
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, "prop.string")
+                        .property(TestPropertyNames.PROP_2, "prop.integer")
+                        .groupBy(TestPropertyNames.PROP_1)
+                        .description("A description")
+                        .build())
+                .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
+                        .parents(TestGroups.EDGE)
+                        .build())
+                .build();
+
+        // Then
+        assertEquals("A description", schema.getEdge(TestGroups.EDGE_2).getDescription());
+    }
+
+    @Test
+    public void shouldOverrideInheritedParentGroupByWhenSet() {
+        // When
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, "prop.string")
+                        .property(TestPropertyNames.PROP_2, "prop.integer")
+                        .groupBy(TestPropertyNames.PROP_1)
+                        .build())
+                .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
+                        .parents(TestGroups.EDGE)
+                        .groupBy(TestPropertyNames.PROP_2)
+                        .build())
+                .build();
+
+        // Then
+        assertArrayEquals(new String[]{TestPropertyNames.PROP_2},
+                schema.getEdge(TestGroups.EDGE_2).getGroupBy().toArray());
+    }
+
+    @Test
+    public void shouldNotOverrideInheritedParentGroupByWhenEmpty() {
         // When
         final Schema schema = new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
@@ -920,12 +979,12 @@ public class SchemaTest {
                 .build();
 
         // Then
-        assertArrayEquals(new String[0],
+        assertArrayEquals(new String[]{TestPropertyNames.PROP_1},
                 schema.getEdge(TestGroups.EDGE_2).getGroupBy().toArray());
     }
 
     @Test
-    public void shouldOverrideInheritedParentGroupByEvenWhenNotSet() {
+    public void shouldNotOverrideInheritedParentGroupByWhenNotSet() {
         // When
         final Schema schema = new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
@@ -939,8 +998,49 @@ public class SchemaTest {
                 .build();
 
         // Then
-        assertArrayEquals(new String[0],
+        assertArrayEquals(new String[]{TestPropertyNames.PROP_1},
                 schema.getEdge(TestGroups.EDGE_2).getGroupBy().toArray());
+    }
+
+    @Test
+    public void shouldNotOverrideGroupByWhenMergingAndItIsNotSet() {
+        // When
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, "prop.string")
+                        .property(TestPropertyNames.PROP_2, "prop.integer")
+                        .groupBy(TestPropertyNames.PROP_1)
+                        .build())
+                .merge(new Schema.Builder()
+                        .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                                .build())
+                        .build())
+                .build();
+
+        // Then
+        assertArrayEquals(new String[]{TestPropertyNames.PROP_1},
+                schema.getEdge(TestGroups.EDGE).getGroupBy().toArray());
+    }
+
+    @Test
+    public void shouldNotOverrideGroupByWhenMergingAndItIsEmpty() {
+        // When
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, "prop.string")
+                        .property(TestPropertyNames.PROP_2, "prop.integer")
+                        .groupBy(TestPropertyNames.PROP_1)
+                        .build())
+                .merge(new Schema.Builder()
+                        .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                                .groupBy()
+                                .build())
+                        .build())
+                .build();
+
+        // Then
+        assertArrayEquals(new String[]{TestPropertyNames.PROP_1},
+                schema.getEdge(TestGroups.EDGE).getGroupBy().toArray());
     }
 
     @Test

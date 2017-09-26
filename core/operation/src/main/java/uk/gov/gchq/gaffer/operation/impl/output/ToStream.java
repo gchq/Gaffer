@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
@@ -27,13 +26,12 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 /**
- * A <code>ToStream</code> operation takes in an {@link java.lang.Iterable} of
+ * A {@code ToStream} operation takes in an {@link java.lang.Iterable} of
  * items and converts them to a {@link java.util.stream.Stream}.
  *
  * @see uk.gov.gchq.gaffer.operation.impl.output.ToStream.Builder
  */
 public class ToStream<T> implements
-        Operation,
         InputOutput<Iterable<? extends T>, Stream<? extends T>>,
         MultiInput<T> {
     private Iterable<? extends T> input;

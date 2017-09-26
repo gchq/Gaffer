@@ -15,6 +15,9 @@
  */
 package uk.gov.gchq.gaffer.rest;
 
+/**
+ * Utility class providing constants for the Gaffer REST API.
+ */
 public final class ServiceConstants {
 
     // REST Headers

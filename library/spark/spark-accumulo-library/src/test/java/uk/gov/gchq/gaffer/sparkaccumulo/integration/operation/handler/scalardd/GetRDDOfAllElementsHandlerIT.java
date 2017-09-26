@@ -27,7 +27,6 @@ import org.apache.accumulo.core.file.blockfile.impl.CachableBlockFile;
 import org.apache.accumulo.core.file.rfile.RFile;
 import org.apache.accumulo.core.file.rfile.bcfile.Compression;
 import org.apache.accumulo.minicluster.MiniAccumuloCluster;
-import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -42,7 +41,6 @@ import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccum
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -69,7 +67,6 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.function.Concat;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -306,7 +303,7 @@ public class GetRDDOfAllElementsHandlerIT {
         assertEquals(entity1, returnedElements[0]);
     }
 
-    private StoreProperties getAccumuloPropreties(final KeyPackage keyPackage) {
+    private StoreProperties getAccumuloProperties(final KeyPackage keyPackage) {
         final AccumuloProperties storeProperties = AccumuloProperties
                 .loadStoreProperties(StreamUtil.storeProps(getClass()));
         switch (keyPackage) {
@@ -327,7 +324,7 @@ public class GetRDDOfAllElementsHandlerIT {
                         .graphId(GRAPH_ID)
                         .build())
                 .addSchema(schema)
-                .storeProperties(getAccumuloPropreties(keyPackage))
+                .storeProperties(getAccumuloProperties(keyPackage))
                 .build();
         graph.execute(new AddElements.Builder()
                 .input(elements)
@@ -463,6 +460,7 @@ public class GetRDDOfAllElementsHandlerIT {
                 FileSystem.get(conf),
                 new Path(file),
                 Compression.COMPRESSION_NONE,
+                null,
                 conf,
                 AccumuloConfiguration.getDefaultConfiguration());
         final AccumuloElementConverter converter;
@@ -599,9 +597,8 @@ public class GetRDDOfAllElementsHandlerIT {
     private GetRDDOfAllElements getOperation() throws IOException {
         // Create Hadoop configuration and serialise to a string
         final Configuration configuration = new Configuration();
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        configuration.write(new DataOutputStream(baos));
-        final String configurationString = new String(baos.toByteArray(), CommonConstants.UTF_8);
+        final String configurationString = AbstractGetRDDHandler
+                .convertConfigurationToString(configuration);
 
         // Check get correct elements
         final GetRDDOfAllElements rddQuery = new GetRDDOfAllElements.Builder()

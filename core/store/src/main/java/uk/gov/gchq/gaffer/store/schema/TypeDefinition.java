@@ -35,7 +35,7 @@ import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 
 /**
- * A <code>TypeDefinition</code> contains the an object's java class along with how to validate and aggregate the object.
+ * A {@code TypeDefinition} contains the an object's java class along with how to validate and aggregate the object.
  * It is used to deserialise/serialise a {@link Schema} to/from JSON.
  */
 @JsonFilter(JSONSerialiser.FILTER_FIELDS_BY_NAME)
@@ -195,7 +195,7 @@ public class TypeDefinition {
         if (this == obj) {
             return true;
         }
-        if (obj == null || getClass() != obj.getClass()) {
+        if (null == obj || getClass() != obj.getClass()) {
             return false;
         }
 

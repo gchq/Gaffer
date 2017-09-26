@@ -20,10 +20,16 @@ import org.junit.Test;
 import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.exception.OverwritingException;
@@ -35,10 +41,13 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStore.USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S;
 
 public class FederatedAddGraphHandlerTest {
 
+    public static final String GAFFER_FEDERATEDSTORE_CUSTOM_PROPERTIES_AUTHS = "gaffer.federatedstore.customPropertiesAuths";
 
     @Test
     public void shouldAddGraph() throws Exception {
@@ -56,7 +65,7 @@ public class FederatedAddGraphHandlerTest {
         FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
-                        .setGraphId(expectedGraphId)
+                        .graphId(expectedGraphId)
                         .schema(expectedSchema)
                         .storeProperties(storeProperties)
                         .build(),
@@ -72,7 +81,7 @@ public class FederatedAddGraphHandlerTest {
 
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
-                        .setGraphId(expectedGraphId + "b")
+                        .graphId(expectedGraphId + "b")
                         .schema(expectedSchema)
                         .storeProperties(storeProperties)
                         .build(),
@@ -106,7 +115,7 @@ public class FederatedAddGraphHandlerTest {
         FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
-                        .setGraphId(expectedGraphId)
+                        .graphId(expectedGraphId)
                         .schema(expectedSchema)
                         .storeProperties(storeProperties)
                         .build(),
@@ -128,7 +137,7 @@ public class FederatedAddGraphHandlerTest {
 
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
-                        .setGraphId(graphIdB)
+                        .graphId(graphIdB)
                         .build(),
                 new Context(new User("TestUser")),
                 store);
@@ -161,7 +170,7 @@ public class FederatedAddGraphHandlerTest {
 
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
-                        .setGraphId(expectedGraphId)
+                        .graphId(expectedGraphId)
                         .schema(expectedSchema)
                         .storeProperties(storeProperties)
                         .build(),
@@ -171,7 +180,7 @@ public class FederatedAddGraphHandlerTest {
         try {
             federatedAddGraphHandler.doOperation(
                     new AddGraph.Builder()
-                            .setGraphId(expectedGraphId)
+                            .graphId(expectedGraphId)
                             .schema(expectedSchema)
                             .storeProperties(storeProperties)
                             .build(),
@@ -181,5 +190,101 @@ public class FederatedAddGraphHandlerTest {
             assertEquals(String.format(USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S, "testGraphID"), e.getMessage());
         }
 
+    }
+
+    @Test
+    public void shouldAddGraphIDOnlyWithAuths() throws Exception {
+
+
+        final StoreProperties federatedProperties = new StoreProperties();
+        federatedProperties.set(GAFFER_FEDERATEDSTORE_CUSTOM_PROPERTIES_AUTHS, "auth1,auth2");
+        FederatedStore store = new FederatedStore();
+        store.initialise("FederatedStore", null, federatedProperties);
+
+        Schema expectedSchema = new Schema.Builder().build();
+        String expectedGraphId = "testGraphID";
+
+        StoreProperties graphStoreProperties = new StoreProperties();
+        graphStoreProperties.set("gaffer.store.class", "uk.gov.gchq.gaffer.federatedstore.FederatedStore");
+
+        assertEquals(0, store.getGraphs(null).size());
+
+        FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
+
+        try {
+            federatedAddGraphHandler.doOperation(
+                    new AddGraph.Builder()
+                            .graphId(expectedGraphId)
+                            .schema(expectedSchema)
+                            .storeProperties(graphStoreProperties)
+                            .build(),
+                    new Context(new User("TestUser")),
+                    store);
+            fail("Exception not thrown");
+        } catch (OperationException e) {
+            assertEquals("User is limited to only using parentPropertiesId from the graphLibrary," +
+                            " but found storeProperties:{gaffer.store.class=uk.gov.gchq.gaffer.federatedstore.FederatedStore}",
+                    e.getMessage());
+        }
+
+
+        federatedAddGraphHandler.doOperation(
+                new AddGraph.Builder()
+                        .graphId(expectedGraphId)
+                        .schema(expectedSchema)
+                        .storeProperties(graphStoreProperties)
+                        .build(),
+                new Context(new User.Builder()
+                        .userId("TestUser")
+                        .opAuth("auth1")
+                        .build()),
+                store);
+
+        assertEquals(1, store.getGraphs(null).size());
+        assertEquals(expectedGraphId, store.getGraphs(null).iterator().next().getGraphId());
+    }
+
+
+    /**
+     * Replicating a bug condition when setting auths the
+     * FederatedAddGraphHandler didn't set the adding user.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void shouldAddGraphWithAuthsAndAddingUser() throws Exception {
+        StoreProperties fedStoreProperties = new StoreProperties();
+        fedStoreProperties.setStoreClass(FederatedStore.class);
+
+        FederatedStore store = new FederatedStore();
+        store.initialise("testFedStore", null, fedStoreProperties);
+
+        Schema expectedSchema = new Schema.Builder().build();
+
+        assertEquals(0, store.getGraphs(null).size());
+
+        AccumuloProperties storeProperties = new AccumuloProperties();
+        storeProperties.setStorePropertiesClass(AccumuloProperties.class);
+        storeProperties.setStoreClass(MockAccumuloStore.class);
+
+        new FederatedAddGraphHandler().doOperation(
+                new AddGraph.Builder()
+                        .graphId("testGraphID")
+                        .schema(expectedSchema)
+                        .storeProperties(storeProperties)
+                        .graphAuths("testAuth")
+                        .build(),
+                new Context(new User("TestUser")),
+                store);
+
+
+        final CloseableIterable<? extends Element> elements = new FederatedGetAllElementsHandler().doOperation(
+                new GetAllElements(),
+                new Context(new User.Builder()
+                        .userId("TestUser")
+                        .build()),
+                store);
+
+        assertNotNull(elements);
     }
 }

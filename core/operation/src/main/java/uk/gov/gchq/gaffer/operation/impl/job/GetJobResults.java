@@ -25,6 +25,10 @@ import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCache
 
 import java.util.Map;
 
+/**
+ * A {@code GetJobResults} operation is used to retrieve the results of executing
+ * a job on a Gaffer graph.
+ */
 public class GetJobResults extends GetGafferResultCacheExport {
     private Map<String, String> options;
 

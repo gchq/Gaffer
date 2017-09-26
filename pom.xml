@@ -15,13 +15,15 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>uk.gov.gchq.gaffer</groupId>
     <artifactId>gaffer2</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.0-RC2</version>
+    <version>1.0.0-RC3</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>A scalable Graph database framework</description>
@@ -34,7 +36,6 @@
         <module>store-implementation</module>
         <module>rest-api</module>
         <module>example</module>
-        <module>doc</module>
     </modules>
 
     <properties>
@@ -58,8 +59,8 @@
         <failsafe.version>2.18.1</failsafe.version>
         <slf4j.api.version>1.7.5</slf4j.api.version>
 
-        <koryphe.version>1.0.0-RC1</koryphe.version>
-        <accumulo.version>1.7.2</accumulo.version>
+        <koryphe.version>1.0.0-RC3</koryphe.version>
+        <accumulo.version>1.8.1</accumulo.version>
         <hbase.version>1.3.0</hbase.version>
         <avro.version>1.7.7</avro.version>
         <hadoop.version>2.6.5</hadoop.version>
@@ -717,7 +718,7 @@
                     </checkinComment>
                     <content>${project.reporting.outputDirectory}/apidocs
                     </content>
-                    <skipDeletedFiles>true</skipDeletedFiles>
+                    <skipDeletedFiles>false</skipDeletedFiles>
                     <pubScmUrl>${scm.connection}</pubScmUrl>
                     <scmBranch>gh-pages</scmBranch>
                 </configuration>
@@ -1175,55 +1176,6 @@
             <properties>
                 <jackson.version>${jackson.min.version}</jackson.version>
             </properties>
-        </profile>
-        <profile>
-            <id>accumulo-1.8</id>
-            <properties>
-                <accumulo.version>1.8.0</accumulo.version>
-            </properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <version>${compiler.plugin.verson}</version>
-                        <configuration>
-                            <testExcludes>
-                                <exclude>**/BloomFilterIT.java</exclude>
-                            </testExcludes>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>${surefire.plugin.version}</version>
-                        <configuration>
-                            <excludes>
-                                <exclude>**/BloomFilterIT.java</exclude>
-                            </excludes>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>build-helper-maven-plugin</artifactId>
-                        <version>1.9.1</version>
-                        <executions>
-                            <execution>
-                                <id>add-test-source</id>
-                                <phase>process-resources</phase>
-                                <goals>
-                                    <goal>add-test-source</goal>
-                                </goals>
-                                <configuration>
-                                    <sources>
-                                        <source>compat-1.8/test/java</source>
-                                    </sources>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
     </profiles>
 </project>

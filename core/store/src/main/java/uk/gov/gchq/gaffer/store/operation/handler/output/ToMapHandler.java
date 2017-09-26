@@ -23,6 +23,11 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import java.util.Map;
 
+/**
+ * A {@code ToMapHandler} handles {@link ToMap} operations by applying the provided
+ * {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to each item in the
+ * input {@link Iterable}.
+ */
 public class ToMapHandler implements OutputOperationHandler<ToMap, Iterable<? extends Map<String, Object>>> {
     @Override
     public Iterable<? extends Map<String, Object>> doOperation(final ToMap operation, final Context context, final Store store) throws OperationException {

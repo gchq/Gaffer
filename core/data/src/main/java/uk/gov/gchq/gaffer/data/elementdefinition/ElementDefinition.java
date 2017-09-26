@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.data.elementdefinition;
 
 /**
- * An <code>ElementDefinition</code> defines information about an element.
+ * An {@code ElementDefinition} defines information about an element.
  * This interface requires element definitions to able to be locked.
  */
 public interface ElementDefinition extends Cloneable {

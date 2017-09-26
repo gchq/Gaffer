@@ -37,7 +37,7 @@ import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSeriali
 import java.util.List;
 
 /**
- * A <code>SerialisationFactory</code> holds a list of core serialisers and
+ * A {@code SerialisationFactory} holds a list of core serialisers and
  * is design to provide compatible serialisers for given object classes.
  */
 public class SerialisationFactory {
@@ -87,7 +87,7 @@ public class SerialisationFactory {
      * @param newSerialisers a list of Serialisers.
      */
     public void addSerialisers(final Serialiser... newSerialisers) {
-        if (newSerialisers != null) {
+        if (null != newSerialisers) {
             for (final Serialiser newSerialiser : newSerialisers) {
                 if (!serialiserAlreadyinList(newSerialiser)) {
                     serialisers.add(newSerialiser);
@@ -137,7 +137,7 @@ public class SerialisationFactory {
      * @param objClass      the class of an object to be serialised.
      * @param preserveOrder if true then the returned serialiser should preserve the order.
      * @param serialiser    a compatible serialiser.
-     * @return <code> true </code> if serialiser can serialise the class, <code> false </code> otherwise.
+     * @return {@code true } if serialiser can serialise the class, {@code false } otherwise.
      */
     private boolean canSerialiseClass(final Class<?> objClass, final boolean preserveOrder, final Serialiser serialiser) {
         return serialiser.canHandle(objClass) && (!preserveOrder || serialiser.preservesObjectOrdering());
@@ -147,7 +147,7 @@ public class SerialisationFactory {
      * Checks if the given serialiser is already in the serialisers list.
      *
      * @param newSerialiser new serialiser to be added to serialisers.
-     * @return <code> true </code> if given serialiser is already present in serialisers, <code> false </code> otherwise.
+     * @return {@code true } if given serialiser is already present in serialisers, {@code false } otherwise.
      */
     private boolean serialiserAlreadyinList(final Serialiser newSerialiser) {
         for (final Serialiser serialiser : serialisers) {

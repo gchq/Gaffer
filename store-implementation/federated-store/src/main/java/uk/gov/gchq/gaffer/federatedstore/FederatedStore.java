@@ -70,35 +70,21 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
- * A Store that encapsulates a collection of sub-graphs
- * and executes operations against them and returns
- * results as though it was a single graph.
+ * A Store that encapsulates a collection of sub-graphs and executes operations
+ * against them and returns results as though it was a single graph.
  * <p>
- * To create a FederatedStore you need to initialise the store with a graph name and a properties file.
- * <p>
- * To load a graph into the FederatedStore you need to provide either.
- * <ul>
- * <li>GraphID
- * <li>Graph Schema
- * <li>Graph Properties file
- * </ul>
- * or
- * <ul>
- * <li>GraphID
- * <li>GraphLibrary (containing GraphId)
- * </ul>
- * <p>
- * To remove a graph from FederatedStore scope you just need the GraphID.
+ * To create a FederatedStore you need to initialise the store with a
+ * graphId and  (if graphId is not known by the {@link GraphLibrary}) the
+ * {@link
+ * Schema} and  {@link StoreProperties}.
  *
+ * @see #initialise(String, Schema, StoreProperties)
  * @see Store
  * @see Graph
- * @see StoreProperties
- * @see Schema
  */
 public class FederatedStore extends Store {
     public static final String USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S = "User is attempting to overwrite a graph within FederatedStore. GraphId: %s";
@@ -122,6 +108,21 @@ public class FederatedStore extends Store {
         return values;
     }
 
+    /**
+     * Within FederatedStore an {@link Operation} is executed against a
+     * collection of many graphs.
+     * <p>
+     * Problem: When an Operation contains View information about an Element
+     * which is not known by the Graph; It will fail validation when executed.
+     * <p>
+     * Solution: For each operation, remove all elements from the View that is
+     * unknown to the graph.
+     *
+     * @param operation current operation
+     * @param graph     current graph
+     * @param <OP>      Operation type
+     * @return cloned operation with modified View for the given graph.
+     */
     public static <OP extends Operation> OP updateOperationForGraph(final OP operation, final Graph graph) {
         OP resultOp = operation;
 
@@ -171,11 +172,13 @@ public class FederatedStore extends Store {
     }
 
     /**
-     * Initialise this FederatedStore with any sub-graphs defined within properties.
+     * Initialise this FederatedStore with any sub-graphs defined within the
+     * properties.
      *
      * @param graphId    the graphId to label this FederatedStore.
      * @param unused     unused
-     * @param properties properties to initialise this FederatedStore with, can contain details on graphs to add to scope.
+     * @param properties properties to initialise this FederatedStore with, can
+     *                   contain details on graphs to add to scope.
      * @throws StoreException exception
      */
     @Override
@@ -257,7 +260,7 @@ public class FederatedStore extends Store {
         final String schemaIdValue = getValueOf(graphId, SCHEMA, ID);
         if (!Strings.isNullOrEmpty(schemaIdValue)) {
             final GraphLibrary graphLibrary = getGraphLibrary();
-            if (graphLibrary != null) {
+            if (null != graphLibrary) {
                 try {
                     builder.addSchema(graphLibrary.getSchema(schemaIdValue));
                 } catch (final Exception e) {
@@ -322,37 +325,45 @@ public class FederatedStore extends Store {
         return graphIds;
     }
 
+    /**
+     * Adds graphs to the scope of FederatedStore.
+     * <p>
+     * To be used by the FederatedStore and Handlers only. Users should add
+     * graphs via the {@link AddGraph} operation.
+     *
+     * @param graphs the graph to add
+     */
     public void addGraphs(final Graph... graphs) {
         for (final Graph graph : graphs) {
             _add(graph);
         }
-        updateMergedGraphConfig();
     }
 
-    private void _add(final Graph graph) {
-        final String graphId = graph.getGraphId();
+    private void _add(final Graph newGraph) {
+        final String graphId = newGraph.getGraphId();
         if (graphs.containsKey(graphId)) {
             throw new OverwritingException((String.format(USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S, graphId)));
         }
-        graphs.put(graphId, graph);
-    }
 
-    public void addGraphs(final String... graphId) {
-        addGraphs(Optional.<Collection<String>>empty(), graphId);
-    }
+        Schema.Builder schemaBuilder = new Schema.Builder();
+        final Set<StoreTrait> newTraits = Sets.newHashSet(StoreTrait.values());
+        for (final Graph graph : graphs.values()) {
+            schemaBuilder = schemaBuilder.merge(graph.getSchema());
+            newTraits.retainAll(graph.getStoreTraits());
+        }
 
-    public void addGraphs(final Optional<Collection<String>> graphAuths, final String... graphId) {
-        for (final String id : graphId) {
-            final GraphConfig.Builder configBuilder = new GraphConfig.Builder()
-                    .graphId(id)
-                    .library(getGraphLibrary());
+        schemaBuilder.merge(newGraph.getSchema());
+        newTraits.retainAll(newGraph.getStoreTraits());
 
-            if (graphAuths.isPresent()) {
-                configBuilder.addHooks(new FederatedAccessHook.Builder().graphAuths(graphAuths.get()).build());
-            }
+        final Schema newSchema = schemaBuilder.build();
+        //An exception would be thrown here if something was wrong merging the schema.
 
-            final Builder graphBuilder = new Builder().config(configBuilder.build());
-            addGraphs(graphBuilder);
+        graphs.put(graphId, newGraph);
+        schema = newSchema;
+        traits = Collections.unmodifiableSet(newTraits);
+
+        if (null != getGraphLibrary()) {
+            getGraphLibrary().add(newGraph.getGraphId(), newGraph.getSchema(), newGraph.getStoreProperties());
         }
     }
 
@@ -381,21 +392,46 @@ public class FederatedStore extends Store {
         addOperationHandler(RemoveGraph.class, new FederatedRemoveGraphHandler());
     }
 
+    /**
+     * Removes graphs from the scope of FederatedStore.
+     * <p>
+     * To be used by the FederatedStore and Handlers only. Users should remove
+     * graphs via the {@link RemoveGraph} operation.
+     *
+     * @param graphId to be removed from scope
+     */
     public void remove(final String graphId) {
         graphs.remove(graphId);
         updateMergedGraphConfig();
     }
 
 
+    /**
+     * @return All the graphId(s) within scope of this FederatedStore.
+     */
     public Set<String> getAllGraphIds() {
-        return graphs.keySet();
+        return Collections.unmodifiableSet(graphs.keySet());
     }
 
+    /**
+     * @return {@link Store#getTraits()}
+     */
     @Override
     public Set<StoreTrait> getTraits() {
         return traits;
     }
 
+    /**
+     * Gets a collection of graph objects within FederatedStore scope from the
+     * given csv of graphIds.
+     * <p>
+     * if graphIdsCsv is null then all graph objects within FederatedStore
+     * scope
+     * are returned.
+     *
+     * @param graphIdsCsv the csv of graphIds to get, null returns all graphs.
+     * @return the graph collection.
+     */
     public Collection<Graph> getGraphs(final String graphIdsCsv) {
         if (null == graphIdsCsv) {
             return graphs.values();
@@ -415,7 +451,6 @@ public class FederatedStore extends Store {
     }
 
     @Override
-
     protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
         return new FederatedGetElementsHandler();
     }
@@ -446,7 +481,15 @@ public class FederatedStore extends Store {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * The FederatedStore at time of initialisation, can set the auths required
+     * to allow users to use custom {@link StoreProperties} outside the
+     * scope of the {@link GraphLibrary}.
+     *
+     * @param user the user needing validation for custom property usage.
+     * @return boolean permission
+     */
     public boolean isLimitedToLibraryProperties(final User user) {
-        return this.customPropertiesAuths != null && Collections.disjoint(user.getOpAuths(), this.customPropertiesAuths);
+        return null != this.customPropertiesAuths && Collections.disjoint(user.getOpAuths(), this.customPropertiesAuths);
     }
 }

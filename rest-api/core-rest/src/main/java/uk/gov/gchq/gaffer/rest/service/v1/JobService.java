@@ -41,7 +41,7 @@ import javax.inject.Inject;
  * postOperationHook.
  * <p>
  * By default queries will be executed with an UNKNOWN user containing no auths.
- * TheuserFactory.createUser() method should be overridden and a {@link User} object should
+ * The {@link UserFactory#createUser()} method should be overridden and a {@link User} object should
  * be created from the http request.
  * </p>
  */

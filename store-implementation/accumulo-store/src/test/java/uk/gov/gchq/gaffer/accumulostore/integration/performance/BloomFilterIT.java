@@ -171,7 +171,13 @@ public class BloomFilterIT {
             file.delete();
         }
 
-        final FileSKVWriter writer = FileOperations.getInstance().openWriter(filename, fs, conf, accumuloConf);
+        // Writer
+        final FileSKVWriter writer = FileOperations.getInstance()
+                .newWriterBuilder()
+                .forFile(filename, fs, conf)
+                .withTableConfiguration(accumuloConf)
+                .build();
+
         try {
             // Write data to file
             writer.startDefaultLocalityGroup();
@@ -189,7 +195,13 @@ public class BloomFilterIT {
         }
 
         // Reader
-        final FileSKVIterator reader = FileOperations.getInstance().openReader(filename, false, fs, conf, accumuloConf);
+        final FileSKVIterator reader = FileOperations.getInstance()
+                .newReaderBuilder()
+                .forFile(filename, fs, conf)
+                .withTableConfiguration(accumuloConf)
+                .seekToBeginning(false)
+                .build();
+        
         try {
             // Calculate random look up rate - run it 3 times and take best
             final int numTrials = 5;

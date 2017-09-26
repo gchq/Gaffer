@@ -23,6 +23,9 @@ import uk.gov.gchq.gaffer.store.exception.OverwritingException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A {@code HashMapGraphLibrary} stores a {@link GraphLibrary} within three HashMaps.
+ */
 public class HashMapGraphLibrary extends GraphLibrary {
     private static final Map<String, Pair<String, String>> GRAPHS = new HashMap<>();
     private static final Map<String, byte[]> SCHEMAS = new HashMap<>();
@@ -67,6 +70,6 @@ public class HashMapGraphLibrary extends GraphLibrary {
     @Override
     protected StoreProperties _getProperties(final String propertiesId) {
         final StoreProperties storeProperties = PROPERTIES.get(propertiesId);
-        return (storeProperties == null) ? null : storeProperties.clone();
+        return (null == storeProperties) ? null : storeProperties.clone();
     }
 }

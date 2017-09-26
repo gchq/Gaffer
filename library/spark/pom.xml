@@ -19,7 +19,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>library</artifactId>
-        <version>1.0.0-RC2</version>
+        <version>1.0.0-RC3</version>
     </parent>
 
     <artifactId>spark</artifactId>
@@ -28,7 +28,6 @@
     <modules>
         <module>spark-library</module>
         <module>spark-accumulo-library</module>
-        <module>spark-doc</module>
     </modules>
 
     <properties>

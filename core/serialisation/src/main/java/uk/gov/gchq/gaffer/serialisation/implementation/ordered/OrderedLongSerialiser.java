@@ -19,6 +19,11 @@ package uk.gov.gchq.gaffer.serialisation.implementation.ordered;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
+/**
+ * An {@code OrderedLongSerialser} serialises a {@link Long} to
+ * an array of bytes. This serialiser preserves ordering.
+ * The serialser sorts Long.MIN_VALUE first and Long.MAX_VALUE last.
+ */
 public class OrderedLongSerialiser implements ToBytesSerialiser<Long> {
 
     private static final long serialVersionUID = -8948380879926929233L;

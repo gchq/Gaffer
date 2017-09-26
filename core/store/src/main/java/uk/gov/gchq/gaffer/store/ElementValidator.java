@@ -26,9 +26,10 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
+import uk.gov.gchq.koryphe.ValidationResult;
 
 /**
- * An <code>ElementValidator</code> is a {@link Validator} for {@link Element}s
+ * An {@code ElementValidator} is a {@link Validator} for {@link Element}s
  * It is capable of validating an {@link Element} based on {@link java.util.function.Predicate}s
  * in {@link Schema} or {@link View}.
  */
@@ -46,7 +47,7 @@ public class ElementValidator implements Validator<Element> {
     }
 
     /**
-     * Constructs a <code>ElementValidator</code> with a {@link Schema} to use to
+     * Constructs a {@code ElementValidator} with a {@link Schema} to use to
      * validate {@link Element}s.
      *
      * @param schema the {@link Schema} to use to
@@ -57,7 +58,7 @@ public class ElementValidator implements Validator<Element> {
     }
 
     /**
-     * Constructs a <code>ElementValidator</code> with a {@link Schema} to use to
+     * Constructs a {@code ElementValidator} with a {@link Schema} to use to
      * validate {@link uk.gov.gchq.gaffer.data.element.Element}s. Uses the includeIsA flag
      * to determine whether the IsA validate functions should be used. Disabling
      * them can be useful when you already know the data is of the correct type
@@ -74,7 +75,7 @@ public class ElementValidator implements Validator<Element> {
     }
 
     /**
-     * Constructs a <code>ElementValidator</code> with a {@link View} to use to
+     * Constructs a {@code ElementValidator} with a {@link View} to use to
      * validate {@link Element}s.
      *
      * @param view the {@link View} to use to
@@ -110,6 +111,22 @@ public class ElementValidator implements Validator<Element> {
         return true;
     }
 
+    @Override
+    public ValidationResult validateWithValidationResult(final Element element) {
+        final ValidationResult validationResult = new ValidationResult();
+        if (null == element) {
+            validationResult.addError("Element was null");
+        } else if (null != schema) {
+            validationResult.add(validateWithSchemaWithValidationResult(element));
+        } else if (null != view) {
+            validationResult.add(validateAgainstViewFilterWithValidationResult(element, FilterType.PRE_AGGREGATION_FILTER));
+            validationResult.add(validateAgainstViewFilterWithValidationResult(element, FilterType.POST_AGGREGATION_FILTER));
+            validationResult.add(validateAgainstViewFilterWithValidationResult(element, FilterType.POST_TRANSFORM_FILTER));
+        }
+
+        return validationResult;
+    }
+
     public boolean validateInput(final Element element) {
         return validateAgainstViewFilter(element, FilterType.PRE_AGGREGATION_FILTER);
     }
@@ -140,6 +157,22 @@ public class ElementValidator implements Validator<Element> {
         return elementDef.getValidator(includeIsA).test(element);
     }
 
+    private ValidationResult validateWithSchemaWithValidationResult(final Element element) {
+        final ValidationResult validationResult = new ValidationResult();
+        if (null == element) {
+            validationResult.addError("Element was null");
+        } else if (null != schema) {
+            final SchemaElementDefinition elementDef = schema.getElement(element.getGroup());
+            if (null == elementDef) {
+                validationResult.addError("No element definition found for : " + element.getGroup());
+            } else {
+                validationResult.add(elementDef.getValidator(includeIsA).testWithValidationResult(element));
+            }
+        }
+
+        return validationResult;
+    }
+
     private boolean validateAgainstViewFilter(final Element element, final FilterType filterType) {
         if (null == element) {
             return false;
@@ -156,6 +189,25 @@ public class ElementValidator implements Validator<Element> {
 
         final ElementFilter validator = getElementFilter(elementDef, filterType);
         return null == validator || validator.test(element);
+    }
+
+    private ValidationResult validateAgainstViewFilterWithValidationResult(final Element element, final FilterType filterType) {
+        final ValidationResult validationResult = new ValidationResult();
+        if (null == element) {
+            validationResult.addError("Element was null");
+        } else if (null != view) {
+            final ViewElementDefinition elementDef = view.getElement(element.getGroup());
+            if (null == elementDef) {
+                validationResult.addError("No element definition found for : " + element.getGroup());
+            } else {
+                final ElementFilter validator = getElementFilter(elementDef, filterType);
+                if (null != validator) {
+                    validationResult.add(validator.testWithValidationResult(element));
+                }
+            }
+        }
+
+        return validationResult;
     }
 
     private ElementFilter getElementFilter(final ViewElementDefinition elementDef, final FilterType filterType) {

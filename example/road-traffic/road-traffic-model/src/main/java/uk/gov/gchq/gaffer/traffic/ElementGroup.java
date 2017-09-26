@@ -16,6 +16,9 @@
 
 package uk.gov.gchq.gaffer.traffic;
 
+/**
+ * Element group constants for the road traffic demonstration.
+ */
 public final class ElementGroup {
     // Entities
     public static final String JUNCTION_USE = "JunctionUse";
@@ -28,5 +31,6 @@ public final class ElementGroup {
     public static final String ROAD_USE = "RoadUse";
 
     private ElementGroup() {
+        // Private constructor to prevent instantiation
     }
 }

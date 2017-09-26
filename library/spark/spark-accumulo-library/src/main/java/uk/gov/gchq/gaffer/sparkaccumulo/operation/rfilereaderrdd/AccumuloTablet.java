@@ -20,16 +20,15 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.hadoop.io.Text;
 import org.apache.spark.Partition;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * An <code>AccumuloTablet</code> maintains information related to a particular tablet, including the start and end
+ * An {@code AccumuloTablet} maintains information related to a particular tablet, including the start and end
  * of that tablet and the set of files that data for the tablet is stored. It also includes a partition number to
  * identify which partition this tablet is in.
  */
-public class AccumuloTablet implements Serializable, Partition {
+public class AccumuloTablet implements Partition {
     private final int rddId;
     private final int index;
     private final String start;
@@ -80,7 +79,7 @@ public class AccumuloTablet implements Serializable, Partition {
             return true;
         }
 
-        if (obj == null || getClass() != obj.getClass()) {
+        if (null == obj || getClass() != obj.getClass()) {
             return false;
         }
 

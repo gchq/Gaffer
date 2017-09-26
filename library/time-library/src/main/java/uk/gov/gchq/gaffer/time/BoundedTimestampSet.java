@@ -36,7 +36,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
- * A <code>BoundedTimestampSet</code> is an implementation of {@link TimestampSet} that can contain a maximum number
+ * A {@code BoundedTimestampSet} is an implementation of {@link TimestampSet} that can contain a maximum number
  * N of timestamps. If more than N timestamps are added then a uniform random sample of size approximately N of the
  * timestamps is retained.
  * <p>
@@ -147,10 +147,10 @@ public class BoundedTimestampSet implements TimestampSet {
 
     /**
      * This exposes the underlying {@link RBMBackedTimestampSet} so that serialisers can access it. If
-     * the object is currently in the state of <code>NOT_FULL</code> then an exception is thrown.
+     * the object is currently in the state of {@code NOT_FULL} then an exception is thrown.
      *
      * @return the {@link RBMBackedTimestampSet} used by this class to store the timestamps if it is in state
-     * <code>NOT_FULL</code>
+     * {@code NOT_FULL}
      */
     @JsonIgnore
     public RBMBackedTimestampSet getRbmBackedTimestampSet() {
@@ -172,9 +172,9 @@ public class BoundedTimestampSet implements TimestampSet {
 
     /**
      * This exposes the underlying {@link ReservoirLongsUnion} so that serialisers can access it. If the object is currently
-     * in the state of <code>NOT_FULL</code> then an exception is thrown.
+     * in the state of {@code NOT_FULL} then an exception is thrown.
      *
-     * @return the {@link ReservoirLongsUnion} used by this class to store the timestamps if it is in state <code>SAMPLE</code>
+     * @return the {@link ReservoirLongsUnion} used by this class to store the timestamps if it is in state {@code SAMPLE}
      */
     @JsonIgnore
     public ReservoirLongsUnion getReservoirLongsUnion() {
@@ -224,7 +224,7 @@ public class BoundedTimestampSet implements TimestampSet {
             return true;
         }
 
-        if (obj == null || getClass() != obj.getClass()) {
+        if (null == obj || getClass() != obj.getClass()) {
             return false;
         }
 

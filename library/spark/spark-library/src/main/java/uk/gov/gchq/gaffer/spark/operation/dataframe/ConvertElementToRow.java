@@ -23,7 +23,7 @@ import scala.runtime.AbstractFunction1;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.ConversionException;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.exception.ConversionException;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStructTypeConverter;
 
@@ -31,6 +31,10 @@ import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
+/**
+ * Class to convert a {@link Element} into a {@link Row} object for use in a Spark
+ * SQL dataframe.
+ */
 public class ConvertElementToRow extends AbstractFunction1<Element, Row>
         implements Serializable {
 
@@ -78,14 +82,14 @@ public class ConvertElementToRow extends AbstractFunction1<Element, Row>
                     break;
                 default:
                     final Object value = element.getProperties().get(property);
-                    if (value == null) {
+                    if (null == value) {
                         fields.appendElem(null);
                     } else {
                         if (!propertyNeedsConversion.get(property)) {
                             fields.appendElem(element.getProperties().get(property));
                         } else {
                             final Converter converter = convertersByProperty.get(property);
-                            if (converter != null) {
+                            if (null != converter) {
                                 try {
                                     fields.appendElem(converter.convert(value));
                                 } catch (final ConversionException e) {

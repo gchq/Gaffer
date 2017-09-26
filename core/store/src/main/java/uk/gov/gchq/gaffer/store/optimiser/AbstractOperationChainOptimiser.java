@@ -21,6 +21,9 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Abstract base class for the {@link OperationChainOptimiser} interface.
+ */
 public abstract class AbstractOperationChainOptimiser implements OperationChainOptimiser {
     @Override
     public final <O> OperationChain<O> optimise(final OperationChain<O> operationChain) {

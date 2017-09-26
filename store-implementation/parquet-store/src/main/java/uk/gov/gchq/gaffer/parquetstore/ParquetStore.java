@@ -33,8 +33,8 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.AddElementsHandler;
-import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.ImportRDDOfElements.ImportJavaRDDOfElementsHandler;
-import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.ImportRDDOfElements.ImportRDDOfElementsHandler;
+import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.ImportJavaRDDOfElementsHandler;
+import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.ImportRDDOfElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetDataframeOfElementsHandler;
@@ -112,6 +112,7 @@ public class ParquetStore extends Store {
         return schemaUtils;
     }
 
+    @Override
     public Set<StoreTrait> getTraits() {
         return TRAITS;
     }
@@ -249,7 +250,7 @@ public class ParquetStore extends Store {
 
     private void checkForOptimisedConfig(final SparkConf conf, final String key, final Class<?> optimalClass) {
         final String value = conf.get(key, null);
-        if (value == null || !optimalClass.getName().equals(value)) {
+        if (null == value || !optimalClass.getName().equals(value)) {
             LOGGER.warn("For the best performance you should set the spark config '{}' = '{}'", key, optimalClass.getName());
         }
     }
