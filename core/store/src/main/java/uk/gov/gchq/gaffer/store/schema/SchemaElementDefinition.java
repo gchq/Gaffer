@@ -260,7 +260,11 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                 if (null == viewAggregator) {
                     viewAggregatorProps = Collections.emptySet();
                 } else {
-                    viewAggregatorProps = new HashSet<>(getPropertyMap().size() - mergedGroupBy.size());
+                    int size = getPropertyMap().size() - mergedGroupBy.size();
+                    if (size < 0) {
+                        size = 0;
+                    }
+                    viewAggregatorProps = new HashSet<>(size);
                     for (final TupleAdaptedBinaryOperator<String, ?> component : viewAggregator.getComponents()) {
                         Collections.addAll(viewAggregatorProps, component.getSelection());
                         queryAggregator.getComponents().add(component);
