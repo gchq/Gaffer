@@ -41,7 +41,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skip.surefire.tests>false</skip.surefire.tests>
         <skip.failsafe.tests>false</skip.failsafe.tests>
-        <exclude.tests />
+        <exclude.tests/>
         <skip.jar-with-dependencies>false</skip.jar-with-dependencies>
         <shaded.jar.phase>package</shaded.jar.phase>
 
@@ -711,12 +711,12 @@
                 <configuration>
                     <checkoutDirectory>${project.build.directory}/scmpublish
                     </checkoutDirectory>
-                    <checkinComment>Publishing javadoc for
-                        ${project.artifactId}:${project.version}
+                    <checkinComment>
+                        "Updates for ${project.artifactId}:${project.version}
                     </checkinComment>
                     <content>${project.reporting.outputDirectory}/apidocs
                     </content>
-                    <skipDeletedFiles>false</skipDeletedFiles>
+                    <skipDeletedFiles>true</skipDeletedFiles>
                     <pubScmUrl>${scm.connection}</pubScmUrl>
                     <scmBranch>gh-pages</scmBranch>
                 </configuration>
