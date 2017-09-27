@@ -53,13 +53,14 @@ public interface ICache<K, V> {
      *
      * @param key   the key to add
      * @param value the value to add
-     * @throws CacheOperationException if the specified key already exists in the cache with a non-null value
+     * @throws CacheOperationException if there is an error adding the new key-value pair to the cache
+     * @throws OverwritingException    if the specified key already exists in the cache with a non-null value
      */
     default void putSafe(final K key, final V value) throws OverwritingException, CacheOperationException {
         if (null == get(key)) {
             try {
                 put(key, value);
-            } catch (CacheOperationException e) {
+            } catch (final CacheOperationException e) {
                 throw e;
             }
         } else {

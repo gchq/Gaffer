@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -35,13 +36,15 @@ public class FederatedRemoveGraphHandlerTest {
 
     @Test
     public void shouldRemoveGraph() throws Exception {
-
+        FederatedStore store = new FederatedStore();
 
         String graphId = "testGraphId";
         StoreProperties storeProperties = new StoreProperties();
         storeProperties.set("gaffer.store.class", "uk.gov.gchq.gaffer.federatedstore.FederatedStore");
+        storeProperties.set(CacheProperties.CACHE_SERVICE_CLASS, "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
 
-        FederatedStore store = new FederatedStore();
+        store.initialise("FederatedStore", new Schema(), storeProperties);
+
         store.addGraphs(new Graph.Builder()
                 .config(new GraphConfig(graphId))
                 .addSchema(new Schema.Builder().build())

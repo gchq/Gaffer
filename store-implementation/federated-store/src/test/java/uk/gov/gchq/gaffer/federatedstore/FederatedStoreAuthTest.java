@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllElementsHandler;
@@ -33,7 +34,7 @@ import java.util.Collection;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class FederatedStoreTestAuth {
+public class FederatedStoreAuthTest {
 
     @Test
     public void shouldAddGraphWithHook() throws Exception {
@@ -42,16 +43,20 @@ public class FederatedStoreTestAuth {
 
         Schema expectedSchema = new Schema.Builder().build();
         String expectedGraphId = "testGraphID";
+        String expectedGraphId1 = "testGraphID1";
 
         StoreProperties storeProperties = new StoreProperties();
         storeProperties.set("gaffer.store.class", "uk.gov.gchq.gaffer.federatedstore.FederatedStore");
+        storeProperties.set(CacheProperties.CACHE_SERVICE_CLASS, "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
 
         assertEquals(0, store.getGraphs(null).size());
+
+        store.initialise(expectedGraphId, null, storeProperties);
 
         FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
-                        .graphId(expectedGraphId)
+                        .graphId(expectedGraphId1)
                         .schema(expectedSchema)
                         .storeProperties(storeProperties)
                         .graphAuths("auth1")
@@ -63,7 +68,7 @@ public class FederatedStoreTestAuth {
 
         assertEquals(1, graphs.size());
         Graph next = graphs.iterator().next();
-        assertEquals(expectedGraphId, next.getGraphId());
+        assertEquals(expectedGraphId1, next.getGraphId());
         assertEquals(expectedSchema, next.getSchema());
 
         final FederatedGetAllElementsHandler federatedGetAllElementsHandler = new FederatedGetAllElementsHandler();

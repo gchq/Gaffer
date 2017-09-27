@@ -167,11 +167,10 @@ public class FederatedStore extends Store {
      * @param graphs the graph to add
      */
     public void addGraphs(final Graph... graphs) {
+        if (cacheService == null) {
+            throw new RuntimeException("No cache has been set, please initialise the FederatedStore instance");
+        }
         for (final Graph graph : graphs) {
-            if (cacheService == null) {
-                startCacheServiceLoader(graph.getStoreProperties());
-                setCacheService();
-            }
             _add(graph);
         }
     }
