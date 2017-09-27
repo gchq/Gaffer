@@ -100,8 +100,12 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 public class GraphTest {
@@ -535,6 +539,302 @@ public class GraphTest {
         inOrder.verify(hook1).postExecute(result1, clonedOpChain, user);
         inOrder.verify(hook2).postExecute(result2, clonedOpChain, user);
         assertSame(actualResult, result3);
+    }
+
+    @Test
+    public void shouldCallAllGraphHooksOnGraphHookPreExecuteFailure() throws OperationException {
+        // Given
+        final Operation operation = mock(Operation.class);
+        final OperationChain opChain = mock(OperationChain.class);
+        final OperationChain clonedOpChain = mock(OperationChain.class);
+        given(opChain.shallowClone()).willReturn(clonedOpChain);
+        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
+
+        final User user = mock(User.class);
+        final GraphHook hook1 = mock(GraphHook.class);
+        final GraphHook hook2 = mock(GraphHook.class);
+        final Store store = mock(Store.class);
+        final Schema schema = new Schema();
+
+        given(store.getSchema()).willReturn(schema);
+        doThrow(new RuntimeException("Hook2 failed in postExecute")).when(hook1).preExecute(clonedOpChain, user);
+        given(hook1.onFailure(null, clonedOpChain, user)).willThrow(new RuntimeException("Hook1 failed in onFailure"));
+        given(hook2.onFailure(null, clonedOpChain, user)).willReturn(null);
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .addHook(hook1)
+                        .addHook(hook2)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .addSchema(schema)
+                .build();
+
+        // When / Then
+        try {
+            graph.execute(opChain, user);
+            fail("Exception expected");
+        } catch (final RuntimeException e) {
+            final InOrder inOrder = inOrder(hook1, hook2);
+            inOrder.verify(hook2, never()).preExecute(any(), any());
+            inOrder.verify(hook1, never()).postExecute(any(), any(), any());
+            inOrder.verify(hook2, never()).postExecute(any(), any(), any());
+            inOrder.verify(hook1).onFailure(eq(null), any(), eq(user));
+            inOrder.verify(hook2).onFailure(eq(null), any(), eq(user));
+        }
+    }
+
+    @Test
+    public void shouldCallAllGraphHooksOnGraphHookPostExecuteFailure() throws OperationException {
+        // Given
+        final Operation operation = mock(Operation.class);
+        final OperationChain opChain = mock(OperationChain.class);
+        final OperationChain clonedOpChain = mock(OperationChain.class);
+        given(opChain.shallowClone()).willReturn(clonedOpChain);
+        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
+
+        final User user = mock(User.class);
+        final GraphHook hook1 = mock(GraphHook.class);
+        final GraphHook hook2 = mock(GraphHook.class);
+        final Store store = mock(Store.class);
+        final Object result1 = mock(Object.class);
+        final Object result2 = mock(Object.class);
+        final Object result3 = mock(Object.class);
+        final Schema schema = new Schema();
+
+        given(store.getSchema()).willReturn(schema);
+        given(hook1.postExecute(result1, clonedOpChain, user)).willReturn(result2);
+        given(hook2.postExecute(result2, clonedOpChain, user)).willThrow(new RuntimeException("Hook2 failed in postExecute"));
+        given(hook1.onFailure(result2, clonedOpChain, user)).willThrow(new RuntimeException("Hook1 failed in onFailure"));
+        given(hook2.onFailure(result2, clonedOpChain, user)).willReturn(result3);
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .addHook(hook1)
+                        .addHook(hook2)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .addSchema(schema)
+                .build();
+
+        final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
+        given(store.execute(captor.capture(), Mockito.eq(user))).willReturn(result1);
+
+        // When / Then
+        try {
+            graph.execute(opChain, user);
+            fail("Exception expected");
+        } catch (final RuntimeException e) {
+            final InOrder inOrder = inOrder(hook1, hook2);
+            inOrder.verify(hook1).postExecute(result1, captor.getValue(), user);
+            inOrder.verify(hook2).postExecute(result2, captor.getValue(), user);
+            inOrder.verify(hook1).onFailure(result2, captor.getValue(), user);
+            inOrder.verify(hook2).onFailure(result2, captor.getValue(), user);
+            final List<Operation> ops = captor.getValue().getOperations();
+            assertEquals(1, ops.size());
+            assertSame(operation, ops.get(0));
+        }
+    }
+
+    @Test
+    public void shouldCallAllGraphHooksOnExecuteFailure() throws OperationException {
+        // Given
+        final Operation operation = mock(Operation.class);
+        final OperationChain opChain = mock(OperationChain.class);
+        final OperationChain clonedOpChain = mock(OperationChain.class);
+        given(opChain.shallowClone()).willReturn(clonedOpChain);
+        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
+
+        final User user = mock(User.class);
+        final GraphHook hook1 = mock(GraphHook.class);
+        final GraphHook hook2 = mock(GraphHook.class);
+        final Store store = mock(Store.class);
+        final Schema schema = new Schema();
+
+        given(store.getSchema()).willReturn(schema);
+        given(hook1.onFailure(null, clonedOpChain, user)).willThrow(new RuntimeException("Hook1 failed in onFailure"));
+        given(hook2.onFailure(null, clonedOpChain, user)).willReturn(null);
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .addHook(hook1)
+                        .addHook(hook2)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .addSchema(schema)
+                .build();
+
+        final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
+        given(store.execute(captor.capture(), Mockito.eq(user))).willThrow(new RuntimeException("Store failed to execute operation chain"));
+
+        // When / Then
+        try {
+            graph.execute(opChain, user);
+            fail("Exception expected");
+        } catch (final RuntimeException e) {
+            final InOrder inOrder = inOrder(hook1, hook2);
+            inOrder.verify(hook1, never()).postExecute(any(), any(), any());
+            inOrder.verify(hook2, never()).postExecute(any(), any(), any());
+            inOrder.verify(hook1).onFailure(null, captor.getValue(), user);
+            inOrder.verify(hook2).onFailure(null, captor.getValue(), user);
+            final List<Operation> ops = captor.getValue().getOperations();
+            assertEquals(1, ops.size());
+            assertSame(operation, ops.get(0));
+        }
+    }
+
+    @Test
+    public void shouldCallAllGraphHooksOnGraphHookPreExecuteFailureWhenRunningJob() throws OperationException {
+        // Given
+        final Operation operation = mock(Operation.class);
+        final OperationChain opChain = mock(OperationChain.class);
+        final OperationChain clonedOpChain = mock(OperationChain.class);
+        given(opChain.shallowClone()).willReturn(clonedOpChain);
+        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
+
+        final User user = mock(User.class);
+        final GraphHook hook1 = mock(GraphHook.class);
+        final GraphHook hook2 = mock(GraphHook.class);
+        final Store store = mock(Store.class);
+        final Schema schema = new Schema();
+
+        given(store.getSchema()).willReturn(schema);
+        doThrow(new RuntimeException("Hook2 failed in postExecute")).when(hook1).preExecute(clonedOpChain, user);
+        given(hook1.onFailure(null, clonedOpChain, user)).willThrow(new RuntimeException("Hook1 failed in onFailure"));
+        given(hook2.onFailure(null, clonedOpChain, user)).willReturn(null);
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .addHook(hook1)
+                        .addHook(hook2)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .addSchema(schema)
+                .build();
+
+        // When / Then
+        try {
+            graph.executeJob(opChain, user);
+            fail("Exception expected");
+        } catch (final RuntimeException e) {
+            final InOrder inOrder = inOrder(hook1, hook2);
+            inOrder.verify(hook2, never()).preExecute(any(), any());
+            inOrder.verify(hook1, never()).postExecute(any(), any(), any());
+            inOrder.verify(hook2, never()).postExecute(any(), any(), any());
+            inOrder.verify(hook1).onFailure(eq(null), any(), eq(user));
+            inOrder.verify(hook2).onFailure(eq(null), any(), eq(user));
+        }
+    }
+
+    @Test
+    public void shouldCallAllGraphHooksOnGraphHookPostExecuteFailureWhenRunningJob() throws OperationException {
+        // Given
+        final Operation operation = mock(Operation.class);
+        final OperationChain opChain = mock(OperationChain.class);
+        final OperationChain clonedOpChain = mock(OperationChain.class);
+        given(opChain.shallowClone()).willReturn(clonedOpChain);
+        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
+
+        final User user = mock(User.class);
+        final GraphHook hook1 = mock(GraphHook.class);
+        final GraphHook hook2 = mock(GraphHook.class);
+        final Store store = mock(Store.class);
+        final JobDetail result1 = mock(JobDetail.class);
+        final JobDetail result2 = mock(JobDetail.class);
+        final JobDetail result3 = mock(JobDetail.class);
+        final Schema schema = new Schema();
+
+        given(store.getSchema()).willReturn(schema);
+        given(hook1.postExecute(result1, clonedOpChain, user)).willReturn(result2);
+        given(hook2.postExecute(result2, clonedOpChain, user)).willThrow(new RuntimeException("Hook2 failed in postExecute"));
+        given(hook1.onFailure(result2, clonedOpChain, user)).willThrow(new RuntimeException("Hook1 failed in onFailure"));
+        given(hook2.onFailure(result2, clonedOpChain, user)).willReturn(result3);
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .addHook(hook1)
+                        .addHook(hook2)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .addSchema(schema)
+                .build();
+
+        final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
+        given(store.executeJob(captor.capture(), Mockito.eq(user))).willReturn(result1);
+
+        // When / Then
+        try {
+            graph.executeJob(opChain, user);
+            fail("Exception expected");
+        } catch (final RuntimeException e) {
+            final InOrder inOrder = inOrder(hook1, hook2);
+            inOrder.verify(hook1).postExecute(result1, captor.getValue(), user);
+            inOrder.verify(hook2).postExecute(result2, captor.getValue(), user);
+            inOrder.verify(hook1).onFailure(result2, captor.getValue(), user);
+            inOrder.verify(hook2).onFailure(result2, captor.getValue(), user);
+            final List<Operation> ops = captor.getValue().getOperations();
+            assertEquals(1, ops.size());
+            assertSame(operation, ops.get(0));
+        }
+    }
+
+    @Test
+    public void shouldCallAllGraphHooksOnExecuteFailureWhenRunningJob() throws OperationException {
+        // Given
+        final Operation operation = mock(Operation.class);
+        final OperationChain opChain = mock(OperationChain.class);
+        final OperationChain clonedOpChain = mock(OperationChain.class);
+        given(opChain.shallowClone()).willReturn(clonedOpChain);
+        given(clonedOpChain.getOperations()).willReturn(Lists.newArrayList(operation));
+
+        final User user = mock(User.class);
+        final GraphHook hook1 = mock(GraphHook.class);
+        final GraphHook hook2 = mock(GraphHook.class);
+        final Store store = mock(Store.class);
+        final Schema schema = new Schema();
+
+        given(store.getSchema()).willReturn(schema);
+        given(hook1.onFailure(null, clonedOpChain, user)).willThrow(new RuntimeException("Hook1 failed in onFailure"));
+        given(hook2.onFailure(null, clonedOpChain, user)).willReturn(null);
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .addHook(hook1)
+                        .addHook(hook2)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .addSchema(schema)
+                .build();
+
+        final ArgumentCaptor<OperationChain> captor = ArgumentCaptor.forClass(OperationChain.class);
+        given(store.executeJob(captor.capture(), Mockito.eq(user))).willThrow(new RuntimeException("Store failed to execute operation chain"));
+
+        // When / Then
+        try {
+            graph.executeJob(opChain, user);
+            fail("Exception expected");
+        } catch (final RuntimeException e) {
+            final InOrder inOrder = inOrder(hook1, hook2);
+            inOrder.verify(hook1, never()).postExecute(any(), any(), any());
+            inOrder.verify(hook2, never()).postExecute(any(), any(), any());
+            inOrder.verify(hook1).onFailure(null, captor.getValue(), user);
+            inOrder.verify(hook2).onFailure(null, captor.getValue(), user);
+            final List<Operation> ops = captor.getValue().getOperations();
+            assertEquals(1, ops.size());
+            assertSame(operation, ops.get(0));
+        }
     }
 
     @Test
