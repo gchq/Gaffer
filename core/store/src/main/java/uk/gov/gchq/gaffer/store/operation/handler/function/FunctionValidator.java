@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler.function;
 
-import uk.gov.gchq.gaffer.operation.impl.function.Filter;
+import uk.gov.gchq.gaffer.operation.impl.function.Function;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -23,7 +23,7 @@ import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.Map;
 
-public class FunctionValidator<T> {
+public class FunctionValidator<T extends Function> {
 
     public ValidationResult validate(final T operation, final Schema schema) {
         final ValidationResult result = new ValidationResult();

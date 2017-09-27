@@ -20,6 +20,7 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.impl.function.Function;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl.IterableElement;
@@ -32,10 +33,7 @@ import java.util.Map;
  * An <code>Aggregate</code> operation applies {@link uk.gov.gchq.gaffer.data.element.function.ElementAggregator}(s) to the provided
  * {@link Iterable} of {@link Element}s by their group, and returns an {@link Iterable}.
  */
-public class Aggregate implements
-        Operation,
-        InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,
-        MultiInput<Element> {
+public class Aggregate extends Function {
     private Iterable<? extends Element> input;
     private Map<String, String> options;
 
