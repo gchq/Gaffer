@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.util.StreamTransformIterable;
+import uk.gov.gchq.koryphe.ValidationResult;
 
 public class TransformHandler implements OutputOperationHandler<Transform, Iterable<? extends Element>> {
     @Override
@@ -29,6 +30,13 @@ public class TransformHandler implements OutputOperationHandler<Transform, Itera
         if (null == operation.getInput()) {
             throw new OperationException("Transform operation has null iterable of elements");
         }
+
+        final FunctionValidator<Transform> validator = new FunctionValidator<>();
+        final ValidationResult result = validator.validate(operation, store.getSchema());
+        if (!result.isValid()){
+            throw new OperationException("Transform operation is invalid. " + result.getErrorString());
+        }
+
         return new StreamTransformIterable(operation);
     }
 }
