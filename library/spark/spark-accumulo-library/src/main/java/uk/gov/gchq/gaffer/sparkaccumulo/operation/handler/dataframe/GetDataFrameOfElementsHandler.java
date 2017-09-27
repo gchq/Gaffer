@@ -26,6 +26,9 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class GetDataFrameOfElementsHandler implements OutputOperationHandler<GetDataFrameOfElements, Dataset<Row>> {
 
     @Override
@@ -36,12 +39,19 @@ public class GetDataFrameOfElementsHandler implements OutputOperationHandler<Get
 
     public Dataset<Row> doOperation(final GetDataFrameOfElements operation, final Context context,
                                     final AccumuloStore store) throws OperationException {
+        final Map<String, String> operationOptions;
+        if (operation.getOptions() != null) {
+            operationOptions = operation.getOptions();
+        } else {
+            operationOptions = new HashMap<>();
+        }
         final SparkSession sparkSession = operation.getSparkSession();
         final AccumuloStoreRelation relation = new AccumuloStoreRelation(sparkSession,
                 operation.getConverters(),
                 operation.getView(),
                 store,
-                context.getUser());
+                context.getUser(),
+                operationOptions);
         return sparkSession.sqlContext().baseRelationToDataFrame(relation);
     }
 

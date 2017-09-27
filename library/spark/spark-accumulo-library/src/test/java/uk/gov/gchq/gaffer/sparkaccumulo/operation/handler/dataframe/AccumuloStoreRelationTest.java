@@ -106,7 +106,7 @@ public class AccumuloStoreRelationTest {
 
         // When
         final AccumuloStoreRelation relation = new AccumuloStoreRelation(sparkSession, Collections.emptyList(), view,
-                store, new User());
+                store, new User(), null);
         final RDD<Row> rdd = relation.buildScan();
         final Row[] returnedElements = (Row[]) rdd.collect();
 
@@ -152,7 +152,7 @@ public class AccumuloStoreRelationTest {
 
         // When
         final AccumuloStoreRelation relation = new AccumuloStoreRelation(sparkSession, Collections.emptyList(), view,
-                store, new User());
+                store, new User(), null);
         final RDD<Row> rdd = relation.buildScan(requiredColumns);
         final Row[] returnedElements = (Row[]) rdd.collect();
 
@@ -204,7 +204,7 @@ public class AccumuloStoreRelationTest {
 
         // When
         final AccumuloStoreRelation relation = new AccumuloStoreRelation(sparkSession, Collections.emptyList(), view,
-                store, new User());
+                store, new User(), null);
         final RDD<Row> rdd = relation.buildScan(requiredColumns, filters);
         final Row[] returnedElements = (Row[]) rdd.collect();
 
