@@ -23,6 +23,7 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
+import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -59,9 +60,11 @@ public class FederatedStoreSchemaTest {
     public void setUp() throws Exception {
         ACCUMULO_PROPERTIES.setStoreClass(MockAccumuloStore.class.getName());
         ACCUMULO_PROPERTIES.setStorePropertiesClass(AccumuloProperties.class);
+        ACCUMULO_PROPERTIES.set(CacheProperties.CACHE_SERVICE_CLASS, "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
 
         FEDERATED_PROPERTIES.setStoreClass(FederatedStore.class.getName());
         FEDERATED_PROPERTIES.setStorePropertiesClass(StoreProperties.class);
+        FEDERATED_PROPERTIES.set(CacheProperties.CACHE_SERVICE_CLASS, "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
 
         fStore = new FederatedStore();
         fStore.initialise(TEST_FED_STORE, null, FEDERATED_PROPERTIES);
@@ -118,7 +121,7 @@ public class FederatedStoreSchemaTest {
             assertTrue(e instanceof SchemaException);
             assertEquals("Element group properties cannot be defined in different" +
                     " schema parts, they must all be defined in a single " +
-                    "schema part. Please fix this group: e1",e.getMessage());
+                    "schema part. Please fix this group: e1", e.getMessage());
         }
 
         try {

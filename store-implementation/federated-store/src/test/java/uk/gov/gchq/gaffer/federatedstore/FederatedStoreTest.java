@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
+import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -94,6 +95,7 @@ public class FederatedStoreTest {
     public void setUp() throws Exception {
         store = new FederatedStore();
         federatedProperties = new StoreProperties();
+        federatedProperties.set(CacheProperties.CACHE_SERVICE_CLASS, "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
         HashMapGraphLibrary.clear();
     }
 
@@ -818,8 +820,9 @@ public class FederatedStoreTest {
     }
 
     @Test
-    public void shouldReturnGraphsWithLeadingCommaString() throws StoreException {
+    public void shouldReturnGraphsWithLeadingCommaString() throws StoreException, InterruptedException {
         // Given
+        federatedProperties.set(CacheProperties.CACHE_SERVICE_CLASS, "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
         final List<Collection<Graph>> graphLists = populateGraphs(2, 4);
         final Collection<Graph> expectedGraphs = graphLists.get(0);

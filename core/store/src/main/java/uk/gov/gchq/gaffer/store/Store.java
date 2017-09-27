@@ -662,6 +662,10 @@ public abstract class Store {
         return operationHandlers.get(opClass);
     }
 
+    protected void startCacheServiceLoader(final StoreProperties properties) {
+        CacheServiceLoader.initialise(properties.getProperties());
+    }
+
     private JobDetail addOrUpdateJobDetail(final OperationChain<?> operationChain, final Context context, final String msg, final JobStatus jobStatus) {
         final JobDetail newJobDetail = new JobDetail(context.getJobId(), context
                 .getUser()
@@ -786,9 +790,4 @@ public abstract class Store {
             }
         }
     }
-
-    private void startCacheServiceLoader(final StoreProperties properties) {
-        CacheServiceLoader.initialise(properties.getProperties());
-    }
-
 }

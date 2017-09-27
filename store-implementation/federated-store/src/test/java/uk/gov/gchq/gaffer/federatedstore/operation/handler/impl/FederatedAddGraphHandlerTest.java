@@ -22,6 +22,7 @@ import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
+import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -32,7 +33,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.exception.OverwritingException;
+import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -59,6 +60,7 @@ public class FederatedAddGraphHandlerTest {
 
         StoreProperties storeProperties = new StoreProperties();
         storeProperties.set("gaffer.store.class", "uk.gov.gchq.gaffer.federatedstore.FederatedStore");
+        storeProperties.set(CacheProperties.CACHE_SERVICE_CLASS, "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
 
         assertEquals(0, store.getGraphs(null).size());
 
@@ -109,6 +111,7 @@ public class FederatedAddGraphHandlerTest {
         StoreProperties storeProperties = new StoreProperties();
         storeProperties.set(StoreProperties.STORE_CLASS, "uk.gov.gchq.gaffer.federatedstore.FederatedStore");
         storeProperties.set(StoreProperties.STORE_PROPERTIES_CLASS, "uk.gov.gchq.gaffer.store.StoreProperties");
+        storeProperties.set(CacheProperties.CACHE_SERVICE_CLASS, "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
 
         assertEquals(0, store.getGraphs(null).size());
 
@@ -163,6 +166,7 @@ public class FederatedAddGraphHandlerTest {
 
         StoreProperties storeProperties = new StoreProperties();
         storeProperties.set("gaffer.store.class", "uk.gov.gchq.gaffer.federatedstore.FederatedStore");
+        storeProperties.set(CacheProperties.CACHE_SERVICE_CLASS, "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
 
         assertEquals(0, store.getGraphs(null).size());
 
@@ -206,6 +210,7 @@ public class FederatedAddGraphHandlerTest {
 
         StoreProperties graphStoreProperties = new StoreProperties();
         graphStoreProperties.set("gaffer.store.class", "uk.gov.gchq.gaffer.federatedstore.FederatedStore");
+        graphStoreProperties.set(CacheProperties.CACHE_SERVICE_CLASS, "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
 
         assertEquals(0, store.getGraphs(null).size());
 
@@ -266,6 +271,7 @@ public class FederatedAddGraphHandlerTest {
         AccumuloProperties storeProperties = new AccumuloProperties();
         storeProperties.setStorePropertiesClass(AccumuloProperties.class);
         storeProperties.setStoreClass(MockAccumuloStore.class);
+        storeProperties.set(CacheProperties.CACHE_SERVICE_CLASS, "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
 
         new FederatedAddGraphHandler().doOperation(
                 new AddGraph.Builder()
