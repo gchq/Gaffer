@@ -92,6 +92,7 @@ public class Filter extends Function {
         this.input = input;
     }
 
+    @Override
     public Map<String, ElementFilter> getEdges() {
         return edges;
     }
@@ -100,6 +101,7 @@ public class Filter extends Function {
         this.edges = edges;
     }
 
+    @Override
     public Map<String, ElementFilter> getEntities() {
         return entities;
     }

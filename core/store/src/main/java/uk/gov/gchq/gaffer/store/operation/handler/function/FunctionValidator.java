@@ -74,4 +74,12 @@ public class FunctionValidator<T extends Function> {
         return result;
     }
 
+    private ValidationResult validateFunctionArgumentTypes() {
+        final ValidationResult result = new ValidationResult();
+
+
+        //todo check if in schema, if so compare java classes - if not, check if not null
+
+        return result;
+    }
 }

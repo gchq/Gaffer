@@ -85,6 +85,7 @@ public class Transform extends Function {
         this.options = options;
     }
 
+    @Override
     public Map<String, ElementTransformer> getEdges() {
         return edges;
     }
@@ -93,6 +94,7 @@ public class Transform extends Function {
         this.edges = edges;
     }
 
+    @Override
     public Map<String, ElementTransformer> getEntities() {
         return entities;
     }

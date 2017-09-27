@@ -83,6 +83,7 @@ public class Aggregate extends Function {
         this.options = options;
     }
 
+    @Override
     public Map<String, AggregatePair> getEdges() {
         return edges;
     }
@@ -91,6 +92,7 @@ public class Aggregate extends Function {
         this.edges = edges;
     }
 
+    @Override
     public Map<String, AggregatePair> getEntities() {
         return entities;
     }
