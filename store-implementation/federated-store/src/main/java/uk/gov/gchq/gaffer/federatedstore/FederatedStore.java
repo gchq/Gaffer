@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.ICacheService;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
+import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -116,6 +117,10 @@ public class FederatedStore extends Store {
      */
     @Override
     public void initialise(final String graphId, final Schema unused, final StoreProperties properties) throws StoreException {
+        if (properties.get(CacheProperties.CACHE_SERVICE_CLASS) == null) {
+            throw new StoreException("No cache has been set, please check the property "
+                    + CacheProperties.CACHE_SERVICE_CLASS + " has been set in the Store Properties");
+        }
         super.initialise(graphId, new Schema(), properties);
         setCacheService();
         loadCustomPropertiesAuths();
@@ -166,9 +171,9 @@ public class FederatedStore extends Store {
      *
      * @param graphs the graph to add
      */
-    public void addGraphs(final Graph... graphs) {
+    public void addGraphs(final Graph... graphs) throws StoreException {
         if (cacheService == null) {
-            throw new RuntimeException("No cache has been set, please initialise the FederatedStore instance");
+            throw new StoreException("No cache has been set, please initialise the FederatedStore instance");
         }
         for (final Graph graph : graphs) {
             _add(graph);
@@ -330,7 +335,7 @@ public class FederatedStore extends Store {
         }
     }
 
-    private void loadGraphs() {
+    private void loadGraphs() throws StoreException {
         final Set<String> graphIds = getGraphIds();
         final Set<Graph> graphsToLoad = new HashSet<>();
         for (final String graphId : graphIds) {

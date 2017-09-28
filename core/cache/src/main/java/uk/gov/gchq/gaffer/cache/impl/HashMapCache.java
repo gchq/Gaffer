@@ -29,7 +29,7 @@ import java.util.Set;
  * @param <K> The object type that acts as the key for the HashMap
  * @param <V> The value that is stored in the HashMap
  */
-public class HashMapCache <K, V> implements ICache<K, V> {
+public class HashMapCache<K, V> implements ICache<K, V> {
 
     private final HashMap<K, V> cache = new HashMap<>();
 

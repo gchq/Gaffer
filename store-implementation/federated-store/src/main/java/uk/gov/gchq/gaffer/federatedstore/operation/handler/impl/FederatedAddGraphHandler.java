@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -55,7 +56,11 @@ public class FederatedAddGraphHandler implements OperationHandler<AddGraph> {
                 operation.getSchema(), operation.getStoreProperties(),
                 operation.getParentSchemaIds(), operation.getParentPropertiesId(), hook);
 
-        ((FederatedStore) store).addGraphs(graph);
+        try {
+            ((FederatedStore) store).addGraphs(graph);
+        } catch (StoreException e) {
+            throw new OperationException(e.getMessage());
+        }
         return null;
     }
 }
