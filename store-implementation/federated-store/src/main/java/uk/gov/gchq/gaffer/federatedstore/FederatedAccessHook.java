@@ -99,6 +99,11 @@ public class FederatedAccessHook implements GraphHook {
         return result;
     }
 
+    @Override
+    public <T> T onFailure(final T result, final OperationChain<?> opChain, final User user) {
+        return result;
+    }
+
     public static class Builder {
         private final FederatedAccessHook hook = new FederatedAccessHook();
         private final Builder self = this;
