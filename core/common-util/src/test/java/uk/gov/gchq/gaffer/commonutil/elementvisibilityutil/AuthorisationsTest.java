@@ -24,7 +24,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 /**
- * This test class is copied from org.apache.accumulo.core.data.AuthorizationsTest.
+ * This test class is copied from org.apache.accumulo.core.security.AuthorizationsTest.
  */
 public class AuthorisationsTest {
 

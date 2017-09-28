@@ -28,6 +28,10 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.ElementVisibility.quote;
 
+/**
+ * This test class is copied from org.apache.accumulo.core.security.VisibilityEvaluatorTest.
+ */
+
 public class VisibilityEvaluatorTest {
 
     VisibilityEvaluator ve = new VisibilityEvaluator(new Authorisations("one", "two", "three", "four"));
@@ -38,19 +42,13 @@ public class VisibilityEvaluatorTest {
         assertTrue(ve.evaluate(new ElementVisibility(new byte[0])));
 
         // test for and
-        assertTrue("'and' test", ve.evaluate(new ElementVisibility("one&two")
-
-        ));
+        assertTrue("'and' test", ve.evaluate(new ElementVisibility("one&two")));
 
         // test for or
-        assertTrue("'or' test", ve.evaluate(new ElementVisibility("foor|four")
-
-        ));
+        assertTrue("'or' test", ve.evaluate(new ElementVisibility("foor|four")));
 
         // test for and and or
-        assertTrue("'and' and 'or' test", ve.evaluate(new ElementVisibility("(one&two)|(foo&bar)")
-
-        ));
+        assertTrue("'and' and 'or' test", ve.evaluate(new ElementVisibility("(one&two)|(foo&bar)")));
 
         // test for false negatives
         for (String marking : new String[]{"one", "one|five", "five|one", "(one)",
@@ -76,18 +74,9 @@ public class VisibilityEvaluatorTest {
             }
         }
 
-        // test unexpeveed separator
-        for (
-                String marking
-                : new String[]
-
-                {
-                        "&(five)", "|(five)", "(five)&", "five|", "a|(b)&", "(&five)", "(five|)"
-                }
-
-                )
-
-        {
+        // test unexpected separator
+        for (String marking : new String[]{"&(five)", "|(five)", "(five)&",
+                "five|", "a|(b)&", "(&five)", "(five|)"}) {
             try {
                 ve.evaluate(new ElementVisibility(marking));
                 fail(marking + " failed to throw");
@@ -97,17 +86,7 @@ public class VisibilityEvaluatorTest {
         }
 
         // test mismatched parentheses
-        for (
-                String marking
-                : new String[]
-
-                {
-                        "(", ")", "(a&b", "b|a)"
-                }
-
-                )
-
-        {
+        for (String marking : new String[]{"(", ")", "(a&b", "b|a)"}) {
             try {
                 ve.evaluate(new ElementVisibility(marking));
                 fail(marking + " failed to throw");

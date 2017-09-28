@@ -22,6 +22,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.ElementVisibility.quote;
 
+/**
+ * This test class is copied from org.apache.accumulo.core.security.ColumnVisibilityTest.
+ */
+
 public class ElementVisibilityTest {
 
     private void shouldThrow(String... strings) {
