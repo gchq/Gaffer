@@ -42,8 +42,8 @@ public class FederatedStoreAuthTest {
         FederatedStore store = new FederatedStore();
 
         Schema expectedSchema = new Schema.Builder().build();
+        String federatedGraphId = "federatedStoreGraphId";
         String expectedGraphId = "testGraphID";
-        String expectedGraphId1 = "testGraphID1";
 
         StoreProperties storeProperties = new StoreProperties();
         storeProperties.set("gaffer.store.class", "uk.gov.gchq.gaffer.federatedstore.FederatedStore");
@@ -51,12 +51,12 @@ public class FederatedStoreAuthTest {
 
         assertEquals(0, store.getGraphs(null).size());
 
-        store.initialise(expectedGraphId, null, storeProperties);
+        store.initialise(federatedGraphId, null, storeProperties);
 
         FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
-                        .graphId(expectedGraphId1)
+                        .graphId(expectedGraphId)
                         .schema(expectedSchema)
                         .storeProperties(storeProperties)
                         .graphAuths("auth1")
@@ -68,7 +68,7 @@ public class FederatedStoreAuthTest {
 
         assertEquals(1, graphs.size());
         Graph next = graphs.iterator().next();
-        assertEquals(expectedGraphId1, next.getGraphId());
+        assertEquals(expectedGraphId, next.getGraphId());
         assertEquals(expectedSchema, next.getSchema());
 
         final FederatedGetAllElementsHandler federatedGetAllElementsHandler = new FederatedGetAllElementsHandler();

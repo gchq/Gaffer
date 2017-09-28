@@ -822,7 +822,6 @@ public class FederatedStoreTest {
     @Test
     public void shouldReturnGraphsWithLeadingCommaString() throws StoreException {
         // Given
-        federatedProperties.set(CacheProperties.CACHE_SERVICE_CLASS, "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
         final List<Collection<Graph>> graphLists = populateGraphs(2, 4);
         final Collection<Graph> expectedGraphs = graphLists.get(0);

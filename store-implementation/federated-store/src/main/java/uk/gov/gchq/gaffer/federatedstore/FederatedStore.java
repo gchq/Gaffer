@@ -478,9 +478,9 @@ public class FederatedStore extends Store {
 
         try {
             cacheService.putSafeInCache(CACHE_SERVICE_NAME, graphId, newGraph);
-        } catch (OverwritingException e) {
+        } catch (final OverwritingException e) {
             throw new OverwritingException((String.format(USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S, graphId)));
-        } catch (CacheOperationException e) {
+        } catch (final CacheOperationException e) {
             throw new RuntimeException(e);
         }
         schema = newSchema;

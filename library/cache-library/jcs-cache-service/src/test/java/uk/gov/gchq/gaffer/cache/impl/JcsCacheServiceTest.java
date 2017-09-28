@@ -28,6 +28,7 @@ import org.junit.rules.ExpectedException;
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
+import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 
 import java.io.File;
 import java.util.Properties;
@@ -43,7 +44,7 @@ public class JcsCacheServiceTest {
     private JcsCacheService service = new JcsCacheService();
     private static final String TEST_REGION = "test";
     private static final String ALTERNATIVE_TEST_REGION = "alternativeTest";
-    private static final String AGE_OFF_REGION="ageOff";
+    private static final String AGE_OFF_REGION = "ageOff";
     private Properties serviceProps = new Properties();
 
     @Rule
@@ -151,11 +152,11 @@ public class JcsCacheServiceTest {
         try {
             service.putSafeInCache(TEST_REGION, "test", 2);
             fail("Expected an exception");
-        } catch (final CacheOperationException e) {
+        } catch (final OverwritingException e) {
             Assert.assertEquals((Integer) 1, service.getFromCache(TEST_REGION, "test"));
         }
 
-        service.putInCache(TEST_REGION,"test", 2);
+        service.putInCache(TEST_REGION, "test", 2);
 
         Assert.assertEquals((Integer) 2, service.getFromCache(TEST_REGION, "test"));
     }
