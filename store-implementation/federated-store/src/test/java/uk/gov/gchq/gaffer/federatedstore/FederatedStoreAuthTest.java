@@ -36,39 +36,43 @@ import static org.junit.Assert.assertTrue;
 
 public class FederatedStoreAuthTest {
 
+    private static final String FEDERATEDSTORE_GRAPH_ID = "federatedStore";
+    private static final String EXPECTED_GRAPH_ID = "testGraphID";
+    private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
+    private static final String FEDERATEDSTORE_CLASS_STRING = "uk.gov.gchq.gaffer.federatedstore.FederatedStore";
+    private static final String TEST_USER = "testUser";
+
     @Test
     public void shouldAddGraphWithHook() throws Exception {
 
         FederatedStore store = new FederatedStore();
 
         Schema expectedSchema = new Schema.Builder().build();
-        String federatedGraphId = "federatedStoreGraphId";
-        String expectedGraphId = "testGraphID";
 
         StoreProperties storeProperties = new StoreProperties();
-        storeProperties.set("gaffer.store.class", "uk.gov.gchq.gaffer.federatedstore.FederatedStore");
-        storeProperties.set(CacheProperties.CACHE_SERVICE_CLASS, "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
+        storeProperties.set(StoreProperties.STORE_CLASS, FEDERATEDSTORE_CLASS_STRING);
+        storeProperties.set(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
 
         assertEquals(0, store.getGraphs(null).size());
 
-        store.initialise(federatedGraphId, null, storeProperties);
+        store.initialise(FEDERATEDSTORE_GRAPH_ID, null, storeProperties);
 
         FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
-                        .graphId(expectedGraphId)
+                        .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
                         .storeProperties(storeProperties)
                         .graphAuths("auth1")
                         .build(),
-                new Context(new User("TestUser")),
+                new Context(new User(TEST_USER)),
                 store);
 
         Collection<Graph> graphs = store.getGraphs(null);
 
         assertEquals(1, graphs.size());
         Graph next = graphs.iterator().next();
-        assertEquals(expectedGraphId, next.getGraphId());
+        assertEquals(EXPECTED_GRAPH_ID, next.getGraphId());
         assertEquals(expectedSchema, next.getSchema());
 
         final FederatedGetAllElementsHandler federatedGetAllElementsHandler = new FederatedGetAllElementsHandler();
@@ -76,7 +80,7 @@ public class FederatedStoreAuthTest {
         try {
             federatedGetAllElementsHandler.doOperation(
                     new GetAllElements(),
-                    new Context(new User("TestUser")),
+                    new Context(new User(TEST_USER)),
                     store);
         } catch (Exception e) {
             assertTrue(e.getCause().getMessage().contains(String.format(FederatedAccessHook.USER_DOES_NOT_HAVE_CORRECT_AUTHS_TO_ACCESS_THIS_GRAPH_USER_S, "")));

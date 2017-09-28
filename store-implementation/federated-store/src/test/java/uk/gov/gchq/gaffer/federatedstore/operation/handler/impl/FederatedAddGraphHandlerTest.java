@@ -48,13 +48,13 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStore.USER_IS_ATTEMPTIN
 
 public class FederatedAddGraphHandlerTest {
 
-    public static final String GAFFER_FEDERATEDSTORE_CUSTOM_PROPERTIES_AUTHS = "gaffer.federatedstore.customPropertiesAuths";
+    private static final String GAFFER_FEDERATEDSTORE_CUSTOM_PROPERTIES_AUTHS = "gaffer.federatedstore.customPropertiesAuths";
     private static final String FEDERATEDSTORE_GRAPH_ID = "federatedStore";
     private static final String EXPECTED_GRAPH_ID = "testGraphID";
     private static final String EXPECTED_GRAPH_ID_2 = "testGraphID2";
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private static final String FEDERATEDSTORE_CLASS_STRING = "uk.gov.gchq.gaffer.federatedstore.FederatedStore";
-    private static final String TEST_USER = "testUser";
+    private static final String TEST_USER_ID = "testUser";
 
     @Test
     public void shouldAddGraph() throws Exception {
@@ -78,7 +78,7 @@ public class FederatedAddGraphHandlerTest {
                         .schema(expectedSchema)
                         .storeProperties(storeProperties)
                         .build(),
-                new Context(new User(TEST_USER)),
+                new Context(new User(TEST_USER_ID)),
                 store);
 
         Collection<Graph> graphs = store.getGraphs(null);
@@ -94,7 +94,7 @@ public class FederatedAddGraphHandlerTest {
                         .schema(expectedSchema)
                         .storeProperties(storeProperties)
                         .build(),
-                new Context(new User(TEST_USER)),
+                new Context(new User(TEST_USER_ID)),
                 store);
 
         graphs = store.getGraphs(null);
@@ -129,7 +129,7 @@ public class FederatedAddGraphHandlerTest {
                         .schema(expectedSchema)
                         .storeProperties(storeProperties)
                         .build(),
-                new Context(new User(TEST_USER)),
+                new Context(new User(TEST_USER_ID)),
                 store);
 
         Collection<Graph> graphs = store.getGraphs(null);
@@ -149,7 +149,7 @@ public class FederatedAddGraphHandlerTest {
                 new AddGraph.Builder()
                         .graphId(graphId2)
                         .build(),
-                new Context(new User(TEST_USER)),
+                new Context(new User(TEST_USER_ID)),
                 store);
 
         graphs = store.getGraphs(null);
@@ -186,7 +186,7 @@ public class FederatedAddGraphHandlerTest {
                         .schema(expectedSchema)
                         .storeProperties(storeProperties)
                         .build(),
-                new Context(new User(TEST_USER)),
+                new Context(new User(TEST_USER_ID)),
                 store);
 
         try {
@@ -196,7 +196,7 @@ public class FederatedAddGraphHandlerTest {
                             .schema(expectedSchema)
                             .storeProperties(storeProperties)
                             .build(),
-                    new Context(new User(TEST_USER)),
+                    new Context(new User(TEST_USER_ID)),
                     store);
         } catch (final OverwritingException e) {
             assertEquals(String.format(USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S, EXPECTED_GRAPH_ID), e.getMessage());
@@ -231,7 +231,7 @@ public class FederatedAddGraphHandlerTest {
                             .schema(expectedSchema)
                             .storeProperties(graphStoreProperties)
                             .build(),
-                    new Context(new User(TEST_USER)),
+                    new Context(new User(TEST_USER_ID)),
                     store);
             fail("Exception not thrown");
         } catch (OperationException e) {
@@ -248,7 +248,7 @@ public class FederatedAddGraphHandlerTest {
                         .storeProperties(graphStoreProperties)
                         .build(),
                 new Context(new User.Builder()
-                        .userId(TEST_USER)
+                        .userId(TEST_USER_ID)
                         .opAuth("auth1")
                         .build()),
                 store);
@@ -289,14 +289,14 @@ public class FederatedAddGraphHandlerTest {
                         .storeProperties(storeProperties)
                         .graphAuths("testAuth")
                         .build(),
-                new Context(new User(TEST_USER)),
+                new Context(new User(TEST_USER_ID)),
                 store);
 
 
         final CloseableIterable<? extends Element> elements = new FederatedGetAllElementsHandler().doOperation(
                 new GetAllElements(),
                 new Context(new User.Builder()
-                        .userId(TEST_USER)
+                        .userId(TEST_USER_ID)
                         .build()),
                 store);
 

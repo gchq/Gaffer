@@ -24,6 +24,10 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import static org.junit.Assert.assertEquals;
 
 public class FederatedAccessExceptionTest {
+
+    private static final String HELLO = "hello";
+    private static final String OPERATION = "operation";
+
     @Test
     public void shouldThrow() throws Exception {
         try {
@@ -35,43 +39,38 @@ public class FederatedAccessExceptionTest {
 
     @Test
     public void shouldThrowWithString() throws Exception {
-        final String hello = "hello";
         try {
-            throw new FederatedAccessException(hello);
+            throw new FederatedAccessException(HELLO);
         } catch (FederatedAccessException e) {
-            assertEquals(hello, e.getMessage());
+            assertEquals(HELLO, e.getMessage());
         }
     }
 
     @Test
     public void shouldThrowWithStringCause() throws Exception {
-        final String hello = "hello";
-        final String operation = "operation";
         try {
-            throw new FederatedAccessException(hello, new OperationException(operation));
+            throw new FederatedAccessException(HELLO, new OperationException(OPERATION));
         } catch (FederatedAccessException e) {
-            assertEquals(hello, e.getMessage());
-            assertEquals(operation, e.getCause().getMessage());
+            assertEquals(HELLO, e.getMessage());
+            assertEquals(OPERATION, e.getCause().getMessage());
         }
     }
 
     @Test
     public void shouldThrowWithCause() throws Exception {
-        final String operation = "operation";
         try {
-            throw new FederatedAccessException(new OperationException(operation));
+            throw new FederatedAccessException(new OperationException(OPERATION));
         } catch (FederatedAccessException e) {
-            assertEquals(operation, e.getCause().getMessage());
+            assertEquals(OPERATION, e.getCause().getMessage());
         }
     }
 
     @Test
     public void shouldThrowWithOther() throws Exception {
-        final String hello = "hello";
         try {
-            throw new FederatedAccessException(hello, new OperationException("operation"), false, false);
+            throw new FederatedAccessException(HELLO, new OperationException(OPERATION), false, false);
         } catch (FederatedAccessException e) {
-            assertEquals(hello, e.getMessage());
+            assertEquals(HELLO, e.getMessage());
         }
     }
 

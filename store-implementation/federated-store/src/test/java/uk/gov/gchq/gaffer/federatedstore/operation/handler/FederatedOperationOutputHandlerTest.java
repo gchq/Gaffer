@@ -47,6 +47,7 @@ import static org.mockito.Mockito.verify;
 
 public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, O> {
     public static final String TEST_ENTITY = "TestEntity";
+    public static final String TEST_GRAPH_ID = "testGraphId";
     public static final String TEST_USER = "testUser";
     public static final String PROPERTY_TYPE = "property";
     protected O o1;
@@ -136,10 +137,9 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
     @Test
     final public void shouldThrowException() throws Exception {
         // Given
-        final String graphID = "graphId";
         final String message = "Test Exception";
         final OP op = getExampleOperation();
-        op.addOption(FederatedStoreConstants.GRAPH_IDS, graphID);
+        op.addOption(FederatedStoreConstants.GRAPH_IDS, TEST_GRAPH_ID);
 
         Schema unusedSchema = new Schema.Builder().build();
 
@@ -149,7 +149,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
 
         FederatedStore mockStore = Mockito.mock(FederatedStore.class);
         HashSet<Graph> filteredGraphs = Sets.newHashSet(getGraphWithMockStore(mockStoreInner));
-        Mockito.when(mockStore.getGraphs(graphID)).thenReturn(filteredGraphs);
+        Mockito.when(mockStore.getGraphs(TEST_GRAPH_ID)).thenReturn(filteredGraphs);
 
         // When
         try {
@@ -207,7 +207,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
     private Graph getGraphWithMockStore(final Store mockStore) {
         return new Graph.Builder()
                 .config(new GraphConfig.Builder()
-                        .graphId("TestGraphId")
+                        .graphId(TEST_GRAPH_ID)
                         .build())
                 .store(mockStore)
                 .build();

@@ -48,6 +48,7 @@ import static org.mockito.Mockito.when;
 
 public class FederatedOperationHandlerTest {
     public static final String TEST_USER = "testUser";
+    public static final String TEST_GRAPH_ID = "testGraphId";
     private User user;
 
     @Before
@@ -123,9 +124,9 @@ public class FederatedOperationHandlerTest {
         verify(mockStore4, never()).execute(new OperationChain<>(op).shallowClone(), user);
     }
 
-    private Graph getGraphWithMockStore(final Store mockStore){
+    private Graph getGraphWithMockStore(final Store mockStore) {
         return new Graph.Builder()
-                .config(new GraphConfig("testGraphId"))
+                .config(new GraphConfig(TEST_GRAPH_ID))
                 .store(mockStore)
                 .build();
     }
@@ -189,7 +190,7 @@ public class FederatedOperationHandlerTest {
 
         // When
         try {
-           new FederatedOperationHandler().doOperation(op, new Context(user), mockStore);
+            new FederatedOperationHandler().doOperation(op, new Context(user), mockStore);
         } catch (Exception e) {
             fail("Exception should not have been thrown: " + e.getMessage());
         }

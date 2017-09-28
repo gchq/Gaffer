@@ -38,6 +38,7 @@ import static org.mockito.Mockito.verify;
 
 public class FederatedAddAllElementsHandlerTest {
     public static final String TEST_USER = "testUser";
+    private static final String TEST_GRAPH_ID = "testGraphId";
     protected User user;
 
     @Before
@@ -84,7 +85,7 @@ public class FederatedAddAllElementsHandlerTest {
 
     private Graph getGraphWithMockStore(final Store mockStore) {
         return new Graph.Builder()
-                .config(new GraphConfig("testGraphId"))
+                .config(new GraphConfig(TEST_GRAPH_ID))
                 .store(mockStore)
                 .build();
     }

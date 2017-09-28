@@ -26,10 +26,8 @@ import static org.junit.Assert.assertTrue;
 
 public class FederatedAccessHookAuthTest {
 
-    public static final String A = "A";
-    public static final String B = "B";
-    public static final String AA = "AA";
-    public static final String USER = "user";
+    private static final String A = "A";
+    private static final String B = "B";
 
     @Test
     public void shouldValidateUserWithMatchingAuth() throws Exception {
