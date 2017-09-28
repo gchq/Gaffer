@@ -337,15 +337,34 @@ public class FederatedStore extends Store {
         for (final Graph graph : graphs) {
             _add(graph);
         }
-        updateMergedGraphConfig();
     }
 
-    private void _add(final Graph graph) {
-        final String graphId = graph.getGraphId();
+    private void _add(final Graph newGraph) {
+        final String graphId = newGraph.getGraphId();
         if (graphs.containsKey(graphId)) {
             throw new OverwritingException((String.format(USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S, graphId)));
         }
-        graphs.put(graphId, graph);
+
+        Schema.Builder schemaBuilder = new Schema.Builder();
+        final Set<StoreTrait> newTraits = Sets.newHashSet(StoreTrait.values());
+        for (final Graph graph : graphs.values()) {
+            schemaBuilder = schemaBuilder.merge(graph.getSchema());
+            newTraits.retainAll(graph.getStoreTraits());
+        }
+
+        schemaBuilder.merge(newGraph.getSchema());
+        newTraits.retainAll(newGraph.getStoreTraits());
+
+        final Schema newSchema = schemaBuilder.build();
+        //An exception would be thrown here if something was wrong merging the schema.
+
+        graphs.put(graphId, newGraph);
+        schema = newSchema;
+        traits = Collections.unmodifiableSet(newTraits);
+
+        if (null != getGraphLibrary()) {
+            getGraphLibrary().add(newGraph.getGraphId(), newGraph.getSchema(), newGraph.getStoreProperties());
+        }
     }
 
     private void updateMergedGraphConfig() {
@@ -388,10 +407,10 @@ public class FederatedStore extends Store {
 
 
     /**
-     * @return All the graphId within scope of this FederatedStore.
+     * @return All the graphId(s) within scope of this FederatedStore.
      */
     public Set<String> getAllGraphIds() {
-        return graphs.keySet();
+        return Collections.unmodifiableSet(graphs.keySet());
     }
 
     /**

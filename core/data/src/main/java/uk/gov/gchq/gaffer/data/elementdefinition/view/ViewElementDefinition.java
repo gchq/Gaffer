@@ -417,10 +417,14 @@ public class ViewElementDefinition implements ElementDefinition {
         }
 
         public CHILD_CLASS groupBy(final String... groupBy) {
-            if (null == getElementDef().getGroupBy()) {
-                getElementDef().setGroupBy(new LinkedHashSet<>());
+            if (null != groupBy) {
+                if (null == getElementDef().getGroupBy()) {
+                    getElementDef().setGroupBy(new LinkedHashSet<>());
+                }
+                Collections.addAll(getElementDef().getGroupBy(), groupBy);
+            } else {
+                getElementDef().setGroupBy(null);
             }
-            Collections.addAll(getElementDef().getGroupBy(), groupBy);
             return self();
         }
 

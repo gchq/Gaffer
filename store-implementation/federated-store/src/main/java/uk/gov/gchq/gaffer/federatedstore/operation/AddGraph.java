@@ -82,14 +82,19 @@ public class AddGraph implements Operation {
 
     @Override
     public AddGraph shallowClone() throws CloneFailedException {
-        return new Builder()
+        final Builder builder = new Builder()
                 .graphId(graphId)
                 .schema(schema)
                 .storeProperties(storeProperties)
                 .parentSchemaIds(parentSchemaIds)
                 .parentPropertiesId(parentPropertiesId)
-                .options(options)
-                .build();
+                .options(this.options);
+
+        if (null != graphAuths) {
+            builder.graphAuths(graphAuths.toArray(new String[graphAuths.size()]));
+        }
+
+        return builder.build();
     }
 
     public List<String> getParentSchemaIds() {

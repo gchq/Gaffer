@@ -260,7 +260,11 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                 if (null == viewAggregator) {
                     viewAggregatorProps = Collections.emptySet();
                 } else {
-                    viewAggregatorProps = new HashSet<>(getPropertyMap().size() - mergedGroupBy.size());
+                    int size = getPropertyMap().size() - mergedGroupBy.size();
+                    if (size < 0) {
+                        size = 0;
+                    }
+                    viewAggregatorProps = new HashSet<>(size);
                     for (final TupleAdaptedBinaryOperator<String, ?> component : viewAggregator.getComponents()) {
                         Collections.addAll(viewAggregatorProps, component.getSelection());
                         queryAggregator.getComponents().add(component);
@@ -704,9 +708,18 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             elDef.ingestAggregatorCache = null;
             elDef.queryAggregatorCacheMap.clear();
 
-            elDef.groupBy = new LinkedHashSet<>(elementDef.groupBy);
-            elDef.parents = null != elementDef.parents ? new LinkedHashSet<>(elementDef.parents) : null;
-            elDef.description = elementDef.description;
+            if (null != elementDef.groupBy && !elementDef.groupBy.isEmpty()) {
+                elDef.groupBy = new LinkedHashSet<>(elementDef.groupBy);
+            }
+
+            if (null != elementDef.parents && !elementDef.parents.isEmpty()) {
+                elDef.parents = new LinkedHashSet<>(elementDef.parents);
+            }
+
+            if (null != elementDef.description) {
+                elDef.description = elementDef.description;
+            }
+
             elDef.aggregate = elDef.aggregate && elementDef.aggregate;
 
             return self();
