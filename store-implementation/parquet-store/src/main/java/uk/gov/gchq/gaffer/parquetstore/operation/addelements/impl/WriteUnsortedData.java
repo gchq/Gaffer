@@ -72,7 +72,7 @@ public class WriteUnsortedData {
                 for (final ParquetWriter<Element> writer : splitToWriter.values()) {
                     try {
                         writer.close();
-                    } catch (IOException ignored) {
+                    } catch (final IOException ignored) {
                         // ignored
                     }
                 }
