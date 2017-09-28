@@ -42,6 +42,8 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -471,5 +473,62 @@ public class AggregateHandlerTest {
 
         // Then
         assertEquals(expected, resultsSet);
+    }
+
+    @Test
+    public void shouldFailValidationWhenSchemaElementDefinitionsAreNull() {
+        // Given
+        given(store.getSchema()).willReturn(new Schema());
+
+        input.add(edge);
+        input.add(edge1);
+
+        edges.put(TestGroups.EDGE, new AggregatePair());
+
+        final Aggregate aggregate = new Aggregate.Builder()
+                .input(input)
+                .edges(edges)
+                .build();
+
+        // When / Then
+        try {
+            final Iterable<? extends Element> results = handler.doOperation(aggregate, context, store);
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains("Edge group: " + TestGroups.EDGE + " does not exist in the schema."));
+        }
+    }
+
+    @Test
+    public void shouldFailValidationWhenElementAggregatorOperationIsNull() {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .aggregator(new ElementAggregator.Builder()
+                                .select("count")
+                                .execute(null)
+                                .build())
+                        .groupBy("timestamp")
+                        .build())
+                .build();
+        given(store.getSchema()).willReturn(schema);
+
+        input.add(edge);
+        input.add(edge1);
+        input.add(edge2);
+
+        edges.put(TestGroups.EDGE, new AggregatePair());
+
+        final Aggregate aggregate = new Aggregate.Builder()
+                .input(input)
+                .edges(edges)
+                .build();
+
+        // When / Then
+        try {
+            final Iterable<? extends Element> results = handler.doOperation(aggregate, context, store);
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains(aggregate.getClass().getSimpleName() + " contains a null function."));
+        }
     }
 }
