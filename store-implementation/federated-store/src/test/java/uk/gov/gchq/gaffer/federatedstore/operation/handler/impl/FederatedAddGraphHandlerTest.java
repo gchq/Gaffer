@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.BDDMockito;
 import org.mockito.Mockito;
@@ -55,28 +56,34 @@ public class FederatedAddGraphHandlerTest {
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private static final String FEDERATEDSTORE_CLASS_STRING = "uk.gov.gchq.gaffer.federatedstore.FederatedStore";
     private static final String TEST_USER_ID = "testUser";
+    private FederatedStore store;
+    private StoreProperties federatedStoreProperties;
+
+    @Before
+    public void setUp() {
+        this.store = new FederatedStore();
+        federatedStoreProperties = new StoreProperties();
+        federatedStoreProperties.set(StoreProperties.STORE_CLASS, FEDERATEDSTORE_CLASS_STRING);
+        federatedStoreProperties.set(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
+    }
 
     @Test
     public void shouldAddGraph() throws Exception {
-
-        FederatedStore store = new FederatedStore();
-
         Schema expectedSchema = new Schema.Builder().build();
 
-        StoreProperties storeProperties = new StoreProperties();
-        storeProperties.set(StoreProperties.STORE_CLASS, FEDERATEDSTORE_CLASS_STRING);
-        storeProperties.set(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
+        StoreProperties graphStoreProperties = new StoreProperties();
+        graphStoreProperties.set(StoreProperties.STORE_CLASS, FEDERATEDSTORE_CLASS_STRING);
 
         assertEquals(0, store.getGraphs(null).size());
 
-        store.initialise(FEDERATEDSTORE_GRAPH_ID, new Schema(), storeProperties);
+        store.initialise(FEDERATEDSTORE_GRAPH_ID, new Schema(), federatedStoreProperties);
 
         FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
-                        .storeProperties(storeProperties)
+                        .storeProperties(graphStoreProperties)
                         .build(),
                 new Context(new User(TEST_USER_ID)),
                 store);
@@ -92,7 +99,7 @@ public class FederatedAddGraphHandlerTest {
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID_2)
                         .schema(expectedSchema)
-                        .storeProperties(storeProperties)
+                        .storeProperties(graphStoreProperties)
                         .build(),
                 new Context(new User(TEST_USER_ID)),
                 store);
@@ -108,26 +115,23 @@ public class FederatedAddGraphHandlerTest {
 
     @Test
     public void shouldAddGraphUsingLibrary() throws Exception {
-
-        FederatedStore store = new FederatedStore();
-
         Schema expectedSchema = new Schema.Builder().build();
 
-        StoreProperties storeProperties = new StoreProperties();
-        storeProperties.set(StoreProperties.STORE_CLASS, FEDERATEDSTORE_CLASS_STRING);
-        storeProperties.set(StoreProperties.STORE_PROPERTIES_CLASS, "uk.gov.gchq.gaffer.store.StoreProperties");
-        storeProperties.set(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
+        StoreProperties graphStoreProperties = new StoreProperties();
+        graphStoreProperties.set(StoreProperties.STORE_CLASS, FEDERATEDSTORE_CLASS_STRING);
+        graphStoreProperties.set(StoreProperties.STORE_PROPERTIES_CLASS, "uk.gov.gchq.gaffer.store.StoreProperties");
+        graphStoreProperties.set(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
 
         assertEquals(0, store.getGraphs(null).size());
 
-        store.initialise(FEDERATEDSTORE_GRAPH_ID, new Schema(), storeProperties);
+        store.initialise(FEDERATEDSTORE_GRAPH_ID, new Schema(), federatedStoreProperties);
 
         FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
-                        .storeProperties(storeProperties)
+                        .storeProperties(graphStoreProperties)
                         .build(),
                 new Context(new User(TEST_USER_ID)),
                 store);
@@ -141,7 +145,7 @@ public class FederatedAddGraphHandlerTest {
 
         final GraphLibrary mock = Mockito.mock(GraphLibrary.class);
         final String graphId2 = EXPECTED_GRAPH_ID_2;
-        BDDMockito.given(mock.get(graphId2)).willReturn(new Pair<>(expectedSchema, storeProperties));
+        BDDMockito.given(mock.get(graphId2)).willReturn(new Pair<>(expectedSchema, graphStoreProperties));
         BDDMockito.given(mock.exists(graphId2)).willReturn(true);
         store.setGraphLibrary(mock);
 
@@ -165,18 +169,14 @@ public class FederatedAddGraphHandlerTest {
 
     @Test
     public void shouldNotOverwriteGraph() throws Exception {
-
-        FederatedStore store = new FederatedStore();
-
         Schema expectedSchema = new Schema.Builder().build();
 
-        StoreProperties storeProperties = new StoreProperties();
-        storeProperties.set(StoreProperties.STORE_CLASS, FEDERATEDSTORE_CLASS_STRING);
-        storeProperties.set(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
+        StoreProperties graphStoreProperties = new StoreProperties();
+        graphStoreProperties.set(StoreProperties.STORE_CLASS, FEDERATEDSTORE_CLASS_STRING);
 
         assertEquals(0, store.getGraphs(null).size());
 
-        store.initialise(FEDERATEDSTORE_GRAPH_ID, new Schema(), storeProperties);
+        store.initialise(FEDERATEDSTORE_GRAPH_ID, new Schema(), federatedStoreProperties);
 
         FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
 
@@ -184,7 +184,7 @@ public class FederatedAddGraphHandlerTest {
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
-                        .storeProperties(storeProperties)
+                        .storeProperties(graphStoreProperties)
                         .build(),
                 new Context(new User(TEST_USER_ID)),
                 store);
@@ -194,7 +194,7 @@ public class FederatedAddGraphHandlerTest {
                     new AddGraph.Builder()
                             .graphId(EXPECTED_GRAPH_ID)
                             .schema(expectedSchema)
-                            .storeProperties(storeProperties)
+                            .storeProperties(graphStoreProperties)
                             .build(),
                     new Context(new User(TEST_USER_ID)),
                     store);
@@ -206,12 +206,9 @@ public class FederatedAddGraphHandlerTest {
 
     @Test
     public void shouldAddGraphIDOnlyWithAuths() throws Exception {
+        federatedStoreProperties.set(GAFFER_FEDERATEDSTORE_CUSTOM_PROPERTIES_AUTHS, "auth1,auth2");
 
-
-        final StoreProperties federatedProperties = new StoreProperties();
-        federatedProperties.set(GAFFER_FEDERATEDSTORE_CUSTOM_PROPERTIES_AUTHS, "auth1,auth2");
-        federatedProperties.set(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
-        FederatedStore store = new FederatedStore();
+        store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
 
         Schema expectedSchema = new Schema.Builder().build();
 
@@ -219,8 +216,6 @@ public class FederatedAddGraphHandlerTest {
         graphStoreProperties.set(StoreProperties.STORE_CLASS, FEDERATEDSTORE_CLASS_STRING);
 
         assertEquals(0, store.getGraphs(null).size());
-
-        store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedProperties);
 
         FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
 
@@ -239,7 +234,6 @@ public class FederatedAddGraphHandlerTest {
                             " but found storeProperties:{gaffer.store.class=uk.gov.gchq.gaffer.federatedstore.FederatedStore}",
                     e.getMessage());
         }
-
 
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
@@ -266,27 +260,22 @@ public class FederatedAddGraphHandlerTest {
      */
     @Test
     public void shouldAddGraphWithAuthsAndAddingUser() throws Exception {
-        StoreProperties fedStoreProperties = new StoreProperties();
-        fedStoreProperties.setStoreClass(FederatedStore.class);
-        fedStoreProperties.set(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
-
-        FederatedStore store = new FederatedStore();
-        store.initialise(FEDERATEDSTORE_GRAPH_ID, null, fedStoreProperties);
+        store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
 
         Schema expectedSchema = new Schema.Builder().build();
 
         assertEquals(0, store.getGraphs(null).size());
 
-        AccumuloProperties storeProperties = new AccumuloProperties();
-        storeProperties.setStorePropertiesClass(AccumuloProperties.class);
-        storeProperties.setStoreClass(MockAccumuloStore.class);
-        storeProperties.set(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
+        AccumuloProperties graphStoreProperties = new AccumuloProperties();
+        graphStoreProperties.setStorePropertiesClass(AccumuloProperties.class);
+        graphStoreProperties.setStoreClass(MockAccumuloStore.class);
+        graphStoreProperties.set(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
 
         new FederatedAddGraphHandler().doOperation(
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
-                        .storeProperties(storeProperties)
+                        .storeProperties(graphStoreProperties)
                         .graphAuths("testAuth")
                         .build(),
                 new Context(new User(TEST_USER_ID)),
