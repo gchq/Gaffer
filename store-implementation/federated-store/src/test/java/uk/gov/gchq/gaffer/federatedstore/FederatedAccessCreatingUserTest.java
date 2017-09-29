@@ -32,7 +32,7 @@ import static org.junit.Assert.assertTrue;
  * they created. However other mechanisms will stop them from
  * performing operations that they do not have, else where in code.
  */
-public class FederatedAccessHookCreatingUserTest {
+public class FederatedAccessCreatingUserTest {
 
     public static final String A = "A";
     public static final String B = "B";
@@ -46,7 +46,7 @@ public class FederatedAccessHookCreatingUserTest {
                 .userId(USER)
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess hook = new FederatedAccess.Builder()
                 .graphAuths(B)
                 .build();
 
@@ -62,7 +62,7 @@ public class FederatedAccessHookCreatingUserTest {
                 .userId(USER)
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess hook = new FederatedAccess.Builder()
                 .graphAuths(B)
                 .build();
 
@@ -78,7 +78,7 @@ public class FederatedAccessHookCreatingUserTest {
                 .userId(USER)
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess hook = new FederatedAccess.Builder()
                 .graphAuths((Collection) null)
                 .build();
 
@@ -94,7 +94,7 @@ public class FederatedAccessHookCreatingUserTest {
                 .userId(USER)
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess hook = new FederatedAccess.Builder()
                 .graphAuths((String[]) null)
                 .build();
 
@@ -110,7 +110,7 @@ public class FederatedAccessHookCreatingUserTest {
                 .userId(USER)
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess hook = new FederatedAccess.Builder()
                 .graphAuths(new HashSet<>())
                 .build();
 
@@ -126,7 +126,7 @@ public class FederatedAccessHookCreatingUserTest {
                 .userId(USER)
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess hook = new FederatedAccess.Builder()
                 .graphAuths(new String[0])
                 .build();
 
@@ -142,7 +142,7 @@ public class FederatedAccessHookCreatingUserTest {
                 .userId(USER)
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess hook = new FederatedAccess.Builder()
                 .graphAuths(Sets.newHashSet(""))
                 .build();
 
@@ -158,7 +158,7 @@ public class FederatedAccessHookCreatingUserTest {
                 .userId(USER)
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess hook = new FederatedAccess.Builder()
                 .graphAuths("")
                 .build();
 

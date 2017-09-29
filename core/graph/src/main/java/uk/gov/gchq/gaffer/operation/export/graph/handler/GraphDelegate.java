@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.operation.export.graph.handler;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.Graph.Builder;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
-import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
@@ -44,23 +43,23 @@ public final class GraphDelegate {
         // Private constructor to prevent instantiation.
     }
 
-    public static Graph createGraph(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId, final GraphHook... graphHooks) {
+    public static Graph createGraph(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId) {
         validate(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId);
 
         final GraphLibrary graphLibrary = store.getGraphLibrary();
         final Graph rtn;
 
         if (null == graphLibrary) {
-            rtn = createGraphWithoutLibrary(store, graphId, schema, storeProperties, graphHooks);
+            rtn = createGraphWithoutLibrary(store, graphId, schema, storeProperties);
         } else if (graphLibrary.exists(graphId)) {
-            rtn = createGraphWithLibraryAndId(graphId, graphLibrary, graphHooks);
+            rtn = createGraphWithLibraryAndId(graphId, graphLibrary);
         } else {
-            rtn = createGraphAfterResolvingSchemaAndProperties(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, graphHooks);
+            rtn = createGraphAfterResolvingSchemaAndProperties(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId);
         }
         return rtn;
     }
 
-    private static Graph createGraphAfterResolvingSchemaAndProperties(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId, final GraphHook... graphHooks) {
+    private static Graph createGraphAfterResolvingSchemaAndProperties(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId) {
         StoreProperties resolvedStoreProperties = resolveStoreProperties(store, storeProperties, parentStorePropertiesId);
         Schema resolvedSchema = resolveSchema(store, schema, parentSchemaIds);
 
@@ -68,7 +67,6 @@ public final class GraphDelegate {
                 .config(new GraphConfig.Builder()
                         .graphId(graphId)
                         .library(store.getGraphLibrary())
-                        .addHooks(graphHooks)
                         .build())
                 .addSchema(resolvedSchema)
                 .storeProperties(resolvedStoreProperties)
@@ -131,13 +129,12 @@ public final class GraphDelegate {
         return rtn;
     }
 
-    private static Graph createGraphWithLibraryAndId(final String graphId, final GraphLibrary graphLibrary, final GraphHook... graphHooks) {
+    private static Graph createGraphWithLibraryAndId(final String graphId, final GraphLibrary graphLibrary) {
         // If the graphId exists in the graphLibrary then just use it
         return new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(graphId)
                         .library(graphLibrary)
-                        .addHooks(graphHooks)
                         .build())
                 .storeProperties(graphLibrary.get(graphId).getSecond())
                 .addSchema(graphLibrary.get(graphId).getFirst())
@@ -145,7 +142,7 @@ public final class GraphDelegate {
                 .build();
     }
 
-    private static Graph createGraphWithoutLibrary(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final GraphHook... graphHooks) {
+    private static Graph createGraphWithoutLibrary(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties) {
         // No store graph library so we create a new Graph
         final Schema resolveSchema = (null == schema) ? store.getSchema() : schema;
         final StoreProperties resolveProperties = (null == storeProperties) ? store.getProperties() : storeProperties;
@@ -153,7 +150,6 @@ public final class GraphDelegate {
         return new Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(graphId)
-                        .addHooks(graphHooks)
                         .build())
                 .addSchema(resolveSchema)
                 .storeProperties(resolveProperties)

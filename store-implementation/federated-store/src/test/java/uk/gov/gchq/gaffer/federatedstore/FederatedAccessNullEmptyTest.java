@@ -26,7 +26,7 @@ import java.util.Collection;
 
 import static org.junit.Assert.assertFalse;
 
-public class FederatedAccessHookNullEmptyTest {
+public class FederatedAccessNullEmptyTest {
 
     @Test
     public void shouldInValidateWithExplicitlyNullCollectionAuth() throws Exception {
@@ -34,7 +34,7 @@ public class FederatedAccessHookNullEmptyTest {
         final User user = new Builder()
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess hook = new FederatedAccess.Builder()
                 .graphAuths((Collection) null)
                 .build();
 
@@ -47,7 +47,7 @@ public class FederatedAccessHookNullEmptyTest {
         final User user = new Builder()
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess hook = new FederatedAccess.Builder()
                 .graphAuths((String[]) null)
                 .build();
 
@@ -60,7 +60,7 @@ public class FederatedAccessHookNullEmptyTest {
         final User user = new Builder()
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess hook = new FederatedAccess.Builder()
                 .graphAuths("")
                 .build();
 
@@ -73,7 +73,7 @@ public class FederatedAccessHookNullEmptyTest {
         final User user = new Builder()
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess hook = new FederatedAccess.Builder()
                 .graphAuths(new String[0])
                 .build();
 
@@ -86,7 +86,7 @@ public class FederatedAccessHookNullEmptyTest {
         final User user = new Builder()
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess hook = new FederatedAccess.Builder()
                 .graphAuths(Sets.newHashSet())
                 .build();
 
@@ -100,7 +100,7 @@ public class FederatedAccessHookNullEmptyTest {
         final User user = new Builder()
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess hook = new FederatedAccess.Builder()
                 .build();
 
         assertFalse(hook.isValidToExecute(user));

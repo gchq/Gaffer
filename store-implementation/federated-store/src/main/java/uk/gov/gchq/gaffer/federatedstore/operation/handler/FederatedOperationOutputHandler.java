@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
-import uk.gov.gchq.gaffer.federatedstore.FederatedAccessException;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -29,8 +28,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.GRAPH_IDS;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.SKIP_FAILED_FEDERATED_STORE_EXECUTE;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE;
 
 /**
  * A abstract handler for Operations with output for FederatedStore
@@ -42,7 +41,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.SKIP_FAI
 public abstract class FederatedOperationOutputHandler<OP extends Output<O>, O> implements OutputOperationHandler<OP, O> {
     @Override
     public O doOperation(final OP operation, final Context context, final Store store) throws OperationException {
-        final Collection<Graph> graphs = ((FederatedStore) store).getGraphs(operation.getOption(GRAPH_IDS));
+        final Collection<Graph> graphs = ((FederatedStore) store).getGraphs(context.getUser(), operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS));
         final List<O> results = new ArrayList<>(graphs.size());
         for (final Graph graph : graphs) {
             final OP updatedOp = FederatedStore.updateOperationForGraph(operation, graph);
@@ -50,12 +49,10 @@ public abstract class FederatedOperationOutputHandler<OP extends Output<O>, O> i
                 O execute = null;
                 try {
                     execute = graph.execute(updatedOp, context.getUser());
-                } catch (final FederatedAccessException e) {
-                    // ignore it.
                 } catch (final Exception e) {
-                    if (!Boolean.valueOf(updatedOp.getOption(SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
+                    if (!Boolean.valueOf(updatedOp.getOption(KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
                         final String additionalInfo = String.format("set the skip and continue flag: %s for operation: %s",
-                                SKIP_FAILED_FEDERATED_STORE_EXECUTE,
+                                KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE,
                                 operation.getClass().getSimpleName());
 
                         throw new OperationException(String.format("Failed to execute %s on graph %s.%n%s",

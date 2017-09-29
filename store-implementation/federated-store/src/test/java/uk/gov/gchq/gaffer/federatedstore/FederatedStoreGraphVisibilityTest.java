@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
+import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,17 +34,21 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.User;
 
-import static org.junit.Assert.assertFalse;
+import java.util.HashSet;
+import java.util.Iterator;
+
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.authUser;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.blankUser;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
 
-public class FederatedStoreGraphVisabilityTest {
+public class FederatedStoreGraphVisibilityTest {
 
-    public static final User AddingUser = new User.Builder()
-            .userId("addingUser")
-            .build();
-    public static final User NonAddingUser = new User.Builder()
-            .userId("NonAddingUser")
-            .build();
+    private static User addingUser;
+    private static User nonAddingUser;
+    private static User authNonAddingUser;
     private Graph fedGraph;
     private StoreProperties fedProperties;
 
@@ -63,7 +68,7 @@ public class FederatedStoreGraphVisabilityTest {
                 .type("string", String.class)
                 .build();
 
-        final StoreProperties accProp = new AccumuloProperties();
+        final AccumuloProperties accProp = new AccumuloProperties();
         accProp.setStoreClass(MockAccumuloStore.class.getName());
         accProp.setStorePropertiesClass(AccumuloProperties.class);
 
@@ -76,6 +81,10 @@ public class FederatedStoreGraphVisabilityTest {
                         .build())
                 .addStoreProperties(fedProperties)
                 .build();
+
+        addingUser = testUser();
+        nonAddingUser = blankUser();
+        authNonAddingUser = authUser();
     }
 
     @After
@@ -87,15 +96,65 @@ public class FederatedStoreGraphVisabilityTest {
     public void shouldNotShowHiddenGraphId() throws Exception {
         fedGraph.execute(
                 new AddGraph.Builder()
-                        .graphId("a")
+                        .graphId("g1")
+                        .parentPropertiesId("a")
                         .build(),
-                AddingUser);
+                addingUser);
 
-        final Iterable<? extends String> graphIds = fedGraph.execute(
+        fedGraph.execute(
+                new AddGraph.Builder()
+                        .graphId("g2")
+                        .parentPropertiesId("a")
+                        .graphAuths("auth1")
+                        .build(),
+                addingUser);
+
+
+        Iterable<? extends String> graphIds = fedGraph.execute(
                 new GetAllGraphIds(),
-                NonAddingUser);
+                nonAddingUser);
+
+
+        final HashSet<Object> sets = Sets.newHashSet();
+        Iterator<? extends String> iterator = graphIds.iterator();
+        while (iterator.hasNext()) {
+            sets.add(iterator.next());
+        }
 
         assertNotNull("Returned iterator should not be null, it should be empty.", graphIds);
-        assertFalse("Showing hidden graphId", graphIds.iterator().hasNext());
+        assertEquals("Showing hidden graphId", 0, sets.size());
+
+
+        graphIds = fedGraph.execute(
+                new GetAllGraphIds(),
+                authNonAddingUser);
+        iterator = graphIds.iterator();
+
+        sets.clear();
+        while (iterator.hasNext()) {
+            sets.add(iterator.next());
+        }
+
+        assertNotNull("Returned iterator should not be null, it should be empty.", graphIds);
+        assertEquals("Not Showing graphId with correct auth", 1, sets.size());
+        assertTrue(sets.contains("g2"));
+
+
+        graphIds = fedGraph.execute(
+                new GetAllGraphIds(),
+                addingUser);
+        iterator = graphIds.iterator();
+
+
+        sets.clear();
+        while (iterator.hasNext()) {
+            sets.add(iterator.next());
+        }
+
+        assertNotNull("Returned iterator should not be null, it should be empty.", graphIds);
+        assertEquals("Not Showing all graphId for adding user", 2, sets.size());
+        assertTrue(sets.contains("g1"));
+        assertTrue(sets.contains("g2"));
     }
+
 }
