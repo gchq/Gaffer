@@ -39,7 +39,10 @@ import java.util.Map;
  * For more complex queries, a {@link Map} of groups to {@link ElementFilter}s can also be provided to either
  * {@link  uk.gov.gchq.gaffer.data.element.Edge}s or {@link uk.gov.gchq.gaffer.data.element.Entity}s.
  */
-public class Filter implements Function {
+public class Filter implements Function,
+        Operation,
+        InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,
+        MultiInput<Element>  {
 
     private Iterable<? extends Element> input;
 

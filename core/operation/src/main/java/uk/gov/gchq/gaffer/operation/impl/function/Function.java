@@ -15,17 +15,9 @@
  */
 package uk.gov.gchq.gaffer.operation.impl.function;
 
-import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.io.InputOutput;
-import uk.gov.gchq.gaffer.operation.io.MultiInput;
-
 import java.util.Map;
 
-public interface Function extends
-        Operation,
-        InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,
-        MultiInput<Element> {
+public interface Function {
 
     Map<String, ?> getEdges();
 

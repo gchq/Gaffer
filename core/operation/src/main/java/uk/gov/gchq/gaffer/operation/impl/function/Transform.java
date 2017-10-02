@@ -35,7 +35,10 @@ import java.util.Map;
  * For multiple groups, a {@link Map} of {@link uk.gov.gchq.gaffer.data.element.Edge}s, or {@link uk.gov.gchq.gaffer.data.element.Entity}s
  * to their relevant {@link ElementTransformer}s can be provided.
  */
-public class Transform implements Function {
+public class Transform implements Function,
+        Operation,
+        InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,
+        MultiInput<Element> {
 
     private Iterable<? extends Element> input;
     private Map<String, String> options;
