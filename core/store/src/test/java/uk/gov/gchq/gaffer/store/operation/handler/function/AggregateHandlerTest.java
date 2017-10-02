@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
@@ -528,7 +529,7 @@ public class AggregateHandlerTest {
             final Iterable<? extends Element> results = handler.doOperation(aggregate, context, store);
             fail("Exception expected");
         } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains(aggregate.getClass().getSimpleName() + " contains a null function."));
+            assertTrue(e.getMessage().contains("Schema contains an ElementAggregator with a null function."));
         }
     }
 }

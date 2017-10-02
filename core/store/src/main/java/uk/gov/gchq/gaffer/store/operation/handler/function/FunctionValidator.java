@@ -19,10 +19,11 @@ import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
-import uk.gov.gchq.gaffer.operation.impl.function.Filter;
 import uk.gov.gchq.gaffer.operation.impl.function.Function;
+import uk.gov.gchq.gaffer.operation.util.AggregatePair;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.binaryoperator.AdaptedBinaryOperator;
@@ -58,16 +59,14 @@ public class FunctionValidator<T extends Function> {
 
         if (null != operation.getEntities()) {
             for (final Map.Entry<String, ?> entry : operation.getEntities().entrySet()) {
+
                 final String group = entry.getKey();
-
-                if (null != schema) {
-                    final SchemaEntityDefinition schemaEntityDefinition = schema.getEntity(group);
-                    if (null == schemaEntityDefinition) {
-                        result.addError("Entity group: " + group + " does not exist in the schema.");
-                    }
-
-                    result.add(validateFunction(entry, schema));
+                final SchemaEntityDefinition schemaEntityDefinition = schema.getEntity(group);
+                if (null == schemaEntityDefinition) {
+                    result.addError("Entity group: " + group + " does not exist in the schema.");
                 }
+
+                result.add(validateFunction(entry, schema));
             }
         }
 
@@ -79,15 +78,14 @@ public class FunctionValidator<T extends Function> {
 
         if (null != operation.getEdges()) {
             for (final Map.Entry<String, ?> entry : operation.getEdges().entrySet()) {
-                if (null != schema) {
-                    final String group = entry.getKey();
-                    final SchemaEdgeDefinition schemaEdgeDefinition = schema.getEdge(group);
-                    if (null == schemaEdgeDefinition) {
-                        result.addError("Edge group: " + group + " does not exist in the schema.");
-                    }
 
-                    result.add(validateFunction(entry, schema));
+                final String group = entry.getKey();
+                final SchemaEdgeDefinition schemaEdgeDefinition = schema.getEdge(group);
+                if (null == schemaEdgeDefinition) {
+                    result.addError("Edge group: " + group + " does not exist in the schema.");
                 }
+
+                result.add(validateFunction(entry, schema));
             }
         }
 
@@ -97,7 +95,7 @@ public class FunctionValidator<T extends Function> {
     private ValidationResult validateFunction(final Map.Entry<String, ?> entry, final Schema schema) {
         final ValidationResult result = new ValidationResult();
 
-        if (entry.getValue() instanceof ElementAggregator) {
+        if (entry.getValue() instanceof AggregatePair) {
             result.add(validateAggregator(entry, schema));
         }
 
@@ -127,19 +125,34 @@ public class FunctionValidator<T extends Function> {
 
     private ValidationResult validateAggregator(final Map.Entry<String, ?> entry, final Schema schema) {
         final ValidationResult result = new ValidationResult();
-        final List<BinaryOperator<?>> schemaOperators = Streams.toStream(schema.getElement(entry.getKey()).getOriginalAggregateFunctions())
-                .map(AdaptedBinaryOperator::getBinaryOperator)
-                .collect(Collectors.toList());
-        final ElementAggregator aggregator = (ElementAggregator) entry.getValue();
+        List<TupleAdaptedBinaryOperator<String, ?>> aggregateFunctions = new ArrayList<>();
+        final SchemaElementDefinition schemaElement = schema.getElement(entry.getKey());
+
+        if (null != schemaElement) {
+            aggregateFunctions = schemaElement.getOriginalAggregateFunctions();
+        }
+
+        List<BinaryOperator<?>> schemaOperators = new ArrayList<>();
+
+        if (null != aggregateFunctions) {
+            schemaOperators = Streams.toStream(aggregateFunctions)
+                    .map(AdaptedBinaryOperator::getBinaryOperator)
+                    .collect(Collectors.toList());
+        }
 
         if (schemaOperators.contains(null)) {
-            result.addError("Schema contains an " + aggregator.getClass().getSimpleName() + " with a null function.");
+            result.addError("Schema contains an ElementAggregator with a null function.");
         }
+
+        final AggregatePair pair = (AggregatePair) entry.getValue();
+        final ElementAggregator aggregator = pair.getElementAggregator();
 
         if (null != aggregator && null != aggregator.getComponents()) {
             for (final TupleAdaptedBinaryOperator<String, ?> adaptedFunction : aggregator.getComponents()) {
                 if (null != adaptedFunction.getBinaryOperator()) {
-                    if (!schemaOperators.contains(adaptedFunction.getBinaryOperator())) {
+                    if (null != schemaElement &&
+                            null != schemaElement.getOriginalAggregateFunctions() &&
+                            !schemaOperators.contains(adaptedFunction.getBinaryOperator())) {
                         result.addError(adaptedFunction.getBinaryOperator().toString() + " does not exist in the schema.");
                     }
                 } else {

@@ -33,7 +33,7 @@ public class TransformHandler implements OutputOperationHandler<Transform, Itera
 
         final FunctionValidator<Transform> validator = new FunctionValidator<>();
         final ValidationResult result = validator.validate(operation, store.getSchema());
-        if (!result.isValid()){
+        if (!result.isValid()) {
             throw new OperationException("Transform operation is invalid. " + result.getErrorString());
         }
 
