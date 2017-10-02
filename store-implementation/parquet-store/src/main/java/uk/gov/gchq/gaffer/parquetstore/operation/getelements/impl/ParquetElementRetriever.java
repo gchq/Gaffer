@@ -47,6 +47,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 /**
  * Converts the inputs for get element operations and converts them to a mapping of files to Parquet filters which is
@@ -98,11 +99,9 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
 
     protected static class ParquetIterator implements CloseableIterator<Element> {
         private Boolean needsValidation;
-        private View view;
         private ConcurrentLinkedQueue<Element> queue;
         private List<Future<OperationException>> runningTasks;
         private ExecutorService executorServicePool;
-        private Schema gafferSchema;
 
         protected ParquetIterator(final View view,
                                   final DirectedType directedType,
@@ -116,23 +115,18 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
             try {
                 parquetFilterUtils.buildPathToFilterMap(view, directedType, includeIncomingOutgoingType, seedMatchingType, seeds, graphIndex);
                 final Map<Path, FilterPredicate> pathToFilterMap = parquetFilterUtils.getPathToFilterMap();
-
                 if (properties.getSkipValidation()) {
                     this.needsValidation = false;
                 } else {
                     this.needsValidation = parquetFilterUtils.requiresValidation();
                 }
 
-                this.gafferSchema = gafferSchema;
                 LOGGER.debug("pathToFilterMap: {}", pathToFilterMap);
                 if (!pathToFilterMap.isEmpty()) {
                     queue = new ConcurrentLinkedQueue<>();
-                    this.view = view;
                     executorServicePool = Executors.newFixedThreadPool(properties.getThreadsAvailable());
                     final List<RetrieveElementsFromFile> tasks = new ArrayList<>(pathToFilterMap.size());
-                    for (final Map.Entry<Path, FilterPredicate> entry : pathToFilterMap.entrySet()) {
-                        tasks.add(new RetrieveElementsFromFile(entry.getKey(), entry.getValue(), gafferSchema, queue, needsValidation, view));
-                    }
+                    tasks.addAll(pathToFilterMap.entrySet().stream().map(entry -> new RetrieveElementsFromFile(entry.getKey(), entry.getValue(), gafferSchema, queue, needsValidation, view)).collect(Collectors.toList()));
                     runningTasks = executorServicePool.invokeAll(tasks);
                 } else {
                     LOGGER.debug("There are no results for this query");

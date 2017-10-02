@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewUtil;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.io.reader.ParquetElementReader;
@@ -48,7 +47,6 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
     private transient byte[] jsonGafferSchema;
     private final ConcurrentLinkedQueue<Element> queue;
     private transient ElementFilter elementFilter;
-    private final byte[] elementDefinitionJson;
     private final boolean needsValidation;
     private final String group;
     private final View view;
@@ -68,14 +66,10 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
         } else {
             group = filePath.getParent().getName().split("=")[1];
         }
-        elementDefinitionJson = view.getElement(group).toCompactJson();
     }
 
     @Override
     public OperationException call() throws Exception {
-        if (null == elementFilter) {
-            elementFilter = new ViewElementDefinition.Builder().json(elementDefinitionJson).build().getPreAggregationFilter();
-        }
         try {
             final ParquetReader<Element> fileReader = openParquetReader();
             Element e = fileReader.read();
@@ -84,6 +78,9 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
                     final String group = e.getGroup();
                     final ElementFilter validatorFilter = gafferSchema.getElement(group).getValidator(false);
                     if (validatorFilter == null || validatorFilter.test(e)) {
+                        if (null == elementFilter) {
+                            elementFilter = view.getElement(group).getPreAggregationFilter();
+                        }
                         if (elementFilter != null) {
                             if (elementFilter.test(e)) {
                                 ViewUtil.removeProperties(view, e);
