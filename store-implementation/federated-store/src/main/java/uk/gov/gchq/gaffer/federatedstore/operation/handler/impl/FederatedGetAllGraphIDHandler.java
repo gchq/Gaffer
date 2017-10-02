@@ -27,6 +27,6 @@ public class FederatedGetAllGraphIDHandler implements OutputOperationHandler<Get
 
     @Override
     public Iterable<? extends String> doOperation(final GetAllGraphIds operation, final Context context, final Store store) throws OperationException {
-        return ((FederatedStore) store).getAllGraphIds();
+        return ((FederatedStore) store).getAllGraphIds(context.getUser());
     }
 }

@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import com.google.common.collect.Sets;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.BDDMockito;
 import org.mockito.Mockito;
@@ -25,11 +26,21 @@ import org.mockito.Mockito;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Set;
 
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.*;
+
 public class FederatedGetAllGraphsIDHandlerTest {
 
+
+    private User testUser;
+
+    @Before
+    public void setUp() throws Exception {
+        testUser = testUser();
+    }
 
     @Test
     public void shouldGetGraphIds() throws Exception {
@@ -38,15 +49,16 @@ public class FederatedGetAllGraphsIDHandlerTest {
 
         GetAllGraphIds op = Mockito.mock(GetAllGraphIds.class);
         Context context = Mockito.mock(Context.class);
+        BDDMockito.given(context.getUser()).willReturn(testUser);
         FederatedStore store = Mockito.mock(FederatedStore.class);
         Set<String> expected = Sets.newHashSet();
         expected.add("value1");
-        BDDMockito.given(store.getAllGraphIds()).willReturn(expected);
+        BDDMockito.given(store.getAllGraphIds(testUser)).willReturn(expected);
 
         Iterable<? extends String> actual = federatedGetAllGraphIDHandler.doOperation(op, context, store);
 
         Assert.assertEquals(expected, actual);
 
-        Mockito.verify(store).getAllGraphIds();
+        Mockito.verify(store).getAllGraphIds(testUser);
     }
 }
