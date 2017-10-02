@@ -40,6 +40,8 @@ public class FederatedGraphStorage {
     public static final String USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S = "User is attempting to overwrite a graph within FederatedStore. GraphId: %s";
     public static final String CAN_NOT_PUT_GRAPH_INTO_STORAGE_WITHOUT_A_FEDERATED_ACCESS_KEY = "Can not put graph into storage without a FederatedAccess key.";
     private Map<FederatedAccess, Set<Graph>> storage = new HashMap<>();
+    private Schema mergedSchema = new Schema();
+    private Set<StoreTrait> mergedTraits = Collections.emptySet();
 
     public Collection<Graph> getAll(final User user) {
         final HashSet<Graph> rtn = storage.entrySet()
@@ -83,7 +85,8 @@ public class FederatedGraphStorage {
             throw new RuntimeException(CAN_NOT_PUT_GRAPH_INTO_STORAGE_WITHOUT_A_FEDERATED_ACCESS_KEY);
         }
 
-        getMergedSchema(graph);
+        // Check the schema can be merged before adding the graph.
+        getMergedSchema(Optional.of(graph));
 
         Set<Graph> existingGraphs = storage.get(access);
         if (null == existingGraphs) {
@@ -92,6 +95,9 @@ public class FederatedGraphStorage {
         } else {
             existingGraphs.add(graph);
         }
+
+        mergedSchema = getMergedSchema(Optional.empty());
+        mergedTraits = getMergedTraits(Optional.empty());
     }
 
     public void remove(final String graphId) {
@@ -105,11 +111,12 @@ public class FederatedGraphStorage {
                 }
             }
         }
+        mergedSchema = getMergedSchema(Optional.empty());
+        mergedTraits = getMergedTraits(Optional.empty());
     }
 
-    @Deprecated
     public Schema getMergedSchema() {
-        return getMergedSchemaBuilder(Optional.<User>empty()).build();
+        return mergedSchema.clone();
     }
 
     private boolean exists(final String graphId) {
@@ -126,40 +133,35 @@ public class FederatedGraphStorage {
         return exists;
     }
 
-    @Deprecated
     public Set<StoreTrait> getTraits() {
-        return getTraits(Optional.empty());
+        return Collections.unmodifiableSet(mergedTraits);
     }
 
-    private Schema getMergedSchema(final Graph newGraph) {
-        Builder schemaBuilder = getMergedSchemaBuilder(Optional.<User>empty());
+    private Schema getMergedSchema(final Optional<Graph> newGraph) {
+        Builder schemaBuilder = getMergedSchemaBuilder(Optional.empty());
 
-        schemaBuilder.merge(newGraph.getSchema());
+        if (newGraph.isPresent()) {
+            schemaBuilder.merge(newGraph.get().getSchema());
 //        An exception would be thrown here if something was wrong merging the schema.
+        }
 
         return schemaBuilder.build();
     }
 
-
     private Builder getMergedSchemaBuilder(final Optional<User> user) {
-        final HashSet<Graph> graphs = storage.entrySet()
+        Builder schemaBuilder = new Builder();
+        storage.entrySet()
                 .stream()
                 .filter(filterByOptionalUser(user))
-                .flatMap(entry -> entry.getValue().stream())
-                .collect(Collectors.toCollection(HashSet::new));
-
-        Builder schemaBuilder = new Builder();
-        for (final Graph graph : graphs) {
-            schemaBuilder = schemaBuilder.merge(graph.getSchema());
-        }
+                .flatMap(entry -> entry.getValue().stream()).forEach(graph -> schemaBuilder.merge(graph.getSchema()));
         return schemaBuilder;
     }
 
     public Set<StoreTrait> getTraits(final User user) {
-        return getTraits(Optional.of(user));
+        return getMergedTraits(Optional.of(user));
     }
 
-    private Set<StoreTrait> getTraits(final Optional<User> user) {
+    private Set<StoreTrait> getMergedTraits(final Optional<User> user) {
         final HashSet<Graph> graphs = storage.entrySet()
                 .stream()
                 .filter(filterByOptionalUser(user))
