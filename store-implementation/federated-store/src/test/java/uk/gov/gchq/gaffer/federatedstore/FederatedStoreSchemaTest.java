@@ -23,6 +23,7 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
+import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -40,28 +41,31 @@ import static org.junit.Assert.assertTrue;
 
 public class FederatedStoreSchemaTest {
 
-    public static final String STRING = "string";
-    public static final Schema STRING_SCHEMA = new Schema.Builder()
+    private static final String STRING = "string";
+    private static final Schema STRING_SCHEMA = new Schema.Builder()
             .type(STRING, new TypeDefinition.Builder()
                     .clazz(String.class)
                     .aggregateFunction(new StringConcat())
                     .build())
             .build();
-    public static final User TEST_USER = new User("testUser");
-    public static final String TEST_FED_STORE = "testFedStore";
+    private static final User TEST_USER = new User("testUser");
+    private static final String TEST_FED_STORE = "testFedStore";
 
 
     private FederatedStore fStore;
-    public static final AccumuloProperties ACCUMULO_PROPERTIES = new AccumuloProperties();
-    public static final StoreProperties FEDERATED_PROPERTIES = new StoreProperties();
+    private static final AccumuloProperties ACCUMULO_PROPERTIES = new AccumuloProperties();
+    private static final StoreProperties FEDERATED_PROPERTIES = new StoreProperties();
+    private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
 
     @Before
     public void setUp() throws Exception {
         ACCUMULO_PROPERTIES.setStoreClass(MockAccumuloStore.class.getName());
         ACCUMULO_PROPERTIES.setStorePropertiesClass(AccumuloProperties.class);
+        ACCUMULO_PROPERTIES.set(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
 
         FEDERATED_PROPERTIES.setStoreClass(FederatedStore.class.getName());
         FEDERATED_PROPERTIES.setStorePropertiesClass(StoreProperties.class);
+        FEDERATED_PROPERTIES.set(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
 
         fStore = new FederatedStore();
         fStore.initialise(TEST_FED_STORE, null, FEDERATED_PROPERTIES);
@@ -118,7 +122,7 @@ public class FederatedStoreSchemaTest {
             assertTrue(e instanceof SchemaException);
             assertEquals("Element group properties cannot be defined in different" +
                     " schema parts, they must all be defined in a single " +
-                    "schema part. Please fix this group: e1",e.getMessage());
+                    "schema part. Please fix this group: e1", e.getMessage());
         }
 
         try {

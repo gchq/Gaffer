@@ -30,7 +30,8 @@ import java.util.Set;
 
 public class AddGraphTest extends OperationTest<AddGraph> {
 
-    public static final String expectedKey = "gaffer.store.class";
+    private static final String FEDERATEDSTORE_CLASS_STRING = "uk.gov.gchq.gaffer.federatedstore.FederatedStore";
+    private static final String EXPECTED_GRAPH_ID = "testGraphID";
 
     @Override
     protected Set<String> getRequiredFields() {
@@ -40,26 +41,24 @@ public class AddGraphTest extends OperationTest<AddGraph> {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         Schema expectedSchema = new Schema.Builder().build();
-        String expectedGraphId = "testGraphID";
         StoreProperties storeProperties = new StoreProperties();
-        String expectedValue = "uk.gov.gchq.gaffer.federatedstore.FederatedStore";
-        storeProperties.set(expectedKey, expectedValue);
+        storeProperties.set(StoreProperties.STORE_CLASS, FEDERATEDSTORE_CLASS_STRING);
         AddGraph op = new AddGraph.Builder()
-                .graphId(expectedGraphId)
+                .graphId(EXPECTED_GRAPH_ID)
                 .schema(expectedSchema)
                 .storeProperties(storeProperties)
                 .build();
 
-        Assert.assertEquals(expectedGraphId, op.getGraphId());
+        Assert.assertEquals(EXPECTED_GRAPH_ID, op.getGraphId());
         Assert.assertEquals(expectedSchema, op.getSchema());
-        Assert.assertTrue(op.getStoreProperties().containsKey(expectedKey));
-        Assert.assertEquals(expectedValue, op.getStoreProperties().get(expectedKey));
+        Assert.assertTrue(op.getStoreProperties().containsKey(StoreProperties.STORE_CLASS));
+        Assert.assertEquals(FEDERATEDSTORE_CLASS_STRING, op.getStoreProperties().get(StoreProperties.STORE_CLASS));
     }
 
     @Override
     public void shouldShallowCloneOperation() {
         final AddGraph a = new Builder()
-                .graphId("testAddGraph")
+                .graphId("graphID")
                 .parentPropertiesId("testPropID")
                 .parentSchemaIds(Lists.newArrayList("testSchemaID"))
                 .schema(new Schema.Builder()

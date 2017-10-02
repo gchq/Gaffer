@@ -24,6 +24,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -65,36 +67,112 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStore.S1_WAS_NOT_ABLE_T
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStore.USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S;
 
 public class FederatedStoreTest {
-    public static final String PATH_FEDERATED_STORE_PROPERTIES = "/properties/federatedStoreTest.properties";
-    public static final String FEDERATED_STORE_ID = "testFederatedStoreId";
-    public static final String ACC_ID_1 = "mockAccGraphId1";
-    public static final String MAP_ID_1 = "mockMapGraphId1";
-    public static final String PATH_ACC_STORE_PROPERTIES = "properties/singleUseMockAccStore.properties";
-    public static final String PATH_MAP_STORE_PROPERTIES = "properties/singleUseMockMapStore.properties";
-    public static final String PATH_MAP_STORE_PROPERTIES_ALT = "properties/singleUseMockMapStoreAlt.properties";
-    public static final String PATH_BASIC_ENTITY_SCHEMA_JSON = "schema/basicEntitySchema.json";
-    public static final String PATH_BASIC_EDGE_SCHEMA_JSON = "schema/basicEdgeSchema.json";
-    public static final String KEY_ACC_ID1_PROPERTIES_FILE = "gaffer.federatedstore.mockAccGraphId1.properties.file";
-    public static final String KEY_MAP_ID1_PROPERTIES_FILE = "gaffer.federatedstore.mockMapGraphId1.properties.file";
-    public static final String KEY_MAP_ID1_PROPERTIES_ID = "gaffer.federatedstore.mockMapGraphId1.properties.id";
-    public static final String GRAPH_IDS = "gaffer.federatedstore.graphIds";
-    public static final String KEY_ACC_ID1_SCHEMA_FILE = "gaffer.federatedstore.mockAccGraphId1.schema.file";
-    public static final String KEY_MAP_ID1_SCHEMA_FILE = "gaffer.federatedstore.mockMapGraphId1.schema.file";
-    public static final String KEY_MAP_ID1_SCHEMA_ID = "gaffer.federatedstore.mockMapGraphId1.schema.id";
-    public static final String PATH_INVALID = "nothing.json";
-    public static final String EXCEPTION_NOT_THROWN = "exception not thrown";
-    public static final String USER_ID = "testUser";
-    public static final User TEST_USER = new User.Builder().userId(USER_ID).opAuths("one", "two").build();
-    public static final String PROPS_ID_1 = "PROPS_ID_1";
-    public static final String SCHEMA_ID_1 = "SCHEMA_ID_1";
-    FederatedStore store;
+    private static final String PATH_FEDERATED_STORE_PROPERTIES = "/properties/federatedStoreTest.properties";
+    private static final String FEDERATED_STORE_ID = "testFederatedStoreId";
+    private static final String ACC_ID_1 = "mockAccGraphId1";
+    private static final String MAP_ID_1 = "mockMapGraphId1";
+    private static final String PATH_ACC_STORE_PROPERTIES = "properties/singleUseMockAccStore.properties";
+    private static final String PATH_MAP_STORE_PROPERTIES = "properties/singleUseMockMapStore.properties";
+    private static final String PATH_MAP_STORE_PROPERTIES_ALT = "properties/singleUseMockMapStoreAlt.properties";
+    private static final String PATH_BASIC_ENTITY_SCHEMA_JSON = "schema/basicEntitySchema.json";
+    private static final String PATH_BASIC_EDGE_SCHEMA_JSON = "schema/basicEdgeSchema.json";
+    private static final String KEY_ACC_ID1_PROPERTIES_FILE = "gaffer.federatedstore.mockAccGraphId1.properties.file";
+    private static final String KEY_MAP_ID1_PROPERTIES_FILE = "gaffer.federatedstore.mockMapGraphId1.properties.file";
+    private static final String KEY_MAP_ID1_PROPERTIES_ID = "gaffer.federatedstore.mockMapGraphId1.properties.id";
+    private static final String GRAPH_IDS = "gaffer.federatedstore.graphIds";
+    private static final String KEY_ACC_ID1_SCHEMA_FILE = "gaffer.federatedstore.mockAccGraphId1.schema.file";
+    private static final String KEY_MAP_ID1_SCHEMA_FILE = "gaffer.federatedstore.mockMapGraphId1.schema.file";
+    private static final String KEY_MAP_ID1_SCHEMA_ID = "gaffer.federatedstore.mockMapGraphId1.schema.id";
+    private static final String PATH_INVALID = "nothing.json";
+    private static final String EXCEPTION_NOT_THROWN = "exception not thrown";
+    private static final String USER_ID = "testUser";
+    private static final User TEST_USER = new User.Builder().userId(USER_ID).opAuths("one", "two").build();
+    private static final String PROPS_ID_1 = "PROPS_ID_1";
+    private static final String SCHEMA_ID_1 = "SCHEMA_ID_1";
+    private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
+    private FederatedStore store;
     private StoreProperties federatedProperties;
 
     @Before
     public void setUp() throws Exception {
         store = new FederatedStore();
         federatedProperties = new StoreProperties();
+        federatedProperties.set(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
         HashMapGraphLibrary.clear();
+    }
+
+    @Test
+    public void shouldInitialiseWithCache() throws StoreException {
+        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
+        assertNotNull(CacheServiceLoader.getService());
+    }
+
+    @Test
+    public void shouldThrowExceptionWithoutInitialisation() {
+        // Given
+        Graph graphToAdd = new Graph.Builder()
+                .config(new GraphConfig(ACC_ID_1))
+                .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_ACC_STORE_PROPERTIES))
+                .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_EDGE_SCHEMA_JSON))
+                .build();
+
+        // When / Then
+        try {
+            store.addGraphs(graphToAdd);
+            fail("Exception expected");
+        } catch (final StoreException e) {
+            assertTrue(e.getMessage().contains("No cache has been set"));
+            System.out.println(e);
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenInitialisedWithNoCacheClassInProperties() throws StoreException {
+        // Given
+        StoreProperties storeProperties = new StoreProperties();
+
+        try {
+            store.initialise(FEDERATED_STORE_ID, null, storeProperties);
+            fail("Exception expected");
+        } catch (final StoreException e) {
+            assertTrue(e.getMessage().contains("No cache has been set, please check the property"));
+        }
+    }
+
+    @Test
+    public void shouldAddGraphsToCache() throws StoreException {
+        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
+
+        Graph graphToAdd = new Graph.Builder()
+                .config(new GraphConfig(ACC_ID_1))
+                .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_ACC_STORE_PROPERTIES))
+                .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_EDGE_SCHEMA_JSON))
+                .build();
+
+        store.addGraphs(graphToAdd);
+
+        assertEquals(store.getGraphs(ACC_ID_1).size(), 1);
+
+        Collection<Graph> storeGraphs = store.getGraphs(null);
+        assertTrue(storeGraphs.contains(graphToAdd));
+    }
+
+    @Test
+    public void shouldAddMultipleGraphsToCache() throws StoreException {
+        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
+
+        List<Graph> graphsToAdd = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            graphsToAdd.add(new Graph.Builder()
+                    .config(new GraphConfig(ACC_ID_1 + i))
+                    .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_ACC_STORE_PROPERTIES))
+                    .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_EDGE_SCHEMA_JSON))
+                    .build());
+        }
+
+        store.addGraphs(graphsToAdd.toArray(new Graph[graphsToAdd.size()]));
+
+        assertEquals(store.getGraphs(null).size(), 10);
     }
 
     @Test
@@ -985,7 +1063,7 @@ public class FederatedStoreTest {
         return false;
     }
 
-    private List<Collection<Graph>> populateGraphs(int... expectedIds) {
+    private List<Collection<Graph>> populateGraphs(int... expectedIds) throws StoreException {
         final Collection<Graph> expectedGraphs = new ArrayList<>();
         final Collection<Graph> unexpectedGraphs = new ArrayList<>();
         for (int i = 0; i < 5; i++) {

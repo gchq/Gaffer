@@ -158,6 +158,7 @@ public final class GraphDelegate {
                 .addSchema(resolveSchema)
                 .storeProperties(resolveProperties)
                 .addToLibrary(false)
+                .store(store)
                 .build();
     }
 

@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -33,17 +34,24 @@ import static org.junit.Assert.assertEquals;
 
 public class FederatedRemoveGraphHandlerTest {
 
+    private static final String FEDERATEDSTORE_GRAPH_ID = "federatedStore";
+    private static final String EXPECTED_GRAPH_ID = "testGraphID";
+    private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
+    private static final String FEDERATEDSTORE_CLASS_STRING = "uk.gov.gchq.gaffer.federatedstore.FederatedStore";
+    private static final String TEST_USER = "testUser";
+
     @Test
     public void shouldRemoveGraph() throws Exception {
-
-
-        String graphId = "testGraphId";
-        StoreProperties storeProperties = new StoreProperties();
-        storeProperties.set("gaffer.store.class", "uk.gov.gchq.gaffer.federatedstore.FederatedStore");
-
         FederatedStore store = new FederatedStore();
+
+        StoreProperties storeProperties = new StoreProperties();
+        storeProperties.set(StoreProperties.STORE_CLASS, FEDERATEDSTORE_CLASS_STRING);
+        storeProperties.set(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
+
+        store.initialise(FEDERATEDSTORE_GRAPH_ID, new Schema(), storeProperties);
+
         store.addGraphs(new Graph.Builder()
-                .config(new GraphConfig(graphId))
+                .config(new GraphConfig(EXPECTED_GRAPH_ID))
                 .addSchema(new Schema.Builder().build())
                 .storeProperties(storeProperties)
                 .build());
@@ -52,9 +60,9 @@ public class FederatedRemoveGraphHandlerTest {
 
         new FederatedRemoveGraphHandler().doOperation(
                 new RemoveGraph.Builder()
-                        .setGraphId(graphId)
+                        .setGraphId(EXPECTED_GRAPH_ID)
                         .build(),
-                new Context(new User("TestUser")),
+                new Context(new User(TEST_USER)),
                 store);
 
         Collection<Graph> graphs = store.getGraphs(null);

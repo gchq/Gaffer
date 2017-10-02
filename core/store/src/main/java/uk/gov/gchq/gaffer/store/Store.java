@@ -801,5 +801,4 @@ public abstract class Store {
     private void startCacheServiceLoader(final StoreProperties properties) {
         CacheServiceLoader.initialise(properties.getProperties());
     }
-
 }
