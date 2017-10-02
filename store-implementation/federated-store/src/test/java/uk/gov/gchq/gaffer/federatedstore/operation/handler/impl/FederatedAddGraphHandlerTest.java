@@ -121,6 +121,7 @@ public class FederatedAddGraphHandlerTest {
         StoreProperties graphStoreProperties = new StoreProperties();
         graphStoreProperties.set(StoreProperties.STORE_CLASS, FEDERATEDSTORE_CLASS_STRING);
         graphStoreProperties.set(StoreProperties.STORE_PROPERTIES_CLASS, "uk.gov.gchq.gaffer.store.StoreProperties");
+        graphStoreProperties.set(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
 
         assertEquals(0, store.getGraphs(null).size());
 
@@ -173,11 +174,8 @@ public class FederatedAddGraphHandlerTest {
 
         StoreProperties graphStoreProperties = new StoreProperties();
         graphStoreProperties.set(StoreProperties.STORE_CLASS, FEDERATEDSTORE_CLASS_STRING);
-        <<<<<<<HEAD
         graphStoreProperties.set(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
-        ;
-        =======
-        >>>>>>>f32d04ea8...gh - 1297 - test fixes
+        graphStoreProperties.set(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
 
         assertEquals(0, store.getGraphs(null).size());
 
