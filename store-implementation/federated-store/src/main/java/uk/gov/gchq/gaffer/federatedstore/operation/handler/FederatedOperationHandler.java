@@ -38,6 +38,9 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.SKIP_FAI
 public class FederatedOperationHandler implements OperationHandler<Operation> {
 
     public Object doOperation(final Operation operation, final Context context, final Store store) throws OperationException {
+        if (null == context.getUser()) {
+            throw new OperationException("No user has been specified/defined");
+        }
         final Collection<Graph> graphs = ((FederatedStore) store).getGraphs(operation.getOption(GRAPH_IDS));
         for (final Graph graph : graphs) {
             final Operation updatedOp = FederatedStore.updateOperationForGraph(operation, graph);
