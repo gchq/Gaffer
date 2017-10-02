@@ -187,7 +187,7 @@ public final class Graph {
         } catch (final Exception e) {
             for (final GraphHook graphHook : config.getHooks()) {
                 try {
-                    result = graphHook.onFailure(result, clonedOpChain, user);
+                    result = graphHook.onFailure(result, clonedOpChain, user, e);
                 } catch (final Exception graphHookE) {
                     LOGGER.warn("Error in graphHook " + graphHook.getClass().getSimpleName() + ": " + graphHookE.getMessage(), graphHookE);
                 }
