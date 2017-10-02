@@ -22,7 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.Graph.Builder;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
@@ -77,7 +77,7 @@ public class FederatedGraphStorageTest {
                 .vertex("string2")
                 .build();
         final AccumuloProperties accProperties = new AccumuloProperties();
-        accProperties.setStoreClass(MockAccumuloStore.class);
+        accProperties.setStoreClass(SingleUseMockAccumuloStore.class);
 
         b = new Builder()
                 .config(new GraphConfig("b"))
@@ -226,7 +226,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(a, access);
         graphStorage.put(b, new FederatedAccess(Sets.newHashSet("x"), "x"));
         final Schema schema = graphStorage.getMergedSchema(testUser);
-        assertNotEquals("Reveling hidden schema", 2, schema.getTypes().size());
+        assertNotEquals("Revealing hidden schema", 2, schema.getTypes().size());
         assertEquals(1, schema.getTypes().size());
         assertEquals(String.class, schema.getType("string").getClazz());
         assertEquals(e1, schema.getElement("e1"));
@@ -237,7 +237,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(a, access);
         graphStorage.put(b, new FederatedAccess(Sets.newHashSet("x"), "x"));
         final Schema schema = graphStorage.getMergedSchema(authUser);
-        assertNotEquals("Reveling hidden schema", 2, schema.getTypes().size());
+        assertNotEquals("Revealing hidden schema", 2, schema.getTypes().size());
         assertEquals(1, schema.getTypes().size());
         assertEquals(String.class, schema.getType("string").getClazz());
         assertEquals(e1, schema.getElement("e1"));
@@ -248,8 +248,8 @@ public class FederatedGraphStorageTest {
         graphStorage.put(a, access);
         graphStorage.put(b, new FederatedAccess(Sets.newHashSet("x"), "x"));
         final Schema schema = graphStorage.getMergedSchema(blankUser);
-        assertNotEquals("Reveling hidden schema", 2, schema.getTypes().size());
-        assertEquals("Reveling hidden schema", 0, schema.getTypes().size());
+        assertNotEquals("Revealing hidden schema", 2, schema.getTypes().size());
+        assertEquals("Revealing hidden schema", 0, schema.getTypes().size());
     }
 
     @Test
@@ -257,7 +257,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(a, new FederatedAccess(Sets.newHashSet("x"), "x"));
         graphStorage.put(b, access);
         final Set<StoreTrait> traits = graphStorage.getTraits(testUser);
-        assertNotEquals("Reveling hidden traits", 5, traits.size());
+        assertNotEquals("Revealing hidden traits", 5, traits.size());
         assertEquals(9, traits.size());
     }
 
@@ -266,7 +266,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(a, new FederatedAccess(Sets.newHashSet("x"), "x"));
         graphStorage.put(b, access);
         final Set<StoreTrait> traits = graphStorage.getTraits(authUser);
-        assertNotEquals("Reveling hidden traits", 5, traits.size());
+        assertNotEquals("Revealing hidden traits", 5, traits.size());
         assertEquals(9, traits.size());
     }
 
@@ -275,7 +275,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(a, new FederatedAccess(Sets.newHashSet("x"), "x"));
         graphStorage.put(b, access);
         final Set<StoreTrait> traits = graphStorage.getTraits(blankUser);
-        assertEquals("Reveling hidden traits", 0, traits.size());
+        assertEquals("Revealing hidden traits", 0, traits.size());
     }
 
 }

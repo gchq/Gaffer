@@ -371,9 +371,9 @@ public class FederatedStore extends Store {
 
 
     /**
-     * @param user the viability to use for getting graphIds
+     * @param user the visibility to use for getting graphIds
      * @return All the graphId(s) within scope of this FederatedStore and within
-     * viability for the given user.
+     * visibility for the given user.
      */
     public Collection<String> getAllGraphIds(final User user) {
         return graphStorage.getAllIds(user);
@@ -394,7 +394,7 @@ public class FederatedStore extends Store {
 
     /**
      * Gets a collection of graph objects within FederatedStore scope from the
-     * given csv of graphIds, with viability of the given user.
+     * given csv of graphIds, with visibility of the given user.
      * <p>
      * if graphIdsCsv is null then all graph objects within FederatedStore
      * scope are returned.

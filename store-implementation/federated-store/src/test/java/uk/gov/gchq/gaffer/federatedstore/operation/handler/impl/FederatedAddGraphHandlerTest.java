@@ -23,7 +23,7 @@ import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -50,7 +50,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.authUser;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.blankUser;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
 
 public class FederatedAddGraphHandlerTest {
@@ -127,7 +126,7 @@ public class FederatedAddGraphHandlerTest {
         String expectedGraphId = "testGraphID";
 
         StoreProperties graphStoreProps = new AccumuloProperties();
-        graphStoreProps.setStoreClass(MockAccumuloStore.class);
+        graphStoreProps.setStoreClass(SingleUseMockAccumuloStore.class);
         graphStoreProps.setStorePropertiesClass(AccumuloProperties.class);
 
         assertEquals(0, store.getGraphs(testUser, null).size());
@@ -288,7 +287,7 @@ public class FederatedAddGraphHandlerTest {
 
         AccumuloProperties storeProperties = new AccumuloProperties();
         storeProperties.setStorePropertiesClass(AccumuloProperties.class);
-        storeProperties.setStoreClass(MockAccumuloStore.class);
+        storeProperties.setStoreClass(SingleUseMockAccumuloStore.class);
 
         new FederatedAddGraphHandler().doOperation(
                 new AddGraph.Builder()

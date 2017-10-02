@@ -141,7 +141,7 @@ public class FederatedGraphStorage {
     }
 
 
-    private Builder getMergedSchemaBuilder(Optional<User> user) {
+    private Builder getMergedSchemaBuilder(final Optional<User> user) {
         final HashSet<Graph> graphs = storage.entrySet()
                 .stream()
                 .filter(filterByOptionalUser(user))

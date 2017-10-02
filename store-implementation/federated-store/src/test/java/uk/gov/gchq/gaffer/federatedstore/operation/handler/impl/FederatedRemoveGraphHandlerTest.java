@@ -20,7 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -47,7 +47,7 @@ public class FederatedRemoveGraphHandlerTest {
     public void shouldRemoveGraph() throws Exception {
         String graphId = "testGraphId";
         AccumuloProperties storeProperties = new AccumuloProperties();
-        storeProperties.setStoreClass(MockAccumuloStore.class);
+        storeProperties.setStoreClass(SingleUseMockAccumuloStore.class);
 
         FederatedStore store = new FederatedStore();
         store.addGraphs(testUser.getOpAuths(), null, new Graph.Builder()
