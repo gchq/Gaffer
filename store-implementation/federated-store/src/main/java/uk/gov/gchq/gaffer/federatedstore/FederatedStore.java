@@ -99,16 +99,21 @@ public class FederatedStore extends Store {
     private Set<String> customPropertiesAuths;
 
 
-    private static List<String> getCleanStrings(final String value) {
-        final List<String> values;
-        if (value != null) {
-            values = Lists.newArrayList(StringUtils.stripAll(value.split(SCHEMA_DEL_REGEX)));
-            values.remove("");
-            values.remove(null);
-        } else {
-            values = null;
-        }
-        return values;
+    /**
+     * Initialise this FederatedStore with any sub-graphs defined within the
+     * properties.
+     *
+     * @param graphId    the graphId to label this FederatedStore.
+     * @param unused     unused
+     * @param properties properties to initialise this FederatedStore with, can
+     *                   contain details on graphs to add to scope.
+     * @throws StoreException exception
+     */
+    @Override
+    public void initialise(final String graphId, final Schema unused, final StoreProperties properties) throws StoreException {
+        super.initialise(graphId, new Schema(), properties);
+        loadCustomPropertiesAuths();
+        loadGraphs();
     }
 
     /**
@@ -147,6 +152,125 @@ public class FederatedStore extends Store {
         return resultOp;
     }
 
+    /**
+     * Adds graphs to the scope of FederatedStore.
+     * <p>
+     * To be used by the FederatedStore and Handlers only. Users should add
+     * graphs via the {@link AddGraph} operation.
+     *
+     * @param addingUserId the adding userId
+     * @param graphs       the graph to add
+     * @param graphAuths   the access auths for the graph being added
+     */
+    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final Graph... graphs) {
+        FederatedAccess access = new FederatedAccess(graphAuths, addingUserId);
+
+        for (final Graph graph : graphs) {
+            _add(graph, access);
+        }
+    }
+
+    /**
+     * Removes graphs from the scope of FederatedStore.
+     * <p>
+     * To be used by the FederatedStore and Handlers only. Users should remove
+     * graphs via the {@link RemoveGraph} operation.
+     *
+     * @param graphId to be removed from scope
+     */
+    public void remove(final String graphId) {
+        graphStorage.remove(graphId);
+    }
+
+    /**
+     * @param user the visibility to use for getting graphIds
+     * @return All the graphId(s) within scope of this FederatedStore and within
+     * visibility for the given user.
+     */
+    public Collection<String> getAllGraphIds(final User user) {
+        return graphStorage.getAllIds(user);
+    }
+
+
+    /**
+     * @return {@link Store#getTraits()}
+     */
+    @Override
+    public Set<StoreTrait> getTraits() {
+        return graphStorage.getTraits();
+    }
+
+    /**
+     * Gets a collection of graph objects within FederatedStore scope from the
+     * given csv of graphIds, with visibility of the given user.
+     * <p>
+     * if graphIdsCsv is null then all graph objects within FederatedStore
+     * scope are returned.
+     *
+     * @param user        the users scope to get graphs for.
+     * @param graphIdsCsv the csv of graphIds to get, null returns all graphs.
+     * @return the graph collection.
+     */
+    public Collection<Graph> getGraphs(final User user, final String graphIdsCsv) {
+        return graphStorage.get(user, getCleanStrings(graphIdsCsv));
+    }
+
+    /**
+     * The FederatedStore at time of initialisation, can set the auths required
+     * to allow users to use custom {@link StoreProperties} outside the
+     * scope of the {@link GraphLibrary}.
+     *
+     * @param user the user needing validation for custom property usage.
+     * @return boolean permission
+     */
+    public boolean isLimitedToLibraryProperties(final User user) {
+        return null != this.customPropertiesAuths && Collections.disjoint(user.getOpAuths(), this.customPropertiesAuths);
+    }
+
+    @Override
+    protected void addAdditionalOperationHandlers() {
+        // Override the Operations that don't have an output
+        getSupportedOperations()
+                .stream()
+                .filter(op -> !Output.class.isAssignableFrom(op) && !AddElements.class.equals(op))
+                .forEach(op -> addOperationHandler(op, new FederatedOperationHandler()));
+
+        addOperationHandler(GetAllGraphIds.class, new FederatedGetAllGraphIDHandler());
+        addOperationHandler(AddGraph.class, new FederatedAddGraphHandler());
+        addOperationHandler(RemoveGraph.class, new FederatedRemoveGraphHandler());
+    }
+
+    @Override
+    protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
+        return new FederatedGetElementsHandler();
+    }
+
+    @Override
+    protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
+        return new FederatedGetAllElementsHandler();
+    }
+
+    @Override
+    protected OutputOperationHandler<? extends GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
+        return new FederatedGetAdjacentIdsHandler();
+    }
+
+    @Override
+    protected OperationHandler<? extends AddElements> getAddElementsHandler() {
+        return new FederatedOperationAddElementsHandler();
+    }
+
+    @Override
+    protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
+        return Serialiser.class;
+    }
+
+    @Override
+    protected Object doUnhandledOperation(final Operation operation,
+                                          final Context context) {
+        throw new UnsupportedOperationException();
+    }
+
     private static View createValidView(final View view, final Schema delegateGraphSchema) {
         View newView;
         if (view.hasGroups()) {
@@ -174,21 +298,16 @@ public class FederatedStore extends Store {
         return newView;
     }
 
-    /**
-     * Initialise this FederatedStore with any sub-graphs defined within the
-     * properties.
-     *
-     * @param graphId    the graphId to label this FederatedStore.
-     * @param unused     unused
-     * @param properties properties to initialise this FederatedStore with, can
-     *                   contain details on graphs to add to scope.
-     * @throws StoreException exception
-     */
-    @Override
-    public void initialise(final String graphId, final Schema unused, final StoreProperties properties) throws StoreException {
-        super.initialise(graphId, new Schema(), properties);
-        loadCustomPropertiesAuths();
-        loadGraphs();
+    private static List<String> getCleanStrings(final String value) {
+        final List<String> values;
+        if (value != null) {
+            values = Lists.newArrayList(StringUtils.stripAll(value.split(SCHEMA_DEL_REGEX)));
+            values.remove("");
+            values.remove(null);
+        } else {
+            values = null;
+        }
+        return values;
     }
 
     private void loadCustomPropertiesAuths() {
@@ -318,24 +437,6 @@ public class FederatedStore extends Store {
         return graphIds;
     }
 
-    /**
-     * Adds graphs to the scope of FederatedStore.
-     * <p>
-     * To be used by the FederatedStore and Handlers only. Users should add
-     * graphs via the {@link AddGraph} operation.
-     *
-     * @param addingUserId the adding userId
-     * @param graphs       the graph to add
-     * @param graphAuths   the access auths for the graph being added
-     */
-    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final Graph... graphs) {
-        FederatedAccess access = new FederatedAccess(graphAuths, addingUserId);
-
-        for (final Graph graph : graphs) {
-            _add(graph, access);
-        }
-    }
-
     private void _add(final Graph newGraph, final FederatedAccess access) {
         graphStorage.put(newGraph, access);
 
@@ -345,108 +446,7 @@ public class FederatedStore extends Store {
     }
 
     @Override
-    protected void addAdditionalOperationHandlers() {
-        // Override the Operations that don't have an output
-        getSupportedOperations()
-                .stream()
-                .filter(op -> !Output.class.isAssignableFrom(op) && !AddElements.class.equals(op))
-                .forEach(op -> addOperationHandler(op, new FederatedOperationHandler()));
-
-        addOperationHandler(GetAllGraphIds.class, new FederatedGetAllGraphIDHandler());
-        addOperationHandler(AddGraph.class, new FederatedAddGraphHandler());
-        addOperationHandler(RemoveGraph.class, new FederatedRemoveGraphHandler());
-    }
-
-    /**
-     * Removes graphs from the scope of FederatedStore.
-     * <p>
-     * To be used by the FederatedStore and Handlers only. Users should remove
-     * graphs via the {@link RemoveGraph} operation.
-     *
-     * @param graphId to be removed from scope
-     */
-    public void remove(final String graphId) {
-        graphStorage.remove(graphId);
-    }
-
-
-    /**
-     * @param user the visibility to use for getting graphIds
-     * @return All the graphId(s) within scope of this FederatedStore and within
-     * visibility for the given user.
-     */
-    public Collection<String> getAllGraphIds(final User user) {
-        return graphStorage.getAllIds(user);
-    }
-
-    /**
-     * @return {@link Store#getTraits()}
-     */
-    @Override
-    public Set<StoreTrait> getTraits() {
-        return graphStorage.getTraits();
-    }
-
-    @Override
     public Schema getSchema() {
         return graphStorage.getMergedSchema();
-    }
-
-    /**
-     * Gets a collection of graph objects within FederatedStore scope from the
-     * given csv of graphIds, with visibility of the given user.
-     * <p>
-     * if graphIdsCsv is null then all graph objects within FederatedStore
-     * scope are returned.
-     *
-     * @param user        the users scope to get graphs for.
-     * @param graphIdsCsv the csv of graphIds to get, null returns all graphs.
-     * @return the graph collection.
-     */
-    public Collection<Graph> getGraphs(final User user, final String graphIdsCsv) {
-        return graphStorage.get(user, getCleanStrings(graphIdsCsv));
-    }
-
-    @Override
-    protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
-        return new FederatedGetElementsHandler();
-    }
-
-    @Override
-    protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
-        return new FederatedGetAllElementsHandler();
-    }
-
-    @Override
-    protected OutputOperationHandler<? extends GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
-        return new FederatedGetAdjacentIdsHandler();
-    }
-
-    @Override
-    protected OperationHandler<? extends AddElements> getAddElementsHandler() {
-        return new FederatedOperationAddElementsHandler();
-    }
-
-    @Override
-    protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
-        return Serialiser.class;
-    }
-
-    @Override
-    protected Object doUnhandledOperation(final Operation operation,
-                                          final Context context) {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * The FederatedStore at time of initialisation, can set the auths required
-     * to allow users to use custom {@link StoreProperties} outside the
-     * scope of the {@link GraphLibrary}.
-     *
-     * @param user the user needing validation for custom property usage.
-     * @return boolean permission
-     */
-    public boolean isLimitedToLibraryProperties(final User user) {
-        return null != this.customPropertiesAuths && Collections.disjoint(user.getOpAuths(), this.customPropertiesAuths);
     }
 }
