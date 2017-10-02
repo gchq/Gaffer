@@ -52,6 +52,9 @@ import uk.gov.gchq.gaffer.operation.impl.export.GetExports;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
+import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
+import uk.gov.gchq.gaffer.operation.impl.function.Filter;
+import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
@@ -90,6 +93,9 @@ import uk.gov.gchq.gaffer.store.operation.handler.compare.SortHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.export.GetExportsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.export.set.ExportToSetHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.export.set.GetSetExportHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.function.AggregateHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.function.FilterHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.function.TransformHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetAllJobDetailsHandler;
@@ -776,6 +782,11 @@ public abstract class Store {
         addOperationHandler(CountGroups.class, new CountGroupsHandler());
         addOperationHandler(Limit.class, new LimitHandler());
         addOperationHandler(DiscardOutput.class, new DiscardOutputHandler());
+
+        // Function
+        addOperationHandler(Filter.class, new FilterHandler());
+        addOperationHandler(Transform.class, new TransformHandler());
+        addOperationHandler(Aggregate.class, new AggregateHandler());
     }
 
     private void addConfiguredOperationHandlers() {

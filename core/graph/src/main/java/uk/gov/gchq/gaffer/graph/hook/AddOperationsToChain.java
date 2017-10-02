@@ -78,6 +78,11 @@ public class AddOperationsToChain implements GraphHook {
         return result;
     }
 
+    @Override
+    public <T> T onFailure(final T result, final OperationChain<?> opChain, final User user, final Exception e) {
+        return result;
+    }
+
     public List<Operation> getStart() {
         return defaultOperations.getStart();
     }
@@ -130,15 +135,15 @@ public class AddOperationsToChain implements GraphHook {
                     opList.addAll(addOperationsToChain((OperationChain) originalOp, additionalOperations));
                 } else {
                     final List<Operation> beforeOps = additionalOperations.getBefore()
-                                                                          .get(originalOp.getClass()
-                                                                                        .getName());
+                            .get(originalOp.getClass()
+                                    .getName());
                     if (null != beforeOps) {
                         opList.addAll(beforeOps);
                     }
                     opList.add(originalOp);
                     final List<Operation> afterOps = additionalOperations.getAfter()
-                                                                         .get(originalOp.getClass()
-                                                                                        .getName());
+                            .get(originalOp.getClass()
+                                    .getName());
                     if (null != afterOps) {
                         opList.addAll(afterOps);
                     }

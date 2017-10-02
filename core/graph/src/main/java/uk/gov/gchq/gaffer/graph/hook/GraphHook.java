@@ -22,7 +22,9 @@ import uk.gov.gchq.gaffer.user.User;
 
 /**
  * A {@code GraphHook} can be registered with a {@link uk.gov.gchq.gaffer.graph.Graph} and will be
- * triggered before and after operation chains are executed on the graph.
+ * triggered before and after operation chains are executed on the graph. If an
+ * error occurs whilst running the operation chain the onFailure method will be
+ * triggered.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
 public interface GraphHook {
@@ -48,4 +50,20 @@ public interface GraphHook {
     <T> T postExecute(final T result,
                       final OperationChain<?> opChain,
                       final User user);
+
+    /**
+     * Called from {@link uk.gov.gchq.gaffer.graph.Graph} if an error occurs whilst
+     * executing the {@link OperationChain}.
+     *
+     * @param <T>     the result type
+     * @param result  the result from the operation chain - likely to be null.
+     * @param opChain the {@link OperationChain} that was executed.
+     * @param user    the {@link User} who executed the operation chain
+     * @param e       the exception
+     * @return result object
+     */
+    <T> T onFailure(final T result,
+                    final OperationChain<?> opChain,
+                    final User user,
+                    final Exception e);
 }
