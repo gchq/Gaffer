@@ -31,11 +31,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class FederatedGraphStorage {
     public static final String USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S = "User is attempting to overwrite a graph within FederatedStore. GraphId: %s";
+    public static final String CAN_NOT_PUT_GRAPH_INTO_STORAGE_WITHOUT_A_FEDERATED_ACCESS_KEY = "Can not put graph into storage without a FederatedAccess key.";
     private Map<FederatedAccess, Set<Graph>> storage = new HashMap<>();
 
     public Collection<Graph> getAll(final User user) {
@@ -76,6 +79,8 @@ public class FederatedGraphStorage {
     public void put(final Graph graph, final FederatedAccess access) {
         if (exists(graph.getGraphId())) {
             throw new OverwritingException((String.format(USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S, graph.getGraphId())));
+        } else if (null == access) {
+            throw new RuntimeException(CAN_NOT_PUT_GRAPH_INTO_STORAGE_WITHOUT_A_FEDERATED_ACCESS_KEY);
         }
 
         getMergedSchema(graph);
@@ -104,7 +109,7 @@ public class FederatedGraphStorage {
 
     @Deprecated
     public Schema getMergedSchema() {
-        return getMergedSchemaBuilder().build();
+        return getMergedSchemaBuilder(Optional.<User>empty()).build();
     }
 
     private boolean exists(final String graphId) {
@@ -121,29 +126,13 @@ public class FederatedGraphStorage {
         return exists;
     }
 
-    private Set<StoreTrait> getTraits(final Graph newGraph) {
-        final Set<StoreTrait> newTraits = getTraits();
-
-        newTraits.retainAll(newGraph.getStoreTraits());
-        return Collections.unmodifiableSet(newTraits);
-    }
-
+    @Deprecated
     public Set<StoreTrait> getTraits() {
-        final HashSet<Graph> graphs = storage.entrySet()
-                .stream()
-                .flatMap(entry -> entry.getValue().stream())
-                .collect(Collectors.toCollection(HashSet::new));
-
-        final Set<StoreTrait> newTraits = graphs.isEmpty() ? Sets.newHashSet() : Sets.newHashSet(StoreTrait.values());
-        for (final Graph graph : graphs) {
-            newTraits.retainAll(graph.getStoreTraits());
-        }
-        return newTraits;
+        return getTraits(Optional.empty());
     }
-
 
     private Schema getMergedSchema(final Graph newGraph) {
-        Builder schemaBuilder = getMergedSchemaBuilder();
+        Builder schemaBuilder = getMergedSchemaBuilder(Optional.<User>empty());
 
         schemaBuilder.merge(newGraph.getSchema());
 //        An exception would be thrown here if something was wrong merging the schema.
@@ -151,9 +140,11 @@ public class FederatedGraphStorage {
         return schemaBuilder.build();
     }
 
-    private Builder getMergedSchemaBuilder() {
+
+    private Builder getMergedSchemaBuilder(Optional<User> user) {
         final HashSet<Graph> graphs = storage.entrySet()
                 .stream()
+                .filter(filterByOptionalUser(user))
                 .flatMap(entry -> entry.getValue().stream())
                 .collect(Collectors.toCollection(HashSet::new));
 
@@ -165,10 +156,36 @@ public class FederatedGraphStorage {
     }
 
     public Set<StoreTrait> getTraits(final User user) {
-        throw new UnsupportedOperationException("Not yet implemented.");
+        return getTraits(Optional.of(user));
+    }
+
+    private Set<StoreTrait> getTraits(final Optional<User> user) {
+        final HashSet<Graph> graphs = storage.entrySet()
+                .stream()
+                .filter(filterByOptionalUser(user))
+                .flatMap(entry -> entry.getValue().stream())
+                .collect(Collectors.toCollection(HashSet::new));
+
+        final Set<StoreTrait> newTraits = graphs.isEmpty() ? Sets.newHashSet() : Sets.newHashSet(StoreTrait.values());
+        for (final Graph graph : graphs) {
+            newTraits.retainAll(graph.getStoreTraits());
+        }
+        return newTraits;
+    }
+
+    private Predicate<Entry<FederatedAccess, Set<Graph>>> filterByOptionalUser(final Optional<User> user) {
+        return entry -> {
+            final boolean rtn;
+            if (user.isPresent()) {
+                rtn = entry.getKey().isValidToExecute(user.get());
+            } else {
+                return true;
+            }
+            return rtn;
+        };
     }
 
     public Schema getMergedSchema(final User user) {
-        throw new UnsupportedOperationException("Not yet implemented.");
+        return getMergedSchemaBuilder(Optional.of(user)).build();
     }
 }

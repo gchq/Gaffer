@@ -36,11 +36,11 @@ public class FederatedAccessAuthTest {
                 .opAuth(A)
                 .build();
 
-        final FederatedAccess hook = new FederatedAccess.Builder()
+        final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths(A)
                 .build();
 
-        assertTrue(hook.isValidToExecute(user));
+        assertTrue(access.isValidToExecute(user));
     }
 
     @Test
@@ -50,11 +50,11 @@ public class FederatedAccessAuthTest {
                 .opAuth(A)
                 .build();
 
-        final FederatedAccess hook = new FederatedAccess.Builder()
+        final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths(A, B)
                 .build();
 
-        assertTrue(hook.isValidToExecute(user));
+        assertTrue(access.isValidToExecute(user));
     }
 
     @Test
@@ -65,11 +65,11 @@ public class FederatedAccessAuthTest {
                 .opAuth(B)
                 .build();
 
-        final FederatedAccess hook = new FederatedAccess.Builder()
+        final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths(A)
                 .build();
 
-        assertTrue(hook.isValidToExecute(user));
+        assertTrue(access.isValidToExecute(user));
     }
 
     @Test
@@ -78,11 +78,11 @@ public class FederatedAccessAuthTest {
         final User user = new Builder()
                 .build();
 
-        final FederatedAccess hook = new FederatedAccess.Builder()
+        final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths(A)
                 .build();
 
-        assertFalse(hook.isValidToExecute(user));
+        assertFalse(access.isValidToExecute(user));
     }
 
     @Test
@@ -92,11 +92,11 @@ public class FederatedAccessAuthTest {
                 .opAuth(B)
                 .build();
 
-        final FederatedAccess hook = new FederatedAccess.Builder()
+        final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths(A)
                 .build();
 
-        assertFalse(hook.isValidToExecute(user));
+        assertFalse(access.isValidToExecute(user));
     }
 
 }

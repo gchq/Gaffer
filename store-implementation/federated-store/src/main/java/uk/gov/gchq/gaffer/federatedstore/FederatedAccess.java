@@ -87,7 +87,7 @@ public class FederatedAccess {
      * @return boolean permission for user.
      */
     protected boolean isValidToExecute(final User user) {
-        return isAddingUser(user) || (!isAuthsNullOrEmpty() && isUserHasASharedAuth(user));
+        return null != user && (isAddingUser(user) || (!isAuthsNullOrEmpty() && isUserHasASharedAuth(user)));
     }
 
     private boolean isUserHasASharedAuth(final User user) {
