@@ -31,6 +31,8 @@ import java.util.Map;
 
 public class FilterHandler implements OutputOperationHandler<Filter, Iterable<? extends Element>> {
 
+    private final FunctionValidator<Filter> validator = new FunctionValidator<>();
+
     @Override
     public Iterable<? extends Element> doOperation(final Filter operation, final Context context, final Store store) throws OperationException {
         if (null == operation.getInput()) {
@@ -51,13 +53,10 @@ public class FilterHandler implements OutputOperationHandler<Filter, Iterable<? 
             operation.setEdges(edgeMap);
         }
 
-        final FunctionValidator<Filter> validator = new FunctionValidator<>();
         final ValidationResult result = validator.validate(operation, store.getSchema());
         if (!result.isValid()) {
             throw new OperationException("Filter operation is invalid. " + result.getErrorString());
         }
-
         return new StreamFilterIterable(operation);
     }
-
 }

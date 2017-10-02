@@ -30,13 +30,14 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.Map;
 
 public class AggregateHandler implements OutputOperationHandler<Aggregate, Iterable<? extends Element>> {
+    private final FunctionValidator<Aggregate> validator = new FunctionValidator<>();
+
     @Override
     public Iterable<? extends Element> doOperation(final Aggregate operation, final Context context, final Store store) throws OperationException {
         if (null == operation.getInput()) {
             throw new OperationException("Aggregate operation has null iterable of elements");
         }
 
-        final FunctionValidator<Aggregate> validator = new FunctionValidator<>();
         final ValidationResult result = validator.validate(operation, store.getSchema());
         if (!result.isValid()) {
             throw new OperationException("Aggregate operation is invalid. " + result.getErrorString());

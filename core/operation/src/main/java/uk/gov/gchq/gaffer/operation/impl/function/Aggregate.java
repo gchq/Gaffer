@@ -33,7 +33,7 @@ import java.util.Map;
  * An <code>Aggregate</code> operation applies {@link uk.gov.gchq.gaffer.data.element.function.ElementAggregator}(s) to the provided
  * {@link Iterable} of {@link Element}s by their group, and returns an {@link Iterable}.
  */
-public class Aggregate extends Function {
+public class Aggregate implements Function {
     private Iterable<? extends Element> input;
     private Map<String, String> options;
 

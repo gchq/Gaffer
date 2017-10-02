@@ -22,13 +22,13 @@ import uk.gov.gchq.gaffer.operation.io.MultiInput;
 
 import java.util.Map;
 
-public abstract class Function implements
+public interface Function extends
         Operation,
         InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,
         MultiInput<Element> {
 
-    public abstract Map<String, ?> getEdges();
+    Map<String, ?> getEdges();
 
-    public abstract Map<String, ?> getEntities();
+    Map<String, ?> getEntities();
 
 }
