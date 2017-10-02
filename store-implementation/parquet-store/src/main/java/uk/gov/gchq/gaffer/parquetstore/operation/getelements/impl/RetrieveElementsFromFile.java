@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewUtil;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.io.reader.ParquetElementReader;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
@@ -50,13 +51,17 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
     private final byte[] elementDefinitionJson;
     private final boolean needsValidation;
     private final String group;
+    private final View view;
+    private final Schema gafferSchema;
 
     public RetrieveElementsFromFile(final Path filePath, final FilterPredicate filter, final Schema gafferSchema,
                                     final ConcurrentLinkedQueue<Element> queue, final boolean needsValidation, final View view) {
         this.filePath = filePath;
         this.filter = filter;
         this.jsonGafferSchema = gafferSchema.toCompactJson();
+        this.gafferSchema = gafferSchema;
         this.queue = queue;
+        this.view = view;
         this.needsValidation = needsValidation;
         if (filePath.getName().contains("=")) {
             group = filePath.getName().split("=")[1];
@@ -76,12 +81,18 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
             Element e = fileReader.read();
             while (null != e) {
                 if (needsValidation) {
-                    if (elementFilter != null) {
-                        if (elementFilter.test(e)) {
-                            queue.add(e);
+                    final String group = e.getGroup();
+                    final ElementFilter validatorFilter = gafferSchema.getElement(group).getValidator(false);
+                    if (validatorFilter == null || validatorFilter.test(e)) {
+                        if (elementFilter != null) {
+                            if (elementFilter.test(e)) {
+                                ViewUtil.removeProperties(view, e);
+                                queue.add(e);
+                            }
                         }
                     }
                 } else {
+                    ViewUtil.removeProperties(view, e);
                     queue.add(e);
                 }
                 e = fileReader.read();

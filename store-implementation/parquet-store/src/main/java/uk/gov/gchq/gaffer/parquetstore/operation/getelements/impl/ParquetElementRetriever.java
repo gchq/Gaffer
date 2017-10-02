@@ -24,11 +24,9 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
@@ -195,22 +193,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
             while (hasNext()) {
                 e = queue.poll();
                 if (null != e) {
-                    if (needsValidation) {
-                        final String group = e.getGroup();
-                        final ElementFilter validatorFilter = gafferSchema.getElement(group).getValidator(false);
-                        if (validatorFilter == null || validatorFilter.test(e)) {
-                            final ElementFilter preAggFilter = view.getElement(group).getPreAggregationFilter();
-                            if (preAggFilter != null) {
-                                if (preAggFilter.test(e)) {
-                                    ViewUtil.removeProperties(view, e);
-                                    return e;
-                                }
-                            }
-                        }
-                    } else {
-                        ViewUtil.removeProperties(view, e);
-                        return e;
-                    }
+                    return e;
                 }
             }
             throw new NoSuchElementException();
