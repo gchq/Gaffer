@@ -58,7 +58,7 @@ public class FederatedAddGraphHandler implements OperationHandler<AddGraph> {
 
         try {
             ((FederatedStore) store).addGraphs(graph);
-        } catch (StoreException e) {
+        } catch (final StoreException e) {
             throw new OperationException(e.getMessage());
         }
         return null;

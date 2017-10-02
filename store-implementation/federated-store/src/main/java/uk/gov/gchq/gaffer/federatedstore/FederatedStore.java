@@ -109,11 +109,11 @@ public class FederatedStore extends Store {
      * Initialise this FederatedStore with any sub-graphs defined within the
      * properties.
      *
-     * @param graphId    the graphId to label this FederatedStore.
+     * @param graphId    the graphId to label this FederatedStore
      * @param unused     unused
      * @param properties properties to initialise this FederatedStore with, can
-     *                   contain details on graphs to add to scope.
-     * @throws StoreException exception
+     *                   contain details on graphs to add to scope
+     * @throws StoreException if no cache has been set
      */
     @Override
     public void initialise(final String graphId, final Schema unused, final StoreProperties properties) throws StoreException {
@@ -170,6 +170,7 @@ public class FederatedStore extends Store {
      * graphs via the {@link AddGraph} operation.
      *
      * @param graphs the graph to add
+     * @throws StoreException if no cache has been set
      */
     public void addGraphs(final Graph... graphs) throws StoreException {
         if (cacheService == null) {
