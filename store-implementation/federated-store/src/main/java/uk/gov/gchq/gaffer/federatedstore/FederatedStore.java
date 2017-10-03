@@ -459,12 +459,14 @@ public class FederatedStore extends Store {
     private void _add(final Graph newGraph, final FederatedAccess access) {
         graphStorage.put(newGraph, access);
         final String graphId = newGraph.getGraphId();
-        try {
-            federatedStoreCache.addSafeToCache(newGraph);
-        } catch (final OverwritingException e) {
-            throw new OverwritingException((String.format("User is attempting to overwrite a graph within the cacheService. GraphId: %s", graphId)));
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
+        if (!federatedStoreCache.getAllGraphIds().contains(graphId)) {
+            try {
+                federatedStoreCache.addToCache(newGraph);
+            } catch (final OverwritingException e) {
+                throw new OverwritingException((String.format("User is attempting to overwrite a graph within the cacheService. GraphId: %s", graphId)));
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
+            }
         }
 
         if (null != getGraphLibrary()) {
