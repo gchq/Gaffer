@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.store.operation.handler.function;
 
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
-import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
@@ -43,6 +42,9 @@ import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
 public class FunctionValidator<T extends Function> {
+
+    // TODO execute the signature check for edges and elements, as well as the globals
+
 
     public ValidationResult validate(final T operation, final Schema schema) {
         final ValidationResult result = new ValidationResult();
@@ -209,14 +211,15 @@ public class FunctionValidator<T extends Function> {
 
             for (SchemaElementDefinition elementDef : elements.values()) {
                 Map<String, String> properties = elementDef.getPropertyMap();
-                for (String str : selection) {
-                    Class<?> expectedClass = elementDef.getIdentifierClass(IdentifierType.fromName(properties.get(str)));
-
-                    if (null == component.getPredicate()) {
-                        result.addError(globalFilter.getClass().getSimpleName() + " contains a null function.");
-                    } else {
-                        final Signature inputSig = Signature.getInputSignature(component.getPredicate());
-                        result.add(inputSig.assignable(expectedClass));
+                if (properties.size() > 0) {
+                    for (String str : selection) {
+                        Class<?> expectedClass = elementDef.getPropertyClass(str);
+                        if (null == component.getPredicate()) {
+                            result.addError(globalFilter.getClass().getSimpleName() + " contains a null function.");
+                        } else {
+                            final Signature inputSig = Signature.getInputSignature(component.getPredicate());
+                            result.add(inputSig.assignable(expectedClass));
+                        }
                     }
                 }
             }

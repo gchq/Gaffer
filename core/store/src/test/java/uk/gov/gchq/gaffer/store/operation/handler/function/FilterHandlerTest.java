@@ -33,10 +33,13 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
@@ -604,6 +607,58 @@ public class FilterHandlerTest {
             fail("Exception expected");
         } catch (final OperationException e) {
             assertTrue(e.getMessage().contains(filter.getClass().getSimpleName() + " contains a null function."));
+        }
+    }
+
+    @Test
+    public void shouldFailValidationWhenTypeArgumentOfPredicateIsIncorrect() {
+        // Given
+        final Schema schema  = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .source("junctionA")
+                        .destination("junctionB")
+                        .property(TestPropertyNames.COUNT, "count.long")
+                        .build())
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .source("junctionA")
+                        .destination("junctionB")
+                        .property(TestPropertyNames.COUNT, "count.long")
+                        .build())
+                .type("count.long", new TypeDefinition(Long.class))
+                .build();
+
+        given(store.getSchema()).willReturn(schema);
+
+        final Edge edge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("junctionA")
+                .dest("junctionB")
+                .property(TestPropertyNames.COUNT, 2L)
+                .build();
+
+        final Edge edge1 = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("junctionA")
+                .dest("junctionB")
+                .property(TestPropertyNames.COUNT, 1L)
+                .build();
+
+        input.add(edge);
+        input.add(edge1);
+
+        final Filter filter = new Filter.Builder()
+                .input(input)
+                .globalEdges(new ElementFilter.Builder()
+                        .select(TestPropertyNames.COUNT)
+                        .execute(new IsMoreThan(0D))
+                        .build())
+                .build();
+
+        try {
+            final Iterable<? extends Element> results = handler.doOperation(filter, context, store);
+            fail("Exception expected");
+        } catch (final OperationException e){
+            assertTrue(e.getMessage().contains("is not compatible with the input type:"));
         }
     }
 }
