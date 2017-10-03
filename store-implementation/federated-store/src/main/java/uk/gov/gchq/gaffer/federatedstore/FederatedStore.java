@@ -103,7 +103,6 @@ public class FederatedStore extends Store {
     private FederatedGraphStorage graphStorage = new FederatedGraphStorage();
     private Set<String> customPropertiesAuths;
 
-
     /**
      * Initialise this FederatedStore with any sub-graphs defined within the
      * properties.
@@ -474,7 +473,8 @@ public class FederatedStore extends Store {
     }
 
     @Override
-    protected void startCacheServiceLoader(final StoreProperties properties) {
+    protected void startCacheServiceLoader(
+            final StoreProperties properties) {
         if (federatedStoreCache.getCache() == null) {
             CacheServiceLoader.initialise(properties.getProperties());
         }
