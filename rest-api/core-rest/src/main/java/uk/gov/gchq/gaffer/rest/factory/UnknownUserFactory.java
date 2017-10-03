@@ -17,6 +17,8 @@ package uk.gov.gchq.gaffer.rest.factory;
 
 import uk.gov.gchq.gaffer.user.User;
 
+import static uk.gov.gchq.gaffer.user.User.UNKNOWN_USER_ID;
+
 /**
  * Default implementation of the {@link UserFactory} interface. This default implementation
  * always returns an empty {@link User} object (representing an unknown user).
@@ -30,6 +32,9 @@ public class UnknownUserFactory implements UserFactory {
 
     @Override
     public User createUser() {
-        return new User();
+        return new User.Builder()
+                .userId(UNKNOWN_USER_ID)
+                .opAuth("user")
+                .build();
     }
 }
