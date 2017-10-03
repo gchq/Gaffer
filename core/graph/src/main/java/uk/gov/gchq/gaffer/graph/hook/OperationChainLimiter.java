@@ -75,6 +75,11 @@ public class OperationChainLimiter implements GraphHook {
         return result;
     }
 
+    @Override
+    public <T> T onFailure(final T result, final OperationChain<?> opChain, final User user, final Exception e) {
+        return result;
+    }
+
     public Map<Class<? extends Operation>, Integer> getOpScores() {
         return scorer.getOpScores();
     }
