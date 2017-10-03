@@ -55,6 +55,11 @@ public class NamedOperationResolver implements GraphHook {
         return result;
     }
 
+    @Override
+    public <T> T onFailure(final T result, final OperationChain<?> opChain, final User user, final Exception e) {
+        return result;
+    }
+
     private List<Operation> resolveNamedOperations(final List<Operation> operations, final User user) {
         List<Operation> updatedOperations = new ArrayList<>(operations.size());
         for (final Operation operation : operations) {

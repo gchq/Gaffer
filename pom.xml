@@ -15,15 +15,13 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>uk.gov.gchq.gaffer</groupId>
     <artifactId>gaffer2</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.0-RC3</version>
+    <version>1.0.0-RC4-SNAPSHOT</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>A scalable Graph database framework</description>
@@ -713,12 +711,12 @@
                 <configuration>
                     <checkoutDirectory>${project.build.directory}/scmpublish
                     </checkoutDirectory>
-                    <checkinComment>Publishing javadoc for
-                        ${project.artifactId}:${project.version}
+                    <checkinComment>
+                        "Updates for ${project.artifactId}:${project.version}
                     </checkinComment>
                     <content>${project.reporting.outputDirectory}/apidocs
                     </content>
-                    <skipDeletedFiles>false</skipDeletedFiles>
+                    <skipDeletedFiles>true</skipDeletedFiles>
                     <pubScmUrl>${scm.connection}</pubScmUrl>
                     <scmBranch>gh-pages</scmBranch>
                 </configuration>

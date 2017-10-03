@@ -118,9 +118,9 @@ public interface EdgeId extends ElementId {
     }
 
     /**
-     * This is related to an
-     * {@link ElementId} if either the ElementId is equal to this EdgeId or it is
-     * an EntityId and it's identifier matches this EdgeId's source or destination.
+     * This is related to an {@link ElementId} if either the ElementId is equal
+     * to this EdgeId or it is an EntityId and its identifier matches this
+     * EdgeId's source or destination.
      *
      * @param that the {@link ElementId} to compare
      * @return An instance of {@link ElementId.Matches} to describe how the ids are related.
@@ -140,9 +140,8 @@ public interface EdgeId extends ElementId {
     }
 
     /**
-     * This is related to an
-     * {@link EntityId} if the EntityId's identifier matches this
-     * EdgeId's source or destination.
+     * This is related to an {@link EntityId} if the EntityId's identifier
+     * matches this EdgeId's source or destination.
      *
      * @param that the {@link ElementId} to compare
      * @return An instance of {@link ElementId.Matches} to describe how the ids are related.
