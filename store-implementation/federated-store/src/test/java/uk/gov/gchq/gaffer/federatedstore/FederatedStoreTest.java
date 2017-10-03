@@ -27,7 +27,6 @@ import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -585,17 +584,13 @@ public class FederatedStoreTest {
     @Test
     public void shouldAddGraphFromLibrary() throws Exception {
         //Given
-        final GraphLibrary mockLibrary = Mockito.mock(GraphLibrary.class);
-        Mockito.when(mockLibrary.exists(MAP_ID_1)).thenReturn(true);
-        Mockito.when(mockLibrary.get(MAP_ID_1)).thenReturn(
-                new Pair<>(
-                        new Schema.Builder()
-                                .json(StreamUtil.openStream(this.getClass(), PATH_BASIC_ENTITY_SCHEMA_JSON))
-                                .build(),
-                        StoreProperties.loadStoreProperties(StreamUtil.openStream(this.getClass(), PATH_MAP_STORE_PROPERTIES))
-                ));
+        final Schema schema = new Schema.Builder()
+                .json(StreamUtil.openStream(this.getClass(), PATH_BASIC_ENTITY_SCHEMA_JSON))
+                .build();
+        final HashMapGraphLibrary graphLibrary = new HashMapGraphLibrary();
+        graphLibrary.add(MAP_ID_1, schema, StoreProperties.loadStoreProperties(StreamUtil.openStream(this.getClass(), PATH_MAP_STORE_PROPERTIES)));
 
-        store.setGraphLibrary(mockLibrary);
+        store.setGraphLibrary(graphLibrary);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         //When
@@ -615,17 +610,13 @@ public class FederatedStoreTest {
         //Given
         federatedProperties.setGraphIds(MAP_ID_1);
         federatedProperties.setGraphIds(MAP_ID_1);
-        final GraphLibrary mockLibrary = Mockito.mock(GraphLibrary.class);
-        Mockito.when(mockLibrary.exists(MAP_ID_1)).thenReturn(true);
-        Mockito.when(mockLibrary.get(MAP_ID_1)).thenReturn(
-                new Pair<>(
-                        new Schema.Builder()
-                                .json(StreamUtil.openStream(this.getClass(), PATH_BASIC_ENTITY_SCHEMA_JSON))
-                                .build(),
-                        StoreProperties.loadStoreProperties(StreamUtil.openStream(this.getClass(), PATH_MAP_STORE_PROPERTIES))
-                ));
+        GraphLibrary library = new HashMapGraphLibrary();
+        library.add(MAP_ID_1, new Schema.Builder()
+                        .json(StreamUtil.openStream(this.getClass(), PATH_BASIC_ENTITY_SCHEMA_JSON))
+                        .build(),
+                StoreProperties.loadStoreProperties(StreamUtil.openStream(this.getClass(), PATH_MAP_STORE_PROPERTIES)));
 
-        store.setGraphLibrary(mockLibrary);
+        store.setGraphLibrary(library);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         //Then
@@ -656,17 +647,13 @@ public class FederatedStoreTest {
         federatedProperties.setGraphIds(MAP_ID_1 + ", " + ACC_ID_1);
         federatedProperties.setGraphPropFile(ACC_ID_1, PATH_ACC_STORE_PROPERTIES);
         federatedProperties.setGraphSchemaFile(ACC_ID_1, PATH_BASIC_ENTITY_SCHEMA_JSON);
-        final GraphLibrary mockLibrary = Mockito.mock(GraphLibrary.class);
-        Mockito.when(mockLibrary.exists(MAP_ID_1)).thenReturn(true);
-        Mockito.when(mockLibrary.get(MAP_ID_1)).thenReturn(
-                new Pair<>(
-                        new Schema.Builder()
-                                .json(StreamUtil.openStream(this.getClass(), PATH_BASIC_ENTITY_SCHEMA_JSON))
-                                .build(),
-                        StoreProperties.loadStoreProperties(StreamUtil.openStream(this.getClass(), PATH_MAP_STORE_PROPERTIES))
-                ));
+        final Schema schema = new Schema.Builder()
+                .json(StreamUtil.openStream(this.getClass(), PATH_BASIC_ENTITY_SCHEMA_JSON))
+                .build();
+        final HashMapGraphLibrary graphLibrary = new HashMapGraphLibrary();
+        graphLibrary.add(MAP_ID_1, schema, StoreProperties.loadStoreProperties(StreamUtil.openStream(this.getClass(), PATH_MAP_STORE_PROPERTIES)));
 
-        store.setGraphLibrary(mockLibrary);
+        store.setGraphLibrary(graphLibrary);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         //Then
@@ -679,15 +666,15 @@ public class FederatedStoreTest {
         federatedProperties.setGraphIds(MAP_ID_1);
         federatedProperties.setGraphPropId(MAP_ID_1, PROPS_ID_1);
         federatedProperties.setGraphSchemaFile(MAP_ID_1, PATH_BASIC_EDGE_SCHEMA_JSON);
-        final GraphLibrary mockLibrary = Mockito.mock(GraphLibrary.class);
-        Mockito.when(mockLibrary.getProperties(PROPS_ID_1)).thenReturn(StoreProperties.loadStoreProperties(PATH_MAP_STORE_PROPERTIES));
+        final HashMapGraphLibrary library = new HashMapGraphLibrary();
+        library.add(PROPS_ID_1, new Schema(), StoreProperties.loadStoreProperties(PATH_MAP_STORE_PROPERTIES));
 
-        store.setGraphLibrary(mockLibrary);
+        store.setGraphLibrary(library);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         assertEquals(1, store.getGraphs(testUser, null).size());
 
-        Mockito.verify(mockLibrary).getProperties(PROPS_ID_1);
+        assertTrue(library.getProperties(PROPS_ID_1).equals(StoreProperties.loadStoreProperties(PATH_MAP_STORE_PROPERTIES)));
     }
 
     @Test
@@ -695,18 +682,17 @@ public class FederatedStoreTest {
         federatedProperties.setGraphIds(MAP_ID_1);
         federatedProperties.setGraphPropFile(MAP_ID_1, PATH_MAP_STORE_PROPERTIES);
         federatedProperties.setGraphSchemaId(MAP_ID_1, SCHEMA_ID_1);
-        final GraphLibrary mockLibrary = Mockito.mock(GraphLibrary.class);
-        Mockito.when(mockLibrary.getSchema(SCHEMA_ID_1))
-                .thenReturn(new Schema.Builder()
-                        .json(StreamUtil.openStream(FederatedStore.class, PATH_BASIC_ENTITY_SCHEMA_JSON))
-                        .build());
+        final HashMapGraphLibrary library = new HashMapGraphLibrary();
+        final Schema schema = new Schema.Builder()
+                .json(StreamUtil.openStream(FederatedStore.class, PATH_BASIC_ENTITY_SCHEMA_JSON))
+                .build();
+        library.add(SCHEMA_ID_1, schema, new StoreProperties());
 
-        store.setGraphLibrary(mockLibrary);
+        store.setGraphLibrary(library);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         assertEquals(1, store.getGraphs(testUser, null).size());
-
-        Mockito.verify(mockLibrary).getSchema(SCHEMA_ID_1);
+        assertTrue(library.getSchema(SCHEMA_ID_1).toString().equals(schema.toString()));
     }
 
     @Test
@@ -714,21 +700,20 @@ public class FederatedStoreTest {
         federatedProperties.setGraphIds(MAP_ID_1);
         federatedProperties.setGraphPropId(MAP_ID_1, PROPS_ID_1);
         federatedProperties.setGraphSchemaId(MAP_ID_1, SCHEMA_ID_1);
-        final GraphLibrary mockLibrary = Mockito.mock(GraphLibrary.class);
-        Mockito.when(mockLibrary.getProperties(PROPS_ID_1))
-                .thenReturn(StoreProperties.loadStoreProperties(PATH_MAP_STORE_PROPERTIES));
-        Mockito.when(mockLibrary.getSchema(SCHEMA_ID_1))
-                .thenReturn(new Schema.Builder()
-                        .json(StreamUtil.openStream(FederatedStore.class, PATH_BASIC_ENTITY_SCHEMA_JSON))
-                        .build());
+        final Schema schema = new Schema.Builder()
+                .id(SCHEMA_ID_1)
+                .json(StreamUtil.openStream(FederatedStore.class, PATH_BASIC_ENTITY_SCHEMA_JSON))
+                .build();
+        final HashMapGraphLibrary graphLibrary = new HashMapGraphLibrary();
+        graphLibrary.add(MAP_ID_1, schema, StoreProperties.loadStoreProperties(PATH_MAP_STORE_PROPERTIES));
 
-        store.setGraphLibrary(mockLibrary);
+        store.setGraphLibrary(graphLibrary);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         assertEquals(1, store.getGraphs(testUser, null).size());
 
-        Mockito.verify(mockLibrary).getSchema(SCHEMA_ID_1);
-        Mockito.verify(mockLibrary).getProperties(PROPS_ID_1);
+        assertTrue(graphLibrary.getSchema(SCHEMA_ID_1).toString().equals(schema.toString()));
+        assertTrue(graphLibrary.getProperties(PROPS_ID_1).equals(StoreProperties.loadStoreProperties(PATH_MAP_STORE_PROPERTIES)));
     }
 
     @Test
@@ -737,19 +722,20 @@ public class FederatedStoreTest {
         federatedProperties.setGraphPropId(MAP_ID_1, PROPS_ID_1);
         federatedProperties.setGraphPropFile(MAP_ID_1, PATH_MAP_STORE_PROPERTIES);
         federatedProperties.setGraphSchemaFile(MAP_ID_1, PATH_BASIC_EDGE_SCHEMA_JSON);
-        final GraphLibrary mockLibrary = Mockito.mock(GraphLibrary.class);
         final MapStoreProperties prop = new MapStoreProperties();
+        prop.setId(PROPS_ID_1);
         final String unusualKey = "unusualKey";
         prop.set(unusualKey, "value");
-        Mockito.when(mockLibrary.getProperties(PROPS_ID_1)).thenReturn(prop);
+        final HashMapGraphLibrary graphLibrary = new HashMapGraphLibrary();
+        graphLibrary.add("libraryGraphId", new Schema(), prop);
 
-        store.setGraphLibrary(mockLibrary);
+        store.setGraphLibrary(graphLibrary);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         assertEquals(1, store.getGraphs(testUser, null).size());
         assertTrue(store.getGraphs(testUser, null).iterator().next().getStoreProperties().getProperties().getProperty(unusualKey) != null);
 
-        Mockito.verify(mockLibrary).getProperties(PROPS_ID_1);
+        assertTrue(graphLibrary.getProperties(PROPS_ID_1).equals(prop));
     }
 
     @Test
@@ -758,18 +744,19 @@ public class FederatedStoreTest {
         federatedProperties.setGraphPropFile(MAP_ID_1, PATH_MAP_STORE_PROPERTIES);
         federatedProperties.setGraphSchemaFile(MAP_ID_1, PATH_BASIC_EDGE_SCHEMA_JSON);
         federatedProperties.setGraphSchemaId(MAP_ID_1, SCHEMA_ID_1);
-        final GraphLibrary mockLibrary = Mockito.mock(GraphLibrary.class);
-        Mockito.when(mockLibrary.getSchema(SCHEMA_ID_1)).thenReturn(new Schema.Builder()
+        final Schema schema = new Schema.Builder()
                 .json(StreamUtil.openStream(this.getClass(), PATH_BASIC_ENTITY_SCHEMA_JSON))
-                .build());
+                .build();
+        final HashMapGraphLibrary graphLibrary = new HashMapGraphLibrary();
+        graphLibrary.add(MAP_ID_1, schema, new StoreProperties());
 
-        store.setGraphLibrary(mockLibrary);
+        store.setGraphLibrary(graphLibrary);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         assertEquals(1, store.getGraphs(testUser, null).size());
         assertTrue(store.getGraphs(testUser, null).iterator().next().getSchema().getEntityGroups().contains("BasicEntity"));
 
-        Mockito.verify(mockLibrary).getSchema(SCHEMA_ID_1);
+        assertTrue(graphLibrary.getSchema(SCHEMA_ID_1).equals(schema));
     }
 
     @Test
@@ -779,24 +766,24 @@ public class FederatedStoreTest {
         federatedProperties.setGraphPropFile(MAP_ID_1, PATH_MAP_STORE_PROPERTIES);
         federatedProperties.setGraphSchemaFile(MAP_ID_1, PATH_BASIC_EDGE_SCHEMA_JSON);
         federatedProperties.setGraphSchemaId(MAP_ID_1, SCHEMA_ID_1);
-        final GraphLibrary mockLibrary = Mockito.mock(GraphLibrary.class);
         final MapStoreProperties prop = new MapStoreProperties();
         final String unusualKey = "unusualKey";
         prop.set(unusualKey, "value");
-        Mockito.when(mockLibrary.getProperties(PROPS_ID_1)).thenReturn(prop);
-        Mockito.when(mockLibrary.getSchema(SCHEMA_ID_1)).thenReturn(new Schema.Builder()
+        final Schema schema = new Schema.Builder()
                 .json(StreamUtil.openStream(this.getClass(), PATH_BASIC_ENTITY_SCHEMA_JSON))
-                .build());
+                .build();
+        final HashMapGraphLibrary graphLibrary = new HashMapGraphLibrary();
+        graphLibrary.add(MAP_ID_1, schema, prop);
 
-        store.setGraphLibrary(mockLibrary);
+        store.setGraphLibrary(graphLibrary);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         assertEquals(1, store.getGraphs(testUser, null).size());
         assertTrue(store.getGraphs(testUser, null).iterator().next().getStoreProperties().getProperties().getProperty(unusualKey) != null);
         assertTrue(store.getGraphs(testUser, null).iterator().next().getSchema().getEntityGroups().contains("BasicEntity"));
 
-        Mockito.verify(mockLibrary).getProperties(PROPS_ID_1);
-        Mockito.verify(mockLibrary).getSchema(SCHEMA_ID_1);
+        assertTrue(graphLibrary.getProperties(PROPS_ID_1).equals(prop));
+        assertTrue(graphLibrary.getSchema(SCHEMA_ID_1).equals(schema));
     }
 
     @Test
@@ -805,23 +792,17 @@ public class FederatedStoreTest {
         federatedProperties.setGraphIds(MAP_ID_1);
         federatedProperties.setGraphPropFile(MAP_ID_1, PATH_MAP_STORE_PROPERTIES);
         federatedProperties.setGraphSchemaFile(MAP_ID_1, PATH_BASIC_EDGE_SCHEMA_JSON);
-        final GraphLibrary mockLibrary = Mockito.mock(GraphLibrary.class);
-        Mockito.when(mockLibrary.get(MAP_ID_1)).thenReturn(
-                new Pair<>(
-                        new Schema.Builder()
-                                .json(StreamUtil.openStream(this.getClass(), PATH_BASIC_EDGE_SCHEMA_JSON))
-                                .build(),
-                        StoreProperties.loadStoreProperties(StreamUtil.openStream(this.getClass(), PATH_MAP_STORE_PROPERTIES))
-                ));
+        final Schema schema = new Schema.Builder()
+                .json(StreamUtil.openStream(this.getClass(), PATH_BASIC_EDGE_SCHEMA_JSON))
+                .build();
+        final HashMapGraphLibrary graphLibrary = new HashMapGraphLibrary();
+        graphLibrary.add(MAP_ID_1, schema, StoreProperties.loadStoreProperties(StreamUtil.openStream(this.getClass(), PATH_MAP_STORE_PROPERTIES)));
+
         final MapStoreProperties prop = new MapStoreProperties();
         final String unusualKey = "unusualKey";
         prop.set(unusualKey, "value");
-        Mockito.when(mockLibrary.getProperties(PROPS_ID_1)).thenReturn(prop);
-        Mockito.when(mockLibrary.getSchema(SCHEMA_ID_1)).thenReturn(new Schema.Builder()
-                .json(StreamUtil.openStream(this.getClass(), PATH_BASIC_ENTITY_SCHEMA_JSON))
-                .build());
 
-        store.setGraphLibrary(mockLibrary);
+        store.setGraphLibrary(graphLibrary);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         //No exception to be thrown.
@@ -836,13 +817,12 @@ public class FederatedStoreTest {
         final Schema schema = new Builder()
                 .json(StreamUtil.openStream(this.getClass(), PATH_BASIC_EDGE_SCHEMA_JSON))
                 .build();
-
+        final HashMapGraphLibrary graphLibrary = new HashMapGraphLibrary();
         final StoreProperties storeProperties = StoreProperties.loadStoreProperties(StreamUtil.openStream(this.getClass(), PATH_MAP_STORE_PROPERTIES));
-        final GraphLibrary lib = new HashMapGraphLibrary();
-        lib.add(MAP_ID_1, schema, storeProperties);
+        graphLibrary.add(MAP_ID_1, schema, storeProperties);
 
         try {
-            store.setGraphLibrary(lib);
+            store.setGraphLibrary(graphLibrary);
             store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
             fail("exception should have been thrown");
         } catch (final IllegalArgumentException e) {
@@ -934,8 +914,8 @@ public class FederatedStoreTest {
         federatedProperties.setFalseSkipFailedExecution();
 
         //Given
-        final HashMapGraphLibrary library = new HashMapGraphLibrary();
-        library.add(MAP_ID_1,
+        final HashMapGraphLibrary graphLibrary = new HashMapGraphLibrary();
+        graphLibrary.add(MAP_ID_1,
                 new Schema.Builder()
                         .json(StreamUtil.openStream(this.getClass(), PATH_BASIC_ENTITY_SCHEMA_JSON))
                         .build(),
@@ -944,7 +924,7 @@ public class FederatedStoreTest {
         final Graph fedGraph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(FEDERATED_STORE_ID)
-                        .library(library)
+                        .library(graphLibrary)
                         .build())
                 .addStoreProperties(federatedProperties)
                 .build();
