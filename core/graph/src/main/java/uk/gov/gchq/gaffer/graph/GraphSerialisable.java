@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.graph;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
+import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -84,8 +85,8 @@ public final class GraphSerialisable implements Serializable {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("config", new String(this.getConfig()))
-                .append("schema", new String(this.getSchema()))
+                .append("config", StringUtil.toString(this.getConfig()))
+                .append("schema", StringUtil.toString(this.getSchema()))
                 .append("properties", this.getProperties())
                 .build();
     }
