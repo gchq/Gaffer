@@ -16,10 +16,14 @@
 package uk.gov.gchq.gaffer.store.operation.handler.function;
 
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
+import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
+import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
+import uk.gov.gchq.gaffer.operation.impl.function.Filter;
 import uk.gov.gchq.gaffer.operation.impl.function.Function;
+import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 import uk.gov.gchq.gaffer.operation.util.AggregatePair;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -27,6 +31,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.binaryoperator.AdaptedBinaryOperator;
+import uk.gov.gchq.koryphe.signature.Signature;
 import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
@@ -48,82 +53,90 @@ public class FunctionValidator<T extends Function> {
             result.addError("Schema cannot be null.");
         }
 
-        result.add(validateEdges(operation, schema));
-        result.add(validateEntities(operation, schema));
+        result.add(validateOperation(operation, schema));
 
         return result;
     }
 
-    private ValidationResult validateEntities(final T operation, final Schema schema) {
+    private ValidationResult validateOperation(final T operation, final Schema schema) {
         final ValidationResult result = new ValidationResult();
-
-        if (null != operation.getEntities()) {
-            for (final Map.Entry<String, ?> entry : operation.getEntities().entrySet()) {
-
-                final String group = entry.getKey();
-                final SchemaEntityDefinition schemaEntityDefinition = schema.getEntity(group);
-                if (null == schemaEntityDefinition) {
-                    result.addError("Entity group: " + group + " does not exist in the schema.");
-                }
-
-                result.add(validateFunction(entry, schema));
-            }
-        }
-
-        return result;
-    }
-
-    private ValidationResult validateEdges(final T operation, final Schema schema) {
-        final ValidationResult result = new ValidationResult();
+        final boolean opIsAggregate = operation instanceof Aggregate;
+        final boolean opIsFilter = operation instanceof Filter;
+        final boolean opIsTransform = operation instanceof Transform;
 
         if (null != operation.getEdges()) {
-            for (final Map.Entry<String, ?> entry : operation.getEdges().entrySet()) {
-
-                final String group = entry.getKey();
-                final SchemaEdgeDefinition schemaEdgeDefinition = schema.getEdge(group);
-                if (null == schemaEdgeDefinition) {
-                    result.addError("Edge group: " + group + " does not exist in the schema.");
+            for (Map.Entry<String, ?> entry : operation.getEdges().entrySet()) {
+                result.add(validateEdge(entry, schema));
+                if (opIsAggregate) {
+                    result.add(validateElementAggregator(entry, schema));
                 }
-
-                result.add(validateFunction(entry, schema));
+                if (opIsFilter) {
+                    result.add(validateElementFilter((ElementFilter) entry.getValue()));
+                }
+                if (opIsTransform) {
+                    result.add(validateElementTransformer((ElementTransformer) entry.getValue()));
+                }
+            }
+        }
+        if (null != operation.getEntities()) {
+            for (Map.Entry<String, ?> entry : operation.getEntities().entrySet()) {
+                result.add(validateEntity(entry, schema));
+                if (opIsAggregate) {
+                    result.add(validateElementAggregator(entry, schema));
+                }
+                if (opIsFilter) {
+                    result.add(validateElementFilter((ElementFilter) entry.getValue()));
+                }
+                if (opIsTransform) {
+                    result.add(validateElementTransformer((ElementTransformer) entry.getValue()));
+                }
             }
         }
 
+        if (opIsFilter) {
+            final ElementFilter globalElements = ((Filter) operation).getGlobalElements();
+            final ElementFilter globalEdges = ((Filter) operation).getGlobalEdges();
+            final ElementFilter globalEntities = ((Filter) operation).getGlobalEntities();
+
+            if (null != globalElements) {
+                result.add(validateGlobalElements(schema.getEdges(), globalElements));
+                result.add(validateGlobalElements(schema.getEntities(), globalElements));
+            }
+            if (null != globalEdges) {
+                result.add(validateGlobalElements(schema.getEdges(), globalEdges));
+            }
+            if (null != globalEntities) {
+                result.add(validateGlobalElements(schema.getEntities(), globalEntities));
+            }
+        }
         return result;
     }
 
-    private ValidationResult validateFunction(final Map.Entry<String, ?> entry, final Schema schema) {
+    private ValidationResult validateEdge(final Map.Entry<String, ?> edgeEntry, final Schema schema) {
         final ValidationResult result = new ValidationResult();
-
-        if (entry.getValue() instanceof AggregatePair) {
-            result.add(validateAggregator(entry, schema));
-        }
-
-        if (entry.getValue() instanceof ElementFilter) {
-            final ElementFilter filter = (ElementFilter) entry.getValue();
-            if (null != filter && null != filter.getComponents()) {
-                for (final TupleAdaptedPredicate<String, ?> adaptedPredicate : filter.getComponents()) {
-                    if (null == adaptedPredicate.getPredicate()) {
-                        result.addError(filter.getClass().getSimpleName() + " contains a null function.");
-                    }
-                }
-            }
-        }
-
-        if (entry.getValue() instanceof ElementTransformer) {
-            final ElementTransformer transformer = (ElementTransformer) entry.getValue();
-            if (null != transformer && null != transformer.getComponents()) {
-                for (final TupleAdaptedFunction<String, ?, ?> adaptedTransformer : transformer.getComponents()) {
-                    if (null == adaptedTransformer.getFunction()) {
-                        result.addError(transformer.getClass().getSimpleName() + " contains a null function.");
-                    }
-                }
+        if (null != edgeEntry) {
+            final String group = edgeEntry.getKey();
+            final SchemaEdgeDefinition schemaEdgeDefinition = schema.getEdge(group);
+            if (null == schemaEdgeDefinition) {
+                result.addError("Edge group: " + group + " does not exist in the schema.");
             }
         }
         return result;
     }
 
-    private ValidationResult validateAggregator(final Map.Entry<String, ?> entry, final Schema schema) {
+    private ValidationResult validateEntity(final Map.Entry<String, ?> entityEntry, final Schema schema) {
+        final ValidationResult result = new ValidationResult();
+        if (null != entityEntry) {
+            final String group = entityEntry.getKey();
+            final SchemaEntityDefinition schemaEntityDefinition = schema.getEntity(group);
+            if (null == schemaEntityDefinition) {
+                result.addError("Entity group: " + group + " does not exist in the schema.");
+            }
+        }
+        return result;
+    }
+
+    private ValidationResult validateElementAggregator(final Map.Entry<String, ?> entry, final Schema schema) {
         final ValidationResult result = new ValidationResult();
         List<TupleAdaptedBinaryOperator<String, ?>> aggregateFunctions = new ArrayList<>();
         final SchemaElementDefinition schemaElement = schema.getElement(entry.getKey());
@@ -157,6 +170,54 @@ public class FunctionValidator<T extends Function> {
                     }
                 } else {
                     result.addError(aggregator.getClass().getSimpleName() + " contains a null function.");
+                }
+            }
+        }
+        return result;
+    }
+
+    private ValidationResult validateElementFilter(final ElementFilter filter) {
+        final ValidationResult result = new ValidationResult();
+        if (null != filter && null != filter.getComponents()) {
+            for (final TupleAdaptedPredicate<String, ?> adaptedPredicate : filter.getComponents()) {
+                if (null == adaptedPredicate.getPredicate()) {
+                    result.addError(filter.getClass().getSimpleName() + " contains a null function.");
+                }
+            }
+        }
+        return result;
+    }
+
+    private ValidationResult validateElementTransformer(final ElementTransformer transformer) {
+        final ValidationResult result = new ValidationResult();
+        if (null != transformer && null != transformer.getComponents()) {
+            for (final TupleAdaptedFunction<String, ?, ?> adaptedTransformer : transformer.getComponents()) {
+                if (null == adaptedTransformer.getFunction()) {
+                    result.addError(transformer.getClass().getSimpleName() + " contains a null function.");
+                }
+            }
+        }
+        return result;
+    }
+
+    private ValidationResult validateGlobalElements(final Map<String, ? extends SchemaElementDefinition> elements, final ElementFilter globalFilter) {
+        final ValidationResult result = new ValidationResult();
+
+        final List<TupleAdaptedPredicate<String, ?>> components = globalFilter.getComponents();
+        for (TupleAdaptedPredicate<String, ?> component : components) {
+            final String[] selection = component.getSelection();
+
+            for (SchemaElementDefinition elementDef : elements.values()) {
+                Map<String, String> properties = elementDef.getPropertyMap();
+                for (String str : selection) {
+                    Class<?> expectedClass = elementDef.getIdentifierClass(IdentifierType.fromName(properties.get(str)));
+
+                    if (null == component.getPredicate()) {
+                        result.addError(globalFilter.getClass().getSimpleName() + " contains a null function.");
+                    } else {
+                        final Signature inputSig = Signature.getInputSignature(component.getPredicate());
+                        result.add(inputSig.assignable(expectedClass));
+                    }
                 }
             }
         }
