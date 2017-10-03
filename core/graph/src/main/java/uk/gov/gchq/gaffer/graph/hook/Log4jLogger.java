@@ -47,7 +47,7 @@ public class Log4jLogger implements GraphHook {
     }
 
     @Override
-    public <T> T onFailure(final T result, final OperationChain<?> opChain, final User user) {
+    public <T> T onFailure(final T result, final OperationChain<?> opChain, final User user, final Exception e) {
         LOGGER.warn("Failed to run {} as {}", opChain, user.getUserId());
         return result;
     }
