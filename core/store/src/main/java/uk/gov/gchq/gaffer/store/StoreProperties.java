@@ -72,6 +72,7 @@ public class StoreProperties implements Cloneable {
 
     // Required for loading by reflection.
     public StoreProperties() {
+        setStorePropertiesClass(this.getClass());
     }
 
     public StoreProperties(final String id) {

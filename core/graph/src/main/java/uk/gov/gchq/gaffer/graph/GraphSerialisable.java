@@ -37,6 +37,7 @@ import java.util.Properties;
  */
 public final class GraphSerialisable implements Serializable {
     private static final long serialVersionUID = 2684203367656032583L;
+    public static final String COULD_NOT_CONVERT_PROPERTIES_TO_THE_REQUIRED_PROPERTIES_CLASS_S = "Error while creating graph from GraphSerialisable, could not create the required Properties Class: %s";
     private byte[] schema;
     private Properties properties;
     private byte[] config;
@@ -59,9 +60,18 @@ public final class GraphSerialisable implements Serializable {
      * class.
      */
     public Graph buildGraph() {
+        final String storeClass = properties.getProperty(StoreProperties.STORE_PROPERTIES_CLASS);
+        final StoreProperties storeProperties;
+        try {
+            storeProperties = (StoreProperties) Class.forName(storeClass).newInstance();
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            throw new RuntimeException(String.format(COULD_NOT_CONVERT_PROPERTIES_TO_THE_REQUIRED_PROPERTIES_CLASS_S, storeClass), e);
+        }
+        storeProperties.setProperties(properties);
+
         return new Graph.Builder()
                 .addSchema(schema)
-                .addStoreProperties(new StoreProperties(properties))
+                .addStoreProperties(storeProperties)
                 .config(config)
                 .build();
     }
