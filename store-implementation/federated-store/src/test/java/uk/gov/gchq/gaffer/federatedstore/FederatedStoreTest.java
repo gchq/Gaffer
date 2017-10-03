@@ -100,6 +100,7 @@ public class FederatedStoreTest {
         federatedProperties.setGraphAuth(MAP_ID_1, ALL_USERS);
         federatedProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
         HashMapGraphLibrary.clear();
+        CacheServiceLoader.shutdown();
         authUser = authUser();
         testUser = testUser();
     }
@@ -118,6 +119,8 @@ public class FederatedStoreTest {
                 .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_ACC_STORE_PROPERTIES))
                 .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_EDGE_SCHEMA_JSON))
                 .build();
+
+        CacheServiceLoader.shutdown();
 
         // When / Then
         try {
@@ -553,12 +556,6 @@ public class FederatedStoreTest {
     @Test
     public void shouldGetAllGraphIdsInUnmodifiableSet() throws Exception {
         // Given
-        federatedProperties.setGraphIds(MAP_ID_1);
-        federatedProperties.setGraphPropId(MAP_ID_1, PROPS_ID_1);
-        federatedProperties.setGraphSchemaFile(MAP_ID_1, PATH_BASIC_EDGE_SCHEMA_JSON);
-        final GraphLibrary mockLibrary = Mockito.mock(GraphLibrary.class);
-        Mockito.when(mockLibrary.getProperties(PROPS_ID_1)).thenReturn(StoreProperties.loadStoreProperties(PATH_MAP_STORE_PROPERTIES));
-        store.setGraphLibrary(mockLibrary);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         // When / Then
@@ -630,10 +627,9 @@ public class FederatedStoreTest {
         federatedProperties.setGraphIds(MAP_ID_1);
         federatedProperties.setGraphPropFile(MAP_ID_1, PATH_ACC_STORE_PROPERTIES);
         federatedProperties.setGraphSchemaFile(MAP_ID_1, PATH_BASIC_ENTITY_SCHEMA_JSON);
+        final HashMapGraphLibrary graphLibrary = new HashMapGraphLibrary();
 
-        final GraphLibrary mockLibrary = Mockito.mock(GraphLibrary.class);
-
-        store.setGraphLibrary(mockLibrary);
+        store.setGraphLibrary(graphLibrary);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         //Then
@@ -704,8 +700,10 @@ public class FederatedStoreTest {
                 .id(SCHEMA_ID_1)
                 .json(StreamUtil.openStream(FederatedStore.class, PATH_BASIC_ENTITY_SCHEMA_JSON))
                 .build();
+        final StoreProperties properties = StoreProperties.loadStoreProperties(PATH_MAP_STORE_PROPERTIES);
+        properties.setId(PROPS_ID_1);
         final HashMapGraphLibrary graphLibrary = new HashMapGraphLibrary();
-        graphLibrary.add(MAP_ID_1, schema, StoreProperties.loadStoreProperties(PATH_MAP_STORE_PROPERTIES));
+        graphLibrary.add(MAP_ID_1, schema, properties);
 
         store.setGraphLibrary(graphLibrary);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
@@ -713,7 +711,7 @@ public class FederatedStoreTest {
         assertEquals(1, store.getGraphs(testUser, null).size());
 
         assertTrue(graphLibrary.getSchema(SCHEMA_ID_1).toString().equals(schema.toString()));
-        assertTrue(graphLibrary.getProperties(PROPS_ID_1).equals(StoreProperties.loadStoreProperties(PATH_MAP_STORE_PROPERTIES)));
+        assertTrue(graphLibrary.getProperties(PROPS_ID_1).equals(properties));
     }
 
     @Test
