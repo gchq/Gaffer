@@ -20,6 +20,8 @@ import org.apache.hadoop.fs.Path;
 import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.Option;
+import scala.Tuple2;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
@@ -45,9 +47,15 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * An {@link OperationHandler} for the {@link AddElements} operation on the {@link ParquetStore}.
@@ -88,27 +96,42 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             // Write the data out
             LOGGER.debug("Starting to write the input Parquet data to {} split by group and split points", tempDirString);
             final Iterable<? extends Element> input = addElementsOperation.getInput();
-            final CalculateSplitPointsFromIterable calculateSplitPointsFromIterable =
-                    new CalculateSplitPointsFromIterable(parquetStoreProperties.getSampleRate(),
-                            parquetStoreProperties.getAddElementsOutputFilesPerGroup() - 1);
+            final int numberOfThreads;
+            final Option<String> sparkDriverCores = spark.conf().getOption("spark.driver.cores");
+            if (sparkDriverCores.nonEmpty()) {
+                numberOfThreads = Integer.parseInt(sparkDriverCores.get());
+            } else {
+                numberOfThreads = store.getProperties().getThreadsAvailable();
+            }
+            final ExecutorService pool = Executors.newFixedThreadPool(numberOfThreads);
+            LOGGER.debug("Created thread pool of size {} to aggregate and sort data", numberOfThreads);
+
+            final List<Callable<Tuple2<String, Map<Object, Integer>>>> tasks = new ArrayList<>();
             final Map<String, Map<Object, Integer>> groupToSplitPoints;
             final GraphIndex index = store.getGraphIndex();
             if (null == index) {
                 groupToSplitPoints = new HashMap<>();
                 for (final String group : gafferSchema.getEdgeGroups()) {
-                    final Map<Object, Integer> splitPoints = calculateSplitPointsFromIterable.calculateSplitsForGroup(input, group, false);
-                    if (!splitPoints.isEmpty()) {
-                        groupToSplitPoints.put(group, splitPoints);
-                    }
+                    tasks.add(new CalculateSplitPointsFromIterable(parquetStoreProperties.getSampleRate(),
+                            parquetStoreProperties.getAddElementsOutputFilesPerGroup() - 1, input, group, false));
                 }
                 for (final String group : gafferSchema.getEntityGroups()) {
-                    final Map<Object, Integer> splitPoints = calculateSplitPointsFromIterable.calculateSplitsForGroup(input, group, true);
-                    if (!splitPoints.isEmpty()) {
-                        groupToSplitPoints.put(group, splitPoints);
+                    tasks.add(new CalculateSplitPointsFromIterable(parquetStoreProperties.getSampleRate(),
+                            parquetStoreProperties.getAddElementsOutputFilesPerGroup() - 1, input, group, true));
+                }
+                try {
+                    List<Future<Tuple2<String, Map<Object, Integer>>>> results = pool.invokeAll(tasks);
+                    for (int i = 0; i < tasks.size(); i++) {
+                        final Tuple2<String, Map<Object, Integer>> result = results.get(i).get();
+                        if (null != result) {
+                            groupToSplitPoints.put(result._1, result._2);
+                        }
                     }
+                } catch (final Exception e) {
+                    throw new OperationException(e.getMessage(), e);
                 }
             } else {
-                groupToSplitPoints = CalculateSplitPointsFromIndex.apply(index, store.getSchemaUtils(), parquetStoreProperties, input);
+                groupToSplitPoints = CalculateSplitPointsFromIndex.apply(index, store.getSchemaUtils(), parquetStoreProperties, input, pool);
             }
 
             final Iterator<? extends Element> inputIter = input.iterator();
@@ -122,7 +145,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             LOGGER.debug("Finished writing the input Parquet data to {}", tempDirString);
             // Use to Spark read in all the data, aggregate and sort it
             LOGGER.debug("Starting to write the sorted and aggregated Parquet data to {}/sorted split by group", tempDirString);
-            new AggregateAndSortTempData(store, spark, groupToSplitPoints);
+            new AggregateAndSortTempData(store, spark, groupToSplitPoints, pool);
             LOGGER.debug("Finished writing the sorted and aggregated Parquet data to {}/sorted", tempDirString);
             // Generate the file based index
             LOGGER.debug("Starting to write the indexes");
