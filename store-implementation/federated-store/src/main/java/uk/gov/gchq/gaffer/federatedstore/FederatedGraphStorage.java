@@ -35,6 +35,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class FederatedGraphStorage {
     public static final String USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S = "User is attempting to overwrite a graph within FederatedStore. GraphId: %s";
@@ -44,30 +45,33 @@ public class FederatedGraphStorage {
     private Set<StoreTrait> mergedTraits = Collections.emptySet();
 
     public Collection<Graph> getAll(final User user) {
-        final HashSet<Graph> rtn = storage.entrySet()
-                .stream()
-                .filter(entry -> null != entry.getKey() && entry.getKey().isValidToExecute(user))
-                .flatMap(entry -> entry.getValue().stream())
-                .collect(Collectors.toCollection(HashSet::new));
-
+        final Set<Graph> rtn = getAllStream(user)
+                .collect(Collectors.toSet());
         return Collections.unmodifiableCollection(rtn);
     }
 
-    public Collection<Graph> get(final User user, final Collection<String> graphIds) {
-        final HashSet<Graph> rtn = getAll(user)
+    private Stream<Graph> getAllStream(final User user) {
+        return storage.entrySet()
                 .stream()
-                .filter(graph -> null == graphIds || graphIds.contains(graph.getGraphId()))
-                .collect(Collectors.toCollection(HashSet::new));
-
-        return Collections.unmodifiableSet(rtn);
+                .filter(entry -> null != entry.getKey() && entry.getKey().isValidToExecute(user))
+                .flatMap(entry -> entry.getValue().stream());
     }
 
+    public Collection<Graph> get(final User user, final Collection<String> graphIds) {
+        final Set<Graph> rtn = getStream(user, graphIds)
+                .collect(Collectors.toSet());
+        return Collections.unmodifiableCollection(Collections.unmodifiableCollection(rtn));
+    }
+
+    private Stream<Graph> getStream(final User user, final Collection<String> graphIds) {
+        return getAllStream(user)
+                .filter(graph -> null == graphIds || graphIds.contains(graph.getGraphId()));
+    }
 
     public Collection<String> getAllIds(final User user) {
-        final HashSet<String> rtn = getAll(user)
-                .stream()
+        final Set<String> rtn = getAllStream(user)
                 .map(Graph::getGraphId)
-                .collect(Collectors.toCollection(HashSet::new));
+                .collect(Collectors.toSet());
 
         return Collections.unmodifiableSet(rtn);
     }
