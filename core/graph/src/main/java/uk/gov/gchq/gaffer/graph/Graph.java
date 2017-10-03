@@ -314,6 +314,10 @@ public final class Graph {
         return store.getGraphLibrary();
     }
 
+    protected GraphConfig getConfig() {
+        return config;
+    }
+
     @FunctionalInterface
     private interface StoreExecuter<O> {
         O execute(final OperationChain operationChain, final User user) throws OperationException;
