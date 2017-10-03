@@ -36,7 +36,7 @@ Gaffer offers:
 
 To get going with Gaffer, visit our [getting started pages](https://gchq.github.io/gaffer-doc/summaries/getting-started.html).
 
-Gaffer is under active development. Version 1.0 of Gaffer was released in September 2017.
+Gaffer is under active development. Version 1.0 of Gaffer was released in October 2017.
 
 License
 -------
