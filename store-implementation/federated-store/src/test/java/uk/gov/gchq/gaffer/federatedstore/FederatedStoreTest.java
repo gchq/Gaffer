@@ -86,6 +86,7 @@ public class FederatedStoreTest {
     private static final String ALL_USERS = FederatedStoreUser.ALL_USERS;
     private static final HashSet<String> GRAPH_AUTHS = Sets.newHashSet(ALL_USERS);
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
+    private static final String CACHE_SERVICE_NAME = "federatedStoreGraphs";
     private static User authUser;
     private static User testUser;
 
@@ -121,7 +122,7 @@ public class FederatedStoreTest {
 
         // When / Then
         try {
-            store.addGraphs(null,TEST_USER,graphToAdd);
+            store.addGraphs(null, TEST_USER, graphToAdd);
             fail("Exception expected");
         } catch (final StoreException e) {
             assertTrue(e.getMessage().contains("No cache has been set"));
@@ -153,11 +154,15 @@ public class FederatedStoreTest {
                 .build();
 
         store.addGraphs(null, TEST_USER, graphToAdd);
-
-        assertEquals(store.getGraphs(testUser, ACC_ID_1).size(), 1);
+        assertEquals(1, store.getGraphs(testUser, ACC_ID_1).size());
 
         Collection<Graph> storeGraphs = store.getGraphs(testUser, null);
+        assertTrue(CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME).contains(ACC_ID_1));
         assertTrue(storeGraphs.contains(graphToAdd));
+
+        store = new FederatedStore();
+        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
+        assertTrue(CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME).contains(ACC_ID_1));
     }
 
     @Test
@@ -175,7 +180,16 @@ public class FederatedStoreTest {
 
         store.addGraphs(null, TEST_USER, graphsToAdd.toArray(new Graph[graphsToAdd.size()]));
 
-        assertEquals(store.getGraphs(testUser, null).size(), 10);
+        for (int i = 0; i < 10; i++) {
+            assertTrue(CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME).contains(ACC_ID_1 + i));
+        }
+
+        store = new FederatedStore();
+        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
+
+        for (int i = 0; i < 10; i++) {
+            assertTrue(CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME).contains(ACC_ID_1 + i));
+        }
     }
 
     @Test

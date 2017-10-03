@@ -22,7 +22,7 @@ import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
-import uk.gov.gchq.gaffer.cache.ICacheService;
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
@@ -99,11 +99,9 @@ public class FederatedStore extends Store {
     private static final GraphConfigEnum PROPERTIES = GraphConfigEnum.properties;
     private static final LocationEnum ID = LocationEnum.id;
     private static final LocationEnum FILE = LocationEnum.file;
-    private static final String CACHE_SERVICE_NAME = "federatedStoreGraphs";
-    private ICacheService cacheService;
+    FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
     private FederatedGraphStorage graphStorage = new FederatedGraphStorage();
     private Set<String> customPropertiesAuths;
-
 
     /**
      * Initialise this FederatedStore with any sub-graphs defined within the
@@ -122,7 +120,6 @@ public class FederatedStore extends Store {
                     + CacheProperties.CACHE_SERVICE_CLASS + " has been set in the Store Properties");
         }
         super.initialise(graphId, new Schema(), properties);
-        setCacheService();
         loadCustomPropertiesAuths();
         loadGraphs();
     }
@@ -175,7 +172,7 @@ public class FederatedStore extends Store {
      * @throws StoreException if no cache has been set
      */
     public void addGraphs(final Set<String> graphAuths, final String addingUserId, final Graph... graphs) throws StoreException {
-        if (cacheService == null) {
+        if (federatedStoreCache.getCache() == null) {
             throw new StoreException("No cache has been set, please initialise the FederatedStore instance");
         }
         FederatedAccess access = new FederatedAccess(graphAuths, addingUserId);
@@ -193,7 +190,7 @@ public class FederatedStore extends Store {
      * @param graphId to be removed from scope
      */
     public void remove(final String graphId) {
-        cacheService.removeFromCache(CACHE_SERVICE_NAME, graphId);
+        federatedStoreCache.deleteFromCache(graphId);
         graphStorage.remove(graphId);
     }
 
@@ -335,15 +332,23 @@ public class FederatedStore extends Store {
     private void loadGraphs() throws StoreException {
         final Set<String> graphIds = getGraphIds();
         for (final String graphId : graphIds) {
-            final Builder builder = new Builder().config(new GraphConfig.Builder()
-                    .graphId(graphId)
-                    .library(getGraphLibrary())
-                    .build());
+            if (federatedStoreCache.getAllGraphIds().contains(graphId)) {
+                try {
+                    Graph graph = federatedStoreCache.getFromCache(graphId);
+                    addGraphs(resolveAuths(graphId), null, graph);
+                } catch (CacheOperationException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                final Builder builder = new Builder().config(new GraphConfig.Builder()
+                        .graphId(graphId)
+                        .library(getGraphLibrary())
+                        .build());
 
-            resolveConfiguration(graphId, builder);
+                resolveConfiguration(graphId, builder);
 
-            final Set<String> auths = resolveAuths(graphId);
-            addGraphs(auths, null, builder);
+                addGraphs(resolveAuths(graphId), null, builder);
+            }
         }
     }
 
@@ -455,7 +460,7 @@ public class FederatedStore extends Store {
         graphStorage.put(newGraph, access);
         final String graphId = newGraph.getGraphId();
         try {
-            cacheService.putSafeInCache(CACHE_SERVICE_NAME, graphId, newGraph);
+            federatedStoreCache.addSafeToCache(newGraph);
         } catch (final OverwritingException e) {
             throw new OverwritingException((String.format("User is attempting to overwrite a graph within the cacheService. GraphId: %s", graphId)));
         } catch (final Exception e) {
@@ -468,13 +473,15 @@ public class FederatedStore extends Store {
     }
 
     @Override
-    public Schema getSchema() {
-        return graphStorage.getMergedSchema();
+    protected void startCacheServiceLoader(
+            final StoreProperties properties) {
+        if (federatedStoreCache.getCache() == null) {
+            CacheServiceLoader.initialise(properties.getProperties());
+        }
     }
 
-    private void setCacheService() {
-        if (CacheServiceLoader.getService() != null) {
-            this.cacheService = CacheServiceLoader.getService();
-        }
+    @Override
+    public Schema getSchema() {
+        return graphStorage.getMergedSchema();
     }
 }
