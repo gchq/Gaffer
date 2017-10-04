@@ -21,6 +21,10 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.PREFIX_GAFFER_FEDERATED_STORE;
 
+
+/**
+ * Additional {@link StoreProperties} for the {@link FederatedStore}.
+ */
 public class FederatedStoreProperties extends StoreProperties {
     public static final String CUSTOM_PROPERTIES_AUTHS = "customPropertiesAuths";
     public static final String KEY_GRAPH_IDS = PREFIX_GAFFER_FEDERATED_STORE + "." + "graphIds";
@@ -86,6 +90,9 @@ public class FederatedStoreProperties extends StoreProperties {
         return String.format("%s.%s.%s", PREFIX_GAFFER_FEDERATED_STORE, graphId, "auths");
     }
 
+    /**
+     * Enum for the Graph Properties or Schema
+     */
     public enum GraphConfigEnum {
         SCHEMA("schema"), PROPERTIES("properties");
 
@@ -96,6 +103,9 @@ public class FederatedStoreProperties extends StoreProperties {
         }
     }
 
+    /**
+     * Enum for the location of the {@link GraphConfigEnum}
+     */
     public enum LocationEnum {
         FILE("file"), ID("id");
 
