@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl;
 
+import scala.Tuple2;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.comparison.ComparableOrToStringComparator;
@@ -23,23 +25,30 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.Callable;
 
 /**
  * Generates the split points from an {@link Iterable} of {@link Element}s by selecting a sample of the data, sorting that sample and
  * then pulling out the relevant objects to act as the split points
  */
-public class CalculateSplitPointsFromIterable {
+public class CalculateSplitPointsFromIterable implements Callable<Tuple2<String, Map<Object, Integer>>> {
 
     private static final ComparableOrToStringComparator COMPARATOR = new ComparableOrToStringComparator();
     private final long sampleRate;
     private final int numOfSplits;
+    private final Iterable<? extends Element> data;
+    private final String group;
+    private final boolean isEntity;
 
-    public CalculateSplitPointsFromIterable(final long sampleRate, final int numOfSplits) {
+    public CalculateSplitPointsFromIterable(final long sampleRate, final int numOfSplits, final Iterable<? extends Element> data, final String group, final boolean isEntity) {
         this.sampleRate = sampleRate;
         this.numOfSplits = numOfSplits;
+        this.data = data;
+        this.group = group;
+        this.isEntity = isEntity;
     }
 
-    public Map<Object, Integer> calculateSplitsForGroup(final Iterable<? extends Element> data, final String group, final boolean isEntity) {
+    public Tuple2<String, Map<Object, Integer>> call() {
         final Iterator<? extends Element> dataIter = data.iterator();
         final ArrayList<Object> sample = new ArrayList<>();
         long counter = sampleRate;
@@ -59,7 +68,7 @@ public class CalculateSplitPointsFromIterable {
             }
         }
         if (sample.isEmpty()) {
-            return new TreeMap<>(COMPARATOR);
+            return new Tuple2<>(group, new TreeMap<>(COMPARATOR));
         } else {
             sample.sort(COMPARATOR);
             final int sampleSize = sample.size();
@@ -71,7 +80,7 @@ public class CalculateSplitPointsFromIterable {
             if (splitPoints.isEmpty()) {
                 splitPoints.put(sample.get(0), 0);
             }
-            return splitPoints;
+            return new Tuple2<>(group, splitPoints);
         }
     }
 }
