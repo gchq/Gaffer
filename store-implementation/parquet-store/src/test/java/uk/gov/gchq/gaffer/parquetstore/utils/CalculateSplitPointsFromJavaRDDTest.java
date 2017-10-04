@@ -45,7 +45,7 @@ public class CalculateSplitPointsFromJavaRDDTest {
     @Test
     public void calculateSplitsFromEmptyJavaRDD() {
         final JavaRDD<Element> emptyJavaRDD = TestUtils.javaSparkContext.emptyRDD();
-        final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromJavaRDD(2, 2).calculateSplitsForGroup(emptyJavaRDD, TestGroups.ENTITY, true);
+        final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromJavaRDD(2, 2, emptyJavaRDD, TestGroups.ENTITY, true).call()._2;
         Assert.assertTrue(splitPoints.isEmpty());
     }
 
@@ -57,7 +57,7 @@ public class CalculateSplitPointsFromJavaRDDTest {
             data.add(DataGen.getEntity(TestGroups.ENTITY_2, i + 5, null, null, null, null, null, null, null, null, 1, null));
         }
         final JavaRDD<Element> dataRDD = TestUtils.javaSparkContext.parallelize(data);
-        final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromJavaRDD(1, 2).calculateSplitsForGroup(dataRDD, TestGroups.ENTITY, true);
+        final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromJavaRDD(1, 2, dataRDD, TestGroups.ENTITY, true).call()._2;
         final Map<Object, Integer> expected = new HashMap<>(2);
         expected.put(0L, 0);
         expected.put(6L, 1);
@@ -72,7 +72,7 @@ public class CalculateSplitPointsFromJavaRDDTest {
             data.add(DataGen.getEdge(TestGroups.EDGE_2, i + 5, i + 8, false, null, null, null, null, null, null, null, null, 1, null));
         }
         final JavaRDD<Element> dataRDD = TestUtils.javaSparkContext.parallelize(data);
-        final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromJavaRDD(1, 2).calculateSplitsForGroup(dataRDD, TestGroups.EDGE, false);
+        final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromJavaRDD(1, 2, dataRDD, TestGroups.EDGE, false).call()._2;
         final Map<Object, Integer> expected = new HashMap<>(2);
         expected.put(0L, 0);
         expected.put(6L, 1);
