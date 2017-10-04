@@ -209,10 +209,10 @@ public class FunctionValidator<T extends Function> {
         if (null != aggregator) {
             final List<TupleAdaptedBinaryOperator<String, ?>> components = aggregator.getComponents();
 
-            for (TupleAdaptedBinaryOperator<String, ?> component : components) {
+            for (final TupleAdaptedBinaryOperator<String, ?> component : components) {
                 final String[] selection = component.getSelection();
 
-                for (SchemaElementDefinition elementDef : elements.values()) {
+                for (final SchemaElementDefinition elementDef : elements.values()) {
                     final Class[] selectionClasses = Arrays.stream(selection).map(elementDef::getPropertyClass).toArray(Class[]::new);
                     final Map<String, String> properties = elementDef.getPropertyMap();
                     if (properties.size() > 0) {
@@ -226,9 +226,9 @@ public class FunctionValidator<T extends Function> {
                 }
             }
         } else {
-            for (SchemaElementDefinition elementDef : elements.values()) {
+            for (final SchemaElementDefinition elementDef : elements.values()) {
                 final List<TupleAdaptedBinaryOperator<String, ?>> components = elementDef.getOriginalAggregateFunctions();
-                for (TupleAdaptedBinaryOperator<String, ?> component : components) {
+                for (final TupleAdaptedBinaryOperator<String, ?> component : components) {
                     final String[] selection = component.getSelection();
                     final Class[] selectionClasses = Arrays.stream(selection).map(elementDef::getPropertyClass).toArray(Class[]::new);
                     final Map<String, String> properties = elementDef.getPropertyMap();
@@ -251,10 +251,10 @@ public class FunctionValidator<T extends Function> {
         final ValidationResult result = new ValidationResult();
 
         final List<TupleAdaptedPredicate<String, ?>> components = filter.getComponents();
-        for (TupleAdaptedPredicate<String, ?> component : components) {
+        for (final TupleAdaptedPredicate<String, ?> component : components) {
             final String[] selection = component.getSelection();
 
-            for (SchemaElementDefinition elementDef : elements.values()) {
+            for (final SchemaElementDefinition elementDef : elements.values()) {
                 final Class[] selectionClasses = Arrays.stream(selection).map(elementDef::getPropertyClass).toArray(Class[]::new);
                 final Map<String, String> properties = elementDef.getPropertyMap();
                 if (properties.size() > 0) {
@@ -274,11 +274,11 @@ public class FunctionValidator<T extends Function> {
         final ValidationResult result = new ValidationResult();
 
         final List<TupleAdaptedFunction<String, ?, ?>> components = transformer.getComponents();
-        for (TupleAdaptedFunction<String, ?, ?> component : components) {
+        for (final TupleAdaptedFunction<String, ?, ?> component : components) {
             final String[] selection = component.getSelection();
             final String[] projection = component.getProjection();
 
-            for (SchemaElementDefinition elementDef : elements.values()) {
+            for (final SchemaElementDefinition elementDef : elements.values()) {
                 final Class[] selectionClasses = Arrays.stream(selection).map(elementDef::getPropertyClass).toArray(Class[]::new);
                 final Class[] projectionClasses = Arrays.stream(projection).map(elementDef::getPropertyClass).toArray(Class[]::new);
                 final Map<String, String> properties = elementDef.getPropertyMap();
