@@ -18,12 +18,14 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.spark.api.java.JavaPairRDD;
+import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.broadcast.Broadcast;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.spark.SparkContext;
 import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.javardd.ImportKeyValueJavaPairRDDToAccumulo;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.java.ElementConverterFunction;
@@ -38,11 +40,11 @@ public class ImportJavaRDDOfElementsHandler implements OperationHandler<ImportJa
 
     @Override
     public Void doOperation(final ImportJavaRDDOfElements operation, final Context context, final Store store) throws OperationException {
-        doOperation(operation, context, (AccumuloStore) store);
+        doOperation(operation, (SparkContext) context, (AccumuloStore) store);
         return null;
     }
 
-    public void doOperation(final ImportJavaRDDOfElements operation, final Context context, final AccumuloStore store) throws OperationException {
+    public void doOperation(final ImportJavaRDDOfElements operation, final SparkContext context, final AccumuloStore store) throws OperationException {
         final String outputPath = operation.getOption(OUTPUT_PATH);
         if (null == outputPath || outputPath.isEmpty()) {
             throw new OperationException("Option outputPath must be set for this option to be run against the accumulostore");
@@ -52,7 +54,7 @@ public class ImportJavaRDDOfElementsHandler implements OperationHandler<ImportJa
             throw new OperationException("Option failurePath must be set for this option to be run against the accumulostore");
         }
 
-        final Broadcast<AccumuloElementConverter> broadcast = operation.getJavaSparkContext().broadcast(store.getKeyPackage().getKeyConverter());
+        final Broadcast<AccumuloElementConverter> broadcast = JavaSparkContext.fromSparkContext(context.getSparkSession().sparkContext()).broadcast(store.getKeyPackage().getKeyConverter());
         final ElementConverterFunction func = new ElementConverterFunction(broadcast);
         final JavaPairRDD<Key, Value> rdd = operation.getInput().flatMapToPair(func);
         final ImportKeyValueJavaPairRDDToAccumulo op =

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.spark.operation.scalardd;
+package uk.gov.gchq.gaffer.store;
 
-import org.apache.spark.sql.SparkSession;
+import uk.gov.gchq.gaffer.user.User;
 
-import uk.gov.gchq.gaffer.operation.Operation;
+public class DefaultContextFactory implements ContextFactory {
 
-public interface Rdd {
-    SparkSession getSparkSession();
-
-    void setSparkSession(final SparkSession sparkSession);
-
-    interface Builder<OP extends Rdd,
-            B extends Builder<OP, ?>>
-            extends Operation.Builder<OP, B> {
-        default B sparkSession(final SparkSession sparkSession) {
-            _getOp().setSparkSession(sparkSession);
-            return _self();
-        }
+    @Override
+    public Context createContext(final User user, final StoreProperties storeProperties) {
+        return new Context(user);
     }
+
 }

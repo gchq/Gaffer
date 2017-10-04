@@ -131,7 +131,7 @@ public class GetGafferResultCacheExportHandlerTest {
         // Then
         assertEquals(0, Iterables.size((Iterable) handlerResult));
         final ArgumentCaptor<OperationChain> opChain = ArgumentCaptor.forClass(OperationChain.class);
-        verify(cacheStore).execute(opChain.capture(), Mockito.eq(context.getUser()));
+        verify(cacheStore).execute(opChain.capture(), Mockito.any());
         assertEquals(1, opChain.getValue().getOperations().size());
         assertTrue(opChain.getValue().getOperations().get(0) instanceof GetElements);
         final GafferResultCacheExporter exporter = context.getExporter(GafferResultCacheExporter.class);

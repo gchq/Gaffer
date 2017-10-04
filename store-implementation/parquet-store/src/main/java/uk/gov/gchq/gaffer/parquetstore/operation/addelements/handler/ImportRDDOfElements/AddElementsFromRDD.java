@@ -34,7 +34,7 @@ import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.RDD.CalculateS
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.RDD.WriteUnsortedDataFunction;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SparkParquetUtils;
-import uk.gov.gchq.gaffer.spark.SparkUser;
+import uk.gov.gchq.gaffer.spark.SparkContext;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -63,8 +63,8 @@ public class AddElementsFromRDD {
                 LOGGER.warn("Temp data directory '{}' has been deleted.", tempDataDirString);
             }
             final User user = context.getUser();
-            if (user instanceof SparkUser) {
-                final SparkSession spark = ((SparkUser) user).getSparkSession();
+            if (context instanceof SparkContext) {
+                final SparkSession spark = ((SparkContext) context).getSparkSession();
                 SparkParquetUtils.configureSparkForAddElements(spark, parquetStoreProperties);
 
                 // aggregate new data and write out as unsorted data
@@ -110,7 +110,7 @@ public class AddElementsFromRDD {
                     throw new OperationException("Failed to move data from temporary files directory to the data directory.", e);
                 }
             } else {
-                throw new OperationException("This operation requires the user to be of type SparkUser.");
+                throw new OperationException("This operation requires the context to be of type SparkContext.");
             }
         } catch (final IOException e) {
             throw new OperationException("IOException: Failed to connect to the file system", e);

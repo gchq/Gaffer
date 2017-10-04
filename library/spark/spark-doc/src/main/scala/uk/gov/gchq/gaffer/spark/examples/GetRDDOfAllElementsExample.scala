@@ -35,42 +35,32 @@ class GetRDDOfAllElementsExample extends OperationExample(classOf[GetRDDOfAllEle
     // Need to actively turn logging on and off as needed as Spark produces some logs
     // even when the log level is set to off.
     ROOT_LOGGER.setLevel(Level.OFF)
-    val sparkConf = new SparkConf()
-      .setMaster("local")
-      .setAppName("GetRDDOfAllElementsExample")
-      .set(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
-      .set(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
-      .set(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true")
-    val sparkSession = new SparkSession.Builder().config(sparkConf).getOrCreate()
-    sparkSession.sparkContext.setLogLevel("OFF")
     try {
-      getRddOfAllElements(sparkSession, getGraph)
+      getRddOfAllElements(getGraph)
     } catch {
       case e: OperationException => {
-        sparkSession.stop()
+        new SparkSession.Builder().config(new SparkConf()).getOrCreate().stop()
         throw new RuntimeException(e)
       }
     }
-    sparkSession.stop()
+    new SparkSession.Builder().config(new SparkConf()).getOrCreate().stop()
     ROOT_LOGGER.setLevel(Level.INFO)
   }
 
   @throws[OperationException]
-  def getRddOfAllElements(sparkSession: SparkSession, graph: Graph) {
+  def getRddOfAllElements(graph: Graph) {
     ROOT_LOGGER.setLevel(Level.INFO)
     // Avoid using getMethodNameAsSentence as it messes up the formatting of the "RDD" part
     log("#### get RDD of all elements\n")
     printGraph()
     ROOT_LOGGER.setLevel(Level.OFF)
     val operation = new GetRDDOfAllElements.Builder()
-      .sparkSession(sparkSession)
       .build
     val rdd = graph.execute(operation, new User("user01"))
     val elements = rdd.collect
     ROOT_LOGGER.setLevel(Level.INFO)
     printScala(
       """val operation = new GetRDDOfAllElements.Builder()
-        |    .sparkContext(sc)
         |    .build()
         |val rdd = graph.execute(operation, new User(\"user01\"))
         |val elements = rdd.collect())""".stripMargin)

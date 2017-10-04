@@ -39,11 +39,11 @@ import static org.mockito.Mockito.verify;
 
 public class FederatedOperationHandlerTest {
     public static final String TEST_USER = "testUser";
-    private User user;
+    private Context context;
 
     @Before
     public void setUp() throws Exception {
-        user = new User(TEST_USER);
+        context = new Context(new User(TEST_USER));
     }
 
     @Test
@@ -62,8 +62,6 @@ public class FederatedOperationHandlerTest {
         Graph graph3 = getGraphWithMockStore(mockStore3);
         Graph graph4 = getGraphWithMockStore(mockStore4);
 
-        Context testContext = new Context(user);
-
         FederatedStore mockStore = Mockito.mock(FederatedStore.class);
         LinkedHashSet<Graph> linkedGraphs = Sets.newLinkedHashSet();
         linkedGraphs.add(graph1);
@@ -73,12 +71,12 @@ public class FederatedOperationHandlerTest {
         Mockito.when(mockStore.getGraphs(null)).thenReturn(linkedGraphs);
 
         // When
-        new FederatedOperationHandler().doOperation(op, testContext, mockStore);
+        new FederatedOperationHandler().doOperation(op, context, mockStore);
 
-        verify(mockStore1).execute(new OperationChain<>(op).shallowClone(), user);
-        verify(mockStore2).execute(new OperationChain<>(op).shallowClone(), user);
-        verify(mockStore3).execute(new OperationChain<>(op).shallowClone(), user);
-        verify(mockStore4).execute(new OperationChain<>(op).shallowClone(), user);
+        verify(mockStore1).execute(Mockito.eq(new OperationChain<>(op).shallowClone()), Mockito.any(Context.class));
+        verify(mockStore2).execute(Mockito.eq(new OperationChain<>(op).shallowClone()), Mockito.any(Context.class));
+        verify(mockStore3).execute(Mockito.eq(new OperationChain<>(op).shallowClone()), Mockito.any(Context.class));
+        verify(mockStore4).execute(Mockito.eq(new OperationChain<>(op).shallowClone()), Mockito.any(Context.class));
 
     }
 
@@ -97,8 +95,6 @@ public class FederatedOperationHandlerTest {
         Graph graph1 = getGraphWithMockStore(mockStore1);
         Graph graph3 = getGraphWithMockStore(mockStore3);
 
-        Context testContext = new Context(user);
-
         FederatedStore mockStore = Mockito.mock(FederatedStore.class);
         LinkedHashSet<Graph> filteredGraphs = Sets.newLinkedHashSet();
         filteredGraphs.add(graph1);
@@ -106,12 +102,12 @@ public class FederatedOperationHandlerTest {
         Mockito.when(mockStore.getGraphs("1,3")).thenReturn(filteredGraphs);
 
         // When
-        new FederatedOperationHandler().doOperation(op, testContext, mockStore);
+        new FederatedOperationHandler().doOperation(op, context, mockStore);
 
-        verify(mockStore1).execute(new OperationChain<>(op).shallowClone(), user);
-        verify(mockStore2, never()).execute(new OperationChain<>(op).shallowClone(), user);
-        verify(mockStore3).execute(new OperationChain<>(op).shallowClone(), user);
-        verify(mockStore4, never()).execute(new OperationChain<>(op).shallowClone(), user);
+        verify(mockStore1).execute(Mockito.eq(new OperationChain<>(op).shallowClone()), Mockito.any(Context.class));
+        verify(mockStore2, never()).execute(Mockito.eq(new OperationChain<>(op).shallowClone()), Mockito.any(Context.class));
+        verify(mockStore3).execute(Mockito.eq(new OperationChain<>(op).shallowClone()), Mockito.any(Context.class));
+        verify(mockStore4, never()).execute(Mockito.eq(new OperationChain<>(op).shallowClone()), Mockito.any(Context.class));
     }
 
     private Graph getGraphWithMockStore(final Store mockStore) throws uk.gov.gchq.gaffer.operation.OperationException {

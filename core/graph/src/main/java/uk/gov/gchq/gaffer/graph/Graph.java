@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -126,7 +127,7 @@ public final class Graph {
      * @throws OperationException if an operation fails
      */
     public <O> O execute(final Output<O> operation, final User user) throws OperationException {
-        return execute(new OperationChain<>(operation), user);
+        return execute(new OperationChain<O>(operation), user);
     }
 
     /**
@@ -140,18 +141,32 @@ public final class Graph {
      * @throws OperationException thrown if the job fails to run.
      */
     public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
+        return executeJob(operationChain, store.createContext(user));
+    }
+
+    /**
+     * Performs the given operation chain job on the store.
+     * If the operation does not have a view then the graph view is used.
+     * NOTE the operationChain may be modified/optimised by the store.
+     *
+     * @param operationChain the operation chain to be executed.
+     * @param context           the context executing the job.
+     * @return the job details
+     * @throws OperationException thrown if the job fails to run.
+     */
+    private JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
         final OperationChain<?> clonedOpChain = operationChain.shallowClone();
         try {
             for (final GraphHook graphHook : config.getHooks()) {
-                graphHook.preExecute(clonedOpChain, user);
+                graphHook.preExecute(clonedOpChain, context);
             }
 
             updateOperationChainView(clonedOpChain);
 
-            JobDetail result = store.executeJob(clonedOpChain, user);
+            JobDetail result = store.executeJob(clonedOpChain, context);
 
             for (final GraphHook graphHook : config.getHooks()) {
-                result = graphHook.postExecute(result, clonedOpChain, user);
+                result = graphHook.postExecute(result, clonedOpChain, context);
             }
 
             return result;
@@ -174,6 +189,21 @@ public final class Graph {
      * @throws OperationException if an operation fails
      */
     public <O> O execute(final OperationChain<O> operationChain, final User user) throws OperationException {
+        return execute(operationChain, store.createContext(user));
+    }
+
+    /**
+     * Performs the given operation chain on the store.
+     * If the operation does not have a view then the graph view is used.
+     * NOTE the operationChain may be modified/optimised by the store.
+     *
+     * @param operationChain the operation chain to be executed.
+     * @param context           the user executing the operation chain.
+     * @param <O>            the operation chain output type.
+     * @return the operation result.
+     * @throws OperationException if an operation fails
+     */
+    private  <O> O execute(final OperationChain<O> operationChain, final Context context) throws OperationException {
         if (null == operationChain) {
             throw new IllegalArgumentException("operationChain is required");
         }
@@ -182,15 +212,15 @@ public final class Graph {
         O result = null;
         try {
             for (final GraphHook graphHook : config.getHooks()) {
-                graphHook.preExecute(clonedOpChain, user);
+                graphHook.preExecute(clonedOpChain, context);
             }
 
             updateOperationChainView(clonedOpChain);
 
-            result = store.execute(clonedOpChain, user);
+            result = store.execute(clonedOpChain, context);
 
             for (final GraphHook graphHook : config.getHooks()) {
-                result = graphHook.postExecute(result, clonedOpChain, user);
+                result = graphHook.postExecute(result, clonedOpChain, context);
             }
         } catch (final Exception e) {
             CloseableUtil.close(clonedOpChain);

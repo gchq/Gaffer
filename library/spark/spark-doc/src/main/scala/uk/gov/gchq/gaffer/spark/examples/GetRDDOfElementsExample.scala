@@ -37,30 +37,22 @@ class GetRDDOfElementsExample() extends OperationExample(classOf[GetRDDOfElement
     // Need to actively turn logging on and off as needed as Spark produces some logs
     // even when the log level is set to off.
     ROOT_LOGGER.setLevel(Level.OFF)
-    val sparkConf = new SparkConf()
-      .setMaster("local")
-      .setAppName("getDataFrameOfElementsWithEntityGroup")
-      .set(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
-      .set(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
-      .set(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true")
-    val sparkSession = SparkSession.builder().config(sparkConf).getOrCreate()
-    sparkSession.sparkContext.setLogLevel("OFF")
     val graph = getGraph
     try {
-      getRddOfElements(sparkSession, graph)
-      getRddOfElementsReturningEdgesOnly(sparkSession, graph)
+      getRddOfElements(graph)
+      getRddOfElementsReturningEdgesOnly(graph)
     } catch {
       case e: OperationException => {
-        sparkSession.stop()
+            new SparkSession.Builder().config(new SparkConf()).getOrCreate().stop()
         throw new RuntimeException(e)
       }
     }
-    sparkSession.stop()
+    new SparkSession.Builder().config(new SparkConf()).getOrCreate().stop()
     ROOT_LOGGER.setLevel(Level.INFO)
   }
 
   @throws[OperationException]
-  def getRddOfElements(sparkSession: SparkSession, graph: Graph) {
+  def getRddOfElements(graph: Graph) {
     ROOT_LOGGER.setLevel(Level.INFO)
     // Avoid using getMethodNameAsSentence as it messes up the formatting of the "RDD" part
     log("#### get RDD of elements\n")
@@ -68,7 +60,6 @@ class GetRDDOfElementsExample() extends OperationExample(classOf[GetRDDOfElement
     ROOT_LOGGER.setLevel(Level.OFF)
     val operation = new GetRDDOfElements.Builder()
       .input(new EdgeSeed(1, 2, true), new EdgeSeed(2, 3, true))
-      .sparkSession(sparkSession)
       .build
     val rdd = graph.execute(operation, new User("user01"))
     val elements = rdd.collect()
@@ -76,7 +67,6 @@ class GetRDDOfElementsExample() extends OperationExample(classOf[GetRDDOfElement
     printScala(
       """val operation = new GetRDDOfElements.Builder()
         |    .input(new EdgeSeed(1, 2, true), new EdgeSeed(2, 3, true))
-        |    .sparkContext(sc)
         |    .build()
         |val rdd = graph.execute(operation, new User(\"user01\"))
         |val elements = rdd.collect())""".stripMargin)
@@ -99,7 +89,7 @@ class GetRDDOfElementsExample() extends OperationExample(classOf[GetRDDOfElement
   }
 
   @throws[OperationException]
-  def getRddOfElementsReturningEdgesOnly(sparkSession: SparkSession, graph: Graph) {
+  def getRddOfElementsReturningEdgesOnly(graph: Graph) {
     ROOT_LOGGER.setLevel(Level.INFO)
     log("#### get RDD of elements returning edges only\n")
     printGraph()
@@ -109,7 +99,6 @@ class GetRDDOfElementsExample() extends OperationExample(classOf[GetRDDOfElement
       .view(new View.Builder()
         .edge("edge")
         .build)
-      .sparkSession(sparkSession)
       .build
     val rdd = graph.execute(operation, new User("user01"))
     val elements = rdd.collect()
@@ -120,7 +109,6 @@ class GetRDDOfElementsExample() extends OperationExample(classOf[GetRDDOfElement
         |    .view(new View.Builder()
         |                .edge("edge")
         |                .build())
-        |    .sparkContext(sc)
         |    .build()
         |val rdd = graph.execute(operation, new User(\"user01\"))
         |val elements = rdd.collect())

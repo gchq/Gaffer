@@ -46,8 +46,7 @@ public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest
         getGraph(getSchema(), TestUtils.getParquetStoreProperties(), "StringVertexSparkOperationsTest")
                 .execute(new ImportJavaRDDOfElements.Builder()
                         .input(getElements(javaSparkContext))
-                        .javaSparkContext(javaSparkContext)
-                        .build(), USER);
+                            .build(), USER);
     }
 
     @Before

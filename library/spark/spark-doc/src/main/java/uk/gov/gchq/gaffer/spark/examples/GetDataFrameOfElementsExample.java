@@ -77,7 +77,6 @@ public class GetDataFrameOfElementsExample extends OperationExample {
                 .view(new View.Builder()
                         .entity("entity")
                         .build())
-                .sparkSession(sparkSession)
                 .build();
         final Dataset<Row> df = graph.execute(operation, new User("user01"));
 
@@ -88,7 +87,6 @@ public class GetDataFrameOfElementsExample extends OperationExample {
                 + "                .view(new View.Builder()\n"
                 + "                        .entity(\"entity\")\n"
                 + "                        .build()).\n"
-                + "                .sqlContext(sqlc)\n"
                 + "                .build();\n"
                 + "Dataset<Row> df = getGraph().execute(operation, new User(\"user01\"));\n"
                 + "df.show();");
@@ -130,7 +128,6 @@ public class GetDataFrameOfElementsExample extends OperationExample {
                 .view(new View.Builder()
                         .edge("edge")
                         .build())
-                .sparkSession(sparkSession)
                 .build();
         final Dataset<Row> df = graph.execute(operation, new User("user01"));
 
@@ -141,7 +138,6 @@ public class GetDataFrameOfElementsExample extends OperationExample {
                 + "                .view(new View.Builder()\n"
                 + "                        .entity(\"edge\")\n"
                 + "                        .build()).\n"
-                + "                .sqlContext(sqlc)\n"
                 + "                .build();\n"
                 + "Dataset<Row> df = getGraph().execute(operation, new User(\"user01\"));\n"
                 + "df.show();");

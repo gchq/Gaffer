@@ -68,7 +68,7 @@ public class FilterToOperationConverterTest {
         final Filter[] filters = new Filter[2];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.GROUP, "A");
         filters[1] = new EqualTo(SchemaToStructTypeConverter.GROUP, "B");
-        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession,
+        final FiltersToOperationConverter converter = new FiltersToOperationConverter(
                 getViewFromSchema(schema), schema, filters);
 
         final Operation operation = converter.getOperation();
@@ -85,7 +85,7 @@ public class FilterToOperationConverterTest {
         final Filter[] filters = new Filter[1];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.GROUP, ENTITY_GROUP);
 
-        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession,
+        final FiltersToOperationConverter converter = new FiltersToOperationConverter(
                 getViewFromSchema(schema), schema, filters);
 
         final Operation operation = converter.getOperation();
@@ -103,7 +103,7 @@ public class FilterToOperationConverterTest {
 
         final Filter[] filters = new Filter[1];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.GROUP, "random");
-        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession,
+        final FiltersToOperationConverter converter = new FiltersToOperationConverter(
                 getViewFromSchema(schema), schema, filters);
 
         final Operation operation = converter.getOperation();
@@ -121,7 +121,7 @@ public class FilterToOperationConverterTest {
         final Filter left = new EqualTo(SchemaToStructTypeConverter.GROUP, ENTITY_GROUP);
         final Filter right = new EqualTo(SchemaToStructTypeConverter.GROUP, EDGE_GROUP2);
         filters[0] = new Or(left, right);
-        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession,
+        final FiltersToOperationConverter converter = new FiltersToOperationConverter(
                 getViewFromSchema(schema), schema, filters);
 
         final Operation operation = converter.getOperation();
@@ -139,7 +139,7 @@ public class FilterToOperationConverterTest {
 
         final Filter[] filters = new Filter[1];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.VERTEX_COL_NAME, "0");
-        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession,
+        final FiltersToOperationConverter converter = new FiltersToOperationConverter(
                 getViewFromSchema(schema), schema, filters);
 
         final Operation operation = converter.getOperation();
@@ -162,7 +162,7 @@ public class FilterToOperationConverterTest {
 
         final Filter[] filters = new Filter[1];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.SRC_COL_NAME, "0");
-        FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession, getViewFromSchema(schema),
+        FiltersToOperationConverter converter = new FiltersToOperationConverter( getViewFromSchema(schema),
                 schema, filters);
 
         Operation operation = converter.getOperation();
@@ -185,7 +185,7 @@ public class FilterToOperationConverterTest {
 
         final Filter[] filters = new Filter[1];
         filters[0] = new EqualTo(SchemaToStructTypeConverter.DST_COL_NAME, "0");
-        final FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession,
+        final FiltersToOperationConverter converter = new FiltersToOperationConverter(
                 getViewFromSchema(schema), schema, filters);
 
         final Operation operation = converter.getOperation();
@@ -209,7 +209,7 @@ public class FilterToOperationConverterTest {
 
         // GreaterThan
         filters[0] = new GreaterThan("property1", 5);
-        FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession, getViewFromSchema(schema),
+        FiltersToOperationConverter converter = new FiltersToOperationConverter(getViewFromSchema(schema),
                 schema, filters);
         Operation operation = converter.getOperation();
 
@@ -230,7 +230,7 @@ public class FilterToOperationConverterTest {
 
         // LessThan
         filters[0] = new LessThan("property4", 8L);
-        converter = new FiltersToOperationConverter(sparkSession, getViewFromSchema(schema), schema, filters);
+        converter = new FiltersToOperationConverter(getViewFromSchema(schema), schema, filters);
         operation = converter.getOperation();
 
         assertTrue(operation instanceof GetRDDOfAllElements);
@@ -251,7 +251,7 @@ public class FilterToOperationConverterTest {
         final Filter left = new GreaterThan("property1", 5);
         final Filter right = new GreaterThan("property4", 8L);
         filters[0] = new And(left, right);
-        converter = new FiltersToOperationConverter(sparkSession, getViewFromSchema(schema), schema, filters);
+        converter = new FiltersToOperationConverter(getViewFromSchema(schema), schema, filters);
         operation = converter.getOperation();
 
         assertTrue(operation instanceof GetRDDOfAllElements);
@@ -289,7 +289,7 @@ public class FilterToOperationConverterTest {
         final Filter[] filters = new Filter[2];
         filters[0] = new GreaterThan("property1", 5);
         filters[1] = new LessThan("property4", 8L);
-        FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession, getViewFromSchema(schema),
+        FiltersToOperationConverter converter = new FiltersToOperationConverter(getViewFromSchema(schema),
                 schema, filters);
         Operation operation = converter.getOperation();
 
@@ -331,7 +331,7 @@ public class FilterToOperationConverterTest {
         Filter[] filters = new Filter[2];
         filters[0] = new GreaterThan("property1", 5);
         filters[1] = new EqualTo(SchemaToStructTypeConverter.VERTEX_COL_NAME, "0");
-        FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession, getViewFromSchema(schema),
+        FiltersToOperationConverter converter = new FiltersToOperationConverter(getViewFromSchema(schema),
                 schema, filters);
         Operation operation = converter.getOperation();
 
@@ -360,7 +360,7 @@ public class FilterToOperationConverterTest {
         filters[0] = new GreaterThan("property1", 5);
         filters[1] = new EqualTo(SchemaToStructTypeConverter.VERTEX_COL_NAME, "0");
         filters[2] = new LessThan("property4", 8);
-        converter = new FiltersToOperationConverter(sparkSession, getViewFromSchema(schema), schema, filters);
+        converter = new FiltersToOperationConverter(getViewFromSchema(schema), schema, filters);
         operation = converter.getOperation();
         assertTrue(operation instanceof GetRDDOfElements);
         assertEquals(1, ((GraphFilters) operation).getView().getEntityGroups().size());
@@ -400,7 +400,7 @@ public class FilterToOperationConverterTest {
         Filter[] filters = new Filter[2];
         filters[0] = new GreaterThan("property1", 5);
         filters[1] = new EqualTo(SchemaToStructTypeConverter.SRC_COL_NAME, "0");
-        FiltersToOperationConverter converter = new FiltersToOperationConverter(sparkSession, getViewFromSchema(schema),
+        FiltersToOperationConverter converter = new FiltersToOperationConverter(getViewFromSchema(schema),
                 schema, filters);
         Operation operation = converter.getOperation();
 
@@ -426,7 +426,7 @@ public class FilterToOperationConverterTest {
         filters[0] = new GreaterThan("property1", 5);
         filters[1] = new EqualTo(SchemaToStructTypeConverter.SRC_COL_NAME, "0");
         filters[2] = new LessThan("property4", 8);
-        converter = new FiltersToOperationConverter(sparkSession, getViewFromSchema(schema), schema, filters);
+        converter = new FiltersToOperationConverter(getViewFromSchema(schema), schema, filters);
         operation = converter.getOperation();
 
         assertTrue(operation instanceof GetRDDOfElements);

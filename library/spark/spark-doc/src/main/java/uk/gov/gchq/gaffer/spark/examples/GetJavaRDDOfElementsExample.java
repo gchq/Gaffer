@@ -79,14 +79,12 @@ public class GetJavaRDDOfElementsExample extends OperationExample {
         ROOT_LOGGER.setLevel(Level.OFF);
         final GetJavaRDDOfElements operation = new GetJavaRDDOfElements.Builder()
                 .input(new EdgeSeed(1, 2, true), new EdgeSeed(2, 3, true))
-                .javaSparkContext(sc)
                 .build();
         final JavaRDD<Element> rdd = graph.execute(operation, new User("user01"));
         final List<Element> elements = rdd.collect();
         ROOT_LOGGER.setLevel(Level.INFO);
         printJava("GetJavaRDDOfElements operation = new GetJavaRDDOfElements.Builder()\n"
                 + "                .input(new EdgeSeed(1, 2, true), new EdgeSeed(2, 3, true))\n"
-                + "                .javaSparkContext(sc)\n"
                 + "                .build();\n"
                 + "JavaRDD<Element> rdd = graph.execute(operation, new User(\"user01\"));\n"
                 + "List<Element> elements = rdd.collect();");
@@ -109,7 +107,6 @@ public class GetJavaRDDOfElementsExample extends OperationExample {
                 .view(new View.Builder()
                         .edge("edge")
                         .build())
-                .javaSparkContext(sc)
                 .build();
         final JavaRDD<Element> rdd = graph.execute(operation, new User("user01"));
         final List<Element> elements = rdd.collect();
@@ -119,7 +116,6 @@ public class GetJavaRDDOfElementsExample extends OperationExample {
                 + "                .view(new View.Builder()\n" +
                 "                        .edge(\"edge\")\n" +
                 "                        .build())\n"
-                + "                .javaSparkContext(sc)\n"
                 + "                .build();\n"
                 + "JavaRDD<Element> rdd = graph.execute(operation, new User(\"user01\"));\n"
                 + "List<Element> elements = rdd.collect();");

@@ -17,11 +17,11 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd;
 
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.rdd.RDD;
-import org.apache.spark.sql.SparkSession;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.spark.SparkContext;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
@@ -49,19 +49,13 @@ public class GetJavaRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetJav
     public JavaRDD<Element> doOperation(final GetJavaRDDOfAllElements operation,
                                         final Context context,
                                         final Store store) throws OperationException {
-        return doOperation(operation, context, (AccumuloStore) store);
+        return doOperation(operation, (SparkContext) context, (AccumuloStore) store);
     }
 
     private JavaRDD<Element> doOperation(final GetJavaRDDOfAllElements operation,
-                                         final Context context,
+                                         final SparkContext context,
                                          final AccumuloStore accumuloStore) throws OperationException {
-        final SparkSession sparkSession = SparkSession.builder()
-                .master(operation.getJavaSparkContext().master())
-                .appName(operation.getJavaSparkContext().appName())
-                .config(operation.getJavaSparkContext().getConf())
-                .getOrCreate();
         final GetRDDOfAllElements getRDDOfAllElements = new GetRDDOfAllElements.Builder()
-                .sparkSession(sparkSession)
                 .directedType(operation.getDirectedType())
                 .view(operation.getView())
                 .options(operation.getOptions())

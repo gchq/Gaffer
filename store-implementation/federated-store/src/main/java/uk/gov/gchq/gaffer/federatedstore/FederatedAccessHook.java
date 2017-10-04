@@ -20,6 +20,7 @@ import com.google.common.collect.Sets;
 
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Arrays;
@@ -48,9 +49,9 @@ public class FederatedAccessHook implements GraphHook {
     }
 
     @Override
-    public void preExecute(final OperationChain<?> opChain, final User user) {
-        if (!isValidToExecute(user)) {
-            throw new FederatedAccessException(String.format(USER_DOES_NOT_HAVE_CORRECT_AUTHS_TO_ACCESS_THIS_GRAPH_USER_S, user.toString()));
+    public void preExecute(final OperationChain<?> opChain, final Context context) {
+        if (!isValidToExecute(context.getUser())) {
+            throw new FederatedAccessException(String.format(USER_DOES_NOT_HAVE_CORRECT_AUTHS_TO_ACCESS_THIS_GRAPH_USER_S, context.getUser().toString()));
         }
     }
 
@@ -66,7 +67,7 @@ public class FederatedAccessHook implements GraphHook {
     }
 
     @Override
-    public <T> T postExecute(final T result, final OperationChain<?> opChain, final User user) {
+    public <T> T postExecute(final T result, final OperationChain<?> opChain, final Context context) {
         return result;
     }
 

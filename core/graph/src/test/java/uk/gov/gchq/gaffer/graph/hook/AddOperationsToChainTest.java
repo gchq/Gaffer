@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
@@ -87,7 +88,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
                 .build();
 
         // When
-        hook.preExecute(opChain, new User());
+        hook.preExecute(opChain, new Context(new User()));
 
         // Then
         for (int i = 0; i < opChain.getOperations().size(); i++) {
@@ -122,7 +123,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
                 .build();
 
         // When
-        hook.preExecute(opChain, user);
+        hook.preExecute(opChain, new Context(user));
 
         // Then
         for (int i = 0; i < opChain.getOperations().size(); i++) {
@@ -159,7 +160,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
                 .build();
 
         // When
-        hook.preExecute(opChain, user);
+        hook.preExecute(opChain, new Context(user));
 
         // Then
         for (int i = 0; i < opChain.getOperations().size(); i++) {
@@ -207,7 +208,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
                 .build();
 
         // When
-        hook.preExecute(opChain, new User());
+        hook.preExecute(opChain, new Context(new User()));
 
         // Then
         for (int i = 0; i < opChain.getOperations().size(); i++) {
@@ -280,7 +281,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
                 .build();
 
         // When
-        hook.preExecute(opChain, new User());
+        hook.preExecute(opChain, new Context(new User()));
 
         // Then
         for (int i = 0; i < opChain.getOperations().size(); i++) {
@@ -328,7 +329,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
                 .build();
 
         // When
-        hook.preExecute(opChain, new User());
+        hook.preExecute(opChain, new Context(new User()));
 
         // Then
         for (int i = 0; i < opChain.getOperations().size(); i++) {

@@ -19,7 +19,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
-import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.sources.BaseRelation;
 import org.apache.spark.sql.sources.Filter;
 import org.apache.spark.sql.sources.PrunedFilteredScan;
@@ -34,13 +33,13 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.spark.SparkContext;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.ClassTagConstants;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.ConvertElementToRow;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.FiltersToOperationConverter;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStructTypeConverter;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
-import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -77,26 +76,23 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStoreRelation.class);
 
-    private final SparkSession sparkSession;
     private final LinkedHashSet<String> groups;
     private final View view;
     private final AccumuloStore store;
-    private final User user;
+    private final SparkContext sparkContext;
     private final LinkedHashSet<String> usedProperties;
     private final Map<String, Boolean> propertyNeedsConversion;
     private final Map<String, Converter> converterByProperty;
     private StructType structType;
     private SchemaToStructTypeConverter schemaConverter;
 
-    public AccumuloStoreRelation(final SparkSession sparkSession,
-                                 final List<Converter> converters,
+    public AccumuloStoreRelation(final List<Converter> converters,
                                  final View view,
                                  final AccumuloStore store,
-                                 final User user) {
-        this.sparkSession = sparkSession;
+                                 final SparkContext sparkContext) {
         this.view = view;
         this.store = store;
-        this.user = user;
+        this.sparkContext = sparkContext;
         this.schemaConverter = new SchemaToStructTypeConverter(store.getSchema(), view, converters);
         this.groups = this.schemaConverter.getGroups();
         this.structType = this.schemaConverter.getStructType();
@@ -107,7 +103,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
 
     @Override
     public SQLContext sqlContext() {
-        return sparkSession.sqlContext();
+        return sparkContext.getSparkSession().sqlContext();
     }
 
     @Override
@@ -124,9 +120,9 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
     public RDD<Row> buildScan() {
         try {
             LOGGER.info("Building GetRDDOfAllElements with view set to groups {}", StringUtils.join(groups, ','));
-            final GetRDDOfAllElements operation = new GetRDDOfAllElements(sparkSession);
+            final GetRDDOfAllElements operation = new GetRDDOfAllElements();
             operation.setView(view);
-            final RDD<Element> rdd = store.execute(operation, user);
+            final RDD<Element> rdd = store.execute(operation, sparkContext);
             return rdd.map(new ConvertElementToRow(usedProperties, propertyNeedsConversion, converterByProperty),
                     ClassTagConstants.ROW_CLASS_TAG);
         } catch (final OperationException e) {
@@ -150,9 +146,9 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
         try {
             LOGGER.info("Building scan with required columns: {}", StringUtils.join(requiredColumns, ','));
             LOGGER.info("Building GetRDDOfAllElements with view set to groups {}", StringUtils.join(groups, ','));
-            final GetRDDOfAllElements operation = new GetRDDOfAllElements(sparkSession);
+            final GetRDDOfAllElements operation = new GetRDDOfAllElements();
             operation.setView(view);
-            final RDD<Element> rdd = store.execute(operation, user);
+            final RDD<Element> rdd = store.execute(operation, sparkContext);
             return rdd.map(new ConvertElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)),
                             propertyNeedsConversion, converterByProperty),
                     ClassTagConstants.ROW_CLASS_TAG);
@@ -182,15 +178,15 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
                 StringUtils.join(requiredColumns, ','),
                 filters.length,
                 StringUtils.join(filters, ','));
-        Output<RDD<Element>> operation = new FiltersToOperationConverter(sparkSession, view, store.getSchema(), filters)
+        Output<RDD<Element>> operation = new FiltersToOperationConverter(view, store.getSchema(), filters)
                 .getOperation();
         if (operation == null) {
             // Null indicates that the filters resulted in no data (e.g. if group = X and group = Y, or if group = X
             // and there is no group X in the schema).
-            return sparkSession.sqlContext().emptyDataFrame().rdd();
+            return sparkContext.getSparkSession().sqlContext().emptyDataFrame().rdd();
         }
         try {
-            final RDD<Element> rdd = store.execute(operation, user);
+            final RDD<Element> rdd = store.execute(operation, sparkContext);
             return rdd.map(new ConvertElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)),
                             propertyNeedsConversion, converterByProperty),
                     ClassTagConstants.ROW_CLASS_TAG);

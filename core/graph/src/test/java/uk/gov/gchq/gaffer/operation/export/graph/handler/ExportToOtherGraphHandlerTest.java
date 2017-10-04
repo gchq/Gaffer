@@ -135,7 +135,7 @@ public class ExportToOtherGraphHandlerTest {
         final Iterable elements = mock(Iterable.class);
         exporter.add("key", elements);
         final ArgumentCaptor<OperationChain> opChainCaptor = ArgumentCaptor.forClass(OperationChain.class);
-        verify(TestStore.mockStore).execute(opChainCaptor.capture(), Mockito.eq(user));
+        verify(TestStore.mockStore).execute(opChainCaptor.capture(), Mockito.any(Context.class));
         final List<Operation> ops = opChainCaptor.getValue().getOperations();
         assertEquals(1, ops.size());
         assertSame(elements, ((AddElements) ops.get(0)).getInput());

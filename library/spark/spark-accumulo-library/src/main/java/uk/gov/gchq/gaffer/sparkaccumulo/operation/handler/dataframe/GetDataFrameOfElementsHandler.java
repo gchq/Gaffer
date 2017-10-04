@@ -21,6 +21,7 @@ import org.apache.spark.sql.SparkSession;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.spark.SparkContext;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -31,17 +32,17 @@ public class GetDataFrameOfElementsHandler implements OutputOperationHandler<Get
     @Override
     public Dataset<Row> doOperation(final GetDataFrameOfElements operation, final Context context,
                                     final Store store) throws OperationException {
-        return doOperation(operation, context, (AccumuloStore) store);
+        return doOperation(operation, (SparkContext) context, (AccumuloStore) store);
     }
 
-    public Dataset<Row> doOperation(final GetDataFrameOfElements operation, final Context context,
+    public Dataset<Row> doOperation(final GetDataFrameOfElements operation, final SparkContext sparkContext,
                                     final AccumuloStore store) throws OperationException {
-        final SparkSession sparkSession = operation.getSparkSession();
-        final AccumuloStoreRelation relation = new AccumuloStoreRelation(sparkSession,
+        final SparkSession sparkSession = sparkContext.getSparkSession();
+        final AccumuloStoreRelation relation = new AccumuloStoreRelation(
                 operation.getConverters(),
                 operation.getView(),
                 store,
-                context.getUser());
+                sparkContext);
         return sparkSession.sqlContext().baseRelationToDataFrame(relation);
     }
 

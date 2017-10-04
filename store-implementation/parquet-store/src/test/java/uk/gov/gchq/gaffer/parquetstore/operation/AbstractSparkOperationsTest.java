@@ -34,7 +34,6 @@ import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
-import uk.gov.gchq.gaffer.spark.SparkUser;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -51,7 +50,7 @@ public abstract class AbstractSparkOperationsTest {
     abstract void checkGetDataFrameOfElements(Dataset<Row> data);
 
     static JavaSparkContext javaSparkContext = JavaSparkContext.fromSparkContext(TestUtils.spark.sparkContext());
-    static User USER = new SparkUser(new User(), TestUtils.spark);
+    static User USER = new User();
     Graph graph;
 
     static Graph getGraph(final Schema schema, final ParquetStoreProperties properties, final String graphID) throws StoreException {
@@ -86,7 +85,6 @@ public abstract class AbstractSparkOperationsTest {
     @Test
     public void getDataFrameOfElementsTest() throws OperationException {
         final Dataset<Row> data = graph.execute(new GetDataFrameOfElements.Builder()
-                .sparkSession(TestUtils.spark)
                 .build(), USER);
         checkGetDataFrameOfElements(data);
     }
@@ -101,7 +99,6 @@ public abstract class AbstractSparkOperationsTest {
                 .build();
         try {
             graph.execute(new GetDataFrameOfElements.Builder()
-                    .sparkSession(TestUtils.spark)
                     .view(view).build(), USER);
             fail();
         } catch (final OperationException e) {

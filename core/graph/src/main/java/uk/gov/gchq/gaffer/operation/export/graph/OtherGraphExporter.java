@@ -22,15 +22,15 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.Exporter;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.gaffer.store.Context;
 
 public class OtherGraphExporter implements Exporter {
     private final Graph graph;
-    private final User user;
+    private final Context context;
 
 
-    public OtherGraphExporter(final User user, final Graph graph) {
-        this.user = user;
+    public OtherGraphExporter(final Context context, final Graph graph) {
+        this.context = context;
         this.graph = graph;
     }
 
@@ -43,7 +43,7 @@ public class OtherGraphExporter implements Exporter {
 
         graph.execute(new AddElements.Builder()
                 .input((Iterable<Element>) elements)
-                .build(), user);
+                .build(), context.getUser());
     }
 
     @Override

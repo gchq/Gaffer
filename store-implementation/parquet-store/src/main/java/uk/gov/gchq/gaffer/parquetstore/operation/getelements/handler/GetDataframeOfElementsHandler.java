@@ -25,12 +25,11 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
-import uk.gov.gchq.gaffer.spark.SparkUser;
+import uk.gov.gchq.gaffer.spark.SparkContext;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
-import uk.gov.gchq.gaffer.user.User;
 
 /**
  * An {@link uk.gov.gchq.gaffer.store.operation.handler.OperationHandler} for the {@link GetDataFrameOfElements}
@@ -43,12 +42,11 @@ public class GetDataframeOfElementsHandler implements OutputOperationHandler<Get
     public Dataset<Row> doOperation(final GetDataFrameOfElements operation,
                                     final Context context,
                                     final Store store) throws OperationException {
-        final User user = context.getUser();
         final SparkSession spark;
-        if (user instanceof SparkUser) {
-            spark = ((SparkUser) user).getSparkSession();
+        if (context instanceof SparkContext) {
+            spark = ((SparkContext) context).getSparkSession();
         } else {
-            throw new OperationException("This operation requires the user to be of type SparkUser.");
+            throw new OperationException("This operation requires the context to be of type SparkContext.");
         }
         return doOperation(operation, (ParquetStore) store, spark);
 
