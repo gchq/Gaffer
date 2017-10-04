@@ -100,7 +100,7 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
         try {
             final ParquetReader<Element> fileReader = openParquetReader();
             Element e = fileReader.read();
-            while (e != null) {
+            while (null != e) {
                 if (!visibility.isEmpty()) {
                     if (isVisible(e)) {
                         if (needsValidation) {
