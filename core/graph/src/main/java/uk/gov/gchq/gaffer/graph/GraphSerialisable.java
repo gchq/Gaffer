@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.graph;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
@@ -49,7 +50,7 @@ public final class GraphSerialisable implements Serializable {
         try {
             this.schema = JSONSerialiser.serialise(schema, true);
             this.config = JSONSerialiser.serialise(config, true);
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new IllegalArgumentException("Unable to serialise given parameter", e);
         }
         this.properties = properties;
@@ -64,7 +65,7 @@ public final class GraphSerialisable implements Serializable {
         final StoreProperties storeProperties;
         try {
             storeProperties = (StoreProperties) Class.forName(storeClass).newInstance();
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new RuntimeException(String.format(COULD_NOT_CONVERT_PROPERTIES_TO_THE_REQUIRED_PROPERTIES_CLASS_S, storeClass), e);
         }
         storeProperties.setProperties(properties);
@@ -101,6 +102,15 @@ public final class GraphSerialisable implements Serializable {
                 .build();
     }
 
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(13, 31)
+                .append(this.getConfig())
+                .append(this.getSchema())
+                .append(this.getProperties())
+                .build();
+    }
+
     public byte[] getSchema() {
         return schema;
     }
@@ -134,7 +144,7 @@ public final class GraphSerialisable implements Serializable {
             return this;
         }
 
-        public Builder graph(Graph graph) {
+        public Builder graph(final Graph graph) {
             schema = graph.getSchema();
             properties = graph.getStoreProperties().getProperties();
             config = graph.getConfig();
