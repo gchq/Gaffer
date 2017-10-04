@@ -22,7 +22,6 @@ import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.Serializable;
@@ -60,18 +59,9 @@ public final class GraphSerialisable implements Serializable {
      * class.
      */
     public Graph buildGraph() {
-        final String storeClass = properties.getProperty(StoreProperties.STORE_PROPERTIES_CLASS);
-        final StoreProperties storeProperties;
-        try {
-            storeProperties = (StoreProperties) Class.forName(storeClass).newInstance();
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new RuntimeException(String.format(COULD_NOT_CONVERT_PROPERTIES_TO_THE_REQUIRED_PROPERTIES_CLASS_S, storeClass), e);
-        }
-        storeProperties.setProperties(properties);
-
         return new Graph.Builder()
                 .addSchema(schema)
-                .addStoreProperties(storeProperties)
+                .addStoreProperties(properties)
                 .config(config)
                 .build();
     }

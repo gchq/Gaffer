@@ -98,9 +98,11 @@ public final class Graph {
      * and
      * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.
      *
-     * @param config a {@link GraphConfig} used to store the configuration for a
+     * @param config a {@link GraphConfig} used to store the configuration for
+     *               a
      *               Graph.
-     * @param schema a {@link Schema} that defines the graph. Should be the copy
+     * @param schema a {@link Schema} that defines the graph. Should be the
+     *               copy
      *               of the schema that the store is initialised with.
      * @param store  a {@link Store} used to store the elements and handle
      *               operations.
@@ -327,7 +329,8 @@ public final class Graph {
      * <p>
      * Builder for {@link Graph}.
      * </p>
-     * We recommend instantiating a Graph from a graphConfig.json file, a schema
+     * We recommend instantiating a Graph from a graphConfig.json file, a
+     * schema
      * directory and a store.properties file.
      * For example:
      * <pre>
@@ -466,6 +469,10 @@ public final class Graph {
             return this;
         }
 
+        public Builder storeProperties(final Properties properties) {
+            return storeProperties(StoreProperties.loadStoreProperties(properties));
+        }
+
         public Builder storeProperties(final StoreProperties properties) {
             this.properties = properties;
             if (null != properties) {
@@ -494,6 +501,10 @@ public final class Graph {
             }
 
             return this;
+        }
+
+        public Builder addStoreProperties(final Properties properties) {
+            return addStoreProperties(StoreProperties.loadStoreProperties(properties));
         }
 
         public Builder addStoreProperties(final StoreProperties updateProperties) {
