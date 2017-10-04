@@ -52,8 +52,8 @@ public class SortDataTest {
                 .withType(schemaUtils.getParquetSchema(TestGroups.ENTITY))
                 .usingConverter(schemaUtils.getConverter(TestGroups.ENTITY))
                 .build();
-        for (int i = 9 ; i >= 0 ; i--){
-            writer.write(DataGen.getEntity(TestGroups.ENTITY, (long) i, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, 11L * i, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
+        for (int i = 9; i >= 0; i--) {
+            writer.write(DataGen.getEntity(TestGroups.ENTITY, (long) i, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, 11L * i, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
         }
         writer.close();
         writer = new ParquetElementWriter
@@ -63,8 +63,8 @@ public class SortDataTest {
                 .withType(schemaUtils.getParquetSchema(TestGroups.ENTITY))
                 .usingConverter(schemaUtils.getConverter(TestGroups.ENTITY))
                 .build();
-        for (int i = 19 ; i >= 10 ; i--){
-            writer.write(DataGen.getEntity(TestGroups.ENTITY, (long) i, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, 11L * i, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2));
+        for (int i = 19; i >= 10; i--) {
+            writer.write(DataGen.getEntity(TestGroups.ENTITY, (long) i, (byte) 'b', 0.5, 7f, TestUtils.MERGED_TREESET, 11L * i, (short) 13, TestUtils.DATE, TestUtils.MERGED_FREQMAP, 2, null));
         }
         writer.close();
     }

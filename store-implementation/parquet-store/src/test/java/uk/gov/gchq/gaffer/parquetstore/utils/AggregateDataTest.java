@@ -28,6 +28,7 @@ import scala.collection.JavaConversions$;
 import scala.collection.mutable.WrappedArray;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
@@ -52,9 +53,9 @@ public class AggregateDataTest {
                 .withType(schemaUtils.getParquetSchema(TestGroups.ENTITY))
                 .usingConverter(schemaUtils.getConverter(TestGroups.ENTITY))
                 .build();
-        for (int i = 0 ; i < 20 ; i++){
-            writer.write(DataGen.getEntity(TestGroups.ENTITY, (long) i, (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L * i, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1));
-            writer.write(DataGen.getEntity(TestGroups.ENTITY, (long) i, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * i, (short) 7, TestUtils.DATE, TestUtils.getFreqMap2(), 1));
+        for (int i = 0; i < 20; i++) {
+            writer.write(DataGen.getEntity(TestGroups.ENTITY, (long) i, (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L * i, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, "A"));
+            writer.write(DataGen.getEntity(TestGroups.ENTITY, (long) i, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * i, (short) 7, TestUtils.DATE, TestUtils.getFreqMap2(), 1, "A"));
         }
         writer.close();
     }
@@ -82,13 +83,14 @@ public class AggregateDataTest {
             Assert.assertEquals(2, (int) results[i].getAs("count"));
             Assert.assertArrayEquals(new String[]{"A", "B", "C"}, (String[]) ((WrappedArray<String>) results[i].getAs("treeSet")).array());
             Assert.assertEquals(JavaConversions$.MODULE$.mapAsScalaMap(TestUtils.MERGED_FREQMAP), results[i].getAs("freqMap"));
+            Assert.assertEquals("A", results[i].getAs(TestTypes.VISIBILITY));
         }
     }
 
     @AfterClass
     public static void cleanUpData() throws IOException {
         final ParquetStoreProperties props = TestUtils.getParquetStoreProperties();
-        deleteFolder(props.getTempFilesDir() +"/AggregateDataTest", FileSystem.get(new Configuration()));
+        deleteFolder(props.getTempFilesDir() + "/AggregateDataTest", FileSystem.get(new Configuration()));
     }
 
     private static void deleteFolder(final String path, final FileSystem fs) throws IOException {

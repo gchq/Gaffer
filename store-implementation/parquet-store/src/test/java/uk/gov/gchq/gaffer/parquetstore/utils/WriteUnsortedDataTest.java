@@ -56,8 +56,8 @@ public class WriteUnsortedDataTest {
         final ParquetStoreProperties props = TestUtils.getParquetStoreProperties();
         final List<Element> data = new ArrayList<>();
         for (long i = 0; i < 12; i++) {
-            data.add(DataGen.getEntity(TestGroups.ENTITY, i, null, null, null, null, null, null, null, null, 1));
-            data.add(DataGen.getEntity(TestGroups.ENTITY_2, i + 5, null, null, null, null, null, null, null, null, 1));
+            data.add(DataGen.getEntity(TestGroups.ENTITY, i, null, null, null, null, null, null, null, null, 1, null));
+            data.add(DataGen.getEntity(TestGroups.ENTITY_2, i + 5, null, null, null, null, null, null, null, null, 1, null));
         }
         final Map<String, Map<Object, Integer>> splitPoints = new HashMap<>(2);
         splitPoints.put(TestGroups.ENTITY, new CalculateSplitPointsFromIterable(2, 2, data, TestGroups.ENTITY, true).call()._2);
@@ -100,8 +100,8 @@ public class WriteUnsortedDataTest {
         final ParquetStoreProperties props = TestUtils.getParquetStoreProperties();
         final List<Element> data = new ArrayList<>();
         for (long i = 0; i < 12; i++) {
-            data.add(DataGen.getEdge(TestGroups.EDGE, i, i + 2, true, null, null, null, null, null, null, null, null, 1));
-            data.add(DataGen.getEdge(TestGroups.EDGE_2, i + 5, i + 8, false, null, null, null, null, null, null, null, null,1));
+            data.add(DataGen.getEdge(TestGroups.EDGE, i, i + 2, true, null, null, null, null, null, null, null, null, 1, null));
+            data.add(DataGen.getEdge(TestGroups.EDGE_2, i + 5, i + 8, false, null, null, null, null, null, null, null, null, 1, null));
         }
         final Map<String, Map<Object, Integer>> splitPoints = new HashMap<>(2);
         splitPoints.put(TestGroups.EDGE, new CalculateSplitPointsFromIterable(2, 2, data, TestGroups.EDGE, false).call()._2);
@@ -140,7 +140,7 @@ public class WriteUnsortedDataTest {
     @AfterClass
     public static void cleanUp() throws IOException {
         final ParquetStoreProperties props = TestUtils.getParquetStoreProperties();
-        deleteFolder(props.getTempFilesDir() + "/WriteUnsortedDataTest" , FileSystem.get(new Configuration()));
+        deleteFolder(props.getTempFilesDir() + "/WriteUnsortedDataTest", FileSystem.get(new Configuration()));
     }
 
     private static void deleteFolder(final String path, final FileSystem fs) throws IOException {
