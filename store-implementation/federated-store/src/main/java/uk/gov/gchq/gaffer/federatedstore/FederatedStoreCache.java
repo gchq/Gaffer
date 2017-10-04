@@ -21,7 +21,6 @@ import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 
 import java.util.Set;
 
@@ -58,18 +57,7 @@ public class FederatedStoreCache {
 
     public Graph getFromCache(String graphId) throws CacheOperationException {
         final GraphSerialisable graphSerialisable = CacheServiceLoader.getService().getFromCache(CACHE_SERVICE_NAME, graphId);
-
-        Graph graph = new Graph.Builder()
-                .config(graphSerialisable.getConfig())
-                .addStoreProperties(new StoreProperties(graphSerialisable.getProperties()))
-                .addSchema(graphSerialisable.getSchema())
-                .build();
-
-        if (null != graph) {
-            return graph;
-        } else {
-            throw new CacheOperationException("No graph found in the cache with graphId: " + graphId);
-        }
+        return graphSerialisable.buildGraph();
     }
 
     public void deleteFromCache(String graphId) {
