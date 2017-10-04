@@ -76,6 +76,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                                    final Iterable<? extends ElementId> seeds,
                                    final User user) throws OperationException, StoreException {
         this.view = view;
+        this.gafferSchema = store.getSchema();
         this.directedType = directedType;
         this.includeIncomingOutgoingType = includeIncomingOutgoingType;
         this.seedMatchingType = seedMatchingType;
@@ -87,7 +88,6 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
         }
         this.parquetFilterUtils = new ParquetFilterUtils(store);
         this.properties = store.getProperties();
-        this.gafferSchema = store.getSchema();
         this.user = user;
     }
 
