@@ -91,10 +91,10 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.getGrap
 public class FederatedStore extends Store {
     protected static final String S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2 = "%s was not able to be created with the supplied properties.%n%s";
     private static final String SCHEMA_DEL_REGEX = Pattern.quote(",");
-    public static final GraphConfigEnum SCHEMA = GraphConfigEnum.schema;
-    public static final GraphConfigEnum PROPERTIES = GraphConfigEnum.properties;
-    public static final LocationEnum ID = LocationEnum.id;
-    public static final LocationEnum FILE = LocationEnum.file;
+    public static final GraphConfigEnum SCHEMA = GraphConfigEnum.SCHEMA;
+    public static final GraphConfigEnum PROPERTIES = GraphConfigEnum.PROPERTIES;
+    public static final LocationEnum ID = LocationEnum.ID;
+    public static final LocationEnum FILE = LocationEnum.FILE;
     private FederatedGraphStorage graphStorage = new FederatedGraphStorage();
     private Set<String> customPropertiesAuths;
 

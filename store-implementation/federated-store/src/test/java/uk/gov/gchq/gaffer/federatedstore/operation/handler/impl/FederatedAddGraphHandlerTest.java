@@ -31,6 +31,8 @@ import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.mapstore.MapStore;
+import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
@@ -71,8 +73,7 @@ public class FederatedAddGraphHandlerTest {
         Schema expectedSchema = new Schema.Builder().build();
         String expectedGraphId = "testGraphID";
 
-        StoreProperties storeProperties = new StoreProperties();
-        storeProperties.set("gaffer.store.class", "uk.gov.gchq.gaffer.federatedstore.FederatedStore");
+        StoreProperties storeProperties = new MapStoreProperties();
 
         assertEquals(0, store.getGraphs(testUser, null).size());
 
@@ -184,8 +185,7 @@ public class FederatedAddGraphHandlerTest {
         Schema expectedSchema = new Schema.Builder().build();
         String expectedGraphId = "testGraphID";
 
-        StoreProperties storeProperties = new StoreProperties();
-        storeProperties.set("gaffer.store.class", "uk.gov.gchq.gaffer.federatedstore.FederatedStore");
+        StoreProperties storeProperties = new MapStoreProperties();
 
         assertEquals(0, store.getGraphs(testUser, null).size());
 
@@ -227,8 +227,8 @@ public class FederatedAddGraphHandlerTest {
         Schema expectedSchema = new Schema.Builder().build();
         String expectedGraphId = "testGraphID";
 
-        StoreProperties graphStoreProperties = new StoreProperties();
-        graphStoreProperties.set("gaffer.store.class", "uk.gov.gchq.gaffer.federatedstore.FederatedStore");
+        StoreProperties graphStoreProperties = new MapStoreProperties();
+        graphStoreProperties.setStoreClass(MapStore.class);
 
         assertEquals(0, store.getGraphs(testUser, null).size());
 
@@ -245,9 +245,9 @@ public class FederatedAddGraphHandlerTest {
                     store);
             fail("Exception not thrown");
         } catch (OperationException e) {
-            assertEquals("User is limited to only using parentPropertiesId from the graphLibrary," +
-                            " but found storeProperties:{gaffer.store.class=uk.gov.gchq.gaffer.federatedstore.FederatedStore}",
-                    e.getMessage());
+            assertTrue(e.getMessage().contains("User is limited to only using parentPropertiesId" +
+                    " from the graphLibrary, but found storeProperties:" +
+                    "{gaffer.store.class=uk.gov.gchq.gaffer.mapstore.MapStore"));
         }
 
 

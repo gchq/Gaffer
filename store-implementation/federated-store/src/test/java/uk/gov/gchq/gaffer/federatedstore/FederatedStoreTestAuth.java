@@ -57,7 +57,6 @@ public class FederatedStoreTestAuth {
         String expectedGraphId = "testGraphID";
 
         FederatedStoreProperties storeProperties = new FederatedStoreProperties();
-        storeProperties.set("gaffer.store.class", "uk.gov.gchq.gaffer.federatedstore.FederatedStore");
         storeProperties.setFalseSkipFailedExecution();
 
         assertEquals(0, store.getGraphs(testUser, null).size());
