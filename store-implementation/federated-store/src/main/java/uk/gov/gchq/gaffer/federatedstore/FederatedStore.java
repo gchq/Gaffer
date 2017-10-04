@@ -177,9 +177,10 @@ public class FederatedStore extends Store {
      * graphs via the {@link RemoveGraph} operation.
      *
      * @param graphId to be removed from scope
+     * @param user to match visibility against
      */
-    public void remove(final String graphId) {
-        graphStorage.remove(graphId);
+    public void remove(final String graphId, final User user) {
+        graphStorage.remove(graphId, user);
     }
 
     /**

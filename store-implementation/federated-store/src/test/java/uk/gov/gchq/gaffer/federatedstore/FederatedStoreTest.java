@@ -61,9 +61,10 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStore.S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.*;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.authUser;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
 
 public class FederatedStoreTest {
     public static final String PATH_FEDERATED_STORE_PROPERTIES = "/properties/federatedStoreTest.properties";
@@ -193,7 +194,7 @@ public class FederatedStoreTest {
                     .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_EDGE_SCHEMA_JSON))
                     .build());
         } catch (final Exception e) {
-            assertEquals(String.format(USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S, ACC_ID_1), e.getMessage());
+            assertEquals(String.format(USER_IS_ATTEMPTING_TO_OVERWRITE, ACC_ID_1), e.getMessage());
             return;
         }
         fail(EXCEPTION_NOT_THROWN);
@@ -261,7 +262,7 @@ public class FederatedStoreTest {
 
         //With less Traits
         Set<StoreTrait> before = store.getTraits();
-        store.remove(MAP_ID_1);
+        store.remove(MAP_ID_1, testUser);
         Set<StoreTrait> after = store.getTraits();
 
         //includes same as before but with more Traits
@@ -283,7 +284,7 @@ public class FederatedStoreTest {
 
         Schema before = store.getSchema();
 
-        store.remove(MAP_ID_1);
+        store.remove(MAP_ID_1, testUser);
 
         Schema after = store.getSchema();
         assertNotEquals(before, after);
@@ -436,7 +437,7 @@ public class FederatedStoreTest {
         assertTrue(allGraphId2.contains(ACC_ID_1));
         assertTrue(allGraphId2.contains(MAP_ID_1));
 
-        store.remove(ACC_ID_1);
+        store.remove(ACC_ID_1, testUser);
 
         Collection<String> allGraphId3 = store.getAllGraphIds(testUser);
 

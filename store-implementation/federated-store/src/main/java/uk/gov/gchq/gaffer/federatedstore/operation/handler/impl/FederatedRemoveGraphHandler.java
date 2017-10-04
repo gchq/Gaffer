@@ -35,7 +35,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 public class FederatedRemoveGraphHandler implements OperationHandler<RemoveGraph> {
     @Override
     public Void doOperation(final RemoveGraph operation, final Context context, final Store store) throws OperationException {
-        ((FederatedStore) store).remove(operation.getGraphId());
+        ((FederatedStore) store).remove(operation.getGraphId(), context.getUser());
         return null;
     }
 }
