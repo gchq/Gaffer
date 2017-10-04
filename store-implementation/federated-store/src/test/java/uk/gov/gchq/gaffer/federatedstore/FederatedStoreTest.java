@@ -82,6 +82,8 @@ public class FederatedStoreTest {
     private static final String EXCEPTION_NOT_THROWN = "exception not thrown";
     private static final String USER_ID = "testUser";
     private static final String PROPS_ID_1 = "PROPS_ID_1";
+    public static final String UNUSUAL_KEY = "unusualKey";
+    public static final String KEY_DOES_NOT_BELONG = UNUSUAL_KEY + " wasn't added to " + PROPS_ID_1 + " it should not be there";
     private static final String SCHEMA_ID_1 = "SCHEMA_ID_1";
     private static final String ALL_USERS = FederatedStoreUser.ALL_USERS;
     private static final HashSet<String> GRAPH_AUTHS = Sets.newHashSet(ALL_USERS);
@@ -757,15 +759,15 @@ public class FederatedStoreTest {
         prop.setId(PROPS_ID_1);
         final HashMapGraphLibrary graphLibrary = new HashMapGraphLibrary();
         graphLibrary.addProperties(PROPS_ID_1, prop);
-        assertFalse(graphLibrary.getProperties(PROPS_ID_1).containsKey("unusualKey"));
+        assertFalse(KEY_DOES_NOT_BELONG, graphLibrary.getProperties(PROPS_ID_1).containsKey(UNUSUAL_KEY));
 
         store.setGraphLibrary(graphLibrary);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         assertEquals(1, store.getGraphs(testUser, null).size());
-        assertFalse(graphLibrary.getProperties(PROPS_ID_1).containsKey("unusualKey"));
+        assertFalse(KEY_DOES_NOT_BELONG, graphLibrary.getProperties(PROPS_ID_1).containsKey(UNUSUAL_KEY));
         assertEquals(prop.getProperties(), graphLibrary.getProperties(PROPS_ID_1).getProperties());
-        assertTrue(store.getGraphs(testUser, null).iterator().next().getStoreProperties().getProperties().getProperty("unusualKey") != null);
+        assertTrue(store.getGraphs(testUser, null).iterator().next().getStoreProperties().getProperties().getProperty(UNUSUAL_KEY) != null);
 
     }
 
@@ -798,7 +800,7 @@ public class FederatedStoreTest {
         federatedProperties.setGraphSchemaFile(MAP_ID_1, PATH_BASIC_EDGE_SCHEMA_JSON);
         federatedProperties.setGraphSchemaId(MAP_ID_1, SCHEMA_ID_1);
         final MapStoreProperties prop = new MapStoreProperties();
-        final String unusualKey = "unusualKey";
+        final String unusualKey = UNUSUAL_KEY;
         prop.set(unusualKey, "value");
         final Schema schema = new Schema.Builder()
                 .json(StreamUtil.openStream(this.getClass(), PATH_BASIC_ENTITY_SCHEMA_JSON))
@@ -830,7 +832,7 @@ public class FederatedStoreTest {
         graphLibrary.add(MAP_ID_1, schema, StoreProperties.loadStoreProperties(StreamUtil.openStream(this.getClass(), PATH_MAP_STORE_PROPERTIES)));
 
         final MapStoreProperties prop = new MapStoreProperties();
-        final String unusualKey = "unusualKey";
+        final String unusualKey = UNUSUAL_KEY;
         prop.set(unusualKey, "value");
 
         store.setGraphLibrary(graphLibrary);
