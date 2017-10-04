@@ -188,9 +188,14 @@ public class FederatedStore extends Store {
      * graphs via the {@link RemoveGraph} operation.
      *
      * @param graphId to be removed from scope
+     * @throws StoreException if there was an error removing the {@link uk.gov.gchq.gaffer.graph.Graph} from the store
      */
-    public void remove(final String graphId) {
-        federatedStoreCache.deleteFromCache(graphId);
+    public void remove(final String graphId) throws StoreException {
+        try {
+            federatedStoreCache.deleteFromCache(graphId);
+        } catch (CacheOperationException e) {
+            throw new StoreException(e);
+        }
         graphStorage.remove(graphId);
     }
 
@@ -461,7 +466,7 @@ public class FederatedStore extends Store {
         final String graphId = newGraph.getGraphId();
         if (!federatedStoreCache.getAllGraphIds().contains(graphId)) {
             try {
-                federatedStoreCache.addToCache(newGraph);
+                federatedStoreCache.addGraphToCache(newGraph, false);
             } catch (final OverwritingException e) {
                 throw new OverwritingException((String.format("User is attempting to overwrite a graph within the cacheService. GraphId: %s", graphId)));
             } catch (final Exception e) {

@@ -33,6 +33,11 @@ public class FederatedStoreCache {
 
     private static final String CACHE_SERVICE_NAME = "federatedStoreGraphs";
 
+    /**
+     * Get the cache for the FederatedStore.
+     *
+     * @return the FederatedStore cache
+     */
     public ICache getCache() {
         if (CacheServiceLoader.getService() != null) {
             return CacheServiceLoader.getService().getCache(CACHE_SERVICE_NAME);
@@ -41,29 +46,76 @@ public class FederatedStoreCache {
         }
     }
 
+    /**
+     * Get all the ID's related to the {@link uk.gov.gchq.gaffer.graph.Graph}'s
+     * stored in the cache.
+     *
+     * @return all the Graph ID's within the cache
+     */
     public Set<String> getAllGraphIds() {
         return CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME);
     }
 
-    public void addToCache(Graph graph) throws CacheOperationException {
+    /**
+     * Add the specified {@link uk.gov.gchq.gaffer.graph.Graph} to the cache.
+     *
+     * @param graph     the {@link uk.gov.gchq.gaffer.graph.Graph} to be added
+     * @param overwrite if true, overwrite any graphs already in the cache with the same ID
+     * @throws CacheOperationException if there was an error trying to add to the cache
+     */
+    public void addGraphToCache(Graph graph, boolean overwrite) throws CacheOperationException {
         GraphSerialisable graphSerialisable = new GraphSerialisable.Builder().graph(graph).build();
-        CacheServiceLoader.getService().putInCache(CACHE_SERVICE_NAME, graph.getGraphId(), graphSerialisable);
+
+        if (overwrite) {
+            CacheServiceLoader.getService().putInCache(CACHE_SERVICE_NAME, graph.getGraphId(), graphSerialisable);
+        } else {
+            CacheServiceLoader.getService().putSafeInCache(CACHE_SERVICE_NAME, graph.getGraphId(), graphSerialisable);
+        }
     }
 
-    public void addSafeToCache(Graph graph) throws CacheOperationException {
-        GraphSerialisable graphSerialisable = new GraphSerialisable.Builder().graph(graph).build();
-        CacheServiceLoader.getService().putSafeInCache(CACHE_SERVICE_NAME, graph.getGraphId(), graphSerialisable);
-    }
-
+    /**
+     * Retrieve the {@link uk.gov.gchq.gaffer.graph.Graph} with the specified ID from the cache.
+     *
+     * @param graphId the ID of the {@link uk.gov.gchq.gaffer.graph.Graph} to retrieve
+     * @return the {@link uk.gov.gchq.gaffer.graph.Graph} related to the specified ID
+     * @throws CacheOperationException if there was an error trying to access the cache
+     */
     public Graph getFromCache(String graphId) throws CacheOperationException {
+        if (null == graphId) {
+            throw new CacheOperationException("Graph ID cannot be null");
+        }
+
         final GraphSerialisable graphSerialisable = CacheServiceLoader.getService().getFromCache(CACHE_SERVICE_NAME, graphId);
-        return graphSerialisable.buildGraph();
+
+        if (null != graphSerialisable) {
+            return graphSerialisable.buildGraph();
+        }
+        throw new CacheOperationException("No graph in the cache with Graph ID: " + graphId);
     }
 
-    public void deleteFromCache(String graphId) {
+    /**
+     * Delete the {@link uk.gov.gchq.gaffer.graph.Graph} related to the specified ID from the cache.
+     *
+     * @param graphId the ID of the {@link uk.gov.gchq.gaffer.graph.Graph} to be deleted
+     * @throws CacheOperationException if there was an error trying to delete from the cache
+     */
+    public void deleteFromCache(String graphId) throws CacheOperationException {
+        if (null == graphId) {
+            throw new CacheOperationException("Graph ID cannot be null");
+        }
+
         CacheServiceLoader.getService().removeFromCache(CACHE_SERVICE_NAME, graphId);
+
+        if (null != CacheServiceLoader.getService().getFromCache(CACHE_SERVICE_NAME, graphId)) {
+            throw new CacheOperationException("Failed to remove Graph with ID: " + graphId + " from cache");
+        }
     }
 
+    /**
+     * Clear the cache.
+     *
+     * @throws CacheOperationException if there was an error trying to clear the cache
+     */
     public void clearCache() throws CacheOperationException {
         CacheServiceLoader.getService().clearCache(CACHE_SERVICE_NAME);
     }
