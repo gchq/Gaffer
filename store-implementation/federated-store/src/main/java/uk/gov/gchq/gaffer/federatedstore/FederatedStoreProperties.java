@@ -31,7 +31,6 @@ public class FederatedStoreProperties extends StoreProperties {
 
     public FederatedStoreProperties() {
         setStoreClass(FederatedStore.class);
-        setStorePropertiesClass(FederatedStoreProperties.class);
     }
 
     public void setGraphIds(final String graphIdsCSV) {
