@@ -45,7 +45,7 @@ public class FederatedStoreProperties extends StoreProperties {
         set(getCustomPropsKey(), auths);
     }
 
-    public static String getCustomPropsKey() {
+    private static String getCustomPropsKey() {
         return String.format("%s.%s", PREFIX_GAFFER_FEDERATED_STORE, CUSTOM_PROPERTIES_AUTHS);
     }
 
@@ -77,12 +77,12 @@ public class FederatedStoreProperties extends StoreProperties {
         set(key, file);
     }
 
-    public static String getGraphConfigKey(final String graphId, final GraphConfigEnum graphConfigEnum, final LocationEnum locationEnum) {
+    private static String getGraphConfigKey(final String graphId, final GraphConfigEnum graphConfigEnum, final LocationEnum locationEnum) {
         return String.format("%s.%s.%s.%s", PREFIX_GAFFER_FEDERATED_STORE, graphId, graphConfigEnum.value, locationEnum.value);
     }
 
 
-    public static String getGraphAuthsKey(final String graphId) {
+    private static String getGraphAuthsKey(final String graphId) {
         return String.format("%s.%s.%s", PREFIX_GAFFER_FEDERATED_STORE, graphId, "auths");
     }
 
@@ -106,20 +106,20 @@ public class FederatedStoreProperties extends StoreProperties {
         }
     }
 
-    public static String getValueOf(final StoreProperties properties, final String graphId, final GraphConfigEnum graphConfigEnum, final LocationEnum location) {
+    public String getValueOf(final String graphId, final GraphConfigEnum graphConfigEnum, final LocationEnum location) {
         final String key = getGraphConfigKey(graphId, graphConfigEnum, location);
-        return properties.get(key);
+        return this.get(key);
     }
 
-    public static String getCustomPropsValue(final StoreProperties properties) {
-        return properties.get(getCustomPropsKey());
+    public String getCustomPropsValue() {
+        return this.get(getCustomPropsKey());
     }
 
-    public static String getGraphAuthsValue(final StoreProperties properties, final String graphId) {
-        return properties.get(getGraphAuthsKey(graphId));
+    public String getGraphAuthsValue(final String graphId) {
+        return this.get(getGraphAuthsKey(graphId));
     }
 
-    public static String getGraphIdsValue(final StoreProperties properties) {
-        return properties.get(KEY_GRAPH_IDS);
+    public String getGraphIdsValue() {
+        return this.get(KEY_GRAPH_IDS);
     }
 }

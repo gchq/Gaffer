@@ -219,10 +219,10 @@ public class FederatedAddGraphHandlerTest {
     public void shouldAddGraphIDOnlyWithAuths() throws Exception {
 
 
-        final FederatedStoreProperties federatedProperties = new FederatedStoreProperties();
-        federatedProperties.setCustomPropertyAuths("auth1,auth2");
+        final FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
+        federatedStoreProperties.setCustomPropertyAuths("auth1,auth2");
         FederatedStore store = new FederatedStore();
-        store.initialise("FederatedStore", null, federatedProperties);
+        store.initialise("FederatedStore", null, federatedStoreProperties);
 
         Schema expectedSchema = new Schema.Builder().build();
         String expectedGraphId = "testGraphID";
@@ -275,8 +275,7 @@ public class FederatedAddGraphHandlerTest {
      */
     @Test
     public void shouldAddGraphWithAuthsAndAddingUser() throws Exception {
-        StoreProperties fedStoreProperties = new StoreProperties();
-        fedStoreProperties.setStoreClass(FederatedStore.class);
+        StoreProperties fedStoreProperties = new FederatedStoreProperties();
 
         FederatedStore store = new FederatedStore();
         store.initialise("testFedStore", null, fedStoreProperties);

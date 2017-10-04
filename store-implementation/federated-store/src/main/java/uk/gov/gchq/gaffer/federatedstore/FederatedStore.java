@@ -71,10 +71,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.getCustomPropsValue;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.getGraphAuthsValue;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.getGraphIdsValue;
-
 /**
  * A Store that encapsulates a collection of sub-graphs and executes operations
  * against them and returns results as though it was a single graph.
@@ -111,9 +107,21 @@ public class FederatedStore extends Store {
      */
     @Override
     public void initialise(final String graphId, final Schema unused, final StoreProperties properties) throws StoreException {
-        super.initialise(graphId, new Schema(), properties);
+        StoreProperties resolvedProperties = properties;
+        if (!(properties instanceof FederatedStoreProperties)) {
+            if (!FederatedStoreProperties.class.equals(properties.getStorePropertiesClass())) {
+                throw new IllegalArgumentException("The given properties is not of type " + FederatedStoreProperties.class.getName() + " actual: " + properties.getStorePropertiesClassName());
+            }
+            resolvedProperties = FederatedStoreProperties.loadStoreProperties(properties.getProperties());
+        }
+        super.initialise(graphId, new Schema(), resolvedProperties);
         loadCustomPropertiesAuths();
         loadGraphs();
+    }
+
+    @Override
+    public FederatedStoreProperties getProperties() {
+        return (FederatedStoreProperties) super.getProperties();
     }
 
     /**
@@ -177,7 +185,7 @@ public class FederatedStore extends Store {
      * graphs via the {@link RemoveGraph} operation.
      *
      * @param graphId to be removed from scope
-     * @param user to match visibility against
+     * @param user    to match visibility against
      */
     public void remove(final String graphId, final User user) {
         graphStorage.remove(graphId, user);
@@ -312,7 +320,7 @@ public class FederatedStore extends Store {
     }
 
     private void loadCustomPropertiesAuths() {
-        final String value = getCustomPropsValue(getProperties());
+        final String value = getProperties().getCustomPropsValue();
         if (!Strings.isNullOrEmpty(value)) {
             customPropertiesAuths = Sets.newHashSet(getCleanStrings(value));
         }
@@ -341,7 +349,7 @@ public class FederatedStore extends Store {
     }
 
     private Set<String> resolveAuths(final String graphId) {
-        final String value = getGraphAuthsValue(getProperties(), graphId);
+        final String value = getProperties().getGraphAuthsValue(graphId);
         return Strings.isNullOrEmpty(value) ? null : Sets.newHashSet(getCleanStrings(value));
     }
 
@@ -426,12 +434,12 @@ public class FederatedStore extends Store {
     }
 
     private String getValueOf(final String graphId, final GraphConfigEnum graphConfigEnum, final LocationEnum locationEnum) {
-        return FederatedStoreProperties.getValueOf(getProperties(), graphId, graphConfigEnum, locationEnum);
+        return getProperties().getValueOf(graphId, graphConfigEnum, locationEnum);
     }
 
     private HashSet<String> getGraphIds() {
         final HashSet<String> graphIds = Sets.newHashSet();
-        final String graphIdValue = getGraphIdsValue(getProperties());
+        final String graphIdValue = getProperties().getGraphIdsValue();
         if (!Strings.isNullOrEmpty(graphIdValue)) {
             graphIds.addAll(getCleanStrings(graphIdValue));
         }

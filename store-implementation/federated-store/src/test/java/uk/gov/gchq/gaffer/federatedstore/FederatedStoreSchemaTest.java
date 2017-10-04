@@ -52,15 +52,12 @@ public class FederatedStoreSchemaTest {
 
     private FederatedStore fStore;
     public static final AccumuloProperties ACCUMULO_PROPERTIES = new AccumuloProperties();
-    public static final StoreProperties FEDERATED_PROPERTIES = new StoreProperties();
+    public static final StoreProperties FEDERATED_PROPERTIES = new FederatedStoreProperties();
 
     @Before
     public void setUp() throws Exception {
         ACCUMULO_PROPERTIES.setStoreClass(SingleUseMockAccumuloStore.class);
         ACCUMULO_PROPERTIES.setStorePropertiesClass(AccumuloProperties.class);
-
-        FEDERATED_PROPERTIES.setStoreClass(FederatedStore.class.getName());
-        FEDERATED_PROPERTIES.setStorePropertiesClass(StoreProperties.class);
 
         fStore = new FederatedStore();
         fStore.initialise(TEST_FED_STORE, null, FEDERATED_PROPERTIES);

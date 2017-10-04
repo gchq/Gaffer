@@ -55,9 +55,7 @@ public class FederatedStoreGraphVisibilityTest {
     @Before
     public void setUp() throws Exception {
         HashMapGraphLibrary.clear();
-        fedProperties = new StoreProperties();
-        fedProperties.setStorePropertiesClass(StoreProperties.class);
-        fedProperties.setStoreClass(FederatedStore.class);
+        fedProperties = new FederatedStoreProperties();
 
         final HashMapGraphLibrary library = new HashMapGraphLibrary();
 
