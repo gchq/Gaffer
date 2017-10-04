@@ -751,22 +751,22 @@ public class FederatedStoreTest {
     public void shouldAddGraphWithPropertiesFromGraphLibraryOverridden() throws Exception {
         federatedProperties.setGraphIds(MAP_ID_1);
         federatedProperties.setGraphPropId(MAP_ID_1, PROPS_ID_1);
-        federatedProperties.setGraphPropFile(MAP_ID_1, PATH_MAP_STORE_PROPERTIES);
+        federatedProperties.setGraphPropFile(MAP_ID_1, PATH_MAP_STORE_PROPERTIES_ALT);
         federatedProperties.setGraphSchemaFile(MAP_ID_1, PATH_BASIC_EDGE_SCHEMA_JSON);
         final MapStoreProperties prop = new MapStoreProperties();
         prop.setId(PROPS_ID_1);
-        final String unusualKey = "unusualKey";
-        prop.set(unusualKey, "value");
         final HashMapGraphLibrary graphLibrary = new HashMapGraphLibrary();
-        graphLibrary.add("libraryGraphId", new Schema(), prop);
+        graphLibrary.addProperties(PROPS_ID_1, prop);
+        assertFalse(graphLibrary.getProperties(PROPS_ID_1).containsKey("unusualKey"));
 
         store.setGraphLibrary(graphLibrary);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         assertEquals(1, store.getGraphs(testUser, null).size());
-        assertTrue(store.getGraphs(testUser, null).iterator().next().getStoreProperties().getProperties().getProperty(unusualKey) != null);
+        assertFalse(graphLibrary.getProperties(PROPS_ID_1).containsKey("unusualKey"));
+        assertEquals(prop.getProperties(), graphLibrary.getProperties(PROPS_ID_1).getProperties());
+        assertTrue(store.getGraphs(testUser, null).iterator().next().getStoreProperties().getProperties().getProperty("unusualKey") != null);
 
-        assertTrue(graphLibrary.getProperties(PROPS_ID_1).equals(prop));
     }
 
     @Test
