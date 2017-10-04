@@ -28,18 +28,18 @@ import uk.gov.gchq.gaffer.user.User;
  */
 public class RoadTrafficRestApiSTs extends RoadTrafficTestQueries {
 
-	@Override
-	public void prepareProxy(){
-		ProxyProperties props = new ProxyProperties(System.getProperties());
-		props.setStoreClass(ProxyStore.class);
-		props.setStorePropertiesClass(props.getClass());
+    @Override
+    public void prepareProxy() {
+        ProxyProperties props = new ProxyProperties(System.getProperties());
+        props.setStoreClass(ProxyStore.class);
+        props.setStorePropertiesClass(props.getClass());
 
-		this.graph = new Graph.Builder()
-			.config(StreamUtil.graphConfig(this.getClass()))
-			.storeProperties(props)
-			.build();
+        this.graph = new Graph.Builder()
+                .config(StreamUtil.graphConfig(this.getClass()))
+                .storeProperties(props)
+                .build();
 
-		this.user = new User();
-	}
+        this.user = new User();
+    }
 
 }
