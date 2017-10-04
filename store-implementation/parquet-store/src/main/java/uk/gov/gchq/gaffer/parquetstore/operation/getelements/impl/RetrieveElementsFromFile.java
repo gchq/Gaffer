@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.parquetstore.operation.getelements.impl;
 
+
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.filter2.compat.FilterCompat;
 import org.apache.parquet.filter2.predicate.FilterPredicate;
@@ -22,6 +23,10 @@ import org.apache.parquet.hadoop.ParquetReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.Authorisations;
+import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.ElementVisibility;
+import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.VisibilityEvaluator;
+import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.exception.VisibilityParseException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -31,6 +36,7 @@ import uk.gov.gchq.gaffer.parquetstore.io.reader.ParquetElementReader;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -50,12 +56,28 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
     private final byte[] elementDefinitionJson;
     private final boolean needsValidation;
     private final String group;
+    private final Authorisations auths;
+    private final String visibility;
 
     public RetrieveElementsFromFile(final Path filePath, final FilterPredicate filter, final Schema gafferSchema,
-                                    final ConcurrentLinkedQueue<Element> queue, final boolean needsValidation, final View view) {
+                                    final ConcurrentLinkedQueue<Element> queue, final boolean needsValidation,
+                                    final View view, final User user) {
         this.filePath = filePath;
         this.filter = filter;
         this.jsonGafferSchema = gafferSchema.toCompactJson();
+
+        if (gafferSchema.getVisibilityProperty() != null) {
+            this.visibility = gafferSchema.getVisibilityProperty();
+        } else {
+            this.visibility = new String();
+        }
+
+        if (user != null && user.getDataAuths() != null) {
+            this.auths = new Authorisations(user.getDataAuths().toArray(new String[user.getDataAuths().size()]));
+        } else {
+            this.auths = new Authorisations();
+        }
+
         this.queue = queue;
         this.needsValidation = needsValidation;
         if (filePath.getName().contains("=")) {
@@ -74,8 +96,18 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
         try {
             final ParquetReader<Element> fileReader = openParquetReader();
             Element e = fileReader.read();
-            while (null != e) {
-                if (needsValidation) {
+            while (e != null) {
+                if (!visibility.isEmpty()) {
+                    if (isVisible(e)) {
+                        if (needsValidation) {
+                            if (elementFilter.test(e)) {
+                                queue.add(e);
+                            }
+                        } else {
+                            queue.add(e);
+                        }
+                    }
+                } else if (needsValidation) {
                     if (elementFilter.test(e)) {
                         queue.add(e);
                     }
@@ -107,6 +139,17 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
                     .isEntity(isEntity)
                     .usingConverter(converter)
                     .build();
+        }
+    }
+
+    private Boolean isVisible(final Element e) throws VisibilityParseException {
+        if (e.getProperty(visibility) != null) {
+            final VisibilityEvaluator visibilityEvaluator = new VisibilityEvaluator(auths);
+            final ElementVisibility elementVisibility = new ElementVisibility((String) e.getProperty(visibility));
+            return visibilityEvaluator.evaluate(elementVisibility);
+        } else {
+            e.putProperty(visibility, new String());
+            return true;
         }
     }
 }

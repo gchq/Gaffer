@@ -44,6 +44,12 @@
       "aggregateFunction": {
         "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Max"
       }
+    },
+    "visibility": {
+      "class": "java.lang.String",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat"
+      }
     }
   }
 }

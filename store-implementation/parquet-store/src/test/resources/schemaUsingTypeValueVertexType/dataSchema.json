@@ -11,7 +11,8 @@
         "short": "simpleShortProperty",
         "date": "simpleDateProperty",
         "freqMap": "freqMap",
-        "count": "simpleIntProperty"
+        "count": "simpleIntProperty",
+        "visibility": "visibility"
       },
       "groupBy": [
         "date"
@@ -28,7 +29,8 @@
         "short": "simpleShortProperty",
         "date": "simpleDateProperty",
         "freqMap": "freqMap",
-        "count": "simpleIntProperty"
+        "count": "simpleIntProperty",
+        "visibility": "visibility"
       }
     }
   },
@@ -46,7 +48,8 @@
         "short": "simpleShortProperty",
         "date": "simpleDateProperty",
         "freqMap": "freqMap",
-        "count": "simpleIntProperty"
+        "count": "simpleIntProperty",
+        "visibility": "visibility"
       },
       "groupBy": [
         "date"
@@ -65,8 +68,10 @@
         "short": "simpleShortProperty",
         "date": "simpleDateProperty",
         "freqMap": "freqMap",
-        "count": "simpleIntProperty"
+        "count": "simpleIntProperty",
+        "visibility": "visibility"
       }
     }
-  }
+  },
+  "visibilityProperty": "visibility"
 }

@@ -81,7 +81,7 @@ public class ExtractKeyFromRowTest {
     @Test
     public void testExtractKeyFromRowForEntity() throws Exception {
         final ExtractKeyFromRow entityConverter = new ExtractKeyFromRow(groupByColumns, columnsToPaths, true);
-        final Row row = DataGen.generateEntityRow(utils, "BasicEntity", "vertex", (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1());
+        final Row row = DataGen.generateEntityRow(utils, "BasicEntity", "vertex", (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), null);
         final Seq<Object> results = entityConverter.call(row);
         final List<Object> actual = new ArrayList<>(4);
         for (int i = 0; i < results.length(); i++) {
@@ -98,7 +98,7 @@ public class ExtractKeyFromRowTest {
     @Test
     public void testExtractKeyFromRowForEdge() throws Exception {
         final ExtractKeyFromRow edgeConverter = new ExtractKeyFromRow(groupByColumns, columnsToPaths, false);
-        final Row row = DataGen.generateEdgeRow(utils, "BasicEdge", "src", "dst", true, (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1());
+        final Row row = DataGen.generateEdgeRow(utils, "BasicEdge", "src", "dst", true, (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), null);
         final Seq<Object> results = edgeConverter.call(row);
         final List<Object> actual = new ArrayList<>(6);
         for (int i = 0; i < results.length(); i++) {
