@@ -119,7 +119,6 @@ public class AggregateAndSortTempData {
                 results.get(i).get();
             }
             LOGGER.debug("Finished sorting the aggregated data");
-            pool.shutdown();
             // move sorted files into a directory ready to be moved to the data directory
             if (props.getSortBySplitsOnIngest()) {
                 for (final String group : schemaUtils.getEdgeGroups()) {

@@ -20,7 +20,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.Option;
 import scala.Tuple2;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -54,8 +53,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+
+import static uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreUtils.createThreadPool;
+import static uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreUtils.invokeSplitPointCalculations;
 
 /**
  * An {@link OperationHandler} for the {@link AddElements} operation on the {@link ParquetStore}.
@@ -96,16 +96,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             // Write the data out
             LOGGER.debug("Starting to write the input Parquet data to {} split by group and split points", tempDirString);
             final Iterable<? extends Element> input = addElementsOperation.getInput();
-            final int numberOfThreads;
-            final Option<String> sparkDriverCores = spark.conf().getOption("spark.driver.cores");
-            if (sparkDriverCores.nonEmpty()) {
-                numberOfThreads = Integer.parseInt(sparkDriverCores.get());
-            } else {
-                numberOfThreads = store.getProperties().getThreadsAvailable();
-            }
-            final ExecutorService pool = Executors.newFixedThreadPool(numberOfThreads);
-            LOGGER.debug("Created thread pool of size {} to aggregate and sort data", numberOfThreads);
-
+            final ExecutorService pool = createThreadPool(spark, parquetStoreProperties);
             final List<Callable<Tuple2<String, Map<Object, Integer>>>> tasks = new ArrayList<>();
             final Map<String, Map<Object, Integer>> groupToSplitPoints;
             final GraphIndex index = store.getGraphIndex();
@@ -119,17 +110,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
                     tasks.add(new CalculateSplitPointsFromIterable(parquetStoreProperties.getSampleRate(),
                             parquetStoreProperties.getAddElementsOutputFilesPerGroup() - 1, input, group, true));
                 }
-                try {
-                    List<Future<Tuple2<String, Map<Object, Integer>>>> results = pool.invokeAll(tasks);
-                    for (int i = 0; i < tasks.size(); i++) {
-                        final Tuple2<String, Map<Object, Integer>> result = results.get(i).get();
-                        if (null != result) {
-                            groupToSplitPoints.put(result._1, result._2);
-                        }
-                    }
-                } catch (final Exception e) {
-                    throw new OperationException(e.getMessage(), e);
-                }
+                invokeSplitPointCalculations(pool, tasks, groupToSplitPoints);
             } else {
                 groupToSplitPoints = CalculateSplitPointsFromIndex.apply(index, store.getSchemaUtils(), parquetStoreProperties, input, pool);
             }
@@ -146,6 +127,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             // Use to Spark read in all the data, aggregate and sort it
             LOGGER.debug("Starting to write the sorted and aggregated Parquet data to {}/sorted split by group", tempDirString);
             new AggregateAndSortTempData(store, spark, groupToSplitPoints, pool);
+            pool.shutdown();
             LOGGER.debug("Finished writing the sorted and aggregated Parquet data to {}/sorted", tempDirString);
             // Generate the file based index
             LOGGER.debug("Starting to write the indexes");

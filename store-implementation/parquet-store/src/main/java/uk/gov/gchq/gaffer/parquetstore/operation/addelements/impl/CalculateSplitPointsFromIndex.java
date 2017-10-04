@@ -42,7 +42,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
+
+import static uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreUtils.invokeSplitPointCalculations;
 
 /**
  * Generates the split points from the {@link GraphIndex} and uses the min values per file as the split points
@@ -70,21 +71,7 @@ public final class CalculateSplitPointsFromIndex {
                 tasks.add(new CalculateSplitPointsFromIterable(properties.getSampleRate(), properties.getAddElementsOutputFilesPerGroup() - 1, data, group, false));
             }
         }
-        try {
-            final List<Future<Tuple2<String, Map<Object, Integer>>>> results = pool.invokeAll(tasks);
-            for (int i = 0; i < tasks.size(); i++) {
-                final Tuple2<String, Map<Object, Integer>> result = results.get(i).get();
-                if (null != result) {
-                    final Map<Object, Integer> splitPoints = result._2;
-                    if (!splitPoints.isEmpty()) {
-                        groupToSplitPoints.put(result._1, splitPoints);
-                    }
-                }
-            }
-        } catch (final Exception e) {
-            throw new OperationException(e.getMessage(), e);
-        }
-
+        invokeSplitPointCalculations(pool, tasks, groupToSplitPoints);
         return groupToSplitPoints;
     }
 
@@ -104,18 +91,7 @@ public final class CalculateSplitPointsFromIndex {
                 tasks.add(new CalculateSplitPointsFromJavaRDD(properties.getSampleRate(), properties.getAddElementsOutputFilesPerGroup() - 1, data, group, true));
             }
         }
-        try {
-            final List<Future<Tuple2<String, Map<Object, Integer>>>> results = pool.invokeAll(tasks);
-            for (int i = 0; i < tasks.size(); i++) {
-                final Tuple2<String, Map<Object, Integer>> result = results.get(i).get();
-                final Map<Object, Integer> splitPoints = result._2;
-                if (!splitPoints.isEmpty()) {
-                    groupToSplitPoints.put(result._1, splitPoints);
-                }
-            }
-        } catch (final Exception e) {
-            throw new OperationException(e.getMessage(), e);
-        }
+        invokeSplitPointCalculations(pool, tasks, groupToSplitPoints);
         return groupToSplitPoints;
     }
 

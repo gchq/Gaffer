@@ -21,7 +21,6 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.Option;
 import scala.Tuple2;
 
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -49,8 +48,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+
+import static uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreUtils.createThreadPool;
+import static uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreUtils.invokeSplitPointCalculations;
 
 /**
  * Executes the process of importing a {@link JavaRDD} of {@link Element} into the current {@link ParquetStore}
@@ -74,15 +74,7 @@ public class AddElementsFromRDD {
             if (user instanceof SparkUser) {
                 final SparkSession spark = ((SparkUser) user).getSparkSession();
                 SparkParquetUtils.configureSparkForAddElements(spark, parquetStoreProperties);
-                final int numberOfThreads;
-                final Option<String> sparkDriverCores = spark.conf().getOption("spark.driver.cores");
-                if (sparkDriverCores.nonEmpty()) {
-                    numberOfThreads = Integer.parseInt(sparkDriverCores.get());
-                } else {
-                    numberOfThreads = store.getProperties().getThreadsAvailable();
-                }
-                final ExecutorService pool = Executors.newFixedThreadPool(numberOfThreads);
-                LOGGER.debug("Created thread pool of size {} to aggregate and sort data", numberOfThreads);
+                final ExecutorService pool = createThreadPool(spark, parquetStoreProperties);
                 // aggregate new data and write out as unsorted data
                 LOGGER.debug("Starting to write the new unsorted Parquet data after aggregation to {} split by group", tempDataDirString);
                 final Schema gafferSchema = store.getSchema();
@@ -99,17 +91,7 @@ public class AddElementsFromRDD {
                         tasks.add(new CalculateSplitPointsFromJavaRDD(parquetStoreProperties.getSampleRate(),
                                 parquetStoreProperties.getAddElementsOutputFilesPerGroup() - 1, input, group, true));
                     }
-                    try {
-                        List<Future<Tuple2<String, Map<Object, Integer>>>> results = pool.invokeAll(tasks);
-                        for (int i = 0; i < tasks.size(); i++) {
-                            final Tuple2<String, Map<Object, Integer>> result = results.get(i).get();
-                            if (null != result) {
-                                groupToSplitPoints.put(result._1, result._2);
-                            }
-                        }
-                    } catch (final Exception e) {
-                        throw new OperationException(e.getMessage(), e);
-                    }
+                    invokeSplitPointCalculations(pool, tasks, groupToSplitPoints);
                 } else {
                     groupToSplitPoints = CalculateSplitPointsFromIndex.apply(index, store.getSchemaUtils(), parquetStoreProperties, input, pool);
                 }
@@ -123,8 +105,8 @@ public class AddElementsFromRDD {
                 // Aggregate and sort data
                 LOGGER.debug("Starting to write the sorted and aggregated Parquet data to {} split by group", tempDataDirString);
                 new AggregateAndSortTempData(store, spark, groupToSplitPoints, pool);
+                pool.shutdown();
                 LOGGER.debug("Finished writing the sorted and aggregated Parquet data to {}", tempDataDirString);
-
                 // Generate the file based index
                 LOGGER.debug("Starting to write the indexes");
                 final GraphIndex newGraphIndex = new GenerateIndices(store, spark).getGraphIndex();
