@@ -21,7 +21,7 @@ import uk.gov.gchq.gaffer.integration.graph.SchemaHidingIT;
 
 public class HBaseSchemaHidingIT extends SchemaHidingIT {
     public HBaseSchemaHidingIT() {
-        super("miniHBaseStore.properties");
+        super("minihbasestore.properties");
     }
 
     @Override
