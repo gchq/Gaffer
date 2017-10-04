@@ -36,16 +36,14 @@ import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
 public class FunctionValidator<T extends Function> {
-
-    // TODO execute the signature check for edges and elements, as well as the globals
-
-
     public ValidationResult validate(final T operation, final Schema schema) {
         final ValidationResult result = new ValidationResult();
         if (null == operation) {
@@ -65,52 +63,54 @@ public class FunctionValidator<T extends Function> {
         final boolean opIsAggregate = operation instanceof Aggregate;
         final boolean opIsFilter = operation instanceof Filter;
         final boolean opIsTransform = operation instanceof Transform;
+        final Map<String, ?> entities = null != operation.getEntities() ? operation.getEntities() : new HashMap<>();
+        final Map<String, ?> edges = null != operation.getEdges() ? operation.getEdges() : new HashMap<>();
 
-        if (null != operation.getEdges()) {
-            for (Map.Entry<String, ?> entry : operation.getEdges().entrySet()) {
-                result.add(validateEdge(entry, schema));
-                if (opIsAggregate) {
-                    result.add(validateElementAggregator(entry, schema));
-                }
-                if (opIsFilter) {
-                    result.add(validateElementFilter((ElementFilter) entry.getValue()));
-                }
-                if (opIsTransform) {
-                    result.add(validateElementTransformer((ElementTransformer) entry.getValue()));
-                }
-            }
-        }
-        if (null != operation.getEntities()) {
-            for (Map.Entry<String, ?> entry : operation.getEntities().entrySet()) {
-                result.add(validateEntity(entry, schema));
-                if (opIsAggregate) {
-                    result.add(validateElementAggregator(entry, schema));
-                }
-                if (opIsFilter) {
-                    result.add(validateElementFilter((ElementFilter) entry.getValue()));
-                }
-                if (opIsTransform) {
-                    result.add(validateElementTransformer((ElementTransformer) entry.getValue()));
-                }
-            }
+        final Map<String, SchemaEntityDefinition> schemaEntities = schema.getEntities();
+        final Map<String, SchemaEdgeDefinition> schemaEdges = schema.getEdges();
+
+        entities.entrySet().forEach(e -> result.add(validateEntity(e, schema)));
+        edges.entrySet().forEach(e -> result.add(validateEdge(e, schema)));
+
+        if (opIsAggregate) {
+            edges.entrySet().forEach(e -> result.add(validateElementAggregator(e, schema)));
+            edges.forEach((key, value) -> result.add(validateAggregatePropertyClasses(schemaEdges, (AggregatePair) value)));
+
+            entities.entrySet().forEach(e -> result.add(validateElementAggregator(e, schema)));
+            entities.forEach((key, value) -> result.add(validateAggregatePropertyClasses(schemaEntities, (AggregatePair) value)));
         }
 
         if (opIsFilter) {
+            edges.forEach((key, value) -> result.add(validateElementFilter((ElementFilter) value)));
+            edges.forEach((key, value) -> result.add(validateFilterPropertyClasses(schemaEdges, (ElementFilter) value)));
+
+            entities.forEach((key, value) -> result.add(validateElementFilter((ElementFilter) value)));
+            entities.forEach((key, value) -> result.add(validateFilterPropertyClasses(schemaEntities, (ElementFilter) value)));
+
             final ElementFilter globalElements = ((Filter) operation).getGlobalElements();
             final ElementFilter globalEdges = ((Filter) operation).getGlobalEdges();
             final ElementFilter globalEntities = ((Filter) operation).getGlobalEntities();
 
             if (null != globalElements) {
-                result.add(validateGlobalElements(schema.getEdges(), globalElements));
-                result.add(validateGlobalElements(schema.getEntities(), globalElements));
+                result.add(validateFilterPropertyClasses(schemaEdges, globalElements));
+                result.add(validateFilterPropertyClasses(schemaEntities, globalElements));
             }
             if (null != globalEdges) {
-                result.add(validateGlobalElements(schema.getEdges(), globalEdges));
+                result.add(validateFilterPropertyClasses(schemaEdges, globalEdges));
             }
             if (null != globalEntities) {
-                result.add(validateGlobalElements(schema.getEntities(), globalEntities));
+                result.add(validateFilterPropertyClasses(schemaEntities, globalEntities));
             }
         }
+
+        if (opIsTransform) {
+            edges.forEach((key, value) -> result.add(validateElementTransformer((ElementTransformer) value)));
+            edges.forEach((key, value) -> result.add(validateTransformPropertyClasses(schemaEdges, (ElementTransformer) value)));
+
+            entities.forEach((key, value) -> result.add(validateElementTransformer((ElementTransformer) value)));
+            entities.forEach((key, value) -> result.add(validateTransformPropertyClasses(schemaEntities, (ElementTransformer) value)));
+        }
+
         return result;
     }
 
@@ -202,24 +202,95 @@ public class FunctionValidator<T extends Function> {
         return result;
     }
 
-    private ValidationResult validateGlobalElements(final Map<String, ? extends SchemaElementDefinition> elements, final ElementFilter globalFilter) {
+    private ValidationResult validateAggregatePropertyClasses(final Map<String, ? extends SchemaElementDefinition> elements, final AggregatePair pair) {
         final ValidationResult result = new ValidationResult();
 
-        final List<TupleAdaptedPredicate<String, ?>> components = globalFilter.getComponents();
+        final ElementAggregator aggregator = pair.getElementAggregator();
+        if (null != aggregator) {
+            final List<TupleAdaptedBinaryOperator<String, ?>> components = aggregator.getComponents();
+
+            for (TupleAdaptedBinaryOperator<String, ?> component : components) {
+                final String[] selection = component.getSelection();
+
+                for (SchemaElementDefinition elementDef : elements.values()) {
+                    final Class[] selectionClasses = Arrays.stream(selection).map(elementDef::getPropertyClass).toArray(Class[]::new);
+                    final Map<String, String> properties = elementDef.getPropertyMap();
+                    if (properties.size() > 0) {
+                        if (null == component.getBinaryOperator()) {
+                            result.addError(aggregator.getClass().getSimpleName() + " contains a null function.");
+                        } else {
+                            final Signature inputSig = Signature.getInputSignature(component.getBinaryOperator());
+                            result.add(inputSig.assignable(selectionClasses));
+                        }
+                    }
+                }
+            }
+        } else {
+            for (SchemaElementDefinition elementDef : elements.values()) {
+                final List<TupleAdaptedBinaryOperator<String, ?>> components = elementDef.getOriginalAggregateFunctions();
+                for (TupleAdaptedBinaryOperator<String, ?> component : components) {
+                    final String[] selection = component.getSelection();
+                    final Class[] selectionClasses = Arrays.stream(selection).map(elementDef::getPropertyClass).toArray(Class[]::new);
+                    final Map<String, String> properties = elementDef.getPropertyMap();
+                    if (properties.size() > 0) {
+                        if (null == component.getBinaryOperator()) {
+                            result.addError("Aggregator in the schema contains a null function.");
+                        } else {
+                            final Signature inputSig = Signature.getInputSignature(component.getBinaryOperator());
+                            result.add(inputSig.assignable(selectionClasses));
+                        }
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private ValidationResult validateFilterPropertyClasses(final Map<String, ? extends SchemaElementDefinition> elements, final ElementFilter filter) {
+        final ValidationResult result = new ValidationResult();
+
+        final List<TupleAdaptedPredicate<String, ?>> components = filter.getComponents();
         for (TupleAdaptedPredicate<String, ?> component : components) {
             final String[] selection = component.getSelection();
 
             for (SchemaElementDefinition elementDef : elements.values()) {
-                Map<String, String> properties = elementDef.getPropertyMap();
+                final Class[] selectionClasses = Arrays.stream(selection).map(elementDef::getPropertyClass).toArray(Class[]::new);
+                final Map<String, String> properties = elementDef.getPropertyMap();
                 if (properties.size() > 0) {
-                    for (String str : selection) {
-                        Class<?> expectedClass = elementDef.getPropertyClass(str);
-                        if (null == component.getPredicate()) {
-                            result.addError(globalFilter.getClass().getSimpleName() + " contains a null function.");
-                        } else {
-                            final Signature inputSig = Signature.getInputSignature(component.getPredicate());
-                            result.add(inputSig.assignable(expectedClass));
-                        }
+                    if (null == component.getPredicate()) {
+                        result.addError(filter.getClass().getSimpleName() + " contains a null function.");
+                    } else {
+                        final Signature inputSig = Signature.getInputSignature(component.getPredicate());
+                        result.add(inputSig.assignable(selectionClasses));
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    private ValidationResult validateTransformPropertyClasses(final Map<String, ? extends SchemaElementDefinition> elements, final ElementTransformer transformer) {
+        final ValidationResult result = new ValidationResult();
+
+        final List<TupleAdaptedFunction<String, ?, ?>> components = transformer.getComponents();
+        for (TupleAdaptedFunction<String, ?, ?> component : components) {
+            final String[] selection = component.getSelection();
+            final String[] projection = component.getProjection();
+
+            for (SchemaElementDefinition elementDef : elements.values()) {
+                final Class[] selectionClasses = Arrays.stream(selection).map(elementDef::getPropertyClass).toArray(Class[]::new);
+                final Class[] projectionClasses = Arrays.stream(projection).map(elementDef::getPropertyClass).toArray(Class[]::new);
+                final Map<String, String> properties = elementDef.getPropertyMap();
+                if (properties.size() > 0) {
+                    if (null == component.getFunction()) {
+                        result.addError(transformer.getClass().getSimpleName());
+                    } else {
+                        final Signature inputSig = Signature.getInputSignature(component.getFunction());
+                        result.add(inputSig.assignable(selectionClasses));
+
+                        final Signature outputSig = Signature.getOutputSignature(component.getFunction());
+                        result.add(outputSig.assignable(projectionClasses));
                     }
                 }
             }

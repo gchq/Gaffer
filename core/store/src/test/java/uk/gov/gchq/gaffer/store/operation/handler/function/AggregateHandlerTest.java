@@ -19,6 +19,7 @@ import com.google.common.collect.Sets;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -31,7 +32,10 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+import uk.gov.gchq.koryphe.impl.binaryoperator.And;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Max;
+import uk.gov.gchq.koryphe.impl.binaryoperator.Or;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 
 import java.util.ArrayList;
@@ -530,6 +534,75 @@ public class AggregateHandlerTest {
             fail("Exception expected");
         } catch (final OperationException e) {
             assertTrue(e.getMessage().contains("Schema contains an ElementAggregator with a null function."));
+        }
+    }
+
+    @Test
+    public void shouldFailValidationWhenTypeArgumentOfBinaryOperatorInSchemaIsIncorrect() {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .property(TestPropertyNames.COUNT, "count.long")
+                        .aggregator(new ElementAggregator.Builder()
+                                .select("count")
+                                .execute(new And())
+                                .build())
+                        .build())
+                .type("count.long", new TypeDefinition(Long.class))
+                .build();
+        given(store.getSchema()).willReturn(schema);
+
+        input.add(edge);
+        input.add(edge1);
+        input.add(edge2);
+
+        edges.put(TestGroups.EDGE, new AggregatePair());
+
+        final Aggregate aggregate = new Aggregate.Builder()
+                .input(input)
+                .edges(edges)
+                .build();
+
+        // When / Then
+        try {
+            final Iterable<? extends Element> results = handler.doOperation(aggregate, context, store);
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains("Incompatible types."));
+        }
+    }
+
+    @Test
+    public void shouldFailValidationWhenTypeArgumentOfBinaryOperatorInFunctionIsIncorrect() {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.TIMESTAMP, "timestamp.long")
+                        .build())
+                .type("timestamp.long", new TypeDefinition(Long.class))
+                .build();
+        given(store.getSchema()).willReturn(schema);
+
+        input.add(entity);
+        input.add(entity1);
+        input.add(entity2);
+
+        entities.put(TestGroups.ENTITY, new AggregatePair(new ElementAggregator.Builder()
+                .select(TestPropertyNames.TIMESTAMP)
+                .execute(new Or())
+                .build()));
+
+        final Aggregate aggregate = new Aggregate.Builder()
+                .input(input)
+                .entities(entities)
+                .build();
+
+        // When / Then
+        try {
+            final Iterable<? extends Element> results = handler.doOperation(aggregate, context, store);
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains("Incompatible types."));
         }
     }
 }

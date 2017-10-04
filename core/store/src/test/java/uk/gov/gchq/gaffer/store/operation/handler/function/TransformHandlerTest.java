@@ -32,6 +32,8 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+import uk.gov.gchq.koryphe.impl.function.Divide;
 import uk.gov.gchq.koryphe.impl.function.Identity;
 
 import java.util.ArrayList;
@@ -393,6 +395,51 @@ public class TransformHandlerTest {
             fail("Exception expected");
         } catch (final OperationException e) {
             assertTrue(e.getMessage().contains(transformer.getClass().getSimpleName() + " contains a null function."));
+        }
+    }
+
+    @Test
+    public void shouldFailValidationWhenFunctionSignatureIsInvalid() {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, TestPropertyNames.STRING)
+                        .build())
+                .type(TestPropertyNames.STRING, new TypeDefinition(String.class))
+                .build();
+        given(store.getSchema()).willReturn(schema);
+
+        final Entity entity = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .property(TestPropertyNames.PROP_1, TestPropertyNames.INT)
+                .property(TestPropertyNames.PROP_2, TestPropertyNames.STRING)
+                .build();
+
+        final Entity entity1 = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .property(TestPropertyNames.PROP_1, TestPropertyNames.INT)
+                .build();
+
+        final ElementTransformer transformer = new ElementTransformer.Builder()
+                .select(TestPropertyNames.PROP_1)
+                .execute(new Divide())
+                .project(TestPropertyNames.PROP_3)
+                .build();
+
+        input.add(entity);
+        input.add(entity1);
+
+        final Transform transform = new Transform.Builder()
+                .input(input)
+                .entity(TestGroups.ENTITY, transformer)
+                .build();
+
+        // When / Then
+        try {
+            final Iterable<? extends Element> results = handler.doOperation(transform, context, store);
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            System.out.println(e.getMessage());
         }
     }
 }
