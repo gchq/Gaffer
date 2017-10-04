@@ -772,6 +772,39 @@ public class FederatedStoreTest {
     }
 
     @Test
+    public void shouldThrowExceptionWhenCreatingConfigWithDifferentGraphIdInLibraryAndConfig() {
+        final GraphLibrary library = new HashMapGraphLibrary();
+        final MapStoreProperties properties = new MapStoreProperties();
+        properties.setId("propId1");
+        properties.set("gaffer.store.class", "uk.gov.gchq.gaffer.mapstore.SingleUseMapStore");
+        library.add("graphId", new Schema(), properties);
+
+        // This builds fine
+        final GraphConfig config = new GraphConfig.Builder().graphId("graphId")
+                .library(library)
+                .build();
+
+        final Graph graph = new Graph.Builder().config(config).build();
+
+        // This below config fails, because when you build the config the graphId
+        // supplied and the library graphId supplied are different.  This
+        // is the same as lines 348 - 351 in FederatedStore.java, where the two ID's
+        // can be different, so when you try to build there are no properties.
+
+        // This means the only way currently you can get the right properties in
+        // is to specify the same graphId for the FederatedStore as the graphLibrary graphId
+        // although then obviously this will error as you are trying to overwrite
+        // the graphLibrary with new Properties as the graphIds are the same.
+
+        final GraphConfig failedConfig = new GraphConfig.Builder().graphId("graphId1")
+                .library(library)
+                .build();
+
+        final Graph failedGraph = new Graph.Builder().config(failedConfig).build();
+
+    }
+
+    @Test
     public void shouldAddGraphWithSchemaFromGraphLibraryOverridden() throws Exception {
         federatedProperties.setGraphIds(MAP_ID_1);
         federatedProperties.setGraphPropFile(MAP_ID_1, PATH_MAP_STORE_PROPERTIES);
