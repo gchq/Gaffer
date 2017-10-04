@@ -22,6 +22,10 @@ import org.apache.parquet.hadoop.ParquetReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.Authorisations;
+import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.ElementVisibility;
+import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.VisibilityEvaluator;
+import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.exception.VisibilityParseException;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -31,6 +35,7 @@ import uk.gov.gchq.gaffer.parquetstore.io.reader.ParquetElementReader;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -51,13 +56,29 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
     private final String group;
     private final View view;
     private final Schema gafferSchema;
+    private final Authorisations auths;
+    private final String visibility;
 
     public RetrieveElementsFromFile(final Path filePath, final FilterPredicate filter, final Schema gafferSchema,
-                                    final ConcurrentLinkedQueue<Element> queue, final boolean needsValidation, final View view) {
+                                    final ConcurrentLinkedQueue<Element> queue, final boolean needsValidation,
+                                    final View view, final User user) {
         this.filePath = filePath;
         this.filter = filter;
         this.jsonGafferSchema = gafferSchema.toCompactJson();
         this.gafferSchema = gafferSchema;
+
+        if (gafferSchema.getVisibilityProperty() != null) {
+            this.visibility = gafferSchema.getVisibilityProperty();
+        } else {
+            this.visibility = new String();
+        }
+
+        if (user != null && user.getDataAuths() != null) {
+            this.auths = new Authorisations(user.getDataAuths().toArray(new String[user.getDataAuths().size()]));
+        } else {
+            this.auths = new Authorisations();
+        }
+
         this.queue = queue;
         this.view = view;
         this.needsValidation = needsValidation;
@@ -74,7 +95,28 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
             final ParquetReader<Element> fileReader = openParquetReader();
             Element e = fileReader.read();
             while (null != e) {
-                if (needsValidation) {
+                if (!visibility.isEmpty()) {
+                    if (isVisible(e)) {
+                        if (needsValidation) {
+                            final String group = e.getGroup();
+                            final ElementFilter validatorFilter = gafferSchema.getElement(group).getValidator(false);
+                            if (validatorFilter == null || validatorFilter.test(e)) {
+                                if (null == elementFilter) {
+                                    elementFilter = view.getElement(group).getPreAggregationFilter();
+                                }
+                                if (elementFilter != null) {
+                                    if (elementFilter.test(e)) {
+                                        ViewUtil.removeProperties(view, e);
+                                        queue.add(e);
+                                    }
+                                }
+                            }
+                        } else {
+                            ViewUtil.removeProperties(view, e);
+                            queue.add(e);
+                        }
+                    }
+                } else if (needsValidation) {
                     final String group = e.getGroup();
                     final ElementFilter validatorFilter = gafferSchema.getElement(group).getValidator(false);
                     if (validatorFilter == null || validatorFilter.test(e)) {
@@ -117,6 +159,17 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
                     .isEntity(isEntity)
                     .usingConverter(converter)
                     .build();
+        }
+    }
+
+    private Boolean isVisible(final Element e) throws VisibilityParseException {
+        if (e.getProperty(visibility) != null) {
+            final VisibilityEvaluator visibilityEvaluator = new VisibilityEvaluator(auths);
+            final ElementVisibility elementVisibility = new ElementVisibility((String) e.getProperty(visibility));
+            return visibilityEvaluator.evaluate(elementVisibility);
+        } else {
+            e.putProperty(visibility, new String());
+            return true;
         }
     }
 }

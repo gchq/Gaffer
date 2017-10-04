@@ -22,6 +22,7 @@ import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema;
 import scala.collection.mutable.WrappedArray$;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -44,7 +45,7 @@ public class DataGen {
 
     public static Entity getEntity(final String group, final Object vertex, final Byte aByte, final Double aDouble,
                                    final Float aFloat, final TreeSet<String> treeSet, final Long aLong,
-                                   final Short aShort, final Date date, final FreqMap freqMap, final int count) {
+                                   final Short aShort, final Date date, final FreqMap freqMap, final int count, final String visibility) {
         final Entity entity = new Entity(group, vertex);
         entity.putProperty("byte", aByte);
         entity.putProperty("double", aDouble);
@@ -55,12 +56,13 @@ public class DataGen {
         entity.putProperty("date", date);
         entity.putProperty("freqMap", freqMap);
         entity.putProperty("count", count);
+        entity.putProperty(TestTypes.VISIBILITY, visibility);
         return entity;
     }
 
     public static Edge getEdge(final String group, final Object src, final Object dst, final Boolean directed,
                                final Byte aByte, final Double aDouble, final Float aFloat, final TreeSet<String> treeSet,
-                               final Long aLong, final Short aShort, final Date date, final FreqMap freqMap, final int count) {
+                               final Long aLong, final Short aShort, final Date date, final FreqMap freqMap, final int count, final String visibility) {
         final Edge edge = new Edge(group, src, dst, directed);
         edge.putProperty("byte", aByte);
         edge.putProperty("double", aDouble);
@@ -71,13 +73,14 @@ public class DataGen {
         edge.putProperty("date", date);
         edge.putProperty("freqMap", freqMap);
         edge.putProperty("count", count);
+        edge.putProperty(TestTypes.VISIBILITY, visibility);
         return edge;
     }
 
     public static GenericRowWithSchema generateEntityRow(final SchemaUtils utils, final String group, final String vertex,
                                                          final Byte aByte, final Double aDouble, final Float aFloat,
                                                          final TreeSet<String> treeSet, final Long aLong, final Short aShort,
-                                                         final Date date, final FreqMap freqMap) throws OperationException, SerialisationException {
+                                                         final Date date, final FreqMap freqMap, final String visibility) throws OperationException, SerialisationException {
         final GafferGroupObjectConverter entityConverter = new GafferGroupObjectConverter(
                 group,
                 utils.getColumnToSerialiser(group),
@@ -98,6 +101,7 @@ public class DataGen {
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects("date", date)));
         list.add(map);
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects("count", 1)));
+        list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects(TestTypes.VISIBILITY, visibility)));
 
         final Object[] objects = new Object[list.size()];
         list.toArray(objects);
@@ -108,7 +112,7 @@ public class DataGen {
                                                        final String src, final String dst, final Boolean directed,
                                                        final Byte aByte, final Double aDouble, final Float aFloat,
                                                        final TreeSet<String> treeSet, final Long aLong, final Short aShort,
-                                                       final Date date, final FreqMap freqMap) throws OperationException, SerialisationException {
+                                                       final Date date, final FreqMap freqMap, final String visibility) throws OperationException, SerialisationException {
         final GafferGroupObjectConverter edgeConverter = new GafferGroupObjectConverter(
                 group,
                 utils.getColumnToSerialiser(group),
@@ -131,6 +135,7 @@ public class DataGen {
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects("date", date)));
         list.add(map);
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects("count", 1)));
+        list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects(TestTypes.VISIBILITY, visibility)));
 
         final Object[] objects = new Object[list.size()];
         list.toArray(objects);
@@ -138,134 +143,164 @@ public class DataGen {
         return new GenericRowWithSchema(objects, utils.getSparkSchema(group));
     }
 
-    private static List<Element> generateBasicStringEntitysWithNullProperties(final String group, final int size) {
+    private static List<Element> generateBasicStringEntitysWithNullProperties(final String group, final int size, final boolean withVisibilities) {
         final List<Element> entities = new ArrayList<>();
+        String visibility = null;
 
-        for (int x = 0 ; x < size/2 ; x++){
-            final Entity entity = DataGen.getEntity(group, "vert" + x, null, null, null, null, null, null, null, null, 1);
-            final Entity entity1 = DataGen.getEntity(group, "vert" + x, null, null, null, null, null, null, null, null, 1);
+        if (withVisibilities) {
+            visibility = "A";
+        }
+
+        for (int x = 0; x < size / 2; x++) {
+            final Entity entity = DataGen.getEntity(group, "vert" + x, null, null, null, null, null, null, null, null, 1, visibility);
+            final Entity entity1 = DataGen.getEntity(group, "vert" + x, null, null, null, null, null, null, null, null, 1, visibility);
             entities.add(entity);
             entities.add(entity1);
         }
         return entities;
     }
 
-    private static List<Element> generateBasicStringEdgesWithNullProperties(final String group, final int size) {
+    private static List<Element> generateBasicStringEdgesWithNullProperties(final String group, final int size, final boolean withVisibilities) {
         final List<Element> edges = new ArrayList<>();
+        String visibility = null;
 
-        for (int x = 0 ; x < size/4 ; x++){
-            final Edge edge = DataGen.getEdge(group, "src" + x, "dst" + x, true, null, null, null, null, null, null, null, null, 1);
-            final Edge edge2 = DataGen.getEdge(group, "src" + x, "dst" + x, true, null, null, null, null, null, null, null, null, 1);
-            final Edge edge3 = DataGen.getEdge(group, "src" + x, "dst" + x, false, null, null, null, null, null, null, null, null, 1);
-            final Edge edge4 = DataGen.getEdge(group, "src" + x, "dst" + x, false, null, null, null, null, null, null, null, null, 1);
+        if (withVisibilities) {
+            visibility = "A";
+        }
+
+        for (int x = 0; x < size / 4; x++) {
+            final Edge edge = DataGen.getEdge(group, "src" + x, "dst" + x, true, null, null, null, null, null, null, null, null, 1, visibility);
+            final Edge edge1 = DataGen.getEdge(group, "src" + x, "dst" + x, true, null, null, null, null, null, null, null, null, 1, visibility);
+            final Edge edge2 = DataGen.getEdge(group, "src" + x, "dst" + x, false, null, null, null, null, null, null, null, null, 1, visibility);
+            final Edge edge3 = DataGen.getEdge(group, "src" + x, "dst" + x, false, null, null, null, null, null, null, null, null, 1, visibility);
             edges.add(edge);
+            edges.add(edge1);
             edges.add(edge2);
             edges.add(edge3);
-            edges.add(edge4);
         }
         return edges;
     }
 
-    private static List<Element> generateBasicLongEntitys(final String group, final int size) {
+    private static List<Element> generateBasicLongEntitys(final String group, final int size, final boolean withVisibilities) {
         final List<Element> entities = new ArrayList<>();
+        String visibility = null;
 
-        for (int x = 0 ; x < size/2 ; x++){
-            final Entity entity = DataGen.getEntity(group, (long) x, (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L * x, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1);
-            final Entity entity1 = DataGen.getEntity(group, (long) x, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * x, (short) 7, TestUtils.DATE, TestUtils.getFreqMap2(), 1);
+        if (withVisibilities) {
+            visibility = "A";
+        }
+
+        for (int x = 0; x < size / 2; x++) {
+            final Entity entity = DataGen.getEntity(group, (long) x, (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L * x, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, visibility);
+            final Entity entity1 = DataGen.getEntity(group, (long) x, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * x, (short) 7, TestUtils.DATE, TestUtils.getFreqMap2(), 1, visibility);
             entities.add(entity);
             entities.add(entity1);
         }
         return entities;
     }
 
-    private static List<Element> generateBasicLongEdges(final String group, final int size) {
+    private static List<Element> generateBasicLongEdges(final String group, final int size, final boolean withVisibilities) {
         final List<Element> edges = new ArrayList<>();
+        String visibility = null;
 
-        for (int x = 0 ; x < size/4 ; x++){
-            final Edge edge = DataGen.getEdge(group, (long) x, (long) x + 1, true, (byte) 'a', 0.2 * x, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1);
-            final Edge edge2 = DataGen.getEdge(group, (long) x, (long) x + 1, true, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * x, (short) 7, TestUtils.DATE, TestUtils.getFreqMap2(), 1);
-            final Edge edge3 = DataGen.getEdge(group, (long) x, (long) x + 1, false, (byte) 'a', 0.2 * x, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1);
-            final Edge edge4 = DataGen.getEdge(group, (long) x, (long) x + 1, false, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * x, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1);
+        if (withVisibilities) {
+            visibility = "A";
+        }
+
+        for (int x = 0; x < size / 4; x++) {
+            final Edge edge = DataGen.getEdge(group, (long) x, (long) x + 1, true, (byte) 'a', 0.2 * x, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, visibility);
+            final Edge edge1 = DataGen.getEdge(group, (long) x, (long) x + 1, true, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * x, (short) 7, TestUtils.DATE, TestUtils.getFreqMap2(), 1, visibility);
+            final Edge edge2 = DataGen.getEdge(group, (long) x, (long) x + 1, false, (byte) 'a', 0.2 * x, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, visibility);
+            final Edge edge3 = DataGen.getEdge(group, (long) x, (long) x + 1, false, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * x, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1, visibility);
             edges.add(edge);
+            edges.add(edge1);
             edges.add(edge2);
             edges.add(edge3);
-            edges.add(edge4);
         }
         return edges;
     }
 
-    private static List<Element> generateBasicTypeValueEntitys(final String group, final int size) {
+    private static List<Element> generateBasicTypeValueEntitys(final String group, final int size, final boolean withVisibilities) {
         final List<Element> entities = new ArrayList<>();
+        String visibility = null;
 
-        for (int x = 0 ; x < size/2 ; x++){
+        if (withVisibilities) {
+            visibility = "A";
+        }
+
+        for (int x = 0; x < size / 2; x++) {
             final String type = "type" + (x % 5);
             final TypeValue vrt = new TypeValue(type, "vrt" + x);
-            final Entity entity = DataGen.getEntity(group, vrt, (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L * x, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1);
-            final Entity entity1 = DataGen.getEntity(group, vrt, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * x, (short) 7, TestUtils.DATE, TestUtils.getFreqMap2(), 1);
+            final Entity entity = DataGen.getEntity(group, vrt, (byte) 'a', 0.2, 3f, TestUtils.getTreeSet1(), 5L * x, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, visibility);
+            final Entity entity1 = DataGen.getEntity(group, vrt, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * x, (short) 7, TestUtils.DATE, TestUtils.getFreqMap2(), 1, visibility);
             entities.add(entity);
             entities.add(entity1);
         }
         return entities;
     }
 
-    private static List<Element> generateBasicTypeValueEdges(final String group, final int size) {
+    private static List<Element> generateBasicTypeValueEdges(final String group, final int size, final boolean withVisibilities) {
         final List<Element> edges = new ArrayList<>();
+        String visibility = null;
 
-        for (int x = 0 ; x < size/4 ; x++){
+        if (withVisibilities) {
+            visibility = "A";
+        }
+
+        for (int x = 0; x < size / 4; x++) {
             final String type = "type" + (x % 5);
             final TypeValue src = new TypeValue(type, "src" + x);
             final TypeValue dst = new TypeValue(type, "dst" + (x + 1));
-            final Edge edge = DataGen.getEdge(group, src, dst, true, (byte) 'a', 0.2 * x, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1);
-            final Edge edge2 = DataGen.getEdge(group, src, dst, true, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * x, (short) 7, TestUtils.DATE, TestUtils.getFreqMap2(), 1);
-            final Edge edge3 = DataGen.getEdge(group, src, dst, false, (byte) 'a', 0.2 * x, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1);
-            final Edge edge4 = DataGen.getEdge(group, src, dst, false, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * x, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1);
+            final Edge edge = DataGen.getEdge(group, src, dst, true, (byte) 'a', 0.2 * x, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, visibility);
+            final Edge edge1 = DataGen.getEdge(group, src, dst, true, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * x, (short) 7, TestUtils.DATE, TestUtils.getFreqMap2(), 1, visibility);
+            final Edge edge2 = DataGen.getEdge(group, src, dst, false, (byte) 'a', 0.2 * x, 2f, TestUtils.getTreeSet1(), 5L, (short) 6, TestUtils.DATE, TestUtils.getFreqMap1(), 1, visibility);
+            final Edge edge3 = DataGen.getEdge(group, src, dst, false, (byte) 'b', 0.3, 4f, TestUtils.getTreeSet2(), 6L * x, (short) 7, TestUtils.DATE1, TestUtils.getFreqMap2(), 1, visibility);
             edges.add(edge);
+            edges.add(edge1);
             edges.add(edge2);
             edges.add(edge3);
-            edges.add(edge4);
         }
         return edges;
     }
 
-    public static List<Element> generate300StringElementsWithNullProperties() {
+    public static List<Element> generate300StringElementsWithNullProperties(final boolean withVisibilities) {
         final List<Element> elements = new ArrayList<>(300);
-        elements.addAll(generateBasicStringEntitysWithNullProperties(TestGroups.ENTITY, 50));
-        elements.addAll(generateBasicStringEdgesWithNullProperties(TestGroups.EDGE, 100));
-        elements.addAll(generateBasicStringEntitysWithNullProperties(TestGroups.ENTITY_2, 50));
-        elements.addAll(generateBasicStringEdgesWithNullProperties(TestGroups.EDGE_2, 100));
+        elements.addAll(generateBasicStringEntitysWithNullProperties(TestGroups.ENTITY, 50, withVisibilities));
+        elements.addAll(generateBasicStringEdgesWithNullProperties(TestGroups.EDGE, 100, withVisibilities));
+        elements.addAll(generateBasicStringEntitysWithNullProperties(TestGroups.ENTITY_2, 50, withVisibilities));
+        elements.addAll(generateBasicStringEdgesWithNullProperties(TestGroups.EDGE_2, 100, withVisibilities));
         return elements;
     }
 
-    public static List<Element> generate300LongElements() {
+    public static List<Element> generate300LongElements(final boolean withVisibilities) {
         final ArrayList<Element> elements = new ArrayList<>(300);
-        elements.addAll(generateBasicLongEntitys(TestGroups.ENTITY, 50));
-        elements.addAll(generateBasicLongEdges(TestGroups.EDGE, 100));
-        elements.addAll(generateBasicLongEntitys(TestGroups.ENTITY_2, 50));
-        elements.addAll(generateBasicLongEdges(TestGroups.EDGE_2, 100));
+        elements.addAll(generateBasicLongEntitys(TestGroups.ENTITY, 50, withVisibilities));
+        elements.addAll(generateBasicLongEdges(TestGroups.EDGE, 100, withVisibilities));
+        elements.addAll(generateBasicLongEntitys(TestGroups.ENTITY_2, 50, withVisibilities));
+        elements.addAll(generateBasicLongEdges(TestGroups.EDGE_2, 100, withVisibilities));
         return elements;
     }
 
-    public static List<Element> generate300TypeValueElements() {
+    public static List<Element> generate300TypeValueElements(final boolean withVisibilities) {
         final ArrayList<Element> elements = new ArrayList<>(300);
-        elements.addAll(generateBasicTypeValueEntitys(TestGroups.ENTITY, 50));
-        elements.addAll(generateBasicTypeValueEdges(TestGroups.EDGE, 100));
-        elements.addAll(generateBasicTypeValueEntitys(TestGroups.ENTITY_2, 50));
-        elements.addAll(generateBasicTypeValueEdges(TestGroups.EDGE_2, 100));
+        elements.addAll(generateBasicTypeValueEntitys(TestGroups.ENTITY, 50, withVisibilities));
+        elements.addAll(generateBasicTypeValueEdges(TestGroups.EDGE, 100, withVisibilities));
+        elements.addAll(generateBasicTypeValueEntitys(TestGroups.ENTITY_2, 50, withVisibilities));
+        elements.addAll(generateBasicTypeValueEdges(TestGroups.EDGE_2, 100, withVisibilities));
         return elements;
     }
 
-    public static JavaRDD<Element> generate300StringElementsWithNullPropertiesRDD(final JavaSparkContext spark) {
-        final List<Element> elements = generate300StringElementsWithNullProperties();
+    public static JavaRDD<Element> generate300StringElementsWithNullPropertiesRDD(final JavaSparkContext spark, final boolean withVisibilities) {
+        final List<Element> elements = generate300StringElementsWithNullProperties(withVisibilities);
         return spark.parallelize(elements);
     }
 
-    public static JavaRDD<Element> generate300LongElementsRDD(final JavaSparkContext spark) {
-        final List<Element> elements = generate300LongElements();
+    public static JavaRDD<Element> generate300LongElementsRDD(final JavaSparkContext spark, final boolean withVisibilities) {
+        final List<Element> elements = generate300LongElements(withVisibilities);
         return spark.parallelize(elements);
     }
 
-    public static JavaRDD<Element> generate300TypeValueElementsRDD(final JavaSparkContext spark) {
-        final List<Element> elements = generate300TypeValueElements();
+    public static JavaRDD<Element> generate300TypeValueElementsRDD(final JavaSparkContext spark, final boolean withVisibilities) {
+        final List<Element> elements = generate300TypeValueElements(withVisibilities);
         return spark.parallelize(elements);
     }
 }

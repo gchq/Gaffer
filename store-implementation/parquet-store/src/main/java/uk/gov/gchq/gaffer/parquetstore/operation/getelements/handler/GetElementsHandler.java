@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Iterator;
 
@@ -49,7 +50,7 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
         } else {
             final Iterator<? extends ElementId> inputIter = input.iterator();
             if (inputIter.hasNext()) {
-                result = doOperation(operation, (ParquetStore) store);
+                result = doOperation(operation, (ParquetStore) store, context.getUser());
             } else {
                 result = new EmptyClosableIterable<>();
             }
@@ -64,14 +65,16 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
     }
 
     private CloseableIterable<Element> doOperation(final GetElements operation,
-                                                   final ParquetStore store) throws OperationException {
+                                                   final ParquetStore store,
+                                                   final User user) throws OperationException {
         try {
             return new ParquetElementRetriever(operation.getView(),
                     store,
                     operation.getDirectedType(),
                     operation.getIncludeIncomingOutGoing(),
                     operation.getSeedMatching(),
-                    operation.getInput());
+                    operation.getInput(),
+                    user);
         } catch (final StoreException e) {
             throw new OperationException("Failed to getGroup elements", e);
         }

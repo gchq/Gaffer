@@ -7,6 +7,7 @@ import org.apache.spark.sql.SparkSession;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -104,10 +105,10 @@ public class TestUtils {
             final Element e;
             if (row.get(0) == null) {
                 // generate Entity
-                e = new Entity(row.getString(13), row.get(12));
+                e = new Entity(row.getString(14), row.get(13));
             } else {
                 //generate Edge
-                e = new Edge(row.getString(13), row.get(0), row.get(1), row.getBoolean(2));
+                e = new Edge(row.getString(14), row.get(0), row.get(1), row.getBoolean(2));
             }
             e.putProperty("byte", ((byte[]) row.get(3))[0]);
             e.putProperty("double", row.getDouble(4));
@@ -118,6 +119,7 @@ public class TestUtils {
             e.putProperty("date", new Date(row.getLong(9)));
             e.putProperty("freqMap", new FreqMap(row.getJavaMap(10)));
             e.putProperty("count", row.getInt(11));
+            e.putProperty(TestTypes.VISIBILITY, row.getString(12));
             elementList.add(e);
         }
         return elementList;
@@ -129,12 +131,13 @@ public class TestUtils {
             final Element e;
             if (row.get(0) == null) {
                 // generate Entity
-                e = new Entity(row.getString(13), row.get(12));
+                e = new Entity(row.getString(14), row.get(13));
             } else {
                 //generate Edge
-                e = new Edge(row.getString(13), row.get(0), row.get(1), row.getBoolean(2));
+                e = new Edge(row.getString(14), row.get(0), row.get(1), row.getBoolean(2));
             }
             e.putProperty("count", row.getInt(11));
+            e.putProperty("visibility", row.getString(12));
             elementList.add(e);
         }
         return elementList;
@@ -146,10 +149,10 @@ public class TestUtils {
             final Element e;
             if (row.get(0) == null) {
                 // generate Entity
-                e = new Entity(row.getString(16), new TypeValue(row.getString(14), row.getString(15)));
+                e = new Entity(row.getString(17), new TypeValue(row.getString(15), row.getString(16)));
             } else {
                 //generate Edge
-                e = new Edge(row.getString(16), new TypeValue(row.getString(0), row.getString(1)), new TypeValue(row.getString(2), row.getString(3)), row.getBoolean(4));
+                e = new Edge(row.getString(17), new TypeValue(row.getString(0), row.getString(1)), new TypeValue(row.getString(2), row.getString(3)), row.getBoolean(4));
             }
             e.putProperty("byte", ((byte[]) row.get(5))[0]);
             e.putProperty("double", row.getDouble(6));
@@ -160,6 +163,7 @@ public class TestUtils {
             e.putProperty("date", new Date(row.getLong(11)));
             e.putProperty("freqMap", new FreqMap(row.getJavaMap(12)));
             e.putProperty("count", row.getInt(13));
+            e.putProperty("visibility", row.getString(14));
             elementList.add(e);
         }
         return elementList;
