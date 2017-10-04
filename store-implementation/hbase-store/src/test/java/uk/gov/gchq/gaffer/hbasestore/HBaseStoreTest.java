@@ -68,11 +68,11 @@ public class HBaseStoreTest {
     private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(HBaseStoreTest.class));
     private static final HBaseProperties PROPERTIES = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreTest.class));
     private static final String GRAPH_ID = "graphId";
-    private static MiniHBaseStore store;
+    private static SingleUseMiniHBaseStore store;
 
     @BeforeClass
     public static void setup() throws StoreException, IOException {
-        store = new MiniHBaseStore();
+        store = new SingleUseMiniHBaseStore();
         store.initialise(GRAPH_ID, SCHEMA, PROPERTIES);
     }
 
@@ -127,7 +127,7 @@ public class HBaseStoreTest {
         // Given
         final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreTest.class));
         properties.setTable("tableName");
-        final MiniHBaseStore store = new MiniHBaseStore();
+        final SingleUseMiniHBaseStore store = new SingleUseMiniHBaseStore();
 
         // When
         store.initialise(null, SCHEMA, properties);
@@ -158,7 +158,7 @@ public class HBaseStoreTest {
         // Given
         final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreTest.class));
         properties.setTable("tableName");
-        final MiniHBaseStore store = new MiniHBaseStore();
+        final SingleUseMiniHBaseStore store = new SingleUseMiniHBaseStore();
 
         // When
         store.initialise("tableName", SCHEMA, properties);
@@ -172,7 +172,7 @@ public class HBaseStoreTest {
         // Given
         final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreTest.class));
         properties.setTable("tableName");
-        final MiniHBaseStore store = new MiniHBaseStore();
+        final SingleUseMiniHBaseStore store = new SingleUseMiniHBaseStore();
 
         // When / Then
         try {
@@ -187,7 +187,7 @@ public class HBaseStoreTest {
     public void shouldCreateAStoreUsingGraphId() throws Exception {
         // Given
         final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreTest.class));
-        final MiniHBaseStore store = new MiniHBaseStore();
+        final SingleUseMiniHBaseStore store = new SingleUseMiniHBaseStore();
 
         // When
         store.initialise("graphId", SCHEMA, properties);

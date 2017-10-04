@@ -54,6 +54,7 @@ import java.util.concurrent.TimeUnit;
  */
 public final class TableUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(TableUtils.class);
+    public static final String COLUMN_FAMILIES_OPTION = "columns";
 
     private TableUtils() {
     }
@@ -254,6 +255,7 @@ public final class TableUtils {
                 requiredAggItrSetting = store.getKeyPackage().getIteratorFactory().getAggregatorIteratorSetting(store);
                 if (null != requiredAggItrSetting) {
                     requiredAggItrSetting.removeOption(AccumuloStoreConstants.SCHEMA);
+                    requiredAggItrSetting.removeOption(COLUMN_FAMILIES_OPTION);
                 }
             } catch (final IteratorSettingException e) {
                 throw new StoreException("Unable to create aggregator iterator settings", e);
@@ -267,6 +269,7 @@ public final class TableUtils {
             requiredValidatorItrSetting = store.getKeyPackage().getIteratorFactory().getValidatorIteratorSetting(store);
             if (null != requiredValidatorItrSetting) {
                 requiredValidatorItrSetting.removeOption(AccumuloStoreConstants.SCHEMA);
+                requiredValidatorItrSetting.removeOption(COLUMN_FAMILIES_OPTION);
             }
         } else {
             requiredValidatorItrSetting = null;
@@ -281,10 +284,12 @@ public final class TableUtils {
                 aggItrSetting = store.getConnection().tableOperations().getIteratorSetting(tableName, AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME, iteratorScope);
                 if (null != aggItrSetting) {
                     aggItrSetting.removeOption(AccumuloStoreConstants.SCHEMA);
+                    aggItrSetting.removeOption(COLUMN_FAMILIES_OPTION);
                 }
                 validatorItrSetting = store.getConnection().tableOperations().getIteratorSetting(tableName, AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME, iteratorScope);
                 if (null != validatorItrSetting) {
                     validatorItrSetting.removeOption(AccumuloStoreConstants.SCHEMA);
+                    validatorItrSetting.removeOption(COLUMN_FAMILIES_OPTION);
                 }
                 versioningIterSetting = store.getConnection().tableOperations().getIteratorSetting(tableName, "vers", iteratorScope);
             } catch (final AccumuloSecurityException | AccumuloException | TableNotFoundException e) {
