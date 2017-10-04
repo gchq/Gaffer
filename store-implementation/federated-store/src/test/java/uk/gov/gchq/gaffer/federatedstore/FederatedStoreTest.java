@@ -59,6 +59,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S;
@@ -192,6 +193,38 @@ public class FederatedStoreTest {
         for (int i = 0; i < 10; i++) {
             assertTrue(CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME).contains(ACC_ID_1 + i));
         }
+    }
+
+    @Test
+    public void shouldReuseGraphsAlreadyInCache() throws Exception {
+        //Check cache is empty
+        assertNull(CacheServiceLoader.getService());
+
+        //initialise FedStore
+        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
+
+        //add something so it will be in the cache
+        Graph graphToAdd = new Graph.Builder()
+                .config(new GraphConfig(MAP_ID_1))
+                .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_MAP_STORE_PROPERTIES))
+                .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_EDGE_SCHEMA_JSON))
+                .build();
+
+        store.addGraphs(null, TEST_USER, graphToAdd);
+
+        //check the store and the cache
+        assertEquals(1, store.getAllGraphIds(testUser).size());
+        assertTrue(CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME).contains(MAP_ID_1));
+
+        //restart the store
+        store = null;
+        store = new FederatedStore();
+        federatedProperties.setGraphIds(MAP_ID_1);
+        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
+
+        //check the graph is already in there from the cache
+        assertTrue(CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME).contains(MAP_ID_1));
+        assertEquals(1, store.getAllGraphIds(testUser).size());
     }
 
     @Test
@@ -855,7 +888,7 @@ public class FederatedStoreTest {
                         .opAuths("x")
                         .build());
 
-        Assert.assertNull(x);
+        assertNull(x);
     }
 
     @Test
@@ -978,7 +1011,7 @@ public class FederatedStoreTest {
         assertEquals(1, after);
         Assert.assertNotNull(elements);
         Assert.assertTrue(elements.iterator().hasNext());
-        Assert.assertNull(x);
+        assertNull(x);
     }
 
     @Test
