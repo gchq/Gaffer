@@ -16,37 +16,47 @@
 package uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.rdd;
 
 import org.apache.spark.api.java.JavaRDD;
+import scala.Tuple2;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.comparison.ComparableOrToStringComparator;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.Callable;
 
 /**
  * Generates the split points from an {@link JavaRDD} of {@link Element}s by selecting a sample of the data, sorting that sample and
  * then pulling out the relevant objects to act as the split points
  */
-public class CalculateSplitPointsFromJavaRDD {
+public class CalculateSplitPointsFromJavaRDD implements Callable<Tuple2<String, Map<Object, Integer>>>, Serializable {
 
     private static final ComparableOrToStringComparator COMPARATOR = new ComparableOrToStringComparator();
     private final long sampleRate;
     private final int numOfSplits;
+    private final JavaRDD<Element> data;
+    private final String group;
+    private final boolean isEntity;
 
-    public CalculateSplitPointsFromJavaRDD(final long sampleRate, final int numOfSplits) {
+    public CalculateSplitPointsFromJavaRDD(final long sampleRate, final int numOfSplits, final JavaRDD<Element> data,
+                                           final String group, final boolean isEntity) {
         this.sampleRate = sampleRate;
         this.numOfSplits = numOfSplits;
+        this.data = data;
+        this.group = group;
+        this.isEntity = isEntity;
     }
 
-    public Map<Object, Integer> calculateSplitsForGroup(final JavaRDD<Element> data, final String group, final boolean isEntity) {
+    public Tuple2<String, Map<Object, Integer>> call() {
         final JavaRDD<Element> groupFilteredData = data.filter(element -> group.equals(element.getGroup()));
         if (isEntity) {
-            return calculateSplitsForColumn(groupFilteredData, IdentifierType.VERTEX);
+            return new Tuple2<>(group, calculateSplitsForColumn(groupFilteredData, IdentifierType.VERTEX));
         } else {
-            return calculateSplitsForColumn(groupFilteredData, IdentifierType.SOURCE);
+            return new Tuple2<>(group, calculateSplitsForColumn(groupFilteredData, IdentifierType.SOURCE));
         }
     }
 

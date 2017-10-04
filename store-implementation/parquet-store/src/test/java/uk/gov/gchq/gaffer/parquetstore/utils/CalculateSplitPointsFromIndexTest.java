@@ -25,6 +25,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.index.ColumnIndex;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.index.GroupIndex;
@@ -37,31 +38,35 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class CalculateSplitPointsFromIndexTest {
 
     private SchemaUtils schemaUtils;
     private Schema gafferSchema;
+    private ExecutorService pool;
 
     @Before
     public void setUp() throws StoreException {
         Logger.getRootLogger().setLevel(Level.WARN);
         gafferSchema = TestUtils.gafferSchema("schemaUsingLongVertexType");
         schemaUtils = new SchemaUtils(gafferSchema);
+        pool = Executors.newFixedThreadPool(1);
     }
 
     @Test
-    public void calculateSplitsFromEmptyIndex() throws SerialisationException {
+    public void calculateSplitsFromEmptyIndex() throws SerialisationException, OperationException {
         final Iterable<Element> emptyIterable = new ArrayList<>();
         final GraphIndex emptyIndex = new GraphIndex();
-        final Map<String, Map<Object, Integer>> splitPoints = CalculateSplitPointsFromIndex.apply(emptyIndex, schemaUtils, TestUtils.getParquetStoreProperties(), emptyIterable);
+        final Map<String, Map<Object, Integer>> splitPoints = CalculateSplitPointsFromIndex.apply(emptyIndex, schemaUtils, TestUtils.getParquetStoreProperties(), emptyIterable, pool);
         for (final String group : gafferSchema.getGroups()) {
             Assert.assertFalse(splitPoints.containsKey(group));
         }
     }
 
     @Test
-    public void calculateSplitsFromIndexUsingEntities() throws SerialisationException, StoreException {
+    public void calculateSplitsFromIndexUsingEntities() throws SerialisationException, StoreException, OperationException {
         final Iterable<Element> emptyIterable = new ArrayList<>();
         final GraphIndex index = new GraphIndex();
         final GroupIndex entityGroupIndex = new GroupIndex();
@@ -70,7 +75,7 @@ public class CalculateSplitPointsFromIndexTest {
         entityGroupIndex.add(ParquetStoreConstants.VERTEX, vrtIndex);
         vrtIndex.add(new MinValuesWithPath(new Object[]{0L}, "part-00000.parquet"));
         vrtIndex.add(new MinValuesWithPath(new Object[]{6L}, "part-00001.parquet"));
-        final Map<String, Map<Object, Integer>> splitPoints = CalculateSplitPointsFromIndex.apply(index, schemaUtils, TestUtils.getParquetStoreProperties(), emptyIterable);
+        final Map<String, Map<Object, Integer>> splitPoints = CalculateSplitPointsFromIndex.apply(index, schemaUtils, TestUtils.getParquetStoreProperties(), emptyIterable, pool);
         final Map<Object, Integer> expected = new HashMap<>(2);
         expected.put(0L, 0);
         expected.put(6L, 1);
@@ -84,7 +89,7 @@ public class CalculateSplitPointsFromIndexTest {
     }
 
     @Test
-    public void calculateSplitsFromIndexUsingEdges() throws SerialisationException, StoreException {
+    public void calculateSplitsFromIndexUsingEdges() throws SerialisationException, StoreException, OperationException {
         final Iterable<Element> emptyIterable = new ArrayList<>();
         final GraphIndex index = new GraphIndex();
         final GroupIndex entityGroupIndex = new GroupIndex();
@@ -93,7 +98,7 @@ public class CalculateSplitPointsFromIndexTest {
         entityGroupIndex.add(ParquetStoreConstants.SOURCE, srcIndex);
         srcIndex.add(new MinValuesWithPath(new Object[]{0L}, "part-00000.parquet"));
         srcIndex.add(new MinValuesWithPath(new Object[]{6L}, "part-00001.parquet"));
-        final Map<String, Map<Object, Integer>> splitPoints = CalculateSplitPointsFromIndex.apply(index, schemaUtils, TestUtils.getParquetStoreProperties(), emptyIterable);
+        final Map<String, Map<Object, Integer>> splitPoints = CalculateSplitPointsFromIndex.apply(index, schemaUtils, TestUtils.getParquetStoreProperties(), emptyIterable, pool);
         final Map<Object, Integer> expected = new HashMap<>(2);
         expected.put(0L, 0);
         expected.put(6L, 1);
