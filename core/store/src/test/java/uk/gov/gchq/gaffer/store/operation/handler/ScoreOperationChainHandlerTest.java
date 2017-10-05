@@ -21,13 +21,18 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
+import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.ScoreOperationChain;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -35,6 +40,9 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
+import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
+import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolver;
+import uk.gov.gchq.gaffer.store.operation.resolver.named.NamedOperationScoreResolver;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.InputStream;
@@ -186,6 +194,23 @@ public class ScoreOperationChainHandlerTest {
 
         // Then
         assertEquals(opScores, result);
+    }
+
+    @Test
+    public void shouldSetAndGetNamedOpScores() {
+        // Given
+        final ScoreOperationChainHandler handler = new ScoreOperationChainHandler();
+        final Map<Class<? extends Operation>, ScoreResolver> namedOpScoreResolvers = new HashMap<>();
+        final NamedOperation<Iterable<? extends Element>, Iterable<? extends Element>> namedOp = new NamedOperation<>();
+
+        namedOpScoreResolvers.put(namedOp.getClass(), new NamedOperationScoreResolver());
+        handler.setNamedOpScoreResolvers(namedOpScoreResolvers);
+
+        // When
+        final Map<Class<? extends Operation>, ScoreResolver> results = handler.getNamedOpScoreResolvers();
+
+        // Then
+        assertEquals(namedOpScoreResolvers, results);
     }
 
     @Test

@@ -22,12 +22,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.ScoreOperationChain;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolver;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
@@ -48,6 +50,7 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
 
     private final LinkedHashMap<Class<? extends Operation>, Integer> opScores = new LinkedHashMap<>();
     private final Map<String, Integer> authScores = new HashMap<>();
+    private final Map<Class<? extends Operation>, ScoreResolver> namedOpScoreResolvers = new HashMap<>();
 
     /**
      * Returns the OperationChainLimiter score for the OperationChain provided.
@@ -55,7 +58,7 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
      * @param operation the {@link uk.gov.gchq.gaffer.operation.Operation} to be executed
      * @param context   the operation chain context, containing the user who executed the operation
      * @param store     the {@link Store} the operation should be run on
-     * @return a Long containing the score
+     * @return an Integer containing the score
      * @throws OperationException thrown if the property keys have not been set
      */
     @Override
@@ -70,6 +73,8 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
             for (final Operation operation : opChain.getOperations()) {
                 if (operation instanceof OperationChain) {
                     chainScore += getChainScore((OperationChain<?>) operation, user);
+                } else if (operation instanceof NamedOperation) {
+                    chainScore += authoriseNamed(operation);
                 } else {
                     chainScore += authorise(operation);
                 }
@@ -111,11 +116,36 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
                     return opScores.get(key);
                 }
             }
-            LOGGER.warn("The operation '{}' was not found in the config file provided the configured default value of {} will be used", operation.getClass().getName(), DEFAULT_OPERATION_SCORE);
+            LOGGER.warn("The operation '{}' was not found in the config file provided - the configured default value of {} will be used", operation.getClass().getName(), DEFAULT_OPERATION_SCORE);
         } else {
-            LOGGER.warn("A Null operation was passed to the OperationChainLimiter graph hook");
+            LOGGER.warn("A null Operation was passed to the OperationChainLimiter graph hook");
         }
         return DEFAULT_OPERATION_SCORE;
+    }
+
+    /**
+     * Resolves the score for a provided {@link NamedOperation} (if it exists within
+     * the map of {@link Operation}s to {@link ScoreResolver}s), otherwise returns a default value.
+     *
+     * @param   namedOperation The operation for which the score should be resolved
+     * @return  The score for the operation, otherwise the {@link #DEFAULT_OPERATION_SCORE}
+     */
+    protected int authoriseNamed(final Operation namedOperation) {
+        int namedScore = DEFAULT_OPERATION_SCORE;
+        if (null != namedOperation) {
+            final Class<? extends Operation> namedOpClass = namedOperation.getClass();
+            namedScore = namedOpScoreResolvers.entrySet().stream()
+                    .filter(k -> k.getKey().isAssignableFrom(namedOpClass))
+                    .map(entry -> entry.getValue().getScore(namedOperation))
+                    .findFirst()
+                    .orElse(DEFAULT_OPERATION_SCORE);
+            if (namedScore == DEFAULT_OPERATION_SCORE) {
+                LOGGER.warn("The named operation '{}' was not found in the config file provided - the configured default value of {} will be used", namedOpClass.getName(), DEFAULT_OPERATION_SCORE);
+            }
+        } else {
+            LOGGER.warn("A null NamedOperation was passed to the OperationChainLimiter graph hook");
+        }
+        return namedScore;
     }
 
     public Map<Class<? extends Operation>, Integer> getOpScores() {
@@ -155,6 +185,17 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
         validateOpScores();
     }
 
+    public Map<Class<? extends Operation>, ScoreResolver> getNamedOpScoreResolvers() {
+        return Collections.unmodifiableMap(namedOpScoreResolvers);
+    }
+
+    public void setNamedOpScoreResolvers(final Map<Class<? extends Operation>, ScoreResolver> resolvers) {
+        this.namedOpScoreResolvers.clear();
+        if (null != resolvers) {
+            this.namedOpScoreResolvers.putAll(resolvers);
+        }
+    }
+
     public void validateOpScores() {
         final List<Class<? extends Operation>> ops = new ArrayList<>(opScores.keySet());
         int i = 0;
@@ -173,4 +214,5 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
             i++;
         }
     }
+
 }
