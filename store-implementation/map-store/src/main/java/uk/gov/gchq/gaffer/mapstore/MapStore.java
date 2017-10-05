@@ -75,14 +75,9 @@ public class MapStore extends Store {
     }
 
     @Override
-    public void initialise(final String graphId, final Schema schema, final StoreProperties storeProperties) throws StoreException {
-        if (!(storeProperties instanceof MapStoreProperties)) {
-            throw new StoreException("storeProperties must be an instance of " + MapStoreProperties.class.getName()
-                    + ". found: " + storeProperties.getClass().getSimpleName());
-        }
+    public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
         // Initialise store
-        final MapStoreProperties mapStoreProperties = (MapStoreProperties) storeProperties;
-        super.initialise(graphId, schema, mapStoreProperties);
+        super.initialise(graphId, schema, properties);
 
         // Initialise maps
         mapImpl = createMapImpl();
@@ -101,6 +96,11 @@ public class MapStore extends Store {
     @Override
     public MapStoreProperties getProperties() {
         return (MapStoreProperties) super.getProperties();
+    }
+
+    @Override
+    protected Class<MapStoreProperties> getPropertiesClass() {
+        return MapStoreProperties.class;
     }
 
     protected MapImpl createMapImpl() {

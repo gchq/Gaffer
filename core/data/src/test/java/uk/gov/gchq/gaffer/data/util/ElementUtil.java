@@ -30,7 +30,7 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 
 public class ElementUtil {
-    public static void assertElementEquals(final Iterable<Element> expected, final Iterable<Element> result) {
+    public static void assertElementEquals(final Iterable<? extends Element> expected, final Iterable<? extends Element> result) {
         final Set<Element> expectedSet = Sets.newHashSet(expected);
         final Set<Element> resultSet = Sets.newHashSet(result);
         try {

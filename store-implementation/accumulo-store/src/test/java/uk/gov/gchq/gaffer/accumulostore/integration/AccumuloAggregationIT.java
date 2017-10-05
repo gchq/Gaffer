@@ -19,6 +19,7 @@ import com.google.common.collect.Lists;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -37,7 +38,6 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
@@ -52,7 +52,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 public class AccumuloAggregationIT {
-    private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil
+    private static final AccumuloProperties STORE_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil
             .storeProps(AccumuloStoreITs.class));
     private static final String VERTEX = "vertex";
     private static final String PUBLIC_VISIBILITY = "publicVisibility";

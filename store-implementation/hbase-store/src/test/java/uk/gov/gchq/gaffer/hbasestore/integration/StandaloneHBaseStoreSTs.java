@@ -19,10 +19,9 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 
 public class StandaloneHBaseStoreSTs extends AbstractStoreITs {
-    private static final HBaseProperties STORE_PROPERTIES = (HBaseProperties) StoreProperties.loadStoreProperties(StreamUtil.openStream(StandaloneHBaseStoreSTs.class, "standalone.store.properties"));
+    private static final HBaseProperties STORE_PROPERTIES = HBaseProperties.loadStoreProperties(StreamUtil.openStream(StandaloneHBaseStoreSTs.class, "standalone.store.properties"));
 
     public StandaloneHBaseStoreSTs() throws StoreException {
         super(STORE_PROPERTIES);
