@@ -33,6 +33,9 @@ public abstract class GraphLibrary {
 
     public abstract void initialise(final String path);
 
+    /**
+     * Clear the GraphLibrary.
+     */
     public abstract void clear();
 
     /**
