@@ -27,7 +27,7 @@ import static org.junit.Assert.assertNotNull;
 
 public abstract class SerialisationTest<INPUT, OUTPUT> {
     protected final Serialiser<INPUT, OUTPUT> serialiser;
-    private final Pair<INPUT, OUTPUT>[] historicSerialisationPairs;
+    protected final Pair<INPUT, OUTPUT>[] historicSerialisationPairs;
 
     public SerialisationTest() {
         this.serialiser = getSerialisation();

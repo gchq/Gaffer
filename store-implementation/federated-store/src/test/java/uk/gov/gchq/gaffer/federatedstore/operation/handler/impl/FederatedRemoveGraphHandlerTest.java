@@ -16,48 +16,56 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
+import org.junit.Before;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
 
 public class FederatedRemoveGraphHandlerTest {
 
+    private User testUser;
+
+    @Before
+    public void setUp() throws Exception {
+        testUser = testUser();
+    }
+
     @Test
     public void shouldRemoveGraph() throws Exception {
-
-
         String graphId = "testGraphId";
-        StoreProperties storeProperties = new StoreProperties();
-        storeProperties.set("gaffer.store.class", "uk.gov.gchq.gaffer.federatedstore.FederatedStore");
+        AccumuloProperties storeProperties = new AccumuloProperties();
+        storeProperties.setStoreClass(SingleUseMockAccumuloStore.class);
 
         FederatedStore store = new FederatedStore();
-        store.addGraphs(new Graph.Builder()
+        store.addGraphs(testUser.getOpAuths(), null, new Graph.Builder()
                 .config(new GraphConfig(graphId))
                 .addSchema(new Schema.Builder().build())
                 .storeProperties(storeProperties)
                 .build());
 
-        assertEquals(1, store.getGraphs(null).size());
+        assertEquals(1, store.getGraphs(testUser, null).size());
 
         new FederatedRemoveGraphHandler().doOperation(
                 new RemoveGraph.Builder()
                         .setGraphId(graphId)
                         .build(),
-                new Context(new User("TestUser")),
+                new Context(testUser),
                 store);
 
-        Collection<Graph> graphs = store.getGraphs(null);
+        Collection<Graph> graphs = store.getGraphs(testUser, null);
 
         assertEquals(0, graphs.size());
 
