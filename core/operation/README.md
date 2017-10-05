@@ -93,6 +93,45 @@ public static class Builder extends Operation.BaseBuilder<GetElements, Builder>
 }
 ```
 
+## Lazy Results
+Operation results are lazy (where possible) so that results are lazily
+loaded whilst a user consumes each result.
+
+For example if a user executes a GetAllElements on Accumulo:
+
+```java
+final Iterable<? extends Element> elements = graph.execute(new GetAllElements(), getUser());
+```
+
+The 'elements' iterable is lazy and the query is only executed on Accumulo when you start iterating around the results. 
+If you iterate around the results a second time, the query on Accumulo will be executed again.
+
+If you add another element 'X' to the graph before you consume the 'elements' iterable you will notice the results now also contain 'X'.
+
+For this reason you should be very careful if you do an AddElements with a lazy iterable returned from a Get query on the same Graph. The problem that could arise is that the AddElements will lazily consume the lazy iterable of elements, potentially causing duplicates to be added. 
+
+To do a Get followed by an Add on the same Graph, we recommend consuming and caching the Get results first. For a small number of results, this can be done simply using the ToList operation in your chain. e.g:
+
+```java
+new OperationChain.Builder()
+                .first(new GetAllElements())
+                .then(new ToList<>())
+                .then(new AddElements())
+                .build();
+```
+
+
+For a large number of results you could add them to the gaffer cache temporarily:
+```java
+new OperationChain.Builder()
+                .first(new GetAllElements())
+                .then(new ExportToGafferResultCache<>())
+                .then(new DiscardOutput())
+                .then((Operation) new GetGafferResultCacheExport())
+                .then(new AddElements())
+                .build()
+```
+
 ## FAQs
 Here are some frequently asked questions.
 

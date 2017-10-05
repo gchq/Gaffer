@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.hbasestore.integration;
+package uk.gov.gchq.gaffer.mapstore.integration;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.hbasestore.SingleUseMiniHBaseStore;
-import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
-import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
-public class HBaseStoreITs extends AbstractStoreITs {
-    private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreITs.class));
+public class MapStoreITs extends AbstractStoreITs {
+    private static final StoreProperties STORE_PROPERTIES =
+            StoreProperties.loadStoreProperties(StreamUtil.storeProps(MapStoreITs.class));
 
-    public HBaseStoreITs() {
+    public MapStoreITs() {
         super(STORE_PROPERTIES);
-        try {
-            TableUtils.dropAllTables(new SingleUseMiniHBaseStore().getConnection());
-        } catch (final StoreException e) {
-            // ignore any errors that occur when dropping test tables
-        }
     }
 }
