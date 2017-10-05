@@ -36,7 +36,6 @@ import java.util.Map;
  * to their relevant {@link ElementTransformer}s can be provided.
  */
 public class Transform implements Function,
-        Operation,
         InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,
         MultiInput<Element> {
 

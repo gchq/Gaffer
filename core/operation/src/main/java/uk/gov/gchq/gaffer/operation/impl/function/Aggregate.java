@@ -33,7 +33,6 @@ import java.util.Map;
  * {@link Iterable} of {@link Element}s by their group, and returns an {@link Iterable}.
  */
 public class Aggregate implements Function,
-        Operation,
         InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,
         MultiInput<Element> {
     private Iterable<? extends Element> input;

@@ -215,7 +215,7 @@ public class FunctionValidator<T extends Function> {
                 for (final SchemaElementDefinition elementDef : elements.values()) {
                     final Class[] selectionClasses = Arrays.stream(selection).map(elementDef::getPropertyClass).toArray(Class[]::new);
                     final Map<String, String> properties = elementDef.getPropertyMap();
-                    if (properties.size() > 0) {
+                    if (!properties.isEmpty()) {
                         if (null == component.getBinaryOperator()) {
                             result.addError(aggregator.getClass().getSimpleName() + " contains a null function.");
                         } else {
@@ -232,7 +232,7 @@ public class FunctionValidator<T extends Function> {
                     final String[] selection = component.getSelection();
                     final Class[] selectionClasses = Arrays.stream(selection).map(elementDef::getPropertyClass).toArray(Class[]::new);
                     final Map<String, String> properties = elementDef.getPropertyMap();
-                    if (properties.size() > 0) {
+                    if (!properties.isEmpty()) {
                         if (null == component.getBinaryOperator()) {
                             result.addError("Aggregator in the schema contains a null function.");
                         } else {
@@ -257,7 +257,7 @@ public class FunctionValidator<T extends Function> {
             for (final SchemaElementDefinition elementDef : elements.values()) {
                 final Class[] selectionClasses = Arrays.stream(selection).map(elementDef::getPropertyClass).toArray(Class[]::new);
                 final Map<String, String> properties = elementDef.getPropertyMap();
-                if (properties.size() > 0) {
+                if (!properties.isEmpty()) {
                     if (null == component.getPredicate()) {
                         result.addError(filter.getClass().getSimpleName() + " contains a null function.");
                     } else {
@@ -282,7 +282,7 @@ public class FunctionValidator<T extends Function> {
                 final Class[] selectionClasses = Arrays.stream(selection).map(elementDef::getPropertyClass).toArray(Class[]::new);
                 final Class[] projectionClasses = Arrays.stream(projection).map(elementDef::getPropertyClass).toArray(Class[]::new);
                 final Map<String, String> properties = elementDef.getPropertyMap();
-                if (properties.size() > 0) {
+                if (!properties.isEmpty()) {
                     if (null == component.getFunction()) {
                         result.addError(transformer.getClass().getSimpleName());
                     } else {

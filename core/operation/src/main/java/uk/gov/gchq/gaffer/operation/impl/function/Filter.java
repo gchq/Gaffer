@@ -40,9 +40,8 @@ import java.util.Map;
  * {@link  uk.gov.gchq.gaffer.data.element.Edge}s or {@link uk.gov.gchq.gaffer.data.element.Entity}s.
  */
 public class Filter implements Function,
-        Operation,
         InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,
-        MultiInput<Element>  {
+        MultiInput<Element> {
 
     private Iterable<? extends Element> input;
 
