@@ -20,10 +20,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.exception.OverwritingException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -37,7 +39,6 @@ public abstract class AbstractGraphLibraryTest {
 
     private static final String TEST_GRAPH_ID = "testGraphId";
     private static final String TEST_GRAPH_ID_1 = "testGraphId1";
-    private static final String TEST_GRAPH_ID_2 = "testGraphId2";
     private static final String TEST_SCHEMA_ID = "testSchemaId";
     private static final String TEST_SCHEMA_ID_1 = "testSchemaId1";
     private static final String TEST_UNKNOWN_SCHEMA_ID = "unknownSchemaId";
@@ -72,7 +73,14 @@ public abstract class AbstractGraphLibraryTest {
     }
 
     @Test
-    public void shouldGetIdsInGraphLibrary() {
+    public void shouldAddAndGetMultipleIdsInGraphLibrary() {
+        // When
+        graphLibrary.add(TEST_GRAPH_ID, schema, storeProperties);
+        graphLibrary.add(TEST_GRAPH_ID_1, schema1, storeProperties1);
+    }
+
+    @Test
+    public void shouldAddAndGetIdsInGraphLibrary() {
         // When
         graphLibrary.add(TEST_GRAPH_ID, schema, storeProperties);
 
@@ -223,12 +231,48 @@ public abstract class AbstractGraphLibraryTest {
     }
 
     @Test
+    public void shouldThrowExceptionWhenNewSchemaIsAddedWithSameSchemaIdAndSchema() {
+        // Given
+        final Schema tempSchema = new Schema.Builder()
+                .id(TEST_SCHEMA_ID)
+                .edge(TestGroups.ENTITY, new SchemaEdgeDefinition.Builder()
+                        .build())
+                .build();
+
+        // When
+        graphLibrary.addSchema(schema);
+
+        // Then
+        try {
+            graphLibrary.addSchema(tempSchema);
+            fail("Exception expected");
+        } catch (final OverwritingException e) {
+            assertTrue(e.getMessage().contains("already exists with a different schema"));
+        }
+    }
+
+    @Test
     public void shouldIgnoreDuplicateAdditionWhenStorePropertiesAreIdentical() {
+        // Given
+        final StoreProperties tempStoreProperties = storeProperties.clone();
+
         // When
         graphLibrary.addProperties(storeProperties);
-        graphLibrary.addProperties(storeProperties);
+        graphLibrary.addProperties(tempStoreProperties);
 
         // Then - no exception
+    }
+
+    @Test
+    public void shouldIgnoreDuplicateAdditionWhenSchemasAreIdentical() {
+        // Given
+        final Schema tempSchema = schema.clone();
+
+        // When
+        graphLibrary.addSchema(schema);
+        graphLibrary.addSchema(tempSchema);
+
+        // Then - no exceptions
     }
 
 }
