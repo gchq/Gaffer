@@ -57,6 +57,7 @@ public class FederatedStoreSchemaTest {
 
     @Before
     public void setUp() throws Exception {
+        ACCUMULO_PROPERTIES.setId("accProp");
         ACCUMULO_PROPERTIES.setStoreClass(MockAccumuloStore.class.getName());
         ACCUMULO_PROPERTIES.setStorePropertiesClass(AccumuloProperties.class);
 
@@ -78,16 +79,17 @@ public class FederatedStoreSchemaTest {
     @Test
     public void shouldNotDeadLockWhenPreviousAddGraphHasSchemaCollision() throws Exception {
         final HashMapGraphLibrary library = new HashMapGraphLibrary();
-        library.addProperties("accProp", ACCUMULO_PROPERTIES);
+        library.addProperties(ACCUMULO_PROPERTIES);
         fStore.setGraphLibrary(library);
 
 
         final Schema aSchema = new Schema.Builder()
+                .id("aSchema")
                 .edge("e1", getProp("prop1"))
                 .merge(STRING_SCHEMA)
                 .build();
 
-        library.addSchema("aSchema", aSchema);
+        library.addSchema(aSchema);
 
         fStore.execute(Operation.asOperationChain(
                 new AddGraph.Builder()
@@ -97,11 +99,12 @@ public class FederatedStoreSchemaTest {
                         .build()), TEST_USER);
 
         final Schema bSchema = new Schema.Builder()
+                .id("bSchema")
                 .edge("e1", getProp("prop2"))
                 .merge(STRING_SCHEMA)
                 .build();
 
-        library.addSchema("bSchema", bSchema);
+        library.addSchema(bSchema);
 
         assertFalse(library.exists("b"));
 
@@ -118,7 +121,7 @@ public class FederatedStoreSchemaTest {
             assertTrue(e instanceof SchemaException);
             assertEquals("Element group properties cannot be defined in different" +
                     " schema parts, they must all be defined in a single " +
-                    "schema part. Please fix this group: e1",e.getMessage());
+                    "schema part. Please fix this group: e1", e.getMessage());
         }
 
         try {

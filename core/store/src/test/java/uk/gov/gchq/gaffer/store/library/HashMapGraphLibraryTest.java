@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.library;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -28,7 +29,6 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -40,6 +40,11 @@ public class HashMapGraphLibraryTest {
 
     private StoreProperties storeProperties = new StoreProperties(PROPERTIES_ID);
     private Schema schema = new Schema.Builder().id(SCHEMA_ID).build();
+
+    @Before
+    public void beforeEach() {
+        LIBRARY.clear();
+    }
 
     @Test
     public void shouldGetIdsInHashMapGraphLibrary() {
@@ -135,36 +140,38 @@ public class HashMapGraphLibraryTest {
     @Test
     public void shouldAddAndGetSchema() {
         // When
-        LIBRARY.addSchema("schemaId", schema);
+        LIBRARY.addSchema(schema);
 
         // Then
-        JsonAssert.assertEquals(schema.toJson(false), LIBRARY.getSchema("schemaId").toJson(false));
+        JsonAssert.assertEquals(schema.toJson(false), LIBRARY.getSchema(schema.getId()).toJson(false));
     }
 
     @Test
     public void shouldNotAddNullSchema() {
-        // When
-        LIBRARY.addSchema("nullSchema", null);
-
-        // Then
-        assertNull(LIBRARY.getSchema("nullSchema"));
+        // When / Then
+        try {
+            LIBRARY.addSchema(null);
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Id is invalid: null"));
+        }
     }
 
     @Test
     public void shouldAddAndGetProperties() {
         // When
-        LIBRARY.addProperties("propsId", storeProperties);
+        LIBRARY.addProperties(storeProperties);
 
         // Then
-        assertEquals(storeProperties, LIBRARY.getProperties("propsId"));
+        assertEquals(storeProperties, LIBRARY.getProperties(storeProperties.getId()));
     }
 
     @Test
     public void shouldNotAddNullProperties() {
-        // When
-        LIBRARY.addProperties("nullProps", null);
-
-        // Then
-        assertNull(LIBRARY.getProperties("nullProps"));
+        // When / Then
+        try {
+            LIBRARY.addProperties(null);
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Id is invalid: null"));
+        }
     }
 }
