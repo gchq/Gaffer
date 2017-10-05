@@ -439,7 +439,7 @@ public class StoreProperties implements Cloneable {
         final Class<? extends StoreProperties> storePropertiesClass = getStorePropertiesClass();
         if (null == storePropertiesClass || StoreProperties.class.equals(storePropertiesClass)) {
             setStorePropertiesClass(requiredClass);
-        } else if (requiredClass.isAssignableFrom(storePropertiesClass)) {
+        } else if (!requiredClass.isAssignableFrom(storePropertiesClass)) {
             throw new IllegalArgumentException("The given properties is not of type " + requiredClass.getName() + " actual: " + storePropertiesClass.getName());
         }
     }
