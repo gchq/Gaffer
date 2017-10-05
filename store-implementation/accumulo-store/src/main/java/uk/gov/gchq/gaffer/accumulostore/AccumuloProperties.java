@@ -65,19 +65,23 @@ public class AccumuloProperties extends StoreProperties {
     public static final String ENABLE_VALIDATOR_ITERATOR_DEFAULT = "true";
 
     public AccumuloProperties() {
-        super();
-        setStoreClass(AccumuloStore.class);
+        super(AccumuloStore.class);
     }
 
     public AccumuloProperties(final Path propFileLocation) {
-        super(propFileLocation);
-        if (null == getStoreClass()) {
-            setStoreClass(AccumuloStore.class);
-        }
+        super(propFileLocation, AccumuloStore.class);
+    }
+
+    public static AccumuloProperties loadStoreProperties(final String pathStr) {
+        return StoreProperties.loadStoreProperties(pathStr, AccumuloProperties.class);
     }
 
     public static AccumuloProperties loadStoreProperties(final InputStream storePropertiesStream) {
-        return (AccumuloProperties) StoreProperties.loadStoreProperties(storePropertiesStream);
+        return StoreProperties.loadStoreProperties(storePropertiesStream, AccumuloProperties.class);
+    }
+
+    public static AccumuloProperties loadStoreProperties(final Path storePropertiesPath) {
+        return StoreProperties.loadStoreProperties(storePropertiesPath, AccumuloProperties.class);
     }
 
     @Override

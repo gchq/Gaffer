@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringDeduplicateConcat;
 
+import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.file.Path;
 
@@ -60,15 +61,23 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
     private static final long serialVersionUID = 7695540336792378185L;
 
     public ParquetStoreProperties() {
-        super();
-        this.setStoreClass(ParquetStore.class);
+        super(ParquetStore.class);
     }
 
     public ParquetStoreProperties(final Path propFileLocation) {
-        super(propFileLocation);
-        if (null == getStoreClass()) {
-            setStoreClass(ParquetStore.class);
-        }
+        super(propFileLocation, ParquetStore.class);
+    }
+
+    public static ParquetStoreProperties loadStoreProperties(final String pathStr) {
+        return StoreProperties.loadStoreProperties(pathStr, ParquetStoreProperties.class);
+    }
+
+    public static ParquetStoreProperties loadStoreProperties(final InputStream storePropertiesStream) {
+        return StoreProperties.loadStoreProperties(storePropertiesStream, ParquetStoreProperties.class);
+    }
+
+    public static ParquetStoreProperties loadStoreProperties(final Path storePropertiesPath) {
+        return StoreProperties.loadStoreProperties(storePropertiesPath, ParquetStoreProperties.class);
     }
 
     public String getDataDir() {
@@ -94,6 +103,7 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
     public void setThreadsAvailable(final Integer threadsAvailable) {
         set(PARQUET_THREADS_AVAILABLE, threadsAvailable.toString());
     }
+
     public Integer getSampleRate() {
         return Integer.parseInt(get(PARQUET_SPLIT_POINTS_SAMPLE_RATE, PARQUET_SPLIT_POINTS_SAMPLE_RATE_DEFAULT));
     }
