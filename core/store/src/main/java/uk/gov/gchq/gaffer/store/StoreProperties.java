@@ -72,9 +72,11 @@ public class StoreProperties implements Cloneable {
 
     // Required for loading by reflection.
     public StoreProperties() {
+        updateStorePropertiesClass();
     }
 
     public StoreProperties(final String id) {
+        this();
         if (null != id) {
             setId(id);
         }
@@ -88,10 +90,40 @@ public class StoreProperties implements Cloneable {
                 throw new RuntimeException(e);
             }
         }
+        updateStorePropertiesClass();
     }
+
+    protected StoreProperties(final Properties props, final Class<? extends Store> storeClass) {
+        this(props);
+        if (null == getStoreClass()) {
+            setStoreClass(storeClass);
+        }
+    }
+
 
     public StoreProperties(final Properties props) {
         setProperties(props);
+        updateStorePropertiesClass();
+    }
+
+
+    protected StoreProperties(final Class<? extends Store> storeClass) {
+        this();
+        if (null == getStoreClass()) {
+            setStoreClass(storeClass);
+        }
+    }
+
+    protected StoreProperties(final Path propFileLocation, final Class<? extends Store> storeClass) {
+        this(propFileLocation);
+        if (null == getStoreClass()) {
+            setStoreClass(storeClass);
+        }
+    }
+
+    public static <T extends StoreProperties> T loadStoreProperties(final String pathStr, final Class<T> requiredClass) {
+        final StoreProperties properties = loadStoreProperties(pathStr);
+        return (T) updateInstanceType(requiredClass, properties);
     }
 
     public static StoreProperties loadStoreProperties(final String pathStr) {
@@ -110,12 +142,22 @@ public class StoreProperties implements Cloneable {
         return storeProperties;
     }
 
+    public static <T extends StoreProperties> T loadStoreProperties(final Path storePropertiesPath, final Class<T> requiredClass) {
+        final StoreProperties properties = loadStoreProperties(storePropertiesPath);
+        return (T) updateInstanceType(requiredClass, properties);
+    }
+
     public static StoreProperties loadStoreProperties(final Path storePropertiesPath) {
         try {
             return loadStoreProperties(null != storePropertiesPath ? Files.newInputStream(storePropertiesPath) : null);
         } catch (final IOException e) {
             throw new RuntimeException("Failed to load store properties file : " + e.getMessage(), e);
         }
+    }
+
+    public static <T extends StoreProperties> T loadStoreProperties(final InputStream storePropertiesStream, final Class<T> requiredClass) {
+        final StoreProperties properties = loadStoreProperties(storePropertiesStream);
+        return (T) updateInstanceType(requiredClass, properties);
     }
 
     public static StoreProperties loadStoreProperties(final InputStream storePropertiesStream) {
@@ -135,6 +177,11 @@ public class StoreProperties implements Cloneable {
             }
         }
         return loadStoreProperties(props);
+    }
+
+    public static <T extends StoreProperties> T loadStoreProperties(final Properties props, final Class<T> requiredClass) {
+        final StoreProperties properties = loadStoreProperties(props);
+        return (T) updateInstanceType(requiredClass, properties);
     }
 
     public static StoreProperties loadStoreProperties(final Properties props) {
@@ -169,8 +216,10 @@ public class StoreProperties implements Cloneable {
      * Get a parameter from the schema file, or the default value.
      *
      * @param key          the property key
-     * @param defaultValue the default value to use if the property doesn't exist
-     * @return a property properties file with the given key or the default value if the property doesn't exist
+     * @param defaultValue the default value to use if the property doesn't
+     *                     exist
+     * @return a property properties file with the given key or the default
+     * value if the property doesn't exist
      */
     public String get(final String key, final String defaultValue) {
         return props.getProperty(key, defaultValue);
@@ -195,8 +244,10 @@ public class StoreProperties implements Cloneable {
     }
 
     /**
-     * Returns the operation definitions from the file specified in the properties.
-     * This is an optional feature, so if the property does not exist then this function
+     * Returns the operation definitions from the file specified in the
+     * properties.
+     * This is an optional feature, so if the property does not exist then this
+     * function
      * will return an empty object.
      *
      * @return The Operation Definitions to load dynamically
@@ -378,5 +429,27 @@ public class StoreProperties implements Cloneable {
         return new HashCodeBuilder(5, 7)
                 .append(props)
                 .toHashCode();
+    }
+
+    public void updateStorePropertiesClass() {
+        updateStorePropertiesClass(getClass());
+    }
+
+    public void updateStorePropertiesClass(final Class<? extends StoreProperties> requiredClass) {
+        final Class<? extends StoreProperties> storePropertiesClass = getStorePropertiesClass();
+        if (null == storePropertiesClass || StoreProperties.class.equals(storePropertiesClass)) {
+            setStorePropertiesClass(requiredClass);
+        } else if (!requiredClass.isAssignableFrom(storePropertiesClass)) {
+            throw new IllegalArgumentException("The given properties is not of type " + requiredClass.getName() + " actual: " + storePropertiesClass.getName());
+        }
+    }
+
+    private static <T extends StoreProperties> StoreProperties updateInstanceType(final Class<T> requiredClass, final StoreProperties properties) {
+        if (!requiredClass.isAssignableFrom(properties.getClass())) {
+            properties.updateStorePropertiesClass(requiredClass);
+            return StoreProperties.loadStoreProperties(properties.getProperties());
+        }
+
+        return properties;
     }
 }

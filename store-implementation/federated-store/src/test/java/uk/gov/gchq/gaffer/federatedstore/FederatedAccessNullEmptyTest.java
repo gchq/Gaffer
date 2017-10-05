@@ -26,7 +26,7 @@ import java.util.Collection;
 
 import static org.junit.Assert.assertFalse;
 
-public class FederatedAccessHookNullEmptyTest {
+public class FederatedAccessNullEmptyTest {
 
     @Test
     public void shouldInValidateWithExplicitlyNullCollectionAuth() throws Exception {
@@ -34,11 +34,11 @@ public class FederatedAccessHookNullEmptyTest {
         final User user = new Builder()
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths((Collection) null)
                 .build();
 
-        assertFalse(hook.isValidToExecute(user));
+        assertFalse(access.isValidToExecute(user));
     }
 
     @Test
@@ -47,11 +47,11 @@ public class FederatedAccessHookNullEmptyTest {
         final User user = new Builder()
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths((String[]) null)
                 .build();
 
-        assertFalse(hook.isValidToExecute(user));
+        assertFalse(access.isValidToExecute(user));
     }
 
     @Test
@@ -60,11 +60,11 @@ public class FederatedAccessHookNullEmptyTest {
         final User user = new Builder()
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths("")
                 .build();
 
-        assertFalse(hook.isValidToExecute(user));
+        assertFalse(access.isValidToExecute(user));
     }
 
     @Test
@@ -73,11 +73,11 @@ public class FederatedAccessHookNullEmptyTest {
         final User user = new Builder()
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths(new String[0])
                 .build();
 
-        assertFalse(hook.isValidToExecute(user));
+        assertFalse(access.isValidToExecute(user));
     }
 
     @Test
@@ -86,11 +86,11 @@ public class FederatedAccessHookNullEmptyTest {
         final User user = new Builder()
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths(Sets.newHashSet())
                 .build();
 
-        assertFalse(hook.isValidToExecute(user));
+        assertFalse(access.isValidToExecute(user));
     }
 
 
@@ -100,10 +100,10 @@ public class FederatedAccessHookNullEmptyTest {
         final User user = new Builder()
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess access = new FederatedAccess.Builder()
                 .build();
 
-        assertFalse(hook.isValidToExecute(user));
+        assertFalse(access.isValidToExecute(user));
     }
 
 }

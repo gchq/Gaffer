@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Lists;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -36,7 +35,6 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class FederatedStoreSchemaTest {
 
@@ -49,11 +47,12 @@ public class FederatedStoreSchemaTest {
             .build();
     public static final User TEST_USER = new User("testUser");
     public static final String TEST_FED_STORE = "testFedStore";
+    public static final HashMapGraphLibrary library = new HashMapGraphLibrary();
 
 
     private FederatedStore fStore;
     public static final AccumuloProperties ACCUMULO_PROPERTIES = new AccumuloProperties();
-    public static final StoreProperties FEDERATED_PROPERTIES = new StoreProperties();
+    public static final StoreProperties FEDERATED_PROPERTIES = new FederatedStoreProperties();
 
     @Before
     public void setUp() throws Exception {
@@ -61,27 +60,16 @@ public class FederatedStoreSchemaTest {
         ACCUMULO_PROPERTIES.setStoreClass(MockAccumuloStore.class.getName());
         ACCUMULO_PROPERTIES.setStorePropertiesClass(AccumuloProperties.class);
 
-        FEDERATED_PROPERTIES.setStoreClass(FederatedStore.class.getName());
-        FEDERATED_PROPERTIES.setStorePropertiesClass(StoreProperties.class);
-
         fStore = new FederatedStore();
         fStore.initialise(TEST_FED_STORE, null, FEDERATED_PROPERTIES);
 
-        HashMapGraphLibrary.clear();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        HashMapGraphLibrary.clear();
-
+        library.clear();
     }
 
     @Test
     public void shouldNotDeadLockWhenPreviousAddGraphHasSchemaCollision() throws Exception {
-        final HashMapGraphLibrary library = new HashMapGraphLibrary();
         library.addProperties(ACCUMULO_PROPERTIES);
         fStore.setGraphLibrary(library);
-
 
         final Schema aSchema = new Schema.Builder()
                 .id("aSchema")
@@ -118,10 +106,13 @@ public class FederatedStoreSchemaTest {
                     .build()), TEST_USER);
         } catch (final Exception e) {
             addingGraphBWasSuccessful = false;
-            assertTrue(e instanceof SchemaException);
-            assertEquals("Element group properties cannot be defined in different" +
-                    " schema parts, they must all be defined in a single " +
-                    "schema part. Please fix this group: e1", e.getMessage());
+            if (e instanceof SchemaException) {
+                assertEquals("Element group properties cannot be defined in different" +
+                        " schema parts, they must all be defined in a single " +
+                        "schema part. Please fix this group: e1", e.getMessage());
+            } else {
+                throw e;
+            }
         }
 
         try {
