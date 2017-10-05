@@ -20,7 +20,7 @@ import uk.gov.gchq.gaffer.mapstore.MapStore;
 
 public class MapSchemaHidingIT extends SchemaHidingIT {
     public MapSchemaHidingIT() {
-        super("staticMapStore.properties");
+        super("staticmapstore.properties");
     }
 
     @Override
