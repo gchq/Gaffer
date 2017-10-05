@@ -18,6 +18,9 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
+import java.util.Arrays;
+import java.util.Iterator;
+
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.PREFIX_GAFFER_FEDERATED_STORE;
 
@@ -26,15 +29,21 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.PREFIX_G
  * Additional {@link StoreProperties} for the {@link FederatedStore}.
  */
 public class FederatedStoreProperties extends StoreProperties {
-    public static final String CUSTOM_PROPERTIES_AUTHS = "customPropertiesAuths";
-    public static final String KEY_GRAPH_IDS = PREFIX_GAFFER_FEDERATED_STORE + "." + "graphIds";
+    private static final String CUSTOM_PROPERTIES_AUTHS = "customPropertiesAuths";
+    private static final char DELIMITER = '.';
+    private static final String GRAPH_IDS = "graphIds";
+    private static final String AUTHS = "auths";
 
     public FederatedStoreProperties() {
         setStoreClass(FederatedStore.class);
     }
 
     public void setGraphIds(final String graphIdsCSV) {
-        set(KEY_GRAPH_IDS, graphIdsCSV);
+        set(getKeyGraphIds(), graphIdsCSV);
+    }
+
+    private String getKeyGraphIds() {
+        return getPrefixAnd(GRAPH_IDS);
     }
 
     public void setTrueSkipFailedExecution() {
@@ -46,15 +55,29 @@ public class FederatedStoreProperties extends StoreProperties {
     }
 
     public void setCustomPropertyAuths(final String auths) {
-        set(getCustomPropsKey(), auths);
+        set(getKeyCustomProps(), auths);
     }
 
-    private static String getCustomPropsKey() {
-        return String.format("%s.%s", PREFIX_GAFFER_FEDERATED_STORE, CUSTOM_PROPERTIES_AUTHS);
+    private static String getKeyCustomProps() {
+        return getPrefixAnd(CUSTOM_PROPERTIES_AUTHS);
+    }
+
+    private static String getPrefixAnd(final String... affix) {
+        final StringBuilder sb = new StringBuilder()
+                .append(PREFIX_GAFFER_FEDERATED_STORE)
+                .append(DELIMITER);
+        final Iterator<String> iterator = Arrays.asList(affix).iterator();
+        while (iterator.hasNext()) {
+            sb.append(iterator.next());
+            if (iterator.hasNext()) {
+                sb.append(DELIMITER);
+            }
+        }
+        return sb.toString();
     }
 
     public void setGraphAuth(final String graphId, final String authCSV) {
-        set(getGraphAuthsKey(graphId), authCSV);
+        set(getKeyGraphAuths(graphId), authCSV);
     }
 
     public void setSkipFailedExecution(final boolean b) {
@@ -62,32 +85,52 @@ public class FederatedStoreProperties extends StoreProperties {
     }
 
     public void setGraphPropFile(final String graphId, final String file) {
-        final String key = getGraphConfigKey(graphId, GraphConfigEnum.PROPERTIES, LocationEnum.FILE);
+        final String key = getKeyGraphConfig(graphId, GraphConfigEnum.PROPERTIES, LocationEnum.FILE);
         set(key, file);
     }
 
     public void setGraphSchemaFile(final String graphId, final String file) {
-        final String key = getGraphConfigKey(graphId, GraphConfigEnum.SCHEMA, LocationEnum.FILE);
+        final String key = getKeyGraphConfig(graphId, GraphConfigEnum.SCHEMA, LocationEnum.FILE);
         set(key, file);
     }
 
-    public void setGraphPropId(final String graphId, final String file) {
-        final String key = getGraphConfigKey(graphId, GraphConfigEnum.PROPERTIES, LocationEnum.ID);
-        set(key, file);
+    public void setGraphPropId(final String graphId, final String id) {
+        final String key = getKeyGraphConfig(graphId, GraphConfigEnum.PROPERTIES, LocationEnum.ID);
+        set(key, id);
     }
 
-    public void setGraphSchemaId(final String graphId, final String file) {
-        final String key = getGraphConfigKey(graphId, GraphConfigEnum.SCHEMA, LocationEnum.ID);
-        set(key, file);
+    public void setGraphSchemaId(final String graphId, final String id) {
+        final String key = getKeyGraphConfig(graphId, GraphConfigEnum.SCHEMA, LocationEnum.ID);
+        set(key, id);
     }
 
-    private static String getGraphConfigKey(final String graphId, final GraphConfigEnum graphConfigEnum, final LocationEnum locationEnum) {
-        return String.format("%s.%s.%s.%s", PREFIX_GAFFER_FEDERATED_STORE, graphId, graphConfigEnum.value, locationEnum.value);
+    private static String getKeyGraphConfig(final String graphId, final GraphConfigEnum graphConfigEnum, final LocationEnum locationEnum) {
+        return getPrefixAnd(graphId, graphConfigEnum.value, locationEnum.value);
     }
 
 
-    private static String getGraphAuthsKey(final String graphId) {
-        return String.format("%s.%s.%s", PREFIX_GAFFER_FEDERATED_STORE, graphId, "auths");
+    private static String getKeyGraphAuths(final String graphId) {
+        return getPrefixAnd(graphId, AUTHS);
+    }
+
+    public String getGraphIsPublicValue(final String graphId) {
+        return get(getKeyGraphIsPublic(graphId));
+    }
+
+    public void setGraphIsPublicValue(final String graphId, final boolean b) {
+        set(getKeyGraphIsPublic(graphId), String.valueOf(b));
+    }
+
+    public void setTrueGraphIsPublicValue(final String graphId) {
+        setGraphIsPublicValue(graphId, true);
+    }
+
+    public void setFalseGraphIsPublicValue(final String graphId) {
+        setGraphIsPublicValue(graphId, false);
+    }
+
+    private String getKeyGraphIsPublic(final String graphId) {
+        return getPrefixAnd(graphId, "isPublic");
     }
 
     /**
@@ -117,19 +160,39 @@ public class FederatedStoreProperties extends StoreProperties {
     }
 
     public String getValueOf(final String graphId, final GraphConfigEnum graphConfigEnum, final LocationEnum location) {
-        final String key = getGraphConfigKey(graphId, graphConfigEnum, location);
+        final String key = getKeyGraphConfig(graphId, graphConfigEnum, location);
         return this.get(key);
     }
 
     public String getCustomPropsValue() {
-        return this.get(getCustomPropsKey());
+        return this.get(getKeyCustomProps());
     }
 
     public String getGraphAuthsValue(final String graphId) {
-        return this.get(getGraphAuthsKey(graphId));
+        return this.get(getKeyGraphAuths(graphId));
     }
 
     public String getGraphIdsValue() {
-        return this.get(KEY_GRAPH_IDS);
+        return this.get(getKeyGraphIds());
+    }
+
+    public String getKeyGraphsCanHavePublicAccess() {
+        return this.getPrefixAnd("graphsCanHavePublicAccess");
+    }
+
+    public String getGraphsCanHavePublicAccessValue() {
+        return get(getKeyGraphsCanHavePublicAccess());
+    }
+
+    public void setFalseGraphsCanHavePublicAccess() {
+        setGraphsCanHavePublicAccess(false);
+    }
+
+    public void setTrueGraphsCanHavePublicAccess() {
+        setGraphsCanHavePublicAccess(true);
+    }
+
+    public void setGraphsCanHavePublicAccess(final boolean b) {
+        set(getKeyGraphsCanHavePublicAccess(), Boolean.toString(b));
     }
 }

@@ -93,6 +93,7 @@ public class FederatedStore extends Store {
     public static final LocationEnum FILE = LocationEnum.FILE;
     private FederatedGraphStorage graphStorage = new FederatedGraphStorage();
     private Set<String> customPropertiesAuths;
+    private Boolean graphsCanHavePublicAccess = true;
 
 
     /**
@@ -116,6 +117,9 @@ public class FederatedStore extends Store {
         }
         super.initialise(graphId, new Schema(), resolvedProperties);
         loadCustomPropertiesAuths();
+
+        graphsCanHavePublicAccess = Boolean.valueOf(getProperties().getGraphsCanHavePublicAccessValue());
+
         loadGraphs();
     }
 
@@ -165,17 +169,26 @@ public class FederatedStore extends Store {
      * <p>
      * To be used by the FederatedStore and Handlers only. Users should add
      * graphs via the {@link AddGraph} operation.
+     * public access will be ignored if the FederatedStore denies this action
+     * at
+     * initialisation, will default to usual access with addingUserId and
+     * graphAuths
      *
      * @param addingUserId the adding userId
      * @param graphs       the graph to add
+     * @param isPublic     if this class should have public access.
      * @param graphAuths   the access auths for the graph being added
      */
-    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final Graph... graphs) {
-        FederatedAccess access = new FederatedAccess(graphAuths, addingUserId);
+    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final boolean isPublic, final Graph... graphs) {
+        FederatedAccess access = new FederatedAccess(graphAuths, addingUserId, graphsCanHavePublicAccess && isPublic);
 
         for (final Graph graph : graphs) {
             _add(graph, access);
         }
+    }
+
+    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final Graph... graphs) {
+        addGraphs(graphAuths, addingUserId, false, graphs);
     }
 
     /**
@@ -233,7 +246,7 @@ public class FederatedStore extends Store {
      * @return boolean permission
      */
     public boolean isLimitedToLibraryProperties(final User user) {
-        return null != this.customPropertiesAuths && Collections.disjoint(user.getOpAuths(), this.customPropertiesAuths);
+        return (null != this.customPropertiesAuths) && Collections.disjoint(user.getOpAuths(), this.customPropertiesAuths);
     }
 
     @Override
@@ -338,8 +351,13 @@ public class FederatedStore extends Store {
             resolveConfiguration(graphId, builder);
 
             final Set<String> auths = resolveAuths(graphId);
-            addGraphs(auths, null, builder);
+            final boolean isPublic = resolveIsPublic(graphId);
+            addGraphs(auths, null, isPublic, builder);
         }
+    }
+
+    private boolean resolveIsPublic(final String graphId) {
+        return Boolean.valueOf(getProperties().getGraphIsPublicValue(graphId));
     }
 
     private void resolveConfiguration(final String graphId, final Builder builder) {
@@ -367,7 +385,7 @@ public class FederatedStore extends Store {
         addSchemaFromFile(graphId, builder);
     }
 
-    private void addGraphs(final Set<String> graphAuths, final String userId, final Builder... builders) {
+    private void addGraphs(final Set<String> graphAuths, final String userId, final boolean isPublic, final Builder... builders) {
         for (final Builder builder : builders) {
             final Graph graph;
             try {
@@ -375,7 +393,7 @@ public class FederatedStore extends Store {
             } catch (final Exception e) {
                 throw new IllegalArgumentException(String.format(S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2, "Graph", ""), e);
             }
-            addGraphs(graphAuths, userId, graph);
+            addGraphs(graphAuths, userId, isPublic, graph);
         }
     }
 
