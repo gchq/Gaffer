@@ -37,7 +37,6 @@ import org.apache.hadoop.hbase.security.visibility.VisibilityTestUtil;
 import org.apache.hadoop.hbase.security.visibility.VisibilityUtils;
 import org.apache.hadoop.mapreduce.server.jobtracker.JTConfig;
 
-import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -84,13 +83,6 @@ public class MiniHBaseStore extends HBaseStore {
             }
         }
 
-        try {
-            super.preInitialise(graphId, schema, properties);
-        } catch (final StoreException e) {
-            // This is due to an invalid table, but the table is about to be deleted to we can ignore it.
-        }
-
-        TableUtils.dropTable(this);
         super.preInitialise(graphId, schema, properties);
     }
 

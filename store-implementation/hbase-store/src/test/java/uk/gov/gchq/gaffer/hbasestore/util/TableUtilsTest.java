@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
-import uk.gov.gchq.gaffer.hbasestore.MiniHBaseStore;
+import uk.gov.gchq.gaffer.hbasestore.SingleUseMiniHBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.GafferCoprocessor;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -69,7 +69,7 @@ public class TableUtilsTest {
     @Test
     public void shouldCreateTableAndValidateIt() throws Exception {
         // Given
-        final MiniHBaseStore store = new MiniHBaseStore();
+        final SingleUseMiniHBaseStore store = new SingleUseMiniHBaseStore();
         final Schema schema = new Schema.Builder()
                 .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
                         .aggregateFunction(new StringConcat())
@@ -96,7 +96,7 @@ public class TableUtilsTest {
     @Test
     public void shouldFailTableValidationWhenTableDoesntHaveCoprocessor() throws Exception {
         // Given
-        final MiniHBaseStore store = new MiniHBaseStore();
+        final SingleUseMiniHBaseStore store = new SingleUseMiniHBaseStore();
         final Schema schema = new Schema.Builder()
                 .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
                         .aggregateFunction(new StringConcat())
