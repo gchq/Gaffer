@@ -22,7 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -36,7 +36,6 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class FederatedStoreSchemaTest {
 
@@ -53,15 +52,12 @@ public class FederatedStoreSchemaTest {
 
     private FederatedStore fStore;
     public static final AccumuloProperties ACCUMULO_PROPERTIES = new AccumuloProperties();
-    public static final StoreProperties FEDERATED_PROPERTIES = new StoreProperties();
+    public static final StoreProperties FEDERATED_PROPERTIES = new FederatedStoreProperties();
 
     @Before
     public void setUp() throws Exception {
-        ACCUMULO_PROPERTIES.setStoreClass(MockAccumuloStore.class.getName());
+        ACCUMULO_PROPERTIES.setStoreClass(SingleUseMockAccumuloStore.class);
         ACCUMULO_PROPERTIES.setStorePropertiesClass(AccumuloProperties.class);
-
-        FEDERATED_PROPERTIES.setStoreClass(FederatedStore.class.getName());
-        FEDERATED_PROPERTIES.setStorePropertiesClass(StoreProperties.class);
 
         fStore = new FederatedStore();
         fStore.initialise(TEST_FED_STORE, null, FEDERATED_PROPERTIES);
@@ -80,7 +76,6 @@ public class FederatedStoreSchemaTest {
         final HashMapGraphLibrary library = new HashMapGraphLibrary();
         library.addProperties("accProp", ACCUMULO_PROPERTIES);
         fStore.setGraphLibrary(library);
-
 
         final Schema aSchema = new Schema.Builder()
                 .edge("e1", getProp("prop1"))
@@ -115,10 +110,13 @@ public class FederatedStoreSchemaTest {
                     .build()), TEST_USER);
         } catch (final Exception e) {
             addingGraphBWasSuccessful = false;
-            assertTrue(e instanceof SchemaException);
-            assertEquals("Element group properties cannot be defined in different" +
-                    " schema parts, they must all be defined in a single " +
-                    "schema part. Please fix this group: e1",e.getMessage());
+            if (e instanceof SchemaException) {
+                assertEquals("Element group properties cannot be defined in different" +
+                        " schema parts, they must all be defined in a single " +
+                        "schema part. Please fix this group: e1", e.getMessage());
+            } else {
+                throw e;
+            }
         }
 
         try {

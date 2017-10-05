@@ -150,16 +150,18 @@ public class AccumuloStore extends Store {
      * @throws StoreException If the store could not be initialised.
      */
     public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
-        final String deprecatedTableName = ((AccumuloProperties) properties).getTable();
+        setProperties(properties);
+
+        final String deprecatedTableName = getProperties().getTable();
         if (null == graphId && null != deprecatedTableName) {
             // Deprecated
-            super.initialise(deprecatedTableName, schema, properties);
+            super.initialise(deprecatedTableName, schema, getProperties());
         } else if (null != deprecatedTableName && !deprecatedTableName.equals(graphId)) {
             throw new IllegalArgumentException(
                     "The table in store.properties should no longer be used. " +
                             "Please use a graphId instead or for now just set the graphId to be the same value as the store.properties table.");
         } else {
-            super.initialise(graphId, schema, properties);
+            super.initialise(graphId, schema, getProperties());
         }
         final String keyPackageClass = getProperties().getKeyPackageClass();
         try {
@@ -318,6 +320,11 @@ public class AccumuloStore extends Store {
     @Override
     public AccumuloProperties getProperties() {
         return (AccumuloProperties) super.getProperties();
+    }
+
+    @Override
+    protected Class<AccumuloProperties> getPropertiesClass() {
+        return AccumuloProperties.class;
     }
 
     @Override

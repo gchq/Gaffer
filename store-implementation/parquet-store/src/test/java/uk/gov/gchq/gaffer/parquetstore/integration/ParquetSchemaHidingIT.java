@@ -21,8 +21,8 @@ import org.apache.hadoop.fs.Path;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.graph.SchemaHidingIT;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 
 import java.io.IOException;
 
@@ -33,7 +33,7 @@ public class ParquetSchemaHidingIT extends SchemaHidingIT {
 
     @Override
     protected void cleanUp() {
-        final Store store = Store.createStore("graphId", createFullSchema(), StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath)));
+        final Store store = Store.createStore("graphId", createFullSchema(), ParquetStoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath)));
         String dataDir = "";
         try {
             dataDir = ((ParquetStore) store).getDataDir();

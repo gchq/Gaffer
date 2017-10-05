@@ -150,6 +150,11 @@ public class ParquetStore extends Store {
     }
 
     @Override
+    protected Class<ParquetStoreProperties> getPropertiesClass() {
+        return ParquetStoreProperties.class;
+    }
+
+    @Override
     protected Context createContext(final User user) {
         final SparkUser sparkUser;
         if (user instanceof SparkUser) {
