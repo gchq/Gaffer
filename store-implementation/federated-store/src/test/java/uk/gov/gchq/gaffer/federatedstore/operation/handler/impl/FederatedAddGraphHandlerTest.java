@@ -63,7 +63,7 @@ public class FederatedAddGraphHandlerTest {
     private FederatedStore store;
     private FederatedStoreProperties federatedStoreProperties;
 
-    
+
     @Before
     public void setUp() throws Exception {
         this.store = new FederatedStore();
@@ -84,7 +84,7 @@ public class FederatedAddGraphHandlerTest {
 
         assertEquals(0, store.getGraphs(testUser, null).size());
         assertEquals(0, store.getGraphs(testUser, null).size());
-        
+
         FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
@@ -242,9 +242,8 @@ public class FederatedAddGraphHandlerTest {
                     store);
             fail("Exception not thrown");
         } catch (OperationException e) {
-            assertEquals("User is limited to only using parentPropertiesId from the graphLibrary," +
-                            " but found storeProperties:{gaffer.store.class=uk.gov.gchq.gaffer.mapstore.MapStore}",
-                    e.getMessage());
+            assertTrue(e.getMessage().contains("User is limited to only using parentPropertiesId from the graphLibrary," +
+                    " but found storeProperties:{gaffer.store.class=uk.gov.gchq.gaffer.mapstore.MapStore"));
         }
 
         federatedAddGraphHandler.doOperation(

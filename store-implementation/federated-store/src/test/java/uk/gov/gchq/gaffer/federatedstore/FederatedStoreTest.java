@@ -38,6 +38,7 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
+import uk.gov.gchq.gaffer.mapstore.SingleUseMapStore;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -774,9 +775,10 @@ public class FederatedStoreTest {
     @Test
     public void shouldThrowExceptionWhenCreatingConfigWithDifferentGraphIdInLibraryAndConfig() {
         final GraphLibrary library = new HashMapGraphLibrary();
+        HashMapGraphLibrary.clear();
         final MapStoreProperties properties = new MapStoreProperties();
         properties.setId("propId1");
-        properties.set("gaffer.store.class", "uk.gov.gchq.gaffer.mapstore.SingleUseMapStore");
+        properties.setStoreClass(SingleUseMapStore.class);
         library.add("graphId", new Schema(), properties);
 
         // This builds fine
