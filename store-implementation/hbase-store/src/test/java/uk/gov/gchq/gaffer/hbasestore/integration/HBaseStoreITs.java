@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.hbasestore.integration;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.hbasestore.MiniHBaseStore;
+import uk.gov.gchq.gaffer.hbasestore.SingleUseMiniHBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -28,7 +28,7 @@ public class HBaseStoreITs extends AbstractStoreITs {
     public HBaseStoreITs() {
         super(STORE_PROPERTIES);
         try {
-            TableUtils.dropAllTables(new MiniHBaseStore().getConnection());
+            TableUtils.dropAllTables(new SingleUseMiniHBaseStore().getConnection());
         } catch (final StoreException e) {
             // ignore any errors that occur when dropping test tables
         }
