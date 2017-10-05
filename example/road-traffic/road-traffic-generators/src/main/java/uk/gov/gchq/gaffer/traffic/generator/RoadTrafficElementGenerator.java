@@ -30,6 +30,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 public abstract class RoadTrafficElementGenerator<T> implements OneToManyElementGenerator<T> {
 
@@ -45,8 +46,8 @@ public abstract class RoadTrafficElementGenerator<T> implements OneToManyElement
     }
 
     protected Entity createCardinality(final Object source,
-                                     final Object destination,
-                                     final Edge edge) {
+                                       final Object destination,
+                                       final Edge edge) {
         final HyperLogLogPlus hllp = new HyperLogLogPlus(5, 5);
         hllp.offer(destination);
 
@@ -62,14 +63,18 @@ public abstract class RoadTrafficElementGenerator<T> implements OneToManyElement
     protected Date getDate(final String dCountString, final String hour) {
         Date dCount = null;
         try {
-            dCount = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(dCountString);
+            final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+            simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+            dCount = simpleDateFormat.parse(dCountString);
         } catch (final ParseException e) {
             // incorrect date format
         }
 
         if (null == dCount) {
             try {
-                dCount = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(dCountString);
+                final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+                dCount = simpleDateFormat.parse(dCountString);
             } catch (final ParseException e) {
                 // another incorrect date format
             }

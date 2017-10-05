@@ -42,54 +42,54 @@ import java.net.URL;
  */
 public class RoadTrafficRestApiITs extends RoadTrafficTestQueries {
 
-	public static final String STORE_TYPE_PROPERTY = "store.type";
-	public static final String STORE_TYPE_DEFAULT = "accumulo";
+    public static final String STORE_TYPE_PROPERTY = "store.type";
+    public static final String STORE_TYPE_DEFAULT = "accumulo";
 
-	protected static final RestApiTestClient client = new RestApiV2TestClient();
+    protected static final RestApiTestClient client = new RestApiV2TestClient();
 
-	@ClassRule
-	public static final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    @ClassRule
+    public static final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
-	@BeforeClass
-	public static void prepareRestApi() throws IOException {
-		// Spin up the REST API
-		client.startServer();
+    @BeforeClass
+    public static void prepareRestApi() throws IOException {
+        // Spin up the REST API
+        client.startServer();
 
-		// Connect it to a Gaffer store, as specified in the 'store.type' property
-		client.reinitialiseGraph(
-			testFolder,
-			Schema.fromJson(StreamUtil.schemas(ElementGroup.class)),
-			StoreProperties.loadStoreProperties(StreamUtil.openStream(RoadTrafficRestApiITs.class, System.getProperty(STORE_TYPE_PROPERTY, STORE_TYPE_DEFAULT) + StreamUtil.STORE_PROPERTIES))
-		);
+        // Connect it to a Gaffer store, as specified in the 'store.type' property
+        client.reinitialiseGraph(
+                testFolder,
+                Schema.fromJson(StreamUtil.schemas(ElementGroup.class)),
+                StoreProperties.loadStoreProperties(StreamUtil.openStream(RoadTrafficRestApiITs.class, System.getProperty(STORE_TYPE_PROPERTY, STORE_TYPE_DEFAULT) + StreamUtil.STORE_PROPERTIES))
+        );
 
-		// Load Road Traffic data into the store
-		final DataLoader loader = new DataLoader();
-		loader.contextInitialized(null);
-	}
+        // Load Road Traffic data into the store
+        final DataLoader loader = new DataLoader();
+        loader.contextInitialized(null);
+    }
 
-	@AfterClass
-	public static void after() {
-		client.stopServer();
-	}
+    @AfterClass
+    public static void after() {
+        client.stopServer();
+    }
 
-	@Override
-	public void prepareProxy() throws IOException {
-		// Create a proxy store that will proxy all queries to the REST API that has been spun up
-		ProxyProperties props = new ProxyProperties(System.getProperties());
-		props.setStoreClass(ProxyStore.class);
-		props.setStorePropertiesClass(props.getClass());
+    @Override
+    public void prepareProxy() throws IOException {
+        // Create a proxy store that will proxy all queries to the REST API that has been spun up
+        ProxyProperties props = new ProxyProperties(System.getProperties());
+        props.setStoreClass(ProxyStore.class);
+        props.setStorePropertiesClass(props.getClass());
 
-		final URL restURL = new URL(client.getRoot());
-		props.setGafferHost(restURL.getHost());
-		props.setGafferPort(restURL.getPort());
-		props.setGafferContextRoot(client.getPath());
+        final URL restURL = new URL(client.getRoot());
+        props.setGafferHost(restURL.getHost());
+        props.setGafferPort(restURL.getPort());
+        props.setGafferContextRoot(client.getPath());
 
-		this.graph = new Graph.Builder()
-			.config(StreamUtil.graphConfig(this.getClass()))
-			.storeProperties(props)
-			.build();
+        this.graph = new Graph.Builder()
+                .config(StreamUtil.graphConfig(this.getClass()))
+                .storeProperties(props)
+                .build();
 
-		this.user = new User();
-	}
+        this.user = new User();
+    }
 
 }
