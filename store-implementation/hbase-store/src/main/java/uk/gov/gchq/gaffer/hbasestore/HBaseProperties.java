@@ -28,7 +28,8 @@ import java.nio.file.Path;
 /**
  * HBaseProperties contains specific configuration information for the
  * hbase store, such as database connection strings. It wraps
- * {@link uk.gov.gchq.gaffer.data.element.Properties} and lazy loads the all properties from
+ * {@link uk.gov.gchq.gaffer.data.element.Properties} and lazy loads the all
+ * properties from
  * a file when first used.
  */
 public class HBaseProperties extends StoreProperties {
@@ -47,10 +48,14 @@ public class HBaseProperties extends StoreProperties {
 
     public HBaseProperties() {
         super();
+        setStoreClass(HBaseStore.class);
     }
 
     public HBaseProperties(final Path propFileLocation) {
         super(propFileLocation);
+        if (null == getStoreClass()) {
+            setStoreClass(HBaseStore.class);
+        }
     }
 
     public static HBaseProperties loadStoreProperties(final InputStream storePropertiesStream) {
@@ -148,7 +153,8 @@ public class HBaseProperties extends StoreProperties {
      * Set the max number of items that should be read into the scanner at any
      * one time
      *
-     * @param maxEntriesForBatchScanner the max number of items that should be read into the scanner at any one time
+     * @param maxEntriesForBatchScanner the max number of items that should be
+     *                                  read into the scanner at any one time
      */
     public void setMaxEntriesForBatchScanner(final String maxEntriesForBatchScanner) {
         set(MAX_ENTRIES_FOR_BATCH_SCANNER, maxEntriesForBatchScanner);

@@ -72,6 +72,7 @@ public class StoreProperties implements Cloneable {
 
     // Required for loading by reflection.
     public StoreProperties() {
+        setStorePropertiesClass(this.getClass());
     }
 
     public StoreProperties(final String id) {
@@ -169,8 +170,10 @@ public class StoreProperties implements Cloneable {
      * Get a parameter from the schema file, or the default value.
      *
      * @param key          the property key
-     * @param defaultValue the default value to use if the property doesn't exist
-     * @return a property properties file with the given key or the default value if the property doesn't exist
+     * @param defaultValue the default value to use if the property doesn't
+     *                     exist
+     * @return a property properties file with the given key or the default
+     * value if the property doesn't exist
      */
     public String get(final String key, final String defaultValue) {
         return props.getProperty(key, defaultValue);
@@ -195,8 +198,10 @@ public class StoreProperties implements Cloneable {
     }
 
     /**
-     * Returns the operation definitions from the file specified in the properties.
-     * This is an optional feature, so if the property does not exist then this function
+     * Returns the operation definitions from the file specified in the
+     * properties.
+     * This is an optional feature, so if the property does not exist then this
+     * function
      * will return an empty object.
      *
      * @return The Operation Definitions to load dynamically

@@ -150,7 +150,7 @@ public abstract class Store {
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to aggregate the elements.
      */
-    protected Schema schema;
+    private Schema schema;
 
     /**
      * The store properties - contains specific configuration information for the store - such as database connection strings.

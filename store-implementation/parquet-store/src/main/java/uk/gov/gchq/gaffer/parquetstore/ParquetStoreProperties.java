@@ -62,11 +62,13 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
     public ParquetStoreProperties() {
         super();
         this.setStoreClass(ParquetStore.class);
-        this.setStorePropertiesClass(getClass());
     }
 
     public ParquetStoreProperties(final Path propFileLocation) {
         super(propFileLocation);
+        if (null == getStoreClass()) {
+            setStoreClass(ParquetStore.class);
+        }
     }
 
     public String getDataDir() {

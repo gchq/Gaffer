@@ -44,14 +44,21 @@ public class ProxyProperties extends StoreProperties {
     private static final String GAFFER_REST_API_VERSION = "v2";
 
     public ProxyProperties() {
+        setStoreClass(ProxyStore.class);
     }
 
     public ProxyProperties(final Path propFileLocation) {
         super(propFileLocation);
+        if (null == getStoreClass()) {
+            setStoreClass(ProxyStore.class);
+        }
     }
 
     public ProxyProperties(final Properties props) {
         super(props);
+        if (null == getStoreClass()) {
+            setStoreClass(ProxyStore.class);
+        }
     }
 
     public int getConnectTimeout() {
