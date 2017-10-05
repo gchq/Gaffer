@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
+import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -35,7 +37,19 @@ public class FederatedStoreProperties extends StoreProperties {
     private static final String AUTHS = "auths";
 
     public FederatedStoreProperties() {
-        setStoreClass(FederatedStore.class);
+        super(FederatedStore.class);
+    }
+
+    public static FederatedStoreProperties loadStoreProperties(final String pathStr) {
+        return StoreProperties.loadStoreProperties(pathStr, FederatedStoreProperties.class);
+    }
+
+    public static FederatedStoreProperties loadStoreProperties(final InputStream storePropertiesStream) {
+        return StoreProperties.loadStoreProperties(storePropertiesStream, FederatedStoreProperties.class);
+    }
+
+    public static FederatedStoreProperties loadStoreProperties(final Path storePropertiesPath) {
+        return StoreProperties.loadStoreProperties(storePropertiesPath, FederatedStoreProperties.class);
     }
 
     public void setGraphIds(final String graphIdsCSV) {

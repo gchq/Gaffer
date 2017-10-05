@@ -108,14 +108,7 @@ public class FederatedStore extends Store {
      */
     @Override
     public void initialise(final String graphId, final Schema unused, final StoreProperties properties) throws StoreException {
-        StoreProperties resolvedProperties = properties;
-        if (!(properties instanceof FederatedStoreProperties)) {
-            if (!FederatedStoreProperties.class.equals(properties.getStorePropertiesClass())) {
-                throw new IllegalArgumentException("The given properties is not of type " + FederatedStoreProperties.class.getName() + " actual: " + properties.getStorePropertiesClassName());
-            }
-            resolvedProperties = FederatedStoreProperties.loadStoreProperties(properties.getProperties());
-        }
-        super.initialise(graphId, new Schema(), resolvedProperties);
+        super.initialise(graphId, new Schema(), properties);
         loadCustomPropertiesAuths();
 
         graphsCanHavePublicAccess = Boolean.valueOf(getProperties().getGraphsCanHavePublicAccessValue());
@@ -247,6 +240,11 @@ public class FederatedStore extends Store {
      */
     public boolean isLimitedToLibraryProperties(final User user) {
         return (null != this.customPropertiesAuths) && Collections.disjoint(user.getOpAuths(), this.customPropertiesAuths);
+    }
+
+    @Override
+    protected Class<FederatedStoreProperties> getPropertiesClass() {
+        return FederatedStoreProperties.class;
     }
 
     @Override

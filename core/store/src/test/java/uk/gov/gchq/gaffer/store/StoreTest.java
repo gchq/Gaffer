@@ -49,7 +49,6 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
 import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
@@ -64,6 +63,7 @@ import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResult
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
+import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
 import uk.gov.gchq.gaffer.operation.impl.function.Filter;
 import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
@@ -807,8 +807,8 @@ public class StoreTest {
         }
 
         @Override
-        protected JobTracker createJobTracker(final StoreProperties properties) {
-            if (properties.getJobTrackerEnabled()) {
+        protected JobTracker createJobTracker() {
+            if (getProperties().getJobTrackerEnabled()) {
                 return jobTracker;
             }
 
