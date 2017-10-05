@@ -22,6 +22,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import scala.Tuple2;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.CalculateSplitPointsFromIterable;
@@ -32,18 +33,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class CalculateSplitPointsFromIterableTest {
+
+    private ExecutorService pool;
 
     @Before
     public void setUp() throws StoreException {
         Logger.getRootLogger().setLevel(Level.WARN);
+        pool = Executors.newFixedThreadPool(1);
     }
 
     @Test
     public void calculateSplitsFromEmptyIterable() {
         final Iterable<Element> emptyIterable = new ArrayList<>();
-        final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromIterable(2, 2).calculateSplitsForGroup(emptyIterable, TestGroups.ENTITY, true);
+        final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromIterable(2, 2, emptyIterable, TestGroups.ENTITY, true).call()._2;
         Assert.assertTrue(splitPoints.isEmpty());
     }
 
@@ -51,10 +57,10 @@ public class CalculateSplitPointsFromIterableTest {
     public void calculateSplitsFromIterableUsingEntites() {
         final List<Element> data = new ArrayList<>();
         for (long i = 0; i < 12; i++) {
-            data.add(DataGen.getEntity(TestGroups.ENTITY, i, null, null, null, null, null, null, null, null, 1));
-            data.add(DataGen.getEntity(TestGroups.ENTITY_2, i + 5, null, null, null, null, null, null, null, null, 1));
+            data.add(DataGen.getEntity(TestGroups.ENTITY, i, null, null, null, null, null, null, null, null, 1, null));
+            data.add(DataGen.getEntity(TestGroups.ENTITY_2, i + 5, null, null, null, null, null, null, null, null, 1, null));
         }
-        final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromIterable(2, 2).calculateSplitsForGroup(data, TestGroups.ENTITY, true);
+        final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromIterable(2, 2, data, TestGroups.ENTITY, true).call()._2;
         final Map<Object, Integer> expected = new HashMap<>(2);
         expected.put(0L, 0);
         expected.put(6L, 1);
@@ -65,10 +71,10 @@ public class CalculateSplitPointsFromIterableTest {
     public void calculateSplitsFromIterableUsingEdges() {
         final List<Element> data = new ArrayList<>();
         for (long i = 0; i < 12; i++) {
-            data.add(DataGen.getEdge(TestGroups.EDGE, i, i + 2, true, null, null, null, null, null, null, null, null, 1));
-            data.add(DataGen.getEdge(TestGroups.EDGE_2, i + 5, i + 8, false,null, null, null, null, null, null, null, null, 1));
+            data.add(DataGen.getEdge(TestGroups.EDGE, i, i + 2, true, null, null, null, null, null, null, null, null, 1, null));
+            data.add(DataGen.getEdge(TestGroups.EDGE_2, i + 5, i + 8, false, null, null, null, null, null, null, null, null, 1, null));
         }
-        final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromIterable(2, 2).calculateSplitsForGroup(data, TestGroups.EDGE, false);
+        final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromIterable(2, 2, data, TestGroups.EDGE, false).call()._2;
         final Map<Object, Integer> expected = new HashMap<>(2);
         expected.put(0L, 0);
         expected.put(6L, 1);

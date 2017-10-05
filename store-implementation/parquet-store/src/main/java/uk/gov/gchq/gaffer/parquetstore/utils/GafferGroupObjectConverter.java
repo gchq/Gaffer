@@ -54,10 +54,10 @@ public class GafferGroupObjectConverter implements Serializable {
     /**
      * Constructor to set up the converter ready to convert between the Gaffer, Spark and Parquet types.
      *
-     * @param group                         The Gaffer Group name
-     * @param columnToSerialiserName        A mapping from Gaffer column to serialiser name
-     * @param serialiserNameToSerialiser    A mapping from serialiser name to serialiser object
-     * @param columnToPaths                 A mapping from Gaffer column to the Parquet columns derived from that Gaffer column
+     * @param group                      The Gaffer Group name
+     * @param columnToSerialiserName     A mapping from Gaffer column to serialiser name
+     * @param serialiserNameToSerialiser A mapping from serialiser name to serialiser object
+     * @param columnToPaths              A mapping from Gaffer column to the Parquet columns derived from that Gaffer column
      */
     public GafferGroupObjectConverter(final String group, final Map<String, String> columnToSerialiserName,
                                       final Map<String, Serialiser> serialiserNameToSerialiser,
@@ -74,10 +74,10 @@ public class GafferGroupObjectConverter implements Serializable {
     /**
      * Converts a Gaffer object from a single Gaffer column to the representative Parquet objects, using the relevant serialiser.
      *
-     * @param gafferColumn  The name of the Gaffer column
-     * @param gafferObject  The Gaffer object to be converted
+     * @param gafferColumn The name of the Gaffer column
+     * @param gafferObject The Gaffer object to be converted
      * @return an {@link Object[]} of the Parquet objects, one for each derived Parquet column
-     * @throws SerialisationException   If the serialiser throws a {@link SerialisationException} when serialising
+     * @throws SerialisationException If the serialiser throws a {@link SerialisationException} when serialising
      */
     public Object[] gafferObjectToParquetObjects(final String gafferColumn, final Object gafferObject) throws SerialisationException {
         final Serialiser serialiser = columnToSerialiser.get(gafferColumn);
@@ -97,11 +97,11 @@ public class GafferGroupObjectConverter implements Serializable {
     /**
      * Generates the Gaffer object from the Parquet objects using the relevant serialiser's de-serialise method.
      *
-     * @param gafferColumn      The name of the Gaffer column
-     * @param parquetObjects    The {@link Object[]} of the Parquet objects, one for each Parquet column that
-     *                          was derived from this Gaffer column
+     * @param gafferColumn   The name of the Gaffer column
+     * @param parquetObjects The {@link Object[]} of the Parquet objects, one for each Parquet column that
+     *                       was derived from this Gaffer column
      * @return The Gaffer object
-     * @throws SerialisationException   If the serialiser throws a {@link SerialisationException} when de-serialising
+     * @throws SerialisationException If the serialiser throws a {@link SerialisationException} when de-serialising
      */
     public Object parquetObjectsToGafferObject(final String gafferColumn, final Object[] parquetObjects) throws SerialisationException {
         final Serialiser serialiser = columnToSerialiser.get(gafferColumn);

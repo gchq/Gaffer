@@ -829,6 +829,7 @@
                 <skip.failsafe.tests>true</skip.failsafe.tests>
                 <jacoco.skip>true</jacoco.skip>
                 <shaded.jar.phase>none</shaded.jar.phase>
+                <skip.jar-with-dependencies>true</skip.jar-with-dependencies>
             </properties>
         </profile>
         <profile>
@@ -837,6 +838,7 @@
                 <skip.surefire.tests>false</skip.surefire.tests>
                 <skip.failsafe.tests>false</skip.failsafe.tests>
                 <shaded.jar.phase>none</shaded.jar.phase>
+                <skip.jar-with-dependencies>true</skip.jar-with-dependencies>
             </properties>
             <build>
                 <plugins>

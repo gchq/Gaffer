@@ -39,23 +39,32 @@ public class MapStoreProperties extends StoreProperties {
     public static final String STATIC_MAP_DEFAULT = "false";
 
     /**
-     * Property name for the ingest buffer size. If the value is set to less than 1 then
-     * no buffer is used and elements are added directly to the underlying maps.
+     * Property name for the ingest buffer size. If the value is set to less
+     * than 1 then
+     * no buffer is used and elements are added directly to the underlying
+     * maps.
      */
     public static final String INGEST_BUFFER_SIZE = "gaffer.store.mapstore.map.ingest.buffer.size";
     public static final int INGEST_BUFFER_SIZE_DEFAULT = 0;
 
     public MapStoreProperties() {
-        super();
-        set(STORE_CLASS, MapStore.class.getName());
+        super(MapStore.class);
     }
 
     public MapStoreProperties(final Path propFileLocation) {
-        super(propFileLocation);
+        super(propFileLocation, MapStore.class);
+    }
+
+    public static MapStoreProperties loadStoreProperties(final String pathStr) {
+        return StoreProperties.loadStoreProperties(pathStr, MapStoreProperties.class);
     }
 
     public static MapStoreProperties loadStoreProperties(final InputStream storePropertiesStream) {
-        return (MapStoreProperties) StoreProperties.loadStoreProperties(storePropertiesStream);
+        return StoreProperties.loadStoreProperties(storePropertiesStream, MapStoreProperties.class);
+    }
+
+    public static MapStoreProperties loadStoreProperties(final Path storePropertiesPath) {
+        return StoreProperties.loadStoreProperties(storePropertiesPath, MapStoreProperties.class);
     }
 
     @Override
