@@ -51,7 +51,6 @@ public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsT
         getGraph(getSchema(), TestUtils.getParquetStoreProperties(), "TypeValueVertexSparkOperationsTest")
                 .execute(new ImportJavaRDDOfElements.Builder()
                         .input(getElements(javaSparkContext, withVisibilities))
-                        .javaSparkContext(javaSparkContext)
                         .build(), USER);
     }
 

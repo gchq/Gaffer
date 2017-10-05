@@ -17,8 +17,6 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.sql.SparkSession;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -30,6 +28,7 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.spark.SparkContext;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.SparkSessionProvider;
@@ -94,8 +93,6 @@ public class GetJavaRDDOfAllElementsHandlerTest {
         final User user = new User();
         graph1.execute(new AddElements.Builder().input(elements).build(), user);
 
-        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
-        final JavaSparkContext sparkContext = new JavaSparkContext(sparkSession.sparkContext());
 
         // Create Hadoop configuration and serialise to a string
         final Configuration configuration = new Configuration();
@@ -104,7 +101,6 @@ public class GetJavaRDDOfAllElementsHandlerTest {
 
         // Check get correct edges for "1"
         final GetJavaRDDOfAllElements rddQuery = new GetJavaRDDOfAllElements.Builder()
-                .javaSparkContext(sparkContext)
                 .build();
 
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
@@ -160,8 +156,6 @@ public class GetJavaRDDOfAllElementsHandlerTest {
         final User user = new User("user", Collections.singleton("public"));
         graph1.execute(new AddElements.Builder().input(elements).build(), user);
 
-        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
-        final JavaSparkContext sparkContext = new JavaSparkContext(sparkSession.sparkContext());
 
         // Create Hadoop configuration and serialise to a string
         final Configuration configuration = new Configuration();
@@ -189,7 +183,6 @@ public class GetJavaRDDOfAllElementsHandlerTest {
 
         // Check get correct edges for user with just public
         GetJavaRDDOfAllElements rddQuery = new GetJavaRDDOfAllElements.Builder()
-                .javaSparkContext(sparkContext)
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         JavaRDD<Element> rdd = graph1.execute(rddQuery, userWithPublicNotPrivate);
@@ -201,7 +194,6 @@ public class GetJavaRDDOfAllElementsHandlerTest {
 
         // Check get correct edges for user with both private and public
         rddQuery = new GetJavaRDDOfAllElements.Builder()
-                .javaSparkContext(sparkContext)
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         rdd = graph1.execute(rddQuery, userWithPrivate);

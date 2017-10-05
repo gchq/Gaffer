@@ -49,7 +49,7 @@ public class GetGafferResultCacheExportHandler extends GetExportHandler<GetGaffe
     protected GafferResultCacheExporter createExporter(final GetGafferResultCacheExport export, final Context context, final Store store) {
         final String jobId = null != export.getJobId() ? export.getJobId() : context.getJobId();
         return new GafferResultCacheExporter(
-                context.getUser(), jobId, createGraph(store),
+                context, jobId, createGraph(store),
                 visibility, null);
     }
 

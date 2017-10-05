@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.gaffer.user.User.Builder;
 
@@ -42,7 +43,7 @@ public class FederatedAccessHookAuthTest {
                 .graphAuths(A)
                 .build();
 
-        assertTrue(hook.isValidToExecute(user));
+        assertTrue(hook.isValidToExecute(new Context(user)));
     }
 
     @Test
@@ -56,7 +57,7 @@ public class FederatedAccessHookAuthTest {
                 .graphAuths(A, B)
                 .build();
 
-        assertTrue(hook.isValidToExecute(user));
+        assertTrue(hook.isValidToExecute(new Context(user)));
     }
 
     @Test
@@ -71,7 +72,7 @@ public class FederatedAccessHookAuthTest {
                 .graphAuths(A)
                 .build();
 
-        assertTrue(hook.isValidToExecute(user));
+        assertTrue(hook.isValidToExecute(new Context(user)));
     }
 
     @Test
@@ -84,7 +85,7 @@ public class FederatedAccessHookAuthTest {
                 .graphAuths(A)
                 .build();
 
-        assertFalse(hook.isValidToExecute(user));
+        assertFalse(hook.isValidToExecute(new Context(user)));
     }
 
     @Test
@@ -98,7 +99,7 @@ public class FederatedAccessHookAuthTest {
                 .graphAuths(A)
                 .build();
 
-        assertFalse(hook.isValidToExecute(user));
+        assertFalse(hook.isValidToExecute(new Context(user)));
     }
 
 }

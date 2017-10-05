@@ -22,8 +22,8 @@ import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.NullWritable;
-import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
+import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Tuple2;
@@ -42,6 +42,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewUtil;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.spark.SparkContext;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.rfilereaderrdd.RFileReaderRDD;
@@ -78,30 +79,36 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
                                     final Context context,
                                     final Store store)
             throws OperationException {
-        return doOperation(operation, context, (AccumuloStore) store);
+        if (!(context instanceof SparkContext)) {
+            throw new OperationException("This operation requires the context to be of type SparkContext.");
+        }
+        return doOperation(operation, (SparkContext) context, (AccumuloStore) store);
     }
 
     private RDD<Element> doOperation(final GetRDDOfAllElements operation,
-                                     final Context context,
+                                     final SparkContext sparkContext,
                                      final AccumuloStore accumuloStore)
             throws OperationException {
-        operation.getSparkSession().sparkContext().hadoopConfiguration().addResource(getConfiguration(operation));
+        SparkSession sparkSession = sparkContext.getSparkSession();
+        if (sparkSession == null) {
+            throw new OperationException("This operation requires an active SparkSession.");
+        }
+        sparkSession.sparkContext().hadoopConfiguration().addResource(getConfiguration(operation));
         final String useRFileReaderRDD = operation.getOption(USE_RFILE_READER_RDD);
         if (Boolean.parseBoolean(useRFileReaderRDD)) {
-            return doOperationUsingRFileReaderRDD(operation, context, accumuloStore);
+            return doOperationUsingRFileReaderRDD(operation, sparkContext, accumuloStore);
         } else {
-            return doOperationUsingElementInputFormat(operation, context, accumuloStore);
+            return doOperationUsingElementInputFormat(operation, sparkContext, accumuloStore);
         }
     }
 
     private RDD<Element> doOperationUsingElementInputFormat(final GetRDDOfAllElements operation,
-                                                            final Context context,
+                                                            final SparkContext sparkContext,
                                                             final AccumuloStore accumuloStore)
             throws OperationException {
-        final SparkContext sparkContext = operation.getSparkSession().sparkContext();
         final Configuration conf = getConfiguration(operation);
-        addIterators(accumuloStore, conf, context.getUser(), operation);
-        final RDD<Tuple2<Element, NullWritable>> pairRDD = sparkContext.newAPIHadoopRDD(conf,
+        addIterators(accumuloStore, conf, sparkContext.getUser(), operation);
+        final RDD<Tuple2<Element, NullWritable>> pairRDD = sparkContext.getSparkSession().sparkContext().newAPIHadoopRDD(conf,
                 ElementInputFormat.class,
                 Element.class,
                 NullWritable.class);
@@ -109,7 +116,7 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
     }
 
     private RDD<Element> doOperationUsingRFileReaderRDD(final GetRDDOfAllElements operation,
-                                                        final Context context,
+                                                        final SparkContext sparkContext,
                                                         final AccumuloStore accumuloStore)
             throws OperationException {
         final Configuration conf = getConfiguration(operation);
@@ -124,19 +131,19 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
             throw new OperationException("IteratorSettingException adding aggregation iterator", e);
         }
         // Add other iterators
-        addIterators(accumuloStore, conf, context.getUser(), operation);
+        addIterators(accumuloStore, conf, sparkContext.getUser(), operation);
         try {
             // Add view to conf so that any transformations can be applied
             conf.set(AbstractGetRDDHandler.VIEW, new String(operation.getView().toCompactJson(), CommonConstants.UTF_8));
             final byte[] serialisedConf = Utils.serialiseConfiguration(conf);
             final RDD<Map.Entry<Key, Value>> rdd = new RFileReaderRDD(
-                    operation.getSparkSession().sparkContext(),
+                    sparkContext.getSparkSession().sparkContext(),
                     accumuloStore.getProperties().getInstance(),
                     accumuloStore.getProperties().getZookeepers(),
                     accumuloStore.getProperties().getUser(),
                     accumuloStore.getProperties().getPassword(),
                     accumuloStore.getTableName(),
-                    context.getUser().getDataAuths(),
+                    sparkContext.getUser().getDataAuths(),
                     serialisedConf);
             return rdd.mapPartitions(new EntryIteratorToElementIterator(serialisedConf), true, ELEMENT_CLASS_TAG);
         } catch (final IOException e) {

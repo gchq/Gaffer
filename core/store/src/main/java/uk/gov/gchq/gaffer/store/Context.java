@@ -15,6 +15,9 @@
  */
 package uk.gov.gchq.gaffer.store;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import uk.gov.gchq.gaffer.operation.export.Exporter;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -87,6 +90,32 @@ public class Context {
         }
 
         return null;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final Context context = (Context) obj;
+
+        return new EqualsBuilder()
+                .append(user, context.user)
+                .append(jobId, context.jobId)
+                .append(exporters, context.exporters)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(71, 31)
+                .append(jobId)
+                .append(user)
+                .toHashCode();
     }
 
     public static String createJobId() {

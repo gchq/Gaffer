@@ -17,10 +17,10 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import org.apache.spark.sql.SparkSession;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.spark.SparkContext;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -34,10 +34,10 @@ public class GetDataFrameOfElementsHandler implements OutputOperationHandler<Get
     @Override
     public Dataset<Row> doOperation(final GetDataFrameOfElements operation, final Context context,
                                     final Store store) throws OperationException {
-        return doOperation(operation, context, (AccumuloStore) store);
+        return doOperation(operation, (SparkContext) context, (AccumuloStore) store);
     }
 
-    public Dataset<Row> doOperation(final GetDataFrameOfElements operation, final Context context,
+    public Dataset<Row> doOperation(final GetDataFrameOfElements operation, final SparkContext context,
                                     final AccumuloStore store) throws OperationException {
         final Map<String, String> operationOptions;
         if (operation.getOptions() != null) {
@@ -45,14 +45,12 @@ public class GetDataFrameOfElementsHandler implements OutputOperationHandler<Get
         } else {
             operationOptions = new HashMap<>();
         }
-        final SparkSession sparkSession = operation.getSparkSession();
-        final AccumuloStoreRelation relation = new AccumuloStoreRelation(sparkSession,
+        final AccumuloStoreRelation relation = new AccumuloStoreRelation(context,
                 operation.getConverters(),
                 operation.getView(),
                 store,
-                context.getUser(),
                 operationOptions);
-        return sparkSession.sqlContext().baseRelationToDataFrame(relation);
+        return context.getSparkSession().sqlContext().baseRelationToDataFrame(relation);
     }
 
 }

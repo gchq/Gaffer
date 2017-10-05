@@ -214,7 +214,6 @@ public class StoreTest {
     public void shouldThrowExceptionIfGraphIdIsNull() throws Exception {
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
-
         try {
             store.initialise(null, schema, properties);
             fail("Exception expected");
@@ -237,6 +236,7 @@ public class StoreTest {
                 .build();
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
+        given(properties.getContextFactoryClass()).willReturn(StoreProperties.DEFAULT_CONTEXT_FACTORY_CLASS);
 
         // When
         try {
@@ -260,6 +260,7 @@ public class StoreTest {
                 .build();
         given(properties.getOperationDeclarations()).willReturn(opDeclarations);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
+        given(properties.getContextFactoryClass()).willReturn(StoreProperties.DEFAULT_CONTEXT_FACTORY_CLASS);
 
         // When
         store.initialise("graphId", schema, properties);
@@ -291,11 +292,12 @@ public class StoreTest {
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
+        given(properties.getContextFactoryClass()).willReturn(StoreProperties.DEFAULT_CONTEXT_FACTORY_CLASS);
         final AddElements addElements = new AddElements();
         store.initialise("graphId", schema, properties);
 
         // When
-        store.execute(addElements, user);
+        store.execute(addElements, store.createContext(user));
 
         // Then
         verify(addElementsHandler).doOperation(addElements, context, store);
@@ -307,6 +309,7 @@ public class StoreTest {
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
+        given(properties.getContextFactoryClass()).willReturn(StoreProperties.DEFAULT_CONTEXT_FACTORY_CLASS);
         final Operation operation = mock(Operation.class);
         final StoreImpl store = new StoreImpl();
         store.initialise("graphId", schema, properties);
@@ -324,6 +327,7 @@ public class StoreTest {
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
+        given(properties.getContextFactoryClass()).willReturn(StoreProperties.DEFAULT_CONTEXT_FACTORY_CLASS);
         final Operation operation = mock(Operation.class);
         final StoreImpl store = new StoreImpl();
         final OperationHandler opHandler = mock(OperationHandler.class);
@@ -350,6 +354,7 @@ public class StoreTest {
         final StoreImpl store = new StoreImpl();
 
         given(properties.getJobExecutorThreadCount()).willReturn(1);
+        given(properties.getContextFactoryClass()).willReturn(StoreProperties.DEFAULT_CONTEXT_FACTORY_CLASS);
         given(schema.validate()).willReturn(new ValidationResult());
         ValidationResult validationResult = new ValidationResult();
         validationResult.addError("error");
@@ -358,7 +363,7 @@ public class StoreTest {
 
         // When / Then
         try {
-            store.execute(opChain, user);
+            store.execute(opChain, context);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             verify(operationChainValidator).validate(opChain, user, store);
@@ -373,11 +378,12 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         final Operation operation = mock(Operation.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
+        given(properties.getContextFactoryClass()).willReturn(StoreProperties.DEFAULT_CONTEXT_FACTORY_CLASS);
 
         store.initialise("graphId", schema, properties);
 
         // When
-        store.execute(operation, user);
+        store.execute(operation, context);
 
         // Then
         assertEquals(1, store.getDoUnhandledOperationCalls().size());
@@ -394,6 +400,7 @@ public class StoreTest {
         given(lazyElement.getGroup()).willReturn(TestGroups.ENTITY);
         given(lazyElement.getElement()).willReturn(entity);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
+        given(properties.getContextFactoryClass()).willReturn(StoreProperties.DEFAULT_CONTEXT_FACTORY_CLASS);
 
         store.initialise("graphId", schema, properties);
 
@@ -414,6 +421,7 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         final CloseableIterable getElementsResult = mock(CloseableIterable.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
+        given(properties.getContextFactoryClass()).willReturn(StoreProperties.DEFAULT_CONTEXT_FACTORY_CLASS);
 
         final AddElements addElements1 = new AddElements();
         final GetElements getElements = new GetElements();
@@ -430,7 +438,7 @@ public class StoreTest {
         store.initialise("graphId", schema, properties);
 
         // When
-        final CloseableIterable<? extends Element> result = store.execute(opChain, user);
+        final CloseableIterable<? extends Element> result = store.execute(opChain, context);
 
         // Then
         assertSame(getElementsResult, result);
@@ -446,6 +454,7 @@ public class StoreTest {
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
+        given(properties.getContextFactoryClass()).willReturn(StoreProperties.DEFAULT_CONTEXT_FACTORY_CLASS);
         store.initialise("graphId", schema, properties);
 
         // When
@@ -527,6 +536,7 @@ public class StoreTest {
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
+        given(properties.getContextFactoryClass()).willReturn(StoreProperties.DEFAULT_CONTEXT_FACTORY_CLASS);
         store.initialise("graphId", schema, properties);
 
         // WHen
@@ -546,6 +556,7 @@ public class StoreTest {
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
+        given(properties.getContextFactoryClass()).willReturn(StoreProperties.DEFAULT_CONTEXT_FACTORY_CLASS);
         store.initialise("graphId", schema, properties);
 
         // When
@@ -561,6 +572,7 @@ public class StoreTest {
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
+        given(properties.getContextFactoryClass()).willReturn(StoreProperties.DEFAULT_CONTEXT_FACTORY_CLASS);
         store.initialise("graphId", schema, properties);
 
         // When
@@ -581,12 +593,13 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
         given(properties.getJobTrackerEnabled()).willReturn(true);
+        given(properties.getContextFactoryClass()).willReturn(StoreProperties.DEFAULT_CONTEXT_FACTORY_CLASS);
         final Store store = new StoreImpl();
         final Schema schema = new Schema();
         store.initialise("graphId", schema, properties);
 
         // When
-        final JobDetail resultJobDetail = store.executeJob(opChain, user);
+        final JobDetail resultJobDetail = store.executeJob(opChain, store.createContext(user));
 
         // Then
         Thread.sleep(1000);
@@ -608,12 +621,13 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
         given(properties.getJobTrackerEnabled()).willReturn(true);
+        given(properties.getContextFactoryClass()).willReturn(StoreProperties.DEFAULT_CONTEXT_FACTORY_CLASS);
         final Store store = new StoreImpl();
         final Schema schema = new Schema();
         store.initialise("graphId", schema, properties);
 
         // When
-        final JobDetail resultJobDetail = store.executeJob(opChain, user);
+        final JobDetail resultJobDetail = store.executeJob(opChain, store.createContext(user));
 
         // Then
         Thread.sleep(1000);
@@ -633,6 +647,7 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
         given(properties.getJobTrackerEnabled()).willReturn(true);
+        given(properties.getContextFactoryClass()).willReturn(StoreProperties.DEFAULT_CONTEXT_FACTORY_CLASS);
         final Store store = new StoreImpl();
         final Schema schema = new Schema();
         store.initialise("graphId", schema, properties);
@@ -650,6 +665,7 @@ public class StoreTest {
         given(properties.getJsonSerialiserClass()).willReturn(TestCustomJsonSerialiser1.class.getName());
         given(properties.getJsonSerialiserModules()).willReturn(StorePropertiesTest.TestCustomJsonModules1.class.getName());
         given(properties.getJobExecutorThreadCount()).willReturn(1);
+        given(properties.getContextFactoryClass()).willReturn(StoreProperties.DEFAULT_CONTEXT_FACTORY_CLASS);
 
         TestCustomJsonSerialiser1.mapper = mock(ObjectMapper.class);
         System.setProperty(JSONSerialiser.JSON_SERIALISER_CLASS_KEY, TestCustomJsonSerialiser1.class.getName());
@@ -716,6 +732,7 @@ public class StoreTest {
 
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
+        given(properties.getContextFactoryClass()).willReturn(StoreProperties.DEFAULT_CONTEXT_FACTORY_CLASS);
 
         final Class<ToBytesSerialiser> validSerialiserInterface = ToBytesSerialiser.class;
         try {
@@ -797,7 +814,7 @@ public class StoreTest {
         }
 
         @Override
-        protected Context createContext(final User user) {
+        public Context createContext(final User user) {
             return context;
         }
 

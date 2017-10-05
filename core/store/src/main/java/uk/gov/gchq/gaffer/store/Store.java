@@ -156,6 +156,12 @@ public abstract class Store {
      * The store properties - contains specific configuration information for the store - such as database connection strings.
      */
     private StoreProperties properties;
+
+    /**
+     * The context factory - creates a configurable context in which to run operations
+     */
+    private ContextFactory contextFactory;
+
     private GraphLibrary library;
 
     private JobTracker jobTracker;
@@ -207,6 +213,7 @@ public abstract class Store {
         this.graphId = graphId;
         this.schema = schema;
         this.properties = properties;
+        this.contextFactory =  ContextFactory.createContextFactory(properties);
 
         JSONSerialiser.update(properties.getJsonSerialiserClass(), properties.getJsonSerialiserModules());
 
@@ -244,18 +251,7 @@ public abstract class Store {
      * Executes a given operation and returns the result.
      *
      * @param operation the operation to execute.
-     * @param user      the user executing the operation
-     * @throws OperationException thrown by the operation handler if the operation fails.
-     */
-    public void execute(final Operation operation, final User user) throws OperationException {
-        execute(new OperationChain<>(operation), user);
-    }
-
-    /**
-     * Executes a given operation and returns the result.
-     *
-     * @param operation the operation to execute.
-     * @param context   the context associated with the operation
+     * @param context      the context executing the operation
      * @throws OperationException thrown by the operation handler if the operation fails.
      */
     public void execute(final Operation operation, final Context context) throws OperationException {
@@ -263,29 +259,16 @@ public abstract class Store {
     }
 
     /**
-     * Executes a given output operation and returns the result.
+     * Executes a given operation and returns the result.
      *
-     * @param operation the output operation to execute.
-     * @param user      the user executing the operation
-     * @param <O>       the output type of the operation.
-     * @return the result from the operation
+     * @param operation the operation to execute.
+     * @param context      the context executing the operation
+     * @param <O> the output type of the operation
+     * @return the result of executing the operation
      * @throws OperationException thrown by the operation handler if the operation fails.
      */
-    public <O> O execute(final Output<O> operation, final User user) throws OperationException {
-        return execute(new OperationChain<>(operation), user);
-    }
-
-    /**
-     * Executes a given operation chain and returns the result.
-     *
-     * @param operationChain the operation chain to execute.
-     * @param user           the user executing the operation chain
-     * @param <O>            the output type of the operation.
-     * @return the result of executing the operation.
-     * @throws OperationException thrown by an operation handler if an operation fails
-     */
-    public <O> O execute(final OperationChain<O> operationChain, final User user) throws OperationException {
-        return execute(operationChain, createContext(user));
+    public <O> O execute(final Output<O> operation, final Context context) throws OperationException {
+        return execute(new OperationChain<O>(operation), context);
     }
 
     /**
@@ -297,16 +280,14 @@ public abstract class Store {
      * @return the result of executing the operation
      * @throws OperationException thrown by the operation handler if the operation fails.
      */
-    public <O> O execute(final Output<O> operation, final Context context) throws OperationException {
-        final OperationChain<O> operationChain = Operation.asOperationChain(operation);
-
-        addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
+    public <O> O execute(final OperationChain<O> operation, final Context context) throws OperationException {
+        addOrUpdateJobDetail(operation, context, null, JobStatus.RUNNING);
         try {
             final O result = (O) handleOperation(operation, context);
-            addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
+            addOrUpdateJobDetail(operation, context, null, JobStatus.FINISHED);
             return result;
         } catch (final Throwable t) {
-            addOrUpdateJobDetail(operationChain, context, t.getMessage(), JobStatus.FAILED);
+            addOrUpdateJobDetail(operation, context, t.getMessage(), JobStatus.FAILED);
             throw t;
         }
     }
@@ -315,16 +296,14 @@ public abstract class Store {
      * Executes a given operation chain job and returns the job detail.
      *
      * @param operationChain the operation chain to execute.
-     * @param user           the user executing the job
+     * @param context           the context executing the job
      * @return the job detail
      * @throws OperationException thrown if jobs are not configured.
      */
-    public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
+    public JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
         if (null == jobTracker) {
             throw new OperationException("Running jobs has not configured.");
         }
-
-        final Context context = createContext(user);
 
         if (isSupported(ExportToGafferResultCache.class)) {
             boolean hasExport = false;
@@ -582,8 +561,8 @@ public abstract class Store {
         opChainOptimisers.addAll(newOpChainOptimisers);
     }
 
-    protected Context createContext(final User user) {
-        return new Context(user);
+    public Context createContext(final User user) {
+        return contextFactory.createContext(user, properties);
     }
 
     /**

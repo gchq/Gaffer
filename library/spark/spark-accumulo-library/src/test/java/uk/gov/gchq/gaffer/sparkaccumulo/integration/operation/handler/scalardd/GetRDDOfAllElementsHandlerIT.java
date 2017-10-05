@@ -31,7 +31,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.spark.rdd.RDD;
-import org.apache.spark.sql.SparkSession;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -58,6 +57,8 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.spark.SparkContext;
+import uk.gov.gchq.gaffer.spark.SparkContextFactory;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.MiniAccumuloClusterProvider;
@@ -180,12 +181,10 @@ public class GetRDDOfAllElementsHandlerIT {
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
                 .build();
         final User user = new User();
-        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
         final Configuration conf = new Configuration();
         conf.set("AN_OPTION", "A_VALUE");
         final String encodedConf = AbstractGetRDDHandler.convertConfigurationToString(conf);
         final GetRDDOfAllElements rddQuery = new GetRDDOfAllElements.Builder()
-                .sparkSession(sparkSession)
                 .option(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, encodedConf)
                 .build();
         final RDD<Element> rdd = graph1.execute(rddQuery, user);
@@ -394,6 +393,7 @@ public class GetRDDOfAllElementsHandlerIT {
         final MiniAccumuloCluster cluster = MiniAccumuloClusterProvider.getMiniAccumuloCluster();
         final AccumuloProperties properties = MiniAccumuloClusterProvider.getAccumuloProperties();
         updateAccumuloPropertiesWithKeyPackage(keyPackage);
+        properties.setContextFactoryClass(SparkContextFactory.class.getName());
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(tableName)
@@ -629,7 +629,6 @@ public class GetRDDOfAllElementsHandlerIT {
 
         // Check get correct elements
         final GetRDDOfAllElements rddQuery = new GetRDDOfAllElements.Builder()
-                .sparkSession(SparkSessionProvider.getSparkSession())
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         return rddQuery;

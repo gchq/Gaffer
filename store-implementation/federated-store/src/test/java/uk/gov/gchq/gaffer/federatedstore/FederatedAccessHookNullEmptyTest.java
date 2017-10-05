@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.federatedstore;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.gaffer.user.User.Builder;
 
@@ -31,79 +32,79 @@ public class FederatedAccessHookNullEmptyTest {
     @Test
     public void shouldInValidateWithExplicitlyNullCollectionAuth() throws Exception {
 
-        final User user = new Builder()
-                .build();
+        final Context context = new Context(new Builder()
+                .build());
 
         final FederatedAccessHook hook = new FederatedAccessHook.Builder()
                 .graphAuths((Collection) null)
                 .build();
 
-        assertFalse(hook.isValidToExecute(user));
+        assertFalse(hook.isValidToExecute(context));
     }
 
     @Test
     public void shouldInValidateWithExplicitlyNullStringsAuth() throws Exception {
 
-        final User user = new Builder()
-                .build();
+        final Context context = new Context(new Builder()
+                .build());
 
         final FederatedAccessHook hook = new FederatedAccessHook.Builder()
                 .graphAuths((String[]) null)
                 .build();
 
-        assertFalse(hook.isValidToExecute(user));
+        assertFalse(hook.isValidToExecute(context));
     }
 
     @Test
     public void shouldInValidateWithEmptyStringAuth() throws Exception {
 
-        final User user = new Builder()
-                .build();
+        final Context context = new Context(new Builder()
+                .build());
 
         final FederatedAccessHook hook = new FederatedAccessHook.Builder()
                 .graphAuths("")
                 .build();
 
-        assertFalse(hook.isValidToExecute(user));
+        assertFalse(hook.isValidToExecute(context));
     }
 
     @Test
     public void shouldInValidateWithEmptyStringsAuth() throws Exception {
 
-        final User user = new Builder()
-                .build();
+        final Context context = new Context(new Builder()
+                .build());
 
         final FederatedAccessHook hook = new FederatedAccessHook.Builder()
                 .graphAuths(new String[0])
                 .build();
 
-        assertFalse(hook.isValidToExecute(user));
+        assertFalse(hook.isValidToExecute(context));
     }
 
     @Test
     public void shouldInValidateWithEmptyCollectionAuth() throws Exception {
 
-        final User user = new Builder()
-                .build();
+        final Context context = new Context(new Builder()
+                .build());
 
         final FederatedAccessHook hook = new FederatedAccessHook.Builder()
                 .graphAuths(Sets.newHashSet())
                 .build();
 
-        assertFalse(hook.isValidToExecute(user));
+        assertFalse(hook.isValidToExecute(context));
     }
 
 
   @Test
     public void shouldInValidateWithUnSetAuth() throws Exception {
 
-        final User user = new Builder()
-                .build();
+      final Context context = new Context(new Builder()
+              .build());
 
         final FederatedAccessHook hook = new FederatedAccessHook.Builder()
                 .build();
 
-        assertFalse(hook.isValidToExecute(user));
+        assertFalse(hook.isValidToExecute(context));
     }
 
 }

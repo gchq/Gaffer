@@ -32,9 +32,11 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.spark.SparkContext;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.ConvertElementToRow;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStructTypeConverter;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.SparkSessionProvider;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -105,8 +107,8 @@ public class AccumuloStoreRelationTest {
         addElements(store);
 
         // When
-        final AccumuloStoreRelation relation = new AccumuloStoreRelation(sparkSession, Collections.emptyList(), view,
-                store, new User(), null);
+        final AccumuloStoreRelation relation = new AccumuloStoreRelation(new SparkContext(new User(), sparkSession), Collections.emptyList(), view,
+                store, null);
         final RDD<Row> rdd = relation.buildScan();
         final Row[] returnedElements = (Row[]) rdd.collect();
 
@@ -151,8 +153,8 @@ public class AccumuloStoreRelationTest {
         addElements(store);
 
         // When
-        final AccumuloStoreRelation relation = new AccumuloStoreRelation(sparkSession, Collections.emptyList(), view,
-                store, new User(), null);
+        final AccumuloStoreRelation relation = new AccumuloStoreRelation(new SparkContext(new User(), sparkSession), Collections.emptyList(), view,
+                store, null);
         final RDD<Row> rdd = relation.buildScan(requiredColumns);
         final Row[] returnedElements = (Row[]) rdd.collect();
 
@@ -203,8 +205,8 @@ public class AccumuloStoreRelationTest {
         addElements(store);
 
         // When
-        final AccumuloStoreRelation relation = new AccumuloStoreRelation(sparkSession, Collections.emptyList(), view,
-                store, new User(), null);
+        final AccumuloStoreRelation relation = new AccumuloStoreRelation(new SparkContext(new User(), sparkSession), Collections.emptyList(), view,
+                store, null);
         final RDD<Row> rdd = relation.buildScan(requiredColumns, filters);
         final Row[] returnedElements = (Row[]) rdd.collect();
 
@@ -242,7 +244,7 @@ public class AccumuloStoreRelationTest {
     }
 
     private static void addElements(final Store store) throws OperationException {
-        store.execute(new AddElements.Builder().input(getElements()).build(), new User());
+        store.execute(new AddElements.Builder().input(getElements()).build(), new Context(new User()));
     }
 
     private static List<Element> getElements() {

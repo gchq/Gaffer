@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.spark.operation.dataframe;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.rdd.RDD;
-import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.sources.And;
 import org.apache.spark.sql.sources.EqualNullSafe;
 import org.apache.spark.sql.sources.EqualTo;
@@ -70,16 +69,13 @@ import java.util.function.Predicate;
 public class FiltersToOperationConverter {
     private static final Logger LOGGER = LoggerFactory.getLogger(FiltersToOperationConverter.class);
 
-    private final SparkSession sparkSession;
     private final View view;
     private final Schema schema;
     private final Filter[] filters;
 
-    public FiltersToOperationConverter(final SparkSession sparkSession,
-                                       final View view,
+    public FiltersToOperationConverter(final View view,
                                        final Schema schema,
                                        final Filter[] filters) {
-        this.sparkSession = sparkSession;
         this.view = view;
         this.schema = schema;
         this.filters = Arrays.copyOf(filters, filters.length);
@@ -173,7 +169,6 @@ public class FiltersToOperationConverter {
                     clonedView = viewBuilder.build();
                     LOGGER.info("Setting operation to GetRDDOfElements");
                     operation = new GetRDDOfElements.Builder()
-                            .sparkSession(sparkSession)
                             .input(new EntitySeed(equalTo.value()))
                             .view(clonedView)
                             .build();
@@ -190,7 +185,6 @@ public class FiltersToOperationConverter {
                     clonedView = viewBuilder.build();
                     LOGGER.info("Setting operation to GetRDDOfElements");
                     operation = new GetRDDOfElements.Builder()
-                            .sparkSession(sparkSession)
                             .input(new EntitySeed(equalTo.value()))
                             .view(clonedView)
                             .build();
@@ -201,7 +195,6 @@ public class FiltersToOperationConverter {
         if (null == operation) {
             LOGGER.debug("Setting operation to GetRDDOfAllElements");
             operation = new GetRDDOfAllElements.Builder()
-                    .sparkSession(sparkSession)
                     .view(clonedView)
                     .build();
         }

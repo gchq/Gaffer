@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.spark.SparkContext;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
@@ -91,8 +92,7 @@ public class ImportJavaRDDOfElementsHandlerTest {
             elements.add(entity);
         }
         final User user = new User();
-
-        final JavaSparkContext sparkContext = SparkSessionProvider.getJavaSparkContext();
+        final SparkContext sparkContext = new SparkContext(user, SparkSessionProvider.getSparkSession());
 
         // Create Hadoop configuration and serialise to a string
         final Configuration configuration = new Configuration();
@@ -102,9 +102,8 @@ public class ImportJavaRDDOfElementsHandlerTest {
         final String outputPath = testFolder.getRoot().getAbsolutePath() + "/output";
         final String failurePath = testFolder.getRoot().getAbsolutePath() + "/failure";
 
-        final JavaRDD<Element> elementJavaRDD = sparkContext.parallelize(elements);
+        final JavaRDD<Element> elementJavaRDD = JavaSparkContext.fromSparkContext(sparkContext.getSparkSession().sparkContext()).parallelize(elements);
         final ImportJavaRDDOfElements addRdd = new ImportJavaRDDOfElements.Builder()
-                .javaSparkContext(sparkContext)
                 .input(elementJavaRDD)
                 .option("outputPath", outputPath)
                 .option("failurePath", failurePath)
@@ -113,7 +112,6 @@ public class ImportJavaRDDOfElementsHandlerTest {
 
         // Check all elements were added
         final GetJavaRDDOfAllElements rddQuery = new GetJavaRDDOfAllElements.Builder()
-                .javaSparkContext(sparkContext)
                 .option(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString)
                 .build();
 

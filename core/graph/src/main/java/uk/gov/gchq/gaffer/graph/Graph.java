@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -150,7 +151,7 @@ public final class Graph {
      * @throws OperationException thrown if the job fails to run.
      */
     public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
-        return _execute(store::executeJob, operationChain, user);
+        return _execute(store::executeJob, operationChain, store.createContext(user));
     }
 
     /**
@@ -165,10 +166,10 @@ public final class Graph {
      * @throws OperationException if an operation fails
      */
     public <O> O execute(final OperationChain<O> operationChain, final User user) throws OperationException {
-        return (O) _execute(store::execute, operationChain, user);
+        return (O) _execute(store::execute, operationChain, store.createContext(user));
     }
 
-    private <O> O _execute(final StoreExecuter<O> storeExecuter, final OperationChain<?> operationChain, final User user) throws OperationException {
+    private <O> O _execute(final StoreExecuter<O> storeExecuter, final OperationChain<?> operationChain, final Context context) throws OperationException {
         if (null == operationChain) {
             throw new IllegalArgumentException("operationChain is required");
         }
@@ -177,17 +178,17 @@ public final class Graph {
         O result = null;
         try {
             for (final GraphHook graphHook : config.getHooks()) {
-                graphHook.preExecute(clonedOpChain, user);
+                graphHook.preExecute(clonedOpChain, context);
             }
             updateOperationChainView(clonedOpChain);
-            result = storeExecuter.execute(clonedOpChain, user);
+            result = storeExecuter.execute(clonedOpChain, context);
             for (final GraphHook graphHook : config.getHooks()) {
-                result = graphHook.postExecute(result, clonedOpChain, user);
+                result = graphHook.postExecute(result, clonedOpChain, context);
             }
         } catch (final Exception e) {
             for (final GraphHook graphHook : config.getHooks()) {
                 try {
-                    result = graphHook.onFailure(result, clonedOpChain, user, e);
+                    result = graphHook.onFailure(result, clonedOpChain, context, e);
                 } catch (final Exception graphHookE) {
                     LOGGER.warn("Error in graphHook " + graphHook.getClass().getSimpleName() + ": " + graphHookE.getMessage(), graphHookE);
                 }
@@ -316,7 +317,7 @@ public final class Graph {
 
     @FunctionalInterface
     private interface StoreExecuter<O> {
-        O execute(final OperationChain operationChain, final User user) throws OperationException;
+        O execute(final OperationChain operationChain, final Context context) throws OperationException;
     }
 
     /**

@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.federatedstore;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.gaffer.user.User.Builder;
 
@@ -52,7 +53,7 @@ public class FederatedAccessHookCreatingUserTest {
 
         hook.setAddingUserId(USER);
 
-        assertTrue(hook.isValidToExecute(user));
+        assertTrue(hook.isValidToExecute(new Context(user)));
     }
 
     @Test
@@ -68,7 +69,7 @@ public class FederatedAccessHookCreatingUserTest {
 
         hook.setAddingUserId(USER);
 
-        assertTrue(hook.isValidToExecute(user));
+        assertTrue(hook.isValidToExecute(new Context(user)));
     }
 
     @Test
@@ -84,7 +85,7 @@ public class FederatedAccessHookCreatingUserTest {
 
         hook.setAddingUserId(USER);
 
-        assertTrue(hook.isValidToExecute(user));
+        assertTrue(hook.isValidToExecute(new Context(user)));
     }
 
     @Test
@@ -100,7 +101,7 @@ public class FederatedAccessHookCreatingUserTest {
 
         hook.setAddingUserId(USER);
 
-        assertTrue(hook.isValidToExecute(user));
+        assertTrue(hook.isValidToExecute(new Context(user)));
     }
 
     @Test
@@ -116,7 +117,7 @@ public class FederatedAccessHookCreatingUserTest {
 
         hook.setAddingUserId(USER);
 
-        assertTrue(hook.isValidToExecute(user));
+        assertTrue(hook.isValidToExecute(new Context(user)));
     }
 
     @Test
@@ -132,7 +133,7 @@ public class FederatedAccessHookCreatingUserTest {
 
         hook.setAddingUserId(USER);
 
-        assertTrue(hook.isValidToExecute(user));
+        assertTrue(hook.isValidToExecute(new Context(user)));
     }
 
     @Test
@@ -148,7 +149,7 @@ public class FederatedAccessHookCreatingUserTest {
 
         hook.setAddingUserId(USER);
 
-        assertTrue(hook.isValidToExecute(user));
+        assertTrue(hook.isValidToExecute(new Context(user)));
     }
 
     @Test
@@ -164,7 +165,7 @@ public class FederatedAccessHookCreatingUserTest {
 
         hook.setAddingUserId(USER);
 
-        assertTrue(hook.isValidToExecute(user));
+        assertTrue(hook.isValidToExecute(new Context(user)));
     }
 
 }

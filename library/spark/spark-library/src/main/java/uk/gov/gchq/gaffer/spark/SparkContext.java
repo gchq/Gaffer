@@ -20,20 +20,29 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.spark.sql.SparkSession;
 
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 
 /**
  * Implementation of the {@link User} class for creating users which can access
  * a {@link SparkSession}.
  */
-public class SparkUser extends User {
+public class SparkContext extends Context {
+
+    public SparkContext(final SparkSession sparkSession) {
+        this(new User(), sparkSession);
+    }
+
+    public SparkContext(final User user, final SparkSession sparkSession) {
+        this(user, createJobId(), sparkSession);
+    }
+
+    public SparkContext(final User user, final String jobId, final SparkSession sparkSession) {
+        super(user, jobId);
+        setSparkSession(sparkSession);
+    }
 
     private SparkSession sparkSession;
-
-    public SparkUser(final User user, final SparkSession session) {
-        super(user.getUserId(), user.getDataAuths(), user.getOpAuths());
-        setSparkSession(session);
-    }
 
     public SparkSession getSparkSession() {
         return sparkSession;
@@ -44,19 +53,19 @@ public class SparkUser extends User {
     }
 
     @Override
-    public boolean equals(final Object user) {
-        if (this == user) {
+    public boolean equals(final Object context) {
+        if (this == context) {
             return true;
         }
 
-        if (null == user || getClass() != user.getClass()) {
+        if (context == null || getClass() != context.getClass()) {
             return false;
         }
 
-        final SparkUser sparkUser = (SparkUser) user;
+        final SparkContext sparkUser = (SparkContext) context;
 
         return new EqualsBuilder()
-                .appendSuper(super.equals(user))
+                .appendSuper(super.equals(context))
                 .append(sparkSession, sparkUser.getSparkSession())
                 .isEquals();
     }

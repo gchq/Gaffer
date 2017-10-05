@@ -20,6 +20,7 @@ import com.google.common.collect.Sets;
 
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Arrays;
@@ -43,7 +44,7 @@ import java.util.Set;
  * <tr><td> n/a     </td><td> {@code empty} </td><td> F                 </td><td> F         </td></tr>
  * </table>
  *
- * @see #isValidToExecute(User)
+ * @see #isValidToExecute(Context)
  */
 public class FederatedAccessHook implements GraphHook {
     public static final String USER_DOES_NOT_HAVE_CORRECT_AUTHS_TO_ACCESS_THIS_GRAPH_USER_S = "User does not have correct auths to access this graph. User: %s";
@@ -55,9 +56,9 @@ public class FederatedAccessHook implements GraphHook {
     }
 
     @Override
-    public void preExecute(final OperationChain<?> opChain, final User user) {
-        if (!isValidToExecute(user)) {
-            throw new FederatedAccessException(String.format(USER_DOES_NOT_HAVE_CORRECT_AUTHS_TO_ACCESS_THIS_GRAPH_USER_S, user.toString()));
+    public void preExecute(final OperationChain<?> opChain, final Context context) {
+        if (!isValidToExecute(context)) {
+            throw new FederatedAccessException(String.format(USER_DOES_NOT_HAVE_CORRECT_AUTHS_TO_ACCESS_THIS_GRAPH_USER_S, context.getUser().toString()));
         }
     }
 
@@ -71,15 +72,15 @@ public class FederatedAccessHook implements GraphHook {
      * <tr><td>  F              </td><td> F           </td><td> F                 </td><td> F   </td></tr>
      * </table>
      *
-     * @param user User request permission.
+     * @param context Context request permission.
      * @return boolean permission for user.
      */
-    protected boolean isValidToExecute(final User user) {
-        return isAddingUser(user) || (!isAuthsNullOrEmpty() && isUserHasASharedAuth(user));
+    protected boolean isValidToExecute(final Context context) {
+        return isAddingUser(context.getUser()) || (!isAuthsNullOrEmpty() && isUserHasASharedAuth(context));
     }
 
-    private boolean isUserHasASharedAuth(final User user) {
-        return !Collections.disjoint(user.getOpAuths(), this.graphAuths);
+    private boolean isUserHasASharedAuth(final Context context) {
+        return !Collections.disjoint(context.getUser().getOpAuths(), this.graphAuths);
     }
 
     private boolean isAddingUser(final User user) {
@@ -95,12 +96,12 @@ public class FederatedAccessHook implements GraphHook {
     }
 
     @Override
-    public <T> T postExecute(final T result, final OperationChain<?> opChain, final User user) {
+    public <T> T postExecute(final T result, final OperationChain<?> opChain, final Context context) {
         return result;
     }
 
     @Override
-    public <T> T onFailure(final T result, final OperationChain<?> opChain, final User user, final Exception e) {
+    public <T> T onFailure(final T result, final OperationChain<?> opChain, final Context context, final Exception e) {
         return result;
     }
 
