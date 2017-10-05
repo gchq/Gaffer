@@ -33,6 +33,8 @@ public abstract class GraphLibrary {
 
     public abstract void initialise(final String path);
 
+    public abstract void clear();
+
     /**
      * Add a new relationship between a graphId, Schema and StoreProperties.
      *
@@ -157,7 +159,7 @@ public abstract class GraphLibrary {
         if (null != schema) {
             final byte[] schemaJson = schema.toJson(false);
             validateId(schema.getId());
-            checkSchemaExists(schema.getId());
+            checkSchemaExists(schema);
             _addSchema(schema.getId(), schemaJson);
         }
     }
@@ -171,7 +173,7 @@ public abstract class GraphLibrary {
     public void addProperties(final StoreProperties properties) {
         if (null != properties) {
             validateId(properties.getId());
-            checkPropertiesExist(properties.getId());
+            checkPropertiesExist(properties);
             _addProperties(properties.getId(), properties);
         }
 
@@ -217,15 +219,23 @@ public abstract class GraphLibrary {
         }
     }
 
-    private void checkSchemaExists(final String schemaId) {
-        if (null != getSchema(schemaId)) {
-            throw new OverwritingException("Schema already exists with schemaId: " + schemaId);
+    private void checkSchemaExists(final Schema schema) {
+        if (null != getSchema(schema.getId())) {
+            if (!JsonUtil.equals(getSchema(schema.getId()).toJson(false), schema.toJson(false))) {
+                throw new OverwritingException("schemaId " + schema.getId() + " already exists with a different schema:\n"
+                        + "existing schema:\n" + StringUtil.toString(getSchema(schema.getId()).toJson(false))
+                        + "\nnew schema:\n" + StringUtil.toString(schema.toJson(false)));
+            }
         }
     }
 
-    private void checkPropertiesExist(final String propertiesId) {
-        if (null != getProperties(propertiesId)) {
-            throw new OverwritingException("Store Properties already exist with propertiesId: " + propertiesId);
+    private void checkPropertiesExist(final StoreProperties properties) {
+        if (null != getProperties(properties.getId())) {
+            if (!getProperties(properties.getId()).equals(properties)) {
+                throw new OverwritingException("propertiesId " + properties.getId() + " already exists with a different store properties:\n"
+                        + "existing storeProperties:\n" + getProperties(properties.getId()).toString()
+                        + "\nnew storeProperties:\n" + properties.toString());
+            }
         }
     }
 }
