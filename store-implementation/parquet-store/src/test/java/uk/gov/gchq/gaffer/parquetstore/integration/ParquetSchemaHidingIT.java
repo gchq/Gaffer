@@ -18,9 +18,11 @@ package uk.gov.gchq.gaffer.parquetstore.integration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.graph.SchemaHidingIT;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
-import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 
 import java.io.IOException;
 
@@ -30,13 +32,14 @@ public class ParquetSchemaHidingIT extends SchemaHidingIT {
     }
 
     @Override
-    protected void cleanUp() throws Exception {
+    protected void cleanUp() {
+        final Store store = Store.createStore("graphId", createFullSchema(), StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath)));
         String dataDir = "";
         try {
-            dataDir = ((ParquetStore) fullStore).getDataDir();
-            deleteFolder(dataDir, ((ParquetStore) fullStore).getFS());
+            dataDir = ((ParquetStore) store).getDataDir();
+            deleteFolder(dataDir, ((ParquetStore) store).getFS());
         } catch (final IOException e) {
-            throw new StoreException("Exception deleting folder: " + dataDir, e);
+            throw new RuntimeException("Exception deleting folder: " + dataDir, e);
         }
     }
 
