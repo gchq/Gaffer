@@ -444,11 +444,12 @@ public class StoreProperties implements Cloneable {
         }
     }
 
-    private static <T extends StoreProperties> StoreProperties updateInstanceType(final Class<T> requiredClass, StoreProperties properties) {
+    private static <T extends StoreProperties> StoreProperties updateInstanceType(final Class<T> requiredClass, final StoreProperties properties) {
         if (!requiredClass.isAssignableFrom(properties.getClass())) {
             properties.updateStorePropertiesClass(requiredClass);
-            properties = StoreProperties.loadStoreProperties(properties.getProperties());
+            return StoreProperties.loadStoreProperties(properties.getProperties());
         }
+
         return properties;
     }
 }

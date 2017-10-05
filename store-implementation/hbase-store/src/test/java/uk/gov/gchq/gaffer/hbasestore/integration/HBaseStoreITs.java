@@ -16,14 +16,14 @@
 package uk.gov.gchq.gaffer.hbasestore.integration;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
 import uk.gov.gchq.gaffer.hbasestore.SingleUseMiniHBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 
 public class HBaseStoreITs extends AbstractStoreITs {
-    private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreITs.class));
+    private static final HBaseProperties STORE_PROPERTIES = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreITs.class));
 
     public HBaseStoreITs() {
         super(STORE_PROPERTIES);
