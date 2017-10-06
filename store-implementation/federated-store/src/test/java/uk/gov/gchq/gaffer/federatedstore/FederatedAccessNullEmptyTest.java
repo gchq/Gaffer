@@ -17,10 +17,10 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Sets;
+import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.user.User;
-import uk.gov.gchq.gaffer.user.User.Builder;
 
 import java.util.Collection;
 
@@ -28,11 +28,15 @@ import static org.junit.Assert.assertFalse;
 
 public class FederatedAccessNullEmptyTest {
 
+    User user;
+
+    @Before
+    public void setUp() throws Exception {
+        user = FederatedStoreUser.blankUser();
+    }
+
     @Test
     public void shouldInValidateWithExplicitlyNullCollectionAuth() throws Exception {
-
-        final User user = new Builder()
-                .build();
 
         final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths((Collection) null)
@@ -44,9 +48,6 @@ public class FederatedAccessNullEmptyTest {
     @Test
     public void shouldInValidateWithExplicitlyNullStringsAuth() throws Exception {
 
-        final User user = new Builder()
-                .build();
-
         final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths((String[]) null)
                 .build();
@@ -56,10 +57,6 @@ public class FederatedAccessNullEmptyTest {
 
     @Test
     public void shouldInValidateWithEmptyStringAuth() throws Exception {
-
-        final User user = new Builder()
-                .build();
-
         final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths("")
                 .build();
@@ -69,9 +66,6 @@ public class FederatedAccessNullEmptyTest {
 
     @Test
     public void shouldInValidateWithEmptyStringsAuth() throws Exception {
-
-        final User user = new Builder()
-                .build();
 
         final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths(new String[0])
@@ -83,9 +77,6 @@ public class FederatedAccessNullEmptyTest {
     @Test
     public void shouldInValidateWithEmptyCollectionAuth() throws Exception {
 
-        final User user = new Builder()
-                .build();
-
         final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths(Sets.newHashSet())
                 .build();
@@ -96,9 +87,6 @@ public class FederatedAccessNullEmptyTest {
 
   @Test
     public void shouldInValidateWithUnSetAuth() throws Exception {
-
-        final User user = new Builder()
-                .build();
 
         final FederatedAccess access = new FederatedAccess.Builder()
                 .build();

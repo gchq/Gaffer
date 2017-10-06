@@ -63,6 +63,7 @@ public class AddGraph implements Operation {
     private List<String> parentSchemaIds;
     private Set<String> graphAuths;
     private Map<String, String> options;
+    private boolean isPublic = false;
 
     public String getGraphId() {
         return graphId;
@@ -88,7 +89,8 @@ public class AddGraph implements Operation {
                 .storeProperties(storeProperties)
                 .parentSchemaIds(parentSchemaIds)
                 .parentPropertiesId(parentPropertiesId)
-                .options(this.options);
+                .options(this.options)
+                .isPublic(this.isPublic);
 
         if (null != graphAuths) {
             builder.graphAuths(graphAuths.toArray(new String[graphAuths.size()]));
@@ -153,6 +155,14 @@ public class AddGraph implements Operation {
         }
     }
 
+    public void setIsPublic(final boolean isPublic) {
+        this.isPublic = isPublic;
+    }
+
+    public boolean getIsPublic() {
+        return isPublic;
+    }
+
     public static class Builder extends BaseBuilder<AddGraph, Builder> {
         public Builder() {
             super(new AddGraph());
@@ -180,6 +190,11 @@ public class AddGraph implements Operation {
 
         public Builder parentSchemaIds(final List<String> parentSchemaIds) {
             _getOp().setParentSchemaIds(parentSchemaIds);
+            return _self();
+        }
+
+        public Builder isPublic(final boolean isPublic) {
+            _getOp().setIsPublic(isPublic);
             return _self();
         }
 
