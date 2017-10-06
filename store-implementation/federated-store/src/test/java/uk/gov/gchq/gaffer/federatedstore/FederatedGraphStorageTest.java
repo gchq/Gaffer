@@ -39,6 +39,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.AUTH_1;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.TEST_USER;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.authUser;
@@ -48,6 +50,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
 public class FederatedGraphStorageTest {
 
     public static final String GRAPH_ID = "a";
+    public static final String X = "x";
     private FederatedGraphStorage graphStorage;
     private Graph a;
     private Graph b;
@@ -175,33 +178,45 @@ public class FederatedGraphStorageTest {
     @Test
     public void shouldNotGetGraphForBlankUserWithCorrectId() throws Exception {
         graphStorage.put(a, access);
-        final Collection<Graph> allGraphs = graphStorage.get(blankUser, Lists.newArrayList(GRAPH_ID));
-        assertEquals(0, allGraphs.size());
-        assertFalse(allGraphs.iterator().hasNext());
+        try {
+            graphStorage.get(blankUser, Lists.newArrayList(GRAPH_ID));
+            fail("exception not thrown");
+        } catch (final IllegalArgumentException e) {
+            assertEquals(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(GRAPH_ID)), e.getMessage());
+        }
     }
 
     @Test
     public void shouldNotGetGraphForAddingUserWithIncorrectId() throws Exception {
         graphStorage.put(a, access);
-        final Collection<Graph> allGraphs = graphStorage.get(testUser, Lists.newArrayList("x"));
-        assertEquals(0, allGraphs.size());
-        assertFalse(allGraphs.iterator().hasNext());
+        try {
+            graphStorage.get(testUser, Lists.newArrayList(X));
+            fail("exception not thrown");
+        } catch (final IllegalArgumentException e) {
+            assertEquals(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(X)), e.getMessage());
+        }
     }
 
     @Test
     public void shouldNotGetGraphForAuthUserWithIncorrectId() throws Exception {
         graphStorage.put(a, access);
-        final Collection<Graph> allGraphs = graphStorage.get(authUser, Lists.newArrayList("x"));
-        assertEquals(0, allGraphs.size());
-        assertFalse(allGraphs.iterator().hasNext());
+        try {
+            graphStorage.get(authUser, Lists.newArrayList(X));
+            fail("exception not thrown");
+        } catch (final IllegalArgumentException e) {
+            assertEquals(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(X)), e.getMessage());
+        }
     }
 
     @Test
     public void shouldNotGetGraphForBlankUserWithIncorrectId() throws Exception {
         graphStorage.put(a, access);
-        final Collection<Graph> allGraphs = graphStorage.get(blankUser, Lists.newArrayList("x"));
-        assertEquals(0, allGraphs.size());
-        assertFalse(allGraphs.iterator().hasNext());
+        try {
+            graphStorage.get(blankUser, Lists.newArrayList(X));
+            fail("exception not thrown");
+        } catch (final IllegalArgumentException e) {
+            assertEquals(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(X)), e.getMessage());
+        }
     }
 
     @Test
@@ -225,7 +240,7 @@ public class FederatedGraphStorageTest {
     @Test
     public void shouldGetSchemaForAddingUser() throws Exception {
         graphStorage.put(a, access);
-        graphStorage.put(b, new FederatedAccess(Sets.newHashSet("x"), "x"));
+        graphStorage.put(b, new FederatedAccess(Sets.newHashSet(X), X));
         final Schema schema = graphStorage.getMergedSchema(testUser);
         assertNotEquals("Revealing hidden schema", 2, schema.getTypes().size());
         assertEquals(1, schema.getTypes().size());
@@ -236,7 +251,7 @@ public class FederatedGraphStorageTest {
     @Test
     public void shouldGetSchemaForAuthUser() throws Exception {
         graphStorage.put(a, access);
-        graphStorage.put(b, new FederatedAccess(Sets.newHashSet("x"), "x"));
+        graphStorage.put(b, new FederatedAccess(Sets.newHashSet(X), X));
         final Schema schema = graphStorage.getMergedSchema(authUser);
         assertNotEquals("Revealing hidden schema", 2, schema.getTypes().size());
         assertEquals(1, schema.getTypes().size());
@@ -247,7 +262,7 @@ public class FederatedGraphStorageTest {
     @Test
     public void shouldNotGetSchemaForBlankUser() throws Exception {
         graphStorage.put(a, access);
-        graphStorage.put(b, new FederatedAccess(Sets.newHashSet("x"), "x"));
+        graphStorage.put(b, new FederatedAccess(Sets.newHashSet(X), X));
         final Schema schema = graphStorage.getMergedSchema(blankUser);
         assertNotEquals("Revealing hidden schema", 2, schema.getTypes().size());
         assertEquals("Revealing hidden schema", 0, schema.getTypes().size());
@@ -255,7 +270,7 @@ public class FederatedGraphStorageTest {
 
     @Test
     public void shouldGetTraitsForAddingUser() throws Exception {
-        graphStorage.put(a, new FederatedAccess(Sets.newHashSet("x"), "x"));
+        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
         graphStorage.put(b, access);
         final Set<StoreTrait> traits = graphStorage.getTraits(testUser);
         assertNotEquals("Revealing hidden traits", 5, traits.size());
@@ -264,7 +279,7 @@ public class FederatedGraphStorageTest {
 
     @Test
     public void shouldGetTraitsForAuthUser() throws Exception {
-        graphStorage.put(a, new FederatedAccess(Sets.newHashSet("x"), "x"));
+        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
         graphStorage.put(b, access);
         final Set<StoreTrait> traits = graphStorage.getTraits(authUser);
         assertNotEquals("Revealing hidden traits", 5, traits.size());
@@ -273,7 +288,7 @@ public class FederatedGraphStorageTest {
 
     @Test
     public void shouldNotGetTraitsForBlankUser() throws Exception {
-        graphStorage.put(a, new FederatedAccess(Sets.newHashSet("x"), "x"));
+        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
         graphStorage.put(b, access);
         final Set<StoreTrait> traits = graphStorage.getTraits(blankUser);
         assertEquals("Revealing hidden traits", 0, traits.size());
