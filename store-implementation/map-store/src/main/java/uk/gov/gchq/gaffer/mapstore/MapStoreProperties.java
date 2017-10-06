@@ -59,8 +59,16 @@ public class MapStoreProperties extends StoreProperties {
         }
     }
 
+    public static MapStoreProperties loadStoreProperties(final String pathStr) {
+        return StoreProperties.loadStoreProperties(pathStr, MapStoreProperties.class);
+    }
+
     public static MapStoreProperties loadStoreProperties(final InputStream storePropertiesStream) {
-        return (MapStoreProperties) StoreProperties.loadStoreProperties(storePropertiesStream);
+        return StoreProperties.loadStoreProperties(storePropertiesStream, MapStoreProperties.class);
+    }
+
+    public static MapStoreProperties loadStoreProperties(final Path storePropertiesPath) {
+        return StoreProperties.loadStoreProperties(storePropertiesPath, MapStoreProperties.class);
     }
 
     @Override

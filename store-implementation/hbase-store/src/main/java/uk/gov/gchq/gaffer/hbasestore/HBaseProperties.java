@@ -58,8 +58,16 @@ public class HBaseProperties extends StoreProperties {
         }
     }
 
+    public static HBaseProperties loadStoreProperties(final String pathStr) {
+        return StoreProperties.loadStoreProperties(pathStr, HBaseProperties.class);
+    }
+
     public static HBaseProperties loadStoreProperties(final InputStream storePropertiesStream) {
-        return (HBaseProperties) StoreProperties.loadStoreProperties(storePropertiesStream);
+        return StoreProperties.loadStoreProperties(storePropertiesStream, HBaseProperties.class);
+    }
+
+    public static HBaseProperties loadStoreProperties(final Path storePropertiesPath) {
+        return StoreProperties.loadStoreProperties(storePropertiesPath, HBaseProperties.class);
     }
 
     @Override

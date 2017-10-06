@@ -37,8 +37,8 @@ public class FederatedRemoveGraphHandler implements OperationHandler<RemoveGraph
     @Override
     public Void doOperation(final RemoveGraph operation, final Context context, final Store store) throws OperationException {
         try {
-            ((FederatedStore) store).remove(operation.getGraphId());
-        } catch (StoreException e) {
+            ((FederatedStore) store).remove(operation.getGraphId(), context.getUser());
+        } catch (final StoreException e) {
             throw new OperationException(e.getMessage());
         }
         return null;

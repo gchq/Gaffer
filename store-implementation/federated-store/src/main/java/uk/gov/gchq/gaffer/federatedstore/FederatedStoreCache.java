@@ -63,7 +63,7 @@ public class FederatedStoreCache {
      * @param overwrite if true, overwrite any graphs already in the cache with the same ID
      * @throws CacheOperationException if there was an error trying to add to the cache
      */
-    public void addGraphToCache(Graph graph, boolean overwrite) throws CacheOperationException {
+    public void addGraphToCache(final Graph graph, final boolean overwrite) throws CacheOperationException {
         GraphSerialisable graphSerialisable = new GraphSerialisable.Builder().graph(graph).build();
 
         if (overwrite) {
@@ -80,7 +80,7 @@ public class FederatedStoreCache {
      * @return the {@link uk.gov.gchq.gaffer.graph.Graph} related to the specified ID
      * @throws CacheOperationException if there was an error trying to access the cache
      */
-    public Graph getFromCache(String graphId) throws CacheOperationException {
+    public Graph getFromCache(final String graphId) throws CacheOperationException {
         if (null == graphId) {
             throw new CacheOperationException("Graph ID cannot be null");
         }
@@ -99,7 +99,7 @@ public class FederatedStoreCache {
      * @param graphId the ID of the {@link uk.gov.gchq.gaffer.graph.Graph} to be deleted
      * @throws CacheOperationException if there was an error trying to delete from the cache
      */
-    public void deleteFromCache(String graphId) throws CacheOperationException {
+    public void deleteFromCache(final String graphId) throws CacheOperationException {
         if (null == graphId) {
             throw new CacheOperationException("Graph ID cannot be null");
         }

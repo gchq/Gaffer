@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -59,6 +60,18 @@ public class ProxyProperties extends StoreProperties {
         if (null == getStoreClass()) {
             setStoreClass(ProxyStore.class);
         }
+    }
+
+    public static ProxyProperties loadStoreProperties(final String pathStr) {
+        return StoreProperties.loadStoreProperties(pathStr, ProxyProperties.class);
+    }
+
+    public static ProxyProperties loadStoreProperties(final InputStream storePropertiesStream) {
+        return StoreProperties.loadStoreProperties(storePropertiesStream, ProxyProperties.class);
+    }
+
+    public static ProxyProperties loadStoreProperties(final Path storePropertiesPath) {
+        return StoreProperties.loadStoreProperties(storePropertiesPath, ProxyProperties.class);
     }
 
     public int getConnectTimeout() {

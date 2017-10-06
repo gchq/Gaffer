@@ -75,10 +75,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.getCustomPropsValue;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.getGraphAuthsValue;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.getGraphIdsValue;
-
 /**
  * A Store that encapsulates a collection of sub-graphs and executes operations
  * against them and returns results as though it was a single graph.
@@ -93,12 +89,13 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.getGrap
  * @see Graph
  */
 public class FederatedStore extends Store {
+    public static final String USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S = "User is attempting to overwrite a graph within FederatedStore. GraphId: %s";
     protected static final String S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2 = "%s was not able to be created with the supplied properties.%n%s";
     private static final String SCHEMA_DEL_REGEX = Pattern.quote(",");
-    private static final GraphConfigEnum SCHEMA = GraphConfigEnum.schema;
-    private static final GraphConfigEnum PROPERTIES = GraphConfigEnum.properties;
-    private static final LocationEnum ID = LocationEnum.id;
-    private static final LocationEnum FILE = LocationEnum.file;
+    private static final GraphConfigEnum SCHEMA = GraphConfigEnum.SCHEMA;
+    private static final GraphConfigEnum PROPERTIES = GraphConfigEnum.PROPERTIES;
+    private static final LocationEnum ID = LocationEnum.ID;
+    private static final LocationEnum FILE = LocationEnum.FILE;
     FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
     private FederatedGraphStorage graphStorage = new FederatedGraphStorage();
     private Set<String> customPropertiesAuths;
@@ -122,6 +119,11 @@ public class FederatedStore extends Store {
         super.initialise(graphId, new Schema(), properties);
         loadCustomPropertiesAuths();
         loadGraphs();
+    }
+
+    @Override
+    public FederatedStoreProperties getProperties() {
+        return (FederatedStoreProperties) super.getProperties();
     }
 
     /**
@@ -188,15 +190,16 @@ public class FederatedStore extends Store {
      * graphs via the {@link RemoveGraph} operation.
      *
      * @param graphId to be removed from scope
+     * @param user    to match visibility against
      * @throws StoreException if there was an error removing the {@link uk.gov.gchq.gaffer.graph.Graph} from the store
      */
-    public void remove(final String graphId) throws StoreException {
+    public void remove(final String graphId, final User user) throws StoreException {
         try {
             federatedStoreCache.deleteFromCache(graphId);
-        } catch (CacheOperationException e) {
+        } catch (final CacheOperationException e) {
             throw new StoreException(e);
         }
-        graphStorage.remove(graphId);
+        graphStorage.remove(graphId, user);
     }
 
     /**
@@ -242,6 +245,11 @@ public class FederatedStore extends Store {
      */
     public boolean isLimitedToLibraryProperties(final User user) {
         return null != this.customPropertiesAuths && Collections.disjoint(user.getOpAuths(), this.customPropertiesAuths);
+    }
+
+    @Override
+    protected Class<FederatedStoreProperties> getPropertiesClass() {
+        return FederatedStoreProperties.class;
     }
 
     @Override
@@ -328,7 +336,7 @@ public class FederatedStore extends Store {
     }
 
     private void loadCustomPropertiesAuths() {
-        final String value = getCustomPropsValue(getProperties());
+        final String value = getProperties().getCustomPropsValue();
         if (!Strings.isNullOrEmpty(value)) {
             customPropertiesAuths = Sets.newHashSet(getCleanStrings(value));
         }
@@ -341,7 +349,7 @@ public class FederatedStore extends Store {
                 try {
                     Graph graph = federatedStoreCache.getFromCache(graphId);
                     addGraphs(resolveAuths(graphId), null, graph);
-                } catch (CacheOperationException e) {
+                } catch (final CacheOperationException e) {
                     throw new RuntimeException(e);
                 }
             } else {
@@ -364,7 +372,7 @@ public class FederatedStore extends Store {
     }
 
     private Set<String> resolveAuths(final String graphId) {
-        final String value = getGraphAuthsValue(getProperties(), graphId);
+        final String value = getProperties().getGraphAuthsValue(graphId);
         return Strings.isNullOrEmpty(value) ? null : Sets.newHashSet(getCleanStrings(value));
     }
 
@@ -449,12 +457,12 @@ public class FederatedStore extends Store {
     }
 
     private String getValueOf(final String graphId, final GraphConfigEnum graphConfigEnum, final LocationEnum locationEnum) {
-        return FederatedStoreProperties.getValueOf(getProperties(), graphId, graphConfigEnum, locationEnum);
+        return getProperties().getValueOf(graphId, graphConfigEnum, locationEnum);
     }
 
     private Set<String> getGraphIds() {
         final HashSet<String> graphIds = Sets.newHashSet();
-        final String graphIdValue = getGraphIdsValue(getProperties());
+        final String graphIdValue = getProperties().getGraphIdsValue();
         if (!Strings.isNullOrEmpty(graphIdValue)) {
             graphIds.addAll(getCleanStrings(graphIdValue));
         }

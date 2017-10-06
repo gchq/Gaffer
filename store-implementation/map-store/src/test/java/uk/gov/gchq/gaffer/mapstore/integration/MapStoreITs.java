@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.mapstore;
+package uk.gov.gchq.gaffer.mapstore.integration;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
-import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 
 public class MapStoreITs extends AbstractStoreITs {
-    private static final StoreProperties STORE_PROPERTIES =
-            StoreProperties.loadStoreProperties(StreamUtil.storeProps(MapStoreITs.class));
+    private static final MapStoreProperties STORE_PROPERTIES =
+            MapStoreProperties.loadStoreProperties(StreamUtil.storeProps(MapStoreITs.class));
 
     public MapStoreITs() {
         super(STORE_PROPERTIES);

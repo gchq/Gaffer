@@ -76,8 +76,16 @@ public class AccumuloProperties extends StoreProperties {
         }
     }
 
+    public static AccumuloProperties loadStoreProperties(final String pathStr) {
+        return StoreProperties.loadStoreProperties(pathStr, AccumuloProperties.class);
+    }
+
     public static AccumuloProperties loadStoreProperties(final InputStream storePropertiesStream) {
-        return (AccumuloProperties) StoreProperties.loadStoreProperties(storePropertiesStream);
+        return StoreProperties.loadStoreProperties(storePropertiesStream, AccumuloProperties.class);
+    }
+
+    public static AccumuloProperties loadStoreProperties(final Path storePropertiesPath) {
+        return StoreProperties.loadStoreProperties(storePropertiesPath, AccumuloProperties.class);
     }
 
     @Override

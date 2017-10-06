@@ -39,6 +39,7 @@ import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetFilterUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,13 +67,15 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
     private GraphIndex graphIndex;
     private final ParquetStoreProperties properties;
     private final Schema gafferSchema;
+    private final User user;
 
     public ParquetElementRetriever(final View view,
                                    final ParquetStore store,
                                    final DirectedType directedType,
                                    final SeededGraphFilters.IncludeIncomingOutgoingType includeIncomingOutgoingType,
                                    final SeedMatching.SeedMatchingType seedMatchingType,
-                                   final Iterable<? extends ElementId> seeds) throws OperationException, StoreException {
+                                   final Iterable<? extends ElementId> seeds,
+                                   final User user) throws OperationException, StoreException {
         this.view = view;
         this.gafferSchema = store.getSchema();
         this.directedType = directedType;
@@ -86,6 +89,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
         }
         this.parquetFilterUtils = new ParquetFilterUtils(store);
         this.properties = store.getProperties();
+        this.user = user;
     }
 
     @Override
@@ -95,7 +99,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
     @Override
     public CloseableIterator<Element> iterator() {
         return new ParquetIterator(view, directedType, includeIncomingOutgoingType,
-                seedMatchingType, seeds, parquetFilterUtils, graphIndex, properties, gafferSchema);
+                seedMatchingType, seeds, parquetFilterUtils, graphIndex, properties, gafferSchema, user);
     }
 
     protected static class ParquetIterator implements CloseableIterator<Element> {
@@ -113,7 +117,8 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                                   final ParquetFilterUtils parquetFilterUtils,
                                   final GraphIndex graphIndex,
                                   final ParquetStoreProperties properties,
-                                  final Schema gafferSchema) {
+                                  final Schema gafferSchema,
+                                  final User user) {
             try {
                 parquetFilterUtils.buildPathToFilterMap(view, directedType, includeIncomingOutgoingType, seedMatchingType, seeds, graphIndex);
                 final Map<Path, FilterPredicate> pathToFilterMap = parquetFilterUtils.getPathToFilterMap();
@@ -125,7 +130,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                     executorServicePool = Executors.newFixedThreadPool(properties.getThreadsAvailable());
                     final List<RetrieveElementsFromFile> tasks = new ArrayList<>(pathToFilterMap.size());
                     for (final Map.Entry<Path, FilterPredicate> entry : pathToFilterMap.entrySet()) {
-                        tasks.add(new RetrieveElementsFromFile(entry.getKey(), entry.getValue(), gafferSchema, queue, needsValidation, view));
+                        tasks.add(new RetrieveElementsFromFile(entry.getKey(), entry.getValue(), gafferSchema, queue, needsValidation, view, user));
                     }
                     runningTasks = executorServicePool.invokeAll(tasks);
                 } else {

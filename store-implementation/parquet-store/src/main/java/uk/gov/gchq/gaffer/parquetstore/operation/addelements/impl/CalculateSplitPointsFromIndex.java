@@ -17,9 +17,12 @@ package uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl;
 
 import org.apache.spark.api.java.JavaRDD;
 
+import scala.Tuple2;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.comparison.ComparableOrToStringComparator;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.index.ColumnIndex;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
@@ -30,11 +33,17 @@ import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+
+import static uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreUtils.invokeSplitPointCalculations;
 
 /**
  * Generates the split points from the {@link GraphIndex} and uses the min values per file as the split points
@@ -48,47 +57,41 @@ public final class CalculateSplitPointsFromIndex {
 
     public static Map<String, Map<Object, Integer>> apply(final GraphIndex index, final SchemaUtils schemaUtils,
                                                           final ParquetStoreProperties properties,
-                                                          final Iterable<? extends Element> data) throws SerialisationException {
+                                                          final Iterable<? extends Element> data,
+                                                          final ExecutorService pool) throws SerialisationException, OperationException {
         final Map<String, Map<Object, Integer>> groupToSplitPoints = calculateSplitPointsFromIndex(index, schemaUtils);
+        final List<Callable<Tuple2<String, Map<Object, Integer>>>> tasks = new ArrayList<>();
         for (final String group : schemaUtils.getEntityGroups()) {
             if (!groupToSplitPoints.containsKey(group)) {
-                final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromIterable(properties.getSampleRate(), properties.getAddElementsOutputFilesPerGroup() - 1).calculateSplitsForGroup(data, group, true);
-                if (!splitPoints.isEmpty()) {
-                    groupToSplitPoints.put(group, splitPoints);
-                }
+                tasks.add(new CalculateSplitPointsFromIterable(properties.getSampleRate(), properties.getAddElementsOutputFilesPerGroup() - 1, data, group, true));
             }
         }
         for (final String group : schemaUtils.getEdgeGroups()) {
             if (!groupToSplitPoints.containsKey(group)) {
-                final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromIterable(properties.getSampleRate(), properties.getAddElementsOutputFilesPerGroup() - 1).calculateSplitsForGroup(data, group, false);
-                if (!splitPoints.isEmpty()) {
-                    groupToSplitPoints.put(group, splitPoints);
-                }
+                tasks.add(new CalculateSplitPointsFromIterable(properties.getSampleRate(), properties.getAddElementsOutputFilesPerGroup() - 1, data, group, false));
             }
         }
+        invokeSplitPointCalculations(pool, tasks, groupToSplitPoints);
         return groupToSplitPoints;
     }
 
     public static Map<String, Map<Object, Integer>> apply(final GraphIndex index, final SchemaUtils schemaUtils,
                                                           final ParquetStoreProperties properties,
-                                                          final JavaRDD<Element> data) throws SerialisationException {
+                                                          final JavaRDD<Element> data,
+                                                          final ExecutorService pool) throws SerialisationException, OperationException {
         final Map<String, Map<Object, Integer>> groupToSplitPoints = calculateSplitPointsFromIndex(index, schemaUtils);
+        final List<Callable<Tuple2<String, Map<Object, Integer>>>> tasks = new ArrayList<>();
         for (final String group : schemaUtils.getEntityGroups()) {
             if (!groupToSplitPoints.containsKey(group)) {
-                final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromJavaRDD(properties.getSampleRate(), properties.getAddElementsOutputFilesPerGroup() - 1).calculateSplitsForGroup(data, group, true);
-                if (!splitPoints.isEmpty()) {
-                    groupToSplitPoints.put(group, splitPoints);
-                }
+                tasks.add(new CalculateSplitPointsFromJavaRDD(properties.getSampleRate(), properties.getAddElementsOutputFilesPerGroup() - 1, data, group, true));
             }
         }
         for (final String group : schemaUtils.getEdgeGroups()) {
             if (!groupToSplitPoints.containsKey(group)) {
-                final Map<Object, Integer> splitPoints = new CalculateSplitPointsFromJavaRDD(properties.getSampleRate(), properties.getAddElementsOutputFilesPerGroup() - 1).calculateSplitsForGroup(data, group, false);
-                if (!splitPoints.isEmpty()) {
-                    groupToSplitPoints.put(group, splitPoints);
-                }
+                tasks.add(new CalculateSplitPointsFromJavaRDD(properties.getSampleRate(), properties.getAddElementsOutputFilesPerGroup() - 1, data, group, true));
             }
         }
+        invokeSplitPointCalculations(pool, tasks, groupToSplitPoints);
         return groupToSplitPoints;
     }
 

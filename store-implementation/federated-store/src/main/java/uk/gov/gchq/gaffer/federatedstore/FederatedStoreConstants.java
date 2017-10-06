@@ -17,18 +17,10 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 public final class FederatedStoreConstants {
+    public static final String PREFIX_GAFFER_FEDERATED_STORE = "gaffer.federatedstore";
     // Operation options
-    public static final String GAFFER_FEDERATED_STORE = "gaffer.federatedstore";
-    public static final String GRAPH_IDS = "graphIds";
-    public static final String KEY_OPERATION_OPTIONS_GRAPH_IDS = GAFFER_FEDERATED_STORE + "operation.graphIds";
-    public static final String KEY_GRAPH_IDS = GAFFER_FEDERATED_STORE + "." + GRAPH_IDS;
-    public static final String KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE = "gaffer.federatedstore.operation.skipFailedFederatedStoreExecute";
-    public static final String FILE = "file";
-    public static final String SCHEMA = "schema";
-    public static final String PROPERTIES = "properties";
-    public static final String ID = "id";
-    public static final String CUSTOM_PROPERTIES_AUTHS = "customPropertiesAuths";
-    public static final String AUTHS = "auths";
+    public static final String KEY_OPERATION_OPTIONS_GRAPH_IDS = PREFIX_GAFFER_FEDERATED_STORE + ".operation.graphIds";
+    public static final String KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE = PREFIX_GAFFER_FEDERATED_STORE + ".operation.skipFailedFederatedStoreExecute";
 
     private FederatedStoreConstants() {
         // private constructor to prevent users instantiating this class as it

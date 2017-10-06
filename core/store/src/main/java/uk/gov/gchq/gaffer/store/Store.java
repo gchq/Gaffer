@@ -206,12 +206,13 @@ public abstract class Store {
         }
         this.graphId = graphId;
         this.schema = schema;
-        this.properties = properties;
 
-        JSONSerialiser.update(properties.getJsonSerialiserClass(), properties.getJsonSerialiserModules());
+        setProperties(properties);
+
+        JSONSerialiser.update(getProperties().getJsonSerialiserClass(), getProperties().getJsonSerialiserModules());
 
         startCacheServiceLoader(properties);
-        this.jobTracker = createJobTracker(properties);
+        this.jobTracker = createJobTracker();
 
         optimiseSchema();
         validateSchemas();
@@ -454,6 +455,18 @@ public abstract class Store {
         return properties;
     }
 
+    protected void setProperties(final StoreProperties properties) {
+        final Class<? extends StoreProperties> requiredPropsClass = getPropertiesClass();
+        properties.updateStorePropertiesClass(requiredPropsClass);
+
+        // If the properties instance is not already an instance of the required class then reload the properties
+        if (requiredPropsClass.isAssignableFrom(properties.getClass())) {
+            this.properties = properties;
+        } else {
+            this.properties = StoreProperties.loadStoreProperties(properties.getProperties());
+        }
+    }
+
     public GraphLibrary getGraphLibrary() {
         return library;
     }
@@ -502,6 +515,10 @@ public abstract class Store {
             throw new SchemaException("Schema is not valid. "
                     + validationResult.getErrorString());
         }
+    }
+
+    protected Class<? extends StoreProperties> getPropertiesClass() {
+        return StoreProperties.class;
     }
 
     /**
@@ -563,7 +580,7 @@ public abstract class Store {
         }
     }
 
-    protected JobTracker createJobTracker(final StoreProperties properties) {
+    protected JobTracker createJobTracker() {
         if (properties.getJobTrackerEnabled()) {
             return new JobTracker();
         }

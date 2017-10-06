@@ -38,6 +38,7 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.AUTH_1;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.TEST_USER;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.authUser;
@@ -278,4 +279,24 @@ public class FederatedGraphStorageTest {
         assertEquals("Revealing hidden traits", 0, traits.size());
     }
 
+    @Test
+    public void shouldRemoveForAddingUser() throws Exception {
+        graphStorage.put(a, access);
+        final boolean remove = graphStorage.remove(GRAPH_ID, testUser);
+        assertTrue(remove);
+    }
+
+    @Test
+    public void shouldRemoveForAuthUser() throws Exception {
+        graphStorage.put(a, access);
+        final boolean remove = graphStorage.remove(GRAPH_ID, authUser);
+        assertTrue(remove);
+    }
+
+    @Test
+    public void shouldNotRemoveForBlankUser() throws Exception {
+        graphStorage.put(a, access);
+        final boolean remove = graphStorage.remove(GRAPH_ID, blankUser);
+        assertFalse(remove);
+    }
 }
