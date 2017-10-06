@@ -111,7 +111,7 @@ public class FederatedStore extends Store {
         super.initialise(graphId, new Schema(), properties);
         loadCustomPropertiesAuths();
 
-        graphsCanHavePublicAccess = Boolean.valueOf(getProperties().getGraphsCanHavePublicAccessValue());
+        graphsCanHavePublicAccess = Boolean.valueOf(getProperties().getIsPublicAccessAllowed());
 
         loadGraphs();
     }
