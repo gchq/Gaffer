@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.inputformat.ElementInputFormat;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.spark.SparkContextInitialiser;
+import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.store.Context;
@@ -49,7 +49,7 @@ public class GetJavaRDDOfElementsHandler extends AbstractGetRDDHandler<GetJavaRD
                                          final AccumuloStore accumuloStore) throws OperationException {
 
 
-        final JavaSparkContext sparkContext = JavaSparkContext.fromSparkContext(SparkContextInitialiser.getSparkSession(context).sparkContext());
+        final JavaSparkContext sparkContext = JavaSparkContext.fromSparkContext(SparkContextUtil.getSparkSession(context, accumuloStore.getProperties()).sparkContext());
         final Configuration conf = getConfiguration(operation);
         // Use batch scan option when performing seeded operation
         InputConfigurator.setBatchScan(AccumuloInputFormat.class, conf, true);

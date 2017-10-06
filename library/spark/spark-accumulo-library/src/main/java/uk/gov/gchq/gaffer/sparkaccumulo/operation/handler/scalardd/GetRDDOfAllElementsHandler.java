@@ -42,7 +42,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewUtil;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.spark.SparkContextInitialiser;
+import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.rfilereaderrdd.RFileReaderRDD;
@@ -61,13 +61,13 @@ import static uk.gov.gchq.gaffer.spark.operation.dataframe.ClassTagConstants.ELE
 
 /**
  * A handler for the {@link GetRDDOfAllElements} operation.
- *
+ * <p>
  * <p>If the {@code gaffer.accumulo.spark.directrdd.use_rfile_reader} option is set to {@code true} then the
  * RDD will be produced by directly reading the RFiles in the Accumulo table, rather than using
  * {@link ElementInputFormat} to get data via the tablet servers. In order to read the RFiles directly, the user must
  * have read access to the files. Also note that any data that has not been minor compacted will not be read. Reading
  * the Rfiles directly can increase the performance.
- *
+ * <p>
  * <p>If the {@code gaffer.accumulo.spark.directrdd.use_rfile_reader} option is not set then the standard approach
  * of obtaining data via the tablet servers is used.
  */
@@ -86,7 +86,7 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
                                      final Context context,
                                      final AccumuloStore accumuloStore)
             throws OperationException {
-        SparkSession sparkSession = SparkContextInitialiser.getSparkSession(context);
+        SparkSession sparkSession = SparkContextUtil.getSparkSession(context, accumuloStore.getProperties());
         if (sparkSession == null) {
             throw new OperationException("This operation requires an active SparkSession.");
         }
@@ -105,7 +105,7 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
             throws OperationException {
         final Configuration conf = getConfiguration(operation);
         addIterators(accumuloStore, conf, context.getUser(), operation);
-        final RDD<Tuple2<Element, NullWritable>> pairRDD = SparkContextInitialiser.getSparkSession(context).sparkContext().newAPIHadoopRDD(conf,
+        final RDD<Tuple2<Element, NullWritable>> pairRDD = SparkContextUtil.getSparkSession(context, accumuloStore.getProperties()).sparkContext().newAPIHadoopRDD(conf,
                 ElementInputFormat.class,
                 Element.class,
                 NullWritable.class);
@@ -134,7 +134,7 @@ public class GetRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetRDDOfAl
             conf.set(AbstractGetRDDHandler.VIEW, new String(operation.getView().toCompactJson(), CommonConstants.UTF_8));
             final byte[] serialisedConf = Utils.serialiseConfiguration(conf);
             final RDD<Map.Entry<Key, Value>> rdd = new RFileReaderRDD(
-                    SparkContextInitialiser.getSparkSession(context).sparkContext(),
+                    SparkContextUtil.getSparkSession(context, accumuloStore.getProperties()).sparkContext(),
                     accumuloStore.getProperties().getInstance(),
                     accumuloStore.getProperties().getZookeepers(),
                     accumuloStore.getProperties().getUser(),

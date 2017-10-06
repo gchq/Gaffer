@@ -381,32 +381,6 @@ public class GetRDDOfElementsHandlerTest {
     }
 
     @Test
-    public void testNoSparkSession() throws OperationException {
-        final Graph graph1 = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graphId")
-                        .build())
-                .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/types.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(getClass().getResourceAsStream("/storeNoSparkContext.properties"))
-                .build();
-        final User user = new User();
-        final GetRDDOfElements rddQuery = new GetRDDOfElements.Builder()
-                .input(new EdgeSeed("1", "B", false))
-                .view(new View.Builder()
-                        .edge(EDGE_GROUP)
-                        .build())
-                .build();
-        try {
-            graph1.execute(rddQuery, user);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("The Context does not have a SparkSession.", e.getMessage());
-        }
-    }
-
-    @Test
     public void checkHadoopConfIsPassedThrough() throws OperationException, IOException {
         final Graph graph1 = new Graph.Builder()
                 .config(new GraphConfig.Builder()

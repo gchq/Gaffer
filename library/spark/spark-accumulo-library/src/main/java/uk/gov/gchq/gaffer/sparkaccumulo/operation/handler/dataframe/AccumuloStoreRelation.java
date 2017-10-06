@@ -33,7 +33,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Output;
-import uk.gov.gchq.gaffer.spark.SparkContextInitialiser;
+import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.ClassTagConstants;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.ConvertElementToRow;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.FiltersToOperationConverter;
@@ -107,7 +107,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
 
     @Override
     public SQLContext sqlContext() {
-        return SparkContextInitialiser.getSparkSession(context).sqlContext();
+        return SparkContextUtil.getSparkSession(context, store.getProperties()).sqlContext();
     }
 
     @Override

@@ -32,7 +32,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.spark.SparkContextInitialiser;
+import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.ConvertElementToRow;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStructTypeConverter;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.SparkSessionProvider;
@@ -108,7 +108,7 @@ public class AccumuloStoreRelationTest {
 
         // When
         final AccumuloStoreRelation relation = new AccumuloStoreRelation(
-                SparkContextInitialiser.createContext(new User(), sparkSession),
+                SparkContextUtil.createContext(new User(), sparkSession),
                 Collections.emptyList(), view,
                 store, null);
         final RDD<Row> rdd = relation.buildScan();
@@ -156,7 +156,7 @@ public class AccumuloStoreRelationTest {
 
         // When
         final AccumuloStoreRelation relation = new AccumuloStoreRelation(
-                SparkContextInitialiser.createContext(new User(), sparkSession),
+                SparkContextUtil.createContext(new User(), sparkSession),
                 Collections.emptyList(), view,
                 store, null);
         final RDD<Row> rdd = relation.buildScan(requiredColumns);
@@ -210,7 +210,7 @@ public class AccumuloStoreRelationTest {
 
         // When
         final AccumuloStoreRelation relation = new AccumuloStoreRelation(
-                SparkContextInitialiser.createContext(new User(), sparkSession),
+                SparkContextUtil.createContext(new User(), sparkSession),
                 Collections.emptyList(), view,
                 store, null);
         final RDD<Row> rdd = relation.buildScan(requiredColumns, filters);

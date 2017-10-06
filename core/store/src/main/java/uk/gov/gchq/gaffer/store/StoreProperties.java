@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
@@ -40,10 +39,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -69,8 +65,6 @@ public class StoreProperties implements Cloneable {
 
     public static final String JSON_SERIALISER_CLASS = JSONSerialiser.JSON_SERIALISER_CLASS_KEY;
     public static final String JSON_SERIALISER_MODULES = JSONSerialiser.JSON_SERIALISER_MODULES;
-
-    public static final String CONTEXT_INITIALISERS = "gaffer.store.context.initialisers";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StoreProperties.class);
 
@@ -393,37 +387,6 @@ public class StoreProperties implements Cloneable {
 
     public void setJsonSerialiserModules(final String modules) {
         set(JSON_SERIALISER_MODULES, modules);
-    }
-
-    public String getContextInitialiserClasses() {
-        return get(CONTEXT_INITIALISERS);
-    }
-
-    public void setContextInitialiserClasses(final Class<?>... contextInitialiserClasses) {
-        setContextInitialiserClasses(StringUtil.toCsvString(contextInitialiserClasses));
-    }
-
-    public void setContextInitialiserClasses(final String... contextInitialiserClasses) {
-        set(CONTEXT_INITIALISERS, StringUtils.join(contextInitialiserClasses, ","));
-    }
-
-    public List<ContextInitialiser> createContextInitialisers() {
-        final String contextFactoryClassCsv = getContextInitialiserClasses();
-        if (StringUtils.isEmpty(contextFactoryClassCsv)) {
-            return Collections.emptyList();
-        }
-
-        final Set<Class<? extends ContextInitialiser>> classes = StringUtil.csvToClasses(contextFactoryClassCsv, ContextInitialiser.class);
-        final List<ContextInitialiser> initialisers = new ArrayList<>(classes.size());
-        for (final Class<? extends ContextInitialiser> clazz : classes) {
-            try {
-                initialisers.add(clazz.newInstance());
-            } catch (final InstantiationException | IllegalAccessException e) {
-                throw new RuntimeException("Unable to create an instance of " + clazz.getName(), e);
-            }
-        }
-
-        return initialisers;
     }
 
     public Properties getProperties() {

@@ -37,7 +37,7 @@ import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.GenerateIndice
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.WriteUnsortedData;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SparkParquetUtils;
-import uk.gov.gchq.gaffer.spark.SparkContextInitialiser;
+import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -66,7 +66,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
     public Void doOperation(final AddElements operation,
                             final Context context,
                             final Store store) throws OperationException {
-        final SparkSession spark = SparkContextInitialiser.getSparkSession(context);
+        final SparkSession spark = SparkContextUtil.getSparkSession(context, store.getProperties());
         final ParquetStore parquetStore = (ParquetStore) store;
         SparkParquetUtils.configureSparkForAddElements(spark, parquetStore.getProperties());
         addElements(operation, parquetStore, spark);

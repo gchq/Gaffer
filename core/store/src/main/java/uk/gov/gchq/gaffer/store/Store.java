@@ -157,11 +157,6 @@ public abstract class Store {
      */
     private StoreProperties properties;
 
-    /**
-     * Configurable {@link ContextInitialiser}s. For initialising the {@link Context}.
-     */
-    private List<ContextInitialiser> contextInitialisers;
-
     private GraphLibrary library;
 
     private JobTracker jobTracker;
@@ -213,7 +208,6 @@ public abstract class Store {
         this.graphId = graphId;
         this.schema = schema;
         setProperties(properties);
-        this.contextInitialisers = getProperties().createContextInitialisers();
 
         JSONSerialiser.update(getProperties().getJsonSerialiserClass(), getProperties().getJsonSerialiserModules());
 
@@ -495,6 +489,10 @@ public abstract class Store {
         }
     }
 
+    public Context createContext(final User user) {
+        return new Context(user);
+    }
+
     protected Class<? extends StoreProperties> getPropertiesClass() {
         return StoreProperties.class;
     }
@@ -575,14 +573,6 @@ public abstract class Store {
 
     protected void addOperationChainOptimisers(final List<OperationChainOptimiser> newOpChainOptimisers) {
         opChainOptimisers.addAll(newOpChainOptimisers);
-    }
-
-    public Context createContext(final User user) {
-        final Context context = new Context(user);
-        for (final ContextInitialiser contextInitialiser : contextInitialisers) {
-            contextInitialiser.initialise(context, properties);
-        }
-        return context;
     }
 
     /**

@@ -670,38 +670,6 @@ public class StoreTest {
     }
 
     @Test
-    public void shouldInitialiseContextWillAllInitialisers() throws StoreException {
-        // Given
-        final StoreProperties properties = mock(StoreProperties.class);
-        given(properties.getJobExecutorThreadCount()).willReturn(1);
-        final List<ContextInitialiser> initialisers = Arrays.asList(
-                mock(ContextInitialiser.class),
-                mock(ContextInitialiser.class)
-        );
-        given(properties.createContextInitialisers()).willReturn(initialisers);
-        StorePropertiesTest.TestCustomJsonModules1.modules = Arrays.asList(
-                mock(Module.class),
-                mock(Module.class)
-        );
-
-        final Store store = new StoreImpl();
-        final Schema schema = new Schema();
-        store.initialise("graphId", schema, properties);
-
-        final User user = mock(User.class);
-
-        // When
-        store.createContext(user);
-
-        // Then
-        for (final ContextInitialiser initialiser : initialisers) {
-            final ArgumentCaptor<Context> captor = ArgumentCaptor.forClass(Context.class);
-            verify(initialiser).initialise(captor.capture(), eq(properties));
-            assertSame(user, captor.getValue().getUser());
-        }
-    }
-
-    @Test
     public void shouldSetAndGetGraphLibrary() {
         // Given
         final Store store = new StoreImpl();

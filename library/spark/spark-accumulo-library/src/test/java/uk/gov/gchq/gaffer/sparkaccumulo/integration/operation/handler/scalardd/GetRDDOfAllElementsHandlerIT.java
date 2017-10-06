@@ -57,7 +57,6 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.spark.SparkContextInitialiser;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.MiniAccumuloClusterProvider;
@@ -391,7 +390,6 @@ public class GetRDDOfAllElementsHandlerIT {
         final MiniAccumuloCluster cluster = MiniAccumuloClusterProvider.getMiniAccumuloCluster();
         final AccumuloProperties properties = MiniAccumuloClusterProvider.getAccumuloProperties();
         updateAccumuloPropertiesWithKeyPackage(keyPackage);
-        properties.setContextInitialiserClasses(SparkContextInitialiser.class.getName());
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(tableName)

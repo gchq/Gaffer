@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.parquetstore;
 
 import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -41,7 +40,6 @@ import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetElements
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.spark.SparkContextInitialiser;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
@@ -90,14 +88,6 @@ public class ParquetStore extends Store {
 
     @Override
     public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
-        // Add the spark context initialiser to the properties if it doesn't already exist
-        final String contextInitialiserClasses = properties.getContextInitialiserClasses();
-        if (StringUtils.isEmpty(contextInitialiserClasses)) {
-            properties.setContextInitialiserClasses(SparkContextInitialiser.class);
-        } else if (!contextInitialiserClasses.contains(SparkContextInitialiser.class.getName())) {
-            properties.setContextInitialiserClasses(properties.getContextInitialiserClasses(), SparkContextInitialiser.class.getName());
-        }
-
         super.initialise(graphId, schema, properties);
         try {
             fs = FileSystem.get(new Configuration());
