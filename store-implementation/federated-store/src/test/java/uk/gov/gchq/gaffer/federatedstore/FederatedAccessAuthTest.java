@@ -16,57 +16,56 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.user.User;
-import uk.gov.gchq.gaffer.user.User.Builder;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.ALL_USERS;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.AUTH_1;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.authUser;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.blankUser;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
 
 public class FederatedAccessAuthTest {
 
-    public static final String A = "A";
-    public static final String B = "B";
+    public static final String AuthX = "X";
+
+    User testUser;
+
+    @Before
+    public void setUp() throws Exception {
+        testUser = testUser();
+    }
 
     @Test
     public void shouldValidateUserWithMatchingAuth() throws Exception {
-
-        final User user = new Builder()
-                .opAuth(A)
-                .build();
-
         final FederatedAccess access = new FederatedAccess.Builder()
-                .graphAuths(A)
+                .graphAuths(ALL_USERS)
                 .build();
 
-        assertTrue(access.isValidToExecute(user));
+        assertTrue(access.isValidToExecute(testUser));
     }
 
     @Test
     public void shouldValidateUserWithSubsetAuth() throws Exception {
-
-        final User user = new Builder()
-                .opAuth(A)
-                .build();
-
         final FederatedAccess access = new FederatedAccess.Builder()
-                .graphAuths(A, B)
+                .graphAuths(ALL_USERS, AuthX)
                 .build();
 
-        assertTrue(access.isValidToExecute(user));
+        assertTrue(access.isValidToExecute(testUser));
     }
 
     @Test
     public void shouldValidateUserWithSurplusMatchingAuth() throws Exception {
+        final User user = authUser();
 
-        final User user = new Builder()
-                .opAuth(A)
-                .opAuth(B)
-                .build();
+        assertTrue(user.getOpAuths().contains(AUTH_1));
 
         final FederatedAccess access = new FederatedAccess.Builder()
-                .graphAuths(A)
+                .graphAuths(ALL_USERS)
                 .build();
 
         assertTrue(access.isValidToExecute(user));
@@ -75,28 +74,20 @@ public class FederatedAccessAuthTest {
     @Test
     public void shouldInValidateUserWithNoAuth() throws Exception {
 
-        final User user = new Builder()
-                .build();
-
         final FederatedAccess access = new FederatedAccess.Builder()
-                .graphAuths(A)
+                .graphAuths(ALL_USERS)
                 .build();
 
-        assertFalse(access.isValidToExecute(user));
+        assertFalse(access.isValidToExecute(blankUser()));
     }
 
     @Test
     public void shouldInValidateUserWithMismatchedAuth() throws Exception {
-
-        final User user = new Builder()
-                .opAuth(B)
-                .build();
-
         final FederatedAccess access = new FederatedAccess.Builder()
-                .graphAuths(A)
+                .graphAuths("X")
                 .build();
 
-        assertFalse(access.isValidToExecute(user));
+        assertFalse(access.isValidToExecute(testUser));
     }
 
 }
