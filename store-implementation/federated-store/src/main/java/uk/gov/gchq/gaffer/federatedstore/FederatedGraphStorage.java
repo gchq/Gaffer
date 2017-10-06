@@ -39,6 +39,7 @@ import java.util.stream.Stream;
 public class FederatedGraphStorage {
     public static final String USER_IS_ATTEMPTING_TO_OVERWRITE = "User is attempting to overwrite a graph within FederatedStore. GraphId: %s";
     public static final String ACCESS_IS_NULL = "Can not put graph into storage without a FederatedAccess key.";
+    public static final String GRAPH_IDS_NOT_VISIBLE = "The following graphIds are not visible or do not exist: %s";
     private Map<FederatedAccess, Set<Graph>> storage = new HashMap<>();
     @Deprecated
     private Schema mergedSchema = new Schema();
@@ -160,9 +161,21 @@ public class FederatedGraphStorage {
      * @see #filterByUserVisibilityHardAccess(User)
      */
     public Collection<Graph> get(final User user, final Collection<String> graphIds) {
+        validateAllGivenGraphIdsAreVisibleForUser(user, graphIds);
+
         final Set<Graph> rtn = getStream(user, graphIds)
                 .collect(Collectors.toSet());
         return Collections.unmodifiableCollection(Collections.unmodifiableCollection(rtn));
+    }
+
+    private void validateAllGivenGraphIdsAreVisibleForUser(final User user, final Collection<String> graphIds) {
+        if (null != graphIds) {
+            final HashSet<String> visibleIds = Sets.newHashSet(graphIds);
+            visibleIds.removeAll(getAllIds(user));
+            if (!visibleIds.isEmpty()) {
+                throw new IllegalArgumentException(String.format(GRAPH_IDS_NOT_VISIBLE, visibleIds));
+            }
+        }
     }
 
     /**
