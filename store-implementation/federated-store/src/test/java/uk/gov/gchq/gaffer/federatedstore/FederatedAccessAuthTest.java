@@ -18,19 +18,16 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.gaffer.user.User.Builder;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class FederatedAccessHookAuthTest {
+public class FederatedAccessAuthTest {
 
     public static final String A = "A";
     public static final String B = "B";
-    public static final String AA = "AA";
-    public static final String USER = "user";
 
     @Test
     public void shouldValidateUserWithMatchingAuth() throws Exception {
@@ -39,11 +36,11 @@ public class FederatedAccessHookAuthTest {
                 .opAuth(A)
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths(A)
                 .build();
 
-        assertTrue(hook.isValidToExecute(new Context(user)));
+        assertTrue(access.isValidToExecute(user));
     }
 
     @Test
@@ -53,11 +50,11 @@ public class FederatedAccessHookAuthTest {
                 .opAuth(A)
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths(A, B)
                 .build();
 
-        assertTrue(hook.isValidToExecute(new Context(user)));
+        assertTrue(access.isValidToExecute(user));
     }
 
     @Test
@@ -68,11 +65,11 @@ public class FederatedAccessHookAuthTest {
                 .opAuth(B)
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths(A)
                 .build();
 
-        assertTrue(hook.isValidToExecute(new Context(user)));
+        assertTrue(access.isValidToExecute(user));
     }
 
     @Test
@@ -81,11 +78,11 @@ public class FederatedAccessHookAuthTest {
         final User user = new Builder()
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths(A)
                 .build();
 
-        assertFalse(hook.isValidToExecute(new Context(user)));
+        assertFalse(access.isValidToExecute(user));
     }
 
     @Test
@@ -95,11 +92,11 @@ public class FederatedAccessHookAuthTest {
                 .opAuth(B)
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths(A)
                 .build();
 
-        assertFalse(hook.isValidToExecute(new Context(user)));
+        assertFalse(access.isValidToExecute(user));
     }
 
 }

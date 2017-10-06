@@ -24,7 +24,7 @@ public class MapSchemaHidingIT extends SchemaHidingIT {
     }
 
     @Override
-    protected void cleanUp() throws Exception {
+    protected void cleanUp() {
         MapStore.resetStaticMap();
     }
 }

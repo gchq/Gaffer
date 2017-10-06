@@ -142,6 +142,11 @@ public class ParquetStore extends Store {
     }
 
     @Override
+    protected Class<ParquetStoreProperties> getPropertiesClass() {
+        return ParquetStoreProperties.class;
+    }
+
+    @Override
     protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
         return new GetElementsHandler();
     }

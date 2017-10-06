@@ -150,7 +150,7 @@ public abstract class Store {
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to aggregate the elements.
      */
-    protected Schema schema;
+    private Schema schema;
 
     /**
      * The store properties - contains specific configuration information for the store - such as database connection strings.
@@ -212,13 +212,13 @@ public abstract class Store {
         }
         this.graphId = graphId;
         this.schema = schema;
-        this.properties = properties;
-        this.contextFactory =  ContextFactory.createContextFactory(properties);
+        setProperties(properties);
+        this.contextFactory = ContextFactory.createContextFactory(getProperties());
 
-        JSONSerialiser.update(properties.getJsonSerialiserClass(), properties.getJsonSerialiserModules());
+        JSONSerialiser.update(getProperties().getJsonSerialiserClass(), getProperties().getJsonSerialiserModules());
 
-        startCacheServiceLoader(properties);
-        this.jobTracker = createJobTracker(properties);
+        startCacheServiceLoader();
+        this.jobTracker = createJobTracker();
 
         optimiseSchema();
         validateSchemas();
@@ -251,7 +251,7 @@ public abstract class Store {
      * Executes a given operation and returns the result.
      *
      * @param operation the operation to execute.
-     * @param context      the context executing the operation
+     * @param context   the context executing the operation
      * @throws OperationException thrown by the operation handler if the operation fails.
      */
     public void execute(final Operation operation, final Context context) throws OperationException {
@@ -262,8 +262,8 @@ public abstract class Store {
      * Executes a given operation and returns the result.
      *
      * @param operation the operation to execute.
-     * @param context      the context executing the operation
-     * @param <O> the output type of the operation
+     * @param context   the context executing the operation
+     * @param <O>       the output type of the operation
      * @return the result of executing the operation
      * @throws OperationException thrown by the operation handler if the operation fails.
      */
@@ -296,7 +296,7 @@ public abstract class Store {
      * Executes a given operation chain job and returns the job detail.
      *
      * @param operationChain the operation chain to execute.
-     * @param context           the context executing the job
+     * @param context        the context executing the job
      * @return the job detail
      * @throws OperationException thrown if jobs are not configured.
      */
@@ -433,6 +433,18 @@ public abstract class Store {
         return properties;
     }
 
+    protected void setProperties(final StoreProperties properties) {
+        final Class<? extends StoreProperties> requiredPropsClass = getPropertiesClass();
+        properties.updateStorePropertiesClass(requiredPropsClass);
+
+        // If the properties instance is not already an instance of the required class then reload the properties
+        if (requiredPropsClass.isAssignableFrom(properties.getClass())) {
+            this.properties = properties;
+        } else {
+            this.properties = StoreProperties.loadStoreProperties(properties.getProperties());
+        }
+    }
+
     public GraphLibrary getGraphLibrary() {
         return library;
     }
@@ -481,6 +493,10 @@ public abstract class Store {
             throw new SchemaException("Schema is not valid. "
                     + validationResult.getErrorString());
         }
+    }
+
+    protected Class<? extends StoreProperties> getPropertiesClass() {
+        return StoreProperties.class;
     }
 
     /**
@@ -542,7 +558,7 @@ public abstract class Store {
         }
     }
 
-    protected JobTracker createJobTracker(final StoreProperties properties) {
+    protected JobTracker createJobTracker() {
         if (properties.getJobTrackerEnabled()) {
             return new JobTracker();
         }
@@ -777,7 +793,7 @@ public abstract class Store {
         }
     }
 
-    private void startCacheServiceLoader(final StoreProperties properties) {
+    private void startCacheServiceLoader() {
         CacheServiceLoader.initialise(properties.getProperties());
     }
 

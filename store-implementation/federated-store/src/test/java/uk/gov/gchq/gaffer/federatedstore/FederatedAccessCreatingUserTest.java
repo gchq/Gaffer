@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.federatedstore;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.gaffer.user.User.Builder;
 
@@ -33,7 +32,7 @@ import static org.junit.Assert.assertTrue;
  * they created. However other mechanisms will stop them from
  * performing operations that they do not have, else where in code.
  */
-public class FederatedAccessHookCreatingUserTest {
+public class FederatedAccessCreatingUserTest {
 
     public static final String A = "A";
     public static final String B = "B";
@@ -47,13 +46,13 @@ public class FederatedAccessHookCreatingUserTest {
                 .userId(USER)
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths(B)
                 .build();
 
-        hook.setAddingUserId(USER);
+        access.setAddingUserId(USER);
 
-        assertTrue(hook.isValidToExecute(new Context(user)));
+        assertTrue(access.isValidToExecute(user));
     }
 
     @Test
@@ -63,13 +62,13 @@ public class FederatedAccessHookCreatingUserTest {
                 .userId(USER)
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths(B)
                 .build();
 
-        hook.setAddingUserId(USER);
+        access.setAddingUserId(USER);
 
-        assertTrue(hook.isValidToExecute(new Context(user)));
+        assertTrue(access.isValidToExecute(user));
     }
 
     @Test
@@ -79,13 +78,13 @@ public class FederatedAccessHookCreatingUserTest {
                 .userId(USER)
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths((Collection) null)
                 .build();
 
-        hook.setAddingUserId(USER);
+        access.setAddingUserId(USER);
 
-        assertTrue(hook.isValidToExecute(new Context(user)));
+        assertTrue(access.isValidToExecute(user));
     }
 
     @Test
@@ -95,13 +94,13 @@ public class FederatedAccessHookCreatingUserTest {
                 .userId(USER)
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths((String[]) null)
                 .build();
 
-        hook.setAddingUserId(USER);
+        access.setAddingUserId(USER);
 
-        assertTrue(hook.isValidToExecute(new Context(user)));
+        assertTrue(access.isValidToExecute(user));
     }
 
     @Test
@@ -111,13 +110,13 @@ public class FederatedAccessHookCreatingUserTest {
                 .userId(USER)
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths(new HashSet<>())
                 .build();
 
-        hook.setAddingUserId(USER);
+        access.setAddingUserId(USER);
 
-        assertTrue(hook.isValidToExecute(new Context(user)));
+        assertTrue(access.isValidToExecute(user));
     }
 
     @Test
@@ -127,13 +126,13 @@ public class FederatedAccessHookCreatingUserTest {
                 .userId(USER)
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths(new String[0])
                 .build();
 
-        hook.setAddingUserId(USER);
+        access.setAddingUserId(USER);
 
-        assertTrue(hook.isValidToExecute(new Context(user)));
+        assertTrue(access.isValidToExecute(user));
     }
 
     @Test
@@ -143,13 +142,13 @@ public class FederatedAccessHookCreatingUserTest {
                 .userId(USER)
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths(Sets.newHashSet(""))
                 .build();
 
-        hook.setAddingUserId(USER);
+        access.setAddingUserId(USER);
 
-        assertTrue(hook.isValidToExecute(new Context(user)));
+        assertTrue(access.isValidToExecute(user));
     }
 
     @Test
@@ -159,13 +158,13 @@ public class FederatedAccessHookCreatingUserTest {
                 .userId(USER)
                 .build();
 
-        final FederatedAccessHook hook = new FederatedAccessHook.Builder()
+        final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths("")
                 .build();
 
-        hook.setAddingUserId(USER);
+        access.setAddingUserId(USER);
 
-        assertTrue(hook.isValidToExecute(new Context(user)));
+        assertTrue(access.isValidToExecute(user));
     }
 
 }

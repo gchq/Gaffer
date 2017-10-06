@@ -62,9 +62,7 @@ public abstract class SchemaHidingIT {
             .dataAuth("public")
             .build();
 
-    protected Store fullStore;
-
-    private final String storePropertiesPath;
+    protected final String storePropertiesPath;
 
     public SchemaHidingIT(final String storePropertiesPath) {
         this.storePropertiesPath = storePropertiesPath;
@@ -72,34 +70,26 @@ public abstract class SchemaHidingIT {
 
     @Before
     public void before() {
-        try {
-            fullStore = Store.createStore("graphId", createFullSchema(), StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath)));
-            cleanUp();
-        } catch (final Exception e) {
-            // ignore - just deleting the table
-        }
+        cleanUp();
     }
 
 
     @After
     public void after() {
-        try {
-            cleanUp();
-        } catch (final Exception e) {
-            // ignore - just deleting the table
-        }
+        cleanUp();
     }
 
-    protected abstract void cleanUp() throws Exception;
+    protected abstract void cleanUp();
 
     @SuppressWarnings("unchecked")
     @Test
     public void shouldCreateStoreWithFullSchemaAndThenBeAbleUseASubsetOfTheSchema() throws Exception {
         // Add some data to the full graph
-        fullStore = Store.createStore("graphId", createFullSchema(), StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath)));
+        final Store fullStore = Store.createStore("graphId", createFullSchema(), StoreProperties.loadStoreProperties(StreamUtil.openStream(getClass(), storePropertiesPath)));
         final Graph fullGraph = new Builder()
                 .store(fullStore)
                 .build();
+
 
         final Edge edge1a = new Edge.Builder()
                 .source("source1a")
@@ -179,7 +169,7 @@ public abstract class SchemaHidingIT {
         ElementUtil.assertElementEquals(filteredExpectedResults, filteredResults);
     }
 
-    private Schema createFullSchema() {
+    protected Schema createFullSchema() {
         return new Schema.Builder()
                 .merge(createFilteredSchema())
                 .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
@@ -195,7 +185,7 @@ public abstract class SchemaHidingIT {
                 .build();
     }
 
-    private Schema createFilteredSchema() {
+    protected Schema createFilteredSchema() {
         return new Schema.Builder()
                 .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)

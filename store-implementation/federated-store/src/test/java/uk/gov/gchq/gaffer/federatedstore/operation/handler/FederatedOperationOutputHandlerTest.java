@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -44,20 +43,23 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.*;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.*;
 
 public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, O> {
     public static final String TEST_ENTITY = "TestEntity";
-    public static final String TEST_USER = "testUser";
     public static final String PROPERTY_TYPE = "property";
     protected O o1;
     protected O o2;
     protected O o3;
     protected O o4;
+    protected User user;
     protected Context context;
 
     @Before
     public void setUp() throws Exception {
-        context = new Context(new User(TEST_USER));
+        user = testUser();
+        context = new Context(user);
     }
 
     @Test
@@ -90,7 +92,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         linkedGraphs.add(getGraphWithMockStore(mockStore2));
         linkedGraphs.add(getGraphWithMockStore(mockStore3));
         linkedGraphs.add(getGraphWithMockStore(mockStore4));
-        Mockito.when(mockStore.getGraphs(null)).thenReturn(linkedGraphs);
+        Mockito.when(mockStore.getGraphs(user, null)).thenReturn(linkedGraphs);
 
         // When
         O theMergedResultsOfOperation = getFederatedHandler().doOperation(op, context, mockStore);
@@ -107,7 +109,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
     public final void shouldMergeResultsFromFieldObjectsWithGivenGraphIds() throws Exception {
         // Given
         final OP op = getExampleOperation();
-        op.addOption(FederatedStoreConstants.GRAPH_IDS, "1,3");
+        op.addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, "1,3");
 
         Schema unusedSchema = new Schema.Builder().build();
 
@@ -120,7 +122,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         LinkedHashSet<Graph> filteredGraphs = Sets.newLinkedHashSet();
         filteredGraphs.add(getGraphWithMockStore(mockStore1));
         filteredGraphs.add(getGraphWithMockStore(mockStore3));
-        Mockito.when(mockStore.getGraphs("1,3")).thenReturn(filteredGraphs);
+        Mockito.when(mockStore.getGraphs(user, "1,3")).thenReturn(filteredGraphs);
 
         // When
         O theMergedResultsOfOperation = getFederatedHandler().doOperation(op, context, mockStore);
@@ -139,7 +141,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         final String graphID = "graphId";
         final String message = "Test Exception";
         final OP op = getExampleOperation();
-        op.addOption(FederatedStoreConstants.GRAPH_IDS, graphID);
+        op.addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, graphID);
 
         Schema unusedSchema = new Schema.Builder().build();
 
@@ -149,7 +151,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         given(mockStoreInner.createContext(any(User.class))).willReturn(context);
         FederatedStore mockStore = Mockito.mock(FederatedStore.class);
         HashSet<Graph> filteredGraphs = Sets.newHashSet(getGraphWithMockStore(mockStoreInner));
-        Mockito.when(mockStore.getGraphs(graphID)).thenReturn(filteredGraphs);
+        Mockito.when(mockStore.getGraphs(user, graphID)).thenReturn(filteredGraphs);
 
         // When
         try {
@@ -166,8 +168,8 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         // Given
         // Given
         final OP op = getExampleOperation();
-        op.addOption(FederatedStoreConstants.GRAPH_IDS, "1,3");
-        op.addOption(FederatedStoreConstants.SKIP_FAILED_FEDERATED_STORE_EXECUTE, String.valueOf(true));
+        op.addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, "1,3");
+        op.addOption(KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE, String.valueOf(true));
 
         Schema unusedSchema = new Schema.Builder().build();
 
@@ -183,7 +185,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         LinkedHashSet<Graph> filteredGraphs = Sets.newLinkedHashSet();
         filteredGraphs.add(getGraphWithMockStore(mockStore1));
         filteredGraphs.add(getGraphWithMockStore(mockStore3));
-        Mockito.when(mockStore.getGraphs("1,3")).thenReturn(filteredGraphs);
+        Mockito.when(mockStore.getGraphs(user, "1,3")).thenReturn(filteredGraphs);
 
         // When
         O theMergedResultsOfOperation = null;
