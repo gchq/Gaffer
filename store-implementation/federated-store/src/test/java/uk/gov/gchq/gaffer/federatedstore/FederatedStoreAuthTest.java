@@ -37,7 +37,7 @@ import static org.junit.Assert.assertNull;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.authUser;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
 
-public class FederatedStoreTestAuth {
+public class FederatedStoreAuthTest {
 
     private User testUser;
     private User authUser;
