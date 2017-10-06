@@ -85,7 +85,6 @@ public class FederatedStoreTest {
     public static final HashSet<String> GRAPH_AUTHS = Sets.newHashSet(ALL_USERS);
     private static User authUser;
     private static User testUser;
-    private static final HashMapGraphLibrary graphLibrary = new HashMapGraphLibrary();
 
     FederatedStore store;
     private FederatedStoreProperties federatedProperties;
@@ -96,7 +95,7 @@ public class FederatedStoreTest {
         federatedProperties = new FederatedStoreProperties();
         federatedProperties.setGraphAuth(ACC_ID_1, ALL_USERS);
         federatedProperties.setGraphAuth(MAP_ID_1, ALL_USERS);
-        graphLibrary.clear();
+        HashMapGraphLibrary.clear();
         authUser = authUser();
         testUser = testUser();
     }

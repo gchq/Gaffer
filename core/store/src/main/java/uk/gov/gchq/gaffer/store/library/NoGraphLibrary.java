@@ -36,7 +36,7 @@ public class NoGraphLibrary extends GraphLibrary {
 
     @Override
     public void initialise(final String path) {
-        // do nothing
+        // Do nothing
     }
 
     @Override
