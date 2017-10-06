@@ -77,6 +77,9 @@ public abstract class AbstractGraphLibraryTest {
         // When
         graphLibrary.add(TEST_GRAPH_ID, schema, storeProperties);
         graphLibrary.add(TEST_GRAPH_ID_1, schema1, storeProperties1);
+
+        assertEquals(new Pair<>(TEST_SCHEMA_ID, TEST_PROPERTIES_ID), graphLibrary.getIds(TEST_GRAPH_ID));
+        assertEquals(new Pair<>(TEST_SCHEMA_ID_1, TEST_PROPERTIES_ID_1), graphLibrary.getIds(TEST_GRAPH_ID_1));
     }
 
     @Test
@@ -231,7 +234,7 @@ public abstract class AbstractGraphLibraryTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenNewSchemaIsAddedWithSameSchemaIdAndSchema() {
+    public void shouldThrowExceptionWhenNewSchemaIsAddedWithSameSchemaIdAndDifferentSchema() {
         // Given
         final Schema tempSchema = new Schema.Builder()
                 .id(TEST_SCHEMA_ID)
@@ -254,7 +257,7 @@ public abstract class AbstractGraphLibraryTest {
     @Test
     public void shouldIgnoreDuplicateAdditionWhenStorePropertiesAreIdentical() {
         // Given
-        final StoreProperties tempStoreProperties = storeProperties.clone();
+        final StoreProperties tempStoreProperties = StoreProperties.loadStoreProperties(storeProperties.getProperties());
 
         // When
         graphLibrary.addProperties(storeProperties);
@@ -266,7 +269,10 @@ public abstract class AbstractGraphLibraryTest {
     @Test
     public void shouldIgnoreDuplicateAdditionWhenSchemasAreIdentical() {
         // Given
-        final Schema tempSchema = schema.clone();
+        final Schema tempSchema = new Schema.Builder()
+                .merge(schema)
+                .id(schema.getId())
+                .build();
 
         // When
         graphLibrary.addSchema(schema);

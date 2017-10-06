@@ -213,7 +213,7 @@ public abstract class GraphLibrary {
                 }
             }
             if (null != existingPair.getSecond()) {
-                if (!existingPair.getSecond().equals(properties)) {
+                if (!existingPair.getSecond().getProperties().equals(properties.getProperties())) {
                     throw new OverwritingException("GraphId " + graphId + " already exists with a different store properties:\n"
                             + "existing storeProperties:\n" + existingPair.getSecond().toString()
                             + "\nnew storeProperties:\n" + properties.toString());
@@ -234,7 +234,7 @@ public abstract class GraphLibrary {
 
     private void checkPropertiesExist(final StoreProperties properties) {
         if (null != getProperties(properties.getId())) {
-            if (!getProperties(properties.getId()).equals(properties)) {
+            if (!getProperties(properties.getId()).getProperties().equals(properties.getProperties())) {
                 throw new OverwritingException("propertiesId " + properties.getId() + " already exists with a different store properties:\n"
                         + "existing storeProperties:\n" + getProperties(properties.getId()).toString()
                         + "\nnew storeProperties:\n" + properties.toString());

@@ -57,7 +57,7 @@ public class FederatedStoreSchemaTest {
     @Before
     public void setUp() throws Exception {
         ACCUMULO_PROPERTIES.setId("accProp");
-        ACCUMULO_PROPERTIES.setStoreClass(MockAccumuloStore.class.getName());
+        ACCUMULO_PROPERTIES.setStoreClass(MockAccumuloStore.class);
         ACCUMULO_PROPERTIES.setStorePropertiesClass(AccumuloProperties.class);
 
         fStore = new FederatedStore();
