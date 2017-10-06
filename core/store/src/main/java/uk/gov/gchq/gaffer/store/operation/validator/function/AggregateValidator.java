@@ -36,13 +36,12 @@ import java.util.Map;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
+/**
+ * An implementation of FunctionValidator, used for validating an Aggregate function.
+ */
 public class AggregateValidator extends FunctionValidator<Aggregate> {
 
     @Override
-    public ValidationResult validate(final Aggregate operation, final Schema schema) {
-        return super.validate(operation, schema);
-    }
-
     protected ValidationResult validateOperation(final Aggregate operation, final Schema schema) {
         final ValidationResult result = new ValidationResult();
         final Map<String, ?> entities = null != operation.getEntities() ? operation.getEntities() : new HashMap<>();
@@ -51,13 +50,17 @@ public class AggregateValidator extends FunctionValidator<Aggregate> {
         final Map<String, SchemaEntityDefinition> schemaEntities = schema.getEntities();
         final Map<String, SchemaEdgeDefinition> schemaEdges = schema.getEdges();
 
-        edges.entrySet().forEach(e -> result.add(validateEdge(e, schema)));
-        edges.entrySet().forEach(e -> result.add(validateElementAggregator(e, schema)));
-        edges.forEach((key, value) -> result.add(validateAggregatePropertyClasses(schemaEdges, (AggregatePair) value)));
+        for (final Map.Entry<String, ?> entry : edges.entrySet()) {
+            result.add(validateEdge(entry, schema));
+            result.add(validateElementAggregator(entry, schema));
+            result.add(validateAggregatePropertyClasses(schemaEdges, (AggregatePair) entry.getValue()));
+        }
 
-        entities.entrySet().forEach(e -> result.add(validateEntity(e, schema)));
-        entities.entrySet().forEach(e -> result.add(validateElementAggregator(e, schema)));
-        entities.forEach((key, value) -> result.add(validateAggregatePropertyClasses(schemaEntities, (AggregatePair) value)));
+        for (final Map.Entry<String, ?> entry : entities.entrySet()) {
+            result.add(validateEntity(entry, schema));
+            result.add(validateElementAggregator(entry, schema));
+            result.add(validateAggregatePropertyClasses(schemaEntities, (AggregatePair) entry.getValue()));
+        }
 
         return result;
     }
@@ -102,6 +105,12 @@ public class AggregateValidator extends FunctionValidator<Aggregate> {
         return result;
     }
 
+    /**
+     * Validates that the binary operators to be executed are assignable to the corresponding properties
+     * @param elements  Map of element group to SchemaElementDefinition
+     * @param pair      AggregatePair, containing a String array of groupBy properties, and an ElementAggregator
+     * @return          ValidationResult of the validation
+     */
     private ValidationResult validateAggregatePropertyClasses(final Map<String, ? extends SchemaElementDefinition> elements, final AggregatePair pair) {
         final ValidationResult result = new ValidationResult();
 

@@ -30,8 +30,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * An implementation of FunctionValidator, used for validating a Filter function.
+ */
 public class FilterValidator extends FunctionValidator<Filter> {
 
+    @Override
     protected ValidationResult validateOperation(final Filter operation, final Schema schema) {
         final ValidationResult result = new ValidationResult();
         final Map<String, ?> entities = null != operation.getEntities() ? operation.getEntities() : new HashMap<>();
@@ -40,14 +44,17 @@ public class FilterValidator extends FunctionValidator<Filter> {
         final Map<String, SchemaEntityDefinition> schemaEntities = schema.getEntities();
         final Map<String, SchemaEdgeDefinition> schemaEdges = schema.getEdges();
 
-        entities.entrySet().forEach(e -> result.add(validateEntity(e, schema)));
-        edges.entrySet().forEach(e -> result.add(validateEdge(e, schema)));
+        for (final Map.Entry<String, ?> entry : edges.entrySet()) {
+            result.add(validateEdge(entry, schema));
+            result.add(validateElementFilter((ElementFilter) entry.getValue()));
+            result.add(validateFilterPropertyClasses(schemaEdges, (ElementFilter) entry.getValue()));
+        }
 
-        edges.forEach((key, value) -> result.add(validateElementFilter((ElementFilter) value)));
-        edges.forEach((key, value) -> result.add(validateFilterPropertyClasses(schemaEdges, (ElementFilter) value)));
-
-        entities.forEach((key, value) -> result.add(validateElementFilter((ElementFilter) value)));
-        entities.forEach((key, value) -> result.add(validateFilterPropertyClasses(schemaEntities, (ElementFilter) value)));
+        for (final Map.Entry<String, ?> entry : entities.entrySet()) {
+            result.add(validateEntity(entry, schema));
+            result.add(validateElementFilter((ElementFilter) entry.getValue()));
+            result.add(validateFilterPropertyClasses(schemaEntities, (ElementFilter) entry.getValue()));
+        }
 
         final ElementFilter globalElements = operation.getGlobalElements();
         final ElementFilter globalEdges = operation.getGlobalEdges();
@@ -80,6 +87,12 @@ public class FilterValidator extends FunctionValidator<Filter> {
         return result;
     }
 
+    /**
+     * Validates that the predicates to be executed are assignable to the corresponding properties
+     * @param elements  Map of element group to SchemaElementDefinition
+     * @param filter    The ElementFilter to be validated against
+     * @return          ValidationResult of the validation
+     */
     private ValidationResult validateFilterPropertyClasses(final Map<String, ? extends SchemaElementDefinition> elements, final ElementFilter filter) {
         final ValidationResult result = new ValidationResult();
 

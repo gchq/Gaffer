@@ -30,8 +30,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * An implementation of FunctionValidator, used for validating a Transform function.
+ */
 public class TransformValidator extends FunctionValidator<Transform> {
 
+    @Override
     protected ValidationResult validateOperation(final Transform operation, final Schema schema) {
         final ValidationResult result = new ValidationResult();
         final Map<String, ?> entities = null != operation.getEntities() ? operation.getEntities() : new HashMap<>();
@@ -40,11 +44,17 @@ public class TransformValidator extends FunctionValidator<Transform> {
         final Map<String, SchemaEntityDefinition> schemaEntities = schema.getEntities();
         final Map<String, SchemaEdgeDefinition> schemaEdges = schema.getEdges();
 
-        edges.forEach((key, value) -> result.add(validateElementTransformer((ElementTransformer) value)));
-        edges.forEach((key, value) -> result.add(validateTransformPropertyClasses(schemaEdges, (ElementTransformer) value)));
+        for (final Map.Entry<String, ?> entry : edges.entrySet()) {
+            result.add(validateEdge(entry, schema));
+            result.add(validateElementTransformer((ElementTransformer) entry.getValue()));
+            result.add(validateTransformPropertyClasses(schemaEdges, (ElementTransformer) entry.getValue()));
+        }
 
-        entities.forEach((key, value) -> result.add(validateElementTransformer((ElementTransformer) value)));
-        entities.forEach((key, value) -> result.add(validateTransformPropertyClasses(schemaEntities, (ElementTransformer) value)));
+        for (final Map.Entry<String, ?> entry : entities.entrySet()) {
+            result.add(validateEntity(entry, schema));
+            result.add(validateElementTransformer((ElementTransformer) entry.getValue()));
+            result.add(validateTransformPropertyClasses(schemaEntities, (ElementTransformer) entry.getValue()));
+        }
 
         return result;
     }
@@ -61,6 +71,12 @@ public class TransformValidator extends FunctionValidator<Transform> {
         return result;
     }
 
+    /**
+     * Validates that the functions to be executed are assignable to the corresponding properties
+     * @param elements      Map of element group to SchemaElementDefinition
+     * @param transformer   The ElementFilter to be validated against
+     * @return              ValidationResult of the validation
+     */
     private ValidationResult validateTransformPropertyClasses(final Map<String, ? extends SchemaElementDefinition> elements, final ElementTransformer transformer) {
         final ValidationResult result = new ValidationResult();
 

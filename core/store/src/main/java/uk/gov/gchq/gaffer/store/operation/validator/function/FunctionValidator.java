@@ -45,9 +45,9 @@ public abstract class FunctionValidator<T extends Function> {
 
     /**
      * Should validate the entities and edges, the Element Function, and the Property Classes
-     * @param operation
-     * @param schema
-     * @return
+     * @param operation The operation to be validated
+     * @param schema    The schema to validate with
+     * @return          Validation Result of all subsequent validation
      */
     protected abstract ValidationResult validateOperation(final T operation, final Schema schema);
 
