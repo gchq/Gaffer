@@ -11,3 +11,7 @@ if [ "$RELEASE" != 'true' ] && [ "$TRAVIS_PULL_REQUEST" != 'false' ]; then
         mvn -q install -P quick,travis,build-extras -B -V -pl $MODULES -am
     fi
 fi
+
+if [ "$RELEASE" == 'true' ] && [ "$TRAVIS_BRANCH" == 'master' ] && [ "$TRAVIS_PULL_REQUEST" == 'false' ]; then
+    ./cd/deploy.sh
+fi
