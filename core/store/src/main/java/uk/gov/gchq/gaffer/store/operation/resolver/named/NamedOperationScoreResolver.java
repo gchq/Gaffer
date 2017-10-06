@@ -20,9 +20,9 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolver;
-import uk.gov.gchq.gaffer.operation.Operation;
 
 /**
  * A <code>NamedOperationScoreResolver</code> will resolve the custom Operation Score for a provided {@link NamedOperation}
@@ -34,14 +34,14 @@ public class NamedOperationScoreResolver implements ScoreResolver {
     private static final Logger LOGGER = LoggerFactory.getLogger(NamedOperationScoreResolver.class);
 
     @Override
-    public int getScore(final Operation operation) {
-        int namedOpScore = -1;
+    public Integer getScore(final Operation operation) {
+        Integer namedOpScore = null;
 
         if (null != operation) {
             if (operation instanceof NamedOperation) {
                 try {
                     namedOpScore = cache.getFromCache(((NamedOperation) operation).getOperationName()).getScore();
-                } catch (CacheOperationFailedException e) {
+                } catch (final CacheOperationFailedException e) {
                     LOGGER.warn("Error accessing cache for Operation '{}': " + e.getMessage(), operation.getClass().getName());
                 }
             } else {

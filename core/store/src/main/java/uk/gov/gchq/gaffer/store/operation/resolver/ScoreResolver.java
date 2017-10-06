@@ -15,8 +15,11 @@
  */
 package uk.gov.gchq.gaffer.store.operation.resolver;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import uk.gov.gchq.gaffer.operation.Operation;
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
 public interface ScoreResolver {
-    int getScore(final Operation operation);
+    Integer getScore(final Operation operation);
 }

@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
-import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -50,7 +49,7 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
 
     private final LinkedHashMap<Class<? extends Operation>, Integer> opScores = new LinkedHashMap<>();
     private final Map<String, Integer> authScores = new HashMap<>();
-    private final Map<Class<? extends Operation>, ScoreResolver> namedOpScoreResolvers = new HashMap<>();
+    private final Map<Class<? extends Operation>, ScoreResolver> scoreResolvers = new HashMap<>();
 
     /**
      * Returns the OperationChainLimiter score for the OperationChain provided.
@@ -73,10 +72,19 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
             for (final Operation operation : opChain.getOperations()) {
                 if (operation instanceof OperationChain) {
                     chainScore += getChainScore((OperationChain<?>) operation, user);
-                } else if (operation instanceof NamedOperation) {
-                    chainScore += authoriseNamed(operation);
                 } else {
-                    chainScore += authorise(operation);
+                    ScoreResolver resolver = scoreResolvers.get(operation.getClass());
+                    Integer opScore = null;
+                    if (null != resolver) {
+                        opScore = resolver.getScore(operation);
+                    }
+
+                    if (null == opScore) {
+                        opScore = authorise(operation);
+                    }
+
+                    chainScore += opScore;
+
                 }
             }
         }
@@ -123,31 +131,6 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
         return DEFAULT_OPERATION_SCORE;
     }
 
-    /**
-     * Resolves the score for a provided {@link NamedOperation} (if it exists within
-     * the map of {@link Operation}s to {@link ScoreResolver}s), otherwise returns a default value.
-     *
-     * @param   namedOperation The operation for which the score should be resolved
-     * @return  The score for the operation, otherwise the {@link #DEFAULT_OPERATION_SCORE}
-     */
-    protected int authoriseNamed(final Operation namedOperation) {
-        int namedScore = DEFAULT_OPERATION_SCORE;
-        if (null != namedOperation) {
-            final Class<? extends Operation> namedOpClass = namedOperation.getClass();
-            namedScore = namedOpScoreResolvers.entrySet().stream()
-                    .filter(k -> k.getKey().isAssignableFrom(namedOpClass))
-                    .map(entry -> entry.getValue().getScore(namedOperation))
-                    .findFirst()
-                    .orElse(DEFAULT_OPERATION_SCORE);
-            if (namedScore == DEFAULT_OPERATION_SCORE) {
-                LOGGER.warn("The named operation '{}' was not found in the config file provided - the configured default value of {} will be used", namedOpClass.getName(), DEFAULT_OPERATION_SCORE);
-            }
-        } else {
-            LOGGER.warn("A null NamedOperation was passed to the OperationChainLimiter graph hook");
-        }
-        return namedScore;
-    }
-
     public Map<Class<? extends Operation>, Integer> getOpScores() {
         return Collections.unmodifiableMap(opScores);
     }
@@ -185,14 +168,14 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
         validateOpScores();
     }
 
-    public Map<Class<? extends Operation>, ScoreResolver> getNamedOpScoreResolvers() {
-        return Collections.unmodifiableMap(namedOpScoreResolvers);
+    public Map<Class<? extends Operation>, ScoreResolver> getScoreResolvers() {
+        return Collections.unmodifiableMap(scoreResolvers);
     }
 
-    public void setNamedOpScoreResolvers(final Map<Class<? extends Operation>, ScoreResolver> resolvers) {
-        this.namedOpScoreResolvers.clear();
+    public void setScoreResolvers(final Map<Class<? extends Operation>, ScoreResolver> resolvers) {
+        this.scoreResolvers.clear();
         if (null != resolvers) {
-            this.namedOpScoreResolvers.putAll(resolvers);
+            this.scoreResolvers.putAll(resolvers);
         }
     }
 

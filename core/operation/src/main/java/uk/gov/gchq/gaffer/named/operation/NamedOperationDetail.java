@@ -49,12 +49,12 @@ public class NamedOperationDetail implements Serializable {
     private List<String> readAccessRoles;
     private List<String> writeAccessRoles;
     private Map<String, ParameterDetail> parameters = Maps.newHashMap();
-    private int score;
+    private Integer score;
 
     public NamedOperationDetail(final String operationName, final String description, final String userId,
                                 final String operations, final List<String> readers,
                                 final List<String> writers, final Map<String, ParameterDetail> parameters,
-                                final int score) {
+                                final Integer score) {
         if (null == operations) {
             throw new IllegalArgumentException("Operation Chain must not be empty");
         }
@@ -101,7 +101,9 @@ public class NamedOperationDetail implements Serializable {
         return parameters;
     }
 
-    public int getScore() { return score; }
+    public Integer getScore() {
+        return score;
+    }
 
     private String buildParamNameString(final String paramKey) {
         return "\"${" + paramKey + "}\"";
@@ -269,7 +271,7 @@ public class NamedOperationDetail implements Serializable {
         private List<String> readers;
         private List<String> writers;
         private Map<String, ParameterDetail> parameters;
-        private int score;
+        private Integer score;
 
         public Builder creatorId(final String creatorId) {
             this.creatorId = creatorId;
@@ -318,7 +320,7 @@ public class NamedOperationDetail implements Serializable {
             return this;
         }
 
-        public Builder score(final int score) {
+        public Builder score(final Integer score) {
             this.score = score;
             return this;
         }
