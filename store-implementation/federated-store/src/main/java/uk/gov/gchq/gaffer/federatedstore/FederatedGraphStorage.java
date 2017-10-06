@@ -170,13 +170,15 @@ public class FederatedGraphStorage {
 
     private void validateAllGivenGraphIdsAreVisibleForUser(final User user, final Collection<String> graphIds) {
         if (null != graphIds) {
-            final HashSet<String> visibleIds = Sets.newHashSet(graphIds);
-            visibleIds.removeAll(getAllIds(user));
-            if (!visibleIds.isEmpty()) {
-                throw new IllegalArgumentException(String.format(GRAPH_IDS_NOT_VISIBLE, visibleIds));
+            final Collection<String> visibleIds = getAllIds(user);
+            if (!visibleIds.containsAll(graphIds)) {
+                final Set<String> notVisibleIds = Sets.newHashSet(graphIds);
+                notVisibleIds.removeAll(visibleIds);
+                throw new IllegalArgumentException(String.format(GRAPH_IDS_NOT_VISIBLE, notVisibleIds));
             }
         }
     }
+
 
     /**
      * @return merged traits of the entire storage.
