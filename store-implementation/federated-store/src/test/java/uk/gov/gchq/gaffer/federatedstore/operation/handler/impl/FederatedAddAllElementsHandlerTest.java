@@ -35,14 +35,14 @@ import java.util.LinkedHashSet;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
 
 public class FederatedAddAllElementsHandlerTest {
-    public static final String TEST_USER = "testUser";
     protected User user;
 
     @Before
     public void setUp() throws Exception {
-        user = new User(TEST_USER);
+        user = testUser();
     }
 
     @Test
@@ -70,7 +70,7 @@ public class FederatedAddAllElementsHandlerTest {
         linkedGraphs.add(graph2);
         linkedGraphs.add(graph3);
         linkedGraphs.add(graph4);
-        Mockito.when(mockStore.getGraphs(null)).thenReturn(linkedGraphs);
+        Mockito.when(mockStore.getGraphs(user, null)).thenReturn(linkedGraphs);
 
         // When
         new FederatedAddElementsHandler().doOperation(op, testContext, mockStore);
