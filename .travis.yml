@@ -10,6 +10,10 @@ sudo: false
 matrix:
   fast_finish: true
 
+branches:
+  only:
+  - master
+
 env:
   matrix:
   - RELEASE=true

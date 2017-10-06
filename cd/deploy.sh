@@ -23,7 +23,7 @@ if [ "$RELEASE" == 'true' ] && [ "$TRAVIS_BRANCH" == 'master' ] && [ "$TRAVIS_PU
         echo ""
 
         # Configure GitHub token
-        git config credential.helper "store --file=.git/credentials"
+        git config --global credential.helper "store --file=.git/credentials"
         echo "https://${GITHUB_TOKEN}:@github.com" > .git/credentials
 
         echo ""
