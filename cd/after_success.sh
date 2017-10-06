@@ -2,6 +2,6 @@
 
 set -e
 
-if [ "$RELEASE" != 'true' ] && [ "$TRAVIS_PULL_REQUEST" == 'true' ]; then
+if [ "$RELEASE" != 'true' ] && [ "$TRAVIS_PULL_REQUEST" != 'false' ]; then
     bash <(curl -s https://codecov.io/bash)
 fi
