@@ -53,6 +53,7 @@ public class FederatedStoreGraphVisibilityTest {
 
     @Before
     public void setUp() throws Exception {
+        HashMapGraphLibrary._clear();
         fedProperties = new FederatedStoreProperties();
 
         final HashMapGraphLibrary library = new HashMapGraphLibrary();

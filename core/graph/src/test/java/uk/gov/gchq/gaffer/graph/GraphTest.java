@@ -1203,6 +1203,7 @@ public class GraphTest {
     @Test
     public void shouldBuildGraphUsingGraphIdAndLookupSchema() throws Exception {
         // Given
+        HashMapGraphLibrary._clear();
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
 

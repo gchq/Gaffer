@@ -33,6 +33,10 @@ public class HashMapGraphLibrary extends GraphLibrary {
 
     @Override
     public void clear() {
+        _clear();
+    }
+
+    public static void _clear() {
         GRAPHS.clear();
         SCHEMAS.clear();
         PROPERTIES.clear();
