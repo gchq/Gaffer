@@ -16,7 +16,12 @@
 
 package uk.gov.gchq.gaffer.store.library;
 
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -29,6 +34,13 @@ public class FileGraphLibraryTest extends AbstractGraphLibraryTest {
     @Override
     public GraphLibrary createGraphLibraryInstance() {
         return new FileGraphLibrary(TEST_FILE_PATH);
+    }
+
+    @After
+    public void cleanUp() throws IOException {
+        if (new File(TEST_FILE_PATH).exists()) {
+            FileUtils.forceDelete(new File(TEST_FILE_PATH));
+        }
     }
 
     @Test

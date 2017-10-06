@@ -40,11 +40,6 @@ public class NoGraphLibrary extends GraphLibrary {
     }
 
     @Override
-    public void clear() {
-        // do nothing
-    }
-
-    @Override
     public Pair<String, String> getIds(final String graphId) {
         return null;
     }

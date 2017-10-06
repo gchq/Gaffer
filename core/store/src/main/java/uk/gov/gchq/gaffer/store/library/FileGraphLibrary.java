@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.exception.OverwritingException;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -55,17 +54,6 @@ public class FileGraphLibrary extends GraphLibrary {
     @Override
     public void initialise(final String path) {
         setPath(path);
-    }
-
-    @Override
-    public void clear() {
-        if (new File(getPath()).exists()) {
-            try {
-                FileUtils.forceDelete(new File(getPath()));
-            } catch (final IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
     }
 
     public String getPath() {

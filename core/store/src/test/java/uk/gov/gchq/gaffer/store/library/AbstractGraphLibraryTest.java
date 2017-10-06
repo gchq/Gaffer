@@ -56,20 +56,9 @@ public abstract class AbstractGraphLibraryTest {
     @Before
     public void beforeEach() {
         graphLibrary = createGraphLibraryInstance();
-        graphLibrary.clear();
-    }
-
-    @Test
-    public void shouldClearGraphLibrary() {
-        // When
-        graphLibrary.add(TEST_GRAPH_ID, schema, storeProperties);
-        graphLibrary.clear();
-
-        // Then
-        assertEquals(null, graphLibrary.getIds(TEST_GRAPH_ID));
-        assertEquals(null, graphLibrary.getSchema(TEST_SCHEMA_ID));
-        assertEquals(null, graphLibrary.getProperties(TEST_PROPERTIES_ID));
-
+        if (graphLibrary instanceof HashMapGraphLibrary) {
+            HashMapGraphLibrary.clear();
+        }
     }
 
     @Test

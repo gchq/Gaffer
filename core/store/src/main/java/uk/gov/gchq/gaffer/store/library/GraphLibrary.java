@@ -34,11 +34,6 @@ public abstract class GraphLibrary {
     public abstract void initialise(final String path);
 
     /**
-     * Clear the GraphLibrary.
-     */
-    public abstract void clear();
-
-    /**
      * Add a new relationship between a graphId, Schema and StoreProperties.
      *
      * @param graphId    The graphId to relate to.

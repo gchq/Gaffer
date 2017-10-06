@@ -16,9 +16,37 @@
 
 package uk.gov.gchq.gaffer.store.library;
 
+import org.junit.Test;
+
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+
+import static org.junit.Assert.assertEquals;
+
 public class HashMapGraphLibraryTest extends AbstractGraphLibraryTest {
+
+    private static final String TEST_GRAPH_ID = "testGraphId";
+    private static final String TEST_SCHEMA_ID = "testSchemaId";
+    private static final String TEST_PROPERTIES_ID = "testPropertiesId";
+
+    private Schema schema = new Schema.Builder().id(TEST_SCHEMA_ID).build();
+    private StoreProperties storeProperties = new StoreProperties(TEST_PROPERTIES_ID);
 
     public GraphLibrary createGraphLibraryInstance() {
         return new HashMapGraphLibrary();
+    }
+
+    @Test
+    public void shouldClearGraphLibrary() {
+        // When
+        final HashMapGraphLibrary graphLibrary = new HashMapGraphLibrary();
+        graphLibrary.add(TEST_GRAPH_ID, schema, storeProperties);
+        graphLibrary.clear();
+
+        // Then
+        assertEquals(null, graphLibrary.getIds(TEST_GRAPH_ID));
+        assertEquals(null, graphLibrary.getSchema(TEST_SCHEMA_ID));
+        assertEquals(null, graphLibrary.getProperties(TEST_PROPERTIES_ID));
+
     }
 }
