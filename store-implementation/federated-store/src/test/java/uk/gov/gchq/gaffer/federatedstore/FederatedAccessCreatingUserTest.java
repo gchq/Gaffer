@@ -17,154 +17,121 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Sets;
+import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.user.User;
-import uk.gov.gchq.gaffer.user.User.Builder;
 
 import java.util.Collection;
 import java.util.HashSet;
 
 import static org.junit.Assert.assertTrue;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.TEST_USER;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
 
 /**
- * The user that created the graph should still have visibility/access of the graph,
+ * The user that created the graph should still have visibility/access of the
+ * graph,
  * they created. However other mechanisms will stop them from
  * performing operations that they do not have, else where in code.
  */
 public class FederatedAccessCreatingUserTest {
 
     public static final String A = "A";
-    public static final String B = "B";
-    public static final String USER = "user";
+
+    User testUser;
+
+    @Before
+    public void setUp() throws Exception {
+        testUser = testUser();
+    }
 
     @Test
     public void shouldValidateWithWrongAuth() throws Exception {
-
-        final User user = new Builder()
-                .opAuth(A)
-                .userId(USER)
-                .build();
-
         final FederatedAccess access = new FederatedAccess.Builder()
-                .graphAuths(B)
+                .graphAuths(A)
                 .build();
 
-        access.setAddingUserId(USER);
+        access.setAddingUserId(TEST_USER);
 
-        assertTrue(access.isValidToExecute(user));
+        assertTrue(access.isValidToExecute(testUser));
     }
 
     @Test
     public void shouldValidateWithNoAuth() throws Exception {
-
-        final User user = new Builder()
-                .userId(USER)
-                .build();
-
         final FederatedAccess access = new FederatedAccess.Builder()
-                .graphAuths(B)
+                .graphAuths(A)
                 .build();
 
-        access.setAddingUserId(USER);
+        access.setAddingUserId(TEST_USER);
 
-        assertTrue(access.isValidToExecute(user));
+        assertTrue(access.isValidToExecute(testUser));
     }
 
     @Test
     public void shouldValidateWithNullHookAuthCollection() throws Exception {
-
-        final User user = new Builder()
-                .userId(USER)
-                .build();
-
         final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths((Collection) null)
                 .build();
 
-        access.setAddingUserId(USER);
+        access.setAddingUserId(TEST_USER);
 
-        assertTrue(access.isValidToExecute(user));
+        assertTrue(access.isValidToExecute(testUser));
     }
 
     @Test
     public void shouldValidateWithNullHookAuthStringArray() throws Exception {
-
-        final User user = new Builder()
-                .userId(USER)
-                .build();
-
         final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths((String[]) null)
                 .build();
 
-        access.setAddingUserId(USER);
+        access.setAddingUserId(TEST_USER);
 
-        assertTrue(access.isValidToExecute(user));
+        assertTrue(access.isValidToExecute(testUser));
     }
 
     @Test
     public void shouldValidateWithEmptyHookAuthCollection() throws Exception {
-
-        final User user = new Builder()
-                .userId(USER)
-                .build();
-
         final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths(new HashSet<>())
                 .build();
 
-        access.setAddingUserId(USER);
+        access.setAddingUserId(TEST_USER);
 
-        assertTrue(access.isValidToExecute(user));
+        assertTrue(access.isValidToExecute(testUser));
     }
 
     @Test
     public void shouldValidateWithEmptyHookAuthStringArray() throws Exception {
-
-        final User user = new Builder()
-                .userId(USER)
-                .build();
-
         final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths(new String[0])
                 .build();
 
-        access.setAddingUserId(USER);
+        access.setAddingUserId(TEST_USER);
 
-        assertTrue(access.isValidToExecute(user));
+        assertTrue(access.isValidToExecute(testUser));
     }
 
     @Test
     public void shouldValidateWithEmptyHookAuthCollectionII() throws Exception {
-
-        final User user = new Builder()
-                .userId(USER)
-                .build();
-
         final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths(Sets.newHashSet(""))
                 .build();
 
-        access.setAddingUserId(USER);
+        access.setAddingUserId(TEST_USER);
 
-        assertTrue(access.isValidToExecute(user));
+        assertTrue(access.isValidToExecute(testUser));
     }
 
     @Test
     public void shouldValidateWithEmptyHookAuthStringArrayII() throws Exception {
-
-        final User user = new Builder()
-                .userId(USER)
-                .build();
-
         final FederatedAccess access = new FederatedAccess.Builder()
                 .graphAuths("")
                 .build();
 
-        access.setAddingUserId(USER);
+        access.setAddingUserId(TEST_USER);
 
-        assertTrue(access.isValidToExecute(user));
+        assertTrue(access.isValidToExecute(testUser));
     }
 
 }

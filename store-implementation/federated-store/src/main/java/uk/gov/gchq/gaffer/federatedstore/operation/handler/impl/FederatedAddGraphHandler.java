@@ -47,7 +47,7 @@ public class FederatedAddGraphHandler implements OperationHandler<AddGraph> {
                 operation.getSchema(), operation.getStoreProperties(),
                 operation.getParentSchemaIds(), operation.getParentPropertiesId());
 
-        ((FederatedStore) store).addGraphs(operation.getGraphAuths(), context.getUser().getUserId(), graph);
+        ((FederatedStore) store).addGraphs(operation.getGraphAuths(), context.getUser().getUserId(), operation.getIsPublic(), graph);
         return null;
     }
 }
