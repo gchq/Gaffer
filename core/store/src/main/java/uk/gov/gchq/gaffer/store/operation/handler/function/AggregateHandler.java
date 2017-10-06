@@ -24,13 +24,15 @@ import uk.gov.gchq.gaffer.operation.util.AggregatePair;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.validator.function.AggregateValidator;
+import uk.gov.gchq.gaffer.store.operation.validator.function.FunctionValidator;
 import uk.gov.gchq.gaffer.store.util.AggregatorUtil;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.Map;
 
 public class AggregateHandler implements OutputOperationHandler<Aggregate, Iterable<? extends Element>> {
-    private final FunctionValidator<Aggregate> validator = new FunctionValidator<>();
+    private final FunctionValidator<Aggregate> validator = new AggregateValidator();
 
     @Override
     public Iterable<? extends Element> doOperation(final Aggregate operation, final Context context, final Store store) throws OperationException {
