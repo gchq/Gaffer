@@ -31,10 +31,10 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.PREFIX_G
 public class FederatedStoreProperties extends StoreProperties {
     /**
      * This is used....
-     * e.g gaffer.federatedstore.isPublicAllowed=false
+     * e.g gaffer.federatedstore.isPublicAllowed=true
      */
     public static final String IS_PUBLIC_ACCESS_ALLOWED = "gaffer.federatedstore.isPublicAllowed";
-    public static final String IS_PUBLIC_ACCESS_ALLOWED_DEFAULT = String.valueOf(false);
+    public static final String IS_PUBLIC_ACCESS_ALLOWED_DEFAULT = String.valueOf(true);
     /**
      * This is used....
      * e.g gaffer.federatedstore.customPropertiesAuths="auth1"
@@ -56,9 +56,10 @@ public class FederatedStoreProperties extends StoreProperties {
 
     /**
      * This is used....
-     * e.g gaffer.federatedstore.graph1.isPublic=true
+     * e.g gaffer.federatedstore.graph1.isPublic=false
      */
     private static final String IS_PUBLIC = "isPublic";
+    public static final String IS_PUBLIC_DEFAULT = String.valueOf(false);
 
     public FederatedStoreProperties() {
         super(FederatedStore.class);
@@ -129,7 +130,7 @@ public class FederatedStoreProperties extends StoreProperties {
     }
 
     public String getGraphIsPublicValue(final String graphId) {
-        return get(getKeyGraphIsPublic(graphId));
+        return get(getKeyGraphIsPublic(graphId), IS_PUBLIC_DEFAULT);
     }
 
     public void setGraphIsPublicValue(final String graphId, final boolean b) {

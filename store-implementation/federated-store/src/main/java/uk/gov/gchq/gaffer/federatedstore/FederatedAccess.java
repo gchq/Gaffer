@@ -26,6 +26,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBLIC_DEFAULT;
+
 /**
  * Conditions required for a {@link User} to have access to a graph within the
  * {@link FederatedStore} via {@link FederatedAccess}
@@ -55,7 +57,7 @@ import java.util.Set;
  * @see #isValidToExecute(User)
  */
 public class FederatedAccess {
-    private boolean isPublic = false;
+    private boolean isPublic = Boolean.valueOf(IS_PUBLIC_DEFAULT);
     private Set<String> graphAuths = new HashSet<>();
     private String addingUserId;
 

@@ -71,6 +71,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBLIC_ACCESS_ALLOWED_DEFAULT;
+
 /**
  * A Store that encapsulates a collection of sub-graphs and executes operations
  * against them and returns results as though it was a single graph.
@@ -93,7 +95,7 @@ public class FederatedStore extends Store {
     public static final LocationEnum FILE = LocationEnum.FILE;
     private FederatedGraphStorage graphStorage = new FederatedGraphStorage();
     private Set<String> customPropertiesAuths;
-    private Boolean graphsCanHavePublicAccess = true;
+    public Boolean isPublicAccessAllowed = Boolean.valueOf(IS_PUBLIC_ACCESS_ALLOWED_DEFAULT);
 
 
     /**
@@ -111,7 +113,7 @@ public class FederatedStore extends Store {
         super.initialise(graphId, new Schema(), properties);
         loadCustomPropertiesAuths();
 
-        graphsCanHavePublicAccess = Boolean.valueOf(getProperties().getIsPublicAccessAllowed());
+        isPublicAccessAllowed = Boolean.valueOf(getProperties().getIsPublicAccessAllowed());
 
         loadGraphs();
     }
@@ -173,7 +175,7 @@ public class FederatedStore extends Store {
      * @param graphAuths   the access auths for the graph being added
      */
     public void addGraphs(final Set<String> graphAuths, final String addingUserId, final boolean isPublic, final Graph... graphs) {
-        FederatedAccess access = new FederatedAccess(graphAuths, addingUserId, graphsCanHavePublicAccess && isPublic);
+        FederatedAccess access = new FederatedAccess(graphAuths, addingUserId, isPublicAccessAllowed && isPublic);
 
         for (final Graph graph : graphs) {
             _add(graph, access);

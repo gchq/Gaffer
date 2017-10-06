@@ -26,7 +26,7 @@ import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
-public class FederatedStorePublicAccess {
+public class FederatedStorePublicAccessTest {
 
 
     public static final String GRAPH_1 = "graph1";
@@ -63,11 +63,11 @@ public class FederatedStorePublicAccess {
 
 
     @Test
-    public void shouldNotBePublicWhenAllGraphsDefaultedPrivateAndGraphIsSetPublic() throws Exception {
+    public void shouldBePublicWhenAllGraphsDefaultedPrivateAndGraphIsSetPublic() throws Exception {
         fedProps.setTrueGraphIsPublicValue(GRAPH_1);
         store.initialise("testFedStore", null, fedProps);
         final Iterable<? extends String> execute = store.execute(new GetAllGraphIds(), blankUser);
-        Assert.assertFalse(execute.iterator().hasNext());
+        Assert.assertTrue(execute.iterator().hasNext());
     }
 
     @Test
