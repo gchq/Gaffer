@@ -26,6 +26,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBLIC_DEFAULT;
+
 /**
  * Conditions required for a {@link User} to have access to a graph within the
  * {@link FederatedStore} via {@link FederatedAccess}
@@ -55,12 +57,18 @@ import java.util.Set;
  * @see #isValidToExecute(User)
  */
 public class FederatedAccess {
+    private boolean isPublic = Boolean.valueOf(IS_PUBLIC_DEFAULT);
     private Set<String> graphAuths = new HashSet<>();
     private String addingUserId;
 
     public FederatedAccess(final Set<String> graphAuths, final String addingUserId) {
         this.graphAuths = graphAuths;
         this.addingUserId = addingUserId;
+    }
+
+    public FederatedAccess(final Set<String> graphAuths, final String addingUser, final boolean isPublic) {
+        this(graphAuths, addingUser);
+        this.isPublic = isPublic;
     }
 
     public void setAddingUserId(final String creatorUserId) {
@@ -87,7 +95,7 @@ public class FederatedAccess {
      * @return boolean permission for user.
      */
     protected boolean isValidToExecute(final User user) {
-        return null != user && (isAddingUser(user) || (!isAuthsNullOrEmpty() && isUserHasASharedAuth(user)));
+        return isPublic || (null != user && (isAddingUser(user) || (!isAuthsNullOrEmpty() && isUserHasASharedAuth(user))));
     }
 
     private boolean isUserHasASharedAuth(final User user) {
@@ -110,6 +118,7 @@ public class FederatedAccess {
         private String addingUser;
         private Set<String> graphAuths;
         private final Builder self = this;
+        private boolean isPublic = false;
 
         public Builder graphAuths(final String... opAuth) {
             if (null == opAuth) {
@@ -153,7 +162,17 @@ public class FederatedAccess {
         }
 
         public FederatedAccess build() {
-            return new FederatedAccess(graphAuths, addingUser);
+            return new FederatedAccess(graphAuths, addingUser, isPublic);
+        }
+
+        public Builder makePublic() {
+            isPublic = true;
+            return self;
+        }
+
+        public Builder makePrivate() {
+            isPublic = false;
+            return self;
         }
     }
 }
