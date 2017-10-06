@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.spark;
 import org.apache.spark.sql.SparkSession;
 
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.ContextFactory;
+import uk.gov.gchq.gaffer.store.ContextInitialiser;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -28,14 +28,19 @@ import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Properties;
 
-public class SparkContextFactory implements ContextFactory {
+/**
+ * A {@code SparkContextInitialiser} is a {@link ContextInitialiser} that adds
+ * a {@link SparkSession} to the user {@link Context}.
+ */
+public class SparkContextInitialiser implements ContextInitialiser {
+    public static final String SPARK_CONTEXT_CONFIG_KEY = "config.spark.context";
 
     @Override
-    public Context createContext(final User user, final StoreProperties storeProperties) {
+    public void initialise(final Context context, final StoreProperties storeProperties) {
         SparkSession.Builder builder = SparkSession.builder()
                 .appName(storeProperties.get(SparkConstants.APP_NAME, SparkConstants.DEFAULT_APP_NAME));
         if (Boolean.parseBoolean(storeProperties.get(SparkConstants.USE_SPARK_DEFAULT_CONF, "false"))) {
-            Properties properties =  new Properties();
+            Properties properties = new Properties();
             String sparkDefaultConfPath = storeProperties.get(SparkConstants.SPARK_DEFAULT_CONF_PATH, SparkConstants.DEFAULT_SPARK_DEFAULT_CONF_PATH);
             try {
                 properties.load(Files.newBufferedReader(Paths.get(sparkDefaultConfPath)));
@@ -53,7 +58,35 @@ public class SparkContextFactory implements ContextFactory {
         builder.config(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true")
                 .config(SparkConstants.SERIALIZER, storeProperties.get(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER))
                 .config(SparkConstants.KRYO_REGISTRATOR, storeProperties.get(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR));
-        return new SparkContext(user, builder.getOrCreate());
+        context.setConfig(SPARK_CONTEXT_CONFIG_KEY, builder.getOrCreate());
     }
 
+    /**
+     * Create a new Context with the given user and spark session.
+     *
+     * @param user         the user
+     * @param sparkSession the spark session
+     * @return the new {@link Context}.
+     */
+    public static Context createContext(final User user, final SparkSession sparkSession) {
+        return new Context.Builder()
+                .user(user)
+                .config(SPARK_CONTEXT_CONFIG_KEY, sparkSession)
+                .build();
+    }
+
+    /**
+     * Extracts the {@link SparkSession} from the Context. Throws an exception
+     * if the session is null. This method will never return null.
+     *
+     * @param context the {@link User} {@link Context}
+     * @return the {@link SparkSession}
+     */
+    public static SparkSession getSparkSession(final Context context) {
+        final SparkSession sparkSession = (SparkSession) context.getConfig(SPARK_CONTEXT_CONFIG_KEY);
+        if (null == sparkSession) {
+            throw new IllegalArgumentException("The Context does not have a SparkSession.");
+        }
+        return sparkSession;
+    }
 }

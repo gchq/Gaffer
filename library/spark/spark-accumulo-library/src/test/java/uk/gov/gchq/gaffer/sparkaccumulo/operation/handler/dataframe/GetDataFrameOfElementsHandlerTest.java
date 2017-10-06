@@ -19,7 +19,6 @@ import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.Row$;
-import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.DataTypes;
 import org.junit.Test;
@@ -38,11 +37,9 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.spark.SparkContext;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.exception.ConversionException;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
-import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.SparkSessionProvider;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
@@ -249,7 +246,6 @@ public class GetDataFrameOfElementsHandlerTest {
     @Test
     public void checkGetCorrectElementsInDataFrameWithProjectionAndFiltering() throws OperationException {
         final Graph graph = getGraph("/schema-DataFrame/elements.json", getElements());
-        final SparkContext sparkContext = new SparkContext(new User(), SparkSessionProvider.getSparkSession());
 
         // Get DataFrame
         final GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
@@ -290,7 +286,6 @@ public class GetDataFrameOfElementsHandlerTest {
     @Test
     public void checkGetExceptionIfIncompatibleSchemas() throws OperationException {
         final Graph graph = getGraph("/schema-DataFrame/elementsIncompatible.json", Collections.<Element>emptyList());
-        final SparkContext sparkContext = new SparkContext(new User(), SparkSessionProvider.getSparkSession());
 
         // Use entity and edges group - check get correct data
         final GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
@@ -309,8 +304,6 @@ public class GetDataFrameOfElementsHandlerTest {
     @Test
     public void checkCanDealWithNonStandardProperties() throws OperationException {
         final Graph graph = getGraph("/schema-DataFrame/elementsNonstandardTypes.json", getElementsWithNonStandardProperties());
-        final SparkContext sparkContext = new SparkContext(new User(), SparkSessionProvider.getSparkSession());
-
         // Edges group - check get correct edges
         GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
                 .view(new View.Builder().edge(EDGE_GROUP).build())
@@ -358,7 +351,6 @@ public class GetDataFrameOfElementsHandlerTest {
     @Test
     public void checkCanDealWithUserDefinedConversion() throws OperationException {
         final Graph graph = getGraph("/schema-DataFrame/elementsUserDefinedConversion.json", getElementsForUserDefinedConversion());
-        final SparkContext sparkContext = new SparkContext(new User(), SparkSessionProvider.getSparkSession());
 
         // Edges group - check get correct edges
         final List<Converter> converters = new ArrayList<>();

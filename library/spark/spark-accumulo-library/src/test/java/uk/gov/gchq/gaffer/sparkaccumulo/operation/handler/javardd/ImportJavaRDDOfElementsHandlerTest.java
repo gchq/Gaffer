@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.sql.SparkSession;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -31,7 +32,6 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.spark.SparkContext;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
@@ -92,7 +92,7 @@ public class ImportJavaRDDOfElementsHandlerTest {
             elements.add(entity);
         }
         final User user = new User();
-        final SparkContext sparkContext = new SparkContext(user, SparkSessionProvider.getSparkSession());
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         // Create Hadoop configuration and serialise to a string
         final Configuration configuration = new Configuration();
@@ -102,7 +102,7 @@ public class ImportJavaRDDOfElementsHandlerTest {
         final String outputPath = testFolder.getRoot().getAbsolutePath() + "/output";
         final String failurePath = testFolder.getRoot().getAbsolutePath() + "/failure";
 
-        final JavaRDD<Element> elementJavaRDD = JavaSparkContext.fromSparkContext(sparkContext.getSparkSession().sparkContext()).parallelize(elements);
+        final JavaRDD<Element> elementJavaRDD = JavaSparkContext.fromSparkContext(sparkSession.sparkContext()).parallelize(elements);
         final ImportJavaRDDOfElements addRdd = new ImportJavaRDDOfElements.Builder()
                 .input(elementJavaRDD)
                 .option("outputPath", outputPath)

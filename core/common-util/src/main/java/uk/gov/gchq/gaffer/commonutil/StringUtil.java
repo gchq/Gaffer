@@ -19,7 +19,8 @@ package uk.gov.gchq.gaffer.commonutil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.UnsupportedEncodingException;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -123,35 +124,49 @@ public final class StringUtil {
     }
 
     /**
-     * Create a CSV entry containing a list of class names (in byte array representation).
+     * Create a CSV entry containing a list of class names.
      *
      * @param classes the classes to write as a CSV entry
-     * @return the CSV entry, as a byte array
+     * @return the CSV entry, as a string
      */
-    public static byte[] toCsv(final Class<?>... classes) {
+    public static String toCsvString(final Class<?>... classes) {
         final String[] classNames = new String[classes.length];
         for (int i = 0; i < classes.length; i++) {
             classNames[i] = classes[i].getName();
         }
-        return toBytes(StringUtils.join(classNames, ","));
+        return StringUtils.join(classNames, ",");
     }
 
     /**
-     * Convert a byte array containing a CSV entry of class names into a {@link Set}
-     * of {@link Class} objects.
+     * Create a CSV entry containing a list of class names as a byte[].
      *
+     * @param classes the classes to write as a CSV entry
+     * @return the CSV entry, as a byte[]
+     */
+    public static byte[] toCsv(final Class<?>... classes) {
+        return toBytes(toCsvString(classes));
+    }
+
+    /**
+     * Convert a string containing a CSV entry of class names into a {@link Set}
+     * of {@link Class} objects.
+     * <p>
      * All the {@link Class} objects created are then cast to a subclass of the
      * type {@code T}.
      *
-     * @param bytes the CSV entry
-     * @param clazz the {@link Class} instance to cast to
-     * @param <T> the base type to cast all of the {@link Class} instances to a
-     *           subtype of
+     * @param classesNamesCsv the CSV entry of class names
+     * @param clazz           the {@link Class} instance to cast to
+     * @param <T>             the base type to cast all of the {@link Class} instances to a
+     *                        subtype of
      * @return a set of {@link Class} instances
      */
-    public static <T> Set<Class<? extends T>> csvToClasses(final byte[] bytes, final Class<? extends T> clazz) {
-        final String[] classNames = toString(bytes).split(",");
-        final Set<Class<? extends T>> classes = new HashSet<>(classNames.length);
+    public static <T> Set<Class<? extends T>> csvToClasses(final String classesNamesCsv, final Class<? extends T> clazz) {
+        if (null == classesNamesCsv) {
+            return Collections.emptySet();
+        }
+
+        final String[] classNames = classesNamesCsv.split(",");
+        final Set<Class<? extends T>> classes = new LinkedHashSet<>(classNames.length);
         for (final String processorClassName : classNames) {
             try {
                 classes.add(Class.forName(processorClassName).asSubclass(clazz));
@@ -162,5 +177,25 @@ public final class StringUtil {
         }
 
         return classes;
+    }
+
+    /**
+     * Convert a byte array containing a CSV entry of class names into a {@link Set}
+     * of {@link Class} objects.
+     * <p>
+     * All the {@link Class} objects created are then cast to a subclass of the
+     * type {@code T}.
+     *
+     * @param bytes the CSV entry
+     * @param clazz the {@link Class} instance to cast to
+     * @param <T>   the base type to cast all of the {@link Class} instances to a
+     *              subtype of
+     * @return a set of {@link Class} instances
+     */
+    public static <T> Set<Class<? extends T>> csvToClasses(final byte[] bytes, final Class<? extends T> clazz) {
+        if (null == bytes) {
+            return Collections.emptySet();
+        }
+        return csvToClasses(toString(bytes), clazz);
     }
 }

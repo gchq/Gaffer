@@ -15,13 +15,6 @@
  */
 package uk.gov.gchq.gaffer.store;
 
-import uk.gov.gchq.gaffer.user.User;
-
-public class DefaultContextFactory implements ContextFactory {
-
-    @Override
-    public Context createContext(final User user, final StoreProperties storeProperties) {
-        return new Context(user);
-    }
-
+public interface ContextInitialiser {
+    void initialise(final Context context, final StoreProperties storeProperties);
 }

@@ -158,9 +158,9 @@ public abstract class Store {
     private StoreProperties properties;
 
     /**
-     * The context factory - creates a configurable context in which to run operations
+     * Configurable {@link ContextInitialiser}s. For initialising the {@link Context}.
      */
-    private ContextFactory contextFactory;
+    private List<ContextInitialiser> contextInitialisers;
 
     private GraphLibrary library;
 
@@ -213,7 +213,7 @@ public abstract class Store {
         this.graphId = graphId;
         this.schema = schema;
         setProperties(properties);
-        this.contextFactory = ContextFactory.createContextFactory(getProperties());
+        this.contextInitialisers = getProperties().createContextInitialisers();
 
         JSONSerialiser.update(getProperties().getJsonSerialiserClass(), getProperties().getJsonSerialiserModules());
 
@@ -578,7 +578,11 @@ public abstract class Store {
     }
 
     public Context createContext(final User user) {
-        return contextFactory.createContext(user, properties);
+        final Context context = new Context(user);
+        for (final ContextInitialiser contextInitialiser : contextInitialisers) {
+            contextInitialiser.initialise(context, properties);
+        }
+        return context;
     }
 
     /**

@@ -19,15 +19,15 @@ import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
 import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.NullWritable;
+import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
-import org.apache.spark.sql.SparkSession;
 import scala.Tuple2;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.inputformat.ElementInputFormat;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.spark.SparkContext;
+import uk.gov.gchq.gaffer.spark.SparkContextInitialiser;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.ClassTagConstants;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
@@ -41,27 +41,21 @@ public class GetRDDOfElementsHandler extends AbstractGetRDDHandler<GetRDDOfEleme
                                     final Context context,
                                     final Store store)
             throws OperationException {
-        if (!(context instanceof SparkContext)) {
-            throw new OperationException("This operation requires the context to be of type SparkContext.");
-        }
-        return doOperation(operation, (SparkContext) context, (AccumuloStore) store);
+        return doOperation(operation, context, (AccumuloStore) store);
     }
 
     private RDD<Element> doOperation(final GetRDDOfElements operation,
-                                     final SparkContext sparkContext,
+                                     final Context context,
                                      final AccumuloStore accumuloStore)
             throws OperationException {
-        SparkSession sparkSession = sparkContext.getSparkSession();
-        if (sparkSession == null) {
-            throw new OperationException("This operation requires an active SparkSession.");
-        }
         final Configuration conf = getConfiguration(operation);
-        sparkSession.sparkContext().hadoopConfiguration().addResource(conf);
+        final SparkContext sparkContext = SparkContextInitialiser.getSparkSession(context).sparkContext();
+        sparkContext.hadoopConfiguration().addResource(conf);
         // Use batch scan option when performing seeded operation
         InputConfigurator.setBatchScan(AccumuloInputFormat.class, conf, true);
-        addIterators(accumuloStore, conf, sparkContext.getUser(), operation);
+        addIterators(accumuloStore, conf, context.getUser(), operation);
         addRanges(accumuloStore, conf, operation);
-        final RDD<Tuple2<Element, NullWritable>> pairRDD = sparkContext.getSparkSession().sparkContext().newAPIHadoopRDD(conf,
+        final RDD<Tuple2<Element, NullWritable>> pairRDD = sparkContext.newAPIHadoopRDD(conf,
                 ElementInputFormat.class,
                 Element.class,
                 NullWritable.class);

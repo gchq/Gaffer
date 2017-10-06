@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
-import uk.gov.gchq.gaffer.spark.SparkContextFactory;
+import uk.gov.gchq.gaffer.spark.SparkContextInitialiser;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringDeduplicateConcat;
 
@@ -138,8 +138,8 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
     }
 
     @Override
-    public String getContextFactoryClass() {
-        return get(CONTEXT_FACTORY_CLASS, SparkContextFactory.class.getName());
+    public String getContextInitialiserClasses() {
+        return get(CONTEXT_INITIALISERS, SparkContextInitialiser.class.getName());
     }
 
     /**

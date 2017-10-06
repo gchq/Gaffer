@@ -20,7 +20,6 @@ import org.apache.spark.sql.Row;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.spark.SparkContext;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -34,10 +33,10 @@ public class GetDataFrameOfElementsHandler implements OutputOperationHandler<Get
     @Override
     public Dataset<Row> doOperation(final GetDataFrameOfElements operation, final Context context,
                                     final Store store) throws OperationException {
-        return doOperation(operation, (SparkContext) context, (AccumuloStore) store);
+        return doOperation(operation, context, (AccumuloStore) store);
     }
 
-    public Dataset<Row> doOperation(final GetDataFrameOfElements operation, final SparkContext context,
+    public Dataset<Row> doOperation(final GetDataFrameOfElements operation, final Context context,
                                     final AccumuloStore store) throws OperationException {
         final Map<String, String> operationOptions;
         if (operation.getOptions() != null) {
@@ -50,7 +49,7 @@ public class GetDataFrameOfElementsHandler implements OutputOperationHandler<Get
                 operation.getView(),
                 store,
                 operationOptions);
-        return context.getSparkSession().sqlContext().baseRelationToDataFrame(relation);
+        return relation.sqlContext().baseRelationToDataFrame(relation);
     }
 
 }

@@ -21,7 +21,6 @@ import org.apache.spark.rdd.RDD;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.spark.SparkContext;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
@@ -33,13 +32,13 @@ import uk.gov.gchq.gaffer.store.Store;
  * A handler for the {@link GetJavaRDDOfAllElements} operation. This simply uses the operation
  * {@link GetRDDOfAllElements} to produce an {@link RDD} and then calls {@code toJavaRDD()} to obtain a
  * {@link JavaRDD}.
- *
+ * <p>
  * <p>If the {@code gaffer.accumulo.spark.directrdd.use_rfile_reader} option is set to {@code true} then the
  * RDD will be produced by directly reading the RFiles in the Accumulo table, rather than using
  * {@link uk.gov.gchq.gaffer.accumulostore.inputformat.ElementInputFormat} to get data via the tablet servers. In order
  * to read the RFiles directly, the user must have read access to the files. Also note that any data that has not been
  * minor compacted will not be read. Reading the Rfiles directly can increase the performance.
- *
+ * <p>
  * <p>If the {@code gaffer.accumulo.spark.directrdd.use_rfile_reader} option is not set then the standard approach
  * of obtaining data via the tablet servers is used.
  */
@@ -49,11 +48,11 @@ public class GetJavaRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetJav
     public JavaRDD<Element> doOperation(final GetJavaRDDOfAllElements operation,
                                         final Context context,
                                         final Store store) throws OperationException {
-        return doOperation(operation, (SparkContext) context, (AccumuloStore) store);
+        return doOperation(operation, context, (AccumuloStore) store);
     }
 
     private JavaRDD<Element> doOperation(final GetJavaRDDOfAllElements operation,
-                                         final SparkContext context,
+                                         final Context context,
                                          final AccumuloStore accumuloStore) throws OperationException {
         final GetRDDOfAllElements getRDDOfAllElements = new GetRDDOfAllElements.Builder()
                 .directedType(operation.getDirectedType())

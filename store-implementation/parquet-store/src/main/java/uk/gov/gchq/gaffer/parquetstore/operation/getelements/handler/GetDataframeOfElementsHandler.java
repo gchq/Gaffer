@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.exception.VisibilityP
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
-import uk.gov.gchq.gaffer.spark.SparkContext;
+import uk.gov.gchq.gaffer.spark.SparkContextInitialiser;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -51,18 +51,10 @@ public class GetDataframeOfElementsHandler implements OutputOperationHandler<Get
     public Dataset<Row> doOperation(final GetDataFrameOfElements operation,
                                     final Context context,
                                     final Store store) throws OperationException {
-        final User user;
-        final SparkSession spark;
+        final SparkSession spark = SparkContextInitialiser.getSparkSession(context);
+        final User user = context.getUser();
         final Authorisations auths;
         final String visibility;
-
-        if (context instanceof SparkContext) {
-            user = context.getUser();
-            spark = ((SparkContext) context).getSparkSession();
-        } else {
-            throw new OperationException("This operation requires the context to be of type SparkContext.");
-        }
-
         if (user != null && user.getDataAuths() != null) {
             auths = new Authorisations(user.getDataAuths().toArray(new String[user.getDataAuths().size()]));
         } else {
