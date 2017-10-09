@@ -538,41 +538,6 @@ public class AggregateHandlerTest {
     }
 
     @Test
-    public void shouldFailValidationWhenTypeArgumentOfBinaryOperatorInSchemaIsIncorrect() {
-        // Given
-        final Schema schema = new Schema.Builder()
-                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .property(TestPropertyNames.COUNT, "count.long")
-                        .aggregator(new ElementAggregator.Builder()
-                                .select("count")
-                                .execute(new And())
-                                .build())
-                        .build())
-                .type("count.long", new TypeDefinition(Long.class))
-                .build();
-        given(store.getSchema()).willReturn(schema);
-
-        input.add(edge);
-        input.add(edge1);
-        input.add(edge2);
-
-        edges.put(TestGroups.EDGE, new AggregatePair());
-
-        final Aggregate aggregate = new Aggregate.Builder()
-                .input(input)
-                .edges(edges)
-                .build();
-
-        // When / Then
-        try {
-            final Iterable<? extends Element> results = handler.doOperation(aggregate, context, store);
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains("Incompatible types."));
-        }
-    }
-
-    @Test
     public void shouldFailValidationWhenTypeArgumentOfBinaryOperatorInFunctionIsIncorrect() {
         // Given
         final Schema schema = new Schema.Builder()

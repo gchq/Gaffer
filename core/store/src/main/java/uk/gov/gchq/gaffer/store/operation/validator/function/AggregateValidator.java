@@ -91,13 +91,7 @@ public class AggregateValidator extends FunctionValidator<Aggregate> {
 
         if (null != aggregator && null != aggregator.getComponents()) {
             for (final TupleAdaptedBinaryOperator<String, ?> adaptedFunction : aggregator.getComponents()) {
-                if (null != adaptedFunction.getBinaryOperator()) {
-                    if (null != schemaElement &&
-                            null != schemaElement.getOriginalAggregateFunctions() &&
-                            !schemaOperators.contains(adaptedFunction.getBinaryOperator())) {
-                        result.addError(adaptedFunction.getBinaryOperator().toString() + " does not exist in the schema.");
-                    }
-                } else {
+                if (null == adaptedFunction.getBinaryOperator()) {
                     result.addError(aggregator.getClass().getSimpleName() + " contains a null function.");
                 }
             }
@@ -106,7 +100,7 @@ public class AggregateValidator extends FunctionValidator<Aggregate> {
     }
 
     /**
-     * Validates that the binary operators to be executed are assignable to the corresponding properties
+     * Validates that the binary operators to be executed are assignable to the corresponding non-transient properties
      * @param elements  Map of element group to SchemaElementDefinition
      * @param pair      AggregatePair, containing a String array of groupBy properties, and an ElementAggregator
      * @return          ValidationResult of the validation
@@ -120,35 +114,20 @@ public class AggregateValidator extends FunctionValidator<Aggregate> {
 
             for (final TupleAdaptedBinaryOperator<String, ?> component : components) {
                 final String[] selection = component.getSelection();
-
                 for (final SchemaElementDefinition elementDef : elements.values()) {
                     final Class[] selectionClasses = Arrays.stream(selection).map(elementDef::getPropertyClass).toArray(Class[]::new);
                     final Map<String, String> properties = elementDef.getPropertyMap();
+
                     if (!properties.isEmpty()) {
                         if (null == component.getBinaryOperator()) {
                             result.addError(aggregator.getClass().getSimpleName() + " contains a null function.");
-                        } else {
-                            final Signature inputSig = Signature.getInputSignature(component.getBinaryOperator());
-                            result.add(inputSig.assignable(selectionClasses));
                         }
-                    }
-                }
-            }
-        } else {
-            for (final SchemaElementDefinition elementDef : elements.values()) {
-                final List<TupleAdaptedBinaryOperator<String, ?>> components = elementDef.getOriginalAggregateFunctions();
 
-                for (final TupleAdaptedBinaryOperator<String, ?> component : components) {
-                    final String[] selection = component.getSelection();
-                    final Class[] selectionClasses = Arrays.stream(selection).map(elementDef::getPropertyClass).toArray(Class[]::new);
-                    final Map<String, String> properties = elementDef.getPropertyMap();
-
-                    if (!properties.isEmpty()) {
-                        if (null == component.getBinaryOperator()) {
-                            result.addError("Aggregator in the schema contains a null function.");
-                        } else {
-                            final Signature inputSig = Signature.getInputSignature(component.getBinaryOperator());
-                            result.add(inputSig.assignable(selectionClasses));
+                        for (int i = 0; i < selectionClasses.length; i++) {
+                            if (properties.containsKey(selection[i])) {
+                                final Signature inputSig = Signature.getInputSignature(component.getBinaryOperator());
+                                result.add(inputSig.assignable(selectionClasses[i]));
+                            }
                         }
                     }
                 }
