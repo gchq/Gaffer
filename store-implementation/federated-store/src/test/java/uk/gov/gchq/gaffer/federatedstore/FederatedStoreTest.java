@@ -759,7 +759,7 @@ public class FederatedStoreTest {
         final MapStoreProperties prop = new MapStoreProperties();
         prop.setId(PROPS_ID_1);
         final HashMapGraphLibrary graphLibrary = new HashMapGraphLibrary();
-        graphLibrary.addProperties(PROPS_ID_1, prop);
+        graphLibrary.addProperties(prop);
         assertFalse(KEY_DOES_NOT_BELONG, graphLibrary.getProperties(PROPS_ID_1).containsKey(UNUSUAL_KEY));
 
         store.setGraphLibrary(graphLibrary);

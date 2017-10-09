@@ -86,9 +86,11 @@ public class FederatedStoreAuthTest {
         assertEquals(EXPECTED_GRAPH_ID, next.getGraphId());
         assertEquals(expectedSchema, next.getSchema());
 
+        Context blankContext = new Context(blankUser());
+
         final Iterable<? extends String> execute = store.execute(
                 new GetAllGraphIds(),
-                blankUser());
+                blankContext);
 
         assertFalse(execute.iterator().hasNext());
     }
