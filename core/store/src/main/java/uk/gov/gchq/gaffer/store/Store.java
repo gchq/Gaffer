@@ -156,6 +156,7 @@ public abstract class Store {
      * The store properties - contains specific configuration information for the store - such as database connection strings.
      */
     private StoreProperties properties;
+
     private GraphLibrary library;
 
     private JobTracker jobTracker;
@@ -206,7 +207,6 @@ public abstract class Store {
         }
         this.graphId = graphId;
         this.schema = schema;
-
         setProperties(properties);
 
         JSONSerialiser.update(getProperties().getJsonSerialiserClass(), getProperties().getJsonSerialiserModules());
@@ -245,87 +245,54 @@ public abstract class Store {
      * Executes a given operation and returns the result.
      *
      * @param operation the operation to execute.
-     * @param user      the user executing the operation
+     * @param context   the context executing the operation
      * @throws OperationException thrown by the operation handler if the operation fails.
      */
-    public void execute(final Operation operation, final User user) throws OperationException {
-        execute(new OperationChain<>(operation), user);
+    public void execute(final Operation operation, final Context context) throws OperationException {
+        execute(OperationChain.wrap(operation), context);
     }
 
     /**
      * Executes a given operation and returns the result.
      *
      * @param operation the operation to execute.
-     * @param context   the context associated with the operation
-     * @throws OperationException thrown by the operation handler if the operation fails.
-     */
-    public void execute(final Operation operation, final Context context) throws OperationException {
-        execute(new OperationChain<>(operation), context);
-    }
-
-    /**
-     * Executes a given output operation and returns the result.
-     *
-     * @param operation the output operation to execute.
-     * @param user      the user executing the operation
-     * @param <O>       the output type of the operation.
-     * @return the result from the operation
-     * @throws OperationException thrown by the operation handler if the operation fails.
-     */
-    public <O> O execute(final Output<O> operation, final User user) throws OperationException {
-        return execute(new OperationChain<>(operation), user);
-    }
-
-    /**
-     * Executes a given operation chain and returns the result.
-     *
-     * @param operationChain the operation chain to execute.
-     * @param user           the user executing the operation chain
-     * @param <O>            the output type of the operation.
-     * @return the result of executing the operation.
-     * @throws OperationException thrown by an operation handler if an operation fails
-     */
-    public <O> O execute(final OperationChain<O> operationChain, final User user) throws OperationException {
-        return execute(operationChain, createContext(user));
-    }
-
-    /**
-     * Execute a given operation and returns the result.
-     *
-     * @param operation the operation to execute
-     * @param context   the context associated with the operation
+     * @param context   the context executing the operation
      * @param <O>       the output type of the operation
      * @return the result of executing the operation
      * @throws OperationException thrown by the operation handler if the operation fails.
      */
     public <O> O execute(final Output<O> operation, final Context context) throws OperationException {
-        final OperationChain<O> operationChain = Operation.asOperationChain(operation);
+        return execute(OperationChain.wrap(operation), context);
+    }
 
-        addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
+    protected <O> O execute(final OperationChain<O> operation, final Context context) throws OperationException {
+        addOrUpdateJobDetail(operation, context, null, JobStatus.RUNNING);
         try {
             final O result = (O) handleOperation(operation, context);
-            addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
+            addOrUpdateJobDetail(operation, context, null, JobStatus.FINISHED);
             return result;
         } catch (final Throwable t) {
-            addOrUpdateJobDetail(operationChain, context, t.getMessage(), JobStatus.FAILED);
+            addOrUpdateJobDetail(operation, context, t.getMessage(), JobStatus.FAILED);
             throw t;
         }
     }
 
     /**
-     * Executes a given operation chain job and returns the job detail.
+     * Executes a given operation job and returns the job detail.
      *
-     * @param operationChain the operation chain to execute.
-     * @param user           the user executing the job
+     * @param operation the operation to execute.
+     * @param context   the context executing the job
      * @return the job detail
      * @throws OperationException thrown if jobs are not configured.
      */
-    public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
+    public JobDetail executeJob(final Operation operation, final Context context) throws OperationException {
+        return executeJob(OperationChain.wrap(operation), context);
+    }
+
+    protected JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
         if (null == jobTracker) {
             throw new OperationException("Running jobs has not configured.");
         }
-
-        final Context context = createContext(user);
 
         if (isSupported(ExportToGafferResultCache.class)) {
             boolean hasExport = false;
@@ -517,6 +484,10 @@ public abstract class Store {
         }
     }
 
+    public Context createContext(final User user) {
+        return new Context(user);
+    }
+
     protected Class<? extends StoreProperties> getPropertiesClass() {
         return StoreProperties.class;
     }
@@ -597,10 +568,6 @@ public abstract class Store {
 
     protected void addOperationChainOptimisers(final List<OperationChainOptimiser> newOpChainOptimisers) {
         opChainOptimisers.addAll(newOpChainOptimisers);
-    }
-
-    protected Context createContext(final User user) {
-        return new Context(user);
     }
 
     /**

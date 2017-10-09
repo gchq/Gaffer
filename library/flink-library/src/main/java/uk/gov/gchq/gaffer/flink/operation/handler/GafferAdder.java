@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.Validatable;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -82,7 +83,7 @@ public class GafferAdder implements Serializable {
                                     .validate(validate)
                                     .skipInvalidElements(skipInvalid)
                                     .build(),
-                            new User());
+                            new Context(new User()));
                     restart = true;
                 } catch (final OperationException e) {
                     throw new RuntimeException(e);

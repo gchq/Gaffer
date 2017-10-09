@@ -52,7 +52,10 @@ public class ContextTest {
         final String randomId = "randomId";
 
         // When
-        final Context context = new Context(user, randomId);
+        final Context context = new Context.Builder()
+                .user(user)
+                .jobId(randomId)
+                .build();
 
         // Then
         assertEquals(user, context.getUser());
