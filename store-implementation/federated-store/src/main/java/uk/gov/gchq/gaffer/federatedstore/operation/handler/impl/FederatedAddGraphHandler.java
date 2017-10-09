@@ -49,7 +49,7 @@ public class FederatedAddGraphHandler implements OperationHandler<AddGraph> {
                 operation.getParentSchemaIds(), operation.getParentPropertiesId());
 
         try {
-        ((FederatedStore) store).addGraphs(operation.getGraphAuths(), context.getUser().getUserId(), graph);
+            ((FederatedStore) store).addGraphs(operation.getGraphAuths(), context.getUser().getUserId(), operation.getIsPublic(), graph);
         } catch (final StoreException e) {
             throw new OperationException(e.getMessage());
         }

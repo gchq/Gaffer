@@ -75,6 +75,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBLIC_ACCESS_ALLOWED_DEFAULT;
+
 /**
  * A Store that encapsulates a collection of sub-graphs and executes operations
  * against them and returns results as though it was a single graph.
@@ -99,6 +101,7 @@ public class FederatedStore extends Store {
     FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
     private FederatedGraphStorage graphStorage = new FederatedGraphStorage();
     private Set<String> customPropertiesAuths;
+    public Boolean isPublicAccessAllowed = Boolean.valueOf(IS_PUBLIC_ACCESS_ALLOWED_DEFAULT);
 
     /**
      * Initialise this FederatedStore with any sub-graphs defined within the
@@ -118,6 +121,9 @@ public class FederatedStore extends Store {
         }
         super.initialise(graphId, new Schema(), properties);
         loadCustomPropertiesAuths();
+
+        isPublicAccessAllowed = Boolean.valueOf(getProperties().getIsPublicAccessAllowed());
+
         loadGraphs();
     }
 
@@ -167,20 +173,32 @@ public class FederatedStore extends Store {
      * <p>
      * To be used by the FederatedStore and Handlers only. Users should add
      * graphs via the {@link AddGraph} operation.
+     * public access will be ignored if the FederatedStore denies this action
+     * at
+     * initialisation, will default to usual access with addingUserId and
+     * graphAuths
      *
      * @param addingUserId the adding userId
      * @param graphs       the graph to add
+     * @param isPublic     if this class should have public access.
      * @param graphAuths   the access auths for the graph being added
      * @throws StoreException if no cache has been set
      */
-    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final Graph... graphs) throws StoreException {
+
+    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final boolean isPublic, final Graph... graphs) throws StoreException {
         if (federatedStoreCache.getCache() == null) {
             throw new StoreException("No cache has been set, please initialise the FederatedStore instance");
         }
-        FederatedAccess access = new FederatedAccess(graphAuths, addingUserId);
+
+        FederatedAccess access = new FederatedAccess(graphAuths, addingUserId, isPublicAccessAllowed && isPublic);
+
         for (final Graph graph : graphs) {
             _add(graph, access);
         }
+    }
+
+    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final Graph... graphs) throws StoreException {
+        addGraphs(graphAuths, addingUserId, false, graphs);
     }
 
     /**
@@ -244,7 +262,7 @@ public class FederatedStore extends Store {
      * @return boolean permission
      */
     public boolean isLimitedToLibraryProperties(final User user) {
-        return null != this.customPropertiesAuths && Collections.disjoint(user.getOpAuths(), this.customPropertiesAuths);
+        return (null != this.customPropertiesAuths) && Collections.disjoint(user.getOpAuths(), this.customPropertiesAuths);
     }
 
     @Override
@@ -360,9 +378,15 @@ public class FederatedStore extends Store {
 
                 resolveConfiguration(graphId, builder);
 
-                addGraphs(resolveAuths(graphId), null, builder);
+                final Set<String> auths = resolveAuths(graphId);
+                final boolean isPublic = resolveIsPublic(graphId);
+                addGraphs(auths, null, isPublic, builder);
             }
         }
+    }
+
+    private boolean resolveIsPublic(final String graphId) {
+        return Boolean.valueOf(getProperties().getGraphIsPublicValue(graphId));
     }
 
     private void resolveConfiguration(final String graphId, final Builder builder) {
@@ -390,7 +414,9 @@ public class FederatedStore extends Store {
         addSchemaFromFile(graphId, builder);
     }
 
-    private void addGraphs(final Set<String> graphAuths, final String userId, final Builder... builders) throws StoreException {
+    private void addGraphs(final Set<String> graphAuths,
+                           final String userId, final boolean isPublic, final Builder... builders) throws StoreException {
+
         for (final Builder builder : builders) {
             final Graph graph;
             try {
@@ -398,7 +424,7 @@ public class FederatedStore extends Store {
             } catch (final Exception e) {
                 throw new IllegalArgumentException(String.format(S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2, "Graph", ""), e);
             }
-            addGraphs(graphAuths, userId, graph);
+            addGraphs(graphAuths, userId, isPublic, graph);
         }
     }
 
