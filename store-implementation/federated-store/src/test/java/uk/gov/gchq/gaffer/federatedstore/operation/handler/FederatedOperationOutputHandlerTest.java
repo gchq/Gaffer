@@ -55,10 +55,12 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
     protected O o3;
     protected O o4;
     protected User user;
+    protected Context context;
 
     @Before
     public void setUp() throws Exception {
         user = testUser();
+        context = new Context(user);
     }
 
     @Test
@@ -94,14 +96,14 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         Mockito.when(mockStore.getGraphs(user, null)).thenReturn(linkedGraphs);
 
         // When
-        O theMergedResultsOfOperation = getFederatedHandler().doOperation(op, new Context(user), mockStore);
+        O theMergedResultsOfOperation = getFederatedHandler().doOperation(op, context, mockStore);
 
         //Then
         validateMergeResultsFromFieldObjects(theMergedResultsOfOperation, o1, o2, o3, o4);
-        verify(mockStore1).execute(any(OperationChain.class), eq(user));
-        verify(mockStore2).execute(any(OperationChain.class), eq(user));
-        verify(mockStore3).execute(any(OperationChain.class), eq(user));
-        verify(mockStore4).execute(any(OperationChain.class), eq(user));
+        verify(mockStore1).execute(any(OperationChain.class), any(Context.class));
+        verify(mockStore2).execute(any(OperationChain.class), any(Context.class));
+        verify(mockStore3).execute(any(OperationChain.class), any(Context.class));
+        verify(mockStore4).execute(any(OperationChain.class), any(Context.class));
     }
 
     @Test
@@ -124,14 +126,14 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         Mockito.when(mockStore.getGraphs(user, "1,3")).thenReturn(filteredGraphs);
 
         // When
-        O theMergedResultsOfOperation = getFederatedHandler().doOperation(op, new Context(user), mockStore);
+        O theMergedResultsOfOperation = getFederatedHandler().doOperation(op, context, mockStore);
 
         //Then
         validateMergeResultsFromFieldObjects(theMergedResultsOfOperation, o1, o3);
-        verify(mockStore1).execute(any(OperationChain.class), eq(user));
-        verify(mockStore2, never()).execute(any(OperationChain.class), eq(user));
-        verify(mockStore3).execute(any(OperationChain.class), eq(user));
-        verify(mockStore4, never()).execute(any(OperationChain.class), eq(user));
+        verify(mockStore1).execute(any(OperationChain.class), any(Context.class));
+        verify(mockStore2, never()).execute(any(OperationChain.class), any(Context.class));
+        verify(mockStore3).execute(any(OperationChain.class), any(Context.class));
+        verify(mockStore4, never()).execute(any(OperationChain.class), any(Context.class));
     }
 
     @Test
@@ -145,15 +147,15 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
 
         Store mockStoreInner = Mockito.mock(Store.class);
         given(mockStoreInner.getSchema()).willReturn(unusedSchema);
-        given(mockStoreInner.execute(any(OperationChain.class), eq(user))).willThrow(new RuntimeException(message));
-
+        given(mockStoreInner.execute(any(OperationChain.class), eq(context))).willThrow(new RuntimeException(message));
+        given(mockStoreInner.createContext(any(User.class))).willReturn(context);
         FederatedStore mockStore = Mockito.mock(FederatedStore.class);
         HashSet<Graph> filteredGraphs = Sets.newHashSet(getGraphWithMockStore(mockStoreInner));
         Mockito.when(mockStore.getGraphs(user, TEST_GRAPH_ID)).thenReturn(filteredGraphs);
 
         // When
         try {
-            getFederatedHandler().doOperation(op, new Context(user), mockStore);
+            getFederatedHandler().doOperation(op, context, mockStore);
             fail("Exception not thrown");
         } catch (OperationException e) {
             assertEquals(message, e.getCause().getMessage());
@@ -175,7 +177,8 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         Store mockStore2 = getMockStore(op, unusedSchema, o2);
         Store mockStore3 = Mockito.mock(Store.class);
         given(mockStore3.getSchema()).willReturn(unusedSchema);
-        given(mockStore3.execute(any(OperationChain.class), eq(user))).willThrow(new RuntimeException("Test Exception"));
+        given(mockStore3.execute(any(OperationChain.class), eq(context))).willThrow(new RuntimeException("Test Exception"));
+        given(mockStore3.createContext(any(User.class))).willReturn(context);
         Store mockStore4 = getMockStore(op, unusedSchema, o4);
 
         FederatedStore mockStore = Mockito.mock(FederatedStore.class);
@@ -187,17 +190,17 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         // When
         O theMergedResultsOfOperation = null;
         try {
-            theMergedResultsOfOperation = getFederatedHandler().doOperation(op, new Context(user), mockStore);
+            theMergedResultsOfOperation = getFederatedHandler().doOperation(op, context, mockStore);
         } catch (Exception e) {
             fail("Exception should not have been thrown: " + e.getMessage());
         }
 
         //Then
         validateMergeResultsFromFieldObjects(theMergedResultsOfOperation, o1);
-        verify(mockStore1).execute(any(OperationChain.class), eq(user));
-        verify(mockStore2, never()).execute(any(OperationChain.class), eq(user));
-        verify(mockStore3).execute(any(OperationChain.class), eq(user));
-        verify(mockStore4, never()).execute(any(OperationChain.class), eq(user));
+        verify(mockStore1).execute(any(OperationChain.class), eq(context));
+        verify(mockStore2, never()).execute(any(OperationChain.class), eq(context));
+        verify(mockStore3).execute(any(OperationChain.class), eq(context));
+        verify(mockStore4, never()).execute(any(OperationChain.class), eq(context));
         // When
 
     }
@@ -217,7 +220,8 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
     private Store getMockStore(final OP op, final Schema unusedSchema, final O willReturn) throws uk.gov.gchq.gaffer.operation.OperationException {
         Store mockStore1 = Mockito.mock(Store.class);
         given(mockStore1.getSchema()).willReturn(unusedSchema);
-        given(mockStore1.execute(any(OperationChain.class), eq(user))).willReturn(willReturn);
+        given(mockStore1.createContext(any(User.class))).willReturn(context);
+        given(mockStore1.execute(any(OperationChain.class), any(Context.class))).willReturn(willReturn);
         return mockStore1;
     }
 

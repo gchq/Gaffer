@@ -98,6 +98,22 @@ public class OperationChain<OUT> implements Output<OUT> {
         }
     }
 
+    public static OperationChain<?> wrap(final Operation operation) {
+        if (operation instanceof OperationChain) {
+            return ((OperationChain) operation);
+        }
+
+        return new OperationChain<>(operation);
+    }
+
+    public static <O> OperationChain<O> wrap(final Output<O> operation) {
+        if (operation instanceof OperationChain) {
+            return ((OperationChain<O>) operation);
+        }
+
+        return new OperationChain<>(operation);
+    }
+
     @JsonIgnore
     @Override
     public TypeReference<OUT> getOutputTypeReference() {

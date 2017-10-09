@@ -39,11 +39,13 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
 
 public class FederatedAddAllElementsHandlerTest {
     private static final String TEST_GRAPH_ID = "testGraphId";
+    protected Context context;
     protected User user;
 
     @Before
     public void setUp() throws Exception {
         user = testUser();
+        context = new Context(user);
     }
 
     @Test
@@ -63,8 +65,6 @@ public class FederatedAddAllElementsHandlerTest {
         Graph graph3 = getGraphWithMockStore(mockStore3);
         Graph graph4 = getGraphWithMockStore(mockStore4);
 
-        Context testContext = new Context(user);
-
         FederatedStore mockStore = Mockito.mock(FederatedStore.class);
         LinkedHashSet<Graph> linkedGraphs = Sets.newLinkedHashSet();
         linkedGraphs.add(graph1);
@@ -74,12 +74,12 @@ public class FederatedAddAllElementsHandlerTest {
         Mockito.when(mockStore.getGraphs(user, null)).thenReturn(linkedGraphs);
 
         // When
-        new FederatedAddElementsHandler().doOperation(op, testContext, mockStore);
+        new FederatedAddElementsHandler().doOperation(op, context, mockStore);
 
-        verify(mockStore1).execute(new OperationChain<>(op), user);
-        verify(mockStore2).execute(new OperationChain<>(op), user);
-        verify(mockStore3).execute(new OperationChain<>(op), user);
-        verify(mockStore4).execute(new OperationChain<>(op), user);
+        verify(mockStore1).execute(Mockito.eq(new OperationChain<>(op)), Mockito.any(Context.class));
+        verify(mockStore2).execute(Mockito.eq(new OperationChain<>(op)), Mockito.any(Context.class));
+        verify(mockStore3).execute(Mockito.eq(new OperationChain<>(op)), Mockito.any(Context.class));
+        verify(mockStore4).execute(Mockito.eq(new OperationChain<>(op)), Mockito.any(Context.class));
     }
 
 

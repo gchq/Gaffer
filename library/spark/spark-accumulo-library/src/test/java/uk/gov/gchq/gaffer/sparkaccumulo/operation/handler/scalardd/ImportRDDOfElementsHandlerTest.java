@@ -92,7 +92,6 @@ public class ImportRDDOfElementsHandlerTest {
             elements.$plus$eq(entity);
         }
         final User user = new User();
-
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         // Create Hadoop configuration and serialise to a string
@@ -105,7 +104,6 @@ public class ImportRDDOfElementsHandlerTest {
 
         final RDD<Element> elementRDD = sparkSession.sparkContext().parallelize(elements, 8, ELEMENT_CLASS_TAG);
         final ImportRDDOfElements addRdd = new ImportRDDOfElements.Builder()
-                .sparkSession(sparkSession)
                 .input(elementRDD)
                 .option("outputPath", outputPath)
                 .option("failurePath", failurePath)
@@ -114,7 +112,6 @@ public class ImportRDDOfElementsHandlerTest {
 
         // Check all elements were added
         final GetRDDOfAllElements rddQuery = new GetRDDOfAllElements.Builder()
-                .sparkSession(sparkSession)
                 .option(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString)
                 .build();
 

@@ -26,10 +26,10 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
-import uk.gov.gchq.gaffer.user.User;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -50,7 +50,7 @@ public class FederatedStoreWrongGraphIDsTest {
     private FederatedStore store;
     private FederatedStoreProperties fedProps;
     private HashMapGraphLibrary library;
-    private User blankUser;
+    private Context blankContext;
     public static final String WRONG_GRAPH_ID = "x";
 
     @Before
@@ -65,15 +65,19 @@ public class FederatedStoreWrongGraphIDsTest {
         library = new HashMapGraphLibrary();
         HashMapGraphLibrary.clear();
 
-        library.addProperties(PROP_1, new MapStoreProperties());
-        library.addSchema(SCHEMA_1, new Schema.Builder()
+        MapStoreProperties mapStoreProperties = new MapStoreProperties();
+        mapStoreProperties.setId(PROP_1);
+
+        library.addProperties(mapStoreProperties);
+        library.addSchema(new Schema.Builder()
+                .id(SCHEMA_1)
                 .entity(E1_GROUP, new SchemaEntityDefinition.Builder()
                         .vertex("string")
                         .build())
                 .type("string", String.class)
                 .build());
         store.setGraphLibrary(library);
-        blankUser = FederatedStoreUser.blankUser();
+        blankContext = new Context(FederatedStoreUser.blankUser());
     }
 
 
@@ -88,10 +92,10 @@ public class FederatedStoreWrongGraphIDsTest {
                         .input(expectedEntity)
                         .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, GRAPH_1)
                         .build(),
-                blankUser);
+                blankContext);
 
         CloseableIterable<? extends Element> execute = store.execute(new GetAllElements.Builder()
-                .build(), blankUser);
+                .build(), blankContext);
 
         assertNotNull(THE_RETURN_OF_THE_OPERATIONS_SHOULD_NOT_BE_NULL, execute);
         assertEquals(THERE_SHOULD_BE_ONE_ELEMENT, expectedEntity, execute.iterator().next());
@@ -99,7 +103,7 @@ public class FederatedStoreWrongGraphIDsTest {
 
         execute = store.execute(new GetAllElements.Builder()
                 .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, GRAPH_1)
-                .build(), blankUser);
+                .build(), blankContext);
 
         assertNotNull(THE_RETURN_OF_THE_OPERATIONS_SHOULD_NOT_BE_NULL, execute);
         assertEquals(THERE_SHOULD_BE_ONE_ELEMENT, expectedEntity, execute.iterator().next());
@@ -107,7 +111,7 @@ public class FederatedStoreWrongGraphIDsTest {
         try {
             store.execute(new GetAllElements.Builder()
                     .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, WRONG_GRAPH_ID)
-                    .build(), blankUser);
+                    .build(), blankContext);
             fail(USING_THE_WRONG_GRAPH_ID_SHOULD_HAVE_THROWN_EXCEPTION);
         } catch (final IllegalArgumentException e) {
             assertEquals(EXCEPTION_NOT_AS_EXPECTED, String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)), e.getMessage());
@@ -118,7 +122,7 @@ public class FederatedStoreWrongGraphIDsTest {
                             .input(expectedEntity)
                             .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, WRONG_GRAPH_ID)
                             .build(),
-                    blankUser);
+                    blankContext);
             fail(USING_THE_WRONG_GRAPH_ID_SHOULD_HAVE_THROWN_EXCEPTION);
         } catch (final IllegalArgumentException e) {
             assertEquals(EXCEPTION_NOT_AS_EXPECTED, String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(WRONG_GRAPH_ID)), e.getMessage());

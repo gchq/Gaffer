@@ -18,153 +18,35 @@ package uk.gov.gchq.gaffer.store.library;
 
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.commonutil.JsonAssert;
-import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-public class HashMapGraphLibraryTest {
-    private static final String GRAPH_ID = "hashMapTestGraphId";
-    private static final String SCHEMA_ID = "hashMapTestSchemaId";
-    private static final String PROPERTIES_ID = "hashMapTestPropertiesId";
-    private static final HashMapGraphLibrary LIBRARY = new HashMapGraphLibrary();
+public class HashMapGraphLibraryTest extends AbstractGraphLibraryTest {
 
-    private StoreProperties storeProperties = new StoreProperties(PROPERTIES_ID);
-    private Schema schema = new Schema.Builder().id(SCHEMA_ID).build();
+    private static final String TEST_GRAPH_ID = "testGraphId";
+    private static final String TEST_SCHEMA_ID = "testSchemaId";
+    private static final String TEST_PROPERTIES_ID = "testPropertiesId";
+
+    private Schema schema = new Schema.Builder().id(TEST_SCHEMA_ID).build();
+    private StoreProperties storeProperties = new StoreProperties(TEST_PROPERTIES_ID);
+
+    public GraphLibrary createGraphLibraryInstance() {
+        return new HashMapGraphLibrary();
+    }
 
     @Test
-    public void shouldGetIdsInHashMapGraphLibrary() {
-
+    public void shouldClearGraphLibrary() {
         // When
-        LIBRARY.add(GRAPH_ID, schema, storeProperties);
+        final HashMapGraphLibrary graphLibrary = new HashMapGraphLibrary();
+        graphLibrary.add(TEST_GRAPH_ID, schema, storeProperties);
+        graphLibrary.clear();
 
         // Then
-        assertEquals(new Pair<>(SCHEMA_ID, PROPERTIES_ID), LIBRARY.getIds(GRAPH_ID));
-    }
+        assertEquals(null, graphLibrary.getIds(TEST_GRAPH_ID));
+        assertEquals(null, graphLibrary.getSchema(TEST_SCHEMA_ID));
+        assertEquals(null, graphLibrary.getProperties(TEST_PROPERTIES_ID));
 
-    @Test
-    public void shouldClearHashMaps() {
-
-        // Given
-        LIBRARY.add(GRAPH_ID, schema, storeProperties);
-
-        // When
-        LIBRARY.clear();
-
-        // Then
-        assertEquals(null, LIBRARY.getIds(GRAPH_ID));
-        assertEquals(null, LIBRARY.getSchema(SCHEMA_ID));
-        assertEquals(null, LIBRARY.getProperties(PROPERTIES_ID));
-    }
-
-    @Test
-    public void shouldThrowExceptionWithInvalidGraphId() {
-
-        // When / Then
-        try {
-            LIBRARY.add(GRAPH_ID + "@#", schema, storeProperties);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
-    }
-
-    @Test
-    public void shouldNotThrowExceptionWhenGraphIdWithSameSchemaExists() {
-
-        // Given
-        Schema schema1 = new Schema.Builder()
-                .id("hashMapTestSchemaId1")
-                .edge(TestGroups.ENTITY, new SchemaEdgeDefinition.Builder()
-                        .description("some description")
-                        .build())
-                .build();
-        LIBRARY.add("someOtherGraph", schema1, storeProperties);
-
-        final Schema schema1Clone = schema1.clone();
-
-        // When
-        LIBRARY.checkExisting("someOtherGraph", schema1Clone, storeProperties);
-
-        // Then - no exceptions
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenGraphIdWithDifferentSchemaExists() {
-
-        // Given
-        LIBRARY.add(GRAPH_ID, schema, storeProperties);
-        Schema schema1 = new Schema.Builder()
-                .id("hashMapTestSchemaId1")
-                .build();
-
-        // When / Then
-        try {
-            LIBRARY.add(GRAPH_ID, schema1, storeProperties);
-            fail("Exception expected");
-        } catch (final OverwritingException e) {
-            assertTrue(e.getMessage().contains("already exists with a different schema"));
-        }
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenGraphIdWithDifferentPropertiesExists() {
-
-        // Given
-        LIBRARY.add(GRAPH_ID, schema, storeProperties);
-        StoreProperties storeProperties1 = new StoreProperties("hashMapTestPropertiesId1");
-
-        // When / Then
-        try {
-            LIBRARY.add(GRAPH_ID, schema, storeProperties1);
-            fail("Exception expected");
-        } catch (final Exception e) {
-            assertTrue(e.getMessage().contains("already exists with a different store properties"));
-        }
-    }
-
-    @Test
-    public void shouldAddAndGetSchema() {
-        // When
-        LIBRARY.addSchema("schemaId", schema);
-
-        // Then
-        JsonAssert.assertEquals(schema.toJson(false), LIBRARY.getSchema("schemaId").toJson(false));
-    }
-
-    @Test
-    public void shouldNotAddNullSchema() {
-        // When
-        LIBRARY.addSchema("nullSchema", null);
-
-        // Then
-        assertNull(LIBRARY.getSchema("nullSchema"));
-    }
-
-    @Test
-    public void shouldAddAndGetProperties() {
-        // When
-        LIBRARY.addProperties("propsId", storeProperties);
-
-        // Then
-        assertEquals(storeProperties, LIBRARY.getProperties("propsId"));
-    }
-
-    @Test
-    public void shouldNotAddNullProperties() {
-        // When
-        LIBRARY.addProperties("nullProps", null);
-
-        // Then
-        assertNull(LIBRARY.getProperties("nullProps"));
     }
 }

@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedEx
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.io.Input;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -44,19 +45,19 @@ public class NamedOperationResolver implements GraphHook {
     }
 
     @Override
-    public void preExecute(final OperationChain<?> opChain, final User user) {
-        final List<Operation> updatedOperations = resolveNamedOperations(opChain.getOperations(), user);
+    public void preExecute(final OperationChain<?> opChain, final Context context) {
+        final List<Operation> updatedOperations = resolveNamedOperations(opChain.getOperations(), context.getUser());
         opChain.getOperations().clear();
         opChain.getOperations().addAll(updatedOperations);
     }
 
     @Override
-    public <T> T postExecute(final T result, final OperationChain<?> opChain, final User user) {
+    public <T> T postExecute(final T result, final OperationChain<?> opChain, final Context context) {
         return result;
     }
 
     @Override
-    public <T> T onFailure(final T result, final OperationChain<?> opChain, final User user, final Exception e) {
+    public <T> T onFailure(final T result, final OperationChain<?> opChain, final Context context, final Exception e) {
         return result;
     }
 

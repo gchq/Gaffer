@@ -22,9 +22,9 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.user.User;
 
 public class FederatedStorePublicAccessTest {
 
@@ -37,7 +37,7 @@ public class FederatedStorePublicAccessTest {
     private FederatedStore store;
     private FederatedStoreProperties fedProps;
     private HashMapGraphLibrary library;
-    private User blankUser;
+    private Context blankContext;
 
     @Before
     public void setUp() throws Exception {
@@ -51,16 +51,19 @@ public class FederatedStorePublicAccessTest {
         library = new HashMapGraphLibrary();
         HashMapGraphLibrary.clear();
 
-        library.addProperties(PROP_1, new MapStoreProperties());
-        library.addSchema(SCHEMA_1, new Schema());
+        MapStoreProperties mapStoreProperties = new MapStoreProperties();
+        mapStoreProperties.setId(PROP_1);
+
+        library.addProperties(mapStoreProperties);
+        library.addSchema(new Schema.Builder().id(SCHEMA_1).build());
         store.setGraphLibrary(library);
-        blankUser = FederatedStoreUser.blankUser();
+        blankContext = new Context(FederatedStoreUser.blankUser());
     }
 
     @Test
     public void shouldNotBePublicWhenAllGraphsDefaultedPrivateAndGraphIsDefaultedPrivate() throws Exception {
         store.initialise(TEST_FED_STORE_ID, null, fedProps);
-        final Iterable<? extends String> execute = store.execute(new GetAllGraphIds(), blankUser);
+        final Iterable<? extends String> execute = store.execute(new GetAllGraphIds(), blankContext);
         Assert.assertFalse(execute.iterator().hasNext());
     }
 
@@ -69,7 +72,7 @@ public class FederatedStorePublicAccessTest {
     public void shouldBePublicWhenAllGraphsDefaultedPrivateAndGraphIsSetPublic() throws Exception {
         fedProps.setTrueGraphIsPublicValue(GRAPH_1);
         store.initialise(TEST_FED_STORE_ID, null, fedProps);
-        final Iterable<? extends String> execute = store.execute(new GetAllGraphIds(), blankUser);
+        final Iterable<? extends String> execute = store.execute(new GetAllGraphIds(), blankContext);
         Assert.assertTrue(execute.iterator().hasNext());
     }
 
@@ -77,7 +80,7 @@ public class FederatedStorePublicAccessTest {
     public void shouldNotBePublicWhenAllGraphsDefaultedPrivateAndGraphIsSetPrivate() throws Exception {
         fedProps.setFalseGraphIsPublicValue(GRAPH_1);
         store.initialise(TEST_FED_STORE_ID, null, fedProps);
-        final Iterable<? extends String> execute = store.execute(new GetAllGraphIds(), blankUser);
+        final Iterable<? extends String> execute = store.execute(new GetAllGraphIds(), blankContext);
         Assert.assertFalse(execute.iterator().hasNext());
     }
 
@@ -86,7 +89,7 @@ public class FederatedStorePublicAccessTest {
         fedProps.setFalseGraphsCanHavePublicAccess();
         fedProps.setTrueGraphIsPublicValue(GRAPH_1);
         store.initialise(TEST_FED_STORE_ID, null, fedProps);
-        final Iterable<? extends String> execute = store.execute(new GetAllGraphIds(), blankUser);
+        final Iterable<? extends String> execute = store.execute(new GetAllGraphIds(), blankContext);
         Assert.assertFalse(execute.iterator().hasNext());
     }
 
@@ -95,7 +98,7 @@ public class FederatedStorePublicAccessTest {
         fedProps.setFalseGraphsCanHavePublicAccess();
         fedProps.setFalseGraphIsPublicValue(GRAPH_1);
         store.initialise(TEST_FED_STORE_ID, null, fedProps);
-        final Iterable<? extends String> execute = store.execute(new GetAllGraphIds(), blankUser);
+        final Iterable<? extends String> execute = store.execute(new GetAllGraphIds(), blankContext);
         Assert.assertFalse(execute.iterator().hasNext());
     }
 
@@ -105,7 +108,7 @@ public class FederatedStorePublicAccessTest {
         fedProps.setTrueGraphsCanHavePublicAccess();
         fedProps.setFalseGraphIsPublicValue(GRAPH_1);
         store.initialise(TEST_FED_STORE_ID, null, fedProps);
-        final Iterable<? extends String> execute = store.execute(new GetAllGraphIds(), blankUser);
+        final Iterable<? extends String> execute = store.execute(new GetAllGraphIds(), blankContext);
         Assert.assertFalse(execute.iterator().hasNext());
     }
 
@@ -114,7 +117,7 @@ public class FederatedStorePublicAccessTest {
         fedProps.setTrueGraphsCanHavePublicAccess();
         fedProps.setTrueGraphIsPublicValue(GRAPH_1);
         store.initialise(TEST_FED_STORE_ID, null, fedProps);
-        final Iterable<? extends String> execute = store.execute(new GetAllGraphIds(), blankUser);
+        final Iterable<? extends String> execute = store.execute(new GetAllGraphIds(), blankContext);
         Assert.assertTrue(execute.iterator().hasNext());
     }
 

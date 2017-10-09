@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.collect.Sets;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -84,11 +83,6 @@ public class FederatedStoreGraphVisibilityTest {
         addingUser = testUser();
         nonAddingUser = blankUser();
         authNonAddingUser = authUser();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        HashMapGraphLibrary.clear();
     }
 
     @Test

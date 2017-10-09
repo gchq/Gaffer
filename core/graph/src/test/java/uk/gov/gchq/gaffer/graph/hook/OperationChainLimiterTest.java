@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.HashMap;
@@ -56,7 +57,7 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
                 .build();
 
         // When
-        hook.preExecute(opChain, user);
+        hook.preExecute(opChain, new Context(user));
 
         // Then - no exceptions
     }
@@ -75,7 +76,7 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
                 .build();
 
         // When
-        hook.preExecute(opChain, user);
+        hook.preExecute(opChain, new Context(user));
 
         // Then - no exceptions
     }
@@ -98,7 +99,7 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
         // When/Then
 
         try {
-            hook.preExecute(opChain, user);
+            hook.preExecute(opChain, new Context(user));
             fail("Exception expected");
         } catch (final UnauthorisedException e) {
             assertNotNull(e.getMessage());
@@ -120,7 +121,7 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
                 .build();
 
         // When
-        hook.preExecute(opChain, user);
+        hook.preExecute(opChain, new Context(user));
 
         // Then - no exceptions
     }
@@ -140,7 +141,7 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
 
         // When/Then
         try {
-            hook.preExecute(opChain, user);
+            hook.preExecute(opChain, new Context(user));
             fail("Exception expected");
         } catch (final UnauthorisedException e) {
             assertNotNull(e.getMessage());
@@ -160,7 +161,7 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
 
         // When/Then
         try {
-            hook.preExecute(opChain, user);
+            hook.preExecute(opChain, new Context(user));
             fail("Exception expected");
         } catch (final UnauthorisedException e) {
             assertNotNull(e.getMessage());
@@ -180,7 +181,7 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
                 .build();
 
         // When
-        final Object returnedResult = hook.postExecute(result, opChain, user);
+        final Object returnedResult = hook.postExecute(result, opChain, new Context(user));
 
         // Then
         assertSame(result, returnedResult);
