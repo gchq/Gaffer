@@ -2,9 +2,12 @@
 
 set -e
 
+repoName="Gaffer"
+repoId="Gaffer"
+artifactId="gaffer2"
+
 if [ "$RELEASE" == 'true' ] && [ "$TRAVIS_BRANCH" == 'master' ] && [ "$TRAVIS_PULL_REQUEST" == 'false' ]; then
     git checkout master
-    mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version
     POM_VERSION=`mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -v '\['`
     echo "POM_VERSION = $POM_VERSION"
     if [[ "$POM_VERSION" == *SNAPSHOT ]]; then
@@ -32,9 +35,9 @@ if [ "$RELEASE" == 'true' ] && [ "$TRAVIS_BRANCH" == 'master' ] && [ "$TRAVIS_PU
         echo "Tagging version $RELEASE_VERSION"
         echo "--------------------------------------"
         mvn versions:set -DnewVersion=$RELEASE_VERSION -DgenerateBackupPoms=false
-        git commit -a -m "prepare release gaffer-$RELEASE_VERSION"
+        git commit -a -m "prepare release $artifactId-$RELEASE_VERSION"
         git push
-        git tag gaffer2-$RELEASE_VERSION
+        git tag $artifactId-$RELEASE_VERSION
         git push origin --tags
 
         echo ""
@@ -43,20 +46,30 @@ if [ "$RELEASE" == 'true' ] && [ "$TRAVIS_BRANCH" == 'master' ] && [ "$TRAVIS_PU
         echo "--------------------------------------"
         mvn -q clean install -Pquick -Dskip.jar-with-dependencies=true -Dshaded.jar.phase=true
         mvn -q javadoc:javadoc -Pquick
-        mvn -q scm-publish:publish-scm -Dmaven.javadoc.failOnError=false -Pquick
+        rm -rf .git/tmp-javadoc
+        mv target/site/apidocs .git/tmp-javadoc
+        git clean -fd
+        git reset --hard
+        git checkout gh-pages
+        git clean -fd
+        git reset --hard
+        rm -rf uk
+        mv .git/tmp-javadoc/* .
+        git commit -a -m "Updated javadoc - $RELEASE_VERSION"
+        git push
 
         echo ""
         echo "--------------------------------------"
         echo "Creating GitHub release notes"
         echo "--------------------------------------"
         JSON_DATA="{
-                \"tag_name\": \"gaffer-$RELEASE_VERSION\",
-                \"name\": \"Gaffer $RELEASE_VERSION\",
-                \"body\": \"[$RELEASE_VERSION issues resolved](https://github.com/gchq/Gaffer/issues?q=milestone%3Av$RELEASE_VERSION)\n\n[$RELEASE_VERSION issues with migration steps](https://github.com/gchq/Gaffer/issues?q=milestone%3Av$RELEASE_VERSION+label%3Amigration-required)\",
+                \"tag_name\": \"$artifactId-$RELEASE_VERSION\",
+                \"name\": \"$repoName $RELEASE_VERSION\",
+                \"body\": \"[$RELEASE_VERSION issues resolved](https://github.com/gchq/$repoId/issues?q=milestone%3Av$RELEASE_VERSION)\n\n[$RELEASE_VERSION issues with migration steps](https://github.com/gchq/$repoId/issues?q=milestone%3Av$RELEASE_VERSION+label%3Amigration-required)\",
                 \"draft\": false
             }"
         echo $JSON_DATA
-        curl -v --data "$JSON_DATA" https://api.github.com/repos/gchq/Gaffer/releases?access_token=$GITHUB_TOKEN
+        curl -v --data "$JSON_DATA" https://api.github.com/repos/gchq/$repoId/releases?access_token=$GITHUB_TOKEN
 
         echo ""
         echo "--------------------------------------"
