@@ -65,8 +65,12 @@ public class FederatedStoreWrongGraphIDsTest {
         library = new HashMapGraphLibrary();
         HashMapGraphLibrary.clear();
 
-        library.addProperties(PROP_1, new MapStoreProperties());
-        library.addSchema(SCHEMA_1, new Schema.Builder()
+        MapStoreProperties mapStoreProperties = new MapStoreProperties();
+        mapStoreProperties.setId(PROP_1);
+
+        library.addProperties(mapStoreProperties);
+        library.addSchema(new Schema.Builder()
+                .id(SCHEMA_1)
                 .entity(E1_GROUP, new SchemaEntityDefinition.Builder()
                         .vertex("string")
                         .build())
