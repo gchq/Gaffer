@@ -3,6 +3,8 @@
 set -e
 
 if [ "$RELEASE" == 'true' ] && [ "$TRAVIS_BRANCH" == 'master' ] && [ "$TRAVIS_PULL_REQUEST" == 'false' ]; then
+    git checkout master
+    mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version
     POM_VERSION=`mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -v '\['`
     echo "POM_VERSION = $POM_VERSION"
     if [[ "$POM_VERSION" == *SNAPSHOT ]]; then
