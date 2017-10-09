@@ -32,6 +32,8 @@ uk.gov.gchq.gaffer.cache.exception
 uk.gov.gchq.gaffer.cache.impl
 uk.gov.gchq.gaffer.cache.util
 uk.gov.gchq.gaffer.commonutil
+uk.gov.gchq.gaffer.commonutil.elementvisibilityutil
+uk.gov.gchq.gaffer.commonutil.elementvisibilityutil.exception
 uk.gov.gchq.gaffer.commonutil.exception
 uk.gov.gchq.gaffer.commonutil.iterable
 uk.gov.gchq.gaffer.commonutil.pair
@@ -95,7 +97,6 @@ uk.gov.gchq.gaffer.operation.export.graph.handler
 uk.gov.gchq.gaffer.operation.export.resultcache
 uk.gov.gchq.gaffer.operation.export.resultcache.handler
 uk.gov.gchq.gaffer.operation.export.resultcache.handler.util
-uk.gov.gchq.gaffer.operation.function
 uk.gov.gchq.gaffer.operation.graph
 uk.gov.gchq.gaffer.operation.impl
 uk.gov.gchq.gaffer.operation.impl.add
