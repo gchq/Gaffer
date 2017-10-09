@@ -120,6 +120,7 @@ public class FileGraphLibrary extends GraphLibrary {
     protected void _addProperties(final String propertiesId,
                                   final StoreProperties properties) {
         if (null != properties) {
+            getPropertiesPath(propertiesId).toFile().getParentFile().mkdirs();
             try (FileOutputStream propertiesFileOutputStream = new FileOutputStream(getPropertiesPath(propertiesId).toFile())) {
                 properties.getProperties().store(propertiesFileOutputStream, null);
             } catch (final IOException e) {
