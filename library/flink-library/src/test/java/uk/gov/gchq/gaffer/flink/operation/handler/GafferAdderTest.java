@@ -27,7 +27,6 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.user.User;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -56,11 +55,11 @@ public class GafferAdderTest {
         final ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
         verify(store).runAsync(runnableCaptor.capture());
         runnableCaptor.getValue().run();
-        verify(store).execute(new AddElements.Builder()
+        verify(store).execute(Mockito.eq(new AddElements.Builder()
                 .input(new GafferQueue<>(new ConcurrentLinkedQueue<>(FlinkTest.EXPECTED_ELEMENTS)))
                 .validate(true)
                 .skipInvalidElements(false)
-                .build(), new User());
+                .build()), Mockito.any());
     }
 
     @Test
@@ -83,11 +82,11 @@ public class GafferAdderTest {
         verify(store).runAsync(runnableCaptor1.capture());
         runnableCaptor1.getValue().run();
         final ConcurrentLinkedQueue<Element> expectedQueue = new ConcurrentLinkedQueue<>(FlinkTest.EXPECTED_ELEMENTS);
-        verify(store).execute(new AddElements.Builder()
+        verify(store).execute(Mockito.eq(new AddElements.Builder()
                 .input(new GafferQueue<>(expectedQueue))
                 .validate(true)
                 .skipInvalidElements(false)
-                .build(), new User());
+                .build()), Mockito.any());
         Mockito.reset(store);
 
         // When
@@ -99,11 +98,11 @@ public class GafferAdderTest {
         runnableCaptor2.getValue().run();
         // As the queue has not been consumed the original elements will still be on the queue.
         expectedQueue.addAll(FlinkTest.EXPECTED_ELEMENTS_2);
-        verify(store).execute(new AddElements.Builder()
+        verify(store).execute(Mockito.eq(new AddElements.Builder()
                 .input(new GafferQueue<>(expectedQueue))
                 .validate(true)
                 .skipInvalidElements(false)
-                .build(), new User());
+                .build()), Mockito.any());
     }
 
     @Test
@@ -133,10 +132,10 @@ public class GafferAdderTest {
         for (int i = 0; i < duplicates; i++) {
             expectedQueue.addAll(FlinkTest.EXPECTED_ELEMENTS);
         }
-        verify(store).execute(new AddElements.Builder()
+        verify(store).execute(Mockito.eq(new AddElements.Builder()
                 .input(new GafferQueue<>(new ConcurrentLinkedQueue<>(expectedQueue)))
                 .validate(true)
                 .skipInvalidElements(false)
-                .build(), new User());
+                .build()), Mockito.any());
     }
 }

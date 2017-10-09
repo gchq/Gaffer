@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -46,6 +47,7 @@ public class FederatedStoreSchemaTest {
                     .build())
             .build();
     public static final User TEST_USER = new User("testUser");
+    public static final Context TEST_CONTEXT = new Context(TEST_USER);
     public static final String TEST_FED_STORE = "testFedStore";
     public static final HashMapGraphLibrary library = new HashMapGraphLibrary();
 
@@ -84,7 +86,7 @@ public class FederatedStoreSchemaTest {
                         .graphId("a")
                         .parentPropertiesId("accProp")
                         .parentSchemaIds(Lists.newArrayList("aSchema"))
-                        .build()), TEST_USER);
+                        .build()), TEST_CONTEXT);
 
         final Schema bSchema = new Schema.Builder()
                 .id("bSchema")
@@ -103,7 +105,7 @@ public class FederatedStoreSchemaTest {
                     .graphId("b")
                     .parentPropertiesId("accProp")
                     .parentSchemaIds(Lists.newArrayList("bSchema"))
-                    .build()), TEST_USER);
+                    .build()), TEST_CONTEXT);
         } catch (final Exception e) {
             addingGraphBWasSuccessful = false;
             if (e instanceof SchemaException) {
@@ -120,7 +122,7 @@ public class FederatedStoreSchemaTest {
                     .graphId("c")
                     .parentPropertiesId("accProp")
                     .parentSchemaIds(Lists.newArrayList("aSchema"))
-                    .build()), TEST_USER);
+                    .build()), TEST_CONTEXT);
 
             assertFalse("If this assertion failed then it is possible this " +
                     "test is no longer needed, because Schema Collisions are not" +

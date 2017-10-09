@@ -37,13 +37,12 @@ import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.GenerateIndice
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.WriteUnsortedData;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SparkParquetUtils;
-import uk.gov.gchq.gaffer.spark.SparkUser;
+import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -67,13 +66,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
     public Void doOperation(final AddElements operation,
                             final Context context,
                             final Store store) throws OperationException {
-        final User user = context.getUser();
-        final SparkSession spark;
-        if (user instanceof SparkUser) {
-            spark = ((SparkUser) user).getSparkSession();
-        } else {
-            throw new OperationException("This operation requires the user to be of type SparkUser.");
-        }
+        final SparkSession spark = SparkContextUtil.getSparkSession(context, store.getProperties());
         final ParquetStore parquetStore = (ParquetStore) store;
         SparkParquetUtils.configureSparkForAddElements(spark, parquetStore.getProperties());
         addElements(operation, parquetStore, spark);
