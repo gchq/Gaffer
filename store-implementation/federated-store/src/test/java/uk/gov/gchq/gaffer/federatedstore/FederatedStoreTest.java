@@ -40,6 +40,7 @@ import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
@@ -387,7 +388,7 @@ public class FederatedStoreTest {
                         .build())
                 .build();
 
-        store.execute(op, authUser);
+        store.execute(op, new Context(authUser));
 
         assertEquals(1, getElements().size());
     }
@@ -454,7 +455,7 @@ public class FederatedStoreTest {
                                 .edges(store.getSchema().getEdgeGroups())
                                 .entities(store.getSchema().getEntityGroups())
                                 .build())
-                        .build(), authUser);
+                        .build(), new Context(authUser));
 
         return (null == elements) ? Sets.newHashSet() : Sets.newHashSet(elements);
     }
@@ -510,7 +511,7 @@ public class FederatedStoreTest {
         final int before = store.getGraphs(testUser, null).size();
         store.execute(new AddGraph.Builder()
                 .graphId(MAP_ID_1)
-                .build(), testUser);
+                .build(), new Context(testUser));
 
         final int after = store.getGraphs(testUser, null).size();
         //Then
@@ -772,18 +773,18 @@ public class FederatedStoreTest {
                 .build());
 
         final CloseableIterable<? extends Element> elements = store.execute(new GetAllElements(),
-                new User.Builder()
+                new Context(new User.Builder()
                         .userId(USER_ID)
                         .opAuth(ALL_USERS)
-                        .build());
+                        .build()));
 
         Assert.assertFalse(elements.iterator().hasNext());
 
         final CloseableIterable<? extends Element> x = store.execute(new GetAllElements(),
-                new User.Builder()
+                new Context(new User.Builder()
                         .userId(USER_ID)
                         .opAuths("x")
-                        .build());
+                        .build()));
 
         Assert.assertNull(x);
     }

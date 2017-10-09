@@ -127,7 +127,7 @@ public class AccumuloRangeIDRetrieverTest {
             final User user = new User();
             store.execute(new AddElements.Builder()
                     .input(elements)
-                    .build(), user);
+                    .build(), store.createContext(user));
         } catch (final OperationException e) {
             fail("Couldn't add element: " + e);
         }

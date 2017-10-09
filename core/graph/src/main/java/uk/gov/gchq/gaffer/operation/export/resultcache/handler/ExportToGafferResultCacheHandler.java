@@ -48,7 +48,7 @@ public class ExportToGafferResultCacheHandler extends ExportToHandler<ExportToGa
     @Override
     protected GafferResultCacheExporter createExporter(final ExportToGafferResultCache export, final Context context, final Store store) {
         return new GafferResultCacheExporter(
-                context.getUser(), context.getJobId(), createGraph(store),
+                context, context.getJobId(), createGraph(store),
                 visibility, export.getOpAuths());
     }
 

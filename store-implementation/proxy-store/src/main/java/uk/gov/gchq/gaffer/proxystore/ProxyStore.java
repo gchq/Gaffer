@@ -48,7 +48,6 @@ import uk.gov.gchq.gaffer.store.TypeReferenceStoreImpl;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.user.User;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -143,10 +142,10 @@ public class ProxyStore extends Store {
     }
 
     @Override
-    public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
+    public JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
         final URL url = getProperties().getGafferUrl("graph/jobs");
         try {
-            return doPost(url, operationChain, new TypeReferenceImpl.JobDetail(), new Context(user));
+            return doPost(url, operationChain, new TypeReferenceImpl.JobDetail(), context);
         } catch (final StoreException e) {
             throw new OperationException(e.getMessage(), e);
         }

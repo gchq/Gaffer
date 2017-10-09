@@ -32,10 +32,10 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsA;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
@@ -95,7 +95,7 @@ public class GraphConfigurationServiceTest {
         given(graph.getSupportedOperations()).willReturn(operations);
         given(graph.isSupported(AddElements.class)).willReturn(true);
 
-        given(userFactory.createUser()).willReturn(new User());
+        given(userFactory.createContext()).willReturn(new Context());
 
         given(graph.getStoreTraits()).willReturn(traits);
     }

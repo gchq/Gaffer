@@ -502,7 +502,7 @@ public class AccumuloIDWithinSetRetrieverTest {
             store.execute(new AddElements.Builder()
                             .input(data)
                             .build(),
-                    user);
+                    store.createContext(user));
         } catch (final OperationException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }
