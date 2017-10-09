@@ -38,7 +38,6 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.spark.SparkContext;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.ClassTagConstants;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
@@ -102,7 +101,7 @@ public class ImportKeyValuePairRDDToAccumuloHandlerTest {
         }
         final User user = new User();
 
-        final SparkContext sparkContext = new SparkContext(new User(), SparkSessionProvider.getSparkSession());
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         // Create Hadoop configuration and serialise to a string
         final Configuration configuration = new Configuration();
@@ -112,8 +111,8 @@ public class ImportKeyValuePairRDDToAccumuloHandlerTest {
         final String outputPath = testFolder.getRoot().getAbsolutePath() + "/output";
         final String failurePath = testFolder.getRoot().getAbsolutePath() + "/failure";
 
-        final ElementConverterFunction func = new ElementConverterFunction(sparkContext.getSparkSession().sparkContext().broadcast(new ByteEntityAccumuloElementConverter(graph1.getSchema()), ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG));
-        final RDD<Tuple2<Key, Value>> elementRDD = sparkContext.getSparkSession().sparkContext().parallelize(elements, 1, ELEMENT_CLASS_TAG).flatMap(func, TUPLE2_CLASS_TAG);
+        final ElementConverterFunction func = new ElementConverterFunction(sparkSession.sparkContext().broadcast(new ByteEntityAccumuloElementConverter(graph1.getSchema()), ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG));
+        final RDD<Tuple2<Key, Value>> elementRDD = sparkSession.sparkContext().parallelize(elements, 1, ELEMENT_CLASS_TAG).flatMap(func, TUPLE2_CLASS_TAG);
         final ImportKeyValuePairRDDToAccumulo addRdd = new ImportKeyValuePairRDDToAccumulo.Builder()
                 .input(elementRDD)
                 .outputPath(outputPath)

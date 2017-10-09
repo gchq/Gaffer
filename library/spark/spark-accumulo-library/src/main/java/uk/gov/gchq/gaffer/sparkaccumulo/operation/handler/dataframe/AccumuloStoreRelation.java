@@ -33,13 +33,14 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Output;
-import uk.gov.gchq.gaffer.spark.SparkContext;
+import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.ClassTagConstants;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.ConvertElementToRow;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.FiltersToOperationConverter;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStructTypeConverter;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
+import uk.gov.gchq.gaffer.store.Context;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -76,7 +77,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStoreRelation.class);
 
-    private final SparkContext context;
+    private final Context context;
     private final LinkedHashSet<String> groups;
     private final View view;
     private final AccumuloStore store;
@@ -87,7 +88,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
     private SchemaToStructTypeConverter schemaConverter;
     private Map<String, String> options;
 
-    public AccumuloStoreRelation(final SparkContext context,
+    public AccumuloStoreRelation(final Context context,
                                  final List<Converter> converters,
                                  final View view,
                                  final AccumuloStore store,
@@ -106,7 +107,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
 
     @Override
     public SQLContext sqlContext() {
-        return context.getSparkSession().sqlContext();
+        return SparkContextUtil.getSparkSession(context, store.getProperties()).sqlContext();
     }
 
     @Override
@@ -189,7 +190,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
         if (null == operation) {
             // Null indicates that the filters resulted in no data (e.g. if group = X and group = Y, or if group = X
             // and there is no group X in the schema).
-            return context.getSparkSession().sqlContext().emptyDataFrame().rdd();
+            return sqlContext().emptyDataFrame().rdd();
         }
         try {
             final RDD<Element> rdd = store.execute(operation, context);
@@ -201,5 +202,4 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
             return null;
         }
     }
-
 }

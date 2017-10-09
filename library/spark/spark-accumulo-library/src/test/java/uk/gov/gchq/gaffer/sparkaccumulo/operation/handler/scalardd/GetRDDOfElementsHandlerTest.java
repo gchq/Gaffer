@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.rdd.RDD;
-import org.apache.spark.sql.SparkSession;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -31,10 +30,8 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.spark.SparkContext;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
-import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.SparkSessionProvider;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
@@ -45,7 +42,6 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 public class GetRDDOfElementsHandlerTest {
@@ -269,7 +265,6 @@ public class GetRDDOfElementsHandlerTest {
             elements.add(entity);
         }
         final User user = new User();
-        final SparkContext sparkContext = new SparkContext(user, SparkSessionProvider.getSparkSession());
         graph1.execute(new AddElements.Builder().input(elements).build(), user);
 
 
@@ -383,32 +378,6 @@ public class GetRDDOfElementsHandlerTest {
         expectedElements.add(edge1B);
         expectedElements.add(edge5C);
         assertEquals(expectedElements, results);
-    }
-
-    @Test
-    public void testNoSparkSession() throws OperationException {
-        final Graph graph1 = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graphId")
-                        .build())
-                .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/types.json"))
-                .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
-                .storeProperties(getClass().getResourceAsStream("/storeNoSparkContext.properties"))
-                .build();
-        final User user = new User();
-        final GetRDDOfElements rddQuery = new GetRDDOfElements.Builder()
-                .input(new EdgeSeed("1", "B", false))
-                .view(new View.Builder()
-                        .edge(EDGE_GROUP)
-                        .build())
-                .build();
-        try {
-            graph1.execute(rddQuery, user);
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertNotNull(e.getMessage());
-        }
     }
 
     @Test

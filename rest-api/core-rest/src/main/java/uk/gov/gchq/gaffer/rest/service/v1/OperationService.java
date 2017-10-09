@@ -38,7 +38,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
-import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.gaffer.store.Context;
 
 import javax.inject.Inject;
 
@@ -52,11 +52,6 @@ import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultM
  * All operations are simple delegated to the graph.
  * Pre and post operation hooks are available by extending this class and implementing preOperationHook and/or
  * postOperationHook.
- * <p>
- * By default queries will be executed with an UNKNOWN user containing no auths.
- * The createUser() method should be overridden and a {@link User} object should
- * be created from the http request.
- * </p>
  */
 public class OperationService implements IOperationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationService.class);
@@ -140,11 +135,11 @@ public class OperationService implements IOperationService {
         _execute(operation);
     }
 
-    protected void preOperationHook(final OperationChain<?> opChain, final User user) {
+    protected void preOperationHook(final OperationChain<?> opChain, final Context context) {
         // no action by default
     }
 
-    protected void postOperationHook(final OperationChain<?> opChain, final User user) {
+    protected void postOperationHook(final OperationChain<?> opChain, final Context context) {
         // no action by default
     }
 
@@ -154,18 +149,18 @@ public class OperationService implements IOperationService {
 
     @SuppressWarnings("ThrowFromFinallyBlock")
     protected <O> O _execute(final OperationChainDAO<O> opChain) {
-        final User user = userFactory.createUser();
-        preOperationHook(opChain, user);
+        final Context context = userFactory.createContext();
+        preOperationHook(opChain, context);
 
         O result;
         try {
-            result = graphFactory.getGraph().execute(opChain, user);
+            result = graphFactory.getGraph().execute(opChain, context);
         } catch (final OperationException e) {
             CloseableUtil.close(opChain);
             throw new RuntimeException("Error executing operation chain: " + e.getMessage(), e);
         } finally {
             try {
-                postOperationHook(opChain, user);
+                postOperationHook(opChain, context);
             } catch (final Exception e) {
                 CloseableUtil.close(opChain);
                 throw e;

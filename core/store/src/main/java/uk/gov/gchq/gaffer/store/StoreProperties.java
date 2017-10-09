@@ -66,9 +66,6 @@ public class StoreProperties implements Cloneable {
     public static final String JSON_SERIALISER_CLASS = JSONSerialiser.JSON_SERIALISER_CLASS_KEY;
     public static final String JSON_SERIALISER_MODULES = JSONSerialiser.JSON_SERIALISER_MODULES;
 
-    public static final String CONTEXT_FACTORY_CLASS = "gaffer.store.context.factory.class";
-    public static final String DEFAULT_CONTEXT_FACTORY_CLASS = "uk.gov.gchq.gaffer.store.DefaultContextFactory";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(StoreProperties.class);
 
     private Properties props = new Properties();
@@ -390,14 +387,6 @@ public class StoreProperties implements Cloneable {
 
     public void setJsonSerialiserModules(final String modules) {
         set(JSON_SERIALISER_MODULES, modules);
-    }
-
-    public String getContextFactoryClass() {
-        return get(CONTEXT_FACTORY_CLASS, DEFAULT_CONTEXT_FACTORY_CLASS);
-    }
-
-    public void setContextFactoryClass(final String contextFactoryClass) {
-        set(CONTEXT_FACTORY_CLASS, contextFactoryClass);
     }
 
     public Properties getProperties() {
