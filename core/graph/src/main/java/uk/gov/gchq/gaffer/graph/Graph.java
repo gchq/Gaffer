@@ -117,20 +117,30 @@ public final class Graph {
     /**
      * Performs the given operation on the store.
      * If the operation does not have a view then the graph view is used.
-     * NOTE the operation may be modified/optimised by the store.
      *
      * @param operation the operation to be executed.
      * @param user      the user executing the operation.
      * @throws OperationException if an operation fails
      */
     public void execute(final Operation operation, final User user) throws OperationException {
-        execute(new OperationChain<>(operation), user);
+        execute(OperationChain.wrap(operation), user);
+    }
+
+    /**
+     * Performs the given operation on the store.
+     * If the operation does not have a view then the graph view is used.
+     *
+     * @param operation the operation to be executed.
+     * @param context   the user context for the execution of the operation
+     * @throws OperationException if an operation fails
+     */
+    public void execute(final Operation operation, final Context context) throws OperationException {
+        execute(OperationChain.wrap(operation), context);
     }
 
     /**
      * Performs the given output operation on the store.
      * If the operation does not have a view then the graph view is used.
-     * NOTE the operation may be modified/optimised by the store.
      *
      * @param operation the output operation to be executed.
      * @param user      the user executing the operation.
@@ -139,51 +149,62 @@ public final class Graph {
      * @throws OperationException if an operation fails
      */
     public <O> O execute(final Output<O> operation, final User user) throws OperationException {
-        return execute(new OperationChain<>(operation), user);
+        return execute(operation, store.createContext(user));
     }
 
     /**
-     * Performs the given operation chain job on the store.
+     * Performs the given output operation on the store.
      * If the operation does not have a view then the graph view is used.
-     * NOTE the operationChain may be modified/optimised by the store.
      *
-     * @param operationChain the operation chain to be executed.
-     * @param user           the user executing the job.
-     * @return the job details
-     * @throws OperationException thrown if the job fails to run.
-     */
-    public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
-        return _execute(store::executeJob, operationChain, store.createContext(user));
-    }
-
-    /**
-     * Performs the given operation chain on the store.
-     * If the operation does not have a view then the graph view is used.
-     * NOTE the operationChain may be modified/optimised by the store.
-     *
-     * @param operationChain the operation chain to be executed.
-     * @param user           the user executing the operation chain.
-     * @param <O>            the operation chain output type.
+     * @param operation the output operation to be executed.
+     * @param context   the user context for the execution of the operation
+     * @param <O>       the operation chain output type.
      * @return the operation result.
      * @throws OperationException if an operation fails
      */
-    public <O> O execute(final OperationChain<O> operationChain, final User user) throws OperationException {
-        return (O) _execute(store::execute, operationChain, store.createContext(user));
+    public <O> O execute(final Output<O> operation, final Context context) throws OperationException {
+        return _execute(store::execute, OperationChain.wrap(operation), context);
     }
 
-    private <O> O _execute(final StoreExecuter<O> storeExecuter, final OperationChain<?> operationChain, final Context context) throws OperationException {
+    /**
+     * Performs the given operation job on the store.
+     * If the operation does not have a view then the graph view is used.
+     *
+     * @param operation the operation to be executed.
+     * @param user      the user executing the job.
+     * @return the job details
+     * @throws OperationException thrown if the job fails to run.
+     */
+    public JobDetail executeJob(final Operation operation, final User user) throws OperationException {
+        return executeJob(operation, store.createContext(user));
+    }
+
+    /**
+     * Performs the given operation job on the store.
+     * If the operation does not have a view then the graph view is used.
+     *
+     * @param operation the operation to be executed.
+     * @param context   the user context for the execution of the operation
+     * @return the job details
+     * @throws OperationException thrown if the job fails to run.
+     */
+    public JobDetail executeJob(final Operation operation, final Context context) throws OperationException {
+        return _execute(store::executeJob, OperationChain.wrap(operation), context);
+    }
+
+    private <O> O _execute(final StoreExecuter<O> storeExecuter, final OperationChain operationChain, final Context context) throws OperationException {
         if (null == operationChain) {
             throw new IllegalArgumentException("operationChain is required");
         }
 
-        final OperationChain<?> clonedOpChain = operationChain.shallowClone();
+        final OperationChain clonedOpChain = operationChain.shallowClone();
         O result = null;
         try {
             for (final GraphHook graphHook : config.getHooks()) {
                 graphHook.preExecute(clonedOpChain, context);
             }
             updateOperationChainView(clonedOpChain);
-            result = storeExecuter.execute(clonedOpChain, context);
+            result = (O) storeExecuter.execute(clonedOpChain, context);
             for (final GraphHook graphHook : config.getHooks()) {
                 result = graphHook.postExecute(result, clonedOpChain, context);
             }
@@ -202,7 +223,7 @@ public final class Graph {
         return result;
     }
 
-    private <O> void updateOperationChainView(final OperationChain<O> operationChain) {
+    private void updateOperationChainView(final OperationChain<?> operationChain) {
         for (final Operation operation : operationChain.getOperations()) {
 
             if (operation instanceof OperationView) {
@@ -319,7 +340,7 @@ public final class Graph {
 
     @FunctionalInterface
     private interface StoreExecuter<O> {
-        O execute(final OperationChain operationChain, final Context context) throws OperationException;
+        O execute(final OperationChain<O> operation, final Context context) throws OperationException;
     }
 
     /**

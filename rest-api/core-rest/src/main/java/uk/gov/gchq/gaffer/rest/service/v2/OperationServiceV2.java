@@ -32,7 +32,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.service.v2.example.ExamplesFactory;
-import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.gaffer.store.Context;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
@@ -54,11 +54,6 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
  * All operations are simple delegated to the graph.
  * Pre and post operation hooks are available by extending this class and implementing preOperationHook and/or
  * postOperationHook.
- * <p>
- * By default queries will be executed with an UNKNOWN user containing no auths.
- * The createUser() method should be overridden and a {@link User} object should
- * be created from the http request.
- * </p>
  */
 public class OperationServiceV2 implements IOperationServiceV2 {
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationServiceV2.class);
@@ -77,15 +72,15 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     @Override
     public Response getOperations() {
         return Response.ok(graphFactory.getGraph().getSupportedOperations())
-                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                       .build();
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
     }
 
     @Override
     public Response execute(final Operation operation) {
         return Response.ok(_execute(operation))
-                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                       .build();
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
     }
 
     @Override
@@ -119,13 +114,13 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     public Response operationDetails(final String className) throws InstantiationException, IllegalAccessException {
         try {
             return Response.ok(new OperationDetail(getOperationClass(className)))
-                           .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                           .build();
+                    .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                    .build();
         } catch (final ClassNotFoundException e) {
             LOGGER.info("Class: {} was not found on the classpath.", className, e);
             return Response.status(NOT_FOUND)
-                           .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                           .build();
+                    .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                    .build();
         }
     }
 
@@ -133,13 +128,13 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     public Response operationExample(final String className) throws InstantiationException, IllegalAccessException {
         try {
             return Response.ok(getExampleJson(getOperationClass(className)))
-                           .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                           .build();
+                    .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                    .build();
         } catch (final ClassNotFoundException e) {
             LOGGER.info("Class: {} was not found on the classpath.", className, e);
             return Response.status(NOT_FOUND)
-                           .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                           .build();
+                    .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                    .build();
         } catch (final IllegalAccessException | InstantiationException e) {
             LOGGER.info("Unable to create example JSON for class: {}.", className, e);
             throw e;
@@ -158,15 +153,15 @@ public class OperationServiceV2 implements IOperationServiceV2 {
         }
 
         return Response.ok(getNextOperations(opClass))
-                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                       .build();
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
     }
 
-    protected void preOperationHook(final OperationChain<?> opChain, final User user) {
+    protected void preOperationHook(final OperationChain<?> opChain, final Context context) {
         // no action by default
     }
 
-    protected void postOperationHook(final OperationChain<?> opChain, final User user) {
+    protected void postOperationHook(final OperationChain<?> opChain, final Context context) {
         // no action by default
     }
 
@@ -181,18 +176,18 @@ public class OperationServiceV2 implements IOperationServiceV2 {
             opChain = (OperationChain<O>) operation;
         }
 
-        final User user = userFactory.createUser();
-        preOperationHook(opChain, user);
+        final Context context = userFactory.createContext();
+        preOperationHook(opChain, context);
 
         O result;
         try {
-            result = graphFactory.getGraph().execute(opChain, user);
+            result = graphFactory.getGraph().execute(opChain, context);
         } catch (final OperationException e) {
             CloseableUtil.close(operation);
             throw new RuntimeException("Error executing opChain", e);
         } finally {
             try {
-                postOperationHook(opChain, user);
+                postOperationHook(opChain, context);
             } catch (final Exception e) {
                 CloseableUtil.close(operation);
                 throw e;
@@ -296,16 +291,16 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
         private List<OperationField> getOperationFields(final Class<? extends Operation> opClass) {
             return Arrays.stream(opClass.getDeclaredFields())
-                         .map(f -> {
-                             boolean required = false;
-                             final Required[] annotations = f.getAnnotationsByType(Required.class);
+                    .map(f -> {
+                        boolean required = false;
+                        final Required[] annotations = f.getAnnotationsByType(Required.class);
 
-                             if (null != annotations && annotations.length > 0) {
-                                 required = true;
-                             }
-                             return new OperationField(f.getName(), required);
-                         })
-                         .collect(Collectors.toList());
+                        if (null != annotations && annotations.length > 0) {
+                            required = true;
+                        }
+                        return new OperationField(f.getName(), required);
+                    })
+                    .collect(Collectors.toList());
         }
     }
 }

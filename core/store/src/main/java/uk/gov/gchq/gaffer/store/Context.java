@@ -63,7 +63,7 @@ public class Context {
         return user;
     }
 
-    public String getJobId() {
+    public final String getJobId() {
         return jobId;
     }
 

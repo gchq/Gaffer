@@ -249,7 +249,7 @@ public abstract class Store {
      * @throws OperationException thrown by the operation handler if the operation fails.
      */
     public void execute(final Operation operation, final Context context) throws OperationException {
-        execute(new OperationChain<>(operation), context);
+        execute(OperationChain.wrap(operation), context);
     }
 
     /**
@@ -262,19 +262,10 @@ public abstract class Store {
      * @throws OperationException thrown by the operation handler if the operation fails.
      */
     public <O> O execute(final Output<O> operation, final Context context) throws OperationException {
-        return execute(new OperationChain<O>(operation), context);
+        return execute(OperationChain.wrap(operation), context);
     }
 
-    /**
-     * Execute a given operation and returns the result.
-     *
-     * @param operation the operation to execute
-     * @param context   the context associated with the operation
-     * @param <O>       the output type of the operation
-     * @return the result of executing the operation
-     * @throws OperationException thrown by the operation handler if the operation fails.
-     */
-    public <O> O execute(final OperationChain<O> operation, final Context context) throws OperationException {
+    protected <O> O execute(final OperationChain<O> operation, final Context context) throws OperationException {
         addOrUpdateJobDetail(operation, context, null, JobStatus.RUNNING);
         try {
             final O result = (O) handleOperation(operation, context);
@@ -287,14 +278,18 @@ public abstract class Store {
     }
 
     /**
-     * Executes a given operation chain job and returns the job detail.
+     * Executes a given operation job and returns the job detail.
      *
-     * @param operationChain the operation chain to execute.
-     * @param context        the context executing the job
+     * @param operation the operation to execute.
+     * @param context   the context executing the job
      * @return the job detail
      * @throws OperationException thrown if jobs are not configured.
      */
-    public JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
+    public JobDetail executeJob(final Operation operation, final Context context) throws OperationException {
+        return executeJob(OperationChain.wrap(operation), context);
+    }
+
+    protected JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
         if (null == jobTracker) {
             throw new OperationException("Running jobs has not configured.");
         }
