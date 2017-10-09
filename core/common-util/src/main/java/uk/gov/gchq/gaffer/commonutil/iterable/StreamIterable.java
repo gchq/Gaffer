@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.stream.StreamSupplier;
 
@@ -46,12 +48,13 @@ public class StreamIterable<T> implements CloseableIterable<T> {
 
     /**
      * Get a {@link java.util.stream.Stream} from the {@link uk.gov.gchq.gaffer.commonutil.stream.StreamSupplier}.
-     *
+     * <p>
      * This enables the creation of multiple stream objects from the same base
      * data, without operating on the same stream multiple times.
      *
      * @return a new {@link java.util.stream.Stream}
      */
+    @JsonIgnore
     public Stream<T> getStream() {
         return streamSupplier.get();
     }

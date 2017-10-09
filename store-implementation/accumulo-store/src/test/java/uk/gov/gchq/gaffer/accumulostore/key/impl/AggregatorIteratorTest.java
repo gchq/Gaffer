@@ -145,7 +145,7 @@ public class AggregatorIteratorTest {
         final User user = new User();
         store.execute(new AddElements.Builder()
                 .input(edge1, edge2, edge3)
-                .build(), user);
+                .build(), store.createContext(user));
 
         final GetElements get = new GetElements.Builder()
                 .view(new View.Builder()
@@ -155,7 +155,7 @@ public class AggregatorIteratorTest {
                 .build();
 
         // When
-        final List<Element> results = Lists.newArrayList(store.execute(get, user));
+        final List<Element> results = Lists.newArrayList(store.execute(get, store.createContext(user)));
 
         // Then
         assertEquals(1, results.size());

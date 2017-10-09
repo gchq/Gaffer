@@ -44,7 +44,7 @@ public class NamedOperationCacheIT {
             .overwrite()
             .build();
 
-    private User user = new User("user01");
+    private User user = new User();
     private Context context = new Context(user);
     private GetAllNamedOperationsHandler getAllNamedOperationsHandler = new GetAllNamedOperationsHandler();
     private AddNamedOperationHandler addNamedOperationHandler = new AddNamedOperationHandler();

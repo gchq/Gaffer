@@ -16,37 +16,50 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
+import org.junit.Before;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllElementsHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.authUser;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
 
-public class FederatedStoreTestAuth {
+public class FederatedStoreAuthTest {
+
+    private User testUser;
+    private User authUser;
+
+    @Before
+    public void setUp() throws Exception {
+        testUser = testUser();
+        authUser = authUser();
+    }
 
     @Test
-    public void shouldAddGraphWithHook() throws Exception {
+    public void shouldAddGraphWithAuth() throws Exception {
 
         FederatedStore store = new FederatedStore();
 
         Schema expectedSchema = new Schema.Builder().build();
         String expectedGraphId = "testGraphID";
 
-        StoreProperties storeProperties = new StoreProperties();
-        storeProperties.set("gaffer.store.class", "uk.gov.gchq.gaffer.federatedstore.FederatedStore");
+        FederatedStoreProperties storeProperties = new FederatedStoreProperties();
+        storeProperties.setFalseSkipFailedExecution();
 
-        assertEquals(0, store.getGraphs(null).size());
+        assertEquals(0, store.getGraphs(testUser, null).size());
 
         FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
         federatedAddGraphHandler.doOperation(
@@ -56,10 +69,10 @@ public class FederatedStoreTestAuth {
                         .storeProperties(storeProperties)
                         .graphAuths("auth1")
                         .build(),
-                new Context(new User("TestUser")),
+                new Context(testUser),
                 store);
 
-        Collection<Graph> graphs = store.getGraphs(null);
+        Collection<Graph> graphs = store.getGraphs(authUser, null);
 
         assertEquals(1, graphs.size());
         Graph next = graphs.iterator().next();
@@ -68,14 +81,12 @@ public class FederatedStoreTestAuth {
 
         final FederatedGetAllElementsHandler federatedGetAllElementsHandler = new FederatedGetAllElementsHandler();
 
-        try {
-            federatedGetAllElementsHandler.doOperation(
-                    new GetAllElements(),
-                    new Context(new User("TestUser")),
-                    store);
-        } catch (Exception e) {
-            assertTrue(e.getCause().getMessage().contains(String.format(FederatedAccessHook.USER_DOES_NOT_HAVE_CORRECT_AUTHS_TO_ACCESS_THIS_GRAPH_USER_S, "")));
-        }
+        final CloseableIterable<? extends Element> elements = federatedGetAllElementsHandler.doOperation(
+                new GetAllElements(),
+                new Context(testUser),
+                store);
+
+        assertNull(elements);
 
     }
 

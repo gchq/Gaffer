@@ -19,8 +19,11 @@ package uk.gov.gchq.gaffer.federatedstore.operation;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Assert;
+import org.junit.Test;
 
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph.Builder;
+import uk.gov.gchq.gaffer.mapstore.MapStore;
+import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -29,7 +32,6 @@ import java.util.Set;
 
 public class AddGraphTest extends OperationTest<AddGraph> {
 
-    public static final String expectedKey = "gaffer.store.class";
 
     @Override
     protected Set<String> getRequiredFields() {
@@ -40,9 +42,7 @@ public class AddGraphTest extends OperationTest<AddGraph> {
     public void builderShouldCreatePopulatedOperation() {
         Schema expectedSchema = new Schema.Builder().build();
         String expectedGraphId = "testGraphID";
-        StoreProperties storeProperties = new StoreProperties();
-        String expectedValue = "uk.gov.gchq.gaffer.federatedstore.FederatedStore";
-        storeProperties.set(expectedKey, expectedValue);
+        StoreProperties storeProperties = new MapStoreProperties();
         AddGraph op = new AddGraph.Builder()
                 .graphId(expectedGraphId)
                 .schema(expectedSchema)
@@ -51,8 +51,7 @@ public class AddGraphTest extends OperationTest<AddGraph> {
 
         Assert.assertEquals(expectedGraphId, op.getGraphId());
         Assert.assertEquals(expectedSchema, op.getSchema());
-        Assert.assertTrue(op.getStoreProperties().containsKey(expectedKey));
-        Assert.assertEquals(expectedValue, op.getStoreProperties().get(expectedKey));
+        Assert.assertEquals(MapStore.class.getName(), op.getStoreProperties().getStoreClass());
     }
 
     @Override
@@ -66,6 +65,25 @@ public class AddGraphTest extends OperationTest<AddGraph> {
                         .build())
                 .graphAuths("testAuth")
                 .storeProperties(new StoreProperties("testProps"))
+                .build();
+
+        final AddGraph b = a.shallowClone();
+
+        Assert.assertEquals(a.getGraphId(), b.getGraphId());
+        Assert.assertEquals(a.getStoreProperties(), b.getStoreProperties());
+        Assert.assertEquals(a.getSchema(), b.getSchema());
+        Assert.assertEquals(a.getGraphAuths(), b.getGraphAuths());
+    }
+
+    @Test
+    public void shouldShallowCloneOperationWithNulls() {
+        final AddGraph a = new Builder()
+                .graphId(null)
+                .parentPropertiesId(null)
+                .parentSchemaIds(null)
+                .schema(null)
+                .graphAuths(null)
+                .storeProperties(null)
                 .build();
 
         final AddGraph b = a.shallowClone();

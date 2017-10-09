@@ -340,7 +340,7 @@ public class GetElementsInRangesHandlerTest {
         }
 
         try {
-            store.execute(new AddElements.Builder().input(elements).build(), user);
+            store.execute(new AddElements.Builder().input(elements).build(), store.createContext(user));
         } catch (final OperationException e) {
             fail("Couldn't add element: " + e);
         }

@@ -52,9 +52,9 @@ public interface EntityId extends ElementId {
     }
 
     /**
-     * This  is related to an
-     * {@link ElementId} if either the ElementId is equal to this EntityId or it is
-     * an EdgeId and it's source or destination matches this EntityId's vertex.
+     * This is related to an {@link ElementId} if either the ElementId is equal
+     * to this EntityId or it is an EdgeId and its source or destination matches
+     * this EntityId's vertex.
      *
      * @param that the {@link ElementId} to compare
      * @return An instance of {@link ElementId.Matches} to describe how the seeds are related.
@@ -73,9 +73,8 @@ public interface EntityId extends ElementId {
     }
 
     /**
-     * This  is related to an
-     * {@link EdgeId} if either EdgeId's source or destination matches this
-     * EntityId's vertex.
+     * This  is related to an {@link EdgeId} if either the EdgeId's source or
+     * destination matches this EntityId's vertex.
      *
      * @param that the {@link EdgeId} to compare
      * @return An instance of {@link ElementId.Matches} to describe how the seeds are related.
