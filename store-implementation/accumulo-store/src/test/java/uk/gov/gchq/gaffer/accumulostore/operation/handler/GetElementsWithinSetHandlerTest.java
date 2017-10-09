@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import org.apache.accumulo.core.client.TableExistsException;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.AfterClass;
@@ -36,6 +37,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
@@ -179,9 +181,14 @@ public class GetElementsWithinSetHandlerTest {
         final CloseableIterable<? extends Element> elements = handler.doOperation(operation, user, store);
 
         //Without query compaction the result size should be 5
-        assertEquals(5, Iterables.size(elements));
-        assertThat((CloseableIterable<Element>) elements, IsCollectionContaining.hasItems(expectedEdge1, expectedEdge2, expectedEdge3, expectedEntity1, expectedEntity2));
-        elements.close();
+        final Set<Element> elementSet = Sets.newHashSet(elements);
+        assertEquals(5, elementSet.size());
+        assertEquals(Sets.newHashSet(expectedEdge1, expectedEdge2, expectedEdge3, expectedEntity1, expectedEntity2), elementSet);
+        for (final Element element : elementSet) {
+            if (element instanceof Edge) {
+                assertEquals(EdgeId.MatchedVertex.SOURCE, ((Edge) element).getMatchedVertex());
+            }
+        }
     }
 
     @Test
@@ -290,52 +297,52 @@ public class GetElementsWithinSetHandlerTest {
             data.add(entity);
             for (int i = 1; i < 100; i++) {
                 data.add(new Edge.Builder()
-                        .group(TestGroups.EDGE)
-                        .source("A0")
-                        .dest("A" + i)
-                        .directed(true)
-                        .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
-                        .property(AccumuloPropertyNames.COUNT, i)
-                        .property(AccumuloPropertyNames.PROP_1, 0)
-                        .property(AccumuloPropertyNames.PROP_2, 0)
-                        .property(AccumuloPropertyNames.PROP_3, 0)
-                        .property(AccumuloPropertyNames.PROP_4, 0)
-                        .build()
+                                .group(TestGroups.EDGE)
+                                .source("A0")
+                                .dest("A" + i)
+                                .directed(true)
+                                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
+                                .property(AccumuloPropertyNames.COUNT, i)
+                                .property(AccumuloPropertyNames.PROP_1, 0)
+                                .property(AccumuloPropertyNames.PROP_2, 0)
+                                .property(AccumuloPropertyNames.PROP_3, 0)
+                                .property(AccumuloPropertyNames.PROP_4, 0)
+                                .build()
                 );
 
                 data.add(new Edge.Builder()
-                        .group(TestGroups.EDGE)
-                        .source("A0")
-                        .dest("A" + i)
-                        .directed(true)
-                        .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 2)
-                        .property(AccumuloPropertyNames.COUNT, i)
-                        .property(AccumuloPropertyNames.PROP_1, 0)
-                        .property(AccumuloPropertyNames.PROP_2, 0)
-                        .property(AccumuloPropertyNames.PROP_3, 0)
-                        .property(AccumuloPropertyNames.PROP_4, 0)
-                        .build()
+                                .group(TestGroups.EDGE)
+                                .source("A0")
+                                .dest("A" + i)
+                                .directed(true)
+                                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 2)
+                                .property(AccumuloPropertyNames.COUNT, i)
+                                .property(AccumuloPropertyNames.PROP_1, 0)
+                                .property(AccumuloPropertyNames.PROP_2, 0)
+                                .property(AccumuloPropertyNames.PROP_3, 0)
+                                .property(AccumuloPropertyNames.PROP_4, 0)
+                                .build()
                 );
 
                 data.add(new Edge.Builder()
-                        .group(TestGroups.EDGE)
-                        .source("A0")
-                        .dest("A" + i)
-                        .directed(true)
-                        .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 3)
-                        .property(AccumuloPropertyNames.COUNT, i)
-                        .property(AccumuloPropertyNames.PROP_1, 0)
-                        .property(AccumuloPropertyNames.PROP_2, 0)
-                        .property(AccumuloPropertyNames.PROP_3, 0)
-                        .property(AccumuloPropertyNames.PROP_4, 0)
-                        .build()
+                                .group(TestGroups.EDGE)
+                                .source("A0")
+                                .dest("A" + i)
+                                .directed(true)
+                                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 3)
+                                .property(AccumuloPropertyNames.COUNT, i)
+                                .property(AccumuloPropertyNames.PROP_1, 0)
+                                .property(AccumuloPropertyNames.PROP_2, 0)
+                                .property(AccumuloPropertyNames.PROP_3, 0)
+                                .property(AccumuloPropertyNames.PROP_4, 0)
+                                .build()
                 );
 
                 data.add(new Entity.Builder()
-                        .group(TestGroups.ENTITY)
-                        .vertex("A" + i)
-                        .property(AccumuloPropertyNames.COUNT, i)
-                        .build()
+                                .group(TestGroups.ENTITY)
+                                .vertex("A" + i)
+                                .property(AccumuloPropertyNames.COUNT, i)
+                                .build()
                 );
             }
             final User user = new User();
