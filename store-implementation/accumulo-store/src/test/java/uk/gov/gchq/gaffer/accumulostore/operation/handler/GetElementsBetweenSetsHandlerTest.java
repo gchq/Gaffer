@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -33,6 +34,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
@@ -48,16 +50,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class GetElementsBetweenSetsHandlerTest {
-
-    private final long TIMESTAMP = System.currentTimeMillis();
     // Query for all edges between the set {A0} and the set {A23}
-    private final List<EntityId> seedsA = Collections.singletonList(new EntitySeed("A0"));
+    private final List<EntityId> inputA = Collections.singletonList(new EntitySeed("A0"));
     private final List<EntityId> inputB = Collections.singletonList(new EntitySeed("A23"));
 
     private static View defaultView;
@@ -93,6 +94,11 @@ public class GetElementsBetweenSetsHandlerTest {
                     .group(TestGroups.ENTITY)
                     .vertex("A0")
                     .build();
+    private static final Element expectedEntity1B =
+            new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex("A23")
+                    .build();
     private static final Element expectedSummarisedEdge =
             new Edge.Builder()
                     .group(TestGroups.EDGE)
@@ -125,6 +131,7 @@ public class GetElementsBetweenSetsHandlerTest {
         expectedEdge3.putProperty(AccumuloPropertyNames.COUNT, 23);
 
         expectedEntity1.putProperty(AccumuloPropertyNames.COUNT, 10000);
+        expectedEntity1B.putProperty(AccumuloPropertyNames.COUNT, 23);
 
         expectedSummarisedEdge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 6);
         expectedSummarisedEdge.putProperty(AccumuloPropertyNames.COUNT, 69);
@@ -162,17 +169,45 @@ public class GetElementsBetweenSetsHandlerTest {
     }
 
     private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
-        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(seedsA).inputB(inputB).view(defaultView).build();
+        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(inputA).inputB(inputB).view(defaultView).build();
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         final CloseableIterable<? extends Element> elements = handler.doOperation(op, user, store);
-        //Without query compaction the result size should be 4
-        assertEquals(4, Iterables.size(elements));
 
-        assertTrue(Iterables.contains(elements, expectedEdge1));
-        assertTrue(Iterables.contains(elements, expectedEdge2));
-        assertTrue(Iterables.contains(elements, expectedEdge3));
-        assertTrue(Iterables.contains(elements, expectedEntity1));
-        elements.close();
+        final Set<Element> elementsSet = Sets.newHashSet(elements);
+
+        //Without query compaction the result size should be 4
+        assertEquals(Sets.newHashSet(expectedEdge1, expectedEdge2, expectedEdge3, expectedEntity1), elementsSet);
+        for (final Element element : elementsSet) {
+            if (element instanceof Edge) {
+                assertEquals(EdgeId.MatchedVertex.SOURCE, ((Edge) element).getMatchedVertex());
+            }
+        }
+    }
+
+    @Test
+    public void shouldReturnElementsNoSummarisationByteEntityStoreMatchedAsDestination() throws OperationException {
+        shouldReturnElementsNoSummarisationMatchedAsDestination(byteEntityStore);
+    }
+
+    @Test
+    public void shouldReturnElementsNoSummarisationGaffer1StoreMatchedAsDestination() throws OperationException {
+        shouldReturnElementsNoSummarisationMatchedAsDestination(gaffer1KeyStore);
+    }
+
+    private void shouldReturnElementsNoSummarisationMatchedAsDestination(final AccumuloStore store) throws OperationException {
+        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(inputB).inputB(inputA).view(defaultView).build();
+        final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
+        final CloseableIterable<? extends Element> elements = handler.doOperation(op, user, store);
+
+        final Set<Element> elementsSet = Sets.newHashSet(elements);
+
+        //Without query compaction the result size should be 4
+        assertEquals(Sets.newHashSet(expectedEdge1, expectedEdge2, expectedEdge3, expectedEntity1B), elementsSet);
+        for (final Element element : elementsSet) {
+            if (element instanceof Edge) {
+                assertEquals(EdgeId.MatchedVertex.DESTINATION, ((Edge) element).getMatchedVertex());
+            }
+        }
     }
 
     @Test
@@ -195,7 +230,7 @@ public class GetElementsBetweenSetsHandlerTest {
                         .build())
                 .build();
 
-        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(seedsA).inputB(inputB).view(opView).build();
+        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(inputA).inputB(inputB).view(opView).build();
 
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         final CloseableIterable<? extends Element> elements = handler.doOperation(op, user, store);
@@ -225,7 +260,7 @@ public class GetElementsBetweenSetsHandlerTest {
                         .build())
                 .build();
 
-        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(seedsA).inputB(inputB).view(opView).build();
+        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(inputA).inputB(inputB).view(opView).build();
 
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         final CloseableIterable<? extends Element> elements = handler.doOperation(op, user, store);
@@ -253,7 +288,7 @@ public class GetElementsBetweenSetsHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(seedsA).inputB(inputB).view(opView).build();
+        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(inputA).inputB(inputB).view(opView).build();
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         final CloseableIterable<? extends Element> elements = handler.doOperation(op, user, store);
 
@@ -283,7 +318,7 @@ public class GetElementsBetweenSetsHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(seedsA).inputB(inputB).view(view).build();
+        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(inputA).inputB(inputB).view(view).build();
         op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         final CloseableIterable<? extends Element> elements = handler.doOperation(op, user, store);
@@ -315,7 +350,7 @@ public class GetElementsBetweenSetsHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(seedsA).inputB(inputB).view(view).build();
+        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(inputA).inputB(inputB).view(view).build();
         op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         final CloseableIterable<? extends Element> elements = handler.doOperation(op, user, store);
@@ -336,37 +371,37 @@ public class GetElementsBetweenSetsHandlerTest {
         data.add(entity);
         for (int i = 1; i < 100; i++) {
             data.add(new Edge.Builder()
-                    .group(TestGroups.EDGE)
-                    .source("A0")
-                    .dest("A" + i)
-                    .directed(true)
-                    .property(AccumuloPropertyNames.COUNT, 23)
-                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
-                    .property(AccumuloPropertyNames.PROP_1, 0)
-                    .property(AccumuloPropertyNames.PROP_2, 0)
-                    .property(AccumuloPropertyNames.PROP_3, 0)
-                    .property(AccumuloPropertyNames.PROP_4, 0)
-                    .build()
+                            .group(TestGroups.EDGE)
+                            .source("A0")
+                            .dest("A" + i)
+                            .directed(true)
+                            .property(AccumuloPropertyNames.COUNT, 23)
+                            .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
+                            .property(AccumuloPropertyNames.PROP_1, 0)
+                            .property(AccumuloPropertyNames.PROP_2, 0)
+                            .property(AccumuloPropertyNames.PROP_3, 0)
+                            .property(AccumuloPropertyNames.PROP_4, 0)
+                            .build()
             );
 
             data.add(new Edge.Builder()
-                    .group(TestGroups.EDGE)
-                    .source("A0")
-                    .dest("A" + i)
-                    .directed(true)
-                    .property(AccumuloPropertyNames.COUNT, 23)
-                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 2)
-                    .build()
+                            .group(TestGroups.EDGE)
+                            .source("A0")
+                            .dest("A" + i)
+                            .directed(true)
+                            .property(AccumuloPropertyNames.COUNT, 23)
+                            .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 2)
+                            .build()
             );
 
             data.add(new Edge.Builder()
-                    .group(TestGroups.EDGE)
-                    .source("A0")
-                    .dest("A" + i)
-                    .directed(true)
-                    .property(AccumuloPropertyNames.COUNT, 23)
-                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 3)
-                    .build()
+                            .group(TestGroups.EDGE)
+                            .source("A0")
+                            .dest("A" + i)
+                            .directed(true)
+                            .property(AccumuloPropertyNames.COUNT, 23)
+                            .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 3)
+                            .build()
             );
 
             data.add(new Entity.Builder()
