@@ -125,7 +125,7 @@ public class LongTimeSeries implements TimeSeries<Long> {
     public int getNumberOfInstants() {
         return timeSeries.size();
     }
-    
+
     public Map<Instant, Long> getTimeSeries() {
         final SortedMap<Instant, Long> map = new TreeMap<>();
         timeSeries
