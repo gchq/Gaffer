@@ -63,6 +63,7 @@ public class AddGraph implements Operation {
     private List<String> parentSchemaIds;
     private Set<String> graphAuths;
     private Map<String, String> options;
+    private boolean isPublic = false;
 
     public String getGraphId() {
         return graphId;
@@ -82,15 +83,20 @@ public class AddGraph implements Operation {
 
     @Override
     public AddGraph shallowClone() throws CloneFailedException {
-        return new Builder()
+        final Builder builder = new Builder()
                 .graphId(graphId)
                 .schema(schema)
                 .storeProperties(storeProperties)
                 .parentSchemaIds(parentSchemaIds)
                 .parentPropertiesId(parentPropertiesId)
-                .options(options)
-                .graphAuths(graphAuths.toArray(new String[graphAuths.size()]))
-                .build();
+                .options(this.options)
+                .isPublic(this.isPublic);
+
+        if (null != graphAuths) {
+            builder.graphAuths(graphAuths.toArray(new String[graphAuths.size()]));
+        }
+
+        return builder.build();
     }
 
     public List<String> getParentSchemaIds() {
@@ -149,6 +155,14 @@ public class AddGraph implements Operation {
         }
     }
 
+    public void setIsPublic(final boolean isPublic) {
+        this.isPublic = isPublic;
+    }
+
+    public boolean getIsPublic() {
+        return isPublic;
+    }
+
     public static class Builder extends BaseBuilder<AddGraph, Builder> {
         public Builder() {
             super(new AddGraph());
@@ -176,6 +190,11 @@ public class AddGraph implements Operation {
 
         public Builder parentSchemaIds(final List<String> parentSchemaIds) {
             _getOp().setParentSchemaIds(parentSchemaIds);
+            return _self();
+        }
+
+        public Builder isPublic(final boolean isPublic) {
+            _getOp().setIsPublic(isPublic);
             return _self();
         }
 

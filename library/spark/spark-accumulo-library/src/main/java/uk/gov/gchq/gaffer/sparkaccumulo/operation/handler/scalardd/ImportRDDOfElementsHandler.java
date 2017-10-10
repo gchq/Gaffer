@@ -22,7 +22,6 @@ import scala.Tuple2;
 import scala.reflect.ClassTag;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
@@ -36,7 +35,6 @@ public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfE
     private static final String OUTPUT_PATH = "outputPath";
     private static final String FAILURE_PATH = "failurePath";
     private static final ClassTag<Tuple2<Key, Value>> TUPLE2_CLASS_TAG = scala.reflect.ClassTag$.MODULE$.apply(Tuple2.class);
-    private static final ClassTag<AccumuloElementConverter> ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG = scala.reflect.ClassTag$.MODULE$.apply(AccumuloElementConverter.class);
 
     @Override
     public Void doOperation(final ImportRDDOfElements operation, final Context context, final Store store) throws OperationException {

@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import uk.gov.gchq.gaffer.user.User;
 
 /**
  * An {@link uk.gov.gchq.gaffer.store.operation.handler.OperationHandler} for the {@link GetAllElements} operation on
@@ -37,13 +38,14 @@ public class GetAllElementsHandler implements OutputOperationHandler<GetAllEleme
     public CloseableIterable<? extends Element> doOperation(final GetAllElements operation,
                                                             final Context context,
                                                             final Store store) throws OperationException {
-        return doOperation(operation, (ParquetStore) store);
+        return doOperation(operation, (ParquetStore) store, context.getUser());
     }
 
     private CloseableIterable<Element> doOperation(final GetAllElements operation,
-                                                   final ParquetStore store) throws OperationException {
+                                                   final ParquetStore store,
+                                                   final User user) throws OperationException {
         try {
-            return new ParquetElementRetriever(operation.getView(), store, operation.getDirectedType(), null, null, null);
+            return new ParquetElementRetriever(operation.getView(), store, operation.getDirectedType(), null, null, null, user);
         } catch (final StoreException e) {
             throw new OperationException("Failed to get elements", e);
         }

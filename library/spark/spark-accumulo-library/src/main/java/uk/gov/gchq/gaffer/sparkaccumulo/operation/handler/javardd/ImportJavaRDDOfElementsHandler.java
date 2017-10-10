@@ -18,10 +18,8 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.spark.api.java.JavaPairRDD;
-import org.apache.spark.broadcast.Broadcast;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
@@ -52,8 +50,7 @@ public class ImportJavaRDDOfElementsHandler implements OperationHandler<ImportJa
             throw new OperationException("Option failurePath must be set for this option to be run against the accumulostore");
         }
 
-        final Broadcast<AccumuloElementConverter> broadcast = operation.getJavaSparkContext().broadcast(store.getKeyPackage().getKeyConverter());
-        final ElementConverterFunction func = new ElementConverterFunction(broadcast);
+        final ElementConverterFunction func = new ElementConverterFunction(store.getSchema(), store.getKeyPackage().getKeyConverter());
         final JavaPairRDD<Key, Value> rdd = operation.getInput().flatMapToPair(func);
         final ImportKeyValueJavaPairRDDToAccumulo op =
                 new ImportKeyValueJavaPairRDDToAccumulo.Builder()

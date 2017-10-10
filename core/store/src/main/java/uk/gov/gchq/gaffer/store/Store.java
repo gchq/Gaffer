@@ -52,6 +52,9 @@ import uk.gov.gchq.gaffer.operation.impl.export.GetExports;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
+import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
+import uk.gov.gchq.gaffer.operation.impl.function.Filter;
+import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
@@ -90,6 +93,9 @@ import uk.gov.gchq.gaffer.store.operation.handler.compare.SortHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.export.GetExportsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.export.set.ExportToSetHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.export.set.GetSetExportHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.function.AggregateHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.function.FilterHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.function.TransformHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetAllJobDetailsHandler;
@@ -144,12 +150,13 @@ public abstract class Store {
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to aggregate the elements.
      */
-    protected Schema schema;
+    private Schema schema;
 
     /**
      * The store properties - contains specific configuration information for the store - such as database connection strings.
      */
     private StoreProperties properties;
+
     private GraphLibrary library;
 
     private JobTracker jobTracker;
@@ -200,12 +207,12 @@ public abstract class Store {
         }
         this.graphId = graphId;
         this.schema = schema;
-        this.properties = properties;
+        setProperties(properties);
 
-        JSONSerialiser.update(properties.getJsonSerialiserClass(), properties.getJsonSerialiserModules());
+        JSONSerialiser.update(getProperties().getJsonSerialiserClass(), getProperties().getJsonSerialiserModules());
 
-        startCacheServiceLoader(properties);
-        this.jobTracker = createJobTracker(properties);
+        startCacheServiceLoader();
+        this.jobTracker = createJobTracker();
 
         optimiseSchema();
         validateSchemas();
@@ -238,87 +245,54 @@ public abstract class Store {
      * Executes a given operation and returns the result.
      *
      * @param operation the operation to execute.
-     * @param user      the user executing the operation
+     * @param context   the context executing the operation
      * @throws OperationException thrown by the operation handler if the operation fails.
      */
-    public void execute(final Operation operation, final User user) throws OperationException {
-        execute(new OperationChain<>(operation), user);
+    public void execute(final Operation operation, final Context context) throws OperationException {
+        execute(OperationChain.wrap(operation), context);
     }
 
     /**
      * Executes a given operation and returns the result.
      *
      * @param operation the operation to execute.
-     * @param context   the context associated with the operation
-     * @throws OperationException thrown by the operation handler if the operation fails.
-     */
-    public void execute(final Operation operation, final Context context) throws OperationException {
-        execute(new OperationChain<>(operation), context);
-    }
-
-    /**
-     * Executes a given output operation and returns the result.
-     *
-     * @param operation the output operation to execute.
-     * @param user      the user executing the operation
-     * @param <O>       the output type of the operation.
-     * @return the result from the operation
-     * @throws OperationException thrown by the operation handler if the operation fails.
-     */
-    public <O> O execute(final Output<O> operation, final User user) throws OperationException {
-        return execute(new OperationChain<>(operation), user);
-    }
-
-    /**
-     * Executes a given operation chain and returns the result.
-     *
-     * @param operationChain the operation chain to execute.
-     * @param user           the user executing the operation chain
-     * @param <O>            the output type of the operation.
-     * @return the result of executing the operation.
-     * @throws OperationException thrown by an operation handler if an operation fails
-     */
-    public <O> O execute(final OperationChain<O> operationChain, final User user) throws OperationException {
-        return execute(operationChain, createContext(user));
-    }
-
-    /**
-     * Execute a given operation and returns the result.
-     *
-     * @param operation the operation to execute
-     * @param context   the context associated with the operation
+     * @param context   the context executing the operation
      * @param <O>       the output type of the operation
      * @return the result of executing the operation
      * @throws OperationException thrown by the operation handler if the operation fails.
      */
     public <O> O execute(final Output<O> operation, final Context context) throws OperationException {
-        final OperationChain<O> operationChain = Operation.asOperationChain(operation);
+        return execute(OperationChain.wrap(operation), context);
+    }
 
-        addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
+    protected <O> O execute(final OperationChain<O> operation, final Context context) throws OperationException {
+        addOrUpdateJobDetail(operation, context, null, JobStatus.RUNNING);
         try {
             final O result = (O) handleOperation(operation, context);
-            addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
+            addOrUpdateJobDetail(operation, context, null, JobStatus.FINISHED);
             return result;
         } catch (final Throwable t) {
-            addOrUpdateJobDetail(operationChain, context, t.getMessage(), JobStatus.FAILED);
+            addOrUpdateJobDetail(operation, context, t.getMessage(), JobStatus.FAILED);
             throw t;
         }
     }
 
     /**
-     * Executes a given operation chain job and returns the job detail.
+     * Executes a given operation job and returns the job detail.
      *
-     * @param operationChain the operation chain to execute.
-     * @param user           the user executing the job
+     * @param operation the operation to execute.
+     * @param context   the context executing the job
      * @return the job detail
      * @throws OperationException thrown if jobs are not configured.
      */
-    public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
+    public JobDetail executeJob(final Operation operation, final Context context) throws OperationException {
+        return executeJob(OperationChain.wrap(operation), context);
+    }
+
+    protected JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
         if (null == jobTracker) {
             throw new OperationException("Running jobs has not configured.");
         }
-
-        final Context context = createContext(user);
 
         if (isSupported(ExportToGafferResultCache.class)) {
             boolean hasExport = false;
@@ -448,6 +422,18 @@ public abstract class Store {
         return properties;
     }
 
+    protected void setProperties(final StoreProperties properties) {
+        final Class<? extends StoreProperties> requiredPropsClass = getPropertiesClass();
+        properties.updateStorePropertiesClass(requiredPropsClass);
+
+        // If the properties instance is not already an instance of the required class then reload the properties
+        if (requiredPropsClass.isAssignableFrom(properties.getClass())) {
+            this.properties = properties;
+        } else {
+            this.properties = StoreProperties.loadStoreProperties(properties.getProperties());
+        }
+    }
+
     public GraphLibrary getGraphLibrary() {
         return library;
     }
@@ -496,6 +482,14 @@ public abstract class Store {
             throw new SchemaException("Schema is not valid. "
                     + validationResult.getErrorString());
         }
+    }
+
+    public Context createContext(final User user) {
+        return new Context(user);
+    }
+
+    protected Class<? extends StoreProperties> getPropertiesClass() {
+        return StoreProperties.class;
     }
 
     /**
@@ -557,7 +551,7 @@ public abstract class Store {
         }
     }
 
-    protected JobTracker createJobTracker(final StoreProperties properties) {
+    protected JobTracker createJobTracker() {
         if (properties.getJobTrackerEnabled()) {
             return new JobTracker();
         }
@@ -574,10 +568,6 @@ public abstract class Store {
 
     protected void addOperationChainOptimisers(final List<OperationChainOptimiser> newOpChainOptimisers) {
         opChainOptimisers.addAll(newOpChainOptimisers);
-    }
-
-    protected Context createContext(final User user) {
-        return new Context(user);
     }
 
     /**
@@ -776,6 +766,11 @@ public abstract class Store {
         addOperationHandler(CountGroups.class, new CountGroupsHandler());
         addOperationHandler(Limit.class, new LimitHandler());
         addOperationHandler(DiscardOutput.class, new DiscardOutputHandler());
+
+        // Function
+        addOperationHandler(Filter.class, new FilterHandler());
+        addOperationHandler(Transform.class, new TransformHandler());
+        addOperationHandler(Aggregate.class, new AggregateHandler());
     }
 
     private void addConfiguredOperationHandlers() {
@@ -787,7 +782,7 @@ public abstract class Store {
         }
     }
 
-    private void startCacheServiceLoader(final StoreProperties properties) {
+    private void startCacheServiceLoader() {
         CacheServiceLoader.initialise(properties.getProperties());
     }
 

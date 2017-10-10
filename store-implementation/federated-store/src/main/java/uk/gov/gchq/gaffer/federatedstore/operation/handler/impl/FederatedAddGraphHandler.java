@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
-import uk.gov.gchq.gaffer.federatedstore.FederatedAccessHook;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -26,8 +25,6 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.user.User;
-
-import java.util.Set;
 
 /**
  * A handler for {@link AddGraph} operation for the FederatedStore.
@@ -46,16 +43,11 @@ public class FederatedAddGraphHandler implements OperationHandler<AddGraph> {
             throw new OperationException("User is limited to only using parentPropertiesId from the graphLibrary, but found storeProperties:" + operation.getProperties().toString());
         }
 
-        final Set<String> graphAuths = operation.getGraphAuths();
-        FederatedAccessHook hook = new FederatedAccessHook();
-        hook.setGraphAuths(graphAuths);
-        hook.setAddingUserId(user.getUserId());
-
         final Graph graph = GraphDelegate.createGraph(store, operation.getGraphId(),
                 operation.getSchema(), operation.getStoreProperties(),
-                operation.getParentSchemaIds(), operation.getParentPropertiesId(), hook);
+                operation.getParentSchemaIds(), operation.getParentPropertiesId());
 
-        ((FederatedStore) store).addGraphs(graph);
+        ((FederatedStore) store).addGraphs(operation.getGraphAuths(), context.getUser().getUserId(), operation.getIsPublic(), graph);
         return null;
     }
 }

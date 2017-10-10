@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
-import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.gaffer.store.Context;
 
 import javax.inject.Inject;
 
@@ -39,11 +39,6 @@ import javax.inject.Inject;
  * All operations are simply delegated to the graph.
  * Pre and post operation hooks are available by extending this class and implementing preOperationHook and/or
  * postOperationHook.
- * <p>
- * By default queries will be executed with an UNKNOWN user containing no auths.
- * The {@link UserFactory#createUser()} method should be overridden and a {@link User} object should
- * be created from the http request.
- * </p>
  */
 public class JobService implements IJobService {
     private static final Logger LOGGER = LoggerFactory.getLogger(JobService.class);
@@ -56,24 +51,24 @@ public class JobService implements IJobService {
 
     @Override
     public JobDetail executeJob(final OperationChainDAO opChain) {
-        final User user = userFactory.createUser();
-        preOperationHook(opChain, user);
+        final Context context = userFactory.createContext();
+        preOperationHook(opChain, context);
 
         try {
-            final JobDetail jobDetail = graphFactory.getGraph().executeJob(opChain, user);
+            final JobDetail jobDetail = graphFactory.getGraph().executeJob(opChain, context);
             LOGGER.info("Job started = {}", jobDetail);
             return jobDetail;
         } catch (final OperationException e) {
             throw new RuntimeException("Error executing opChain: " + e.getMessage(), e);
         } finally {
-            postOperationHook(opChain, user);
+            postOperationHook(opChain, context);
         }
     }
 
     @Override
     public CloseableIterable<JobDetail> details() {
         try {
-            return graphFactory.getGraph().execute(new GetAllJobDetails(), userFactory.createUser());
+            return graphFactory.getGraph().execute(new GetAllJobDetails(), userFactory.createContext());
         } catch (final OperationException e) {
             throw new RuntimeException(e);
         }
@@ -86,7 +81,7 @@ public class JobService implements IJobService {
                     new GetJobDetails.Builder()
                             .jobId(id)
                             .build(),
-                    userFactory.createUser());
+                    userFactory.createContext());
         } catch (final OperationException e) {
             throw new RuntimeException(e);
         }
@@ -99,17 +94,17 @@ public class JobService implements IJobService {
                     new GetJobResults.Builder()
                             .jobId(id)
                             .build(),
-                    userFactory.createUser());
+                    userFactory.createContext());
         } catch (final OperationException e) {
             throw new RuntimeException(e);
         }
     }
 
-    protected void preOperationHook(final OperationChain<?> opChain, final User user) {
+    protected void preOperationHook(final OperationChain<?> opChain, final Context context) {
         // no action by default
     }
 
-    protected void postOperationHook(final OperationChain<?> opChain, final User user) {
+    protected void postOperationHook(final OperationChain<?> opChain, final Context context) {
         // no action by default
     }
 }

@@ -15,15 +15,13 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>uk.gov.gchq.gaffer</groupId>
     <artifactId>gaffer2</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.0-RC3</version>
+    <version>1.0.0-RC5-SNAPSHOT</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>A scalable Graph database framework</description>
@@ -43,7 +41,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skip.surefire.tests>false</skip.surefire.tests>
         <skip.failsafe.tests>false</skip.failsafe.tests>
-        <exclude.tests/>
+        <exclude.tests />
         <skip.jar-with-dependencies>false</skip.jar-with-dependencies>
         <shaded.jar.phase>package</shaded.jar.phase>
 
@@ -59,7 +57,7 @@
         <failsafe.version>2.18.1</failsafe.version>
         <slf4j.api.version>1.7.5</slf4j.api.version>
 
-        <koryphe.version>1.0.0-RC3</koryphe.version>
+        <koryphe.version>1.0.0</koryphe.version>
         <accumulo.version>1.8.1</accumulo.version>
         <hbase.version>1.3.0</hbase.version>
         <avro.version>1.7.7</avro.version>
@@ -713,12 +711,12 @@
                 <configuration>
                     <checkoutDirectory>${project.build.directory}/scmpublish
                     </checkoutDirectory>
-                    <checkinComment>Publishing javadoc for
-                        ${project.artifactId}:${project.version}
+                    <checkinComment>
+                        "Updates for ${project.artifactId}:${project.version}
                     </checkinComment>
                     <content>${project.reporting.outputDirectory}/apidocs
                     </content>
-                    <skipDeletedFiles>false</skipDeletedFiles>
+                    <skipDeletedFiles>true</skipDeletedFiles>
                     <pubScmUrl>${scm.connection}</pubScmUrl>
                     <scmBranch>gh-pages</scmBranch>
                 </configuration>
@@ -831,6 +829,7 @@
                 <skip.failsafe.tests>true</skip.failsafe.tests>
                 <jacoco.skip>true</jacoco.skip>
                 <shaded.jar.phase>none</shaded.jar.phase>
+                <skip.jar-with-dependencies>true</skip.jar-with-dependencies>
             </properties>
         </profile>
         <profile>
@@ -839,6 +838,7 @@
                 <skip.surefire.tests>false</skip.surefire.tests>
                 <skip.failsafe.tests>false</skip.failsafe.tests>
                 <shaded.jar.phase>none</shaded.jar.phase>
+                <skip.jar-with-dependencies>true</skip.jar-with-dependencies>
             </properties>
             <build>
                 <plugins>

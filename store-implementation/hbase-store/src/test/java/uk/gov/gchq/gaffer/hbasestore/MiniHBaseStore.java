@@ -37,7 +37,6 @@ import org.apache.hadoop.hbase.security.visibility.VisibilityTestUtil;
 import org.apache.hadoop.hbase.security.visibility.VisibilityUtils;
 import org.apache.hadoop.mapreduce.server.jobtracker.JTConfig;
 
-import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -67,9 +66,7 @@ public class MiniHBaseStore extends HBaseStore {
     @Override
     public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties)
             throws StoreException {
-        if (!(properties instanceof HBaseProperties)) {
-            throw new StoreException("Store must be initialised with HBaseProperties");
-        }
+        setProperties(properties);
 
         if (null == utility) {
             try {
@@ -78,20 +75,13 @@ public class MiniHBaseStore extends HBaseStore {
                 utility.startMiniCluster();
                 utility.waitTableEnabled(VisibilityConstants.LABELS_TABLE_NAME.getName(), 50000);
                 conf.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, CommonConfigurationKeysPublic.FS_DEFAULT_NAME_DEFAULT);
-                addLabels(getMiniHBaseVisibilities(properties));
+                addLabels(getMiniHBaseVisibilities());
             } catch (final Exception e) {
                 throw new StoreException(e);
             }
         }
 
-        try {
-            super.preInitialise(graphId, schema, properties);
-        } catch (final StoreException e) {
-            // This is due to an invalid table, but the table is about to be deleted to we can ignore it.
-        }
-
-        TableUtils.dropTable(this);
-        super.preInitialise(graphId, schema, properties);
+        super.preInitialise(graphId, schema, getProperties());
     }
 
     @Override
@@ -157,8 +147,8 @@ public class MiniHBaseStore extends HBaseStore {
         return conf;
     }
 
-    private String[] getMiniHBaseVisibilities(final StoreProperties properties) {
-        final String visibilityCsv = properties.get(MINI_HBASE_VISIBILITIES);
+    private String[] getMiniHBaseVisibilities() {
+        final String visibilityCsv = getProperties().get(MINI_HBASE_VISIBILITIES);
         if (null == visibilityCsv) {
             return new String[0];
         }

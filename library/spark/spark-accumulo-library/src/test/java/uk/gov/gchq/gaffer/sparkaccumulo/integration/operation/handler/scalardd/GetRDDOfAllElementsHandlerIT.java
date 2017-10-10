@@ -60,7 +60,6 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.MiniAccumuloClusterProvider;
-import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.SparkSessionProvider;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -165,6 +164,30 @@ public class GetRDDOfAllElementsHandlerIT {
         testGetAllElementsInRDDWithIngestAggregationApplied(
                 getGraphForDirectRDDForIngestAggregation(KeyPackage.CLASSIC, "testGetAllElementsInRDDWithIngestAggregationApplied2"),
                 getOperationWithDirectRDDOption());
+    }
+
+    @Test
+    public void checkHadoopConfIsPassedThrough() throws OperationException, IOException {
+        final Graph graph1 = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("graphId")
+                        .build())
+                .addSchema(getClass().getResourceAsStream("/schema/elements.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/types.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/serialisation.json"))
+                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .build();
+        final User user = new User();
+        final Configuration conf = new Configuration();
+        conf.set("AN_OPTION", "A_VALUE");
+        final String encodedConf = AbstractGetRDDHandler.convertConfigurationToString(conf);
+        final GetRDDOfAllElements rddQuery = new GetRDDOfAllElements.Builder()
+                .option(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, encodedConf)
+                .build();
+        final RDD<Element> rdd = graph1.execute(rddQuery, user);
+
+        assertEquals(encodedConf, rddQuery.getOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY));
+        assertEquals("A_VALUE", rdd.sparkContext().hadoopConfiguration().get("AN_OPTION"));
     }
 
     private void testGetAllElementsInRDD(final Graph graph, final GetRDDOfAllElements getRDD) throws OperationException,
@@ -602,7 +625,6 @@ public class GetRDDOfAllElementsHandlerIT {
 
         // Check get correct elements
         final GetRDDOfAllElements rddQuery = new GetRDDOfAllElements.Builder()
-                .sparkSession(SparkSessionProvider.getSparkSession())
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         return rddQuery;

@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import org.apache.spark.sql.SparkSession;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -25,6 +24,9 @@ import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class GetDataFrameOfElementsHandler implements OutputOperationHandler<GetDataFrameOfElements, Dataset<Row>> {
 
@@ -36,13 +38,18 @@ public class GetDataFrameOfElementsHandler implements OutputOperationHandler<Get
 
     public Dataset<Row> doOperation(final GetDataFrameOfElements operation, final Context context,
                                     final AccumuloStore store) throws OperationException {
-        final SparkSession sparkSession = operation.getSparkSession();
-        final AccumuloStoreRelation relation = new AccumuloStoreRelation(sparkSession,
+        final Map<String, String> operationOptions;
+        if (operation.getOptions() != null) {
+            operationOptions = operation.getOptions();
+        } else {
+            operationOptions = new HashMap<>();
+        }
+        final AccumuloStoreRelation relation = new AccumuloStoreRelation(context,
                 operation.getConverters(),
                 operation.getView(),
                 store,
-                context.getUser());
-        return sparkSession.sqlContext().baseRelationToDataFrame(relation);
+                operationOptions);
+        return relation.sqlContext().baseRelationToDataFrame(relation);
     }
 
 }
