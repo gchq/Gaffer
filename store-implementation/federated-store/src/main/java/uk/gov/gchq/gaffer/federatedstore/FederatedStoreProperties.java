@@ -112,12 +112,12 @@ public class FederatedStoreProperties extends StoreProperties {
         set(key, file);
     }
 
-    public void setGraphPropId(final String graphId, final String id) {
+    public void setParentPropId(final String graphId, final String id) {
         final String key = getKeyGraphConfig(graphId, GraphConfigEnum.PROPERTIES, LocationEnum.ID);
         set(key, id);
     }
 
-    public void setGraphSchemaId(final String graphId, final String id) {
+    public void setParentSchemaId(final String graphId, final String id) {
         final String key = getKeyGraphConfig(graphId, GraphConfigEnum.SCHEMA, LocationEnum.ID);
         set(key, id);
     }

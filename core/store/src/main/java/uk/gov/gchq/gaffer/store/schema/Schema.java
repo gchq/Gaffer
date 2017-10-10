@@ -369,7 +369,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                 getThisSchema().setId(schema.getId());
             } else if (!StringUtils.isEmpty(schema.getId()) && !getThisSchema().getId().equals(schema.getId())) {
                 // Both schemas have an id, as we are creating a new schema we need to create a new schema ID.
-                getThisSchema().setId(getThisSchema().getId() + "," + schema.getId());
+                getThisSchema().setId(getThisSchema().getId() + "_" + schema.getId());
             }
 
             if (getThisSchema().getEntities().isEmpty()) {

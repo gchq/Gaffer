@@ -57,8 +57,8 @@ public class FederatedStoreWrongGraphIDsTest {
     public void setUp() throws Exception {
         fedProps = new FederatedStoreProperties();
         fedProps.setGraphIds(GRAPH_1);
-        fedProps.setGraphPropId(GRAPH_1, PROP_1);
-        fedProps.setGraphSchemaId(GRAPH_1, SCHEMA_1);
+        fedProps.setParentPropId(GRAPH_1, PROP_1);
+        fedProps.setParentSchemaId(GRAPH_1, SCHEMA_1);
         fedProps.setTrueGraphIsPublicValue(GRAPH_1);
 
         store = new FederatedStore();

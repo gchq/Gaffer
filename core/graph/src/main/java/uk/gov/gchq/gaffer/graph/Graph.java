@@ -752,6 +752,7 @@ public final class Graph {
                 config.setGraphId(store.getGraphId());
             }
 
+            updateStoreProperties(config);
             updateSchema(config);
 
             if (null != config.getLibrary() && config.getLibrary().exists(config.getGraphId())) {
@@ -808,15 +809,17 @@ public final class Graph {
 
             if (null != parentSchemaIds) {
                 for (final String parentSchemaId : parentSchemaIds) {
-                    final Schema parentSchema = config.getLibrary().getSchema(parentSchemaId);
-                    if (null != parentSchema) {
-                        if (null == mergedParentSchema) {
-                            mergedParentSchema = parentSchema;
-                        } else {
-                            mergedParentSchema = new Schema.Builder()
-                                    .merge(mergedParentSchema)
-                                    .merge(parentSchema)
-                                    .build();
+                    if (null != parentSchemaId) {
+                        final Schema parentSchema = config.getLibrary().getSchema(parentSchemaId);
+                        if (null != parentSchema) {
+                            if (null == mergedParentSchema) {
+                                mergedParentSchema = parentSchema;
+                            } else {
+                                mergedParentSchema = new Schema.Builder()
+                                        .merge(mergedParentSchema)
+                                        .merge(parentSchema)
+                                        .build();
+                            }
                         }
                     }
                 }
@@ -846,26 +849,32 @@ public final class Graph {
             }
         }
 
-        private void updateStore(final GraphConfig config) {
+        private void updateStoreProperties(final GraphConfig config) {
             StoreProperties mergedStoreProperties = null;
             if (null != parentStorePropertiesId) {
                 mergedStoreProperties = config.getLibrary().getProperties(parentStorePropertiesId);
+                mergedStoreProperties.setId(parentStorePropertiesId);
             }
 
             if (null != properties) {
                 if (null == mergedStoreProperties) {
                     mergedStoreProperties = properties;
                 } else {
+                    if (null != properties.getId() && !mergedStoreProperties.getId().equals(properties.getId())) {
+                        mergedStoreProperties.setId(mergedStoreProperties.getId() + "," + properties.getId());
+                    }
                     mergedStoreProperties.getProperties().putAll(properties.getProperties());
-                    mergedStoreProperties.setId(mergedStoreProperties.getId() + "," + properties.getId());
                 }
             }
+            properties = mergedStoreProperties;
+        }
 
+        private void updateStore(final GraphConfig config) {
             if (null == store) {
-                store = Store.createStore(config.getGraphId(), cloneSchema(schema), mergedStoreProperties);
+                store = Store.createStore(config.getGraphId(), cloneSchema(schema), properties);
             } else if ((null != config.getGraphId() && !config.getGraphId().equals(store.getGraphId()))
                     || (null != schema)
-                    || (null != mergedStoreProperties && !mergedStoreProperties.equals(store.getProperties()))) {
+                    || (null != properties && !properties.equals(store.getProperties()))) {
                 if (null == config.getGraphId()) {
                     config.setGraphId(store.getGraphId());
                 }
@@ -873,12 +882,12 @@ public final class Graph {
                     schema = store.getSchema();
                 }
 
-                if (null == mergedStoreProperties) {
-                    mergedStoreProperties = store.getProperties();
+                if (null == properties) {
+                    properties = store.getProperties();
                 }
 
                 try {
-                    store.initialise(config.getGraphId(), cloneSchema(schema), mergedStoreProperties);
+                    store.initialise(config.getGraphId(), cloneSchema(schema), properties);
                 } catch (final StoreException e) {
                     throw new IllegalArgumentException("Unable to initialise the store with the given graphId, schema and properties", e);
                 }

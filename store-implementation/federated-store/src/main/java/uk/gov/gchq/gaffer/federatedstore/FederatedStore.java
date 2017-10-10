@@ -366,7 +366,7 @@ public class FederatedStore extends Store {
             if (federatedStoreCache.getAllGraphIds().contains(graphId)) {
                 try {
                     Graph graph = federatedStoreCache.getFromCache(graphId);
-                    addGraphs(resolveAuths(graphId), null, graph);
+                    addGraphs(resolveAuths(graphId), null, resolveIsPublic(graphId), graph);
                 } catch (final CacheOperationException e) {
                     throw new RuntimeException(e);
                 }
@@ -374,13 +374,14 @@ public class FederatedStore extends Store {
                 final Builder builder = new Builder().config(new GraphConfig.Builder()
                         .graphId(graphId)
                         .library(getGraphLibrary())
-                        .build());
+                        .build())
+                        .addParentSchemaIds(getValueOf(graphId, SCHEMA, ID))
+                        .parentStorePropertiesId(getValueOf(graphId, PROPERTIES, ID));
 
-                resolveConfiguration(graphId, builder);
+                addPropertiesFromFile(graphId, builder);
+                addSchemaFromFile(graphId, builder);
 
-                final Set<String> auths = resolveAuths(graphId);
-                final boolean isPublic = resolveIsPublic(graphId);
-                addGraphs(auths, null, isPublic, builder);
+                addGraphs(resolveAuths(graphId), null, resolveIsPublic(graphId), builder);
             }
         }
     }
@@ -389,29 +390,9 @@ public class FederatedStore extends Store {
         return Boolean.valueOf(getProperties().getGraphIsPublicValue(graphId));
     }
 
-    private void resolveConfiguration(final String graphId, final Builder builder) {
-        resolveSchema(graphId, builder);
-
-        resolveProperties(graphId, builder);
-    }
-
     private Set<String> resolveAuths(final String graphId) {
         final String value = getProperties().getGraphAuthsValue(graphId);
         return Strings.isNullOrEmpty(value) ? null : Sets.newHashSet(getCleanStrings(value));
-    }
-
-    private void resolveProperties(final String graphId, final Builder builder) {
-        addPropertiesFromLibrary(graphId, builder);
-
-        //this method is allowed to override properties from file
-        addPropertiesFromFile(graphId, builder);
-    }
-
-    private void resolveSchema(final String graphId, final Builder builder) {
-        addSchemaFromLibrary(graphId, builder);
-
-        //this method is allowed to override schema from file
-        addSchemaFromFile(graphId, builder);
     }
 
     private void addGraphs(final Set<String> graphAuths,
@@ -425,20 +406,6 @@ public class FederatedStore extends Store {
                 throw new IllegalArgumentException(String.format(S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2, "Graph", ""), e);
             }
             addGraphs(graphAuths, userId, isPublic, graph);
-        }
-    }
-
-    private void addSchemaFromLibrary(final String graphId, final Builder builder) {
-        final String schemaIdValue = getValueOf(graphId, SCHEMA, ID);
-        if (!Strings.isNullOrEmpty(schemaIdValue)) {
-            final GraphLibrary graphLibrary = getGraphLibrary();
-            if (null != graphLibrary) {
-                try {
-                    builder.addSchema(graphLibrary.getSchema(schemaIdValue));
-                } catch (final Exception e) {
-                    throw new IllegalArgumentException(String.format(S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2, "Schema", "graphId: " + graphId + " schemaId: " + schemaIdValue), e);
-                }
-            }
         }
     }
 
@@ -456,17 +423,6 @@ public class FederatedStore extends Store {
                 } catch (final Exception e) {
                     throw new IllegalArgumentException(String.format(S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2, "Schema", "graphId: " + graphId + " schemaPath: " + schemaPath), e);
                 }
-            }
-        }
-    }
-
-    private void addPropertiesFromLibrary(final String graphId, final Builder builder) {
-        final String propIdValue = getValueOf(graphId, PROPERTIES, ID);
-        if (!Strings.isNullOrEmpty(propIdValue)) {
-            try {
-                builder.addStoreProperties(getGraphLibrary().getProperties(propIdValue));
-            } catch (final Exception e) {
-                throw new IllegalArgumentException(String.format(S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2, "Property", "graphId: " + graphId + " propertyId: " + propIdValue), e);
             }
         }
     }
@@ -509,7 +465,8 @@ public class FederatedStore extends Store {
         }
 
         if (null != getGraphLibrary()) {
-            getGraphLibrary().add(graphId, newGraph.getSchema(), newGraph.getStoreProperties());
+            getGraphLibrary().addProperties(newGraph.getStoreProperties());
+            getGraphLibrary().addSchema(newGraph.getSchema());
         }
     }
 

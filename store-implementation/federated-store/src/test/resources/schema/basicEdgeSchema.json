@@ -13,6 +13,7 @@
       ]
     }
   },
+  "id": "SCHEMA_ID_2",
   "types": {
     "vertex.string": {
       "class": "java.lang.String"
