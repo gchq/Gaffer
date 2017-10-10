@@ -37,6 +37,7 @@ import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.MapSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawLongSerialiser;
+import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 import uk.gov.gchq.koryphe.impl.predicate.IsA;
 import uk.gov.gchq.koryphe.impl.predicate.IsXMoreThanY;
@@ -1340,6 +1341,23 @@ public class SchemaTest {
         // When
         new Schema.Builder()
                 .entity(TestGroups.ENTITY, entityDef);
+
+        // Then - no exceptions
+    }
+
+    @Test
+    public void shouldAddMergedSchemaToLibrary() {
+        // Given
+        final HashMapGraphLibrary graphLibrary = new HashMapGraphLibrary();
+        final Schema schema1ToMerge = new Schema.Builder().id("TEST_SCHEMA_ID_1").build();
+        final Schema schema2ToMerge = new Schema.Builder().id("TEST_SCHEMA_ID_2").build();
+
+        final Schema schema = new Schema.Builder().merge(schema1ToMerge)
+                .merge(schema2ToMerge)
+                .build();
+
+        // When
+        graphLibrary.addSchema(schema);
 
         // Then - no exceptions
     }
