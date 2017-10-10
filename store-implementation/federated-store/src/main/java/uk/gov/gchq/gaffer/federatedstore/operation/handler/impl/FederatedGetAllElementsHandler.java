@@ -37,12 +37,10 @@ public class FederatedGetAllElementsHandler extends FederatedOperationOutputHand
     @Override
     protected CloseableIterable<? extends Element> mergeResults(final List<CloseableIterable<? extends Element>> results, final GetAllElements operation, final Context context, final Store store) {
         // Concatenate all the results into 1 iterable
-        final ChainedIterable<Element> rtn;
         if (results.isEmpty()) {
-            rtn = null;
-        } else {
-            rtn = new ChainedIterable<>(results.toArray(new Iterable[results.size()]));
+            throw new IllegalArgumentException(NO_RESULTS_TO_MERGE_ERROR);
         }
-        return rtn;
+        return new ChainedIterable<>(results.toArray(new Iterable[results.size()]));
     }
+
 }

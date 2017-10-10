@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.integration;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
@@ -34,8 +35,17 @@ public class AccumuloSchemaHidingIT extends SchemaHidingIT {
     }
 
     @Override
-    protected void cleanUp() throws Exception {
-        ((MockAccumuloStore) fullStore).getConnection().tableOperations().delete(((MockAccumuloStore) fullStore).getTableName());
+    protected void cleanUp() {
+        final MockAccumuloStore store = new MockAccumuloStore();
+        try {
+            store.preInitialise(
+                    "graphId",
+                    createFullSchema(),
+                    AccumuloProperties.loadStoreProperties(storePropertiesPath));
+            store.getConnection().tableOperations().delete(store.getTableName());
+        } catch (final Exception e) {
+            // ignore exceptions
+        }
     }
 
     @Override

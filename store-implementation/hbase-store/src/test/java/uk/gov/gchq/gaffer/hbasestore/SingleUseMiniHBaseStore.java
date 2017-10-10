@@ -46,6 +46,6 @@ public class SingleUseMiniHBaseStore extends MiniHBaseStore {
         }
 
         TableUtils.dropTable(this);
-        super.preInitialise(graphId, schema, properties);
+        super.preInitialise(graphId, schema, getProperties());
     }
 }

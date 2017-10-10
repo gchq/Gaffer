@@ -50,7 +50,6 @@ public class LongVertexSparkOperationsTest extends AbstractSparkOperationsTest {
         getGraph(getSchema(), TestUtils.getParquetStoreProperties(), "LongVertexSparkOperationsTest")
                 .execute(new ImportJavaRDDOfElements.Builder()
                         .input(getElements(javaSparkContext, withVisibilities))
-                        .javaSparkContext(javaSparkContext)
                         .build(), USER);
     }
 

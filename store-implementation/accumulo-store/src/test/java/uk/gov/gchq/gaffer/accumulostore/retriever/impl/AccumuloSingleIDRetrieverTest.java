@@ -332,7 +332,7 @@ public class AccumuloSingleIDRetrieverTest {
             );
         }
         try {
-            store.execute(new AddElements.Builder().input(elements).build(), new User());
+            store.execute(new AddElements.Builder().input(elements).build(), store.createContext(new User()));
         } catch (final OperationException e) {
             fail("Couldn't add element: " + e);
         }

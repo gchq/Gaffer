@@ -56,7 +56,7 @@ public class ExportToOtherAuthorisedGraphHandler extends ExportToHandler<ExportT
 
     @Override
     protected OtherGraphExporter createExporter(final ExportToOtherAuthorisedGraph export, final Context context, final Store store) {
-        return new OtherGraphExporter(context.getUser(), createGraph(export, context, store));
+        return new OtherGraphExporter(context, createGraph(export, context, store));
     }
 
     protected Graph createGraph(final ExportToOtherAuthorisedGraph export, final Context context, final Store store) {
