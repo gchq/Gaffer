@@ -60,7 +60,7 @@ import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
 public class RBMBackedTimestampSet implements TimestampSet {
     private static final Instant MIN_TIME = Instant.ofEpochMilli(0L);
     private static final Instant MAX_TIME = Instant.ofEpochMilli(Integer.MAX_VALUE * CommonTimeUtil.MILLISECONDS_IN_SECOND);
-    static final Set<TimeBucket> VALID_TIMEBUCKETS = new HashSet<>(Arrays.asList(
+    private static final Set<TimeBucket> VALID_TIMEBUCKETS = new HashSet<>(Arrays.asList(
             TimeBucket.SECOND,
             TimeBucket.MINUTE,
             TimeBucket.HOUR,
@@ -243,7 +243,7 @@ public class RBMBackedTimestampSet implements TimestampSet {
     private Instant getInstantFromInt(final int i) {
         return Instant.ofEpochMilli(fromInt(i));
     }
-    
+
     @JsonIgnoreProperties(value = {"numberOfTimestamps", "earliest", "latest"})
     @JsonPOJOBuilder(withPrefix = "")
     public static class Builder {
