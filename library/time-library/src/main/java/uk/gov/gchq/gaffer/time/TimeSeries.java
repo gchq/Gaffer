@@ -21,7 +21,7 @@ import java.time.Instant;
  * A time series of type <code>T</code> consists of values of type <code>T</code>
  * associated to time {@link Instant}s.
  *
- * @param <T>
+ * @param <T> The type of the value associated to timestamps.
  */
 public interface TimeSeries<T> {
 
