@@ -232,7 +232,11 @@ public class StoreProperties implements Cloneable {
      * @param value the value
      */
     public void set(final String key, final String value) {
-        props.setProperty(key, value);
+        if (null == value) {
+            props.remove(key);
+        } else {
+            props.setProperty(key, value);
+        }
     }
 
     public String getId() {
@@ -246,11 +250,7 @@ public class StoreProperties implements Cloneable {
      * @throws IllegalArgumentException if ID is not valid
      */
     public void setId(final String id) {
-        if (null != id) {
-            set(ID, id);
-        } else {
-            throw new IllegalArgumentException(ID + " value cannot be null");
-        }
+        set(ID, id);
     }
 
     /**
