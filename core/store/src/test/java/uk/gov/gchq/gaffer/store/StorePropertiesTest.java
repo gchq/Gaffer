@@ -32,7 +32,7 @@ import static org.junit.Assert.assertNull;
 public class StorePropertiesTest {
 
     @Test
-    public void shouldThrowExceptionWhenIdIsNull() {
+    public void shouldRemovePropertyWhenPropertyValueIsNull() {
         // Given
         final StoreProperties props = createStoreProperties();
 
