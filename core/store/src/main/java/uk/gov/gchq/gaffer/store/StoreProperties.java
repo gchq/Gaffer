@@ -239,8 +239,18 @@ public class StoreProperties implements Cloneable {
         return get(ID);
     }
 
+    /**
+     * Set the ID for the StoreProperties
+     *
+     * @param id the value of the ID
+     * @throws IllegalArgumentException if ID is not valid
+     */
     public void setId(final String id) {
-        set(ID, id);
+        if (null != id) {
+            set(ID, id);
+        } else {
+            throw new IllegalArgumentException(ID + " value cannot be null");
+        }
     }
 
     /**
