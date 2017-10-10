@@ -20,11 +20,11 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
@@ -126,7 +126,7 @@ public class LongTimeSeries implements TimeSeries<Long> {
         return timeSeries.size();
     }
 
-    public Map<Instant, Long> getTimeSeries() {
+    public SortedMap<Instant, Long> getTimeSeries() {
         final SortedMap<Instant, Long> map = new TreeMap<>();
         timeSeries
                 .entrySet()
@@ -163,6 +163,15 @@ public class LongTimeSeries implements TimeSeries<Long> {
                 .toHashCode();
     }
 
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("timeBucket", timeBucket)
+                .append("timeSeries", timeSeries)
+                .appendSuper(super.toString())
+                .build();
+    }
+
     private static long toLong(final TimeBucket timeBucket, final long time) {
         final long timeTruncatedToBucket = CommonTimeUtil.timeToBucket(time, timeBucket);
         switch (timeBucket) {
@@ -189,6 +198,8 @@ public class LongTimeSeries implements TimeSeries<Long> {
 
     private static long fromLong(final TimeBucket timeBucket, final long l) {
         switch (timeBucket) {
+            case MILLISECOND:
+                return l;
             case SECOND:
                 return l * CommonTimeUtil.MILLISECONDS_IN_SECOND;
             case MINUTE:
