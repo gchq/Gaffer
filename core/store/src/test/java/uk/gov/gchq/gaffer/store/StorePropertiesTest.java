@@ -28,8 +28,26 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class StorePropertiesTest {
+
+    @Test
+    public void shouldThrowExceptionWhenIdIsNull() {
+        // Given
+        final StoreProperties props = createStoreProperties();
+
+        // When / Then
+        try {
+            props.setId(null);
+            fail("Exception expected");
+        } catch (IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("value cannot be null"));
+        }
+
+    }
+
     @Test
     public void shouldGetProperty() {
         // Given
