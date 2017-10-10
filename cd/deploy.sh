@@ -49,15 +49,12 @@ if [ "$RELEASE" == 'true' ] && [ "$TRAVIS_BRANCH" == 'master' ] && [ "$TRAVIS_PU
         mvn -q javadoc:javadoc -Pquick
         rm -rf .git/tmp-javadoc
         mv target/site/apidocs .git/tmp-javadoc
-        git clean -fd
-        git reset --hard
         git checkout gh-pages
-        git clean -fd
-        git reset --hard
         rm -rf uk
         mv .git/tmp-javadoc/* .
         git commit -a -m "Updated javadoc - $RELEASE_VERSION"
         git push
+        git checkout master
 
         echo ""
         echo "--------------------------------------"
