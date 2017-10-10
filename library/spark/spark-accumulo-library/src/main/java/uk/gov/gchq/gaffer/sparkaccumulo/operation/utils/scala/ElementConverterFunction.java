@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.scala;
 
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
-import org.apache.spark.broadcast.Broadcast;
 import org.slf4j.LoggerFactory;
 import scala.Tuple2;
 import scala.collection.TraversableOnce;
@@ -28,26 +27,44 @@ import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 
 public class ElementConverterFunction extends AbstractFunction1<Element, TraversableOnce<Tuple2<Key, Value>>> implements Serializable {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ElementConverterFunction.class);
     private static final long serialVersionUID = 2359835481339851648L;
-    private Broadcast<AccumuloElementConverter> converterBroadcast;
+    private transient Schema schema;
+    private final byte[] schemaBytes;
+    private transient AccumuloElementConverter keyConverter;
+    private final Class<? extends AccumuloElementConverter> keyConverterClass;
 
-    public ElementConverterFunction(final Broadcast<AccumuloElementConverter> converterBroadcast) {
-        this.converterBroadcast = converterBroadcast;
+    public ElementConverterFunction(final Schema schema, final AccumuloElementConverter keyConverter) {
+        this.schema = schema;
+        schemaBytes = schema.toCompactJson();
+        this.keyConverter = keyConverter;
+        keyConverterClass = keyConverter.getClass();
     }
 
     @Override
     public TraversableOnce<Tuple2<Key, Value>> apply(final Element element) {
+        if (null == schema) {
+            schema = Schema.fromJson(schemaBytes);
+        }
+        if (null == keyConverter) {
+            try {
+                keyConverter = keyConverterClass.getConstructor(Schema.class).newInstance(schema);
+            } catch (final InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                throw new RuntimeException("Unable to instantiate key converter: " + keyConverterClass.getName(), e);
+            }
+        }
         final ArrayBuffer<Tuple2<Key, Value>> buf = new ArrayBuffer<>();
         Pair<Key, Key> keys = new Pair<>();
         Value value = null;
         try {
-            keys = converterBroadcast.value().getKeysFromElement(element);
-            value = converterBroadcast.value().getValueFromElement(element);
+            keys = keyConverter.getKeysFromElement(element);
+            value = keyConverter.getValueFromElement(element);
         } catch (final AccumuloElementConversionException e) {
             LOGGER.error(e.getMessage(), e);
         }

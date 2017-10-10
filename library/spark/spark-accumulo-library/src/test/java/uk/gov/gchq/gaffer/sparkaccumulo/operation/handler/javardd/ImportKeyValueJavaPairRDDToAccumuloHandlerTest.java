@@ -106,7 +106,7 @@ public class ImportKeyValueJavaPairRDDToAccumuloHandlerTest {
         final String outputPath = testFolder.getRoot().getAbsolutePath() + "/output";
         final String failurePath = testFolder.getRoot().getAbsolutePath() + "/failure";
 
-        final ElementConverterFunction func = new ElementConverterFunction(JavaSparkContext.fromSparkContext(sparkSession.sparkContext()).broadcast(new ByteEntityAccumuloElementConverter(graph1.getSchema())));
+        final ElementConverterFunction func = new ElementConverterFunction(graph1.getSchema(), new ByteEntityAccumuloElementConverter(graph1.getSchema()));
         final JavaPairRDD<Key, Value> elementJavaRDD = JavaSparkContext.fromSparkContext(sparkSession.sparkContext()).parallelize(elements).flatMapToPair(func);
         final ImportKeyValueJavaPairRDDToAccumulo addRdd = new ImportKeyValueJavaPairRDDToAccumulo.Builder()
                 .input(elementJavaRDD)
