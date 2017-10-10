@@ -851,10 +851,8 @@ public final class Graph {
             if (null != properties) {
                 if (null == mergedStoreProperties) {
                     mergedStoreProperties = properties;
-                    mergedStoreProperties.setId(properties.getId());
                 } else {
                     mergedStoreProperties.getProperties().putAll(properties.getProperties());
-                    mergedStoreProperties.setId(mergedStoreProperties.getId() + "," + properties.getId());
                 }
             }
 
