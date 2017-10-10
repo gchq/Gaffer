@@ -19,6 +19,7 @@ import com.google.common.collect.Sets;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -31,7 +32,10 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+import uk.gov.gchq.koryphe.impl.binaryoperator.And;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Max;
+import uk.gov.gchq.koryphe.impl.binaryoperator.Or;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 
 import java.util.ArrayList;
@@ -42,6 +46,9 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -471,5 +478,96 @@ public class AggregateHandlerTest {
 
         // Then
         assertEquals(expected, resultsSet);
+    }
+
+    @Test
+    public void shouldFailValidationWhenSchemaElementDefinitionsAreNull() {
+        // Given
+        given(store.getSchema()).willReturn(new Schema());
+
+        input.add(edge);
+        input.add(edge1);
+
+        edges.put(TestGroups.EDGE, new AggregatePair());
+
+        final Aggregate aggregate = new Aggregate.Builder()
+                .input(input)
+                .edges(edges)
+                .build();
+
+        // When / Then
+        try {
+            final Iterable<? extends Element> results = handler.doOperation(aggregate, context, store);
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains("Edge group: " + TestGroups.EDGE + " does not exist in the schema."));
+        }
+    }
+
+    @Test
+    public void shouldFailValidationWhenElementAggregatorOperationIsNull() {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .aggregator(new ElementAggregator.Builder()
+                                .select("count")
+                                .execute(null)
+                                .build())
+                        .groupBy("timestamp")
+                        .build())
+                .build();
+        given(store.getSchema()).willReturn(schema);
+
+        input.add(edge);
+        input.add(edge1);
+        input.add(edge2);
+
+        edges.put(TestGroups.EDGE, new AggregatePair());
+
+        final Aggregate aggregate = new Aggregate.Builder()
+                .input(input)
+                .edges(edges)
+                .build();
+
+        // When / Then
+        try {
+            final Iterable<? extends Element> results = handler.doOperation(aggregate, context, store);
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains("Schema contains an ElementAggregator with a null function."));
+        }
+    }
+
+    @Test
+    public void shouldFailValidationWhenTypeArgumentOfBinaryOperatorInFunctionIsIncorrect() {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.TIMESTAMP, "timestamp.long")
+                        .build())
+                .type("timestamp.long", new TypeDefinition(Long.class))
+                .build();
+        given(store.getSchema()).willReturn(schema);
+
+        input.add(entity);
+        input.add(entity1);
+        input.add(entity2);
+
+        entities.put(TestGroups.ENTITY, new AggregatePair(new ElementAggregator.Builder()
+                .select(TestPropertyNames.TIMESTAMP)
+                .execute(new Or())
+                .build()));
+
+        final Aggregate aggregate = new Aggregate.Builder()
+                .input(input)
+                .entities(entities)
+                .build();
+
+        // When / Then
+        try {
+            final Iterable<? extends Element> results = handler.doOperation(aggregate, context, store);
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains("Incompatible types."));
+        }
     }
 }
