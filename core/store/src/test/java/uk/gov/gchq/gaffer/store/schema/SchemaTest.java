@@ -535,7 +535,7 @@ public class SchemaTest {
                 .build();
 
         // Then
-        assertEquals("1,2,2", mergedSchema.getId());
+        assertEquals("1_2_2", mergedSchema.getId());
         assertEquals(2, mergedSchema.getEdges().size());
         assertEquals(1, mergedSchema.getEdge(TestGroups.EDGE).getPropertyMap().size());
         assertEquals(type1, mergedSchema.getEdge(TestGroups.EDGE).getPropertyMap().get(TestPropertyNames.PROP_1));
@@ -597,7 +597,7 @@ public class SchemaTest {
                 .build();
 
         // Then
-        assertEquals("2,1,1", mergedSchema.getId());
+        assertEquals("2_1_1", mergedSchema.getId());
         assertEquals(2, mergedSchema.getEdges().size());
         assertEquals(1, mergedSchema.getEdge(TestGroups.EDGE).getPropertyMap().size());
         assertEquals(type1, mergedSchema.getEdge(TestGroups.EDGE).getPropertyMap().get(TestPropertyNames.PROP_1));
