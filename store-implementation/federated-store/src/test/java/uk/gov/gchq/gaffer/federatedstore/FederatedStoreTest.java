@@ -797,6 +797,7 @@ public class FederatedStoreTest {
 
         // Then
         assertEquals(1, store.getGraphs(testUser, null).size());
+        assertTrue(store.getGraphs(testUser, MAP_ID_1).iterator().next().getStoreProperties().containsKey(UNUSUAL_KEY));
         assertFalse(KEY_DOES_NOT_BELONG, graphLibrary.getProperties(PROPS_ID_1).containsKey(UNUSUAL_KEY));
         assertEquals(prop.getProperties(), graphLibrary.getProperties(PROPS_ID_1).getProperties());
         assertTrue(store.getGraphs(testUser, null).iterator().next().getStoreProperties().getProperties().getProperty(UNUSUAL_KEY) != null);
