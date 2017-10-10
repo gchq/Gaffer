@@ -37,6 +37,9 @@ public class FederatedGetElementsHandler extends FederatedOperationOutputHandler
     @Override
     protected CloseableIterable<? extends Element> mergeResults(final List<CloseableIterable<? extends Element>> results, final GetElements operation, final Context context, final Store store) {
         // Concatenate all the results into 1 iterable
+        if (results.isEmpty()) {
+            throw new IllegalArgumentException(NO_RESULTS_TO_MERGE_ERROR);
+        }
         return new ChainedIterable<>(results.toArray(new Iterable[results.size()]));
     }
 }

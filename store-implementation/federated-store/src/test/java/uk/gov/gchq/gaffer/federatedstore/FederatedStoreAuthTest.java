@@ -21,7 +21,6 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
-import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
@@ -32,7 +31,8 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.authUser;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.blankUser;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
@@ -86,13 +86,10 @@ public class FederatedStoreAuthTest {
         assertEquals(EXPECTED_GRAPH_ID, next.getGraphId());
         assertEquals(expectedSchema, next.getSchema());
 
-        Context blankContext = new Context(blankUser());
+        graphs = store.getGraphs(blankUser(), null);
 
-        final Iterable<? extends String> execute = store.execute(
-                new GetAllGraphIds(),
-                blankContext);
-
-        assertFalse(execute.iterator().hasNext());
+        assertNotNull(graphs);
+        assertTrue(graphs.isEmpty());
     }
 
 

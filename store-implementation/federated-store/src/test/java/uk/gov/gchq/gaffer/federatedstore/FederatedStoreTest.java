@@ -69,6 +69,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStore.S1_WAS_NOT_ABLE_T
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.TEST_USER;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.authUser;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
+import static uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandler.NO_RESULTS_TO_MERGE_ERROR;
 
 public class FederatedStoreTest {
     private static final String PATH_FEDERATED_STORE_PROPERTIES = "/properties/federatedStoreTest.properties";
@@ -900,15 +901,16 @@ public class FederatedStoreTest {
         // Then
         Assert.assertFalse(elements.iterator().hasNext());
 
-        // When
-        final CloseableIterable<? extends Element> x = store.execute(new GetAllElements(),
-                new Context(new User.Builder()
-                        .userId(USER_ID)
-                        .opAuths("x")
-                        .build()));
-
-        // Then
-        assertNull(x);
+        try {
+            store.execute(new GetAllElements(),
+                    new Context(new User.Builder()
+                            .userId(USER_ID)
+                            .opAuths("x")
+                            .build()));
+            fail("expected exception");
+        } catch (final IllegalArgumentException e) {
+            assertEquals(NO_RESULTS_TO_MERGE_ERROR, e.getMessage());
+        }
     }
 
     @Test
@@ -1018,19 +1020,23 @@ public class FederatedStoreTest {
                         .opAuth("auth")
                         .build());
 
-        final CloseableIterable<? extends Element> x = fedGraph.execute(
-                new GetAllElements(),
-                new User.Builder()
-                        .userId(USER_ID + "Other")
-                        .opAuths("x")
-                        .build());
+        try {
+            fedGraph.execute(
+                    new GetAllElements(),
+                    new User.Builder()
+                            .userId(USER_ID + "Other")
+                            .opAuths("x")
+                            .build());
+            fail("expected exception");
+        } catch (final IllegalArgumentException e) {
+            assertEquals(NO_RESULTS_TO_MERGE_ERROR, e.getMessage());
+        }
 
         // Then
         assertEquals(0, before);
         assertEquals(1, after);
         Assert.assertNotNull(elements);
         Assert.assertTrue(elements.iterator().hasNext());
-        assertNull(x);
     }
 
     @Test
