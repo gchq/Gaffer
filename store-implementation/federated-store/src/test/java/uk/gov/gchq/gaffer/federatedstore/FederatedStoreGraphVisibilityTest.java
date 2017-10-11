@@ -32,6 +32,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -60,6 +61,7 @@ public class FederatedStoreGraphVisibilityTest {
         final HashMapGraphLibrary library = new HashMapGraphLibrary();
 
         final Schema aSchema = new Schema.Builder()
+                .id("b")
                 .entity("e1", new SchemaEntityDefinition.Builder()
                         .vertex("string")
                         .build())
@@ -67,6 +69,7 @@ public class FederatedStoreGraphVisibilityTest {
                 .build();
 
         final AccumuloProperties accProp = new AccumuloProperties();
+        accProp.setId("a");
         accProp.setStoreClass(SingleUseMockAccumuloStore.class.getName());
         accProp.setStorePropertiesClass(AccumuloProperties.class);
 
@@ -91,6 +94,7 @@ public class FederatedStoreGraphVisibilityTest {
                 new AddGraph.Builder()
                         .graphId("g1")
                         .parentPropertiesId("a")
+                        .parentSchemaIds(Arrays.asList("b"))
                         .build(),
                 addingUser);
 
@@ -98,6 +102,7 @@ public class FederatedStoreGraphVisibilityTest {
                 new AddGraph.Builder()
                         .graphId("g2")
                         .parentPropertiesId("a")
+                        .parentSchemaIds(Arrays.asList("b"))
                         .graphAuths("auth1")
                         .build(),
                 addingUser);

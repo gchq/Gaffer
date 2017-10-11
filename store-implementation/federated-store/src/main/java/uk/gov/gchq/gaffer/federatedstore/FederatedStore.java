@@ -59,7 +59,6 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
-import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -82,7 +81,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBL
  * against them and returns results as though it was a single graph.
  * <p>
  * To create a FederatedStore you need to initialise the store with a
- * graphId and  (if graphId is not known by the {@link GraphLibrary}) the
+ * graphId and  (if graphId is not known by the {@link uk.gov.gchq.gaffer.store.library.GraphLibrary}) the
  * {@link
  * Schema} and  {@link StoreProperties}.
  *
@@ -256,7 +255,7 @@ public class FederatedStore extends Store {
     /**
      * The FederatedStore at time of initialisation, can set the auths required
      * to allow users to use custom {@link StoreProperties} outside the
-     * scope of the {@link GraphLibrary}.
+     * scope of the {@link uk.gov.gchq.gaffer.store.library.GraphLibrary}.
      *
      * @param user the user needing validation for custom property usage.
      * @return boolean permission

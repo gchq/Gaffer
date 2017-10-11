@@ -47,6 +47,7 @@ public class FederatedStoreWrongGraphIDsTest {
     public static final String THERE_SHOULD_BE_ONE_ELEMENT = "There should be one element";
     public static final String EXCEPTION_NOT_AS_EXPECTED = "Exception not as expected";
     public static final String USING_THE_WRONG_GRAPH_ID_SHOULD_HAVE_THROWN_EXCEPTION = "Using the wrong graphId should have thrown exception.";
+    private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private FederatedStore store;
     private FederatedStoreProperties fedProps;
     private HashMapGraphLibrary library;
@@ -60,6 +61,7 @@ public class FederatedStoreWrongGraphIDsTest {
         fedProps.setParentPropId(GRAPH_1, PROP_1);
         fedProps.setParentSchemaId(GRAPH_1, SCHEMA_1);
         fedProps.setTrueGraphIsPublicValue(GRAPH_1);
+        fedProps.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
 
         store = new FederatedStore();
         library = new HashMapGraphLibrary();
