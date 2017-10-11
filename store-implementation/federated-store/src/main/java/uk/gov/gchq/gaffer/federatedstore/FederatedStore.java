@@ -363,12 +363,8 @@ public class FederatedStore extends Store {
         final Set<String> graphIds = getGraphIds();
         for (final String graphId : graphIds) {
             if (federatedStoreCache.getAllGraphIds().contains(graphId)) {
-                try {
-                    Graph graph = federatedStoreCache.getFromCache(graphId);
-                    addGraphs(resolveAuths(graphId), null, resolveIsPublic(graphId), graph);
-                } catch (final CacheOperationException e) {
-                    throw new RuntimeException(e);
-                }
+                Graph graph = federatedStoreCache.getFromCache(graphId);
+                addGraphs(resolveAuths(graphId), null, resolveIsPublic(graphId), graph);
             } else {
                 final Builder builder = new Builder().config(new GraphConfig.Builder()
                         .graphId(graphId)
