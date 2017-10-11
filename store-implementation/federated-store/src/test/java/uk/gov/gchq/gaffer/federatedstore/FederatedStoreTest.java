@@ -93,6 +93,7 @@ public class FederatedStoreTest {
     private static final String ALL_USERS = FederatedStoreUser.ALL_USERS;
     private static final HashSet<String> GRAPH_AUTHS = Sets.newHashSet(ALL_USERS);
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
+    private static final String INVALID_CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.invalid";
     private static final String CACHE_SERVICE_NAME = "federatedStoreGraphs";
     private static User authUser;
     private static User testUser;
@@ -1102,6 +1103,17 @@ public class FederatedStoreTest {
             }
         }
         return false;
+    }
+
+    @Test
+    public void shouldThrowExceptionWithInvalidCacheClass() throws StoreException {
+        federatedProperties.setCacheProperties(INVALID_CACHE_SERVICE_CLASS_STRING);
+        try {
+            store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
+            fail(EXCEPTION_NOT_THROWN);
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Failed to instantiate cache"));
+        }
     }
 
     private List<Collection<Graph>> populateGraphs(int... expectedIds) throws StoreException {
