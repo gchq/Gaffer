@@ -84,6 +84,7 @@ public final class ParquetFilterUtils {
 
     private final String rootDir;
     private final SchemaUtils schemaUtils;
+    private final boolean skipValidation;
     private String dataDir;
     private View view;
     private DirectedType directedType;
@@ -92,7 +93,7 @@ public final class ParquetFilterUtils {
     private Iterable<? extends ElementId> seeds;
     private GraphIndex graphIndex;
     private final Map<Path, FilterPredicate> pathToFilterMap;
-    private boolean requiresValidation;
+    private boolean needsValidatorsAndFiltersApplying;
 
     /**
      * The constructor which sets up this object so it is ready to convert the inputs for get elements operations and
@@ -104,15 +105,16 @@ public final class ParquetFilterUtils {
         this.rootDir = store.getDataDir();
         this.schemaUtils = store.getSchemaUtils();
         this.pathToFilterMap = new HashMap<>();
-        this.requiresValidation = false;
+        this.skipValidation = store.getProperties().getSkipValidation();
+        this.needsValidatorsAndFiltersApplying = false;
     }
 
     public Map<Path, FilterPredicate> getPathToFilterMap() {
         return pathToFilterMap;
     }
 
-    public boolean requiresValidation() {
-        return requiresValidation;
+    public boolean needsValidatorsAndFiltersApplying() {
+        return needsValidatorsAndFiltersApplying;
     }
 
     /**
@@ -165,7 +167,7 @@ public final class ParquetFilterUtils {
             entityGroups = schemaUtils.getEntityGroups();
         }
         this.pathToFilterMap.clear();
-        this.requiresValidation = false;
+        this.needsValidatorsAndFiltersApplying = false;
 
         if (null == seeds && (null == view || schemaUtils.getEmptyView().equals(view))) {
             // get all elements
@@ -509,7 +511,7 @@ public final class ParquetFilterUtils {
     }
 
     private void applyGroupValidationFilter(final String group) throws SerialisationException {
-        if (seeds == null || !pathToFilterMap.isEmpty()) {
+        if (!skipValidation && (seeds == null || !pathToFilterMap.isEmpty())) {
             applyGroupFilter(group, buildGroupValidatorFilter(group));
         }
     }
@@ -705,7 +707,7 @@ public final class ParquetFilterUtils {
             }
             if (null != groupFilter && null != directedFilter) {
                 groupFilter = new Pair<>(and(groupFilter.getFirst(), directedFilter), groupFilter.getSecond());
-            } else if (null == groupFilter && (null != directedFilter || requiresValidation)) {
+            } else if (null == groupFilter && (null != directedFilter || needsValidatorsAndFiltersApplying)) {
                 groupFilter = new Pair<>(directedFilter, getAllPathsForColumn(group));
             }
         }
@@ -738,7 +740,7 @@ public final class ParquetFilterUtils {
         } else {
             filterResult = addPrimitiveFilter(filterFunction, selection[0], group);
             if (null == filterResult) {
-                requiresValidation = true;
+                needsValidatorsAndFiltersApplying = true;
             }
         }
         return filterResult;

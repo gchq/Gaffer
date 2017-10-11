@@ -54,7 +54,8 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
     private final ConcurrentLinkedQueue<Element> queue;
     private transient ElementFilter elementFilter;
     private final byte[] elementDefinitionJson;
-    private final boolean needsValidation;
+    private final boolean needsValidatorsAndFiltersApplying;
+    private final boolean skipValidation;
     private final String group;
     private final View view;
     private final Schema gafferSchema;
@@ -62,8 +63,8 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
     private final String visibility;
 
     public RetrieveElementsFromFile(final Path filePath, final FilterPredicate filter, final Schema gafferSchema,
-                                    final ConcurrentLinkedQueue<Element> queue, final boolean needsValidation,
-                                    final View view, final User user) {
+                                    final ConcurrentLinkedQueue<Element> queue, final boolean needsValidatorsAndFiltersApplying,
+                                    final boolean skipValidation, final View view, final User user) {
         this.filePath = filePath;
         this.filter = filter;
         this.jsonGafferSchema = gafferSchema.toCompactJson();
@@ -83,7 +84,8 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
 
         this.queue = queue;
         this.view = view;
-        this.needsValidation = needsValidation;
+        this.needsValidatorsAndFiltersApplying = needsValidatorsAndFiltersApplying;
+        this.skipValidation = skipValidation;
         if (filePath.getName().contains("=")) {
             group = filePath.getName().split("=")[1];
         } else {
@@ -103,15 +105,13 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
             while (null != e) {
                 if (!visibility.isEmpty()) {
                     if (isVisible(e)) {
-                        if (needsValidation) {
+                        if (needsValidatorsAndFiltersApplying) {
                             final String group = e.getGroup();
                             final ElementFilter validatorFilter = gafferSchema.getElement(group).getValidator(false);
-                            if (validatorFilter == null || validatorFilter.test(e)) {
-                                if (elementFilter != null) {
-                                    if (elementFilter.test(e)) {
-                                        ViewUtil.removeProperties(view, e);
-                                        queue.add(e);
-                                    }
+                            if (skipValidation || validatorFilter == null || validatorFilter.test(e)) {
+                                if (elementFilter == null || elementFilter.test(e)) {
+                                    ViewUtil.removeProperties(view, e);
+                                    queue.add(e);
                                 }
                             }
                         } else {
@@ -119,15 +119,13 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
                             queue.add(e);
                         }
                     }
-                } else if (needsValidation) {
+                } else if (needsValidatorsAndFiltersApplying) {
                     final String group = e.getGroup();
                     final ElementFilter validatorFilter = gafferSchema.getElement(group).getValidator(false);
-                    if (validatorFilter == null || validatorFilter.test(e)) {
-                        if (elementFilter != null) {
-                            if (elementFilter.test(e)) {
-                                ViewUtil.removeProperties(view, e);
-                                queue.add(e);
-                            }
+                    if (skipValidation || validatorFilter == null || validatorFilter.test(e)) {
+                        if (elementFilter == null || elementFilter.test(e)) {
+                            ViewUtil.removeProperties(view, e);
+                            queue.add(e);
                         }
                     }
                 } else {
