@@ -20,7 +20,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>store-implementation</artifactId>
-        <version>1.0.0-RC5</version>
+        <version>1.0.0-RC6-SNAPSHOT</version>
     </parent>
 
     <artifactId>parquet-store</artifactId>
