@@ -1,4 +1,5 @@
 {
+  "id": "SCHEMA_ID_1",
   "entities": {
     "BasicEntity": {
       "vertex": "vertex.string",

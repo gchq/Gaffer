@@ -80,15 +80,16 @@ public class FederatedStoreTest {
     private static final String PATH_MAP_STORE_PROPERTIES = "properties/singleUseMockMapStore.properties";
     private static final String PATH_MAP_STORE_PROPERTIES_ALT = "properties/singleUseMockMapStoreAlt.properties";
     private static final String PATH_BASIC_ENTITY_SCHEMA_JSON = "schema/basicEntitySchema.json";
+    private static final String PATH_BASIC_ENTITY_SCHEMA_WITH_SCHEMA_ID_JSON = "schema/basicEntitySchemaWithSchemaId.json";
     private static final String PATH_BASIC_EDGE_SCHEMA_JSON = "schema/basicEdgeSchema.json";
     private static final String PATH_INVALID = "nothing.json";
     private static final String EXCEPTION_NOT_THROWN = "exception not thrown";
     private static final String USER_ID = "testUser";
     private static final String PROPS_ID_1 = "PROPS_ID_1";
-    private static final String PROPS_ID_2 = "PROPS_ID_2";
     public static final String UNUSUAL_KEY = "unusualKey";
     public static final String KEY_DOES_NOT_BELONG = UNUSUAL_KEY + " was added to " + PROPS_ID_1 + " it should not be there";
     private static final String SCHEMA_ID_1 = "SCHEMA_ID_1";
+    private static final String SCHEMA_ID_2 = "SCHEMA_ID_2";
     private static final String ALL_USERS = FederatedStoreUser.ALL_USERS;
     private static final HashSet<String> GRAPH_AUTHS = Sets.newHashSet(ALL_USERS);
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
@@ -639,6 +640,7 @@ public class FederatedStoreTest {
     public void shouldAddGraphFromLibrary() throws Exception {
         // Given
         final Schema schema = new Schema.Builder()
+                .id(SCHEMA_ID_1)
                 .json(StreamUtil.openStream(this.getClass(), PATH_BASIC_ENTITY_SCHEMA_JSON))
                 .build();
         final HashMapGraphLibrary graphLibrary = new HashMapGraphLibrary();
@@ -663,12 +665,13 @@ public class FederatedStoreTest {
     public void shouldAddNamedGraphFromGraphIDKeyButDefinedInLibrary() throws Exception {
         // Given
         federatedProperties.setGraphIds(MAP_ID_1);
-        federatedProperties.setGraphIds(MAP_ID_1);
+        final Schema schema = new Schema.Builder()
+                .id(SCHEMA_ID_1)
+                .json(StreamUtil.openStream(this.getClass(), PATH_BASIC_ENTITY_SCHEMA_JSON))
+                .build();
+        final StoreProperties storeProperties = StoreProperties.loadStoreProperties(StreamUtil.openStream(this.getClass(), PATH_MAP_STORE_PROPERTIES));
         GraphLibrary library = new HashMapGraphLibrary();
-        library.add(MAP_ID_1, new Schema.Builder()
-                        .json(StreamUtil.openStream(this.getClass(), PATH_BASIC_ENTITY_SCHEMA_JSON))
-                        .build(),
-                StoreProperties.loadStoreProperties(StreamUtil.openStream(this.getClass(), PATH_MAP_STORE_PROPERTIES)));
+        library.add(MAP_ID_1, schema, storeProperties);
         store.setGraphLibrary(library);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
@@ -682,7 +685,7 @@ public class FederatedStoreTest {
         // Given
         federatedProperties.setGraphIds(MAP_ID_1);
         federatedProperties.setGraphPropFile(MAP_ID_1, PATH_ACC_STORE_PROPERTIES);
-        federatedProperties.setGraphSchemaFile(MAP_ID_1, PATH_BASIC_ENTITY_SCHEMA_JSON);
+        federatedProperties.setGraphSchemaFile(MAP_ID_1, PATH_BASIC_ENTITY_SCHEMA_WITH_SCHEMA_ID_JSON);
         final HashMapGraphLibrary graphLibrary = new HashMapGraphLibrary();
         store.setGraphLibrary(graphLibrary);
 
@@ -699,8 +702,9 @@ public class FederatedStoreTest {
         // Given
         federatedProperties.setGraphIds(MAP_ID_1 + ", " + ACC_ID_1);
         federatedProperties.setGraphPropFile(ACC_ID_1, PATH_ACC_STORE_PROPERTIES);
-        federatedProperties.setGraphSchemaFile(ACC_ID_1, PATH_BASIC_ENTITY_SCHEMA_JSON);
+        federatedProperties.setGraphSchemaFile(ACC_ID_1, PATH_BASIC_ENTITY_SCHEMA_WITH_SCHEMA_ID_JSON);
         final Schema schema = new Schema.Builder()
+                .id(SCHEMA_ID_1)
                 .json(StreamUtil.openStream(this.getClass(), PATH_BASIC_ENTITY_SCHEMA_JSON))
                 .build();
         final HashMapGraphLibrary graphLibrary = new HashMapGraphLibrary();
@@ -720,7 +724,7 @@ public class FederatedStoreTest {
         // Given
         federatedProperties.setGraphIds(MAP_ID_1);
         federatedProperties.setParentPropId(MAP_ID_1, PROPS_ID_1);
-        federatedProperties.setGraphSchemaFile(MAP_ID_1, PATH_BASIC_EDGE_SCHEMA_JSON);
+        federatedProperties.setGraphSchemaFile(MAP_ID_1, PATH_BASIC_ENTITY_SCHEMA_WITH_SCHEMA_ID_JSON);
         final HashMapGraphLibrary library = new HashMapGraphLibrary();
         library.addProperties(StoreProperties.loadStoreProperties(PATH_MAP_STORE_PROPERTIES));
 
@@ -759,8 +763,6 @@ public class FederatedStoreTest {
     public void shouldAddGraphWithPropertiesAndSchemaFromGraphLibrary() throws Exception {
         // Given
         federatedProperties.setGraphIds(MAP_ID_1);
-        federatedProperties.setParentPropId(MAP_ID_1, PROPS_ID_1);
-        federatedProperties.setParentSchemaId(MAP_ID_1, SCHEMA_ID_1);
         final Schema schema = new Schema.Builder()
                 .id(SCHEMA_ID_1)
                 .json(StreamUtil.openStream(FederatedStore.class, PATH_BASIC_ENTITY_SCHEMA_JSON))
@@ -776,6 +778,8 @@ public class FederatedStoreTest {
 
         // Then
         assertEquals(1, store.getGraphs(testUser, null).size());
+        graphLibrary.getSchema(SCHEMA_ID_1).toJson(false);
+        schema.toJson(false);
         assertTrue(JsonUtil.equals(graphLibrary.getSchema(SCHEMA_ID_1).toJson(false), schema.toJson(false)));
         assertTrue(graphLibrary.getProperties(PROPS_ID_1).equals(properties));
     }
@@ -786,7 +790,7 @@ public class FederatedStoreTest {
         federatedProperties.setGraphIds(MAP_ID_1);
         federatedProperties.setParentPropId(MAP_ID_1, PROPS_ID_1);
         federatedProperties.setGraphPropFile(MAP_ID_1, PATH_MAP_STORE_PROPERTIES_ALT);
-        federatedProperties.setGraphSchemaFile(MAP_ID_1, PATH_BASIC_EDGE_SCHEMA_JSON);
+        federatedProperties.setGraphSchemaFile(MAP_ID_1, PATH_BASIC_ENTITY_SCHEMA_WITH_SCHEMA_ID_JSON);
         final MapStoreProperties prop = new MapStoreProperties();
         prop.setId(PROPS_ID_1);
         final HashMapGraphLibrary graphLibrary = new HashMapGraphLibrary();
@@ -811,15 +815,15 @@ public class FederatedStoreTest {
         // Given
         federatedProperties.setGraphIds(MAP_ID_1);
         federatedProperties.setGraphPropFile(MAP_ID_1, PATH_MAP_STORE_PROPERTIES);
-        federatedProperties.setGraphSchemaFile(MAP_ID_1, PATH_BASIC_EDGE_SCHEMA_JSON);
-        federatedProperties.setParentSchemaId(MAP_ID_1, SCHEMA_ID_1);
+        federatedProperties.setGraphSchemaFile(MAP_ID_1, PATH_BASIC_ENTITY_SCHEMA_WITH_SCHEMA_ID_JSON);
+        federatedProperties.setParentSchemaId(MAP_ID_1, SCHEMA_ID_2);
         final Schema schema = new Schema.Builder()
-                .id(SCHEMA_ID_1)
-                .json(StreamUtil.openStream(this.getClass(), PATH_BASIC_ENTITY_SCHEMA_JSON))
+                .id(SCHEMA_ID_2)
+                .json(StreamUtil.openStream(this.getClass(), PATH_BASIC_EDGE_SCHEMA_JSON))
                 .build();
         final HashMapGraphLibrary graphLibrary = new HashMapGraphLibrary();
         graphLibrary.addSchema(schema);
-        assertTrue(JsonUtil.equals(graphLibrary.getSchema(SCHEMA_ID_1).toJson(false), schema.toJson(false)));
+        assertTrue(JsonUtil.equals(graphLibrary.getSchema(SCHEMA_ID_2).toJson(false), schema.toJson(false)));
 
         // When
         store.setGraphLibrary(graphLibrary);
@@ -828,7 +832,7 @@ public class FederatedStoreTest {
         // Then
         assertEquals(1, store.getGraphs(testUser, null).size());
         assertTrue(store.getGraphs(testUser, null).iterator().next().getSchema().getEntityGroups().contains("BasicEntity"));
-        assertTrue(JsonUtil.equals(graphLibrary.getSchema(SCHEMA_ID_1).toJson(false), schema.toJson(false)));
+        assertTrue(JsonUtil.equals(graphLibrary.getSchema(SCHEMA_ID_2).toJson(false), schema.toJson(false)));
     }
 
     @Test
@@ -836,20 +840,23 @@ public class FederatedStoreTest {
         // Given
         federatedProperties.setGraphIds(MAP_ID_1);
         federatedProperties.setParentPropId(MAP_ID_1, PROPS_ID_1);
+        federatedProperties.setParentSchemaId(MAP_ID_1, SCHEMA_ID_2);
+
         federatedProperties.setGraphPropFile(MAP_ID_1, PATH_MAP_STORE_PROPERTIES_ALT);
-        federatedProperties.setGraphSchemaFile(MAP_ID_1, PATH_BASIC_EDGE_SCHEMA_JSON);
-        federatedProperties.setParentSchemaId(MAP_ID_1, SCHEMA_ID_1);
+        federatedProperties.setGraphSchemaFile(MAP_ID_1, PATH_BASIC_ENTITY_SCHEMA_WITH_SCHEMA_ID_JSON);
+
         final MapStoreProperties prop = new MapStoreProperties();
-        final String unusualKey = UNUSUAL_KEY;
         prop.setId(PROPS_ID_1);
-        prop.set(unusualKey, "value");
+
         final Schema schema = new Schema.Builder()
-                .id(SCHEMA_ID_1)
-                .json(StreamUtil.openStream(this.getClass(), PATH_BASIC_ENTITY_SCHEMA_JSON))
+                .id(SCHEMA_ID_2)
+                .json(StreamUtil.openStream(this.getClass(), PATH_BASIC_EDGE_SCHEMA_JSON))
                 .build();
+
         final HashMapGraphLibrary graphLibrary = new HashMapGraphLibrary();
         graphLibrary.addSchema(schema);
         graphLibrary.addProperties(prop);
+
         assertFalse(KEY_DOES_NOT_BELONG, graphLibrary.getProperties(PROPS_ID_1).containsKey(UNUSUAL_KEY));
 
         // When
@@ -860,10 +867,10 @@ public class FederatedStoreTest {
         assertEquals(1, store.getGraphs(testUser, null).size());
         assertTrue(store.getGraphs(testUser, null).iterator().next().getStoreProperties().containsKey(UNUSUAL_KEY));
         assertFalse(KEY_DOES_NOT_BELONG, graphLibrary.getProperties(PROPS_ID_1).containsKey(UNUSUAL_KEY));
-        assertTrue(store.getGraphs(testUser, null).iterator().next().getStoreProperties().getProperties().getProperty(unusualKey) != null);
+        assertTrue(store.getGraphs(testUser, null).iterator().next().getStoreProperties().getProperties().getProperty(UNUSUAL_KEY) != null);
         assertTrue(store.getGraphs(testUser, null).iterator().next().getSchema().getEntityGroups().contains("BasicEntity"));
         assertTrue(graphLibrary.getProperties(PROPS_ID_1).equals(prop));
-        assertTrue(graphLibrary.getSchema(SCHEMA_ID_1).equals(schema));
+        assertTrue(JsonUtil.equals(graphLibrary.getSchema(SCHEMA_ID_2).toJson(false), schema.toJson(false)));
     }
 
     @Test
@@ -979,6 +986,7 @@ public class FederatedStoreTest {
         final HashMapGraphLibrary graphLibrary = new HashMapGraphLibrary();
         graphLibrary.add(MAP_ID_1,
                 new Schema.Builder()
+                        .id(SCHEMA_ID_1)
                         .json(StreamUtil.openStream(this.getClass(), PATH_BASIC_ENTITY_SCHEMA_JSON))
                         .build(),
                 StoreProperties.loadStoreProperties(StreamUtil.openStream(this.getClass(), PATH_MAP_STORE_PROPERTIES)));

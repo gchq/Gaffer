@@ -753,6 +753,7 @@ public final class Graph {
             }
 
             updateStoreProperties(config);
+
             updateSchema(config);
 
             if (null != config.getLibrary() && config.getLibrary().exists(config.getGraphId())) {
@@ -860,10 +861,10 @@ public final class Graph {
                 if (null == mergedStoreProperties) {
                     mergedStoreProperties = properties;
                 } else {
-                    if (null != properties.getId() && !mergedStoreProperties.getId().equals(properties.getId())) {
-                        mergedStoreProperties.setId(mergedStoreProperties.getId() + "," + properties.getId());
-                    }
                     mergedStoreProperties.getProperties().putAll(properties.getProperties());
+                }
+                if (null != properties.getId() && !mergedStoreProperties.getId().equals(properties.getId())) {
+                    mergedStoreProperties.setId(mergedStoreProperties.getId() + "_" + properties.getId());
                 }
             }
             properties = mergedStoreProperties;
