@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 /**
- * An {@code ElementFiler} is a {@link Predicate} which evaluates a condition against
+ * An {@code ElementFilter} is a {@link Predicate} which evaluates a condition against
  * a provided {@link Element} object.
  */
 public class ElementFilter extends TupleAdaptedPredicateComposite<String> {

@@ -30,6 +30,19 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 public class StorePropertiesTest {
+
+    @Test
+    public void shouldRemovePropertyWhenPropertyValueIsNull() {
+        // Given
+        final StoreProperties props = createStoreProperties();
+
+        // When
+        props.setId(null);
+
+        // Then
+        assertNull(props.getId());
+    }
+
     @Test
     public void shouldGetProperty() {
         // Given

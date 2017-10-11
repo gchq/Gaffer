@@ -8,6 +8,7 @@ artifactId="gaffer2"
 
 if [ "$RELEASE" == 'true' ] && [ "$TRAVIS_BRANCH" == 'master' ] && [ "$TRAVIS_PULL_REQUEST" == 'false' ]; then
     git checkout master
+    mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version
     POM_VERSION=`mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version | grep -v '\['`
     echo "POM_VERSION = $POM_VERSION"
     if [[ "$POM_VERSION" == *SNAPSHOT ]]; then
@@ -48,15 +49,12 @@ if [ "$RELEASE" == 'true' ] && [ "$TRAVIS_BRANCH" == 'master' ] && [ "$TRAVIS_PU
         mvn -q javadoc:javadoc -Pquick
         rm -rf .git/tmp-javadoc
         mv target/site/apidocs .git/tmp-javadoc
-        git clean -fd
-        git reset --hard
         git checkout gh-pages
-        git clean -fd
-        git reset --hard
         rm -rf uk
         mv .git/tmp-javadoc/* .
         git commit -a -m "Updated javadoc - $RELEASE_VERSION"
         git push
+        git checkout master
 
         echo ""
         echo "--------------------------------------"
