@@ -19,7 +19,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>road-traffic</artifactId>
-        <version>1.0.0-RC5</version>
+        <version>1.0.0-RC6-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
