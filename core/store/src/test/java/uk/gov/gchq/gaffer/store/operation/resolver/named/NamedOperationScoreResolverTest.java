@@ -19,15 +19,16 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolverTest;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class NamedOperationScoreResolverTest extends ScoreResolverTest {
-    private static final NamedOperationScoreResolver RESOLVER = new NamedOperationScoreResolver();
 
     @Override
     public void shouldGetScore() throws CacheOperationFailedException {
@@ -39,12 +40,38 @@ public class NamedOperationScoreResolverTest extends ScoreResolverTest {
         final NamedOperationDetail namedOpDetail = mock(NamedOperationDetail.class);
         final NamedOperationCache cache = mock(NamedOperationCache.class);
 
+        final NamedOperationScoreResolver resolver = new NamedOperationScoreResolver(cache);
+
         given(cache.getFromCache(namedOpDetail.getOperationName())).willReturn(namedOpDetail);
         given(namedOpDetail.getOperationName()).willReturn(opName);
         given(namedOpDetail.getScore()).willReturn(5);
 
-        final Integer result = RESOLVER.getScore(namedOp);
+        final Integer result = resolver.getScore(namedOp);
 
         assertEquals(expectedScore, result);
+    }
+
+    @Override
+    public void shouldCatchExceptionForCacheFailures() {
+        final NamedOperation<Element, Iterable<? extends Element>> namedOp = mock(NamedOperation.class);
+
+        final NamedOperationScoreResolver resolver = new NamedOperationScoreResolver();
+
+        final Integer result = resolver.getScore(namedOp);
+
+        assertNull(result);
+    }
+
+    @Override
+    public void shouldReturnNullAndAddWarningForIncorrectOperationType() {
+        final GetAllElements operation = new GetAllElements();
+
+        final NamedOperationCache cache = mock(NamedOperationCache.class);
+
+        final NamedOperationScoreResolver resolver = new NamedOperationScoreResolver(cache);
+
+        final Integer result = resolver.getScore(operation);
+
+        assertNull(result);
     }
 }

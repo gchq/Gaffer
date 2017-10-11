@@ -29,7 +29,15 @@ import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolver;
  * by searching for it within the {@link NamedOperationCache}.
  */
 public class NamedOperationScoreResolver implements ScoreResolver {
-    private final NamedOperationCache cache = new NamedOperationCache();
+    private final NamedOperationCache cache;
+
+    public NamedOperationScoreResolver() {
+        this(new NamedOperationCache());
+    }
+
+    public NamedOperationScoreResolver(final NamedOperationCache cache) {
+        this.cache = cache;
+    }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NamedOperationScoreResolver.class);
 

@@ -21,6 +21,23 @@ import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedEx
 
 public abstract class ScoreResolverTest {
 
+    /**
+     * Implementation should test that the Resolver returns the correct score for a given Operation of compatible type.
+     */
     @Test
     public abstract void shouldGetScore() throws CacheOperationFailedException;
+
+    /**
+     * Implementation should test that if the Cache fails to retrieve the score for the given Operation, then it should also handle
+     * the resulting {@link CacheOperationFailedException}, and return a default value.
+     */
+    @Test
+    public abstract void shouldCatchExceptionForCacheFailures();
+
+    /**
+     * Implementation should test that if the given Operation is not an instanceof the Operation type for the resolver under test,
+     * then a default value should be returned.
+     */
+    @Test
+    public abstract void shouldReturnNullAndAddWarningForIncorrectOperationType();
 }
