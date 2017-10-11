@@ -205,6 +205,7 @@ uk.gov.gchq.gaffer.store.operation.handler.named
 uk.gov.gchq.gaffer.store.operation.handler.named.cache
 uk.gov.gchq.gaffer.store.operation.handler.output
 uk.gov.gchq.gaffer.store.operation.util
+uk.gov.gchq.gaffer.store.operation.validator.function
 uk.gov.gchq.gaffer.store.optimiser
 uk.gov.gchq.gaffer.store.schema
 uk.gov.gchq.gaffer.store.serialiser
