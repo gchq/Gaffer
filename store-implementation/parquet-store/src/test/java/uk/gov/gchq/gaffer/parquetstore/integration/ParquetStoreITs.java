@@ -48,6 +48,5 @@ public class ParquetStoreITs extends AbstractStoreITs {
     public ParquetStoreITs() {
         super(STORE_PROPERTIES);
         skipTest(GetAdjacentIdsIT.class, "GetAdjacentIds is not implemented yet");
-        singleTest();
     }
 }
