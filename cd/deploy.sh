@@ -31,6 +31,10 @@ if [ "$RELEASE" == 'true' ] && [ "$TRAVIS_BRANCH" == 'master' ] && [ "$TRAVIS_PU
         git config --global credential.helper "store --file=.git/credentials"
         echo "https://${GITHUB_TOKEN}:@github.com" > .git/credentials
 
+        # Add develop and gh-pages branches
+        git remote set-branches --add origin develop gh-pages
+        git pull
+
         echo ""
         echo "--------------------------------------"
         echo "Tagging version $RELEASE_VERSION"
@@ -47,11 +51,9 @@ if [ "$RELEASE" == 'true' ] && [ "$TRAVIS_BRANCH" == 'master' ] && [ "$TRAVIS_PU
         echo "--------------------------------------"
         mvn -q clean install -Pquick -Dskip.jar-with-dependencies=true -Dshaded.jar.phase=true
         mvn -q javadoc:javadoc -Pquick
-        rm -rf .git/tmp-javadoc
-        mv target/site/apidocs .git/tmp-javadoc
         git checkout gh-pages
         rm -rf uk
-        mv .git/tmp-javadoc/* .
+        mv target/site/apidocs/* .
         git commit -a -m "Updated javadoc - $RELEASE_VERSION"
         git push
         git checkout master
@@ -82,7 +84,7 @@ if [ "$RELEASE" == 'true' ] && [ "$TRAVIS_BRANCH" == 'master' ] && [ "$TRAVIS_PU
     else
         echo ""
         echo "======================================"
-        echo "Tagging and releasing version $POM_VERSION"
+        echo "Releasing version $POM_VERSION"
         echo "======================================"
         echo ""
 
