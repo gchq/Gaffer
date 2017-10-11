@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.graph.hook;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.gaffer.store.Context;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -41,16 +41,16 @@ public class AddOperationsToChain implements GraphHook {
      * be updated.
      *
      * @param opChain the {@link OperationChain} being executed.
-     * @param user    the {@link User} executing the operation chain
+     * @param context    the {@link Context} executing the operation chain
      */
     @Override
-    public void preExecute(final OperationChain<?> opChain, final User user) {
+    public void preExecute(final OperationChain<?> opChain, final Context context) {
         final List<Operation> newOpList = new ArrayList<>();
 
         boolean hasAuth = false;
-        if (!authorisedOps.isEmpty() && !user.getOpAuths().isEmpty()) {
+        if (!authorisedOps.isEmpty() && !context.getUser().getOpAuths().isEmpty()) {
             for (final String auth : authorisedOps.keySet()) {
-                if (user.getOpAuths().contains(auth)) {
+                if (context.getUser().getOpAuths().contains(auth)) {
                     final AdditionalOperations additionalOperations = authorisedOps.get(auth);
 
                     newOpList.addAll(additionalOperations.getStart());
@@ -74,12 +74,12 @@ public class AddOperationsToChain implements GraphHook {
 
     @Override
     public <T> T postExecute(final T result,
-                             final OperationChain<?> opChain, final User user) {
+                             final OperationChain<?> opChain, final Context context) {
         return result;
     }
 
     @Override
-    public <T> T onFailure(final T result, final OperationChain<?> opChain, final User user, final Exception e) {
+    public <T> T onFailure(final T result, final OperationChain<?> opChain, final Context context, final Exception e) {
         return result;
     }
 

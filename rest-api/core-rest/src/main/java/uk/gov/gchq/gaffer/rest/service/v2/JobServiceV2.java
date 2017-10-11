@@ -28,10 +28,9 @@ import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
-import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.gaffer.store.Context;
 
 import javax.inject.Inject;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -46,11 +45,6 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
  * All operations are simply delegated to the graph.
  * Pre and post operation hooks are available by extending this class and implementing preOperationHook and/or
  * postOperationHook.
- * <p>
- * By default queries will be executed with an UNKNOWN user containing no auths.
- * The userFactory.createUser() method should be overridden and a {@link uk.gov.gchq.gaffer.user.User} object should
- * be created from the http request.
- * </p>
  */
 public class JobServiceV2 implements IJobServiceV2 {
     private static final Logger LOGGER = LoggerFactory.getLogger(JobServiceV2.class);
@@ -61,12 +55,12 @@ public class JobServiceV2 implements IJobServiceV2 {
     @Inject
     private UserFactory userFactory;
 
-    @Context
-    private UriInfo context;
+    @javax.ws.rs.core.Context
+    private UriInfo uriInfo;
 
     @Override
     public Response executeJob(final Operation operation) throws OperationException {
-        final User user = userFactory.createUser();
+        final Context context = userFactory.createContext();
 
         OperationChain opChain;
 
@@ -76,32 +70,32 @@ public class JobServiceV2 implements IJobServiceV2 {
             opChain = new OperationChain(operation);
         }
 
-        preOperationHook(opChain, user);
+        preOperationHook(opChain, context);
 
         try {
             final JobDetail jobDetail = graphFactory.getGraph()
-                                                    .executeJob(opChain, user);
+                    .executeJob(opChain, context);
             LOGGER.info("Job started = {}", jobDetail);
 
-            final URI location = context.getAbsolutePathBuilder()
-                                        .path(jobDetail.getJobId())
-                                        .build();
+            final URI location = uriInfo.getAbsolutePathBuilder()
+                    .path(jobDetail.getJobId())
+                    .build();
 
             return Response.created(location).entity(jobDetail)
-                           .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                           .build();
+                    .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                    .build();
         } finally {
-            postOperationHook(opChain, user);
+            postOperationHook(opChain, context);
         }
     }
 
     @Override
     public Response details() throws OperationException {
         return Response.ok(graphFactory.getGraph()
-                                       .execute(new GetAllJobDetails(), userFactory
-                                               .createUser()))
-                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                       .build();
+                .execute(new GetAllJobDetails(),
+                        userFactory.createContext()))
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
     }
 
     @Override
@@ -110,9 +104,9 @@ public class JobServiceV2 implements IJobServiceV2 {
                 new GetJobDetails.Builder()
                         .jobId(id)
                         .build(),
-                userFactory.createUser()))
-                       .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                       .build();
+                userFactory.createContext()))
+                .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                .build();
     }
 
     @Override
@@ -121,14 +115,14 @@ public class JobServiceV2 implements IJobServiceV2 {
                 new GetJobResults.Builder()
                         .jobId(id)
                         .build(),
-                userFactory.createUser())).build();
+                userFactory.createContext())).build();
     }
 
-    protected void preOperationHook(final OperationChain<?> opChain, final User user) {
+    protected void preOperationHook(final OperationChain<?> opChain, final Context context) {
         // no action by default
     }
 
-    protected void postOperationHook(final OperationChain<?> opChain, final User user) {
+    protected void postOperationHook(final OperationChain<?> opChain, final Context context) {
         // no action by default
     }
 }

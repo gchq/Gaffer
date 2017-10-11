@@ -214,7 +214,6 @@ public class StoreTest {
     public void shouldThrowExceptionIfGraphIdIsNull() throws Exception {
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
-
         try {
             store.initialise(null, schema, properties);
             fail("Exception expected");
@@ -295,7 +294,7 @@ public class StoreTest {
         store.initialise("graphId", schema, properties);
 
         // When
-        store.execute(addElements, user);
+        store.execute(addElements, store.createContext(user));
 
         // Then
         verify(addElementsHandler).doOperation(addElements, context, store);
@@ -358,7 +357,7 @@ public class StoreTest {
 
         // When / Then
         try {
-            store.execute(opChain, user);
+            store.execute(opChain, context);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             verify(operationChainValidator).validate(opChain, user, store);
@@ -377,7 +376,7 @@ public class StoreTest {
         store.initialise("graphId", schema, properties);
 
         // When
-        store.execute(operation, user);
+        store.execute(operation, context);
 
         // Then
         assertEquals(1, store.getDoUnhandledOperationCalls().size());
@@ -430,7 +429,7 @@ public class StoreTest {
         store.initialise("graphId", schema, properties);
 
         // When
-        final CloseableIterable<? extends Element> result = store.execute(opChain, user);
+        final CloseableIterable<? extends Element> result = store.execute(opChain, context);
 
         // Then
         assertSame(getElementsResult, result);
@@ -586,7 +585,7 @@ public class StoreTest {
         store.initialise("graphId", schema, properties);
 
         // When
-        final JobDetail resultJobDetail = store.executeJob(opChain, user);
+        final JobDetail resultJobDetail = store.executeJob(opChain, store.createContext(user));
 
         // Then
         Thread.sleep(1000);
@@ -613,7 +612,7 @@ public class StoreTest {
         store.initialise("graphId", schema, properties);
 
         // When
-        final JobDetail resultJobDetail = store.executeJob(opChain, user);
+        final JobDetail resultJobDetail = store.executeJob(opChain, store.createContext(user));
 
         // Then
         Thread.sleep(1000);
@@ -797,7 +796,8 @@ public class StoreTest {
         }
 
         @Override
-        protected Context createContext(final User user) {
+        public Context createContext(final User user) {
+            super.createContext(user);
             return context;
         }
 

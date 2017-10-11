@@ -42,6 +42,9 @@
     <logger name="org.apache.spark.util.ClosureCleaner">
         <level value="ERROR"/>
     </logger>
+    <logger name="org.apache.spark.sql.SparkSession$Builder">
+        <level value="ERROR"/>
+    </logger>
     <root>
         <priority value="warn"></priority>
         <appender-ref ref="console"></appender-ref>

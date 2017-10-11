@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd;
 
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.rdd.RDD;
-import org.apache.spark.sql.SparkSession;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -33,13 +32,13 @@ import uk.gov.gchq.gaffer.store.Store;
  * A handler for the {@link GetJavaRDDOfAllElements} operation. This simply uses the operation
  * {@link GetRDDOfAllElements} to produce an {@link RDD} and then calls {@code toJavaRDD()} to obtain a
  * {@link JavaRDD}.
- *
+ * <p>
  * <p>If the {@code gaffer.accumulo.spark.directrdd.use_rfile_reader} option is set to {@code true} then the
  * RDD will be produced by directly reading the RFiles in the Accumulo table, rather than using
  * {@link uk.gov.gchq.gaffer.accumulostore.inputformat.ElementInputFormat} to get data via the tablet servers. In order
  * to read the RFiles directly, the user must have read access to the files. Also note that any data that has not been
  * minor compacted will not be read. Reading the Rfiles directly can increase the performance.
- *
+ * <p>
  * <p>If the {@code gaffer.accumulo.spark.directrdd.use_rfile_reader} option is not set then the standard approach
  * of obtaining data via the tablet servers is used.
  */
@@ -55,13 +54,7 @@ public class GetJavaRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetJav
     private JavaRDD<Element> doOperation(final GetJavaRDDOfAllElements operation,
                                          final Context context,
                                          final AccumuloStore accumuloStore) throws OperationException {
-        final SparkSession sparkSession = SparkSession.builder()
-                .master(operation.getJavaSparkContext().master())
-                .appName(operation.getJavaSparkContext().appName())
-                .config(operation.getJavaSparkContext().getConf())
-                .getOrCreate();
         final GetRDDOfAllElements getRDDOfAllElements = new GetRDDOfAllElements.Builder()
-                .sparkSession(sparkSession)
                 .directedType(operation.getDirectedType())
                 .view(operation.getView())
                 .options(operation.getOptions())

@@ -232,13 +232,22 @@ public class StoreProperties implements Cloneable {
      * @param value the value
      */
     public void set(final String key, final String value) {
-        props.setProperty(key, value);
+        if (null == value) {
+            props.remove(key);
+        } else {
+            props.setProperty(key, value);
+        }
     }
 
     public String getId() {
         return get(ID);
     }
 
+    /**
+     * Set the ID for the StoreProperties
+     *
+     * @param id the value of the ID
+     */
     public void setId(final String id) {
         set(ID, id);
     }

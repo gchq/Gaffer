@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -42,13 +43,13 @@ public class TestStore extends Store {
     public static Store mockStore = mock(TestStore.class);
 
     @Override
-    public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
-        return mockStore.executeJob(operationChain, user);
+    public JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
+        return mockStore.executeJob(operationChain, context);
     }
 
     @Override
-    public <O> O execute(final OperationChain<O> operationChain, final User user) throws OperationException {
-        return mockStore.execute(operationChain, user);
+    public <O> O execute(final OperationChain<O> operationChain, final Context context) throws OperationException {
+        return mockStore.execute(operationChain, context);
     }
 
     @Override
