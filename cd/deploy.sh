@@ -92,8 +92,10 @@ if [ "$RELEASE" == 'true' ] && [ "$TRAVIS_BRANCH" == 'master' ] && [ "$TRAVIS_PU
         gpg --fast-import cd/codesigning.asc
 
         if [ "$MODULES" == '' ]; then
+            echo "Running command: mvn -q deploy -P sign,build-extras,quick --settings cd/mvnsettings.xml -B"
             mvn -q deploy -P sign,build-extras,quick --settings cd/mvnsettings.xml -B
         else
+            echo "Running command: mvn -q deploy -P sign,build-extras,quick --settings cd/mvnsettings.xml -B -pl $MODULES"
             mvn -q deploy -P sign,build-extras,quick --settings cd/mvnsettings.xml -B -pl $MODULES
         fi
     fi
