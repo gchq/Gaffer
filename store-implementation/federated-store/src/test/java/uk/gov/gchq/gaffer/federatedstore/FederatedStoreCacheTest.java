@@ -20,30 +20,38 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
+import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 
+import java.util.Properties;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class FederatedStoreCacheTest {
     private static final String PATH_MAP_STORE_PROPERTIES = "properties/singleUseMockMapStore.properties";
     private static final String PATH_BASIC_EDGE_SCHEMA_JSON = "schema/basicEdgeSchema.json";
+    private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private static final String MAP_ID_1 = "mockMapGraphId1";
     private Graph testGraph = new Graph.Builder().config(new GraphConfig(MAP_ID_1))
             .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_MAP_STORE_PROPERTIES))
             .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_EDGE_SCHEMA_JSON))
             .build();
     private static FederatedStoreCache federatedStoreCache;
+    private static Properties properties = new Properties();
 
     @BeforeClass
     public static void setUp() {
+        properties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
+        CacheServiceLoader.initialise(properties);
         federatedStoreCache = new FederatedStoreCache();
     }
 
@@ -96,20 +104,13 @@ public class FederatedStoreCacheTest {
     @Test
     public void shouldThrowExceptionIfGraphIdToBeRemovedIsNull() throws CacheOperationException {
         federatedStoreCache.addGraphToCache(testGraph, false);
-        try {
-            federatedStoreCache.deleteFromCache(null);
-        } catch (CacheOperationException e) {
-            assertTrue(e.getMessage().contains("Graph ID cannot be null"));
-        }
+        federatedStoreCache.deleteFromCache(null);
+        assertEquals(1, federatedStoreCache.getAllGraphIds().size());
     }
 
     @Test
     public void shouldThrowExceptionIfGraphIdToGetIsNull() throws CacheOperationException {
         federatedStoreCache.addGraphToCache(testGraph, false);
-        try {
-            federatedStoreCache.getFromCache(null);
-        } catch (CacheOperationException e) {
-            assertTrue(e.getMessage().contains("Graph ID cannot be null"));
-        }
+        assertNull(federatedStoreCache.getFromCache(null));
     }
 }

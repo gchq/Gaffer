@@ -78,19 +78,11 @@ public class FederatedStoreCache {
      *
      * @param graphId the ID of the {@link uk.gov.gchq.gaffer.graph.Graph} to retrieve
      * @return the {@link uk.gov.gchq.gaffer.graph.Graph} related to the specified ID
-     * @throws CacheOperationException if there was an error trying to access the cache
      */
-    public Graph getFromCache(final String graphId) throws CacheOperationException {
-        if (null == graphId) {
-            throw new CacheOperationException("Graph ID cannot be null");
-        }
-
+    public Graph getFromCache(final String graphId) {
         final GraphSerialisable graphSerialisable = CacheServiceLoader.getService().getFromCache(CACHE_SERVICE_NAME, graphId);
 
-        if (null != graphSerialisable) {
-            return graphSerialisable.buildGraph();
-        }
-        throw new CacheOperationException("No graph in the cache with Graph ID: " + graphId);
+        return (null == graphSerialisable) ? null : graphSerialisable.buildGraph();
     }
 
     /**
@@ -100,10 +92,6 @@ public class FederatedStoreCache {
      * @throws CacheOperationException if there was an error trying to delete from the cache
      */
     public void deleteFromCache(final String graphId) throws CacheOperationException {
-        if (null == graphId) {
-            throw new CacheOperationException("Graph ID cannot be null");
-        }
-
         CacheServiceLoader.getService().removeFromCache(CACHE_SERVICE_NAME, graphId);
 
         if (null != CacheServiceLoader.getService().getFromCache(CACHE_SERVICE_NAME, graphId)) {
