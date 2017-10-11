@@ -84,7 +84,7 @@ if [ "$RELEASE" == 'true' ] && [ "$TRAVIS_BRANCH" == 'master' ] && [ "$TRAVIS_PU
     else
         echo ""
         echo "======================================"
-        echo "Tagging and releasing version $POM_VERSION"
+        echo "Releasing version $POM_VERSION"
         echo "======================================"
         echo ""
 
