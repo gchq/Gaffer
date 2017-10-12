@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.parquetstore.operation.getelements.impl;
 
-
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.filter2.compat.FilterCompat;
 import org.apache.parquet.filter2.predicate.FilterPredicate;
@@ -31,6 +30,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewUtil;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.io.reader.ParquetElementReader;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
@@ -54,17 +54,21 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
     private final ConcurrentLinkedQueue<Element> queue;
     private transient ElementFilter elementFilter;
     private final byte[] elementDefinitionJson;
-    private final boolean needsValidation;
+    private final boolean needsValidatorsAndFiltersApplying;
+    private final boolean skipValidation;
     private final String group;
+    private final View view;
+    private final Schema gafferSchema;
     private final Authorisations auths;
     private final String visibility;
 
     public RetrieveElementsFromFile(final Path filePath, final FilterPredicate filter, final Schema gafferSchema,
-                                    final ConcurrentLinkedQueue<Element> queue, final boolean needsValidation,
-                                    final View view, final User user) {
+                                    final ConcurrentLinkedQueue<Element> queue, final boolean needsValidatorsAndFiltersApplying,
+                                    final boolean skipValidation, final View view, final User user) {
         this.filePath = filePath;
         this.filter = filter;
         this.jsonGafferSchema = gafferSchema.toCompactJson();
+        this.gafferSchema = gafferSchema;
 
         if (gafferSchema.getVisibilityProperty() != null) {
             this.visibility = gafferSchema.getVisibilityProperty();
@@ -79,7 +83,9 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
         }
 
         this.queue = queue;
-        this.needsValidation = needsValidation;
+        this.view = view;
+        this.needsValidatorsAndFiltersApplying = needsValidatorsAndFiltersApplying;
+        this.skipValidation = skipValidation;
         if (filePath.getName().contains("=")) {
             group = filePath.getName().split("=")[1];
         } else {
@@ -96,22 +102,34 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
         try {
             final ParquetReader<Element> fileReader = openParquetReader();
             Element e = fileReader.read();
-            while (e != null) {
+            while (null != e) {
                 if (!visibility.isEmpty()) {
                     if (isVisible(e)) {
-                        if (needsValidation) {
-                            if (elementFilter.test(e)) {
-                                queue.add(e);
+                        if (needsValidatorsAndFiltersApplying) {
+                            final String group = e.getGroup();
+                            final ElementFilter validatorFilter = gafferSchema.getElement(group).getValidator(false);
+                            if (skipValidation || validatorFilter == null || validatorFilter.test(e)) {
+                                if (elementFilter == null || elementFilter.test(e)) {
+                                    ViewUtil.removeProperties(view, e);
+                                    queue.add(e);
+                                }
                             }
                         } else {
+                            ViewUtil.removeProperties(view, e);
                             queue.add(e);
                         }
                     }
-                } else if (needsValidation) {
-                    if (elementFilter.test(e)) {
-                        queue.add(e);
+                } else if (needsValidatorsAndFiltersApplying) {
+                    final String group = e.getGroup();
+                    final ElementFilter validatorFilter = gafferSchema.getElement(group).getValidator(false);
+                    if (skipValidation || validatorFilter == null || validatorFilter.test(e)) {
+                        if (elementFilter == null || elementFilter.test(e)) {
+                            ViewUtil.removeProperties(view, e);
+                            queue.add(e);
+                        }
                     }
                 } else {
+                    ViewUtil.removeProperties(view, e);
                     queue.add(e);
                 }
                 e = fileReader.read();

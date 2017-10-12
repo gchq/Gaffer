@@ -37,6 +37,8 @@ import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.index.GroupIndex;
 import uk.gov.gchq.gaffer.parquetstore.index.MinValuesWithPath;
+import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
+import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
 import uk.gov.gchq.koryphe.impl.predicate.And;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import uk.gov.gchq.koryphe.impl.predicate.IsFalse;
@@ -82,6 +84,7 @@ public final class ParquetFilterUtils {
 
     private final String rootDir;
     private final SchemaUtils schemaUtils;
+    private final boolean skipValidation;
     private String dataDir;
     private View view;
     private DirectedType directedType;
@@ -90,7 +93,7 @@ public final class ParquetFilterUtils {
     private Iterable<? extends ElementId> seeds;
     private GraphIndex graphIndex;
     private final Map<Path, FilterPredicate> pathToFilterMap;
-    private boolean requiresValidation;
+    private boolean needsValidatorsAndFiltersApplying;
 
     /**
      * The constructor which sets up this object so it is ready to convert the inputs for get elements operations and
@@ -102,29 +105,30 @@ public final class ParquetFilterUtils {
         this.rootDir = store.getDataDir();
         this.schemaUtils = store.getSchemaUtils();
         this.pathToFilterMap = new HashMap<>();
-        this.requiresValidation = false;
+        this.skipValidation = store.getProperties().getSkipValidation();
+        this.needsValidatorsAndFiltersApplying = false;
     }
 
     public Map<Path, FilterPredicate> getPathToFilterMap() {
         return pathToFilterMap;
     }
 
-    public boolean requiresValidation() {
-        return requiresValidation;
+    public boolean needsValidatorsAndFiltersApplying() {
+        return needsValidatorsAndFiltersApplying;
     }
 
     /**
      * Takes in the various inputs to get elements operations and generates a mapping of which paths to apply which
      * Parquet filters.
      *
-     * @param view                          the Gaffer {@link View} to be applied
-     * @param directedType                  the {@link DirectedType} to be applied
-     * @param includeIncomingOutgoingType   the {@link uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType} to be applied
-     * @param seedMatchingType              the {@link uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType} to be applied
-     * @param seeds                         the seeds to be applied
-     * @param graphIndex                    the {@link GraphIndex} to use
-     * @throws SerialisationException   If any of the Gaffer objects are unable to be serialised to Parquet objects
-     * @throws OperationException   If a serialiser is used which serialises objects to a type not supported
+     * @param view                        the Gaffer {@link View} to be applied
+     * @param directedType                the {@link DirectedType} to be applied
+     * @param includeIncomingOutgoingType the {@link uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType} to be applied
+     * @param seedMatchingType            the {@link uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType} to be applied
+     * @param seeds                       the seeds to be applied
+     * @param graphIndex                  the {@link GraphIndex} to use
+     * @throws SerialisationException If any of the Gaffer objects are unable to be serialised to Parquet objects
+     * @throws OperationException     If a serialiser is used which serialises objects to a type not supported
      */
     public void buildPathToFilterMap(
             final View view,
@@ -163,7 +167,7 @@ public final class ParquetFilterUtils {
             entityGroups = schemaUtils.getEntityGroups();
         }
         this.pathToFilterMap.clear();
-        this.requiresValidation = false;
+        this.needsValidatorsAndFiltersApplying = false;
 
         if (null == seeds && (null == view || schemaUtils.getEmptyView().equals(view))) {
             // get all elements
@@ -174,13 +178,15 @@ public final class ParquetFilterUtils {
                 pathToFilterMap.put(new Path(ParquetStore.getGroupDirectory(group, ParquetStoreConstants.SOURCE, dataDir)), null);
             }
         } else {
-            // Build up the path to filters based on the seeds and then apply the view (group) filters
+            // Build up the path to filters based on the seeds, then validation and then apply the view (group) filters
             for (final String edgeGroup : edgeGroups) {
                 buildSeedFilter(edgeGroup, false);
+                applyGroupValidationFilter(edgeGroup);
                 applyGroupFilter(edgeGroup, false);
             }
             for (final String entityGroup : entityGroups) {
                 buildSeedFilter(entityGroup, true);
+                applyGroupValidationFilter(entityGroup);
                 applyGroupFilter(entityGroup, true);
             }
         }
@@ -191,8 +197,8 @@ public final class ParquetFilterUtils {
      *
      * @param group         Gaffer group to apply seed filters to
      * @param isEntityGroup Whether the provided group is an Entity group
-     * @throws SerialisationException   If any of the Gaffer objects are unable to be serialised to Parquet objects
-     * @throws OperationException   If a serialiser is used which serialises objects to a type not supported
+     * @throws SerialisationException If any of the Gaffer objects are unable to be serialised to Parquet objects
+     * @throws OperationException     If a serialiser is used which serialises objects to a type not supported
      */
     private void buildSeedFilter(final String group, final boolean isEntityGroup) throws SerialisationException, OperationException {
         if (null != seeds) {
@@ -223,8 +229,8 @@ public final class ParquetFilterUtils {
      * which is {@code null} if the seed is an {@link EntitySeed} and consists of the destination vertex and
      * directed type if the seed is an {@link EdgeSeed}.
      *
-     * @param identifier the column that the seed relates to
-     * @param group the group that is currently being queried
+     * @param identifier    the column that the seed relates to
+     * @param group         the group that is currently being queried
      * @param isEntityGroup is the group provided an entity group
      * @return a {@link Pair} in which the first entry is a sorted {@link Set} of the seeds converted to the form in
      * which they appear in the Parquet files, and the second entry is a {@link Map} from the seeds to a {@link Pair}
@@ -268,8 +274,8 @@ public final class ParquetFilterUtils {
      * @param isEntityGroup whether the provided group is an Entity group
      * @param seed2Parts    a mapping from Parquet Objects representing the source object to the destination Parquet Objects and
      *                      {@link DirectedType} of just the {@link EdgeSeed}'s
-     * @throws SerialisationException   If any of the Gaffer objects are unable to be serialised to Parquet objects
-     * @throws OperationException   If a serialiser is used which serialises objects to a type not supported
+     * @throws SerialisationException If any of the Gaffer objects are unable to be serialised to Parquet objects
+     * @throws OperationException     If a serialiser is used which serialises objects to a type not supported
      */
     private void buildSeedFilterForIndex(final List<Object[]> sortedSeeds, final String indexedColumn, final String group,
                                          final boolean isEntityGroup, final Map<Object[], Pair<Object[], DirectedType>> seed2Parts)
@@ -293,8 +299,8 @@ public final class ParquetFilterUtils {
      * @param group         The Gaffer group name
      * @param parts         The Destination Parquet objects and the {@link DirectedType} if the seed was an {@link EdgeSeed}
      * @param isEntityGroup Whether the Gaffer group is an Entity group
-     * @throws SerialisationException   If any of the Gaffer objects are unable to be serialised to Parquet objects
-     * @throws OperationException   If a serialiser is used which serialises objects to a type not supported
+     * @throws SerialisationException If any of the Gaffer objects are unable to be serialised to Parquet objects
+     * @throws OperationException     If a serialiser is used which serialises objects to a type not supported
      */
     private void addPathToSeedFilter(
             final Path path,
@@ -454,7 +460,7 @@ public final class ParquetFilterUtils {
     }
 
     private Set<Path> getIndexedPathsForSeeds(final Object[] seed, final String indexedColumn,
-                                                             final String group) {
+                                              final String group) {
         if (graphIndex.groupsIndexed().contains(group)) {
             if (graphIndex.getGroup(group).columnsIndexed().contains(indexedColumn)) {
                 final List<Object[]> seeds = new ArrayList<>();
@@ -504,37 +510,46 @@ public final class ParquetFilterUtils {
         return paths;
     }
 
+    private void applyGroupValidationFilter(final String group) throws SerialisationException {
+        if (!skipValidation && (seeds == null || !pathToFilterMap.isEmpty())) {
+            applyGroupFilter(group, buildGroupValidatorFilter(group));
+        }
+    }
+
     /**
      * For any filters in the pathToFilterMap that apply to the provided Gaffer group then the filter should also require
      * that the group filter is true.
      *
-     * @param group     The Gaffer group that the group filter applies to
-     * @param isEntity  Whether the group is an Entity group
-     * @throws SerialisationException   If any of the Gaffer objects are unable to be serialised to Parquet objects
+     * @param group    The Gaffer group that the group filter applies to
+     * @param isEntity Whether the group is an Entity group
+     * @throws SerialisationException If any of the Gaffer objects are unable to be serialised to Parquet objects
      */
     private void applyGroupFilter(final String group, final boolean isEntity) throws SerialisationException {
-        if (null == seeds || !pathToFilterMap.isEmpty()) {
-            boolean appliedGroup = false;
-            final Pair<FilterPredicate, Set<Path>> groupFilterAndPaths = buildGroupFilter(group, isEntity);
-            if (null != groupFilterAndPaths) {
-                final Set<Path> groupPaths = groupFilterAndPaths.getSecond();
-                final FilterPredicate groupFilter = groupFilterAndPaths.getFirst();
-                for (final Path path : pathToFilterMap.keySet()) {
-                    if (path.getParent().getName().endsWith(group)) {
-                        final FilterPredicate seedFilter = pathToFilterMap.get(path);
-                        pathToFilterMap.put(path, andFilter(seedFilter, groupFilter));
-                        appliedGroup = true;
-                    }
+        if (seeds == null || !pathToFilterMap.isEmpty()) {
+            applyGroupFilter(group, buildGroupFilter(group, isEntity));
+        }
+    }
+
+    private void applyGroupFilter(final String group, final Pair<FilterPredicate, Set<Path>> groupFilterAndPaths) {
+        boolean appliedGroup = false;
+        if (groupFilterAndPaths != null) {
+            final Set<Path> groupPaths = groupFilterAndPaths.getSecond();
+            final FilterPredicate groupFilter = groupFilterAndPaths.getFirst();
+            for (final Path path : pathToFilterMap.keySet()) {
+                if (path.getParent().getName().endsWith(group)) {
+                    final FilterPredicate seedFilter = pathToFilterMap.get(path);
+                    pathToFilterMap.put(path, andFilter(seedFilter, groupFilter));
+                    appliedGroup = true;
                 }
-                if (!appliedGroup && null == seeds) {
-                    for (final Path path : groupPaths) {
-                        pathToFilterMap.put(path, groupFilter);
-                    }
+            }
+            if (!appliedGroup && seeds == null) {
+                for (final Path path : groupPaths) {
+                    pathToFilterMap.put(path, groupFilter);
                 }
-            } else if (null == seeds) {
-                for (final Path path : getAllPathsForColumn(group)) {
-                    pathToFilterMap.put(path, andFilter(pathToFilterMap.getOrDefault(path, null), null));
-                }
+            }
+        } else if (seeds == null) {
+            for (final Path path : getAllPathsForColumn(group)) {
+                pathToFilterMap.put(path, andFilter(pathToFilterMap.getOrDefault(path, null), null));
             }
         }
     }
@@ -647,12 +662,25 @@ public final class ParquetFilterUtils {
         }
     }
 
+    protected Pair<FilterPredicate, Set<Path>> buildGroupValidatorFilter(final String group) throws SerialisationException {
+        Pair<FilterPredicate, Set<Path>> groupFilter = null;
+        final SchemaElementDefinition schemaElementDefinition = schemaUtils.getGafferSchema().getElement(group);
+        final List<TupleAdaptedPredicate<String, ?>> validationFunctions = schemaElementDefinition.getValidator(false).getComponents();
+        if (null != validationFunctions) {
+            for (final TupleAdaptedPredicate<String, ?> filterFunctionContext : validationFunctions) {
+                final Pair<FilterPredicate, Set<Path>> filter = buildFilter(filterFunctionContext.getPredicate(), filterFunctionContext.getSelection(), group);
+                groupFilter = andFilter(groupFilter, filter, filterFunctionContext.getSelection().length > 0);
+            }
+        }
+        return groupFilter;
+    }
+
     /**
      * Builds up the filter to be applied to the given group's files based on the pre-aggregation view filters.
      * This method handles the group level looping over all filters for that group in the view
      *
-     * @param group     a Gaffer group
-     * @param isEntity  is the gaffer group an Entity group
+     * @param group    a Gaffer group
+     * @param isEntity is the gaffer group an Entity group
      * @return The Parquet filter based on the provided groups pre-aggregation view filters
      * @throws SerialisationException If any of the Gaffer objects are unable to be serialised to Parquet objects
      */
@@ -679,7 +707,7 @@ public final class ParquetFilterUtils {
             }
             if (null != groupFilter && null != directedFilter) {
                 groupFilter = new Pair<>(and(groupFilter.getFirst(), directedFilter), groupFilter.getSecond());
-            } else if (null == groupFilter && (null != directedFilter || requiresValidation)) {
+            } else if (null == groupFilter && (null != directedFilter || needsValidatorsAndFiltersApplying)) {
                 groupFilter = new Pair<>(directedFilter, getAllPathsForColumn(group));
             }
         }
@@ -690,36 +718,61 @@ public final class ParquetFilterUtils {
      * Builds the Parquet filters for a given Gaffer filter and the selection of which columns to apply the filter to.
      * This method handles the nested And, Or and Not's.
      *
-     * @param filterFunction    A Gaffer filter
-     * @param selection         An array of column names, either the Gaffer column names of Parquet column names
-     * @param group             A Gaffer group name
+     * @param filterFunction A Gaffer filter
+     * @param selection      An array of column names, either the Gaffer column names of Parquet column names
+     * @param group          A Gaffer group name
      * @return The Parquet filter based on the provided Gaffer filters
      * @throws SerialisationException If any of the Gaffer objects are unable to be serialised to Parquet objects
      */
     private Pair<FilterPredicate, Set<Path>> buildFilter(final Predicate filterFunction, final String[] selection, final String group) throws SerialisationException {
-        if (filterFunction instanceof And) {
-            return addAndFilter(((And) filterFunction).getComponents(), selection, group);
+        Pair<FilterPredicate, Set<Path>> filterResult;
+        if (filterFunction instanceof AgeOff) {
+            filterResult = addAgeOffFilter(((AgeOff) filterFunction), selection, group);
+        } else if (filterFunction instanceof And) {
+            filterResult = addAndFilter(((And) filterFunction).getComponents(), selection, group);
         } else if (filterFunction instanceof Or) {
-            return addOrFilter(((Or) filterFunction).getComponents(), selection, group);
+            filterResult = addOrFilter(((Or) filterFunction).getComponents(), selection, group);
         } else if (filterFunction instanceof Not) {
-            final Pair<FilterPredicate, Set<Path>> filterResult = buildFilter(((Not) filterFunction).getPredicate(), selection, group);
-            if (null == filterResult) {
-                return null;
-            } else {
-                return new Pair<>(not(filterResult.getFirst()), getAllPathsForColumn(group));
+            filterResult = buildFilter(((Not) filterFunction).getPredicate(), selection, group);
+            if (filterResult != null) {
+                filterResult = new Pair<>(not(filterResult.getFirst()), getAllPathsForColumn(group));
             }
         } else {
-            final Pair<FilterPredicate, Set<Path>> filterResult = addPrimitiveFilter(filterFunction, selection[0], group);
+            filterResult = addPrimitiveFilter(filterFunction, selection[0], group);
             if (null == filterResult) {
-                requiresValidation = true;
+                needsValidatorsAndFiltersApplying = true;
             }
-            return filterResult;
         }
+        return filterResult;
+    }
+
+    private Pair<FilterPredicate, Set<Path>> addAgeOffFilter(final AgeOff ageOff,
+                                                             final String[] selection,
+                                                             final String group) throws SerialisationException {
+        String[] paths = schemaUtils.getPaths(group, selection[0]);
+        if (paths == null) {
+            paths = new String[1];
+            paths[0] = selection[0];
+        }
+        FilterPredicate filter = null;
+        for (int i = 0; i < paths.length; i++) {
+            final String path = paths[i];
+            FilterPredicate tempFilter;
+            Long ageOffTime = System.currentTimeMillis() - ageOff.getAgeOffTime();
+            tempFilter = gt(longColumn(path), ageOffTime);
+
+            if (filter == null) {
+                filter = tempFilter;
+            } else {
+                filter = and(filter, tempFilter);
+            }
+        }
+        return new Pair<>(filter, getAllPathsForColumn(group));
     }
 
     private Pair<FilterPredicate, Set<Path>> addOrFilter(final List<Predicate> predicateList,
-                                        final String[] selection,
-                                        final String group) throws SerialisationException {
+                                                         final String[] selection,
+                                                         final String group) throws SerialisationException {
         Pair<FilterPredicate, Set<Path>> filter = null;
         final boolean multiSelection = selection.length > 0;
         for (final Predicate functionContext : predicateList) {
@@ -743,8 +796,8 @@ public final class ParquetFilterUtils {
     }
 
     private Pair<FilterPredicate, Set<Path>> addAndFilter(final List<Predicate> predicateList,
-                                         final String[] selection,
-                                         final String group) throws SerialisationException {
+                                                          final String[] selection,
+                                                          final String group) throws SerialisationException {
         Pair<FilterPredicate, Set<Path>> filter = null;
         for (final Predicate functionContext : predicateList) {
             final Predicate filterFunction;
@@ -767,8 +820,8 @@ public final class ParquetFilterUtils {
     }
 
     private Pair<FilterPredicate, Set<Path>> addPrimitiveFilter(final Predicate filterFunction,
-                                               final String selection,
-                                               final String group) throws SerialisationException {
+                                                                final String selection,
+                                                                final String group) throws SerialisationException {
         // All supported filters will be in the if else statement below
         if (filterFunction instanceof IsEqual) {
             return addIsEqualFilter(selection, schemaUtils.getConverter(group).gafferObjectToParquetObjects(selection, ((IsEqual) filterFunction).getControlValue()), group, false);
@@ -796,8 +849,8 @@ public final class ParquetFilterUtils {
     }
 
     private Pair<FilterPredicate, Set<Path>> addIsNotEqualFilter(final String colName,
-                                             final Object[] parquetObjects,
-                                             final String group, final boolean skipPaths) throws SerialisationException {
+                                                                 final Object[] parquetObjects,
+                                                                 final String group, final boolean skipPaths) throws SerialisationException {
         String[] paths = schemaUtils.getPaths(group, colName);
         if (null == paths) {
             paths = new String[1];
@@ -846,8 +899,8 @@ public final class ParquetFilterUtils {
     }
 
     private Pair<FilterPredicate, Set<Path>> addIsEqualFilter(final String colName,
-                                             final Object[] parquetObjects,
-                                             final String group, final boolean skipPaths) throws SerialisationException {
+                                                              final Object[] parquetObjects,
+                                                              final String group, final boolean skipPaths) throws SerialisationException {
         String[] paths = schemaUtils.getPaths(group, colName);
         if (null == paths) {
             paths = new String[1];
@@ -901,8 +954,8 @@ public final class ParquetFilterUtils {
     }
 
     private Pair<FilterPredicate, Set<Path>> addIsLessThanOrEqualToFilter(final String colName,
-                                                         final Object[] parquetObjects,
-                                                         final String group) throws SerialisationException {
+                                                                          final Object[] parquetObjects,
+                                                                          final String group) throws SerialisationException {
         String[] paths = schemaUtils.getPaths(group, colName);
         if (null == paths) {
             paths = new String[1];
@@ -951,8 +1004,8 @@ public final class ParquetFilterUtils {
     }
 
     private Pair<FilterPredicate, Set<Path>> addIsLessThanFilter(final String colName,
-                                                final Object[] parquetObjects,
-                                                final String group) throws SerialisationException {
+                                                                 final Object[] parquetObjects,
+                                                                 final String group) throws SerialisationException {
         String[] paths = schemaUtils.getPaths(group, colName);
         if (null == paths) {
             paths = new String[1];
@@ -1001,8 +1054,8 @@ public final class ParquetFilterUtils {
     }
 
     private Pair<FilterPredicate, Set<Path>> addIsMoreThanOrEqualToFilter(final String colName,
-                                                         final Object[] parquetObjects,
-                                                         final String group) throws SerialisationException {
+                                                                          final Object[] parquetObjects,
+                                                                          final String group) throws SerialisationException {
         String[] paths = schemaUtils.getPaths(group, colName);
         if (null == paths) {
             paths = new String[1];
@@ -1051,8 +1104,8 @@ public final class ParquetFilterUtils {
     }
 
     private Pair<FilterPredicate, Set<Path>> addIsMoreThanFilter(final String colName,
-                                                final Object[] parquetObjects,
-                                                final String group) throws SerialisationException {
+                                                                 final Object[] parquetObjects,
+                                                                 final String group) throws SerialisationException {
         String[] paths = schemaUtils.getPaths(group, colName);
         if (null == paths) {
             paths = new String[1];
