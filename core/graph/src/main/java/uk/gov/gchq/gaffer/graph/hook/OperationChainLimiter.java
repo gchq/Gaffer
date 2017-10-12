@@ -21,8 +21,8 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.operation.handler.ScoreOperationChainHandler;
-import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Map;
 
@@ -53,14 +53,14 @@ public class OperationChainLimiter implements GraphHook {
      * Then checking the operation score of all operations in the chain and comparing the total score value of the chain against a users maximum score limit.
      * If an operation cannot be executed then an {@link IllegalAccessError} is thrown.
      *
-     * @param user    the user to authorise.
+     * @param context    the Context containing the user to authorise.
      * @param opChain the operation chain.
      */
     @Override
-    public void preExecute(final OperationChain<?> opChain, final User user) {
+    public void preExecute(final OperationChain<?> opChain, final Context context) {
         if (null != opChain) {
-            Integer chainScore = scorer.getChainScore(opChain, user);
-            Integer maxAuthScore = scorer.getMaxUserAuthScore(user.getOpAuths());
+            Integer chainScore = scorer.getChainScore(opChain, context.getUser());
+            Integer maxAuthScore = scorer.getMaxUserAuthScore(context.getUser().getOpAuths());
 
             if (chainScore > maxAuthScore) {
                 throw new UnauthorisedException("The maximum score limit for this user is " + maxAuthScore + ".\n" +
@@ -70,13 +70,13 @@ public class OperationChainLimiter implements GraphHook {
     }
 
     @Override
-    public <T> T postExecute(final T result, final OperationChain<?> opChain, final User user) {
+    public <T> T postExecute(final T result, final OperationChain<?> opChain, final Context context) {
         // This method can be overridden to add additional authorisation checks on the results.
         return result;
     }
 
     @Override
-    public <T> T onFailure(final T result, final OperationChain<?> opChain, final User user, final Exception e) {
+    public <T> T onFailure(final T result, final OperationChain<?> opChain, final Context context, final Exception e) {
         return result;
     }
 

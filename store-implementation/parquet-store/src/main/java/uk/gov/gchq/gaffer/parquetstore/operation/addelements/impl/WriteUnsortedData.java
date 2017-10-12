@@ -64,14 +64,19 @@ public class WriteUnsortedData {
         try {
             // Write elements
             _writeElements(elements);
+        } catch (final IOException | OperationException e) {
+            throw new OperationException("Exception writing elements to temporary directory: " + tempFilesDir, e);
+        } finally {
             // Close the writers
             for (final Map<Integer, ParquetWriter<Element>> splitToWriter : groupSplitToWriter.values()) {
                 for (final ParquetWriter<Element> writer : splitToWriter.values()) {
-                    writer.close();
+                    try {
+                        writer.close();
+                    } catch (final IOException ignored) {
+                        // ignored
+                    }
                 }
             }
-        } catch (final IOException | OperationException e) {
-            throw new OperationException("Exception writing elements to temporary directory: " + tempFilesDir, e);
         }
     }
 

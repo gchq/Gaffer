@@ -34,6 +34,6 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
         final Graph graph = GraphDelegate.createGraph(store, export.getGraphId(),
                 export.getSchema(), export.getStoreProperties(), export.getParentSchemaIds(),
                 export.getParentStorePropertiesId());
-        return new OtherGraphExporter(context.getUser(), graph);
+        return new OtherGraphExporter(context, graph);
     }
 }
