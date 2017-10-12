@@ -460,8 +460,7 @@ public class FederatedStore extends Store {
         }
 
         if (null != getGraphLibrary()) {
-            getGraphLibrary().addProperties(newGraph.getStoreProperties());
-            getGraphLibrary().addSchema(newGraph.getSchema());
+            getGraphLibrary().add(newGraph.getGraphId(), newGraph.getSchema(), newGraph.getStoreProperties());
         }
     }
 

@@ -30,6 +30,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.blankUser;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
 
 public class FederatedAccessAuthTest {
+
     public static final String AuthX = "X";
 
     User testUser;

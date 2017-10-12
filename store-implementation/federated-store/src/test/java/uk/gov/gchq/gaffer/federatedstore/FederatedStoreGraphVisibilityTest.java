@@ -45,12 +45,16 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
 
 public class FederatedStoreGraphVisibilityTest {
 
+    private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
+    private static final String TEST_STORE_PROPS_ID = "testStorePropsId";
+    private static final String TEST_SCHEMA_ID = "testSchemaId";
+    private static final String TEST_GRAPH_ID = "testGraphId";
+    private static final String TEST_FED_GRAPH_ID = "testFedGraphId";
     private static User addingUser;
     private static User nonAddingUser;
     private static User authNonAddingUser;
     private Graph fedGraph;
     private FederatedStoreProperties fedProperties;
-    private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
 
     @Before
     public void setUp() throws Exception {
@@ -61,7 +65,7 @@ public class FederatedStoreGraphVisibilityTest {
         final HashMapGraphLibrary library = new HashMapGraphLibrary();
 
         final Schema aSchema = new Schema.Builder()
-                .id("b")
+                .id(TEST_SCHEMA_ID)
                 .entity("e1", new SchemaEntityDefinition.Builder()
                         .vertex("string")
                         .build())
@@ -69,15 +73,15 @@ public class FederatedStoreGraphVisibilityTest {
                 .build();
 
         final AccumuloProperties accProp = new AccumuloProperties();
-        accProp.setId("a");
+        accProp.setId(TEST_STORE_PROPS_ID);
         accProp.setStoreClass(SingleUseMockAccumuloStore.class.getName());
         accProp.setStorePropertiesClass(AccumuloProperties.class);
 
-        library.add("a", aSchema, accProp);
+        library.add(TEST_GRAPH_ID, aSchema, accProp);
 
         fedGraph = new Builder()
                 .config(new GraphConfig.Builder()
-                        .graphId("testFedGraph")
+                        .graphId(TEST_FED_GRAPH_ID)
                         .library(library)
                         .build())
                 .addStoreProperties(fedProperties)
@@ -93,16 +97,16 @@ public class FederatedStoreGraphVisibilityTest {
         fedGraph.execute(
                 new AddGraph.Builder()
                         .graphId("g1")
-                        .parentPropertiesId("a")
-                        .parentSchemaIds(Arrays.asList("b"))
+                        .parentPropertiesId(TEST_STORE_PROPS_ID)
+                        .parentSchemaIds(Arrays.asList(TEST_SCHEMA_ID))
                         .build(),
                 addingUser);
 
         fedGraph.execute(
                 new AddGraph.Builder()
                         .graphId("g2")
-                        .parentPropertiesId("a")
-                        .parentSchemaIds(Arrays.asList("b"))
+                        .parentPropertiesId(TEST_STORE_PROPS_ID)
+                        .parentSchemaIds(Arrays.asList(TEST_SCHEMA_ID))
                         .graphAuths("auth1")
                         .build(),
                 addingUser);
