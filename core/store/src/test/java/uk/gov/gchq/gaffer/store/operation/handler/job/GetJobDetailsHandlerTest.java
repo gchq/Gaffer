@@ -87,7 +87,10 @@ public class GetJobDetailsHandlerTest {
         final JobTracker jobTracker = mock(JobTracker.class);
         final User user = mock(User.class);
         final JobDetail jobsDetail = mock(JobDetail.class);
-        final Context context = new Context(user, jobId);
+        final Context context = new Context.Builder()
+                .user(user)
+                .jobId(jobId)
+                .build();
 
         given(store.getJobTracker()).willReturn(jobTracker);
         given(jobTracker.getJob(jobId, user)).willReturn(jobsDetail);

@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.accumulostore.retriever.impl;
 
-import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -24,13 +24,13 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -78,16 +78,16 @@ public class AccumuloRangeIDRetrieverTest {
     }
 
     @Test
-    public void shouldRetrieveElementsInRangeBetweenSeedsByteEntityStore() throws StoreException {
+    public void shouldRetrieveElementsInRangeBetweenSeedsByteEntityStore() throws Exception {
         shouldRetrieveElementsInRangeBetweenSeeds(byteEntityStore);
     }
 
     @Test
-    public void shouldRetrieveElementsInRangeBetweenSeedsGaffer1Store() throws StoreException {
+    public void shouldRetrieveElementsInRangeBetweenSeedsGaffer1Store() throws Exception {
         shouldRetrieveElementsInRangeBetweenSeeds(gaffer1KeyStore);
     }
 
-    private void shouldRetrieveElementsInRangeBetweenSeeds(final AccumuloStore store) throws StoreException {
+    private void shouldRetrieveElementsInRangeBetweenSeeds(final AccumuloStore store) throws Exception {
         // Create set to query for
         final Set<Pair<ElementId, ElementId>> simpleEntityRanges = new HashSet<>();
         simpleEntityRanges.add(new Pair<>(new EntitySeed("0000"), new EntitySeed("0999")));
@@ -97,12 +97,15 @@ public class AccumuloRangeIDRetrieverTest {
                 .view(defaultView)
                 .input(simpleEntityRanges)
                 .build();
-        try {
-            final AccumuloRangeIDRetriever retriever = new AccumuloRangeIDRetriever(store, operation, new User());
-            assertEquals(numEntries, Iterables.size(retriever));
-        } catch (final IteratorSettingException e) {
-            fail("Unable to construct Range Retriever");
+        final AccumuloRangeIDRetriever<?> retriever = new AccumuloRangeIDRetriever<>(store, operation, new User());
+        final List<Element> elements = Lists.newArrayList(retriever);
+        for (final Element element : elements) {
+            if (element instanceof Edge) {
+                assertEquals(EdgeId.MatchedVertex.SOURCE, ((Edge) element).getMatchedVertex());
+            }
         }
+
+        assertEquals(numEntries, elements.size());
     }
 
     private static void setupGraph(final AccumuloStore store, final int numEntries) {
@@ -124,7 +127,7 @@ public class AccumuloRangeIDRetrieverTest {
             final User user = new User();
             store.execute(new AddElements.Builder()
                     .input(elements)
-                    .build(), user);
+                    .build(), store.createContext(user));
         } catch (final OperationException e) {
             fail("Couldn't add element: " + e);
         }

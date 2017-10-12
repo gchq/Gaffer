@@ -15,7 +15,7 @@
  */
 
 /**
- * Pacakge containing classes relating to the Graph - the core abstraction in the
+ * Package containing classes relating to the Graph - the core abstraction in the
  * Gaffer framework.
  */
 package uk.gov.gchq.gaffer.graph;

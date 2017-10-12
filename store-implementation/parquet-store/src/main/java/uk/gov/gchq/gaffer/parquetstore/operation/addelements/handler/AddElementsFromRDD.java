@@ -21,6 +21,7 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.Tuple2;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -34,15 +35,21 @@ import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.rdd.CalculateS
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.rdd.WriteUnsortedDataFunction;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SparkParquetUtils;
-import uk.gov.gchq.gaffer.spark.SparkUser;
+import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+
+import static uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreUtils.createThreadPool;
+import static uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreUtils.invokeSplitPointCalculations;
 
 /**
  * Executes the process of importing a {@link JavaRDD} of {@link Element} into the current {@link ParquetStore}
@@ -62,55 +69,52 @@ public class AddElementsFromRDD {
                 fs.delete(tempDir, true);
                 LOGGER.warn("Temp data directory '{}' has been deleted.", tempDataDirString);
             }
-            final User user = context.getUser();
-            if (user instanceof SparkUser) {
-                final SparkSession spark = ((SparkUser) user).getSparkSession();
-                SparkParquetUtils.configureSparkForAddElements(spark, parquetStoreProperties);
-
-                // aggregate new data and write out as unsorted data
-                LOGGER.debug("Starting to write the new unsorted Parquet data after aggregation to {} split by group", tempDataDirString);
-                final Schema gafferSchema = store.getSchema();
-                final CalculateSplitPointsFromJavaRDD calculateSplitPointsFromJavaRDD =
-                        new CalculateSplitPointsFromJavaRDD(parquetStoreProperties.getSampleRate(),
-                                parquetStoreProperties.getAddElementsOutputFilesPerGroup() - 1);
-                final Map<String, Map<Object, Integer>> groupToSplitPoints;
-                final GraphIndex index = store.getGraphIndex();
-                if (null == index) {
-                    groupToSplitPoints = new HashMap<>();
-                    for (final String group : gafferSchema.getEdgeGroups()) {
-                        groupToSplitPoints.put(group, calculateSplitPointsFromJavaRDD.calculateSplitsForGroup(input, group, false));
-                    }
-                    for (final String group : gafferSchema.getEntityGroups()) {
-                        groupToSplitPoints.put(group, calculateSplitPointsFromJavaRDD.calculateSplitsForGroup(input, group, true));
-                    }
-                } else {
-                    groupToSplitPoints = CalculateSplitPointsFromIndex.apply(index, store.getSchemaUtils(), parquetStoreProperties, input);
+            final SparkSession spark = SparkContextUtil.getSparkSession(context, store.getProperties());
+            SparkParquetUtils.configureSparkForAddElements(spark, parquetStoreProperties);
+            final ExecutorService pool = createThreadPool(spark, parquetStoreProperties);
+            // aggregate new data and write out as unsorted data
+            LOGGER.debug("Starting to write the new unsorted Parquet data after aggregation to {} split by group", tempDataDirString);
+            final Schema gafferSchema = store.getSchema();
+            final List<Callable<Tuple2<String, Map<Object, Integer>>>> tasks = new ArrayList<>();
+            final Map<String, Map<Object, Integer>> groupToSplitPoints;
+            final GraphIndex index = store.getGraphIndex();
+            if (null == index) {
+                groupToSplitPoints = new HashMap<>();
+                for (final String group : gafferSchema.getEdgeGroups()) {
+                    tasks.add(new CalculateSplitPointsFromJavaRDD(parquetStoreProperties.getSampleRate(),
+                            parquetStoreProperties.getAddElementsOutputFilesPerGroup() - 1, input, group, false));
                 }
-                final WriteUnsortedDataFunction writeUnsortedDataFunction =
-                        new WriteUnsortedDataFunction(store.getTempFilesDir(), store.getSchemaUtils(), groupToSplitPoints);
-                input
-                    .foreachPartition(writeUnsortedDataFunction);
-                LOGGER.debug("Finished writing the unsorted Parquet data to {}", tempDataDirString);
-
-                // Aggregate and sort data
-                LOGGER.debug("Starting to write the sorted and aggregated Parquet data to {} split by group", tempDataDirString);
-                new AggregateAndSortTempData(store, spark, groupToSplitPoints);
-                LOGGER.debug("Finished writing the sorted and aggregated Parquet data to {}", tempDataDirString);
-
-                // Generate the file based index
-                LOGGER.debug("Starting to write the indexes");
-                final GraphIndex newGraphIndex = new GenerateIndices(store, spark).getGraphIndex();
-                LOGGER.debug("Finished writing the indexes");
-                try {
-                    moveDataToDataDir(store, fs, rootDataDirString, tempDataDirString, newGraphIndex);
-                    tidyUp(fs, tempDataDirString);
-                } catch (final StoreException e) {
-                    throw new OperationException("Failed to reload the indices", e);
-                } catch (final IOException e) {
-                    throw new OperationException("Failed to move data from temporary files directory to the data directory.", e);
+                for (final String group : gafferSchema.getEntityGroups()) {
+                    tasks.add(new CalculateSplitPointsFromJavaRDD(parquetStoreProperties.getSampleRate(),
+                            parquetStoreProperties.getAddElementsOutputFilesPerGroup() - 1, input, group, true));
                 }
+                invokeSplitPointCalculations(pool, tasks, groupToSplitPoints);
             } else {
-                throw new OperationException("This operation requires the user to be of type SparkUser.");
+                groupToSplitPoints = CalculateSplitPointsFromIndex.apply(index, store.getSchemaUtils(), parquetStoreProperties, input, pool);
+            }
+
+            final WriteUnsortedDataFunction writeUnsortedDataFunction =
+                    new WriteUnsortedDataFunction(store.getTempFilesDir(), store.getSchemaUtils(), groupToSplitPoints);
+            input
+                    .foreachPartition(writeUnsortedDataFunction);
+            LOGGER.debug("Finished writing the unsorted Parquet data to {}", tempDataDirString);
+
+            // Aggregate and sort data
+            LOGGER.debug("Starting to write the sorted and aggregated Parquet data to {} split by group", tempDataDirString);
+            new AggregateAndSortTempData(store, spark, groupToSplitPoints, pool);
+            pool.shutdown();
+            LOGGER.debug("Finished writing the sorted and aggregated Parquet data to {}", tempDataDirString);
+            // Generate the file based index
+            LOGGER.debug("Starting to write the indexes");
+            final GraphIndex newGraphIndex = new GenerateIndices(store, spark).getGraphIndex();
+            LOGGER.debug("Finished writing the indexes");
+            try {
+                moveDataToDataDir(store, fs, rootDataDirString, tempDataDirString, newGraphIndex);
+                tidyUp(fs, tempDataDirString);
+            } catch (final StoreException e) {
+                throw new OperationException("Failed to reload the indices", e);
+            } catch (final IOException e) {
+                throw new OperationException("Failed to move data from temporary files directory to the data directory.", e);
             }
         } catch (final IOException e) {
             throw new OperationException("IOException: Failed to connect to the file system", e);

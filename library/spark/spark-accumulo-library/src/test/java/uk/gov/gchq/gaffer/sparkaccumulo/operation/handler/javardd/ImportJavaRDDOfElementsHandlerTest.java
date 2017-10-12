@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.sql.SparkSession;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -91,8 +92,7 @@ public class ImportJavaRDDOfElementsHandlerTest {
             elements.add(entity);
         }
         final User user = new User();
-
-        final JavaSparkContext sparkContext = SparkSessionProvider.getJavaSparkContext();
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         // Create Hadoop configuration and serialise to a string
         final Configuration configuration = new Configuration();
@@ -102,9 +102,8 @@ public class ImportJavaRDDOfElementsHandlerTest {
         final String outputPath = testFolder.getRoot().getAbsolutePath() + "/output";
         final String failurePath = testFolder.getRoot().getAbsolutePath() + "/failure";
 
-        final JavaRDD<Element> elementJavaRDD = sparkContext.parallelize(elements);
+        final JavaRDD<Element> elementJavaRDD = JavaSparkContext.fromSparkContext(sparkSession.sparkContext()).parallelize(elements);
         final ImportJavaRDDOfElements addRdd = new ImportJavaRDDOfElements.Builder()
-                .javaSparkContext(sparkContext)
                 .input(elementJavaRDD)
                 .option("outputPath", outputPath)
                 .option("failurePath", failurePath)
@@ -113,7 +112,6 @@ public class ImportJavaRDDOfElementsHandlerTest {
 
         // Check all elements were added
         final GetJavaRDDOfAllElements rddQuery = new GetJavaRDDOfAllElements.Builder()
-                .javaSparkContext(sparkContext)
                 .option(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString)
                 .build();
 

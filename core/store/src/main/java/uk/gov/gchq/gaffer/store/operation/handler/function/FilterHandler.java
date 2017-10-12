@@ -23,12 +23,17 @@ import uk.gov.gchq.gaffer.operation.util.StreamFilterIterable;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.validator.function.FilterValidator;
+import uk.gov.gchq.gaffer.store.operation.validator.function.FunctionValidator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class FilterHandler implements OutputOperationHandler<Filter, Iterable<? extends Element>> {
+
+    private final FunctionValidator<Filter> validator = new FilterValidator();
 
     @Override
     public Iterable<? extends Element> doOperation(final Filter operation, final Context context, final Store store) throws OperationException {
@@ -50,6 +55,10 @@ public class FilterHandler implements OutputOperationHandler<Filter, Iterable<? 
             operation.setEdges(edgeMap);
         }
 
+        final ValidationResult result = validator.validate(operation, store.getSchema());
+        if (!result.isValid()) {
+            throw new OperationException("Filter operation is invalid. " + result.getErrorString());
+        }
         return new StreamFilterIterable(operation);
     }
 }
