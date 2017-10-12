@@ -33,7 +33,7 @@ public class PredefinedFederatedStore extends FederatedStore {
         super.initialise(graphId, schema, properties);
 
         // Accumulo store just contains edges
-        addGraphs(null, User.UNKNOWN_USER_ID, new Graph.Builder()
+        addGraphs(null, User.UNKNOWN_USER_ID, false, new Graph.Builder()
                 .config(new GraphConfig("AccumuloStoreContainingEdges"))
                 .addSchema(new Schema.Builder()
                         .merge(schema)
@@ -43,7 +43,7 @@ public class PredefinedFederatedStore extends FederatedStore {
                 .build());
 
         // Map store just contains entities
-        addGraphs(null, User.UNKNOWN_USER_ID, new Graph.Builder()
+        addGraphs(null, User.UNKNOWN_USER_ID, false, new Graph.Builder()
                 .config(new GraphConfig("MapStoreContainingEntities"))
                 .addSchema(new Schema.Builder()
                         .merge(schema)

@@ -51,12 +51,12 @@ public class FederatedRemoveGraphHandlerTest {
         FederatedStore store = new FederatedStore();
         final FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
         federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
-        
+
         store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
         AccumuloProperties storeProperties = new AccumuloProperties();
         storeProperties.setStoreClass(SingleUseMockAccumuloStore.class);
 
-        store.addGraphs(testUser.getOpAuths(), null, new Graph.Builder()
+        store.addGraphs(testUser.getOpAuths(), null, false, new Graph.Builder()
                 .config(new GraphConfig(EXPECTED_GRAPH_ID))
                 .addSchema(new Schema.Builder().build())
                 .storeProperties(storeProperties)

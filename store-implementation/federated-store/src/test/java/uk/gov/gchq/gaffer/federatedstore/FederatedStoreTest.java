@@ -133,7 +133,7 @@ public class FederatedStoreTest {
 
         // When / Then
         try {
-            store.addGraphs(null, TEST_USER, graphToAdd);
+            store.addGraphs(null, TEST_USER, false, graphToAdd);
             fail(EXCEPTION_NOT_THROWN);
         } catch (final StoreException e) {
             assertTrue(e.getMessage().contains("No cache has been set"));
@@ -166,7 +166,7 @@ public class FederatedStoreTest {
                 .build();
 
         // When
-        store.addGraphs(null, TEST_USER, graphToAdd);
+        store.addGraphs(null, TEST_USER, false, graphToAdd);
 
         // Then
         assertEquals(1, store.getGraphs(testUser, ACC_ID_1).size());
@@ -200,7 +200,7 @@ public class FederatedStoreTest {
         }
 
         // When
-        store.addGraphs(null, TEST_USER, graphsToAdd.toArray(new Graph[graphsToAdd.size()]));
+        store.addGraphs(null, TEST_USER, false, graphsToAdd.toArray(new Graph[graphsToAdd.size()]));
 
         // Then
         for (int i = 0; i < 10; i++) {
@@ -232,7 +232,7 @@ public class FederatedStoreTest {
                 .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_EDGE_SCHEMA_JSON))
                 .build();
 
-        store.addGraphs(null, TEST_USER, graphToAdd);
+        store.addGraphs(null, TEST_USER, false, graphToAdd);
 
         //check the store and the cache
         assertEquals(1, store.getAllGraphIds(testUser).size());
@@ -329,7 +329,7 @@ public class FederatedStoreTest {
 
         // When / Then
         try {
-            store.addGraphs(null, null, new Graph.Builder()
+            store.addGraphs(null, null, false, new Graph.Builder()
                     .config(new GraphConfig(ACC_ID_1))
                     .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_ACC_STORE_PROPERTIES))
                     .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_EDGE_SCHEMA_JSON))
@@ -361,7 +361,7 @@ public class FederatedStoreTest {
         Set<StoreTrait> before = store.getTraits();
 
         // When
-        store.addGraphs(null, null, new Graph.Builder()
+        store.addGraphs(null, null, false, new Graph.Builder()
                 .config(new GraphConfig(MAP_ID_1))
                 .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_MAP_STORE_PROPERTIES))
                 .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_ENTITY_SCHEMA_JSON))
@@ -387,7 +387,7 @@ public class FederatedStoreTest {
         Schema before = store.getSchema();
 
         // When
-        store.addGraphs(null, null, new Graph.Builder()
+        store.addGraphs(null, null, false, new Graph.Builder()
                 .config(new GraphConfig(MAP_ID_1))
                 .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_MAP_STORE_PROPERTIES))
                 .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_EDGE_SCHEMA_JSON))
@@ -585,7 +585,7 @@ public class FederatedStoreTest {
         assertFalse(allGraphId.contains(MAP_ID_1));
 
         // When
-        store.addGraphs(GRAPH_AUTHS, null, new Graph.Builder()
+        store.addGraphs(GRAPH_AUTHS, null, false, new Graph.Builder()
                 .config(new GraphConfig(MAP_ID_1))
                 .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_MAP_STORE_PROPERTIES))
                 .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_ENTITY_SCHEMA_JSON))
@@ -901,7 +901,7 @@ public class FederatedStoreTest {
     public void shouldFederatedIfUserHasCorrectAuths() throws Exception {
         // Given
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
-        store.addGraphs(GRAPH_AUTHS, null, new Graph.Builder()
+        store.addGraphs(GRAPH_AUTHS, null, false, new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(MAP_ID_1)
                         .build())
@@ -1096,15 +1096,6 @@ public class FederatedStoreTest {
         assertFalse(checkUnexpected(unexpectedGraphs, returnedGraphs));
     }
 
-    private boolean checkUnexpected(final Collection<Graph> unexpectedGraphs, final Collection<Graph> returnedGraphs) {
-        for (Graph graph : unexpectedGraphs) {
-            if (returnedGraphs.contains(graph)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     @Test
     public void shouldThrowExceptionWithInvalidCacheClass() throws StoreException {
         federatedProperties.setCacheProperties(INVALID_CACHE_SERVICE_CLASS_STRING);
@@ -1114,6 +1105,15 @@ public class FederatedStoreTest {
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Failed to instantiate cache"));
         }
+    }
+
+    private boolean checkUnexpected(final Collection<Graph> unexpectedGraphs, final Collection<Graph> returnedGraphs) {
+        for (Graph graph : unexpectedGraphs) {
+            if (returnedGraphs.contains(graph)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private List<Collection<Graph>> populateGraphs(int... expectedIds) throws StoreException {
@@ -1127,7 +1127,7 @@ public class FederatedStoreTest {
                     .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_MAP_STORE_PROPERTIES))
                     .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_ENTITY_SCHEMA_JSON))
                     .build();
-            store.addGraphs(Sets.newHashSet(ALL_USERS), null, tempGraph);
+            store.addGraphs(Sets.newHashSet(ALL_USERS), null, false, tempGraph);
             for (final int j : expectedIds) {
                 if (i == j) {
                     expectedGraphs.add(tempGraph);

@@ -82,8 +82,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBL
  * <p>
  * To create a FederatedStore you need to initialise the store with a
  * graphId and  (if graphId is not known by the {@link uk.gov.gchq.gaffer.store.library.GraphLibrary}) the
- * {@link
- * Schema} and  {@link StoreProperties}.
+ * {@link Schema} and {@link StoreProperties}.
  *
  * @see #initialise(String, Schema, StoreProperties)
  * @see Store
@@ -126,6 +125,11 @@ public class FederatedStore extends Store {
         loadGraphs();
     }
 
+    /**
+     * Get this Store's {@link uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties}.
+     *
+     * @return the instance of {@link uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties}, this may contain details such as database connection details.
+     */
     @Override
     public FederatedStoreProperties getProperties() {
         return (FederatedStoreProperties) super.getProperties();
@@ -173,8 +177,7 @@ public class FederatedStore extends Store {
      * To be used by the FederatedStore and Handlers only. Users should add
      * graphs via the {@link AddGraph} operation.
      * public access will be ignored if the FederatedStore denies this action
-     * at
-     * initialisation, will default to usual access with addingUserId and
+     * at initialisation, will default to usual access with addingUserId and
      * graphAuths
      *
      * @param addingUserId the adding userId
@@ -194,10 +197,6 @@ public class FederatedStore extends Store {
         for (final Graph graph : graphs) {
             _add(graph, access);
         }
-    }
-
-    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final Graph... graphs) throws StoreException {
-        addGraphs(graphAuths, addingUserId, false, graphs);
     }
 
     /**
@@ -227,7 +226,6 @@ public class FederatedStore extends Store {
     public Collection<String> getAllGraphIds(final User user) {
         return graphStorage.getAllIds(user);
     }
-
 
     /**
      * @return {@link Store#getTraits()}
@@ -311,6 +309,19 @@ public class FederatedStore extends Store {
     protected Object doUnhandledOperation(final Operation operation,
                                           final Context context) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    protected void startCacheServiceLoader(
+            final StoreProperties properties) {
+        if (federatedStoreCache.getCache() == null) {
+            CacheServiceLoader.initialise(properties.getProperties());
+        }
+    }
+
+    @Override
+    public Schema getSchema() {
+        return graphStorage.getMergedSchema();
     }
 
     private static View createValidView(final View view, final Schema delegateGraphSchema) {
@@ -462,18 +473,5 @@ public class FederatedStore extends Store {
         if (null != getGraphLibrary()) {
             getGraphLibrary().add(newGraph.getGraphId(), newGraph.getSchema(), newGraph.getStoreProperties());
         }
-    }
-
-    @Override
-    protected void startCacheServiceLoader(
-            final StoreProperties properties) {
-        if (federatedStoreCache.getCache() == null) {
-            CacheServiceLoader.initialise(properties.getProperties());
-        }
-    }
-
-    @Override
-    public Schema getSchema() {
-        return graphStorage.getMergedSchema();
     }
 }
