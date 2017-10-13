@@ -47,7 +47,7 @@ public class AddNamedOperation implements Operation {
     private boolean overwriteFlag = false;
     private Map<String, ParameterDetail> parameters;
     private Map<String, String> options;
-    private int score;
+    private Integer score;
 
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
 
@@ -160,11 +160,11 @@ public class AddNamedOperation implements Operation {
         this.options = options;
     }
 
-    public int getScore() {
+    public Integer getScore() {
         return score;
     }
 
-    public void setScore(final int score) {
+    public void setScore(final Integer score) {
         this.score = score;
     }
 
@@ -217,7 +217,7 @@ public class AddNamedOperation implements Operation {
             return overwrite(true);
         }
 
-        public Builder score(final int score) {
+        public Builder score(final Integer score) {
             _getOp().setScore(score);
             return _self();
         }

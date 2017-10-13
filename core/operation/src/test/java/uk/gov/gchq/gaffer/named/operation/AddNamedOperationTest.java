@@ -51,6 +51,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 .overwrite()
                 .readAccessRoles(USER)
                 .writeAccessRoles(USER)
+                .score(0)
                 .build();
 
         // When
@@ -125,7 +126,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         assertEquals(opChain, clone.getOperationChainAsString());
         assertEquals("Test", clone.getOperationName());
         assertEquals("Test Named Operation", clone.getDescription());
-        assertEquals(2, clone.getScore());
+        assertEquals(2, (int) clone.getScore());
         assertFalse(clone.isOverwriteFlag());
         assertEquals(Collections.singletonList(USER), clone.getReadAccessRoles());
         assertEquals(Collections.singletonList(USER), clone.getWriteAccessRoles());
