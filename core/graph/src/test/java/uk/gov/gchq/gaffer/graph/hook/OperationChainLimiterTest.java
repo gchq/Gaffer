@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.graph.hook;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
@@ -26,6 +27,8 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolver;
+import uk.gov.gchq.gaffer.store.operation.resolver.named.NamedOperationScoreResolver;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.HashMap;
@@ -241,5 +244,20 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
 
         // Then
         assertEquals(opScores, result);
+    }
+
+    @Test
+    public void shouldSetAndGetScoreResolvers() {
+        // Given
+        final OperationChainLimiter hook = new OperationChainLimiter();
+        final Map<Class<? extends Operation>, ScoreResolver> resolvers = new HashMap<>();
+        resolvers.put(NamedOperation.class, new NamedOperationScoreResolver());
+
+        // When
+        hook.setScoreResolvers(resolvers);
+        final Map<Class<? extends Operation>, ScoreResolver> result = hook.getScoreResolvers();
+
+        // Then
+        assertEquals(resolvers, result);
     }
 }
