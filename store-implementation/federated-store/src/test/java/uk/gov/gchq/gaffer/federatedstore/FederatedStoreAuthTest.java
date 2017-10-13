@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.federatedstore;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -60,7 +59,8 @@ public class FederatedStoreAuthTest {
         Schema expectedSchema = new Schema.Builder().build();
 
         FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
-        federatedStoreProperties.set(CacheProperties.CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_STRING);
+        federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        federatedStoreProperties.setFalseSkipFailedExecution();
 
         MapStoreProperties storeProperties = new MapStoreProperties();
 

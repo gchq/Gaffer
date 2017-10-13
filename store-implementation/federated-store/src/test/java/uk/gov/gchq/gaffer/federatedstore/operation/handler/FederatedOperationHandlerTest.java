@@ -191,7 +191,7 @@ public class FederatedOperationHandlerTest {
 
         // When
         try {
-            new FederatedOperationHandler().doOperation(op, new Context(user), mockStore);
+           new FederatedOperationHandler().doOperation(op, context, mockStore);
         } catch (Exception e) {
             fail("Exception should not have been thrown: " + e.getMessage());
         }

@@ -63,15 +63,11 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
     private static final long serialVersionUID = 7695540336792378185L;
 
     public ParquetStoreProperties() {
-        super();
-        this.setStoreClass(ParquetStore.class);
+        super(ParquetStore.class);
     }
 
     public ParquetStoreProperties(final Path propFileLocation) {
-        super(propFileLocation);
-        if (null == getStoreClass()) {
-            setStoreClass(ParquetStore.class);
-        }
+        super(propFileLocation, ParquetStore.class);
     }
 
     public static ParquetStoreProperties loadStoreProperties(final String pathStr) {

@@ -49,7 +49,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStore.USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.authUser;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
 
@@ -82,7 +82,6 @@ public class FederatedAddGraphHandlerTest {
 
         MapStoreProperties storeProperties = new MapStoreProperties();
 
-        assertEquals(0, store.getGraphs(testUser, null).size());
         assertEquals(0, store.getGraphs(testUser, null).size());
 
         FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
@@ -212,7 +211,7 @@ public class FederatedAddGraphHandlerTest {
                     new Context(testUser),
                     store);
         } catch (final OverwritingException e) {
-            assertEquals(String.format(USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S, EXPECTED_GRAPH_ID), e.getMessage());
+            assertEquals(String.format(USER_IS_ATTEMPTING_TO_OVERWRITE, EXPECTED_GRAPH_ID), e.getMessage());
         }
 
     }

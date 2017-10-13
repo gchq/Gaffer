@@ -47,15 +47,11 @@ public class HBaseProperties extends StoreProperties {
     public static final String MAX_ENTRIES_FOR_BATCH_SCANNER_DEFAULT = "50000";
 
     public HBaseProperties() {
-        super();
-        setStoreClass(HBaseStore.class);
+        super(HBaseStore.class);
     }
 
     public HBaseProperties(final Path propFileLocation) {
-        super(propFileLocation);
-        if (null == getStoreClass()) {
-            setStoreClass(HBaseStore.class);
-        }
+        super(propFileLocation, HBaseStore.class);
     }
 
     public static HBaseProperties loadStoreProperties(final String pathStr) {

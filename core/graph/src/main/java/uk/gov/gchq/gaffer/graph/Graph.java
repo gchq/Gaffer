@@ -862,9 +862,7 @@ public final class Graph {
                     mergedStoreProperties = properties;
                 } else {
                     mergedStoreProperties.getProperties().putAll(properties.getProperties());
-                }
-                if (null != properties.getId() && !mergedStoreProperties.getId().equals(properties.getId())) {
-                    mergedStoreProperties.setId(mergedStoreProperties.getId() + "_" + properties.getId());
+                mergedStoreProperties.setId(null);
                 }
             }
             properties = mergedStoreProperties;

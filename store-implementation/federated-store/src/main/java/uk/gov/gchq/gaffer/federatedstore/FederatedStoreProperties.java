@@ -61,9 +61,11 @@ public class FederatedStoreProperties extends StoreProperties {
      */
     private static final String IS_PUBLIC = "isPublic";
     public static final String IS_PUBLIC_DEFAULT = String.valueOf(false);
+    public static final String CACHE_SERVICE_CLASS = CacheProperties.CACHE_SERVICE_CLASS;
+    public static final String CACHE_SERVICE_CLASS_DEFAULT = null;
 
     public FederatedStoreProperties() {
-        setStoreClass(FederatedStore.class);
+        super(FederatedStore.class);
     }
 
     public static FederatedStoreProperties loadStoreProperties(final String pathStr) {
@@ -112,12 +114,12 @@ public class FederatedStoreProperties extends StoreProperties {
         set(key, file);
     }
 
-    public void setParentPropId(final String graphId, final String id) {
+    public void setGraphPropId(final String graphId, final String id) {
         final String key = getKeyGraphConfig(graphId, GraphConfigEnum.PROPERTIES, LocationEnum.ID);
         set(key, id);
     }
 
-    public void setParentSchemaId(final String graphId, final String id) {
+    public void setGraphSchemaId(final String graphId, final String id) {
         final String key = getKeyGraphConfig(graphId, GraphConfigEnum.SCHEMA, LocationEnum.ID);
         set(key, id);
     }
@@ -151,7 +153,11 @@ public class FederatedStoreProperties extends StoreProperties {
     }
 
     public void setCacheProperties(final String cacheServiceClassString) {
-        set(CacheProperties.CACHE_SERVICE_CLASS, cacheServiceClassString);
+        set(CACHE_SERVICE_CLASS, cacheServiceClassString);
+    }
+
+    public String getCacheProperties() {
+        return get(CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_DEFAULT);
     }
 
     /**

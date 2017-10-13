@@ -48,15 +48,11 @@ public class MapStoreProperties extends StoreProperties {
     public static final int INGEST_BUFFER_SIZE_DEFAULT = 0;
 
     public MapStoreProperties() {
-        super();
-        setStoreClass(MapStore.class);
+        super(MapStore.class);
     }
 
     public MapStoreProperties(final Path propFileLocation) {
-        super(propFileLocation);
-        if (null == getStoreClass()) {
-            setStoreClass(MapStore.class);
-        }
+        super(propFileLocation, MapStore.class);
     }
 
     public static MapStoreProperties loadStoreProperties(final String pathStr) {

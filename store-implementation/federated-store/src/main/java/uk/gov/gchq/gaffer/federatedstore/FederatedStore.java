@@ -22,7 +22,6 @@ import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
-import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
@@ -89,7 +88,6 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBL
  * @see Graph
  */
 public class FederatedStore extends Store {
-    public static final String USER_IS_ATTEMPTING_TO_OVERWRITE_A_GRAPH_WITHIN_FEDERATED_STORE_GRAPH_ID_S = "User is attempting to overwrite a graph within FederatedStore. GraphId: %s";
     protected static final String S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2 = "%s was not able to be created with the supplied properties.%n%s";
     private static final String SCHEMA_DEL_REGEX = Pattern.quote(",");
     private static final GraphConfigEnum SCHEMA = GraphConfigEnum.SCHEMA;
@@ -113,10 +111,8 @@ public class FederatedStore extends Store {
      */
     @Override
     public void initialise(final String graphId, final Schema unused, final StoreProperties properties) throws StoreException {
-        if (properties.get(CacheProperties.CACHE_SERVICE_CLASS) == null) {
-            throw new StoreException("No cache has been set, please check the property "
-                    + CacheProperties.CACHE_SERVICE_CLASS + " has been set in the Store Properties");
-        }
+        setProperties(properties);
+        validateCacheProperties();
         super.initialise(graphId, new Schema(), properties);
         loadCustomPropertiesAuths();
 
@@ -128,7 +124,8 @@ public class FederatedStore extends Store {
     /**
      * Get this Store's {@link uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties}.
      *
-     * @return the instance of {@link uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties}, this may contain details such as database connection details.
+     * @return the instance of {@link uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties},
+     * this may contain details such as database connection details.
      */
     @Override
     public FederatedStoreProperties getProperties() {
@@ -187,16 +184,19 @@ public class FederatedStore extends Store {
      * @throws StoreException if no cache has been set
      */
 
-    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final boolean isPublic, final Graph... graphs) throws StoreException {
-        if (federatedStoreCache.getCache() == null) {
-            throw new StoreException("No cache has been set, please initialise the FederatedStore instance");
-        }
+    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final boolean isPublic, final Graph... graphs) {
+            validateCache();
 
-        FederatedAccess access = new FederatedAccess(graphAuths, addingUserId, isPublicAccessAllowed && isPublic);
+            FederatedAccess access = new FederatedAccess(graphAuths, addingUserId, isPublicAccessAllowed && isPublic);
 
-        for (final Graph graph : graphs) {
-            _add(graph, access);
-        }
+            for (final Graph graph : graphs) {
+                _add(graph, access);
+            }
+    }
+
+    @Deprecated
+    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final Graph... graphs) {
+        addGraphs(graphAuths, addingUserId, false, graphs);
     }
 
     /**
@@ -207,14 +207,12 @@ public class FederatedStore extends Store {
      *
      * @param graphId to be removed from scope
      * @param user    to match visibility against
-     * @throws StoreException if there was an error removing the {@link uk.gov.gchq.gaffer.graph.Graph} from the store
+     * @throws StoreException if there was an error removing the {@link
+     *                        uk.gov.gchq.gaffer.graph.Graph} from the store
      */
-    public void remove(final String graphId, final User user) throws StoreException {
-        try {
-            federatedStoreCache.deleteFromCache(graphId);
-        } catch (final CacheOperationException e) {
-            throw new StoreException(e);
-        }
+    public void remove(final String graphId, final User user) {
+        validateCache();
+        federatedStoreCache.deleteFromCache(graphId);
         graphStorage.remove(graphId, user);
     }
 
@@ -312,8 +310,7 @@ public class FederatedStore extends Store {
     }
 
     @Override
-    protected void startCacheServiceLoader(
-            final StoreProperties properties) {
+    protected void startCacheServiceLoader(final StoreProperties properties) {
         if (federatedStoreCache.getCache() == null) {
             CacheServiceLoader.initialise(properties.getProperties());
         }
@@ -373,21 +370,25 @@ public class FederatedStore extends Store {
     private void loadGraphs() throws StoreException {
         final Set<String> graphIds = getGraphIds();
         for (final String graphId : graphIds) {
-            if (federatedStoreCache.getAllGraphIds().contains(graphId)) {
+            final Set<String> graphAuths = resolveAuths(graphId);
+            final boolean isPublic = resolveIsPublic(graphId);
+
+            if (federatedStoreCache.contains(graphId)) {
                 Graph graph = federatedStoreCache.getFromCache(graphId);
-                addGraphs(resolveAuths(graphId), null, resolveIsPublic(graphId), graph);
+                addGraphs(graphAuths, null, isPublic, graph);
             } else {
-                final Builder builder = new Builder().config(new GraphConfig.Builder()
-                        .graphId(graphId)
-                        .library(getGraphLibrary())
-                        .build())
+                final Graph.Builder builder = new Builder()
+                        .config(new GraphConfig.Builder()
+                                .graphId(graphId)
+                                .library(getGraphLibrary())
+                                .build())
                         .addParentSchemaIds(getValueOf(graphId, SCHEMA, ID))
                         .parentStorePropertiesId(getValueOf(graphId, PROPERTIES, ID));
 
                 addPropertiesFromFile(graphId, builder);
                 addSchemaFromFile(graphId, builder);
 
-                addGraphs(resolveAuths(graphId), null, resolveIsPublic(graphId), builder);
+                addGraphs(graphAuths, null, isPublic, builder);
             }
         }
     }
@@ -401,9 +402,7 @@ public class FederatedStore extends Store {
         return Strings.isNullOrEmpty(value) ? null : Sets.newHashSet(getCleanStrings(value));
     }
 
-    private void addGraphs(final Set<String> graphAuths,
-                           final String userId, final boolean isPublic, final Builder... builders) throws StoreException {
-
+    private void addGraphs(final Set<String> graphAuths, final String userId, final boolean isPublic, final Builder... builders) throws StoreException {
         for (final Builder builder : builders) {
             final Graph graph;
             try {
@@ -427,7 +426,7 @@ public class FederatedStore extends Store {
                         builder.addSchema(StreamUtil.openStream(FederatedStore.class, schemaPath));
                     }
                 } catch (final Exception e) {
-                    throw new IllegalArgumentException(String.format(S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2, "Schema", "graphId: " + graphId + " schemaPath: " + schemaPath), e);
+                    throw new IllegalArgumentException(String.format(S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2, "Schema", "GraphId: " + graphId + " schemaPath: " + schemaPath), e);
                 }
             }
         }
@@ -439,7 +438,7 @@ public class FederatedStore extends Store {
             try {
                 builder.addStoreProperties(propFileValue);
             } catch (final Exception e) {
-                throw new IllegalArgumentException(String.format(S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2, "Property", "graphId: " + graphId + " propertyPath: " + propFileValue), e);
+                throw new IllegalArgumentException(String.format(S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2, "Property", "GraphId: " + graphId + " propertyPath: " + propFileValue), e);
             }
         }
     }
@@ -457,10 +456,19 @@ public class FederatedStore extends Store {
         return graphIds;
     }
 
-    private void _add(final Graph newGraph, final FederatedAccess access) {
+    private void _add(final Graph newGraph, final FederatedAccess access){
+        addToCache(newGraph);
+
         graphStorage.put(newGraph, access);
+
+        if (null != getGraphLibrary()) {
+            getGraphLibrary().add(newGraph.getGraphId(), newGraph.getSchema(), newGraph.getStoreProperties());
+        }
+    }
+
+    private void addToCache(final Graph newGraph) {
         final String graphId = newGraph.getGraphId();
-        if (!federatedStoreCache.getAllGraphIds().contains(graphId)) {
+        if (!federatedStoreCache.contains(graphId)) {
             try {
                 federatedStoreCache.addGraphToCache(newGraph, false);
             } catch (final OverwritingException e) {
@@ -468,10 +476,24 @@ public class FederatedStore extends Store {
             } catch (final Exception e) {
                 throw new RuntimeException(e);
             }
+        } else {
+            final Graph fromCache = federatedStoreCache.getFromCache(graphId);
+            if (!newGraph.equals(fromCache)) {
+                throw new RuntimeException(String.format("Error adding graph, GraphId is known within the cache, but is different. GraphId: %s", graphId));
+            }
         }
+    }
 
-        if (null != getGraphLibrary()) {
-            getGraphLibrary().add(newGraph.getGraphId(), newGraph.getSchema(), newGraph.getStoreProperties());
+    private void validateCacheProperties() throws StoreException {
+        if (getProperties().getCacheProperties() == null) {
+            throw new StoreException("No cache has been set, please check the property "
+                    + CacheProperties.CACHE_SERVICE_CLASS + " has been set in the Store Properties");
+        }
+    }
+
+    private void validateCache() {
+        if (federatedStoreCache.getCache() == null) {
+            throw new RuntimeException("No cache has been set, please initialise the FederatedStore instance");
         }
     }
 }
