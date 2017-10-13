@@ -11,6 +11,14 @@
         "authScores": {
           "TEST_USER": 4,
           "TEST_USER_ENHANCED": 10
+        },
+        "scoreResolvers": {
+          "uk.gov.gchq.gaffer.named.operation.NamedOperation": {
+            "class": "uk.gov.gchq.gaffer.store.operation.resolver.named.NamedOperationScoreResolver"
+          },
+          "uk.gov.gchq.gaffer.operation.impl.add.AddElements": {
+            "class": "uk.gov.gchq.gaffer.store.operation.resolver.named.NamedOperationScoreResolver"
+          }
         }
       }
     }
