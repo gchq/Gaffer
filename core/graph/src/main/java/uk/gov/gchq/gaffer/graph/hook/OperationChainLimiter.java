@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.operation.handler.ScoreOperationChainHandler;
 import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolver;
 
-import java.util.Collections;
 import java.util.Map;
 
 /**
