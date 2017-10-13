@@ -63,6 +63,7 @@ import java.util.Set;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_VALIDATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
 
 /**
@@ -79,7 +80,8 @@ public class ParquetStore extends Store {
                     ORDERED,
                     VISIBILITY,
                     INGEST_AGGREGATION,
-                    PRE_AGGREGATION_FILTERING
+                    PRE_AGGREGATION_FILTERING,
+                    STORE_VALIDATION
             ));
 
     private GraphIndex graphIndex;
