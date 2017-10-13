@@ -45,6 +45,7 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
     public static final String PARQUET_THREADS_AVAILABLE = "parquet.threadsAvailable";
     public static final String PARQUET_ADD_ELEMENTS_OUTPUT_FILES_PER_GROUP = "parquet.add_elements.output_files_per_group";
     public static final String SPARK_MASTER = "spark.master";
+    public static final String PARQUET_SKIP_VALIDATION = "parquet.skip_validation";
 
 
     // Default values
@@ -58,6 +59,7 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
     private static final String PARQUET_THREADS_AVAILABLE_DEFAULT = "3";
     private static final String PARQUET_ADD_ELEMENTS_OUTPUT_FILES_PER_GROUP_DEFAULT = "10";
     private static final String SPARK_MASTER_DEFAULT = "local[*]";
+    private static final String PARQUET_SKIP_VALIDATION_DEFAULT = "false";
     private static final long serialVersionUID = 7695540336792378185L;
 
     public ParquetStoreProperties() {
@@ -153,6 +155,14 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
 
     public void setSparkMaster(final String sparkMaster) {
         set(SPARK_MASTER, sparkMaster);
+    }
+
+    public boolean getSkipValidation() {
+        return Boolean.parseBoolean(get(PARQUET_SKIP_VALIDATION, PARQUET_SKIP_VALIDATION_DEFAULT));
+    }
+
+    public void setSkipValidation(final boolean skipValidation) {
+        set(PARQUET_SKIP_VALIDATION, String.valueOf(skipValidation));
     }
 
     @Override
