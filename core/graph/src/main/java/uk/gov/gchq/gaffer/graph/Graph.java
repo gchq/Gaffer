@@ -878,7 +878,6 @@ public final class Graph {
                         mergedStoreProperties.setId(null);
                     }
                     mergedStoreProperties.getProperties().putAll(properties.getProperties());
-                    mergedStoreProperties.setId(null);
                 }
             }
             properties = mergedStoreProperties;
