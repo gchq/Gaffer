@@ -116,8 +116,9 @@ function initExampleOperations() {
                availableOperations.sort(function(a,b){return a.split('.').pop().localeCompare(b.split('.').pop())})
                if(availableOperationsSelect && availableOperationsSelect.size() > 0 && availableOperations) {
                   $.each(availableOperations,function(index, item) {
-                      if(item.indexOf("OperationChain") === -1) {
-                        availableOperationsSelect.append('<option value=' + item + '>' + item.split('.').pop() + '</option>');
+                      var opName = item.split('.').pop();
+                      if("OperationChain" !== opName && "OperationChainDAO" !== opName) {
+                        availableOperationsSelect.append('<option value=' + item + '>' + opName + '</option>');
                       }
                   });
                }
