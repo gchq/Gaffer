@@ -51,6 +51,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 .overwrite()
                 .readAccessRoles(USER)
                 .writeAccessRoles(USER)
+                .score(0)
                 .build();
 
         // When
@@ -63,6 +64,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 "  \"description\": \"Test Named Operation\",%n" +
                 "  \"readAccessRoles\": [\"User\"],%n" +
                 "  \"writeAccessRoles\": [\"User\"],%n" +
+                "  \"score\": 0,%n" +
                 "  \"overwriteFlag\": true,%n" +
                 "  \"operationChain\": {" +
                 "  \"operations\": [{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\", \"input\": [{\"vertex\": \"seed\", \"class\": \"uk.gov.gchq.gaffer.operation.data.EntitySeed\"}]}]}" +
@@ -107,6 +109,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 .readAccessRoles(USER)
                 .writeAccessRoles(USER)
                 .parameters(parameters)
+                .score(2)
                 .build();
         String opChain = null;
         try {
@@ -123,6 +126,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         assertEquals(opChain, clone.getOperationChainAsString());
         assertEquals("Test", clone.getOperationName());
         assertEquals("Test Named Operation", clone.getDescription());
+        assertEquals(2, (int) clone.getScore());
         assertFalse(clone.isOverwriteFlag());
         assertEquals(Collections.singletonList(USER), clone.getReadAccessRoles());
         assertEquals(Collections.singletonList(USER), clone.getWriteAccessRoles());
