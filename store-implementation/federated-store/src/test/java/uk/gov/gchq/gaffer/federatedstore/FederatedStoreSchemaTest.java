@@ -22,6 +22,7 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -56,6 +57,7 @@ public class FederatedStoreSchemaTest {
 
     @Before
     public void setUp() throws Exception {
+        CacheServiceLoader.shutdown();
         ACCUMULO_PROPERTIES.setId("accProp");
         ACCUMULO_PROPERTIES.setStoreClass(MockAccumuloStore.class);
         ACCUMULO_PROPERTIES.setStorePropertiesClass(AccumuloProperties.class);

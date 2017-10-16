@@ -103,6 +103,7 @@ public class FederatedStoreTest {
 
     @Before
     public void setUp() throws Exception {
+        CacheServiceLoader.shutdown();
         store = new FederatedStore();
         federatedProperties = new FederatedStoreProperties();
         federatedProperties.setGraphAuth(ACC_ID_1, ALL_USERS);
@@ -207,7 +208,7 @@ public class FederatedStoreTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void shouldDoUnhandledOperation() throws Exception {
-            store.doUnhandledOperation(null, null);
+        store.doUnhandledOperation(null, null);
     }
 
     @Test

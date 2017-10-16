@@ -24,6 +24,7 @@ import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -66,6 +67,7 @@ public class FederatedAddGraphHandlerTest {
 
     @Before
     public void setUp() throws Exception {
+        CacheServiceLoader.shutdown();
         this.store = new FederatedStore();
         federatedStoreProperties = new FederatedStoreProperties();
         federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);

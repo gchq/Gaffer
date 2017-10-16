@@ -20,6 +20,7 @@ import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -56,6 +57,7 @@ public class FederatedStoreWrongGraphIDsTest {
 
     @Before
     public void setUp() throws Exception {
+        CacheServiceLoader.shutdown();
         fedProps = new FederatedStoreProperties();
         fedProps.setGraphIds(GRAPH_1);
         fedProps.setGraphPropId(GRAPH_1, PROP_1);

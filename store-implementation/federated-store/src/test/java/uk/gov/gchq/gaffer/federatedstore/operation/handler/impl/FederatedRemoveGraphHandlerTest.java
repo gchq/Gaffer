@@ -21,6 +21,7 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
@@ -43,6 +44,7 @@ public class FederatedRemoveGraphHandlerTest {
 
     @Before
     public void setUp() throws Exception {
+        CacheServiceLoader.shutdown();
         testUser = testUser();
     }
 

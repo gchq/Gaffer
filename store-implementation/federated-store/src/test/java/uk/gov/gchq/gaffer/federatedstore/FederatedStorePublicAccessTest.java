@@ -20,6 +20,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.store.Context;
@@ -41,6 +42,7 @@ public class FederatedStorePublicAccessTest {
 
     @Before
     public void setUp() throws Exception {
+        CacheServiceLoader.shutdown();
         fedProps = new FederatedStoreProperties();
         fedProps.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
         fedProps.setGraphIds(GRAPH_1);
