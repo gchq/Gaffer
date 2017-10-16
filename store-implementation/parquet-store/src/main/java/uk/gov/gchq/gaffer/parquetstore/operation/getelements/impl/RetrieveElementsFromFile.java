@@ -39,6 +39,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -50,7 +51,8 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
     private static final Logger LOGGER = LoggerFactory.getLogger(RetrieveElementsFromFile.class);
     private final Path filePath;
     private final FilterPredicate filter;
-    private transient byte[] jsonGafferSchema;
+    private final byte[] jsonGafferSchema;
+    private transient SchemaUtils schemaUtils;
     private final ConcurrentLinkedQueue<Element> queue;
     private transient ElementFilter elementFilter;
     private final byte[] elementDefinitionJson;
@@ -77,7 +79,8 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
         }
 
         if (user != null && user.getDataAuths() != null) {
-            this.auths = new Authorisations(user.getDataAuths().toArray(new String[user.getDataAuths().size()]));
+            final Set<String> dataAuths = user.getDataAuths();
+            this.auths = new Authorisations(dataAuths.toArray(new String[dataAuths.size()]));
         } else {
             this.auths = new Authorisations();
         }
@@ -98,6 +101,9 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
     public OperationException call() throws Exception {
         if (null == elementFilter) {
             elementFilter = new ViewElementDefinition.Builder().json(elementDefinitionJson).build().getPreAggregationFilter();
+        }
+        if (null == schemaUtils) {
+            schemaUtils = new SchemaUtils(Schema.fromJson(jsonGafferSchema));
         }
         try {
             final ParquetReader<Element> fileReader = openParquetReader();
@@ -142,7 +148,6 @@ public class RetrieveElementsFromFile implements Callable<OperationException> {
     }
 
     private ParquetReader<Element> openParquetReader() throws IOException {
-        final SchemaUtils schemaUtils = new SchemaUtils(Schema.fromJson(jsonGafferSchema));
         final boolean isEntity = schemaUtils.getEntityGroups().contains(group);
         final GafferGroupObjectConverter converter = schemaUtils.getConverter(group);
         LOGGER.debug("Opening a new Parquet reader for file: {}", filePath);
