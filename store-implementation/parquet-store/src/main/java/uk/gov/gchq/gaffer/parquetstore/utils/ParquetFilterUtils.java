@@ -181,12 +181,10 @@ public final class ParquetFilterUtils {
             // Build up the path to filters based on the seeds, then validation and then apply the view (group) filters
             for (final String edgeGroup : edgeGroups) {
                 buildSeedFilter(edgeGroup, false);
-                applyGroupValidationFilter(edgeGroup);
                 applyGroupFilter(edgeGroup, false);
             }
             for (final String entityGroup : entityGroups) {
                 buildSeedFilter(entityGroup, true);
-                applyGroupValidationFilter(entityGroup);
                 applyGroupFilter(entityGroup, true);
             }
         }
@@ -320,7 +318,6 @@ public final class ParquetFilterUtils {
                 if (seedMatchingType != SeedMatching.SeedMatchingType.EQUAL) {
                     // Vertex = source of edge seed or Vertex = destination of edge seed
                     filter = addIsEqualFilter(ParquetStoreConstants.VERTEX, currentSeed, group, true).getFirst();
-//                    filter = orFilter(filter, addIsEqualFilter(ParquetStoreConstants.VERTEX, parts.getFirst(), group, true).getFirst());
                 }
             }
         } else {
@@ -502,7 +499,7 @@ public final class ParquetFilterUtils {
             } else {
                 if (selectBefore && !foundGivenPaths) {
                     paths.add(currentPath);
-                } else if (!selectBefore && !foundGivenPaths) {
+                } else if (!selectBefore && foundGivenPaths) {
                     paths.add(currentPath);
                 }
             }
@@ -512,7 +509,12 @@ public final class ParquetFilterUtils {
 
     private void applyGroupValidationFilter(final String group) throws SerialisationException {
         if (!skipValidation && (seeds == null || !pathToFilterMap.isEmpty())) {
-            applyGroupFilter(group, buildGroupValidatorFilter(group));
+            final Pair<FilterPredicate, Set<Path>> validationFilter = buildGroupValidatorFilter(group);
+            for (final Map.Entry<Path, FilterPredicate> entry : pathToFilterMap.entrySet()) {
+                if (entry.getKey().toString().contains(group)) {
+                    pathToFilterMap.put(entry.getKey(), andFilter(validationFilter.getFirst(), entry.getValue()));
+                }
+            }
         }
     }
 
@@ -613,12 +615,13 @@ public final class ParquetFilterUtils {
                         return new Pair<>(filter, aFilePaths);
                     }
                 } else {
+                    final Set<Path> filePaths = new HashSet<>();
                     for (final Path filePath : aFilePaths) {
-                        if (!bFilePaths.contains(filePath)) {
-                            aFilePaths.remove(filePath);
+                        if (bFilePaths.contains(filePath)) {
+                            filePaths.add(filePath);
                         }
                     }
-                    return new Pair<>(filter, aFilePaths);
+                    return new Pair<>(filter, filePaths);
                 }
             }
         }
@@ -669,7 +672,7 @@ public final class ParquetFilterUtils {
         if (null != validationFunctions) {
             for (final TupleAdaptedPredicate<String, ?> filterFunctionContext : validationFunctions) {
                 final Pair<FilterPredicate, Set<Path>> filter = buildFilter(filterFunctionContext.getPredicate(), filterFunctionContext.getSelection(), group);
-                groupFilter = andFilter(groupFilter, filter, filterFunctionContext.getSelection().length > 0);
+                groupFilter = andFilter(groupFilter, filter, filterFunctionContext.getSelection().length > 1);
             }
         }
         return groupFilter;
@@ -692,7 +695,7 @@ public final class ParquetFilterUtils {
             if (null != preAggFilterFunctions) {
                 for (final TupleAdaptedPredicate<String, ?> filterFunctionContext : preAggFilterFunctions) {
                     final Pair<FilterPredicate, Set<Path>> filter = buildFilter(filterFunctionContext.getPredicate(), filterFunctionContext.getSelection(), group);
-                    groupFilter = andFilter(groupFilter, filter, filterFunctionContext.getSelection().length > 0);
+                    groupFilter = andFilter(groupFilter, filter, filterFunctionContext.getSelection().length > 1);
                 }
             }
         }
@@ -711,7 +714,14 @@ public final class ParquetFilterUtils {
                 groupFilter = new Pair<>(directedFilter, getAllPathsForColumn(group));
             }
         }
-        return groupFilter;
+        final Pair<FilterPredicate, Set<Path>> groupValidationFilter = buildGroupValidatorFilter(group);
+        if (null != groupFilter && null != groupValidationFilter) {
+            return new Pair<>(andFilter(groupFilter.getFirst(), buildGroupValidatorFilter(group).getFirst()), groupFilter.getSecond());
+        } else if (null != groupFilter) {
+            return groupFilter;
+        } else {
+            return groupValidationFilter;
+        }
     }
 
     /**
@@ -774,7 +784,7 @@ public final class ParquetFilterUtils {
                                                          final String[] selection,
                                                          final String group) throws SerialisationException {
         Pair<FilterPredicate, Set<Path>> filter = null;
-        final boolean multiSelection = selection.length > 0;
+        final boolean multiSelection = selection.length > 1;
         for (final Predicate functionContext : predicateList) {
             final Predicate filterFunction;
             final String[] newSelections;
@@ -814,7 +824,7 @@ public final class ParquetFilterUtils {
                 filterFunction = functionContext;
                 newSelections = selection;
             }
-            filter = andFilter(filter, buildFilter(filterFunction, newSelections, group), selection.length > 0);
+            filter = andFilter(filter, buildFilter(filterFunction, newSelections, group), selection.length > 1);
         }
         return filter;
     }
@@ -998,8 +1008,8 @@ public final class ParquetFilterUtils {
         if (null == filePaths) {
             return new Pair<>(filter, getAllPathsForColumn(group));
         } else {
-            final Set<Path> moreThanFilePaths = getAllPathsForColumnBeforeOrAfterGivenPaths(colName, group, filePaths, true);
-            return new Pair<>(filter, moreThanFilePaths);
+            final Set<Path> lessThanFilePaths = getAllPathsForColumnBeforeOrAfterGivenPaths(colName, group, filePaths, true);
+            return new Pair<>(filter, lessThanFilePaths);
         }
     }
 
@@ -1048,8 +1058,8 @@ public final class ParquetFilterUtils {
         if (null == filePaths) {
             return new Pair<>(filter, getAllPathsForColumn(group));
         } else {
-            final Set<Path> moreThanFilePaths = getAllPathsForColumnBeforeOrAfterGivenPaths(colName, group, filePaths, true);
-            return new Pair<>(filter, moreThanFilePaths);
+            final Set<Path> lessThanFilePaths = getAllPathsForColumnBeforeOrAfterGivenPaths(colName, group, filePaths, true);
+            return new Pair<>(filter, lessThanFilePaths);
         }
     }
 
