@@ -89,7 +89,6 @@ public class FederatedStoreCache {
      * Delete the {@link uk.gov.gchq.gaffer.graph.Graph} related to the specified ID from the cache.
      *
      * @param graphId the ID of the {@link uk.gov.gchq.gaffer.graph.Graph} to be deleted
-     * @throws CacheOperationException if there was an error trying to delete from the cache
      */
     public void deleteFromCache(final String graphId)  {
         CacheServiceLoader.getService().removeFromCache(CACHE_SERVICE_NAME, graphId);

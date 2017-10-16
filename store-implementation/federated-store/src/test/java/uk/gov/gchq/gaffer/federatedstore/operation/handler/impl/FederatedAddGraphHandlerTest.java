@@ -19,15 +19,11 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.BDDMockito;
-import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
-import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
@@ -39,6 +35,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
+import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -155,10 +152,9 @@ public class FederatedAddGraphHandlerTest {
         assertEquals(EXPECTED_GRAPH_ID, next.getGraphId());
         assertEquals(expectedSchema, next.getSchema());
 
-        final GraphLibrary mock = Mockito.mock(GraphLibrary.class);
-        BDDMockito.given(mock.get(EXPECTED_GRAPH_ID_2)).willReturn(new Pair<>(expectedSchema, storeProperties));
-        BDDMockito.given(mock.exists(EXPECTED_GRAPH_ID_2)).willReturn(true);
-        store.setGraphLibrary(mock);
+        final GraphLibrary library = new HashMapGraphLibrary();
+        library.add(EXPECTED_GRAPH_ID_2,expectedSchema,storeProperties);
+        store.setGraphLibrary(library);
 
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
@@ -178,8 +174,6 @@ public class FederatedAddGraphHandlerTest {
 
         assertTrue(set.contains(EXPECTED_GRAPH_ID));
         assertTrue(set.contains(EXPECTED_GRAPH_ID_2));
-
-        Mockito.verify(mock, Mockito.times(3)).get(EXPECTED_GRAPH_ID_2);
     }
 
     @Test
@@ -212,8 +206,8 @@ public class FederatedAddGraphHandlerTest {
                             .build(),
                     new Context(testUser),
                     store);
-        } catch (final OverwritingException e) {
-            assertEquals(String.format(USER_IS_ATTEMPTING_TO_OVERWRITE, EXPECTED_GRAPH_ID), e.getMessage());
+        } catch (final Exception e) {
+            assertEquals(String.format(USER_IS_ATTEMPTING_TO_OVERWRITE, EXPECTED_GRAPH_ID), e.getCause().getMessage());
         }
 
     }

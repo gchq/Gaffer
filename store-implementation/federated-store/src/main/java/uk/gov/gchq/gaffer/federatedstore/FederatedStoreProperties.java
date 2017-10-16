@@ -171,6 +171,11 @@ public class FederatedStoreProperties extends StoreProperties {
         GraphConfigEnum(final String value) {
             this.value = value;
         }
+
+        @Override
+        public String toString() {
+            return value;
+        }
     }
 
     /**
@@ -183,6 +188,11 @@ public class FederatedStoreProperties extends StoreProperties {
 
         LocationEnum(final String value) {
             this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
         }
     }
 

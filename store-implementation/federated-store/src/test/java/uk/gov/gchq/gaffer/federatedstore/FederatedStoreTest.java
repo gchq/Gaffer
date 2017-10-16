@@ -32,6 +32,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.GraphConfigEnum;
 import uk.gov.gchq.gaffer.federatedstore.integration.FederatedStoreITs;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
@@ -64,7 +65,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStore.ERROR_ADDING_GRAPH_TO_CACHE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStore.S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.TEST_USER;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.authUser;
@@ -151,7 +152,7 @@ public class FederatedStoreTest {
             store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
             fail(EXCEPTION_NOT_THROWN);
         } catch (final IllegalArgumentException e) {
-            assertEquals(String.format(S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2, "Schema", "graphId: " + MAP_ID_1 + " schemaPath: " + PATH_INVALID), e.getMessage());
+            assertEquals(String.format(S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2, "Schema", "GraphId: " + MAP_ID_1 + " schemaPath: " + PATH_INVALID), e.getMessage());
         }
     }
 
@@ -167,7 +168,7 @@ public class FederatedStoreTest {
             store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
             fail(EXCEPTION_NOT_THROWN);
         } catch (final IllegalArgumentException e) {
-            assertEquals(String.format(S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2, "Property", "graphId: " + MAP_ID_1 + " propertyPath: " + PATH_INVALID), e.getMessage());
+            assertEquals(String.format(S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2, "Property", "GraphId: " + MAP_ID_1 + " propertyPath: " + PATH_INVALID), e.getMessage());
         }
     }
 
@@ -202,7 +203,7 @@ public class FederatedStoreTest {
                     .build());
             fail(EXCEPTION_NOT_THROWN);
         } catch (final Exception e) {
-            assertEquals(String.format(USER_IS_ATTEMPTING_TO_OVERWRITE, ACC_ID_1), e.getMessage());
+            assertEquals(String.format(ERROR_ADDING_GRAPH_TO_CACHE, GraphConfigEnum.SCHEMA, ACC_ID_1), e.getMessage());
         }
     }
 
@@ -1051,16 +1052,15 @@ public class FederatedStoreTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenInitialisedWithNoCacheClassInProperties() throws StoreException {
+    public void shouldNotThrowExceptionWhenInitialisedWithNoCacheClassInProperties() throws StoreException {
         // Given
         StoreProperties storeProperties = new StoreProperties();
 
         // When / Then
         try {
             store.initialise(FEDERATED_STORE_ID, null, storeProperties);
-            fail(EXCEPTION_NOT_THROWN);
         } catch (final StoreException e) {
-            assertTrue(e.getMessage().contains("No cache has been set, please check the property"));
+            fail("FederatedStore does not have to have a cache.");
         }
     }
 

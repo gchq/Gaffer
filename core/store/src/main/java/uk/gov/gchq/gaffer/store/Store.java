@@ -134,11 +134,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * A {@code Store} backs a Graph and is responsible for storing the {@link uk.gov.gchq.gaffer.data.element.Element}s and
+ * A {@code Store} backs a Graph and is responsible for storing the {@link
+ * uk.gov.gchq.gaffer.data.element.Element}s and
  * handling {@link Operation}s.
- * {@link Operation}s and their corresponding {@link OperationHandler}s are registered in a map and used to handle
- * provided operations - allowing different store implementations to handle the same operations in their own store specific way.
- * Optional functionality can be added to store implementations defined by the {@link uk.gov.gchq.gaffer.store.StoreTrait}s.
+ * {@link Operation}s and their corresponding {@link OperationHandler}s are
+ * registered in a map and used to handle
+ * provided operations - allowing different store implementations to handle the
+ * same operations in their own store specific way.
+ * Optional functionality can be added to store implementations defined by the
+ * {@link uk.gov.gchq.gaffer.store.StoreTrait}s.
  */
 public abstract class Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(Store.class);
@@ -148,12 +152,14 @@ public abstract class Store {
     protected final OperationChainValidator opChainValidator;
     private final SchemaOptimiser schemaOptimiser;
     /**
-     * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to aggregate the elements.
+     * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s
+     * to be stored and how to aggregate the elements.
      */
     private Schema schema;
 
     /**
-     * The store properties - contains specific configuration information for the store - such as database connection strings.
+     * The store properties - contains specific configuration information for
+     * the store - such as database connection strings.
      */
     private StoreProperties properties;
 
@@ -175,7 +181,7 @@ public abstract class Store {
 
     public static Store createStore(final String graphId, final Schema schema, final StoreProperties storeProperties) {
         if (null == storeProperties) {
-            throw new IllegalArgumentException("Store properties are required to create a store");
+            throw new IllegalArgumentException("Store properties are required to create a store. graphId: " + graphId);
         }
 
         final String storeClass = storeProperties.getStoreClass();
@@ -221,7 +227,8 @@ public abstract class Store {
     }
 
     /**
-     * Returns true if the Store can handle the provided trait and false if it cannot.
+     * Returns true if the Store can handle the provided trait and false if it
+     * cannot.
      *
      * @param storeTrait the Class of the Processor to be checked.
      * @return true if the Processor can be handled and false if it cannot.
@@ -232,9 +239,11 @@ public abstract class Store {
     }
 
     /**
-     * Returns the {@link uk.gov.gchq.gaffer.store.StoreTrait}s for this store. Most stores should support FILTERING.
+     * Returns the {@link uk.gov.gchq.gaffer.store.StoreTrait}s for this store.
+     * Most stores should support FILTERING.
      * <p>
-     * If you use Operation.validateFilter(Element) in you handlers, it will deal with the filtering for you.
+     * If you use Operation.validateFilter(Element) in you handlers, it will
+     * deal with the filtering for you.
      * </p>
      *
      * @return the {@link uk.gov.gchq.gaffer.store.StoreTrait}s for this store.
@@ -246,7 +255,8 @@ public abstract class Store {
      *
      * @param operation the operation to execute.
      * @param context   the context executing the operation
-     * @throws OperationException thrown by the operation handler if the operation fails.
+     * @throws OperationException thrown by the operation handler if the
+     *                            operation fails.
      */
     public void execute(final Operation operation, final Context context) throws OperationException {
         execute(OperationChain.wrap(operation), context);
@@ -259,7 +269,8 @@ public abstract class Store {
      * @param context   the context executing the operation
      * @param <O>       the output type of the operation
      * @return the result of executing the operation
-     * @throws OperationException thrown by the operation handler if the operation fails.
+     * @throws OperationException thrown by the operation handler if the
+     *                            operation fails.
      */
     public <O> O execute(final Output<O> operation, final Context context) throws OperationException {
         return execute(OperationChain.wrap(operation), context);
@@ -375,8 +386,10 @@ public abstract class Store {
     }
 
     /**
-     * Ensures all identifier and property values are populated on an element by triggering getters on the element for
-     * all identifier and properties in the {@link Schema} forcing a lazy element to load all of its values.
+     * Ensures all identifier and property values are populated on an element by
+     * triggering getters on the element for
+     * all identifier and properties in the {@link Schema} forcing a lazy
+     * element to load all of its values.
      *
      * @param lazyElement the lazy element
      * @return the fully populated unwrapped element
@@ -407,7 +420,8 @@ public abstract class Store {
      * Get this Store's {@link Schema}.
      *
      * @return the instance of {@link Schema} used for describing the type of
-     * {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to aggregate the elements.
+     * {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to
+     * aggregate the elements.
      */
     public Schema getSchema() {
         return schema;
@@ -416,7 +430,8 @@ public abstract class Store {
     /**
      * Get this Store's {@link uk.gov.gchq.gaffer.store.StoreProperties}.
      *
-     * @return the instance of {@link uk.gov.gchq.gaffer.store.StoreProperties}, this may contain details such as database connection details.
+     * @return the instance of {@link uk.gov.gchq.gaffer.store.StoreProperties},
+     * this may contain details such as database connection details.
      */
     public StoreProperties getProperties() {
         return properties;
@@ -493,7 +508,8 @@ public abstract class Store {
     }
 
     /**
-     * Throws a {@link SchemaException} if the Vertex Serialiser is inconsistent.
+     * Throws a {@link SchemaException} if the Vertex Serialiser is
+     * inconsistent.
      */
     protected void validateConsistentVertex() {
         if (null != getSchema().getVertexSerialiser() && !getSchema().getVertexSerialiser()
@@ -503,7 +519,8 @@ public abstract class Store {
     }
 
     /**
-     * Ensures that each of the GroupBy properties in the {@link SchemaElementDefinition} is consistent,
+     * Ensures that each of the GroupBy properties in the {@link
+     * SchemaElementDefinition} is consistent,
      * otherwise an error is added to the {@link ValidationResult}.
      *
      * @param schemaElementDefinitionEntry A map of SchemaElementDefinitions
@@ -571,26 +588,34 @@ public abstract class Store {
     }
 
     /**
-     * Any additional operations that a store can handle should be registered in this method by calling addOperationHandler(...)
+     * Any additional operations that a store can handle should be registered in
+     * this method by calling addOperationHandler(...)
      */
     protected abstract void addAdditionalOperationHandlers();
 
     /**
-     * Get this Stores implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.get.GetElements}. All Stores must implement this.
+     * Get this Stores implementation of the handler for {@link
+     * uk.gov.gchq.gaffer.operation.impl.get.GetElements}. All Stores must
+     * implement this.
      *
-     * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.get.GetElements}
+     * @return the implementation of the handler for {@link
+     * uk.gov.gchq.gaffer.operation.impl.get.GetElements}
      */
     protected abstract OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler();
 
     /**
-     * Get this Stores implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.get.GetAllElements}. All Stores must implement this.
+     * Get this Stores implementation of the handler for {@link
+     * uk.gov.gchq.gaffer.operation.impl.get.GetAllElements}. All Stores must
+     * implement this.
      *
-     * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.get.GetAllElements}
+     * @return the implementation of the handler for {@link
+     * uk.gov.gchq.gaffer.operation.impl.get.GetAllElements}
      */
     protected abstract OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler();
 
     /**
-     * Get this Stores implementation of the handler for {@link GetAdjacentIds}.
+     * Get this Stores implementation of the handler for {@link
+     * GetAdjacentIds}.
      * All Stores must implement this.
      *
      * @return the implementation of the handler for {@link GetAdjacentIds}
@@ -598,18 +623,22 @@ public abstract class Store {
     protected abstract OutputOperationHandler<? extends GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler();
 
     /**
-     * Get this Stores implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.add.AddElements}.
+     * Get this Stores implementation of the handler for {@link
+     * uk.gov.gchq.gaffer.operation.impl.add.AddElements}.
      * All Stores must implement this.
      *
-     * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.add.AddElements}
+     * @return the implementation of the handler for {@link
+     * uk.gov.gchq.gaffer.operation.impl.add.AddElements}
      */
     protected abstract OperationHandler<? extends AddElements> getAddElementsHandler();
 
     /**
-     * Get this Store's implementation of the handler for {@link uk.gov.gchq.gaffer.operation.OperationChain}.
+     * Get this Store's implementation of the handler for {@link
+     * uk.gov.gchq.gaffer.operation.OperationChain}.
      * All Stores must implement this.
      *
-     * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.OperationChain}
+     * @return the implementation of the handler for {@link
+     * uk.gov.gchq.gaffer.operation.OperationChain}
      */
     protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
         return new OperationChainHandler<>(opChainValidator, opChainOptimisers);
@@ -625,7 +654,8 @@ public abstract class Store {
     protected abstract Class<? extends Serialiser> getRequiredParentSerialiserClass();
 
     /**
-     * Should deal with any unhandled operations, simply throws an {@link UnsupportedOperationException}.
+     * Should deal with any unhandled operations, simply throws an {@link
+     * UnsupportedOperationException}.
      *
      * @param operation the operation that does not have a registered handler.
      * @param context   operation execution context

@@ -23,7 +23,6 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
-import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.Context;
@@ -110,13 +109,9 @@ public class FederatedStoreSchemaTest {
                     .build()), TEST_CONTEXT);
         } catch (final Exception e) {
             addingGraphBWasSuccessful = false;
-            if (e instanceof SchemaException) {
                 assertEquals("Element group properties cannot be defined in different" +
                         " schema parts, they must all be defined in a single " +
-                        "schema part. Please fix this group: e1", e.getMessage());
-            } else {
-                throw e;
-            }
+                        "schema part. Please fix this group: e1", e.getCause().getMessage());
         }
 
         try {
