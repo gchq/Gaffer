@@ -105,4 +105,11 @@ public interface IGraphConfigurationServiceV2 {
             @ApiResponse(code = 404, message = CLASS_NOT_FOUND),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
     Response getSerialisedFields(@ApiParam(value = "a java class name") @PathParam("className") final String className);
+
+    @GET
+    @Path("/description")
+    @ApiOperation(value = "Gets the Graph description", response = String.class, produces = APPLICATION_JSON)
+    @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
+            @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
+    Response getDescription();
 }
