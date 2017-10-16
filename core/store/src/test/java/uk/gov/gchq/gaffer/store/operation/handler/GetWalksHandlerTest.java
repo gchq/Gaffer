@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.impl.Path;
+import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
 import java.util.Collections;
@@ -35,7 +35,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.fail;
 
-public class PathHandlerTest {
+public class GetWalksHandlerTest {
 
     @Test
     public void shouldHandleNullInput() throws Exception {
@@ -45,14 +45,14 @@ public class PathHandlerTest {
                         .edge(TestGroups.EDGE)
                         .build())
                 .build();
-        final Path operation = new Path.Builder()
+        final GetWalks operation = new GetWalks.Builder()
                 .operations(operations)
                 .build();
 
-        final PathHandler handler = new PathHandler();
+        final GetWalksHandler handler = new GetWalksHandler();
 
         // When
-        final Iterable<Iterable<Edge>> result = handler.doOperation(operation, null, null);
+        final Iterable<List<Edge>> result = handler.doOperation(operation, null, null);
 
         // Then
         assertThat(result, is(nullValue()));
@@ -67,15 +67,15 @@ public class PathHandlerTest {
                         .edge(TestGroups.EDGE)
                         .build())
                 .build();
-        final Path operation = new Path.Builder()
+        final GetWalks operation = new GetWalks.Builder()
                 .input(input)
                 .operations(operations)
                 .build();
 
-        final PathHandler handler = new PathHandler();
+        final GetWalksHandler handler = new GetWalksHandler();
 
         // When
-        final Iterable<Iterable<Edge>> result = handler.doOperation(operation, null, null);
+        final Iterable<List<Edge>> result = handler.doOperation(operation, null, null);
 
         // Then
         assertThat(result, is(nullValue()));
@@ -86,15 +86,15 @@ public class PathHandlerTest {
         // Given
         final EntitySeed input = new EntitySeed("A");
         final Iterable<GetElements> operations = null;
-        final Path operation = new Path.Builder()
+        final GetWalks operation = new GetWalks.Builder()
                 .input(input)
                 .operations(operations)
                 .build();
 
-        final PathHandler handler = new PathHandler();
+        final GetWalksHandler handler = new GetWalksHandler();
 
         // When
-        final Iterable<Iterable<Edge>> result = handler.doOperation(operation, null, null);
+        final Iterable<List<Edge>> result = handler.doOperation(operation, null, null);
 
         // Then
         assertThat(result, is(nullValue()));
@@ -109,16 +109,16 @@ public class PathHandlerTest {
                         .entity(TestGroups.ENTITY)
                         .build())
                 .build();
-        final Path operation = new Path.Builder()
+        final GetWalks operation = new GetWalks.Builder()
                 .input(input)
                 .operations(operations)
                 .build();
 
-        final PathHandler handler = new PathHandler();
+        final GetWalksHandler handler = new GetWalksHandler();
 
         // When
         try {
-            final Iterable<Iterable<Edge>> result = handler.doOperation(operation, null, null);
+            final Iterable<List<Edge>> result = handler.doOperation(operation, null, null);
 
             fail("Expected exception not thrown.");
         } catch (final OperationException e) {

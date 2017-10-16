@@ -31,7 +31,7 @@ import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
-import uk.gov.gchq.gaffer.operation.impl.Path;
+import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -79,7 +79,7 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
                         .build()).inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
                 .build();
 
-        final Path op = new Path.Builder()
+        final GetWalks op = new GetWalks.Builder()
                 .input(seed)
                 .operations(operation, operation)
                 .build();
@@ -108,7 +108,7 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
                         .build()).inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
                 .build();
 
-        final Path op = new Path.Builder()
+        final GetWalks op = new GetWalks.Builder()
                 .input(seed1, seed2)
                 .operations(operation, operation)
                 .build();
@@ -139,7 +139,7 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
                         .build()).inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
                 .build();
 
-        final Path op = new Path.Builder()
+        final GetWalks op = new GetWalks.Builder()
                 .input(seed)
                 .operations(operation, operation)
                 .build();
@@ -171,7 +171,7 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
                         .build()).inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
                 .build();
 
-        final Path op = new Path.Builder()
+        final GetWalks op = new GetWalks.Builder()
                 .input(seed1, seed2)
                 .operations(operation, operation)
                 .build();
@@ -202,7 +202,7 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
                         .build()).inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
                 .build();
 
-        final Path op = new Path.Builder()
+        final GetWalks op = new GetWalks.Builder()
                 .input(seed)
                 .operations(operation, operation, operation)
                 .build();
@@ -233,7 +233,7 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
                         .build()).inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
                 .build();
 
-        final Path op = new Path.Builder()
+        final GetWalks op = new GetWalks.Builder()
                 .input(seed)
                 .operations(operation, operation, operation, operation)
                 .build();

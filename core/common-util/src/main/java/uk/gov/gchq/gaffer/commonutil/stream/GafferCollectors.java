@@ -16,7 +16,9 @@
 package uk.gov.gchq.gaffer.commonutil.stream;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.LimitedInMemorySortedIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -84,6 +86,36 @@ public final class GafferCollectors {
         return new GafferCollectorImpl<>(
                 () -> new LimitedInMemorySortedIterable<>(comparator, limit, deduplicate),
                 LimitedInMemorySortedIterable::add,
+                (left, right) -> {
+                    left.addAll(right);
+                    return left;
+                }
+        );
+    }
+
+    /**
+     * <p>
+     * Returns a {@link java.util.stream.Collector} that accumulates the input
+     * items into a {@link LimitedInMemorySortedIterable}.
+     * </p>
+     * <p>
+     * The usage of a {@link LimitedInMemorySortedIterable}
+     * ensures that only relevant results are stored in memory, as the output is
+     * built up incrementally.
+     * </p>
+     *
+     * @param comparator  the {@link java.util.Comparator} to use when comparing
+     *                    items
+     * @param limit       the maximum number of items to collect
+     * @param deduplicate true if the results should be deduplicated based the items hashcode/equals methods
+     * @param <T>         the type of input items
+     * @return a {@link java.util.stream.Collector} which collects all the input
+     * elements into a {@link LimitedInMemorySortedIterable}
+     */
+    public static <T> Collector<T, ?, WrappedCloseableIterable<T>> toWrappedCloseableIterable() {
+        return new GafferCollectorImpl<>(
+                ArrayList::new,
+                ArrayList::add,
                 (left, right) -> {
                     left.addAll(right);
                     return left;

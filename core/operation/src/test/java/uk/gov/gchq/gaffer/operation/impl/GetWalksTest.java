@@ -36,26 +36,54 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
 import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
 
-public class PathTest extends OperationTest<Path> {
+public class GetWalksTest extends OperationTest<GetWalks> {
 
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
-        final Path path = new Path.Builder()
+        final GetWalks getWalks = new GetWalks.Builder()
                 .input(new EntitySeed("1"), new EntitySeed("2"))
                 .operations(new GetElements())
                 .build();
 
         // Then
-        assertThat(path.getInput(), is(notNullValue()));
-        assertThat(path.getInput(), iterableWithSize(2));
-        assertThat(path.getOperations(), iterableWithSize(1));
-        assertThat(path.getInput(), containsInAnyOrder(new EntitySeed("1"), new EntitySeed("2")));
+        assertThat(getWalks.getInput(), is(notNullValue()));
+        assertThat(getWalks.getInput(), iterableWithSize(2));
+        assertThat(getWalks.getOperations(), iterableWithSize(1));
+        assertThat(getWalks.getInput(), containsInAnyOrder(new EntitySeed("1"), new EntitySeed("2")));
+    }
+
+    @Test
+    public void shouldValidateOperationWhenNoOperationsProvided() {
+        // Given
+        final GetWalks getWalks = new GetWalks.Builder()
+                .input(new EntitySeed("1"), new EntitySeed("2"))
+                .build();
+
+        // Then
+        assertFalse(getWalks.validate().isValid());
+    }
+
+    @Test
+    public void shouldValidateOperationWhenOperationContainsInvalidView() {
+        // Given
+        final GetWalks getWalks = new GetWalks.Builder()
+                .input(new EntitySeed("1"), new EntitySeed("2"))
+                .operations(new GetElements.Builder()
+                        .view(new View.Builder()
+                                .entity(TestGroups.ENTITY)
+                                .build())
+                        .build())
+                .build();
+
+        // Then
+        assertFalse(getWalks.validate().isValid());
     }
 
     @Override
@@ -63,16 +91,16 @@ public class PathTest extends OperationTest<Path> {
         // Given
         final List<EntitySeed> input = Lists.newArrayList(new EntitySeed("1"), new EntitySeed("2"));
         final List<GetElements> operations = Lists.newArrayList(new GetElements());
-        final Path path = new Path.Builder()
+        final GetWalks getWalks = new GetWalks.Builder()
                 .input(input)
                 .operations(operations)
                 .build();
 
         // When
-        final Path clone = path.shallowClone();
+        final GetWalks clone = getWalks.shallowClone();
 
         // Then
-        assertNotSame(path, clone);
+        assertNotSame(getWalks, clone);
         assertEquals(input, Lists.newArrayList(clone.getInput()));
         assertEquals(operations, clone.getOperations());
     }
@@ -80,7 +108,7 @@ public class PathTest extends OperationTest<Path> {
     @Test
     public void shouldSerialiseToJson() throws JsonProcessingException {
         // Given
-        final Path path = new Path.Builder()
+        final GetWalks getWalks = new GetWalks.Builder()
                 .input(new EntitySeed("1"))
                 .operations(new GetElements.Builder()
                         .input(new EntitySeed("1"))
@@ -94,14 +122,14 @@ public class PathTest extends OperationTest<Path> {
 
         // When
         final ObjectMapper mapper = createDefaultMapper();
-        final String jsonString = mapper.writeValueAsString(path);
+        final String jsonString = mapper.writeValueAsString(getWalks);
 
         // Then
         System.out.println(jsonString);
     }
 
     @Override
-    protected Path getTestObject() {
-        return new Path();
+    protected GetWalks getTestObject() {
+        return new GetWalks.Builder().operations(new GetElements.Builder().view(new View.Builder().edge(TestGroups.EDGE).build()).build()).build();
     }
 }

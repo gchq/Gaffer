@@ -17,18 +17,19 @@
 package uk.gov.gchq.gaffer.store.operation.handler;
 
 import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
+import uk.gov.gchq.gaffer.commonutil.stream.GafferCollectors;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
+import uk.gov.gchq.gaffer.data.Walk;
 import uk.gov.gchq.gaffer.data.element.Edge;
-import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.impl.Path;
+import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
@@ -43,17 +44,17 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
-public class PathHandler implements OutputOperationHandler<Path, Iterable<Iterable<Edge>>> {
+public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterable<Walk>> {
 
-    private final Set<EntitySeed> visitedSeeds = new HashSet<>();
+    private final Set<Object> visitedSeeds = new HashSet<>();
     private int pathVertices;
     private int hops;
 
     @Override
-    public Iterable<Iterable<Edge>> doOperation(final Path operation, final Context context, final Store store) throws OperationException {
+    public Iterable<Walk> doOperation(final GetWalks operation, final Context context, final Store store) throws OperationException {
 
         // Check input
-        if (null == operation.getInput() || !operation.getInput().iterator().hasNext()) {
+        if (null == operation.getInput()) {
             return null;
         }
 
@@ -61,17 +62,12 @@ public class PathHandler implements OutputOperationHandler<Path, Iterable<Iterab
         final Iterable<GetElements> operations = operation.getOperations();
 
         if (null == operations || Iterables.isEmpty(operations)) {
-            return null;
+            return new EmptyClosableIterable<>();
         }
 
-        // Validate the View objects
-        for (final GetElements op : operations) {
-            if (null != op.getView() && op.getView().hasEntities()) {
-                throw new OperationException("The view for operation " + op + " must not contain Entities.");
-            }
-        }
-
-        Iterable<? extends EntitySeed> seeds = operation.getInput();
+        Iterable<Object> seeds = Streams.toStream(operation.getInput())
+                .map(EntitySeed::getVertex)
+                .collect(GafferCollectors.toWrappedCloseableIterable());
 
         hops = Iterables.size(operation.getOperations());
         pathVertices = hops + 1;
@@ -84,17 +80,15 @@ public class PathHandler implements OutputOperationHandler<Path, Iterable<Iterab
             final Set<EntitySeed> opSeeds = difference(visitedSeeds, Sets.newHashSet(seeds));
 
             op.setInput(opSeeds);
-            final Iterable<? extends Element> results = store.execute(op, context);
+            final Iterable<Edge> results = (Iterable<Edge>) store.execute(op, context);
             visitedSeeds.addAll(opSeeds);
 
             // Cache results
-            Lists.newArrayList(results).stream()
-                    .map(e -> (Edge) e)
+            Streams.toStream(results)
                     .forEach(e -> {
                         if (null != edgeTable.get(e.getMatchedVertexValue(), e.getAdjacentMatchedVertexValue())) {
                             final Set<Edge> set = edgeTable.get(e.getMatchedVertexValue(), e.getAdjacentMatchedVertexValue());
                             set.add(e);
-                            edgeTable.put(e.getMatchedVertexValue(), e.getAdjacentMatchedVertexValue(), set);
                         } else {
                             final Set<Edge> set = new HashSet<>();
                             set.add(e);
@@ -116,7 +110,6 @@ public class PathHandler implements OutputOperationHandler<Path, Iterable<Iterab
 
         // Track/recombine the edge objects and convert to return type
         return Streams.toStream(operation.getInput())
-                .map(seed -> seed.getVertex())
                 .map(seed -> doPath(seed, edgeTable, new Stack<>()))
                 .flatMap(List::stream)
                 .map(path -> explodePath(path, edgeTable, new ArrayList<>()))
@@ -124,8 +117,8 @@ public class PathHandler implements OutputOperationHandler<Path, Iterable<Iterab
                 .collect(Collectors.toList());
     }
 
-    private <T> List<List<Edge>> explodePath(final List<T> path, final HashBasedTable<?, ?, Set<Edge>> graph, final List<Edge> edges) {
-        final List<List<Edge>> paths = new ArrayList<>();
+    private <T> List<Walk<Edge, Entity>> explodePath(final List<T> path, final HashBasedTable<?, ?, Set<Edge>> graph, final List<Edge> edges) {
+        final List<Walk<Edge, Entity>> paths = new ArrayList<>();
 
         if (path.isEmpty()) {
             paths.add(edges);
@@ -151,25 +144,27 @@ public class PathHandler implements OutputOperationHandler<Path, Iterable<Iterab
         return paths;
     }
 
-    private <T, U> List<List<T>> doPath(final T source, final HashBasedTable<T, T, ?> graph, final Stack<T> path) {
-        final List<List<T>> paths = new ArrayList<>();
+    private <T, U> List<Walk<Edge, Entity>> doPath(final T source, final HashBasedTable<T, T, ?> graph, final Stack<T> path) {
+        final List<Walk<Void, Void>> walks = new ArrayList<>();
 
         path.push(source);
 
         if (pathVertices == path.size()) {
-            paths.add(new ArrayList<>(path));
+            walks.add(new Walk(path));
         } else {
             for (final T obj : graph.row(source).keySet()) {
-                paths.addAll(new ArrayList<>(doPath(obj, graph, path)));
+                walks.addAll(new ArrayList<>(doPath(obj, graph, path)));
             }
         }
 
         path.pop();
-        return paths;
+        return walks;
     }
 
-    private <T> Set<T> difference(final Set<T> first, final Set<T> second) {
-        final Set<T> difference = Sets.symmetricDifference(first, second);
-        return ImmutableSet.copyOf(difference);
+    private Set<EntitySeed> difference(final Set<Object> first, final Set<Object> second) {
+        final Set<Object> difference = Sets.symmetricDifference(first, second);
+        return difference.stream()
+                .map(EntitySeed::new)
+                .collect(Collectors.toSet());
     }
 }
