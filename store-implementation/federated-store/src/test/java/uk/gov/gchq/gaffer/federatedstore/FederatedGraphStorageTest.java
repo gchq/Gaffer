@@ -108,7 +108,7 @@ public class FederatedGraphStorageTest {
 
     @Test
     public void shouldStartWithNoGraphs() throws Exception {
-        final Collection<Graph> graphs = graphStorage.getAll(nullUser);
+        final Collection<Graph> graphs = graphStorage.get(nullUser, null);
         assertEquals(0, graphs.size());
     }
 

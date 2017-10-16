@@ -148,19 +148,13 @@ public class FederatedGraphStorage {
      * @return visible graphs from the given graphIds.
      */
     public Collection<Graph> get(final User user, final Collection<String> graphIds) {
-        validateAllGivenGraphIdsAreVisibleForUser(user, graphIds);
-
-        final Set<Graph> rtn = getStream(user, graphIds)
-                .collect(Collectors.toSet());
-        return Collections.unmodifiableCollection(rtn);
-    }
-
-    public Collection<Graph> get(final Context context, final Collection<String> graphIds) {
-        if (null == context) {
+        if (null == user) {
             return Collections.emptyList();
         }
 
-        return get(context.getUser(), graphIds);
+        validateAllGivenGraphIdsAreVisibleForUser(user, graphIds);
+        final Set<Graph> rtn = getStream(user, graphIds).collect(Collectors.toSet());
+        return Collections.unmodifiableCollection(rtn);
     }
 
     /**
@@ -175,14 +169,12 @@ public class FederatedGraphStorage {
         }
 
         final List<String> graphIds = FederatedStoreUtil.getGraphIds(config);
-        final Collection<Graph> graphs = get(context, graphIds);
+        final Stream<Graph> graphs = getStream(context.getUser(), graphIds);
         final Builder schemaBuilder = new Builder();
         try {
-            for (final Graph graph : graphs) {
-                schemaBuilder.merge(graph.getSchema());
-            }
+            graphs.forEach(g -> schemaBuilder.merge(g.getSchema()));
         } catch (final SchemaException e) {
-            final List<String> resultGraphIds = graphs.stream().map(Graph::getGraphId).collect(Collectors.toList());
+            final List<String> resultGraphIds = getStream(context.getUser(), graphIds).map(Graph::getGraphId).collect(Collectors.toList());
             throw new SchemaException("Unable to merge the schemas for all of your federated graphs: " + resultGraphIds + ". You can limit which graphs to query for using the operation option: " + KEY_OPERATION_OPTIONS_GRAPH_IDS, e);
         }
         return schemaBuilder.build();
@@ -212,6 +204,17 @@ public class FederatedGraphStorage {
     }
 
     /**
+     * @param user   to match visibility against, if null will default to
+     *               false/denied
+     *               access
+     * @param access access the user must match.
+     * @return the boolean access
+     */
+    private boolean isValidToView(final User user, final FederatedAccess access) {
+        return null != access && access.isValidToExecute(user);
+    }
+
+    /**
      * @param user     to match visibility against
      * @param graphIds filter on graphIds
      * @return graphs that match graphIds and the user has visibility of.
@@ -223,17 +226,6 @@ public class FederatedGraphStorage {
         }
 
         return allStream.filter(graph -> graphIds.contains(graph.getGraphId()));
-    }
-
-    /**
-     * @param user   to match visibility against, if null will default to
-     *               false/denied
-     *               access
-     * @param access access the user must match.
-     * @return the boolean access
-     */
-    private boolean isValidToView(final User user, final FederatedAccess access) {
-        return null != access && access.isValidToExecute(user);
     }
 
     /**

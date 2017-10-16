@@ -34,10 +34,10 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
-import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.Arrays;
@@ -187,14 +187,14 @@ public class OperationChainValidatorTest {
         final ViewValidator viewValidator = mock(ViewValidator.class);
         final OperationChainValidator validator = new OperationChainValidator(viewValidator);
         final Store store = mock(Store.class);
-        final User user = mock(User.class);
+        final Context context = mock(Context.class);
 
 
         given(viewValidator.validate(any(View.class), any(Schema.class), any(Set.class))).willReturn(new ValidationResult());
 
 
         // When
-        final ValidationResult validationResult = validator.validate(opChain, user, store);
+        final ValidationResult validationResult = validator.validate(opChain, context, store);
 
         // Then
         assertEquals(expectedResult, validationResult.isValid());

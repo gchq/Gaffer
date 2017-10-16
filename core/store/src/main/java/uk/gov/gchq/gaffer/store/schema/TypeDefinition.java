@@ -167,7 +167,7 @@ public class TypeDefinition {
                 validateFunctions = Collections.unmodifiableList(new ArrayList<>(type.getValidateFunctions()));
             }
         } else if (null != type.getValidateFunctions()) {
-            // Use a tree set to deduplicate the functions
+            // Use a set to deduplicate the functions
             final LinkedHashSet<Predicate> newValidateFunctions = new LinkedHashSet<>(validateFunctions.size(), type.getValidateFunctions().size());
             newValidateFunctions.addAll(validateFunctions);
             newValidateFunctions.addAll(type.getValidateFunctions());

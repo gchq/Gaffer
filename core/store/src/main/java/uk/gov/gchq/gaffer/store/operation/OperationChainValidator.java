@@ -55,9 +55,9 @@ public class OperationChainValidator {
         if (operationChain.getOperations().isEmpty()) {
             validationResult.addError("Operation chain contains no operations");
         } else {
+            final Schema schema = store.getSchema();
             Class<? extends Output> output = null;
             for (final Operation op : operationChain.getOperations()) {
-                final Schema schema = store.getSchema();
                 validationResult.add(op.validate());
                 output = validateInputOutputTypes(op, validationResult, store, output);
                 validateViews(op, validationResult, schema, store);

@@ -35,8 +35,9 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE;
 
 /**
+ * <p>
  * A handler for AddElements operation for the FederatedStore.
- * <p/>
+ * </p>
  * Only attempts to add elements to a graph if it has knowledge of the elements
  * edge/entity group name.
  * Otherwise will throw exception if all the following is true.

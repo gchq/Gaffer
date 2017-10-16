@@ -81,13 +81,16 @@ import java.util.Set;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBLIC_ACCESS_ALLOWED_DEFAULT;
 
 /**
+ * <p>
  * A Store that encapsulates a collection of sub-graphs and executes operations
  * against them and returns results as though it was a single graph.
- * <p/>
+ * </p>
+ * <p>
  * To create a FederatedStore you need to initialise the store with a
  * graphId and  (if graphId is not known by the {@link GraphLibrary}) the
  * {@link
  * Schema} and  {@link StoreProperties}.
+ * </p>
  *
  * @see #initialise(String, Schema, StoreProperties)
  * @see Store
@@ -129,14 +132,18 @@ public class FederatedStore extends Store {
     }
 
     /**
+     * <p>
      * Within FederatedStore an {@link Operation} is executed against a
      * collection of many graphs.
-     * <p/>
+     * </p>
+     * <p>
      * Problem: When an Operation contains View information about an Element
      * which is not known by the Graph; It will fail validation when executed.
-     * <p/>
+     * </p>
+     * <p>
      * Solution: For each operation, remove all elements from the View that is
      * unknown to the graph.
+     * </p>
      *
      * @param operation current operation
      * @param graph     current graph
@@ -166,13 +173,14 @@ public class FederatedStore extends Store {
 
     /**
      * Adds graphs to the scope of FederatedStore.
-     * <p/>
+     * <p>
      * To be used by the FederatedStore and Handlers only. Users should add
      * graphs via the {@link AddGraph} operation.
      * public access will be ignored if the FederatedStore denies this action
      * at
      * initialisation, will default to usual access with addingUserId and
      * graphAuths
+     * </p>
      *
      * @param addingUserId the adding userId
      * @param graphs       the graph to add
@@ -192,10 +200,13 @@ public class FederatedStore extends Store {
     }
 
     /**
+     * <p>
      * Removes graphs from the scope of FederatedStore.
-     * <p/>
+     * </p>
+     * <p>
      * To be used by the FederatedStore and Handlers only. Users should remove
      * graphs via the {@link RemoveGraph} operation.
+     * </p>
      *
      * @param graphId to be removed from scope
      * @param user    to match visibility against
@@ -236,11 +247,14 @@ public class FederatedStore extends Store {
     }
 
     /**
+     * <p>
      * Gets a collection of graph objects within FederatedStore scope from the
      * given csv of graphIds, with visibility of the given user.
-     * <p/>
+     * </p>
+     * <p>
      * if graphIdsCsv is null then all graph objects within FederatedStore
      * scope are returned.
+     * </p>
      *
      * @param user        the users scope to get graphs for.
      * @param graphIdsCsv the csv of graphIds to get, null returns all graphs.
