@@ -1597,7 +1597,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldCorrectlySetViewForNestedOperationChain() {
+    public void shouldCorrectlySetViewForNestedOperationChain() throws OperationException {
         // Given
         final Store store = mock(Store.class);
         final View view = mock(View.class);
@@ -1612,19 +1612,27 @@ public class GraphTest {
         final Context context = mock(Context.class);
         given(context.getUser()).willReturn(user);
         given(store.createContext(user)).willReturn(context);
-        final int expectedResult = 5;
-        final Operation operation = mock(Operation.class);
 
-        final OperationChain parentChain = mock(OperationChain.class);
+        final OperationChain<Integer> parentChain = mock(OperationChain.class);
         final List<Operation> parentOps = new ArrayList<>();
-        final OperationChain childChain = mock(OperationChain.class);
+        final OperationChain<Integer> childChain = mock(OperationChain.class);
         parentOps.add(childChain);
         given(parentChain.getOperations()).willReturn(parentOps);
 
-        final List<Operation> childOps = new ArrayList<>();
-        childOps.add(new GetAllElements());
-        childOps.add(new Limit<>(1));
-        given(childChain.getOperations()).willReturn(childOps);
+        final OperationChain<Integer> clonedParentChain = mock(OperationChain.class);
+        given(parentChain.shallowClone()).willReturn(clonedParentChain);
+
+        final OperationChain<Integer> clonedChildChain = mock(OperationChain.class);
+        given(childChain.shallowClone()).willReturn(clonedChildChain);
+        given(childChain.getOperations()).willReturn(Lists.newArrayList(mock(Operation.class)));
+
+        given(graph.execute(parentChain, context)).willReturn(3);
+
+        final int result = graph.execute(parentChain, context);
+
+        // Then
+        assertEquals(3, result);
+        assertNotNull(graph.getView());
     }
 
     public static class TestStoreImpl extends Store {
