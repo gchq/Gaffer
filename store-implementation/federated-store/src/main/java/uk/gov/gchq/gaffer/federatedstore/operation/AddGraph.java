@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
+
 /**
  * An Operation used for adding graphs to a FederatedStore.
  * <p>Requires:
@@ -39,7 +41,7 @@ import java.util.Set;
  * <li>storeProperties and/or parentPropertiesId</li>
  * <li>schema and/or parentSchemaIds</li>
  * </ul>
- *
+ * <p/>
  * <p>parentId can be used solely, if known by the graphLibrary.
  * <p>schema can be used solely.
  * <p>storeProperties can be used, if authorised to by {@link uk.gov.gchq.gaffer.federatedstore.FederatedStore#isLimitedToLibraryProperties(uk.gov.gchq.gaffer.user.User)}
@@ -48,6 +50,7 @@ import java.util.Set;
  * <ul>
  * <li>graphAuths</li>
  * </ul>
+ *
  * @see uk.gov.gchq.gaffer.federatedstore.FederatedStore
  * @see uk.gov.gchq.gaffer.store.schema.Schema
  * @see uk.gov.gchq.gaffer.data.element.Properties
@@ -64,6 +67,10 @@ public class AddGraph implements Operation {
     private Set<String> graphAuths;
     private Map<String, String> options;
     private boolean isPublic = false;
+
+    public AddGraph() {
+        addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, "");
+    }
 
     public String getGraphId() {
         return graphId;

@@ -27,13 +27,12 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.Graph.Builder;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
-import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collection;
-import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -57,8 +56,12 @@ public class FederatedGraphStorageTest {
     private User nullUser;
     private User testUser;
     private User authUser;
-    private FederatedAccess access;
     private User blankUser;
+    private Context nullUserContext;
+    private Context testUserContext;
+    private Context authUserContext;
+    private Context blankUserContext;
+    private FederatedAccess access;
     private SchemaEntityDefinition e1;
     private SchemaEntityDefinition e2;
 
@@ -94,14 +97,13 @@ public class FederatedGraphStorageTest {
         nullUser = null;
         testUser = testUser();
         authUser = authUser();
-        access = new FederatedAccess(Sets.newHashSet(AUTH_1), TEST_USER);
         blankUser = blankUser();
-    }
+        nullUserContext = new Context(nullUser);
+        testUserContext = new Context(testUser);
+        authUserContext = new Context(authUser);
+        blankUserContext = new Context(blankUser);
 
-    @Test
-    public void shouldStartWithNoTraits() throws Exception {
-        final Set<StoreTrait> traits = graphStorage.getTraits();
-        assertEquals(0, traits.size());
+        access = new FederatedAccess(Sets.newHashSet(AUTH_1), TEST_USER);
     }
 
     @Test
@@ -222,12 +224,12 @@ public class FederatedGraphStorageTest {
     @Test
     public void shouldSchemaShouldChangeWhenAddingGraphB() throws Exception {
         graphStorage.put(a, access);
-        final Schema schemaA = graphStorage.getMergedSchema(testUser);
+        final Schema schemaA = graphStorage.getSchema(null, testUserContext);
         assertEquals(1, schemaA.getTypes().size());
         assertEquals(String.class, schemaA.getType("string").getClazz());
         assertEquals(e1, schemaA.getElement("e1"));
         graphStorage.put(b, access);
-        final Schema schemaAB = graphStorage.getMergedSchema(testUser);
+        final Schema schemaAB = graphStorage.getSchema(null, testUserContext);
         assertNotEquals(schemaA, schemaAB);
         assertEquals(2, schemaAB.getTypes().size());
         assertEquals(String.class, schemaAB.getType("string").getClazz());
@@ -241,7 +243,7 @@ public class FederatedGraphStorageTest {
     public void shouldGetSchemaForAddingUser() throws Exception {
         graphStorage.put(a, access);
         graphStorage.put(b, new FederatedAccess(Sets.newHashSet(X), X));
-        final Schema schema = graphStorage.getMergedSchema(testUser);
+        final Schema schema = graphStorage.getSchema(null, testUserContext);
         assertNotEquals("Revealing hidden schema", 2, schema.getTypes().size());
         assertEquals(1, schema.getTypes().size());
         assertEquals(String.class, schema.getType("string").getClazz());
@@ -252,7 +254,7 @@ public class FederatedGraphStorageTest {
     public void shouldGetSchemaForAuthUser() throws Exception {
         graphStorage.put(a, access);
         graphStorage.put(b, new FederatedAccess(Sets.newHashSet(X), X));
-        final Schema schema = graphStorage.getMergedSchema(authUser);
+        final Schema schema = graphStorage.getSchema(null, authUserContext);
         assertNotEquals("Revealing hidden schema", 2, schema.getTypes().size());
         assertEquals(1, schema.getTypes().size());
         assertEquals(String.class, schema.getType("string").getClazz());
@@ -263,35 +265,9 @@ public class FederatedGraphStorageTest {
     public void shouldNotGetSchemaForBlankUser() throws Exception {
         graphStorage.put(a, access);
         graphStorage.put(b, new FederatedAccess(Sets.newHashSet(X), X));
-        final Schema schema = graphStorage.getMergedSchema(blankUser);
+        final Schema schema = graphStorage.getSchema(null, blankUserContext);
         assertNotEquals("Revealing hidden schema", 2, schema.getTypes().size());
         assertEquals("Revealing hidden schema", 0, schema.getTypes().size());
-    }
-
-    @Test
-    public void shouldGetTraitsForAddingUser() throws Exception {
-        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
-        graphStorage.put(b, access);
-        final Set<StoreTrait> traits = graphStorage.getTraits(testUser);
-        assertNotEquals("Revealing hidden traits", 5, traits.size());
-        assertEquals(9, traits.size());
-    }
-
-    @Test
-    public void shouldGetTraitsForAuthUser() throws Exception {
-        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
-        graphStorage.put(b, access);
-        final Set<StoreTrait> traits = graphStorage.getTraits(authUser);
-        assertNotEquals("Revealing hidden traits", 5, traits.size());
-        assertEquals(9, traits.size());
-    }
-
-    @Test
-    public void shouldNotGetTraitsForBlankUser() throws Exception {
-        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
-        graphStorage.put(b, access);
-        final Set<StoreTrait> traits = graphStorage.getTraits(blankUser);
-        assertEquals("Revealing hidden traits", 0, traits.size());
     }
 
     @Test
