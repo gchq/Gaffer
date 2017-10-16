@@ -831,7 +831,9 @@ public final class Graph {
                             .merge(mergedParentSchema)
                             .merge(schema)
                             .build();
-                    if (!schema.getId().equals(mergedParentSchema.getId())) {
+                    if (mergedParentSchema.getId() != null
+                            && schema.getId() != null
+                            && !mergedParentSchema.getId().equals(schema.getId())) {
                         schema.setId(null);
                     }
                 }
