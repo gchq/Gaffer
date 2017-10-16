@@ -31,6 +31,7 @@ import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
+import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -102,7 +103,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.contains;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
@@ -1592,6 +1592,97 @@ public class GraphTest {
         assertEquals(library1, graph.getGraphLibrary());
         assertEquals(Arrays.asList(hook2.getClass(), hook1.getClass(), hook3.getClass()),
                 graph.getGraphHooks());
+    }
+
+    @Test
+    public void shouldBuildGraphFromConfigAndResetIdsWhenDifferent() {
+        // Given
+        final StoreProperties libraryStoreProperties = new StoreProperties();
+        libraryStoreProperties.setStoreClass(TestStoreImpl.class.getName());
+        libraryStoreProperties.setId("storePropertiesId1");
+
+        final StoreProperties graphStoreProperties = new StoreProperties();
+        graphStoreProperties.setStoreClass(TestStoreImpl.class.getName());
+        graphStoreProperties.setId("storePropertiesId2");
+
+        final Schema librarySchema = new Schema.Builder().id("schemaId1").build();
+
+        final Schema graphSchema = new Schema.Builder().id("schemaId2").build();
+
+        final String graphId1 = "graphId1";
+
+        final HashMapGraphLibrary library = new HashMapGraphLibrary();
+        library.addSchema(librarySchema);
+        library.addProperties(libraryStoreProperties);
+
+        final View view = mock(View.class);
+
+        // When
+        final GraphConfig config = new GraphConfig.Builder()
+                .graphId(graphId1)
+                .library(library)
+                .view(view)
+                .build();
+
+        final Graph graph = new Graph.Builder()
+                .config(config)
+                .addToLibrary(true)
+                .parentStorePropertiesId("storePropertiesId1")
+                .storeProperties(graphStoreProperties)
+                .addParentSchemaIds("schemaId1")
+                .addSchemas(graphSchema)
+                .build();
+
+        // Then
+        assertEquals(graphId1, graph.getGraphId());
+        assertTrue(JsonUtil.equals(library.getSchema("schemaId1").toJson(false), librarySchema.toJson(false)));
+        // Check that the schemaId = graphId1 as the schemaId's are different between the parent and supplied schema
+        assertTrue(library.getIds(graphId1).getFirst().equals(graphId1));
+        // Check that the storePropsId = graphId1 as the storePropsId's are different between the parent and supplied storeProps
+        assertTrue(library.getIds(graphId1).getSecond().equals(graphId1));
+
+        HashMapGraphLibrary.clear();
+    }
+
+    @Test
+    public void shouldBuildGraphFromConfigAndKeepIdsWhenIdentical() {
+        // Given
+        final StoreProperties storeProperties = new StoreProperties();
+        storeProperties.setStoreClass(TestStoreImpl.class.getName());
+        storeProperties.setId("storePropertiesId1");
+
+        final Schema schema = new Schema.Builder().id("schemaId1").build();
+
+        final String graphId1 = "graphId1";
+
+        final HashMapGraphLibrary library = new HashMapGraphLibrary();
+        library.addSchema(schema);
+        library.addProperties(storeProperties);
+
+        // When
+        final GraphConfig config = new GraphConfig.Builder()
+                .graphId(graphId1)
+                .library(library)
+                .build();
+
+        final Graph graph = new Graph.Builder()
+                .config(config)
+                .addToLibrary(true)
+                .parentStorePropertiesId("storePropertiesId1")
+                .storeProperties(storeProperties)
+                .addParentSchemaIds("schemaId1")
+                .addSchemas(schema)
+                .build();
+
+        // Then
+        assertEquals(graphId1, graph.getGraphId());
+        assertTrue(JsonUtil.equals(library.getSchema("schemaId1").toJson(false), schema.toJson(false)));
+        // Check that the schemaId = schemaId1 as both the parent and supplied schema have same id's
+        assertTrue(library.getIds(graphId1).getFirst().equals("schemaId1"));
+        // Check that the storePropsId = storePropertiesId1 as both parent and supplied storeProps have same id's
+        assertTrue(library.getIds(graphId1).getSecond().equals("storePropertiesId1"));
+
+        HashMapGraphLibrary.clear();
     }
 
     public static class TestStoreImpl extends Store {
