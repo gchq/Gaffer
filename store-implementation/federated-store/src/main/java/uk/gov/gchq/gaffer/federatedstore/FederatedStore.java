@@ -34,6 +34,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedFilterHandle
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationAddElementsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedTransformHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedValidateHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllElementsHandler;
@@ -46,6 +47,7 @@ import uk.gov.gchq.gaffer.graph.Graph.Builder;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
+import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
 import uk.gov.gchq.gaffer.operation.impl.function.Filter;
@@ -226,7 +228,7 @@ public class FederatedStore extends Store {
 
     @Override
     public Schema getSchema() {
-        return getSchema((Map<String, String>) null, null);
+        return getSchema((Map<String, String>) null, (User) null);
     }
 
     public Schema getSchema(final Operation operation, final Context context) {
@@ -239,6 +241,18 @@ public class FederatedStore extends Store {
 
     public Schema getSchema(final Map<String, String> config, final Context context) {
         return graphStorage.getSchema(config, context);
+    }
+
+    public Schema getSchema(final Operation operation, final User user) {
+        if (null == operation) {
+            return getSchema((Map<String, String>) null, user);
+        }
+
+        return getSchema(operation.getOptions(), user);
+    }
+
+    public Schema getSchema(final Map<String, String> config, final User user) {
+        return graphStorage.getSchema(config, user);
     }
 
     @Override
@@ -292,6 +306,8 @@ public class FederatedStore extends Store {
         addOperationHandler(Filter.class, new FederatedFilterHandler());
         addOperationHandler(Aggregate.class, new FederatedAggregateHandler());
         addOperationHandler(Transform.class, new FederatedTransformHandler());
+
+        addOperationHandler(Validate.class, new FederatedValidateHandler());
 
         addOperationHandler(GetAllGraphIds.class, new FederatedGetAllGraphIDHandler());
         addOperationHandler(AddGraph.class, new FederatedAddGraphHandler());

@@ -68,7 +68,7 @@ public class OperationChainHandlerTest {
 
         given(context.getUser()).willReturn(user);
         given(store.getProperties()).willReturn(storeProperties);
-        given(opChainValidator.validate(any(OperationChain.class), any(Context.class), any(Store.class))).willReturn(new ValidationResult());
+        given(opChainValidator.validate(any(), any(), any())).willReturn(new ValidationResult());
 
         given(store.handleOperation(op1, context)).willReturn(new WrappedCloseableIterable<>(Collections
                 .singletonList(new EntitySeed())));
@@ -101,7 +101,7 @@ public class OperationChainHandlerTest {
 
         given(context.getUser()).willReturn(user);
         given(store.getProperties()).willReturn(storeProperties);
-        given(opChainValidator.validate(any(OperationChain.class), any(Context.class), any(Store.class))).willReturn(new ValidationResult());
+        given(opChainValidator.validate(any(), any(), any())).willReturn(new ValidationResult());
 
         given(store.handleOperation(op, context)).willReturn(expectedResult);
 
@@ -137,7 +137,7 @@ public class OperationChainHandlerTest {
 
         given(context.getUser()).willReturn(user);
         given(store.getProperties()).willReturn(storeProperties);
-        given(opChainValidator.validate(any(OperationChain.class), any(Context.class), any(Store.class))).willReturn(new ValidationResult());
+        given(opChainValidator.validate(any(), any(), any())).willReturn(new ValidationResult());
 
         given(store.handleOperation(op1, context)).willReturn(new WrappedCloseableIterable<>(Lists.newArrayList(new EntitySeed("A"), new EntitySeed("B"))));
         given(store.handleOperation(op2, context)).willReturn(new WrappedCloseableIterable<>(Lists.newArrayList(entityA, entityB)));

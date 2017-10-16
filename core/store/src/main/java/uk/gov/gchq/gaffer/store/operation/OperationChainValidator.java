@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.compare.ElementComparison;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
-import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
@@ -46,11 +45,11 @@ public class OperationChainValidator {
      * Validate the provided {@link OperationChain} against the {@link ViewValidator}.
      *
      * @param operationChain the operation chain to validate
-     * @param context        the user context making the request
+     * @param user           the user making the request
      * @param store          the target store
      * @return the {@link ValidationResult}
      */
-    public ValidationResult validate(final OperationChain<?> operationChain, final Context context, final Store store) {
+    public ValidationResult validate(final OperationChain<?> operationChain, final User user, final Store store) {
         final ValidationResult validationResult = new ValidationResult();
         if (operationChain.getOperations().isEmpty()) {
             validationResult.addError("Operation chain contains no operations");
@@ -66,20 +65,6 @@ public class OperationChainValidator {
         }
 
         return validationResult;
-    }
-
-    /**
-     * Validate the provided {@link OperationChain} against the {@link ViewValidator}.
-     *
-     * @param operationChain the operation chain to validate
-     * @param user           the user making the request
-     * @param store          the target store
-     * @return the {@link ValidationResult}
-     * @deprecated use {@link OperationChainValidator#validate(OperationChain, Context, Store)}
-     */
-    @Deprecated
-    public ValidationResult validate(final OperationChain<?> operationChain, final User user, final Store store) {
-        return validate(operationChain, new Context(user), store);
     }
 
     protected Class<? extends Output> validateInputOutputTypes(final Operation operation, final ValidationResult validationResult, final Store store, final Class<? extends Output> output) {

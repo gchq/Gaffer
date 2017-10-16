@@ -51,7 +51,8 @@ public class OperationChainHandler<OUT> implements OutputOperationHandler<Operat
     }
 
     private <O> OperationChain<O> prepareOperationChain(final OperationChain<O> operationChain, final Context context, final Store store) {
-        final ValidationResult validationResult = opChainValidator.validate(operationChain, context, store);
+        final ValidationResult validationResult = opChainValidator.validate(operationChain, context
+                .getUser(), store);
         if (!validationResult.isValid()) {
             throw new IllegalArgumentException("Operation chain is invalid. " + validationResult
                     .getErrorString());

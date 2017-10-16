@@ -159,7 +159,7 @@ public class StoreTest {
         schemaOptimiser = mock(SchemaOptimiser.class);
         operationChainValidator = mock(OperationChainValidator.class);
         store = new StoreImpl();
-        given(operationChainValidator.validate(any(OperationChain.class), any(Context.class), any(Store.class))).willReturn(new ValidationResult());
+        given(operationChainValidator.validate(any(OperationChain.class), any(User.class), any(Store.class))).willReturn(new ValidationResult());
         addElementsHandler = mock(OperationHandler.class);
         getElementsHandler = mock(OutputOperationHandler.class);
         getAllElementsHandler = mock(OutputOperationHandler.class);
@@ -352,7 +352,7 @@ public class StoreTest {
         given(schema.validate()).willReturn(new ValidationResult());
         ValidationResult validationResult = new ValidationResult();
         validationResult.addError("error");
-        given(operationChainValidator.validate(opChain, context, store)).willReturn(validationResult);
+        given(operationChainValidator.validate(opChain, user, store)).willReturn(validationResult);
         store.initialise("graphId", schema, properties);
 
         // When / Then
@@ -360,7 +360,7 @@ public class StoreTest {
             store.execute(opChain, context);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
-            verify(operationChainValidator).validate(opChain, context, store);
+            verify(operationChainValidator).validate(opChain, user, store);
             assertTrue(e.getMessage().contains("Operation chain"));
         }
     }

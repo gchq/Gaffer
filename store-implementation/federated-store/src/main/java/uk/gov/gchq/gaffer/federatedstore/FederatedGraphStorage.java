@@ -163,18 +163,27 @@ public class FederatedGraphStorage {
      * @return merged schema of the visible graphs.
      */
     public Schema getSchema(final Map<String, String> config, final Context context) {
-        if (null == context || null == context.getUser()) {
+        if (null == context) {
+            // no context then return an empty schema
+            return new Schema();
+        }
+
+        return getSchema(config, context.getUser());
+    }
+
+    public Schema getSchema(final Map<String, String> config, final User user) {
+        if (null == user) {
             // no user then return an empty schema
             return new Schema();
         }
 
         final List<String> graphIds = FederatedStoreUtil.getGraphIds(config);
-        final Stream<Graph> graphs = getStream(context.getUser(), graphIds);
+        final Stream<Graph> graphs = getStream(user, graphIds);
         final Builder schemaBuilder = new Builder();
         try {
             graphs.forEach(g -> schemaBuilder.merge(g.getSchema()));
         } catch (final SchemaException e) {
-            final List<String> resultGraphIds = getStream(context.getUser(), graphIds).map(Graph::getGraphId).collect(Collectors.toList());
+            final List<String> resultGraphIds = getStream(user, graphIds).map(Graph::getGraphId).collect(Collectors.toList());
             throw new SchemaException("Unable to merge the schemas for all of your federated graphs: " + resultGraphIds + ". You can limit which graphs to query for using the operation option: " + KEY_OPERATION_OPTIONS_GRAPH_IDS, e);
         }
         return schemaBuilder.build();

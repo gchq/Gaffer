@@ -19,11 +19,11 @@ package uk.gov.gchq.gaffer.federatedstore;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.io.Output;
-import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
+import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 /**
@@ -40,23 +40,23 @@ public class FederatedOperationChainValidator extends OperationChainValidator {
      * Validate the provided {@link OperationChain} against the {@link ViewValidator}.
      *
      * @param operationChain the operation chain to validate
-     * @param context        the user context making the request
+     * @param user           the user making the request
      * @param store          the target store
      * @return the {@link ValidationResult}
      */
     @Override
-    public ValidationResult validate(final OperationChain<?> operationChain, final Context context, final Store store) {
-        return validate(operationChain, context, (FederatedStore) store);
+    public ValidationResult validate(final OperationChain<?> operationChain, final User user, final Store store) {
+        return validate(operationChain, user, (FederatedStore) store);
     }
 
-    public ValidationResult validate(final OperationChain<?> operationChain, final Context context, final FederatedStore store) {
+    public ValidationResult validate(final OperationChain<?> operationChain, final User user, final FederatedStore store) {
         final ValidationResult validationResult = new ValidationResult();
         if (operationChain.getOperations().isEmpty()) {
             validationResult.addError("Operation chain contains no operations");
         } else {
             Class<? extends Output> output = null;
             for (final Operation op : operationChain.getOperations()) {
-                final Schema schema = store.getSchema(op, context);
+                final Schema schema = store.getSchema(op, user);
                 validationResult.add(op.validate());
                 output = validateInputOutputTypes(op, validationResult, store, output);
                 validateViews(op, validationResult, schema, store);
