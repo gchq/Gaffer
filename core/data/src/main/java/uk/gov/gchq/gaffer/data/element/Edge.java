@@ -163,12 +163,12 @@ public class Edge extends Element implements EdgeId {
 
     @JsonIgnore
     public Object getMatchedVertexValue() {
-        return MatchedVertex.DESTINATION == matchedVertex ? getDestination() : getSource();
+        return EdgeId.MatchedVertex.DESTINATION == matchedVertex ? getDestination() : getSource();
     }
 
     @JsonIgnore
     public Object getAdjacentMatchedVertexValue() {
-        return MatchedVertex.DESTINATION == matchedVertex ? getSource() : getDestination();
+        return EdgeId.MatchedVertex.DESTINATION == matchedVertex ? getSource() : getDestination();
     }
 
     @Override
@@ -296,10 +296,10 @@ public class Edge extends Element implements EdgeId {
         this.source = this.destination;
         this.destination = tmp;
         if (matchedVertex != null) {
-            if (matchedVertex == MatchedVertex.DESTINATION) {
-                this.matchedVertex = MatchedVertex.SOURCE;
+            if (matchedVertex == EdgeId.MatchedVertex.DESTINATION) {
+                this.matchedVertex = EdgeId.MatchedVertex.SOURCE;
             } else {
-                this.matchedVertex = MatchedVertex.DESTINATION;
+                this.matchedVertex = EdgeId.MatchedVertex.DESTINATION;
             }
         }
     }

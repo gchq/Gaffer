@@ -136,6 +136,9 @@ public class GetDataFrameOfElementsHandlerTest {
                 .view(new View.Builder().entity(ENTITY_GROUP).edge(EDGE_GROUP).build())
                 .build();
         Dataset<Row> dataFrame = graph.execute(dfOperation, new User());
+
+        dataFrame.show();
+
         final Set<Row> results = new HashSet<>(dataFrame.collectAsList());
         final Set<Row> expectedRows = new HashSet<>();
         for (int i = 0; i < NUM_ELEMENTS; i++) {

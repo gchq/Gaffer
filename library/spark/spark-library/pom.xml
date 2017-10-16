@@ -134,6 +134,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
+            <artifactId>spark-graphx_${scala.version}</artifactId>
+            <version>${spark.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
             <artifactId>spark-catalyst_${scala.version}</artifactId>
             <version>${spark.version}</version>
         </dependency>
@@ -142,6 +147,11 @@
             <artifactId>avro-mapred</artifactId>
             <version>${avro.version}</version>
             <classifier>hadoop2</classifier>
+        </dependency>
+        <dependency>
+            <groupId>graphframes</groupId>
+            <artifactId>graphframes</artifactId>
+            <version>0.5.0-spark2.1-s_2.11</version>
         </dependency>
 
         <!-- Test dependencies-->
