@@ -54,6 +54,7 @@ import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -83,6 +84,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -1592,6 +1594,37 @@ public class GraphTest {
         assertEquals(library1, graph.getGraphLibrary());
         assertEquals(Arrays.asList(hook2.getClass(), hook1.getClass(), hook3.getClass()),
                 graph.getGraphHooks());
+    }
+
+    @Test
+    public void shouldCorrectlySetViewForNestedOperationChain() {
+        // Given
+        final Store store = mock(Store.class);
+        final View view = mock(View.class);
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .view(view)
+                        .build())
+                .store(store)
+                .build();
+        final User user = new User();
+        final Context context = mock(Context.class);
+        given(context.getUser()).willReturn(user);
+        given(store.createContext(user)).willReturn(context);
+        final int expectedResult = 5;
+        final Operation operation = mock(Operation.class);
+
+        final OperationChain parentChain = mock(OperationChain.class);
+        final List<Operation> parentOps = new ArrayList<>();
+        final OperationChain childChain = mock(OperationChain.class);
+        parentOps.add(childChain);
+        given(parentChain.getOperations()).willReturn(parentOps);
+
+        final List<Operation> childOps = new ArrayList<>();
+        childOps.add(new GetAllElements());
+        childOps.add(new Limit<>(1));
+        given(childChain.getOperations()).willReturn(childOps);
     }
 
     public static class TestStoreImpl extends Store {
