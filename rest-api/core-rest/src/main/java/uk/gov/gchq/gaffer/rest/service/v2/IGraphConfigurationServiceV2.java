@@ -32,6 +32,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.CLASS_NOT_FOUND;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.FUNCTION_NOT_FOUND;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.INTERNAL_SERVER_ERROR;
@@ -108,7 +109,8 @@ public interface IGraphConfigurationServiceV2 {
 
     @GET
     @Path("/description")
-    @ApiOperation(value = "Gets the Graph description", response = String.class, produces = APPLICATION_JSON)
+    @Produces(TEXT_PLAIN)
+    @ApiOperation(value = "Gets the Graph description", response = String.class, produces = TEXT_PLAIN)
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
     Response getDescription();
