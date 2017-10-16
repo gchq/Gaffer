@@ -618,6 +618,11 @@ public final class Graph {
                         .merge(schema)
                         .merge(schemaModule)
                         .build();
+                if (schemaModule.getId() != null
+                        && schema.getId() != null
+                        && !schemaModule.getId().equals(schema.getId())) {
+                    schema.setId(null);
+                }
             } else {
                 schema = schemaModule;
             }
@@ -834,6 +839,11 @@ public final class Graph {
                             .merge(mergedParentSchema)
                             .merge(schema)
                             .build();
+                    if (mergedParentSchema.getId() != null
+                            && schema.getId() != null
+                            && !mergedParentSchema.getId().equals(schema.getId())) {
+                        schema.setId(null);
+                    }
                 }
             }
 
@@ -861,6 +871,12 @@ public final class Graph {
                 if (null == mergedStoreProperties) {
                     mergedStoreProperties = properties;
                 } else {
+                    if (properties.getId() != null
+                            && mergedStoreProperties.getId() != null
+                            && !properties.getId().equals(mergedStoreProperties.getId())) {
+                        properties.setId(null);
+                        mergedStoreProperties.setId(null);
+                    }
                     mergedStoreProperties.getProperties().putAll(properties.getProperties());
                     mergedStoreProperties.setId(null);
                 }
