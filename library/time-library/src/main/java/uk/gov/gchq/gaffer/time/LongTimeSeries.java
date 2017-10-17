@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.time;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -25,6 +26,7 @@ import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
@@ -51,14 +53,16 @@ public class LongTimeSeries implements TimeSeries<Long> {
             TimeBucket.YEAR
     ));
     private TimeBucket timeBucket;
-    private SortedMap<Long, Long> timeSeries;
+    private SortedMap<Long, Long> timeSeries = new TreeMap<>();
+
+    public LongTimeSeries() {
+    }
 
     public LongTimeSeries(final TimeBucket timeBucket) {
         if (!VALID_TIMEBUCKETS.contains(timeBucket)) {
             throw new IllegalArgumentException("A TimeBucket of " + timeBucket + " is not supported");
         }
         this.timeBucket = timeBucket;
-        this.timeSeries = new TreeMap<>();
     }
 
     /**
@@ -82,6 +86,7 @@ public class LongTimeSeries implements TimeSeries<Long> {
      * @param instant The instant that the value is required for.
      * @return The value associated to the instant.
      */
+    @JsonIgnore
     @Override
     public Long get(final Instant instant) {
         return timeSeries.get(toLong(timeBucket, instant.toEpochMilli()));
@@ -107,6 +112,7 @@ public class LongTimeSeries implements TimeSeries<Long> {
      *
      * @return A {@link SortedSet} of all the {@link Instant}s in the time series.
      */
+    @JsonIgnore
     public SortedSet<Instant> getInstants() {
         final SortedSet<Instant> instants = new TreeSet<>();
         timeSeries
@@ -122,10 +128,18 @@ public class LongTimeSeries implements TimeSeries<Long> {
      *
      * @return The number of instants in the time series.
      */
+    @JsonIgnore
     public int getNumberOfInstants() {
         return timeSeries.size();
     }
 
+    /**
+     * Returns the time series as a {@link SortedMap} where the key is an
+     * {@link Instant} rounded to the nearest bucket and the value is the
+     * associated count.
+     *
+     * @return The time series.
+     */
     public SortedMap<Instant, Long> getTimeSeries() {
         final SortedMap<Instant, Long> map = new TreeMap<>();
         timeSeries
@@ -134,8 +148,28 @@ public class LongTimeSeries implements TimeSeries<Long> {
         return map;
     }
 
+    /**
+     * Sets the time series to be the given time series.
+     *
+     * @param timeSeries The time series to copy entries from.
+     */
+    public void setTimeSeries(final Map<Instant, Long> timeSeries) {
+        this.timeSeries.clear();
+        timeSeries
+                .entrySet()
+                .stream()
+                .forEach(e -> put(e.getKey(), e.getValue()));
+    }
+
     public TimeBucket getTimeBucket() {
         return timeBucket;
+    }
+
+    public void setTimeBucket(final TimeBucket timeBucket) {
+        if (null != this.timeBucket) {
+            throw new IllegalArgumentException("Cannot modify the timebucket");
+        }
+        this.timeBucket = timeBucket;
     }
 
     @Override
@@ -221,5 +255,28 @@ public class LongTimeSeries implements TimeSeries<Long> {
 
     private static Instant getInstantFromLong(final TimeBucket timeBucket, final long l) {
         return Instant.ofEpochMilli(fromLong(timeBucket, l));
+    }
+
+    public static class Builder {
+        private TimeBucket timeBucket;
+        private Map<Instant, Long> timeSeries;
+
+        public LongTimeSeries.Builder timeBucket(final TimeBucket timeBucket) {
+            this.timeBucket = timeBucket;
+            return this;
+        }
+
+        public LongTimeSeries.Builder instantCountPairs(final Map<Instant, Long> timeSeries) {
+            this.timeSeries = timeSeries;
+            return this;
+        }
+
+        public LongTimeSeries build() {
+            final LongTimeSeries set = new LongTimeSeries(timeBucket);
+            if (null != timeSeries) {
+                set.setTimeSeries(timeSeries);
+            }
+            return set;
+        }
     }
 }
