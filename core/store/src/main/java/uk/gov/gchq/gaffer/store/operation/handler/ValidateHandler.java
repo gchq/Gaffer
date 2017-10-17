@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.ValidatedElements;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 
 /**
  * An {@code ValidateHandler} handles for {@link uk.gov.gchq.gaffer.operation.impl.Validate} operations.
@@ -35,10 +36,13 @@ public class ValidateHandler implements OutputOperationHandler<Validate, Iterabl
     public Iterable<? extends Element> doOperation(final Validate operation,
                                                    final Context context, final Store store)
             throws OperationException {
+        return doOperation(operation, store.getSchema());
+    }
+
+    public Iterable<? extends Element> doOperation(final Validate operation, final Schema schema) {
         if (null == operation.getInput()) {
             return null;
         }
-
-        return (Iterable) new ValidatedElements(operation.getInput(), store.getSchema(), operation.isSkipInvalidElements());
+        return new ValidatedElements(operation.getInput(), schema, operation.isSkipInvalidElements());
     }
 }
