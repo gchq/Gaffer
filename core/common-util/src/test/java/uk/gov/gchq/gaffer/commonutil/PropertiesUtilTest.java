@@ -23,7 +23,7 @@ import static org.junit.Assert.fail;
 
 public class PropertiesUtilTest {
     private static final String INVALID_STRING = "inv@l1dStr|ng&^";
-    private static final String VALID_STRING = "invAl1dStr|ng";
+    private static final String VALID_STRING = "vAl1d-Str|ng";
 
     @Test
     public void shouldThrowExceptionWithInvalidStringName() {
