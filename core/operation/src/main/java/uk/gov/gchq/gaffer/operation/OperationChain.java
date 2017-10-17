@@ -110,11 +110,14 @@ public class OperationChain<OUT> implements Output<OUT> {
     }
 
     public static <O> OperationChain<O> wrap(final Output<O> operation) {
+        final OperationChain<O> opChain;
         if (operation instanceof OperationChain) {
-            return ((OperationChain<O>) operation);
+            opChain = ((OperationChain<O>) operation);
+        } else {
+            opChain = new OperationChain<>(operation);
+            opChain.setOptions(operation.getOptions());
         }
-
-        return new OperationChain<>(operation);
+        return opChain;
     }
 
     @JsonIgnore
@@ -149,14 +152,15 @@ public class OperationChain<OUT> implements Output<OUT> {
     }
 
     public OperationChain<OUT> shallowClone() throws CloneFailedException {
+        final OperationChain<OUT> clone;
         if (null == operations) {
-            return new OperationChain<>();
+            clone = new OperationChain<>();
+        } else {
+            final List<Operation> clonedOps = operations.stream()
+                    .map(Operation::shallowClone)
+                    .collect(Collectors.toList());
+            clone = new OperationChain<>(clonedOps);
         }
-
-        final List<Operation> clonedOps = operations.stream()
-                .map(Operation::shallowClone)
-                .collect(Collectors.toList());
-        final OperationChain<OUT> clone = new OperationChain<>(clonedOps);
         clone.setOptions(options);
         return clone;
     }

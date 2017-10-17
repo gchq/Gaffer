@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.federatedstore;
+package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandler;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
@@ -29,6 +29,8 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
+
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 
 public class FederatedOperationChainHandler<O> extends FederatedOperationOutputHandler<OperationChain<O>, O> {
     private final OutputOperationHandler<? extends OperationChain<O>, O> defaultHandler;
@@ -43,7 +45,9 @@ public class FederatedOperationChainHandler<O> extends FederatedOperationOutputH
         final boolean mergeableResultType = outputClass.isAssignableFrom(CloseableIterable.class)
                 || outputClass.isAssignableFrom(Iterable.class)
                 || Void.class.equals(outputClass);
-        if (mergeableResultType && !FederatedOperation.hasFederatedOperations(operationChain)) {
+        if (mergeableResultType
+                && hasSameGraphIds(operationChain)
+                && !FederatedOperation.hasFederatedOperations(operationChain)) {
             return super.doOperation(operationChain, context, store);
         }
 
@@ -66,5 +70,25 @@ public class FederatedOperationChainHandler<O> extends FederatedOperationOutputH
     private Class<?> getOutputClass(final OperationChain<O> operationChain) {
         final TypeReference<O> outputType = operationChain.getOutputTypeReference();
         return (Class) (outputType.getType() instanceof ParameterizedType ? ((ParameterizedType) outputType.getType()).getRawType() : outputType.getType());
+    }
+
+    private boolean hasSameGraphIds(final OperationChain<O> operationChain) {
+        return hasSameGraphIds(operationChain.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS), operationChain);
+    }
+
+    private boolean hasSameGraphIds(final String opChainGraphIds, final OperationChain<O> operationChain) {
+        String graphIds = opChainGraphIds;
+        for (final Operation operation : operationChain.getOperations()) {
+            final String opGraphIds = operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS);
+            if (null == graphIds) {
+                graphIds = opGraphIds;
+            } else if (null != opGraphIds && !graphIds.equals(opGraphIds)) {
+                return false;
+            } else if (operation instanceof OperationChain && !hasSameGraphIds(graphIds, operationChain)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

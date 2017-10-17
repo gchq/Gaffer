@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -31,7 +33,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedAggregateHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedFilterHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationAddElementsHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationChainHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedTransformHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedValidateHandler;
@@ -73,7 +75,6 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.io.File;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -106,6 +107,9 @@ public class FederatedStore extends Store {
     public static final GraphConfigEnum PROPERTIES = GraphConfigEnum.PROPERTIES;
     public static final LocationEnum ID = LocationEnum.ID;
     public static final LocationEnum FILE = LocationEnum.FILE;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FederatedStore.class);
+
     private FederatedGraphStorage graphStorage = new FederatedGraphStorage();
     private Set<String> customPropertiesAuths;
     public Boolean isPublicAccessAllowed = Boolean.valueOf(IS_PUBLIC_ACCESS_ALLOWED_DEFAULT);
@@ -157,13 +161,18 @@ public class FederatedStore extends Store {
     public static <OP extends Operation> OP updateOperationForGraph(final OP operation, final Graph graph) {
         OP resultOp = operation;
         if (operation instanceof OperationChain) {
-            final OperationChain<?> opChain = (OperationChain<?>) operation;
-            final List<Operation> newOps = new ArrayList<>(opChain.getOperations().size());
+            final OperationChain<?> opChain = (OperationChain) operation;
+            resultOp = (OP) opChain.shallowClone();
+            final OperationChain<?> resultOpChain = (OperationChain<?>) resultOp;
+            resultOpChain.getOperations().clear();
             for (final Operation nestedOp : opChain.getOperations()) {
-                newOps.add(updateOperationForGraph(nestedOp, graph));
+                final Operation updatedNestedOp = updateOperationForGraph(nestedOp, graph);
+                if (null == updatedNestedOp) {
+                    resultOp = null;
+                    break;
+                }
+                resultOpChain.getOperations().add(updatedNestedOp);
             }
-            opChain.getOperations().clear();
-            opChain.getOperations().addAll(newOps);
         } else if (operation instanceof OperationView) {
             final View view = ((OperationView) operation).getView();
             if (null != view && view.hasGroups()) {
@@ -177,6 +186,11 @@ public class FederatedStore extends Store {
             }
         } else if (operation instanceof AddElements) {
             resultOp = (OP) operation.shallowClone();
+            ((AddElements) resultOp).setValidate(true);
+            if (!((AddElements) resultOp).isSkipInvalidElements()) {
+                LOGGER.debug("Invalid elements will be skipped when added to {}", graph.getGraphId());
+                ((AddElements) resultOp).setSkipInvalidElements(true);
+            }
         }
 
         return resultOp;
@@ -345,7 +359,7 @@ public class FederatedStore extends Store {
 
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
-        return new FederatedOperationAddElementsHandler();
+        return (OperationHandler) new FederatedOperationHandler();
     }
 
     @Override
