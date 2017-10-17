@@ -40,7 +40,7 @@ public class FilterHandler implements OutputOperationHandler<Filter, Iterable<? 
         return doOperation(operation, store.getSchema());
     }
 
-    protected Iterable<? extends Element> doOperation(final Filter operation, final Schema schema) throws OperationException {
+    public Iterable<? extends Element> doOperation(final Filter operation, final Schema schema) throws OperationException {
         if (null == operation.getInput()) {
             throw new OperationException("Filter operation has null iterable of elements");
         }

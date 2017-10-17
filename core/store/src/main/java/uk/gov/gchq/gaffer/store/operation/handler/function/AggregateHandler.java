@@ -41,7 +41,7 @@ public class AggregateHandler implements OutputOperationHandler<Aggregate, Itera
         return doOperation(operation, store.getSchema());
     }
 
-    protected Iterable<? extends Element> doOperation(final Aggregate operation, final Schema schema) throws OperationException {
+    public Iterable<? extends Element> doOperation(final Aggregate operation, final Schema schema) throws OperationException {
         if (null == operation.getInput()) {
             throw new OperationException("Aggregate operation has null iterable of elements");
         }

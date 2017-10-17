@@ -39,7 +39,7 @@ public class TransformHandler implements OutputOperationHandler<Transform, Itera
         return doOperation(operation, store.getSchema());
     }
 
-    protected Iterable<? extends Element> doOperation(final Transform operation, final Schema schema) throws OperationException {
+    public Iterable<? extends Element> doOperation(final Transform operation, final Schema schema) throws OperationException {
         if (null == operation.getInput()) {
             throw new OperationException("Transform operation has null iterable of elements");
         }

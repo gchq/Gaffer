@@ -21,11 +21,25 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.function.Filter;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.function.FilterHandler;
 
-public class FederatedFilterHandler extends FilterHandler {
+public class FederatedFilterHandler implements OutputOperationHandler<Filter, Iterable<? extends Element>> {
+    private final FilterHandler handler;
+
+    public FederatedFilterHandler() {
+        this(new FilterHandler());
+    }
+
+    public FederatedFilterHandler(final FilterHandler handler) {
+        this.handler = handler;
+    }
+
     @Override
-    public Iterable<? extends Element> doOperation(final Filter operation, final Context context, final Store store) throws OperationException {
-        return doOperation(operation, ((FederatedStore) store).getSchema(operation, context));
+    public Iterable<? extends Element> doOperation(final Filter operation,
+                                                   final Context context,
+                                                   final Store store)
+            throws OperationException {
+        return handler.doOperation(operation, ((FederatedStore) store).getSchema(operation, context));
     }
 }
