@@ -45,7 +45,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
         consumes = {APPLICATION_JSON},
         produces = {APPLICATION_JSON},
         schemes = {SwaggerDefinition.Scheme.HTTP, SwaggerDefinition.Scheme.HTTPS},
-        externalDocs = @ExternalDocs(value = "Wiki", url = "https://github.com/gchq/Gaffer/wiki")
+        externalDocs = @ExternalDocs(value = "Wiki", url = "https://gchq.github.io/gaffer-doc/")
 )
 public interface SwaggerDefinitionConfigV2 {
     // Empty marker interface
