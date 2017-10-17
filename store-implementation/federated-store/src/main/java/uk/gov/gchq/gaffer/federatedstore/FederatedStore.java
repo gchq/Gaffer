@@ -382,22 +382,39 @@ public class FederatedStore extends Store {
             final boolean isPublic = resolveIsPublic(graphId);
 
             if (isCacheEnabled && federatedStoreCache.contains(graphId)) {
-                Graph graph = federatedStoreCache.getFromCache(graphId);
-                addGraphs(graphAuths, null, isPublic, graph);
+                makeGraphFromCache(graphId, graphAuths, isPublic);
             } else {
-                final Graph.Builder builder = new Builder()
-                        .config(new GraphConfig.Builder()
-                                .graphId(graphId)
-                                .library(getGraphLibrary())
-                                .build())
-                        .addParentSchemaIds(getValueOf(graphId, SCHEMA, ID))
-                        .parentStorePropertiesId(getValueOf(graphId, PROPERTIES, ID));
-
-                addPropertiesFromFile(graphId, builder);
-                addSchemaFromFile(graphId, builder);
-
-                addGraphs(graphAuths, null, isPublic, builder);
+                makeGraphFromProperties(graphId, graphAuths, isPublic);
             }
+        }
+        makeGraphsRemainingInCache(graphIds);
+    }
+
+    private void makeGraphFromCache(final String graphId, final Set<String> graphAuths, final boolean isPublic) {
+        Graph graph = federatedStoreCache.getFromCache(graphId);
+        addGraphs(graphAuths, null, isPublic, graph);
+    }
+
+    private void makeGraphFromProperties(final String graphId, final Set<String> graphAuths, final boolean isPublic) throws StoreException {
+        final Builder builder = new Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(graphId)
+                        .library(getGraphLibrary())
+                        .build())
+                .addParentSchemaIds(getValueOf(graphId, SCHEMA, ID))
+                .parentStorePropertiesId(getValueOf(graphId, PROPERTIES, ID));
+
+        addPropertiesFromFile(graphId, builder);
+        addSchemaFromFile(graphId, builder);
+
+        addGraphs(graphAuths, null, isPublic, builder);
+    }
+
+    private void makeGraphsRemainingInCache(final Set<String> graphIds) {
+        final Set<String> allGraphIds = federatedStoreCache.getAllGraphIds();
+        allGraphIds.removeAll(graphIds);
+        for (String graphId : allGraphIds) {
+            makeGraphFromCache(graphId, null, false);
         }
     }
 
@@ -410,7 +427,7 @@ public class FederatedStore extends Store {
         return Strings.isNullOrEmpty(value) ? null : Sets.newHashSet(getCleanStrings(value));
     }
 
-    private void addGraphs(final Set<String> graphAuths, final String userId, final boolean isPublic, final Builder... builders) throws StoreException {
+    private void addGraphs(final Set<String> graphAuths, final String addingUserId, final boolean isPublic, final Builder... builders) throws StoreException {
         for (final Builder builder : builders) {
             final Graph graph;
             try {
@@ -418,7 +435,7 @@ public class FederatedStore extends Store {
             } catch (final Exception e) {
                 throw new IllegalArgumentException(String.format(S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2, "Graph", ""), e);
             }
-            addGraphs(graphAuths, userId, isPublic, graph);
+            addGraphs(graphAuths, addingUserId, isPublic, graph);
         }
     }
 
