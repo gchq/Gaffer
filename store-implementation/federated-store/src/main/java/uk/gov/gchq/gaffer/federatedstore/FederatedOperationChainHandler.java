@@ -15,38 +15,56 @@
  */
 package uk.gov.gchq.gaffer.federatedstore;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+
+import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandler;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.List;
 
 public class FederatedOperationChainHandler<O> extends FederatedOperationOutputHandler<OperationChain<O>, O> {
-    @Override
-    protected O mergeResults(final List<O> results, final OperationChain<O> operationChain, final Context context, final Store store) {
-        final O rtn;
+    private final OutputOperationHandler<? extends OperationChain<O>, O> defaultHandler;
 
-        final Operation lastOperation = getLastOperation(operationChain);
-        if (lastOperation instanceof Output) {
-            final Output lastOutput = (Output) lastOperation;
-            lastOutput.getOutputTypeReference();
-            for (O result : results) {
-                //TODOL combine
-            }
-
-            throw new UnsupportedOperationException("Not yet implemented");
-        } else {
-            rtn = null;
-        }
-
-        return rtn;
+    public FederatedOperationChainHandler(final OutputOperationHandler<? extends OperationChain<O>, O> defaultHandler) {
+        this.defaultHandler = defaultHandler;
     }
 
-    private Operation getLastOperation(final OperationChain<O> operationChain) {
-        final Object[] objects = operationChain.getOperations().toArray();
-        return (Operation) objects[objects.length - 1];
+    @Override
+    public O doOperation(final OperationChain<O> operationChain, final Context context, final Store store) throws OperationException {
+        final Class<?> outputClass = getOutputClass(operationChain);
+        final boolean mergeableResultType = outputClass.isAssignableFrom(CloseableIterable.class)
+                || outputClass.isAssignableFrom(Iterable.class)
+                || Void.class.equals(outputClass);
+        if (mergeableResultType && !FederatedOperation.hasFederatedOperations(operationChain)) {
+            return super.doOperation(operationChain, context, store);
+        }
+
+        return ((OutputOperationHandler<OperationChain<O>, O>) defaultHandler).doOperation(operationChain, context, store);
+    }
+
+    @Override
+    protected O mergeResults(final List<O> results, final OperationChain<O> operationChain, final Context context, final Store store) {
+        if (Void.class.equals(getOutputClass(operationChain))) {
+            return null;
+        }
+
+        // Concatenate all the results into 1 iterable
+        if (results.isEmpty()) {
+            throw new IllegalArgumentException(NO_RESULTS_TO_MERGE_ERROR);
+        }
+        return (O) new ChainedIterable<>(results.toArray(new Iterable[results.size()]));
+    }
+
+    private Class<?> getOutputClass(final OperationChain<O> operationChain) {
+        final TypeReference<O> outputType = operationChain.getOutputTypeReference();
+        return (Class) (outputType.getType() instanceof ParameterizedType ? ((ParameterizedType) outputType.getType()).getRawType() : outputType.getType());
     }
 }

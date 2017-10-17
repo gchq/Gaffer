@@ -99,11 +99,14 @@ public class OperationChain<OUT> implements Output<OUT> {
     }
 
     public static OperationChain<?> wrap(final Operation operation) {
+        final OperationChain<?> opChain;
         if (operation instanceof OperationChain) {
-            return ((OperationChain) operation);
+            opChain = ((OperationChain<?>) operation);
+        } else {
+            opChain = new OperationChain<>(operation);
+            opChain.setOptions(operation.getOptions());
         }
-
-        return new OperationChain<>(operation);
+        return opChain;
     }
 
     public static <O> OperationChain<O> wrap(final Output<O> operation) {

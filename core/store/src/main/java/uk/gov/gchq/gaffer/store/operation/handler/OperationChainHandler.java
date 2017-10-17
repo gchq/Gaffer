@@ -33,8 +33,8 @@ import java.util.List;
  * @param <OUT> the output type of the operation chain
  */
 public class OperationChainHandler<OUT> implements OutputOperationHandler<OperationChain<OUT>, OUT> {
-    protected final OperationChainValidator opChainValidator;
-    protected final List<OperationChainOptimiser> opChainOptimisers;
+    private final OperationChainValidator opChainValidator;
+    private final List<OperationChainOptimiser> opChainOptimisers;
 
     @Override
     public OUT doOperation(final OperationChain<OUT> operationChain, final Context context, final Store store) throws OperationException {

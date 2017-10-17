@@ -73,6 +73,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -155,8 +156,15 @@ public class FederatedStore extends Store {
      */
     public static <OP extends Operation> OP updateOperationForGraph(final OP operation, final Graph graph) {
         OP resultOp = operation;
-
-        if (operation instanceof OperationView) {
+        if (operation instanceof OperationChain) {
+            final OperationChain<?> opChain = (OperationChain<?>) operation;
+            final List<Operation> newOps = new ArrayList<>(opChain.getOperations().size());
+            for (final Operation nestedOp : opChain.getOperations()) {
+                newOps.add(updateOperationForGraph(nestedOp, graph));
+            }
+            opChain.getOperations().clear();
+            opChain.getOperations().addAll(newOps);
+        } else if (operation instanceof OperationView) {
             final View view = ((OperationView) operation).getView();
             if (null != view && view.hasGroups()) {
                 resultOp = (OP) operation.shallowClone();
@@ -341,8 +349,8 @@ public class FederatedStore extends Store {
     }
 
     @Override
-    protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
-        return new FederatedOperationChainHandler<>(opChainValidator, opChainOptimisers);
+    protected <O> OutputOperationHandler<? extends OperationChain<O>, O> getOperationChainHandler() {
+        return new FederatedOperationChainHandler(super.getOperationChainHandler());
     }
 
     @Override
