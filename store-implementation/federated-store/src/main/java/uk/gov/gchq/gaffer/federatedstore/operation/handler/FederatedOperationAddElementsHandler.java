@@ -35,8 +35,9 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE;
 
 /**
- * A handler for AddElements operation for the FederatedStore.
  * <p>
+ * A handler for AddElements operation for the FederatedStore.
+ * </p>
  * Only attempts to add elements to a graph if it has knowledge of the elements
  * edge/entity group name.
  * Otherwise will throw exception if all the following is true.
@@ -51,8 +52,12 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP
  */
 public class FederatedOperationAddElementsHandler implements OperationHandler<AddElements> {
     public Object doOperation(final AddElements addElements, final Context context, final Store store) throws OperationException {
-        final Set<String> allGroups = store.getSchema().getGroups();
-        final Collection<Graph> graphs = ((FederatedStore) store).getGraphs(context.getUser(), addElements.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS));
+        return doOperation(addElements, context, (FederatedStore) store);
+    }
+
+    public Object doOperation(final AddElements addElements, final Context context, final FederatedStore store) throws OperationException {
+        final Set<String> allGroups = store.getSchema(addElements.getOptions(), context).getGroups();
+        final Collection<Graph> graphs = store.getGraphs(context.getUser(), addElements.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS));
 
         for (final Graph graph : graphs) {
             final Set<String> graphGroups = graph.getSchema().getGroups();

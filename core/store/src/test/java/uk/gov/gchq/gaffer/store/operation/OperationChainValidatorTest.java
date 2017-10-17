@@ -70,11 +70,10 @@ public class OperationChainValidatorTest {
         final ViewValidator viewValidator = mock(ViewValidator.class);
         final OperationChainValidator validator = new OperationChainValidator(viewValidator);
         final Store store = mock(Store.class);
-        Schema mock = mock(Schema.class);
-        given(store.getSchema()).willReturn(mock);
-        given(mock.getElement(Mockito.anyString())).willReturn(null);
+        Schema schema = mock(Schema.class);
+        given(store.getSchema()).willReturn(schema);
+        given(schema.getElement(Mockito.anyString())).willReturn(null);
 
-        final User user = mock(User.class);
         Max max = new Max();
         max.setComparators(Lists.newArrayList(new ElementPropertyComparator.Builder()
                 .groups(TestGroups.ENTITY)
@@ -84,7 +83,7 @@ public class OperationChainValidatorTest {
         ValidationResult validationResult = new ValidationResult();
 
         // When
-        validator.validateComparables(max, validationResult, store);
+        validator.validateComparables(max, validationResult, schema, store);
 
         // Then
         assertEquals(false, validationResult.isValid());

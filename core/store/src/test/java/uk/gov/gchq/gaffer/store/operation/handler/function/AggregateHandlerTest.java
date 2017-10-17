@@ -33,7 +33,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
-import uk.gov.gchq.koryphe.impl.binaryoperator.And;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Max;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Or;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
