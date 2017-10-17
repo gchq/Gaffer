@@ -17,17 +17,20 @@ package uk.gov.gchq.gaffer.time;
 
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertEquals;
 
-public class LongTimeSeriesTest {
+public class LongTimeSeriesTest extends JSONSerialisationTest<LongTimeSeries> {
 
     @Test
     public void testPutAndGet() {
@@ -185,5 +188,33 @@ public class LongTimeSeriesTest {
 
         // Then
         assertEquals(Long.MAX_VALUE, value);
+    }
+
+    @Test
+    public void testBuilder() {
+        // Given
+        final Map<Instant, Long> counts = new HashMap<>();
+        counts.put(Instant.ofEpochMilli(1000L), 10L);
+        counts.put(Instant.ofEpochMilli(100000L), 1000L);
+        final LongTimeSeries timeSeries = new LongTimeSeries.Builder()
+                .timeBucket(TimeBucket.SECOND)
+                .instantCountPairs(counts)
+                .build();
+
+        // When
+        final long value1 = timeSeries.get(Instant.ofEpochMilli(1000L));
+        final long value2 = timeSeries.get(Instant.ofEpochMilli(100000L));
+
+        // Then
+        assertEquals(10L, value1);
+        assertEquals(1000L, value2);
+    }
+
+    @Override
+    protected LongTimeSeries getTestObject() {
+        final LongTimeSeries timeSeries = new LongTimeSeries(TimeBucket.SECOND);
+        timeSeries.put(Instant.ofEpochMilli(1000L), 10L);
+        timeSeries.put(Instant.ofEpochMilli(100000L), 1000L);
+        return timeSeries;
     }
 }
