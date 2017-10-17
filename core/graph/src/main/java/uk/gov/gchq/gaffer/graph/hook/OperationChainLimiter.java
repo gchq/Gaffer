@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.operation.handler.ScoreOperationChainHandler;
+import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolver;
 
 import java.util.Map;
 
@@ -63,7 +64,8 @@ public class OperationChainLimiter implements GraphHook {
             Integer maxAuthScore = scorer.getMaxUserAuthScore(context.getUser().getOpAuths());
 
             if (chainScore > maxAuthScore) {
-                throw new UnauthorisedException("The maximum score limit for this user is " + maxAuthScore + ".\n" +
+                throw new UnauthorisedException("The maximum score limit for user: " +
+                        context.getUser().toString() + " is " + maxAuthScore + ".\n" +
                         "The requested operation chain exceeded this score limit.");
             }
         }
@@ -104,5 +106,12 @@ public class OperationChainLimiter implements GraphHook {
 
     public void setAuthScores(final Map<String, Integer> authScores) {
         scorer.setAuthScores(authScores);
+    }
+    public Map<Class<? extends Operation>, ScoreResolver> getScoreResolvers() {
+        return scorer.getScoreResolvers();
+    }
+
+    public void setScoreResolvers(final Map<Class<? extends Operation>, ScoreResolver> resolvers) {
+        scorer.setScoreResolvers(resolvers);
     }
 }
