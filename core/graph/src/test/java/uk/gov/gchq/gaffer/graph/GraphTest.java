@@ -84,7 +84,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -104,7 +103,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.contains;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
@@ -1105,7 +1103,7 @@ public class GraphTest {
                             .type("int", new TypeDefinition.Builder()
                                     .clazz(Integer.class)
                                     .aggregateFunction(new Sum())
-                                            // invalid serialiser
+                                    // invalid serialiser
                                     .serialiser(new RawDoubleSerialiser())
                                     .build())
                             .type("string", new TypeDefinition.Builder()
@@ -1599,39 +1597,40 @@ public class GraphTest {
     @Test
     public void shouldCorrectlySetViewForNestedOperationChain() throws OperationException {
         // Given
-        final Store store = mock(Store.class);
-        final View view = mock(View.class);
+        final Store store = new TestStore();
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(GRAPH_ID)
-                        .view(view)
+                        .build())
+                .storeProperties(new StoreProperties())
+                .addSchema(new Schema.Builder()
+                        .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                                .property(TestPropertyNames.PROP_1, TestTypes.PROP_INTEGER)
+                                .aggregate(false)
+                                .source("vertex2")
+                                .destination("vertex2")
+                                .build())
+                        .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
+                                .clazz(Integer.class)
+                                .build())
+                        .type("vertex2", new TypeDefinition.Builder()
+                                .clazz(String.class)
+                                .build())
                         .build())
                 .store(store)
                 .build();
         final User user = new User();
-        final Context context = mock(Context.class);
-        given(context.getUser()).willReturn(user);
-        given(store.createContext(user)).willReturn(context);
+        final Context context = new Context(user);
 
-        final OperationChain<Integer> parentChain = mock(OperationChain.class);
-        final List<Operation> parentOps = new ArrayList<>();
-        final OperationChain<Integer> childChain = mock(OperationChain.class);
-        parentOps.add(childChain);
-        given(parentChain.getOperations()).willReturn(parentOps);
+        final OperationChain<Iterable<? extends Element>> nestedChain = new OperationChain<>(
+                Arrays.asList(
+                        new GetAllElements(),
+                        new Limit<>(3, true)));
+        final OperationChain<Iterable<? extends Element>> outerChain = new OperationChain<>(nestedChain);
 
-        final OperationChain<Integer> clonedParentChain = mock(OperationChain.class);
-        given(parentChain.shallowClone()).willReturn(clonedParentChain);
-
-        final OperationChain<Integer> clonedChildChain = mock(OperationChain.class);
-        given(childChain.shallowClone()).willReturn(clonedChildChain);
-        given(childChain.getOperations()).willReturn(Lists.newArrayList(mock(Operation.class)));
-
-        given(graph.execute(parentChain, context)).willReturn(3);
-
-        final int result = graph.execute(parentChain, context);
+        graph.execute(outerChain, context);
 
         // Then
-        assertEquals(3, result);
         assertNotNull(graph.getView());
     }
 
