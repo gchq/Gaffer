@@ -30,6 +30,9 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
@@ -160,9 +163,15 @@ public class TypeDefinition {
         }
 
         if (null == validateFunctions) {
-            validateFunctions = type.getValidateFunctions();
+            if (null != type.getValidateFunctions()) {
+                validateFunctions = Collections.unmodifiableList(new ArrayList<>(type.getValidateFunctions()));
+            }
         } else if (null != type.getValidateFunctions()) {
-            validateFunctions.addAll(type.getValidateFunctions());
+            // Use a set to deduplicate the functions
+            final LinkedHashSet<Predicate> newValidateFunctions = new LinkedHashSet<>(validateFunctions.size(), type.getValidateFunctions().size());
+            newValidateFunctions.addAll(validateFunctions);
+            newValidateFunctions.addAll(type.getValidateFunctions());
+            validateFunctions = Collections.unmodifiableList(new ArrayList<>(newValidateFunctions));
         }
 
         if (null == aggregateFunction) {
