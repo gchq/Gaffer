@@ -54,6 +54,7 @@ import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -102,7 +103,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.contains;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
@@ -1103,7 +1103,7 @@ public class GraphTest {
                             .type("int", new TypeDefinition.Builder()
                                     .clazz(Integer.class)
                                     .aggregateFunction(new Sum())
-                                            // invalid serialiser
+                                    // invalid serialiser
                                     .serialiser(new RawDoubleSerialiser())
                                     .build())
                             .type("string", new TypeDefinition.Builder()
@@ -1592,6 +1592,46 @@ public class GraphTest {
         assertEquals(library1, graph.getGraphLibrary());
         assertEquals(Arrays.asList(hook2.getClass(), hook1.getClass(), hook3.getClass()),
                 graph.getGraphHooks());
+    }
+
+    @Test
+    public void shouldCorrectlySetViewForNestedOperationChain() throws OperationException {
+        // Given
+        final Store store = new TestStore();
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .storeProperties(new StoreProperties())
+                .addSchema(new Schema.Builder()
+                        .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                                .property(TestPropertyNames.PROP_1, TestTypes.PROP_INTEGER)
+                                .aggregate(false)
+                                .source("vertex2")
+                                .destination("vertex2")
+                                .build())
+                        .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
+                                .clazz(Integer.class)
+                                .build())
+                        .type("vertex2", new TypeDefinition.Builder()
+                                .clazz(String.class)
+                                .build())
+                        .build())
+                .store(store)
+                .build();
+        final User user = new User();
+        final Context context = new Context(user);
+
+        final OperationChain<Iterable<? extends Element>> nestedChain = new OperationChain<>(
+                Arrays.asList(
+                        new GetAllElements(),
+                        new Limit<>(3, true)));
+        final OperationChain<Iterable<? extends Element>> outerChain = new OperationChain<>(nestedChain);
+
+        graph.execute(outerChain, context);
+
+        // Then
+        assertNotNull(graph.getView());
     }
 
     public static class TestStoreImpl extends Store {
