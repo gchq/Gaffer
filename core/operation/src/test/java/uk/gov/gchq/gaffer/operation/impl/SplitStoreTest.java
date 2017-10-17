@@ -62,6 +62,7 @@ public class SplitStoreTest extends OperationTest<SplitStore> {
         assertEquals("false", clone.getOptions().get(TEST_OPTION_KEY));
     }
 
+    @Override
     protected SplitStore getTestObject() {
         return new SplitStore();
     }

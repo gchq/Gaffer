@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
@@ -27,14 +26,13 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A <code>ToSet</code> operation takes in an {@link java.lang.Iterable} of items
+ * A {@code ToSet} operation takes in an {@link java.lang.Iterable} of items
  * and converts them to a {@link java.util.Set}, removing duplicates in the
  * process.
  *
  * @see uk.gov.gchq.gaffer.operation.impl.output.ToSet.Builder
  */
 public class ToSet<T> implements
-        Operation,
         InputOutput<Iterable<? extends T>, Set<? extends T>>,
         MultiInput<T> {
     private Iterable<? extends T> input;

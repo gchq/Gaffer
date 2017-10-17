@@ -86,11 +86,11 @@ public class GafferRangePartitioner extends Partitioner<Text, Writable> implemen
     private Text[] cutPointArray = null;
 
     private synchronized Text[] getCutPoints() throws IOException {
-        if (cutPointArray == null) {
+        if (null == cutPointArray) {
             final String cutFileName = conf.get(CUTFILE_KEY);
             final Path[] cf = DistributedCacheHelper.getLocalCacheFiles(conf);
 
-            if (cf != null) {
+            if (null != cf) {
                 for (final Path path : cf) {
                     if (path.toUri().getPath().endsWith(cutFileName.substring(cutFileName.lastIndexOf('/')))) {
                         final TreeSet<Text> cutPoints = new TreeSet<>();
@@ -104,7 +104,7 @@ public class GafferRangePartitioner extends Partitioner<Text, Writable> implemen
                     }
                 }
             }
-            if (cutPointArray == null) {
+            if (null == cutPointArray) {
                 throw new FileNotFoundException(cutFileName + " not found in distributed cache");
             }
         }

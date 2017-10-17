@@ -106,7 +106,7 @@ public class ExportToOtherGraphHandlerTest {
     }
 
     private Graph createGraph(final ExportToOtherGraph export) {
-        return CreateGraphDelegate.createGraph(store, export.getGraphId(),
+        return GraphDelegate.createGraph(store, export.getGraphId(),
                 export.getSchema(), export.getStoreProperties(), export.getParentSchemaIds(),
                 export.getParentStorePropertiesId());
     }
@@ -135,7 +135,7 @@ public class ExportToOtherGraphHandlerTest {
         final Iterable elements = mock(Iterable.class);
         exporter.add("key", elements);
         final ArgumentCaptor<OperationChain> opChainCaptor = ArgumentCaptor.forClass(OperationChain.class);
-        verify(TestStore.mockStore).execute(opChainCaptor.capture(), Mockito.eq(user));
+        verify(TestStore.mockStore).execute(opChainCaptor.capture(), Mockito.any(Context.class));
         final List<Operation> ops = opChainCaptor.getValue().getOperations();
         assertEquals(1, ops.size());
         assertSame(elements, ((AddElements) ops.get(0)).getInput());
@@ -219,7 +219,7 @@ public class ExportToOtherGraphHandlerTest {
         Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
 
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
-        graphLibrary.addSchema(SCHEMA_ID + 1, schema1);
+        graphLibrary.addSchema(schema1);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
 
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
@@ -259,8 +259,8 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
-        graphLibrary.addSchema(SCHEMA_ID + 1, schema1);
-        graphLibrary.addSchema(SCHEMA_ID + 2, schema2);
+        graphLibrary.addSchema(schema1);
+        graphLibrary.addSchema(schema2);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
 
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
@@ -299,7 +299,7 @@ public class ExportToOtherGraphHandlerTest {
         storeProperties1.setId(STORE_PROPS_ID + 1);
 
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
-        graphLibrary.addProperties(STORE_PROPS_ID + 1, storeProperties1);
+        graphLibrary.addProperties(storeProperties1);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
 
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
@@ -326,7 +326,7 @@ public class ExportToOtherGraphHandlerTest {
         storeProperties1.setId(STORE_PROPS_ID + 1);
 
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
-        graphLibrary.addProperties(STORE_PROPS_ID + 1, storeProperties1);
+        graphLibrary.addProperties(storeProperties1);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
 
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
@@ -367,7 +367,7 @@ public class ExportToOtherGraphHandlerTest {
     }
 
     private void validate(final ExportToOtherGraph export) {
-        CreateGraphDelegate.validate(store, export.getGraphId(), export.getSchema(), export.getStoreProperties(),
+        GraphDelegate.validate(store, export.getGraphId(), export.getSchema(), export.getStoreProperties(),
                 export.getParentSchemaIds(), export.getParentStorePropertiesId());
     }
 

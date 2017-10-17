@@ -29,16 +29,24 @@ public final class DebugUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugUtil.class);
 
     private DebugUtil() {
-        // this class should not be instantiated - it contains only util methods and constants.
+        // Private constructor to prevent instantiation.
     }
 
+    /**
+     * Retrieve the value of the debug mode flag.
+     *
+     * @return the debug mode status, true if enabled, otherwise false
+     */
     public static boolean checkDebugMode() {
-        if (isDebug == null) {
+        if (null == isDebug) {
             updateDebugMode();
         }
         return isDebug;
     }
 
+    /**
+     * Update the debug mode status by reading the system properties.
+     */
     public static void updateDebugMode() {
         try {
             isDebug = Boolean.valueOf(System.getProperty(DEBUG, DEBUG_DEFAULT).trim());

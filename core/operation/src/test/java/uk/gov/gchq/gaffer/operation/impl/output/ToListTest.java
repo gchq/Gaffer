@@ -59,6 +59,7 @@ public class ToListTest extends OperationTest<ToList> {
         assertEquals(input, clone.getInput().iterator().next());
     }
 
+    @Override
     protected ToList getTestObject() {
         return new ToList();
     }

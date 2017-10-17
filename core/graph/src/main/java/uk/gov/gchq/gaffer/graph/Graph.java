@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -58,19 +59,25 @@ import java.util.stream.Collectors;
 
 /**
  * <p>
- * The Graph separates the user from the {@link Store}. It holds an instance of the {@link Store} and
+ * The Graph separates the user from the {@link Store}. It holds an instance of
+ * the {@link Store} and
  * acts as a proxy for the store, delegating {@link Operation}s to the store.
  * </p>
  * <p>
- * The Graph provides users with a single point of entry for executing operations on a store.
- * This allows the underlying store to be swapped and the same operations can still be applied.
+ * The Graph provides users with a single point of entry for executing
+ * operations on a store.
+ * This allows the underlying store to be swapped and the same operations can
+ * still be applied.
  * </p>
  * <p>
- * Graphs also provides a view of the data with a instance of {@link View}. The view filters out unwanted information
- * and can transform {@link uk.gov.gchq.gaffer.data.element.Properties} into transient properties such as averages.
+ * Graphs also provides a view of the data with a instance of {@link View}. The
+ * view filters out unwanted information
+ * and can transform {@link uk.gov.gchq.gaffer.data.element.Properties} into
+ * transient properties such as averages.
  * </p>
  * <p>
- * When executing operations on a graph, an operation view would override the graph view.
+ * When executing operations on a graph, an operation view would override the
+ * graph view.
  * </p>
  *
  * @see uk.gov.gchq.gaffer.graph.Graph.Builder
@@ -88,12 +95,18 @@ public final class Graph {
     private GraphConfig config;
 
     /**
-     * Constructs a <code>Graph</code> with the given {@link uk.gov.gchq.gaffer.store.Store} and
+     * Constructs a {@code Graph} with the given {@link uk.gov.gchq.gaffer.store.Store}
+     * and
      * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.
      *
-     * @param config a {@link GraphConfig} used to store the configuration for a Graph.
-     * @param schema a {@link Schema} that defines the graph. Should be the copy of the schema that the store is initialised with.
-     * @param store  a {@link Store} used to store the elements and handle operations.
+     * @param config a {@link GraphConfig} used to store the configuration for
+     *               a
+     *               Graph.
+     * @param schema a {@link Schema} that defines the graph. Should be the
+     *               copy
+     *               of the schema that the store is initialised with.
+     * @param store  a {@link Store} used to store the elements and handle
+     *               operations.
      */
     private Graph(final GraphConfig config, final Schema schema, final Store store) {
         this.config = config;
@@ -104,20 +117,30 @@ public final class Graph {
     /**
      * Performs the given operation on the store.
      * If the operation does not have a view then the graph view is used.
-     * NOTE the operation may be modified/optimised by the store.
      *
      * @param operation the operation to be executed.
      * @param user      the user executing the operation.
      * @throws OperationException if an operation fails
      */
     public void execute(final Operation operation, final User user) throws OperationException {
-        execute(new OperationChain<>(operation), user);
+        execute(OperationChain.wrap(operation), user);
+    }
+
+    /**
+     * Performs the given operation on the store.
+     * If the operation does not have a view then the graph view is used.
+     *
+     * @param operation the operation to be executed.
+     * @param context   the user context for the execution of the operation
+     * @throws OperationException if an operation fails
+     */
+    public void execute(final Operation operation, final Context context) throws OperationException {
+        execute(OperationChain.wrap(operation), context);
     }
 
     /**
      * Performs the given output operation on the store.
      * If the operation does not have a view then the graph view is used.
-     * NOTE the operation may be modified/optimised by the store.
      *
      * @param operation the output operation to be executed.
      * @param user      the user executing the operation.
@@ -126,86 +149,85 @@ public final class Graph {
      * @throws OperationException if an operation fails
      */
     public <O> O execute(final Output<O> operation, final User user) throws OperationException {
-        return execute(new OperationChain<>(operation), user);
+        return execute(operation, store.createContext(user));
     }
 
     /**
-     * Performs the given operation chain job on the store.
+     * Performs the given output operation on the store.
      * If the operation does not have a view then the graph view is used.
-     * NOTE the operationChain may be modified/optimised by the store.
      *
-     * @param operationChain the operation chain to be executed.
-     * @param user           the user executing the job.
-     * @return the job details
-     * @throws OperationException thrown if the job fails to run.
-     */
-    public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
-        final OperationChain<?> clonedOpChain = operationChain.shallowClone();
-        try {
-            for (final GraphHook graphHook : config.getHooks()) {
-                graphHook.preExecute(clonedOpChain, user);
-            }
-
-            updateOperationChainView(clonedOpChain);
-
-            JobDetail result = store.executeJob(clonedOpChain, user);
-
-            for (final GraphHook graphHook : config.getHooks()) {
-                result = graphHook.postExecute(result, clonedOpChain, user);
-            }
-
-            return result;
-
-        } catch (final Exception e) {
-            CloseableUtil.close(clonedOpChain);
-            throw e;
-        }
-    }
-
-    /**
-     * Performs the given operation chain on the store.
-     * If the operation does not have a view then the graph view is used.
-     * NOTE the operationChain may be modified/optimised by the store.
-     *
-     * @param operationChain the operation chain to be executed.
-     * @param user           the user executing the operation chain.
-     * @param <O>            the operation chain output type.
+     * @param operation the output operation to be executed.
+     * @param context   the user context for the execution of the operation
+     * @param <O>       the operation chain output type.
      * @return the operation result.
      * @throws OperationException if an operation fails
      */
-    public <O> O execute(final OperationChain<O> operationChain, final User user) throws OperationException {
+    public <O> O execute(final Output<O> operation, final Context context) throws OperationException {
+        return _execute(store::execute, OperationChain.wrap(operation), context);
+    }
+
+    /**
+     * Performs the given operation job on the store.
+     * If the operation does not have a view then the graph view is used.
+     *
+     * @param operation the operation to be executed.
+     * @param user      the user executing the job.
+     * @return the job details
+     * @throws OperationException thrown if the job fails to run.
+     */
+    public JobDetail executeJob(final Operation operation, final User user) throws OperationException {
+        return executeJob(operation, store.createContext(user));
+    }
+
+    /**
+     * Performs the given operation job on the store.
+     * If the operation does not have a view then the graph view is used.
+     *
+     * @param operation the operation to be executed.
+     * @param context   the user context for the execution of the operation
+     * @return the job details
+     * @throws OperationException thrown if the job fails to run.
+     */
+    public JobDetail executeJob(final Operation operation, final Context context) throws OperationException {
+        return _execute(store::executeJob, OperationChain.wrap(operation), context);
+    }
+
+    private <O> O _execute(final StoreExecuter<O> storeExecuter, final OperationChain operationChain, final Context context) throws OperationException {
         if (null == operationChain) {
             throw new IllegalArgumentException("operationChain is required");
         }
 
-        final OperationChain<O> clonedOpChain = operationChain.shallowClone();
+        final OperationChain clonedOpChain = operationChain.shallowClone();
         O result = null;
         try {
             for (final GraphHook graphHook : config.getHooks()) {
-                graphHook.preExecute(clonedOpChain, user);
+                graphHook.preExecute(clonedOpChain, context);
             }
-
             updateOperationChainView(clonedOpChain);
-
-            result = store.execute(clonedOpChain, user);
-
+            result = (O) storeExecuter.execute(clonedOpChain, context);
             for (final GraphHook graphHook : config.getHooks()) {
-                result = graphHook.postExecute(result, clonedOpChain, user);
+                result = graphHook.postExecute(result, clonedOpChain, context);
             }
         } catch (final Exception e) {
+            for (final GraphHook graphHook : config.getHooks()) {
+                try {
+                    result = graphHook.onFailure(result, clonedOpChain, context, e);
+                } catch (final Exception graphHookE) {
+                    LOGGER.warn("Error in graphHook " + graphHook.getClass().getSimpleName() + ": " + graphHookE.getMessage(), graphHookE);
+                }
+            }
             CloseableUtil.close(clonedOpChain);
             CloseableUtil.close(result);
-
             throw e;
         }
-
         return result;
     }
 
-    private <O> void updateOperationChainView(final OperationChain<O> operationChain) {
+    private void updateOperationChainView(final OperationChain<?> operationChain) {
         for (final Operation operation : operationChain.getOperations()) {
-
-            if (operation instanceof OperationView) {
+            if (operation instanceof OperationChain) {
+                updateOperationChainView((OperationChain) operation);
+            } else if (operation instanceof OperationView) {
                 final OperationView operationView = (OperationView) operation;
                 final View opView;
                 if (null == operationView.getView()) {
@@ -281,9 +303,11 @@ public final class Graph {
     }
 
     /**
-     * Returns all the {@link StoreTrait}s for the contained {@link Store} implementation
+     * Returns all the {@link StoreTrait}s for the contained {@link Store}
+     * implementation
      *
-     * @return a {@link Set} of all of the {@link StoreTrait}s that the store has.
+     * @return a {@link Set} of all of the {@link StoreTrait}s that the store
+     * has.
      */
     public Set<StoreTrait> getStoreTraits() {
         return store.getTraits();
@@ -315,11 +339,18 @@ public final class Graph {
         return store.getGraphLibrary();
     }
 
+    @FunctionalInterface
+    private interface StoreExecuter<O> {
+        O execute(final OperationChain<O> operation, final Context context) throws OperationException;
+    }
+
     /**
      * <p>
      * Builder for {@link Graph}.
      * </p>
-     * We recommend instantiating a Graph from a graphConfig.json file, a schema directory and a store.properties file.
+     * We recommend instantiating a Graph from a graphConfig.json file, a
+     * schema
+     * directory and a store.properties file.
      * For example:
      * <pre>
      * new Graph.Builder()
@@ -338,6 +369,7 @@ public final class Graph {
         private Schema schema;
         private String[] parentSchemaIds;
         private String parentStorePropertiesId;
+        private boolean addToLibrary = true;
 
         /**
          * @param graphId the graph id to set
@@ -372,6 +404,11 @@ public final class Graph {
 
         public Builder config(final GraphConfig config) {
             configBuilder.merge(config);
+            return this;
+        }
+
+        public Builder addToLibrary(final boolean addToLibrary) {
+            this.addToLibrary = addToLibrary;
             return this;
         }
 
@@ -451,6 +488,10 @@ public final class Graph {
             return this;
         }
 
+        public Builder storeProperties(final Properties properties) {
+            return storeProperties(StoreProperties.loadStoreProperties(properties));
+        }
+
         public Builder storeProperties(final StoreProperties properties) {
             this.properties = properties;
             if (null != properties) {
@@ -481,8 +522,12 @@ public final class Graph {
             return this;
         }
 
+        public Builder addStoreProperties(final Properties properties) {
+            return addStoreProperties(StoreProperties.loadStoreProperties(properties));
+        }
+
         public Builder addStoreProperties(final StoreProperties updateProperties) {
-            if (this.properties == null) {
+            if (null == this.properties) {
                 storeProperties(updateProperties);
             } else {
                 final Properties old = this.properties.getProperties();
@@ -730,7 +775,13 @@ public final class Graph {
             }
 
             updateGraphHooks(config);
-            config.getLibrary().add(config.getGraphId(), schema, store.getProperties());
+
+
+            if (addToLibrary) {
+                config.getLibrary().add(config.getGraphId(), schema, store.getProperties());
+            }
+
+
             return new Graph(config, schema, store);
         }
 

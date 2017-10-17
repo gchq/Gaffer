@@ -52,6 +52,9 @@ import uk.gov.gchq.gaffer.operation.impl.export.GetExports;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
+import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
+import uk.gov.gchq.gaffer.operation.impl.function.Filter;
+import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
@@ -74,6 +77,8 @@ import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.OperationUtil;
+import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
+import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DiscardOutputHandler;
@@ -88,6 +93,9 @@ import uk.gov.gchq.gaffer.store.operation.handler.compare.SortHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.export.GetExportsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.export.set.ExportToSetHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.export.set.GetSetExportHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.function.AggregateHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.function.FilterHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.function.TransformHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetAllJobDetailsHandler;
@@ -105,8 +113,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.output.ToMapHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToSetHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToStreamHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToVerticesHandler;
-import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclaration;
-import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
@@ -128,7 +134,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * A <code>Store</code> backs a Graph and is responsible for storing the {@link uk.gov.gchq.gaffer.data.element.Element}s and
+ * A {@code Store} backs a Graph and is responsible for storing the {@link uk.gov.gchq.gaffer.data.element.Element}s and
  * handling {@link Operation}s.
  * {@link Operation}s and their corresponding {@link OperationHandler}s are registered in a map and used to handle
  * provided operations - allowing different store implementations to handle the same operations in their own store specific way.
@@ -144,12 +150,13 @@ public abstract class Store {
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to aggregate the elements.
      */
-    protected Schema schema;
+    private Schema schema;
 
     /**
      * The store properties - contains specific configuration information for the store - such as database connection strings.
      */
     private StoreProperties properties;
+
     private GraphLibrary library;
 
     private JobTracker jobTracker;
@@ -200,12 +207,12 @@ public abstract class Store {
         }
         this.graphId = graphId;
         this.schema = schema;
-        this.properties = properties;
+        setProperties(properties);
 
-        JSONSerialiser.update(properties.getJsonSerialiserClass(), properties.getJsonSerialiserModules());
+        JSONSerialiser.update(getProperties().getJsonSerialiserClass(), getProperties().getJsonSerialiserModules());
 
-        startCacheServiceLoader(properties);
-        this.jobTracker = createJobTracker(properties);
+        startCacheServiceLoader();
+        this.jobTracker = createJobTracker();
 
         optimiseSchema();
         validateSchemas();
@@ -238,87 +245,54 @@ public abstract class Store {
      * Executes a given operation and returns the result.
      *
      * @param operation the operation to execute.
-     * @param user      the user executing the operation
+     * @param context   the context executing the operation
      * @throws OperationException thrown by the operation handler if the operation fails.
      */
-    public void execute(final Operation operation, final User user) throws OperationException {
-        execute(new OperationChain<>(operation), user);
+    public void execute(final Operation operation, final Context context) throws OperationException {
+        execute(OperationChain.wrap(operation), context);
     }
 
     /**
      * Executes a given operation and returns the result.
      *
      * @param operation the operation to execute.
-     * @param context   the context associated with the operation
-     * @throws OperationException thrown by the operation handler if the operation fails.
-     */
-    public void execute(final Operation operation, final Context context) throws OperationException {
-        execute(new OperationChain<>(operation), context);
-    }
-
-    /**
-     * Executes a given output operation and returns the result.
-     *
-     * @param operation the output operation to execute.
-     * @param user      the user executing the operation
-     * @param <O>       the output type of the operation.
-     * @return the result from the operation
-     * @throws OperationException thrown by the operation handler if the operation fails.
-     */
-    public <O> O execute(final Output<O> operation, final User user) throws OperationException {
-        return execute(new OperationChain<>(operation), user);
-    }
-
-    /**
-     * Executes a given operation chain and returns the result.
-     *
-     * @param operationChain the operation chain to execute.
-     * @param user           the user executing the operation chain
-     * @param <O>            the output type of the operation.
-     * @return the result of executing the operation.
-     * @throws OperationException thrown by an operation handler if an operation fails
-     */
-    public <O> O execute(final OperationChain<O> operationChain, final User user) throws OperationException {
-        return execute(operationChain, createContext(user));
-    }
-
-    /**
-     * Execute a given operation and returns the result.
-     *
-     * @param operation the operation to execute
-     * @param context   the context associated with the operation
+     * @param context   the context executing the operation
      * @param <O>       the output type of the operation
      * @return the result of executing the operation
      * @throws OperationException thrown by the operation handler if the operation fails.
      */
     public <O> O execute(final Output<O> operation, final Context context) throws OperationException {
-        final OperationChain<O> operationChain = Operation.asOperationChain(operation);
+        return execute(OperationChain.wrap(operation), context);
+    }
 
-        addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
+    protected <O> O execute(final OperationChain<O> operation, final Context context) throws OperationException {
+        addOrUpdateJobDetail(operation, context, null, JobStatus.RUNNING);
         try {
             final O result = (O) handleOperation(operation, context);
-            addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
+            addOrUpdateJobDetail(operation, context, null, JobStatus.FINISHED);
             return result;
         } catch (final Throwable t) {
-            addOrUpdateJobDetail(operationChain, context, t.getMessage(), JobStatus.FAILED);
+            addOrUpdateJobDetail(operation, context, t.getMessage(), JobStatus.FAILED);
             throw t;
         }
     }
 
     /**
-     * Executes a given operation chain job and returns the job detail.
+     * Executes a given operation job and returns the job detail.
      *
-     * @param operationChain the operation chain to execute.
-     * @param user           the user executing the job
+     * @param operation the operation to execute.
+     * @param context   the context executing the job
      * @return the job detail
      * @throws OperationException thrown if jobs are not configured.
      */
-    public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
+    public JobDetail executeJob(final Operation operation, final Context context) throws OperationException {
+        return executeJob(OperationChain.wrap(operation), context);
+    }
+
+    protected JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
         if (null == jobTracker) {
             throw new OperationException("Running jobs has not configured.");
         }
-
-        final Context context = createContext(user);
 
         if (isSupported(ExportToGafferResultCache.class)) {
             boolean hasExport = false;
@@ -368,7 +342,7 @@ public abstract class Store {
      */
     public boolean isSupported(final Class<? extends Operation> operationClass) {
         final OperationHandler operationHandler = operationHandlers.get(operationClass);
-        return operationHandler != null;
+        return null != operationHandler;
     }
 
     /**
@@ -448,6 +422,18 @@ public abstract class Store {
         return properties;
     }
 
+    protected void setProperties(final StoreProperties properties) {
+        final Class<? extends StoreProperties> requiredPropsClass = getPropertiesClass();
+        properties.updateStorePropertiesClass(requiredPropsClass);
+
+        // If the properties instance is not already an instance of the required class then reload the properties
+        if (requiredPropsClass.isAssignableFrom(properties.getClass())) {
+            this.properties = properties;
+        } else {
+            this.properties = StoreProperties.loadStoreProperties(properties.getProperties());
+        }
+    }
+
     public GraphLibrary getGraphLibrary() {
         return library;
     }
@@ -467,30 +453,24 @@ public abstract class Store {
         } else {
             validationResult.add(schema.validate());
 
-            getSchemaElements().entrySet()
-                    .forEach(schemaElementDefinitionEntry -> schemaElementDefinitionEntry
-                            .getValue()
-                            .getProperties()
-                            .forEach(propertyName -> {
-                                final Class propertyClass = schemaElementDefinitionEntry
-                                        .getValue()
-                                        .getPropertyClass(propertyName);
-                                final Serialiser serialisation = schemaElementDefinitionEntry
-                                        .getValue()
-                                        .getPropertyTypeDef(propertyName)
-                                        .getSerialiser();
+            getSchemaElements().forEach((key, value) -> value
+                    .getProperties()
+                    .forEach(propertyName -> {
+                        final Class propertyClass = value
+                                .getPropertyClass(propertyName);
+                        final Serialiser serialisation = value
+                                .getPropertyTypeDef(propertyName)
+                                .getSerialiser();
 
-                                if (null == serialisation) {
-                                    validationResult.addError(
-                                            String.format("Could not find a serialiser for property '%s' in the group '%s'.", propertyName, schemaElementDefinitionEntry
-                                                    .getKey()));
-                                } else if (!serialisation.canHandle(propertyClass)) {
-                                    validationResult.addError(String.format("Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema", serialisation
-                                            .getClass()
-                                            .getName(), propertyName, schemaElementDefinitionEntry
-                                            .getKey()));
-                                }
-                            }));
+                        if (null == serialisation) {
+                            validationResult.addError(
+                                    String.format("Could not find a serialiser for property '%s' in the group '%s'.", propertyName, key));
+                        } else if (!serialisation.canHandle(propertyClass)) {
+                            validationResult.addError(String.format("Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema", serialisation
+                                    .getClass()
+                                    .getName(), propertyName, key));
+                        }
+                    }));
 
             validateSchema(validationResult, getSchema().getVertexSerialiser());
 
@@ -504,6 +484,17 @@ public abstract class Store {
         }
     }
 
+    public Context createContext(final User user) {
+        return new Context(user);
+    }
+
+    protected Class<? extends StoreProperties> getPropertiesClass() {
+        return StoreProperties.class;
+    }
+
+    /**
+     * Throws a {@link SchemaException} if the Vertex Serialiser is inconsistent.
+     */
     protected void validateConsistentVertex() {
         if (null != getSchema().getVertexSerialiser() && !getSchema().getVertexSerialiser()
                 .isConsistent()) {
@@ -511,6 +502,13 @@ public abstract class Store {
         }
     }
 
+    /**
+     * Ensures that each of the GroupBy properties in the {@link SchemaElementDefinition} is consistent,
+     * otherwise an error is added to the {@link ValidationResult}.
+     *
+     * @param schemaElementDefinitionEntry A map of SchemaElementDefinitions
+     * @param validationResult             The validation result
+     */
     protected void validateConsistentGroupByProperties(final Map.Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry, final ValidationResult validationResult) {
         for (final String property : schemaElementDefinitionEntry.getValue()
                 .getGroupBy()) {
@@ -545,7 +543,7 @@ public abstract class Store {
     }
 
     protected void validateSchema(final ValidationResult validationResult, final Serialiser serialiser) {
-        if ((serialiser != null) && !requiredParentSerialiserClass.isInstance(serialiser)) {
+        if ((null != serialiser) && !requiredParentSerialiserClass.isInstance(serialiser)) {
             validationResult.addError(
                     String.format("Schema serialiser (%s) is not instance of %s",
                             serialiser.getClass().getSimpleName(),
@@ -553,7 +551,7 @@ public abstract class Store {
         }
     }
 
-    protected JobTracker createJobTracker(final StoreProperties properties) {
+    protected JobTracker createJobTracker() {
         if (properties.getJobTrackerEnabled()) {
             return new JobTracker();
         }
@@ -570,10 +568,6 @@ public abstract class Store {
 
     protected void addOperationChainOptimisers(final List<OperationChainOptimiser> newOpChainOptimisers) {
         opChainOptimisers.addAll(newOpChainOptimisers);
-    }
-
-    protected Context createContext(final User user) {
-        return new Context(user);
     }
 
     /**
@@ -772,6 +766,11 @@ public abstract class Store {
         addOperationHandler(CountGroups.class, new CountGroupsHandler());
         addOperationHandler(Limit.class, new LimitHandler());
         addOperationHandler(DiscardOutput.class, new DiscardOutputHandler());
+
+        // Function
+        addOperationHandler(Filter.class, new FilterHandler());
+        addOperationHandler(Transform.class, new TransformHandler());
+        addOperationHandler(Aggregate.class, new AggregateHandler());
     }
 
     private void addConfiguredOperationHandlers() {
@@ -783,7 +782,7 @@ public abstract class Store {
         }
     }
 
-    private void startCacheServiceLoader(final StoreProperties properties) {
+    private void startCacheServiceLoader() {
         CacheServiceLoader.initialise(properties.getProperties());
     }
 

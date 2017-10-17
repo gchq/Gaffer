@@ -26,8 +26,11 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 import java.util.Map;
 
+/**
+ * A {@code GetAllJobDetails} operation is used to retrieve all of the {@link JobDetail}s
+ * related to a Gaffer graph.
+ */
 public class GetAllJobDetails implements
-        Operation,
         Output<CloseableIterable<JobDetail>> {
     private Map<String, String> options;
 

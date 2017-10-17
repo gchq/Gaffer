@@ -48,7 +48,6 @@ import uk.gov.gchq.gaffer.store.TypeReferenceStoreImpl;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.user.User;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -65,6 +64,12 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
+/**
+ * Gaffer {@code ProxyStore} implementation.
+ * <p>
+ * The ProxyStore is simply a Gaffer store which delegates all operations to a Gaffer
+ * REST API.
+ */
 public class ProxyStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyStore.class);
     private Client client;
@@ -75,30 +80,30 @@ public class ProxyStore extends Store {
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "The properties should always be ProxyProperties")
     @Override
     public void initialise(final String graphId, final Schema unusedSchema, final StoreProperties properties) throws StoreException {
-        final String jsonSerialiserClass = properties.getJsonSerialiserClass();
+        setProperties(properties);
+
+        final String jsonSerialiserClass = getProperties().getJsonSerialiserClass();
         if (null != jsonSerialiserClass) {
-            JSONSerialiser.update(jsonSerialiserClass, properties.getJsonSerialiserModules());
+            JSONSerialiser.update(jsonSerialiserClass, getProperties().getJsonSerialiserModules());
         }
+        client = createClient();
+        schema = fetchSchema();
+        traits = fetchTraits();
+        supportedOperations = fetchOperations();
 
-        final ProxyProperties proxyProps = (ProxyProperties) properties;
-        client = createClient(proxyProps);
-        schema = fetchSchema(proxyProps);
-        traits = fetchTraits(proxyProps);
-        supportedOperations = fetchOperations(proxyProps);
-
-        super.initialise(graphId, schema, proxyProps);
-        checkDelegateStoreStatus(proxyProps);
+        super.initialise(graphId, schema, getProperties());
+        checkDelegateStoreStatus();
     }
 
-    protected void checkDelegateStoreStatus(final ProxyProperties proxyProps) throws StoreException {
-        final URL url = proxyProps.getGafferUrl("graph/status");
+    protected void checkDelegateStoreStatus() throws StoreException {
+        final URL url = getProperties().getGafferUrl("graph/status");
         final LinkedHashMap status = doGet(url, new TypeReferenceImpl.Map(), null);
         LOGGER.info("Delegate REST API status: {}", status.get("description"));
     }
 
     @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON")
-    protected Set<Class<? extends Operation>> fetchOperations(final ProxyProperties proxyProps) throws StoreException {
-        final URL url = proxyProps.getGafferUrl("graph/operations");
+    protected Set<Class<? extends Operation>> fetchOperations() throws StoreException {
+        final URL url = getProperties().getGafferUrl("graph/operations");
         return (Set) Collections.unmodifiableSet(doGet(url, new TypeReference<Set<Class<Operation>>>() {
         }, null));
     }
@@ -113,8 +118,8 @@ public class ProxyStore extends Store {
         return supportedOperations.contains(operationClass);
     }
 
-    protected Set<StoreTrait> fetchTraits(final ProxyProperties proxyProps) throws StoreException {
-        final URL url = proxyProps.getGafferUrl("graph/config/storeTraits");
+    protected Set<StoreTrait> fetchTraits() throws StoreException {
+        final URL url = getProperties().getGafferUrl("graph/config/storeTraits");
         Set<StoreTrait> newTraits = doGet(url, new TypeReferenceStoreImpl.StoreTraits(), null);
         if (null == newTraits) {
             newTraits = new HashSet<>(0);
@@ -125,9 +130,9 @@ public class ProxyStore extends Store {
         return newTraits;
     }
 
-    protected Schema fetchSchema(final ProxyProperties proxyProps) throws
+    protected Schema fetchSchema() throws
             StoreException {
-        final URL url = proxyProps.getGafferUrl("graph/config/schema");
+        final URL url = getProperties().getGafferUrl("graph/config/schema");
         return doGet(url, new TypeReferenceStoreImpl.Schema(), null);
     }
 
@@ -137,10 +142,10 @@ public class ProxyStore extends Store {
     }
 
     @Override
-    public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
+    public JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
         final URL url = getProperties().getGafferUrl("graph/jobs");
         try {
-            return doPost(url, operationChain, new TypeReferenceImpl.JobDetail(), new Context(user));
+            return doPost(url, operationChain, new TypeReferenceImpl.JobDetail(), context);
         } catch (final StoreException e) {
             throw new OperationException(e.getMessage(), e);
         }
@@ -176,7 +181,6 @@ public class ProxyStore extends Store {
     protected <O> O doPost(final URL url, final String jsonBody,
                            final TypeReference<O> clazz,
                            final Context context) throws StoreException {
-
 
         final Invocation.Builder request = createRequest(jsonBody, url, context);
         final Response response;
@@ -258,9 +262,13 @@ public class ProxyStore extends Store {
     }
 
     @Override
+    protected Class<ProxyProperties> getPropertiesClass() {
+        return ProxyProperties.class;
+    }
+
+    @Override
     protected void addAdditionalOperationHandlers() {
         // no operation handlers to add.
-//        addOperationHandler(OperationChain.class, new OperationChainHandler());
     }
 
     @Override
@@ -298,10 +306,10 @@ public class ProxyStore extends Store {
         return new uk.gov.gchq.gaffer.proxystore.operation.handler.OperationChainHandler<>();
     }
 
-    protected Client createClient(final ProxyProperties proxyProps) {
+    protected Client createClient() {
         final Client client = ClientBuilder.newClient();
-        client.property(ClientProperties.CONNECT_TIMEOUT, proxyProps.getConnectTimeout());
-        client.property(ClientProperties.READ_TIMEOUT, proxyProps.getReadTimeout());
+        client.property(ClientProperties.CONNECT_TIMEOUT, getProperties().getConnectTimeout());
+        client.property(ClientProperties.READ_TIMEOUT, getProperties().getReadTimeout());
         return client;
     }
 

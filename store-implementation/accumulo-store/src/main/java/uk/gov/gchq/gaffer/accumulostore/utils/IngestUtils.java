@@ -138,7 +138,7 @@ public final class IngestUtils {
         try (final FSDataInputStream fis = fs.open(splitsFile);
              final InputStreamReader streamReader = new InputStreamReader(fis, CommonConstants.UTF_8);
              final BufferedReader reader = new BufferedReader(streamReader)) {
-            while (reader.readLine() != null) {
+            while (null != reader.readLine()) {
                 ++numSplits;
             }
         }

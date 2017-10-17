@@ -34,6 +34,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A {@code AddNamedOperation} is an {@link Operation} for creating a new {@link NamedOperation}
+ * and adding it to a Gaffer graph.
+ */
 public class AddNamedOperation implements Operation {
     private String operations = null;
     private String operationName;
@@ -43,7 +47,7 @@ public class AddNamedOperation implements Operation {
     private boolean overwriteFlag = false;
     private Map<String, ParameterDetail> parameters;
     private Map<String, String> options;
-
+    private Integer score;
 
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
 
@@ -131,6 +135,7 @@ public class AddNamedOperation implements Operation {
         return parameters;
     }
 
+    @Override
     public AddNamedOperation shallowClone() {
         return new AddNamedOperation.Builder()
                 .operationChain(operations)
@@ -141,6 +146,7 @@ public class AddNamedOperation implements Operation {
                 .overwrite(overwriteFlag)
                 .parameters(parameters)
                 .options(options)
+                .score(score)
                 .build();
     }
 
@@ -152,6 +158,14 @@ public class AddNamedOperation implements Operation {
     @Override
     public void setOptions(final Map<String, String> options) {
         this.options = options;
+    }
+
+    public Integer getScore() {
+        return score;
+    }
+
+    public void setScore(final Integer score) {
+        this.score = score;
     }
 
     public static class Builder extends BaseBuilder<AddNamedOperation, Builder> {
@@ -201,6 +215,11 @@ public class AddNamedOperation implements Operation {
 
         public Builder overwrite() {
             return overwrite(true);
+        }
+
+        public Builder score(final Integer score) {
+            _getOp().setScore(score);
+            return _self();
         }
     }
 }

@@ -23,6 +23,12 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+/**
+ * {@code MultiInput} operations are Gaffer operations which consume more than one
+ * input.
+ *
+ * @param <I_ITEM> the type of input objects
+ */
 public interface MultiInput<I_ITEM> extends Input<Iterable<? extends I_ITEM>> {
     @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "If input is null then null should be returned")
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")

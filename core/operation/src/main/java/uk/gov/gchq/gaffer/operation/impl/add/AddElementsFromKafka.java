@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * An <code>AddElementsFromKafka</code> operation consumes records of a kafka topic,
+ * An {@code AddElementsFromKafka} operation consumes records of a kafka topic,
  * converts each record into a Gaffer {@link Element} using the provided
  * {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} then adds these
  * elements to the Graph. This operation is a blocking operation and will never stop.

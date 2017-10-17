@@ -20,9 +20,10 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 
 /**
- * A <code>GraphFactory</code> creates instances of {@link uk.gov.gchq.gaffer.graph.Graph} to be reused for all queries.
+ * A {@code GraphFactory} creates instances of {@link uk.gov.gchq.gaffer.graph.Graph} to be reused for all queries.
  */
 public interface GraphFactory {
+
     static GraphFactory createGraphFactory() {
         final String graphFactoryClass = System.getProperty(SystemProperty.GRAPH_FACTORY_CLASS,
                 SystemProperty.GRAPH_FACTORY_CLASS_DEFAULT);
@@ -36,9 +37,28 @@ public interface GraphFactory {
         }
     }
 
+    /**
+     * Create a new {@link Graph.Builder} instance.
+     *
+     * @return the graph builder
+     */
     Graph.Builder createGraphBuilder();
 
-    Graph createGraph();
+    /**
+     * Create a new {@link Graph} instance.
+     *
+     * By default this is created from the {@link Graph.Builder}.
+     *
+     * @return the graph
+     */
+    default Graph createGraph() {
+        return createGraphBuilder().build();
+    }
 
+    /**
+     * Get the {@link Graph} instance.
+     *
+     * @return the graph
+     */
     Graph getGraph();
 }

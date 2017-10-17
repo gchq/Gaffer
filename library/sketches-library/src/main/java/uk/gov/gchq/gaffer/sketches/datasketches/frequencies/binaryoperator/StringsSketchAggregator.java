@@ -20,11 +20,11 @@ import com.yahoo.sketches.frequencies.ItemsSketch;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
- * A <code>StringsSketchAggregator</code> is a {@link java.util.function.BinaryOperator} that takes in
+ * A {@code StringsSketchAggregator} is a {@link java.util.function.BinaryOperator} that takes in
  * {@link ItemsSketch}s of {@link String}s and merges them together using {@link ItemsSketch#merge(ItemsSketch)}.
  * <p>
  * NB: We cannot provide a generic aggregator for any type T as we need to clone the first sketch that is
- * supplied to the <code>_aggregate</code> method and that requires serialising and deserialising which
+ * supplied to the {@code _aggregate} method and that requires serialising and deserialising which
  * requires a specific serialiser.
  */
 public class StringsSketchAggregator extends KorypheBinaryOperator<ItemsSketch<String>> {

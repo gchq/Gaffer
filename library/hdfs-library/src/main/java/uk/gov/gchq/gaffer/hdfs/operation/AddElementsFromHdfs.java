@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import java.util.Map;
 
 /**
- * An <code>AddElementsFromHdfs</code> operation is for adding {@link uk.gov.gchq.gaffer.data.element.Element}s from HDFS.
+ * An {@code AddElementsFromHdfs} operation is for adding {@link uk.gov.gchq.gaffer.data.element.Element}s from HDFS.
  * This operation requires an input, output and failure path.
  * For each input file you must also provide a {@link uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator} class name
  * as part of a pair (input, mapperGeneratorClassName).
@@ -271,6 +271,7 @@ public class AddElementsFromHdfs implements
             return _self();
         }
 
+        @Override
         public Builder inputMapperPairs(final Map<String, String> inputMapperPairs) {
             _getOp().setInputMapperPairs(inputMapperPairs);
             return _self();

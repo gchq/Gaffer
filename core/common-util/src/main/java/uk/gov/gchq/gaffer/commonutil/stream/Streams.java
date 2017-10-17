@@ -99,6 +99,6 @@ public final class Streams {
     }
 
     private Streams() {
-        // Empty
+        // Private constructor to prevent instantiation
     }
 }

@@ -34,7 +34,7 @@ import javax.ws.rs.Produces;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 /**
- * An <code>IJobService</code> handles jobs - executing Jobs and getting Job
+ * An {@code IJobService} handles jobs - executing Jobs and getting Job
  * statuses.
  */
 @Path("/graph/jobs")

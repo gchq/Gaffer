@@ -42,7 +42,7 @@ public class ExportToOtherAuthorisedGraphHandler extends ExportToHandler<ExportT
     }
 
     public void setIdAuths(final Map<String, List<String>> idAuths) {
-        if (idAuths == null) {
+        if (null == idAuths) {
             this.idAuths = new HashMap<>();
         } else {
             this.idAuths = idAuths;
@@ -56,7 +56,7 @@ public class ExportToOtherAuthorisedGraphHandler extends ExportToHandler<ExportT
 
     @Override
     protected OtherGraphExporter createExporter(final ExportToOtherAuthorisedGraph export, final Context context, final Store store) {
-        return new OtherGraphExporter(context.getUser(), createGraph(export, context, store));
+        return new OtherGraphExporter(context, createGraph(export, context, store));
     }
 
     protected Graph createGraph(final ExportToOtherAuthorisedGraph export, final Context context, final Store store) {
@@ -68,7 +68,7 @@ public class ExportToOtherAuthorisedGraphHandler extends ExportToHandler<ExportT
 
         validate(context.getUser(), exportGraphId, exportParentSchemaIds, exportParentStorePropertiesId, graphLibrary, store);
 
-        if (exportParentSchemaIds == null && exportParentStorePropertiesId == null) {
+        if (null == exportParentSchemaIds && null == exportParentStorePropertiesId) {
             graph = createGraphWithLibraryAndId(graphLibrary, exportGraphId);
         } else {
             graph = createGraphAfterResolvingParentSchemaAndProperties(graphLibrary, exportGraphId, exportParentSchemaIds, exportParentStorePropertiesId);
@@ -77,7 +77,7 @@ public class ExportToOtherAuthorisedGraphHandler extends ExportToHandler<ExportT
     }
 
     private boolean isAuthorised(final User user, final List<String> auths) {
-        if (auths != null && !auths.isEmpty()) {
+        if (null != auths && !auths.isEmpty()) {
             for (final String auth : auths) {
                 if (user.getOpAuths().contains(auth)) {
                     return true;
@@ -115,7 +115,7 @@ public class ExportToOtherAuthorisedGraphHandler extends ExportToHandler<ExportT
 
     private Schema resolveSchema(final GraphLibrary graphLibrary, final List<String> parentSchemaIds) {
         Schema schema = null;
-        if (parentSchemaIds != null) {
+        if (null != parentSchemaIds) {
             if (parentSchemaIds.size() == 1) {
                 final String schemaModule = parentSchemaIds.get(0);
                 if (null == schemaModule) {
@@ -192,15 +192,15 @@ public class ExportToOtherAuthorisedGraphHandler extends ExportToHandler<ExportT
             if (null != parentStorePropertiesId) {
                 result.addError("GraphId " + graphId + " already exists so you cannot use different Store Properties. Do not set the parentStorePropertiesId field");
             }
-        } else if (!graphLibrary.exists(graphId) && parentSchemaIds == null && parentStorePropertiesId == null) {
+        } else if (!graphLibrary.exists(graphId) && null == parentSchemaIds && null == parentStorePropertiesId) {
             result.addError("GraphLibrary cannot be found with graphId: " + graphId);
         }
 
-        if (parentSchemaIds != null && parentStorePropertiesId == null) {
+        if (null != parentSchemaIds && null == parentStorePropertiesId) {
             result.addError("parentStorePropertiesId must be specified with parentSchemaId");
         }
 
-        if (parentSchemaIds == null && parentStorePropertiesId != null) {
+        if (null == parentSchemaIds && null != parentStorePropertiesId) {
             result.addError("parentSchemaId must be specified with parentStorePropertiesId");
         }
 

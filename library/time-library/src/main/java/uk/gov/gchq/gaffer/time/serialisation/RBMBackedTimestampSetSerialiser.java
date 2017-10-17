@@ -31,7 +31,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 /**
- * A <code>RBMBackedTimestampSetSerialiser</code> serialises a {@link RBMBackedTimestampSet} to an array of bytes.
+ * A {@code RBMBackedTimestampSetSerialiser} serialises a {@link RBMBackedTimestampSet} to an array of bytes.
  * <p>The following figures illustrate the serialised size of some {@link RBMBackedTimestampSet}s with different
  * numbers of timestamps added and different time buckets:
  * <ul>

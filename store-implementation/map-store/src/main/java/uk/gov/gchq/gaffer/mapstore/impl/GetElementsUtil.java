@@ -39,8 +39,14 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+/**
+ * Utility methods used by the handlers for the {@link uk.gov.gchq.gaffer.operation.impl.get.GetElements}
+ * operations in the {@link uk.gov.gchq.gaffer.mapstore.MapStore}.
+ */
 public final class GetElementsUtil {
+
     private GetElementsUtil() {
+        // Private constructor to prevent instantiation.
     }
 
     public static Set<Element> getRelevantElements(final MapImpl mapImpl,

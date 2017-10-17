@@ -116,7 +116,7 @@
         }
       ],
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.binaryoperator.FreqMapAggregator"
+        "class": "uk.gov.gchq.gaffer.types.function.FreqMapAggregator"
       }
     }
   }

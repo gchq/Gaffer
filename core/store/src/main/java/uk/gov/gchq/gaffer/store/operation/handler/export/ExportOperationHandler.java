@@ -24,6 +24,12 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
+/**
+ * Abstract class describing how to handle {@link Export} operations.
+ *
+ * @param <EXPORT> the {@link Export} operation
+ * @param <EXPORTER> the {@link Exporter} instance
+ */
 public abstract class ExportOperationHandler<EXPORT extends Export & Operation, EXPORTER extends Exporter> implements OperationHandler<EXPORT> {
     @Override
     public Object doOperation(final EXPORT export,

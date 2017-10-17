@@ -20,7 +20,7 @@ import com.yahoo.sketches.frequencies.LongsSketch;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
- * A <code>LongsSketchAggregator</code> is a {@link java.util.function.BinaryOperator} that takes in
+ * A {@code LongsSketchAggregator} is a {@link java.util.function.BinaryOperator} that takes in
  * {@link LongsSketch}s and merges them together using {@link LongsSketch#merge(LongsSketch)}.
  */
 public class LongsSketchAggregator extends KorypheBinaryOperator<LongsSketch> {

@@ -21,7 +21,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.CsvGenerator;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
@@ -29,14 +28,13 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Map;
 
 /**
- * A <code>ToMap</code> operation takes in an {@link Iterable} of items
+ * A {@code ToMap} operation takes in an {@link Iterable} of items
  * and uses a {@link uk.gov.gchq.gaffer.data.generator.CsvGenerator} to convert
  * each item into a CSV String.
  *
  * @see ToCsv.Builder
  */
 public class ToCsv implements
-        Operation,
         InputOutput<Iterable<? extends Element>, Iterable<? extends String>>,
         MultiInput<Element> {
 

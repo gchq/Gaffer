@@ -33,7 +33,7 @@ import javax.inject.Inject;
  * preOperationHook and/or postOperationHook.
  * <p>
  * By default queries will be executed with an UNKNOWN user containing no auths.
- * TheuserFactory.createUser() method should be overridden and a {@link uk.gov.gchq.gaffer.user.User}
+ * The {@link UserFactory#createUser()} method should be overridden and a {@link uk.gov.gchq.gaffer.user.User}
  * object should be created from the http request.
  * </p>
  */

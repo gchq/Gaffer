@@ -38,7 +38,6 @@ import java.util.Map;
  * set.
  **/
 public class GetElementsWithinSet implements
-        Operation,
         InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends Element>>,
         MultiInput<EntityId>,
         GraphFilters {

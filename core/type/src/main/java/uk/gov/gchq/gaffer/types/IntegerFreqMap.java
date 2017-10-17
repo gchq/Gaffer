@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <code>FreqMap</code> extends {@link HashMap} with String keys and Integer values, adding an upsert operation.
+ * {@code FreqMap} extends {@link HashMap} with String keys and Integer values, adding an upsert operation.
  *
  * @deprecated Use {@link FreqMap} instead.
  */

@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.serialisation;
 
-import com.google.common.collect.Ordering;
 import com.yahoo.memory.WritableMemory;
 import com.yahoo.sketches.ArrayOfStringsSerDe;
 import com.yahoo.sketches.quantiles.ItemsUnion;
@@ -23,12 +22,11 @@ import com.yahoo.sketches.quantiles.ItemsUnion;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
+import java.util.Comparator;
+
 /**
- * A <code>StringsUnionSerialiser</code> serialises an {@link ItemsUnion} of {@link String}s using its
- * <code>toByteArray()</code> method.
- *
- * NB: When Gaffer requires Java 8, <code>Ordering.natural()</code> can be replaced with
- * <code>Comparator.naturalOrder()</code>.
+ * A {@code StringsUnionSerialiser} serialises an {@link ItemsUnion} of {@link String}s using its
+ * {@code toByteArray()} method.
  */
 public class StringsUnionSerialiser implements ToBytesSerialiser<ItemsUnion<String>> {
     private static final long serialVersionUID = 7091724743812159058L;
@@ -46,7 +44,7 @@ public class StringsUnionSerialiser implements ToBytesSerialiser<ItemsUnion<Stri
 
     @Override
     public ItemsUnion<String> deserialise(final byte[] bytes) throws SerialisationException {
-       return ItemsUnion.getInstance(WritableMemory.wrap(bytes), Ordering.<String>natural(), SERIALISER);
+       return ItemsUnion.getInstance(WritableMemory.wrap(bytes), Comparator.naturalOrder(), SERIALISER);
     }
 
     @Override

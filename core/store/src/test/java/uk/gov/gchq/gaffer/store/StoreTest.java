@@ -63,6 +63,9 @@ import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResult
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
+import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
+import uk.gov.gchq.gaffer.operation.impl.function.Filter;
+import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
@@ -85,6 +88,8 @@ import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.tostring.StringToStringSerialiser;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
+import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
+import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
@@ -93,8 +98,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.export.set.GetSetExportHandler
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToSetHandler;
-import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclaration;
-import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -211,7 +214,6 @@ public class StoreTest {
     public void shouldThrowExceptionIfGraphIdIsNull() throws Exception {
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
-
         try {
             store.initialise(null, schema, properties);
             fail("Exception expected");
@@ -292,7 +294,7 @@ public class StoreTest {
         store.initialise("graphId", schema, properties);
 
         // When
-        store.execute(addElements, user);
+        store.execute(addElements, store.createContext(user));
 
         // Then
         verify(addElementsHandler).doOperation(addElements, context, store);
@@ -355,7 +357,7 @@ public class StoreTest {
 
         // When / Then
         try {
-            store.execute(opChain, user);
+            store.execute(opChain, context);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             verify(operationChainValidator).validate(opChain, user, store);
@@ -374,7 +376,7 @@ public class StoreTest {
         store.initialise("graphId", schema, properties);
 
         // When
-        store.execute(operation, user);
+        store.execute(operation, context);
 
         // Then
         assertEquals(1, store.getDoUnhandledOperationCalls().size());
@@ -427,7 +429,7 @@ public class StoreTest {
         store.initialise("graphId", schema, properties);
 
         // When
-        final CloseableIterable<? extends Element> result = store.execute(opChain, user);
+        final CloseableIterable<? extends Element> result = store.execute(opChain, context);
 
         // Then
         assertSame(getElementsResult, result);
@@ -505,7 +507,12 @@ public class StoreTest {
                 Count.class,
                 CountGroups.class,
                 Limit.class,
-                DiscardOutput.class
+                DiscardOutput.class,
+
+                // Function
+                Filter.class,
+                Transform.class,
+                Aggregate.class
         );
 
         expectedOperations.sort(Comparator.comparing(Class::getName));
@@ -578,7 +585,7 @@ public class StoreTest {
         store.initialise("graphId", schema, properties);
 
         // When
-        final JobDetail resultJobDetail = store.executeJob(opChain, user);
+        final JobDetail resultJobDetail = store.executeJob(opChain, store.createContext(user));
 
         // Then
         Thread.sleep(1000);
@@ -605,7 +612,7 @@ public class StoreTest {
         store.initialise("graphId", schema, properties);
 
         // When
-        final JobDetail resultJobDetail = store.executeJob(opChain, user);
+        final JobDetail resultJobDetail = store.executeJob(opChain, store.createContext(user));
 
         // Then
         Thread.sleep(1000);
@@ -789,7 +796,8 @@ public class StoreTest {
         }
 
         @Override
-        protected Context createContext(final User user) {
+        public Context createContext(final User user) {
+            super.createContext(user);
             return context;
         }
 
@@ -799,8 +807,8 @@ public class StoreTest {
         }
 
         @Override
-        protected JobTracker createJobTracker(final StoreProperties properties) {
-            if (properties.getJobTrackerEnabled()) {
+        protected JobTracker createJobTracker() {
+            if (getProperties().getJobTrackerEnabled()) {
                 return jobTracker;
             }
 

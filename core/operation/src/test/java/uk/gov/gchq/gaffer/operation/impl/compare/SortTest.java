@@ -98,6 +98,7 @@ public class SortTest extends OperationTest<Sort> {
         assertTrue(clone.getResultLimit().equals(resultLimit));
     }
 
+    @Override
     protected Sort getTestObject() {
         return new Sort();
     }

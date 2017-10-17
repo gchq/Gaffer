@@ -41,7 +41,7 @@ public class BooleanParquetSerialiser implements ParquetSerialiser<Boolean> {
         if (objects.length == 1) {
             if (objects[0] instanceof Boolean) {
                 return (Boolean) objects[0];
-            } else if (objects[0] == null) {
+            } else if (null == objects[0]) {
                 return null;
             }
         }

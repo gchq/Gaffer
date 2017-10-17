@@ -22,6 +22,10 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.export.ExportToHandler;
 
+/**
+ * Implementation of the {@link ExportToHandler} abstract class to export objects
+ * to a {@link java.util.Set} via a {@link SetExporter}.
+ */
 public class ExportToSetHandler extends ExportToHandler<ExportToSet, SetExporter> {
     @Override
     protected Class<SetExporter> getExporterClass() {

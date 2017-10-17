@@ -19,6 +19,12 @@ package uk.gov.gchq.gaffer.data.generator;
 import uk.gov.gchq.gaffer.commonutil.iterable.TransformOneToManyIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 
+/**
+ * A {@code OneToManyElementGenerator} takes an input object and converts it into
+ * multiple output {@link Element}s.
+ *
+ * @param <OBJ> the type of the input objects
+ */
 public interface OneToManyElementGenerator<OBJ> extends ElementGenerator<OBJ> {
     @Override
     default Iterable<? extends Element> apply(final Iterable<? extends OBJ> domainObjects) {

@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import java.util.Comparator;
 
 /**
- * An <code>EdgeSeed</code> contains source, destination and directed identifiers to identify an
+ * An {@code EdgeSeed} contains source, destination and directed identifiers to identify an
  * {@link uk.gov.gchq.gaffer.data.element.Edge}.
  * It is used as a mainly used as a seed for queries.
  */

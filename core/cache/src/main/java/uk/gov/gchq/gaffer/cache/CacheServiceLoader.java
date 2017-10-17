@@ -43,14 +43,14 @@ public final class CacheServiceLoader {
      * @throws IllegalArgumentException if an invalid cache class is specified in the system property
      */
     public static void initialise(final Properties properties) {
-        if (properties == null) {
+        if (null == properties) {
             LOGGER.warn("received null properties - exiting initialise method without creating service");
             return;
         }
-        String cacheClass = properties.getProperty(CacheProperties.CACHE_SERVICE_CLASS);
+        final String cacheClass = properties.getProperty(CacheProperties.CACHE_SERVICE_CLASS);
 
-        if (cacheClass == null) {
-            if (service == null) {
+        if (null == cacheClass) {
+            if (null == service) {
                 LOGGER.debug("No cache service class was specified in properties.");
             }
             return;
@@ -65,16 +65,14 @@ public final class CacheServiceLoader {
         service.initialise(properties);
 
         if (!shutdownHookAdded) {
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                public void run() {
-                    shutdown();
-                }
-            });
+            Runtime.getRuntime().addShutdownHook(new Thread(CacheServiceLoader::shutdown));
             shutdownHookAdded = true;
         }
     }
 
     /**
+     * Get the cache service object.
+     *
      * @return the cache service
      */
     public static ICacheService getService() {
@@ -85,7 +83,7 @@ public final class CacheServiceLoader {
      * Gracefully shutdown and reset the cache service.
      */
     public static void shutdown() {
-        if (service != null) {
+        if (null != service) {
             service.shutdown();
         }
 
@@ -93,7 +91,7 @@ public final class CacheServiceLoader {
     }
 
     private CacheServiceLoader() {
-        // do not instantiate
+        // private constructor to prevent instantiation
     }
 
 }

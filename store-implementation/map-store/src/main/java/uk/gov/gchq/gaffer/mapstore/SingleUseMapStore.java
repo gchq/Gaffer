@@ -21,14 +21,18 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+/**
+ * A simple {@link MapStore} instance suitable for testing.
+ */
 public class SingleUseMapStore extends MapStore {
+
     @SuppressFBWarnings(value = "DE_MIGHT_IGNORE", justification = "Exception ignored while clearing previous maps before reinitialising.")
     @Override
-    public void initialise(final String graphId, final Schema schema, final StoreProperties storeProperties) throws StoreException {
+    public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
         MapStore.resetStaticMap();
 
         try {
-            super.initialise(graphId, schema, storeProperties);
+            super.initialise(graphId, schema, properties);
         } catch (final Exception e) {
             // Ignore errors as it will be reinitialised just below.
         }
@@ -37,6 +41,6 @@ public class SingleUseMapStore extends MapStore {
             getMapImpl().clear();
         }
 
-        super.initialise(graphId, schema, storeProperties);
+        super.initialise(graphId, schema, properties);
     }
 }

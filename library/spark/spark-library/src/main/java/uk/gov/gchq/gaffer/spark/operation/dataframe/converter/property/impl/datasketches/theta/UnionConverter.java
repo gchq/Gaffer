@@ -19,11 +19,11 @@ import com.yahoo.sketches.theta.Union;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.DataTypes;
 
-import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.ConversionException;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.exception.ConversionException;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
 
 /**
- * A {@link Converter} that converts a {@link Union} into a <code>double</code> so that it can be
+ * A {@link Converter} that converts a {@link Union} into a {@code double} so that it can be
  * included in a Dataframe.
  */
 public class UnionConverter implements Converter {

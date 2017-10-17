@@ -20,7 +20,7 @@ import com.yahoo.sketches.quantiles.DoublesUnion;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
- * A <code>DoublesUnionAggregator</code> is a {@link java.util.function.BinaryOperator} that aggregates {@link DoublesUnion}s.
+ * A {@code DoublesUnionAggregator} is a {@link java.util.function.BinaryOperator} that aggregates {@link DoublesUnion}s.
  * It does this by extracting a {@link com.yahoo.sketches.quantiles.DoublesSketch} from each {@link DoublesUnion}
  * and merges that using {@link DoublesUnion#update(com.yahoo.sketches.quantiles.DoublesSketch)}.
  */

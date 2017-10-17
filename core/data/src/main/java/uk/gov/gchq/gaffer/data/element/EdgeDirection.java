@@ -16,8 +16,24 @@
 
 package uk.gov.gchq.gaffer.data.element;
 
+/**
+ * Enumerated type denoting the directionality of an {@link Edge}.
+ */
 public enum EdgeDirection {
-    DIRECTED, UNDIRECTED, DIRECTED_REVERSED;
+    /**
+     * The edge is directed.
+     */
+    DIRECTED,
+
+    /**
+     * The edge is not directed.
+     */
+    UNDIRECTED,
+
+    /**
+     * The edge is directed, but source and destination are reversed.
+     */
+    DIRECTED_REVERSED;
 
     public boolean isDirected() {
         return DIRECTED == this || DIRECTED_REVERSED == this;

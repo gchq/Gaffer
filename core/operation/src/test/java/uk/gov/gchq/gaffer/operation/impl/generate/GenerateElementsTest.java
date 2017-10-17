@@ -93,6 +93,7 @@ public class GenerateElementsTest extends OperationTest<GenerateElements> {
         assertEquals(generator, clone.getElementGenerator());
     }
 
+    @Override
     protected GenerateElements getTestObject() {
         return new GenerateElements();
     }

@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.serialisation;
 
+
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 

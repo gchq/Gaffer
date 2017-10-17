@@ -25,6 +25,10 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Factory class to create the required modules for serialisation and deserialising
+ * {@link RoaringBitmap} instances in Jackson.
+ */
 public class BitmapJsonModules implements JSONSerialiserModules {
     @Override
     public List<Module> getModules() {

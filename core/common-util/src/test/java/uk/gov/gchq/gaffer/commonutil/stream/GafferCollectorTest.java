@@ -38,7 +38,7 @@ public class GafferCollectorTest {
         final IntStream stream = IntStream.range(0, 100);
 
         // When
-        final Iterable<Integer> iterable = stream.mapToObj(i -> i)
+        final Iterable<Integer> iterable = stream.boxed()
                 .collect(toLinkedHashSet());
 
         // Then
@@ -54,7 +54,7 @@ public class GafferCollectorTest {
         final boolean deduplicate = true;
 
         // When
-        final LimitedInMemorySortedIterable<Integer> result = stream.mapToObj(i -> i)
+        final LimitedInMemorySortedIterable<Integer> result = stream.boxed()
                 .collect(toLimitedInMemorySortedIterable(Integer::compareTo, limit, deduplicate));
 
         // Then

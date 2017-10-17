@@ -24,7 +24,6 @@ import com.google.common.collect.Lists;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.ExportTo;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
@@ -36,8 +35,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+/**
+ * A {@code ExportToOtherGraph} operation is used to export the results of carrying
+ * out a query on a Gaffer {@link uk.gov.gchq.gaffer.graph.Graph} to a different
+ * graph.
+ */
 public class ExportToOtherGraph implements
-        Operation,
         MultiInput<Element>,
         ExportTo<Iterable<? extends Element>> {
     @Required

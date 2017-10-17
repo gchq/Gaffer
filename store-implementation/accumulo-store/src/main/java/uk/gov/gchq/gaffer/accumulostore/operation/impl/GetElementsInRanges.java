@@ -37,7 +37,7 @@ import java.util.Map;
  * {@link uk.gov.gchq.gaffer.data.element.id.ElementId}s.
  */
 public class GetElementsInRanges
-        implements Operation,
+        implements
         InputOutput<Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, CloseableIterable<? extends Element>>,
         MultiInput<Pair<? extends ElementId, ? extends ElementId>>,
         SeededGraphFilters {

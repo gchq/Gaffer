@@ -20,10 +20,9 @@
                      debug="false">
     <appender name="console" class="org.apache.log4j.ConsoleAppender">
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%m%n"/>
+            <param name="ConversionPattern" value="%c{3} %p %x - %m%n"/>
         </layout>
     </appender>
-
     <logger name="org.apache.spark">
         <level value="ERROR"/>
     </logger>
@@ -33,23 +32,27 @@
     <logger name="org.apache.hadoop">
         <level value="ERROR"/>
     </logger>
-    <logger name="uk.gov.gchq.gaffer.parquetstore">
-        <level value="WARN"/>
-    </logger>
-    <logger name="uk.gov.gchq.gaffer.spark">
-        <level value="WARN"/>
-    </logger>
-    <logger name="org.reflections.Reflections">
-        <level value="WARN"/>
-    </logger>
-    <logger name="uk.gov.gchq.gaffer.jsonserialisation">
-        <level value="WARN"/>
-    </logger>
-    <logger name="uk.gov.gchq.gaffer.store">
-        <level value="WARN"/>
-    </logger>
-    <logger name="uk.gov.gchq.gaffer.cache">
-        <level value="WARN"/>
+    <logger name="org.apache.accumulo.core.client.ClientConfiguration">
+        <level value="ERROR"/>
     </logger>
 
+    <logger name="org.apache.accumulo.core.conf.SiteConfiguration">
+        <level value="ERROR"/>
+    </logger>
+
+    <logger name="org.apache.hadoop.util.NativeCodeLoader">
+        <level value="ERROR"/>
+    </logger>
+
+    <logger name="org.apache.hadoop.util.NativeCodeLoader">
+        <level value="ERROR"/>
+    </logger>
+
+    <logger name="org.apache.spark.util.ClosureCleaner">
+        <level value="ERROR"/>
+    </logger>
+    <root>
+        <priority value="warn"></priority>
+        <appender-ref ref="console"></appender-ref>
+    </root>
 </log4j:configuration>

@@ -61,7 +61,7 @@ public class Gaffer1BloomElementFunctorTest {
 
     @Test
     public void shouldTransformRangeEntity() {
-        // Create Range formed from one entity and shouldRetieveElementsInRangeBetweenSeeds
+        // Create Range formed from one entity and shouldRetrieveElementsInRangeBetweenSeeds
         final Entity entity1 = new Entity.Builder()
                 .group(TestGroups.ENTITY)
                 .vertex(1)
@@ -71,7 +71,7 @@ public class Gaffer1BloomElementFunctorTest {
         final org.apache.hadoop.util.bloom.Key expectedBloomKey1 = new org.apache.hadoop.util.bloom.Key(Arrays.copyOf(key1.getRowData().getBackingArray(), key1.getRowData().getBackingArray().length));
         assertTrue(elementFunctor.transform(range1).equals(expectedBloomKey1));
 
-        // Create Range formed from two entities and shouldRetieveElementsInRangeBetweenSeeds - should get null
+        // Create Range formed from two entities and shouldRetrieveElementsInRangeBetweenSeeds - should get null
         final Entity entity2 = new Entity.Builder()
                 .group(TestGroups.ENTITY)
                 .vertex(2)
@@ -83,7 +83,7 @@ public class Gaffer1BloomElementFunctorTest {
 
     @Test
     public void shouldTransformKeyEntity() {
-        // Create Key formed from entity and shouldRetieveElementsInRangeBetweenSeeds
+        // Create Key formed from entity and shouldRetrieveElementsInRangeBetweenSeeds
         final Entity entity1 = new Entity.Builder()
                 .group(TestGroups.ENTITY)
                 .vertex(1)
@@ -95,7 +95,7 @@ public class Gaffer1BloomElementFunctorTest {
 
     @Test
     public void shouldTransformRangeEdge() {
-        // Create Range formed from one edge and shouldRetieveElementsInRangeBetweenSeeds
+        // Create Range formed from one edge and shouldRetrieveElementsInRangeBetweenSeeds
         final Edge edge1 = new Edge.Builder()
                 .group(TestGroups.EDGE)
                 .source(1)
@@ -109,14 +109,14 @@ public class Gaffer1BloomElementFunctorTest {
         final org.apache.hadoop.util.bloom.Key expectedBloomKey2 = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(keys.getSecond().getRowData().getBackingArray()));
         assertEquals(expectedBloomKey2, elementFunctor.transform(range2));
 
-        // Create Range formed from two keys and shouldRetieveElementsInRangeBetweenSeeds - should get null
+        // Create Range formed from two keys and shouldRetrieveElementsInRangeBetweenSeeds - should get null
         final Range range3 = new Range(keys.getFirst().getRow(), true, keys.getSecond().getRow(), true);
         assertNull(elementFunctor.transform(range3));
     }
 
     @Test
     public void shouldTransformKeyEdge() {
-        // Create Key formed from edge and shouldRetieveElementsInRangeBetweenSeeds
+        // Create Key formed from edge and shouldRetrieveElementsInRangeBetweenSeeds
         final Edge edge1 = new Edge.Builder()
                 .group(TestGroups.EDGE)
                 .source(1)
@@ -179,7 +179,7 @@ public class Gaffer1BloomElementFunctorTest {
     @Test
     public void shouldTransformRangeWhenRangeHasUnspecifiedStartOrEndKey() {
         try {
-            // Create Range with unspecified start key and shouldRetieveElementsInRangeBetweenSeeds - should get null
+            // Create Range with unspecified start key and shouldRetrieveElementsInRangeBetweenSeeds - should get null
             final Edge edge1 = new Edge.Builder()
                     .group(TestGroups.EDGE)
                     .source("3")
@@ -188,7 +188,7 @@ public class Gaffer1BloomElementFunctorTest {
             final Range range1 = new Range(null, true, keys.getFirst().getRow(), true);
             assertNull(elementFunctor.transform(range1));
 
-            // Create Range with unspecified end key and shouldRetieveElementsInRangeBetweenSeeds - should get null
+            // Create Range with unspecified end key and shouldRetrieveElementsInRangeBetweenSeeds - should get null
             final Range range2 = new Range(keys.getFirst().getRow(), true, null, true);
             assertNull(elementFunctor.transform(range2));
         } catch (final AccumuloElementConversionException e) {

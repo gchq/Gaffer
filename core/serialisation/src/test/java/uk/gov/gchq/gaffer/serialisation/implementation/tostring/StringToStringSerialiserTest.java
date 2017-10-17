@@ -56,6 +56,7 @@ public class StringToStringSerialiserTest extends SerialisationTest<String, Stri
         return new StringToStringSerialiser();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Pair<String, String>[] getHistoricSerialisationPairs() {
         String s = "this is a string to be used for checking the serialisation.";

@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.sketches.serialisation.json.SketchesJsonModules;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringDeduplicateConcat;
 
+import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.file.Path;
 
@@ -44,6 +45,7 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
     public static final String PARQUET_THREADS_AVAILABLE = "parquet.threadsAvailable";
     public static final String PARQUET_ADD_ELEMENTS_OUTPUT_FILES_PER_GROUP = "parquet.add_elements.output_files_per_group";
     public static final String SPARK_MASTER = "spark.master";
+    public static final String PARQUET_SKIP_VALIDATION = "parquet.skip_validation";
 
 
     // Default values
@@ -57,16 +59,27 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
     private static final String PARQUET_THREADS_AVAILABLE_DEFAULT = "3";
     private static final String PARQUET_ADD_ELEMENTS_OUTPUT_FILES_PER_GROUP_DEFAULT = "10";
     private static final String SPARK_MASTER_DEFAULT = "local[*]";
+    private static final String PARQUET_SKIP_VALIDATION_DEFAULT = "false";
     private static final long serialVersionUID = 7695540336792378185L;
 
     public ParquetStoreProperties() {
-        super();
-        this.setStoreClass(ParquetStore.class);
-        this.setStorePropertiesClass(getClass());
+        super(ParquetStore.class);
     }
 
     public ParquetStoreProperties(final Path propFileLocation) {
-        super(propFileLocation);
+        super(propFileLocation, ParquetStore.class);
+    }
+
+    public static ParquetStoreProperties loadStoreProperties(final String pathStr) {
+        return StoreProperties.loadStoreProperties(pathStr, ParquetStoreProperties.class);
+    }
+
+    public static ParquetStoreProperties loadStoreProperties(final InputStream storePropertiesStream) {
+        return StoreProperties.loadStoreProperties(storePropertiesStream, ParquetStoreProperties.class);
+    }
+
+    public static ParquetStoreProperties loadStoreProperties(final Path storePropertiesPath) {
+        return StoreProperties.loadStoreProperties(storePropertiesPath, ParquetStoreProperties.class);
     }
 
     public String getDataDir() {
@@ -92,6 +105,7 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
     public void setThreadsAvailable(final Integer threadsAvailable) {
         set(PARQUET_THREADS_AVAILABLE, threadsAvailable.toString());
     }
+
     public Integer getSampleRate() {
         return Integer.parseInt(get(PARQUET_SPLIT_POINTS_SAMPLE_RATE, PARQUET_SPLIT_POINTS_SAMPLE_RATE_DEFAULT));
     }
@@ -141,6 +155,14 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
 
     public void setSparkMaster(final String sparkMaster) {
         set(SPARK_MASTER, sparkMaster);
+    }
+
+    public boolean getSkipValidation() {
+        return Boolean.parseBoolean(get(PARQUET_SKIP_VALIDATION, PARQUET_SKIP_VALIDATION_DEFAULT));
+    }
+
+    public void setSkipValidation(final boolean skipValidation) {
+        set(PARQUET_SKIP_VALIDATION, String.valueOf(skipValidation));
     }
 
     @Override

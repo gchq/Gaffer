@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.operation.io.Input;
 import java.util.Map;
 
 public class ImportKeyValuePairRDDToAccumulo implements
-        Operation,
         Input<RDD<Tuple2<Key, Value>>> {
     private RDD<Tuple2<Key, Value>> input;
     private String outputPath;
@@ -69,6 +68,7 @@ public class ImportKeyValuePairRDDToAccumulo implements
         this.options = options;
     }
 
+    @Override
     public ImportKeyValuePairRDDToAccumulo shallowClone() {
         return new ImportKeyValuePairRDDToAccumulo.Builder()
                 .input(input)

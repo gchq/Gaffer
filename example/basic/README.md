@@ -26,7 +26,7 @@ cd Gaffer
 # This will download several maven dependencies such as tomcat.
 # Using -pl we tell maven only to build the demo module and just download the other Gaffer binaries from maven.
 # The -Pbasic-demo is a profile that will automatically startup a standalone instance of tomcat with the REST API and UI deployed.
-mvn install -Pquick -Pbasic-demo -pl example/basic/basic-rest
+mvn install -Pquick -Pbasic-demo -pl :basic-rest
 ```
 
 If you wish to build all of Gaffer first then just remove the "-pl example/basic/basic-rest" part.

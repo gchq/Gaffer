@@ -20,17 +20,56 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Map-like data structure where keys may correspond to multiple values.
+ *
+ * @param <K> the type of key
+ * @param <V> the type of value
+ */
 public interface MultiMap<K, V> {
-    boolean put(K key, V value);
 
-    void put(K key, Collection<V> values);
+    /**
+     * Add a value to the specified key.
+     *
+     * @param key the key to add a value to
+     * @param value the value to add
+     * @return true if the operation was successful, otherwise false
+     */
+    boolean put(final K key, final V value);
 
-    Collection<V> get(K key);
+    /**
+     * Add a collection of values to the specified key.
+     *
+     * @param key the key to add the values to
+     * @param values the values to add
+     */
+    void put(final K key, final Collection<V> values);
 
+    /**
+     * Get all of the values associated with the specified key.
+     *
+     * @param key the key to lookup
+     * @return a collection containing all of the values
+     */
+    Collection<V> get(final K key);
+
+    /**
+     * Get the Set containing all keys in the map.
+     *
+     * @return the set of keys
+     */
     Set<K> keySet();
 
+    /**
+     * Clear the map of all entries.
+     */
     void clear();
 
+    /**
+     * Add all of the contents of another {@link MultiMap} to this instance.
+     *
+     * @param map the map containing the entries to add to this map instance
+     */
     default void putAll(final MultiMap<K, V> map) {
         if (map instanceof MapOfSets) {
             for (final Map.Entry<K, Set<V>> entry : ((MapOfSets<K, V>) map).entrySet()) {

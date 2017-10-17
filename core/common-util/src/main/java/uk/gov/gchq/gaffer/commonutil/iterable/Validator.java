@@ -16,8 +16,10 @@
 
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
+import uk.gov.gchq.koryphe.ValidationResult;
+
 /**
- * An <code>Validator</code> validates objects of type T and returns true if they are valid.
+ * An {@code Validator} validates objects of type T and returns true if they are valid.
  *
  * @param <T> the type of object the validator will validate.
  */
@@ -29,4 +31,27 @@ public interface Validator<T> {
      * @return true if the provided object is valid.
      */
     boolean validate(final T obj);
+
+    /**
+     * <p>
+     * Validates the given object and results a ValidationResult that can
+     * contain information as to why validation fails.
+     * </p>
+     * <p>
+     * It is less efficient than just calling validate as complex validation
+     * strings may be built to detail why objects are invalid.
+     * </p>
+     *
+     * @param obj an object of type T to validate.
+     * @return the ValidationResult.
+     */
+    default ValidationResult validateWithValidationResult(final T obj) {
+        final boolean result = validate(obj);
+        final ValidationResult validationResult = new ValidationResult();
+        if (!result) {
+            validationResult.addError("Validation failed for obj: " + obj);
+        }
+
+        return validationResult;
+    }
 }

@@ -19,6 +19,12 @@ package uk.gov.gchq.gaffer.data.generator;
 import uk.gov.gchq.gaffer.commonutil.iterable.TransformIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 
+/**
+ * A {@code OneToOneObjectGenerator} takes an input {@link Element} and converts it into
+ * an output object.
+ *
+ * @param <OBJ> the type of the output object
+ */
 public interface OneToOneObjectGenerator<OBJ> extends ObjectGenerator<OBJ> {
     @Override
     default Iterable<? extends OBJ> apply(final Iterable<? extends Element> elements) {

@@ -68,6 +68,7 @@ public class OperationImpl implements Operation {
         this.optionalField2 = optionalField2;
     }
 
+    @Override
     public OperationImpl shallowClone() {
         return new OperationImpl.Builder()
                 .requiredField1(requiredField1)

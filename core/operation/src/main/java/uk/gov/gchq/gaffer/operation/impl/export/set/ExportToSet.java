@@ -25,13 +25,12 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Map;
 
 /**
- * An <code>ExportToSet</code> Export operation exports results to a Set.
+ * An {@code ExportToSet} Export operation exports results to a Set.
  * This Set export is maintained per single Job or {@link uk.gov.gchq.gaffer.operation.OperationChain} only.
  * It cannot be used across multiple separate operation requests.
  * So ExportToSet and GetSetExport must be used inside a single operation chain.
  */
 public class ExportToSet<T> implements
-        Operation,
         ExportTo<T> {
     private String key;
     private T input;

@@ -22,7 +22,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.Option;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -43,7 +42,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
@@ -57,12 +55,14 @@ public class AggregateAndSortTempData {
     private static final String SORTED = "/sorted";
     private static final String SPLIT = "/split";
 
-    public AggregateAndSortTempData(final ParquetStore store, final SparkSession spark, final Map<String, Map<Object, Integer>> groupToSplitPoints) throws OperationException, SerialisationException {
+    public AggregateAndSortTempData(final ParquetStore store, final SparkSession spark,
+                                    final Map<String, Map<Object, Integer>> groupToSplitPoints,
+                                    final ExecutorService pool) throws OperationException, SerialisationException {
         final List<Callable<OperationException>> tasks = new ArrayList<>();
         final SchemaUtils schemaUtils = store.getSchemaUtils();
         final GraphIndex index = store.getGraphIndex();
         final String currentDataDir;
-        if (index != null) {
+        if (null != index) {
             currentDataDir = store.getDataDir()
                     + "/" + index.getSnapshotTimestamp();
         } else {
@@ -75,20 +75,11 @@ public class AggregateAndSortTempData {
         for (final String group : schemaUtils.getEntityGroups()) {
             addAggregationTask(group, ParquetStoreConstants.VERTEX, currentDataDir, groupToSplitPoints, tasks, store, spark);
         }
-        final int numberOfThreads;
-        final Option<String> sparkDriverCores = spark.conf().getOption("spark.driver.cores");
-        if (sparkDriverCores.nonEmpty()) {
-            numberOfThreads = Integer.parseInt(sparkDriverCores.get());
-        } else {
-            numberOfThreads = store.getProperties().getThreadsAvailable();
-        }
-        final ExecutorService pool = Executors.newFixedThreadPool(numberOfThreads);
-        LOGGER.debug("Created thread pool of size {} to aggregate and sort data", numberOfThreads);
         try {
             List<Future<OperationException>> results = pool.invokeAll(tasks);
             for (int i = 0; i < tasks.size(); i++) {
                 final OperationException result = results.get(i).get();
-                if (result != null) {
+                if (null != result) {
                     throw result;
                 }
             }
@@ -128,7 +119,6 @@ public class AggregateAndSortTempData {
                 results.get(i).get();
             }
             LOGGER.debug("Finished sorting the aggregated data");
-            pool.shutdown();
             // move sorted files into a directory ready to be moved to the data directory
             if (props.getSortBySplitsOnIngest()) {
                 for (final String group : schemaUtils.getEdgeGroups()) {
@@ -169,7 +159,7 @@ public class AggregateAndSortTempData {
                                     final SparkSession spark) throws SerialisationException {
         if (groupToSplitPoints.containsKey(group)) {
             final String currentDataInThisGroupDir;
-            if (currentDataDir != null) {
+            if (null != currentDataDir) {
                 currentDataInThisGroupDir = ParquetStore.getGroupDirectory(group, column, currentDataDir);
             } else {
                 currentDataInThisGroupDir = null;
@@ -177,7 +167,7 @@ public class AggregateAndSortTempData {
             final Collection<Integer> splits = groupToSplitPoints.get(group).values();
             for (final int i : splits) {
                 final Set<String> currentGraphFiles = new HashSet<>();
-                if (currentDataInThisGroupDir != null) {
+                if (null != currentDataInThisGroupDir) {
                     currentGraphFiles.add(currentDataInThisGroupDir + "/part-" + zeroPad(String.valueOf(i), 5) + "*.parquet");
                 }
                 tasks.add(new AggregateGroupSplit(group, column, store, currentGraphFiles, spark, i));

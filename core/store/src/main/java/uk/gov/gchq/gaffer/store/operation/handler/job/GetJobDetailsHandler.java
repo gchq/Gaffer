@@ -25,6 +25,10 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import static uk.gov.gchq.gaffer.core.exception.Status.SERVICE_UNAVAILABLE;
 
+/**
+ * A {@code GetJobDetailsHandler} handles {@link GetJobDetails} operations by querying
+ * the configured store's job tracker for the required job details.
+ */
 public class GetJobDetailsHandler implements OutputOperationHandler<GetJobDetails, JobDetail> {
     @Override
     public JobDetail doOperation(final GetJobDetails operation, final Context context, final Store store) throws OperationException {

@@ -15,14 +15,12 @@
  */
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler;
 
-import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.SparkSession;
 
 import uk.gov.gchq.gaffer.spark.SparkConstants;
 
 public class SparkSessionProvider {
     private static SparkSession sparkSession;
-    private static JavaSparkContext javaSparkContext;
 
     public static synchronized SparkSession getSparkSession() {
         if (null == sparkSession) {
@@ -33,19 +31,8 @@ public class SparkSessionProvider {
                     .config(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
                     .config(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, true)
                     .getOrCreate();
-            javaSparkContext = new JavaSparkContext(sparkSession.sparkContext());
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                @Override
-                public void run() {
-                    sparkSession.stop();
-                }
-            });
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> sparkSession.stop()));
         }
         return sparkSession;
-    }
-
-    public static synchronized JavaSparkContext getJavaSparkContext() {
-        getSparkSession();
-        return javaSparkContext;
     }
 }

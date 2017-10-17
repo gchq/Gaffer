@@ -20,9 +20,8 @@ import uk.gov.gchq.gaffer.operation.Operation;
 
 import java.util.Map;
 
-
 /**
- * The <code>SplitStore</code> operation is for splitting a store
+ * The {@code SplitStore} operation is for splitting a store
  * based on a sequence file of split points.
  *
  * @see SplitStore.Builder

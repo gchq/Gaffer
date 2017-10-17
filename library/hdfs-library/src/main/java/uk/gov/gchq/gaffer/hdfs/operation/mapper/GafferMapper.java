@@ -33,7 +33,7 @@ import static uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AddElementsF
 import static uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AddElementsFromHdfsJobFactory.VALIDATE;
 
 /**
- * An <code>GafferMapper</code> is a {@link Mapper} that uses a
+ * An {@code GafferMapper} is a {@link Mapper} that uses a
  * {@link MapperGenerator} to map the input data into
  * {@link Element}s and then delegates the elements to an abstract map method to serialise them
  * and add them to the job map context.

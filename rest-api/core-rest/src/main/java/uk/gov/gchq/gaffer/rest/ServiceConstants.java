@@ -15,6 +15,9 @@
  */
 package uk.gov.gchq.gaffer.rest;
 
+/**
+ * Utility class providing constants for the Gaffer REST API.
+ */
 public final class ServiceConstants {
 
     // REST Headers
@@ -36,6 +39,9 @@ public final class ServiceConstants {
     public static final String JOB_CREATED = "A new job was successfully submitted";
     public static final String JOB_NOT_FOUND = "Job was not found";
     public static final String JOB_SERVICE_UNAVAILABLE = "The job service is not available";
+
+    // REST - Other
+    public static final String GAFFER_DOCUMENTATION_URL = "https://gchq.github.io/gaffer-doc/";
 
     static {
         final String apiVersion = System.getProperty(SystemProperty.REST_API_VERSION, SystemProperty.CORE_VERSION);

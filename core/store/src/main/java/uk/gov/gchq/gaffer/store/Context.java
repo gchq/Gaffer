@@ -15,6 +15,9 @@
  */
 package uk.gov.gchq.gaffer.store;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import uk.gov.gchq.gaffer.operation.export.Exporter;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -25,12 +28,13 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * A <code>Context</code> contains operation chain execution information, such
+ * A {@code Context} contains operation chain execution information, such
  * as the user who executed the operation chain and a map of {@link Exporter}s.
  */
 public class Context {
     private final User user;
     private final String jobId;
+    private final Map<String, Object> config;
 
     /**
      * Map of exporter simple class name to exporter
@@ -42,11 +46,16 @@ public class Context {
     }
 
     public Context(final User user) {
-        this(user, createJobId());
+        this(user, new HashMap<>(), createJobId());
     }
 
-    public Context(final User user, final String jobId) {
+    private Context(final User user, final Map<String, Object> config, final String jobId) {
         this.user = user;
+        if (null == config) {
+            this.config = new HashMap<>();
+        } else {
+            this.config = config;
+        }
         this.jobId = jobId;
     }
 
@@ -54,7 +63,7 @@ public class Context {
         return user;
     }
 
-    public String getJobId() {
+    public final String getJobId() {
         return jobId;
     }
 
@@ -89,7 +98,68 @@ public class Context {
         return null;
     }
 
+    public Object getConfig(final String key) {
+        return config.get(key);
+    }
+
+    public void setConfig(final String key, final Object value) {
+        config.put(key, value);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final Context context = (Context) obj;
+
+        return new EqualsBuilder()
+                .append(user, context.user)
+                .append(jobId, context.jobId)
+                .append(exporters, context.exporters)
+                .append(config, context.config)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(71, 31)
+                .append(jobId)
+                .append(user)
+                .append(config)
+                .toHashCode();
+    }
+
     public static String createJobId() {
         return UUID.randomUUID().toString();
+    }
+
+    public static class Builder {
+        private User user = new User();
+        private final Map<String, Object> config = new HashMap<>();
+        private String jobId;
+
+        public Builder user(final User user) {
+            this.user = user;
+            return this;
+        }
+
+        public Builder jobId(final String jobId) {
+            this.jobId = jobId;
+            return this;
+        }
+
+        public Builder config(final String key, final Object value) {
+            this.config.put(key, value);
+            return this;
+        }
+
+        public Context build() {
+            return new Context(user, config, jobId);
+        }
     }
 }

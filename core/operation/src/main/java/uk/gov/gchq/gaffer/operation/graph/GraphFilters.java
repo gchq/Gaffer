@@ -19,6 +19,10 @@ package uk.gov.gchq.gaffer.operation.graph;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 
+/**
+ * A {@code GraphFilters} is an {@link uk.gov.gchq.gaffer.operation.Operation} which
+ * performs additional filtering on the {@link Edge}s returned.
+ */
 public interface GraphFilters extends OperationView {
     /**
      * @param edge the {@link Edge} to be validated.

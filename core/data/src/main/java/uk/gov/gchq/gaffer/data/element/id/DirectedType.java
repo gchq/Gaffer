@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.data.element.id;
 
 /**
- * A <code>DirectedType</code> defines whether edges should be
+ * A {@code DirectedType} defines whether edges should be
  * directed, undirected or either/both.
  */
 public enum DirectedType {

@@ -16,7 +16,13 @@
 
 package uk.gov.gchq.gaffer.cache.exception;
 
-public class CacheOperationException extends Exception {
+import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
+import uk.gov.gchq.gaffer.core.exception.Status;
+
+/**
+ * Exception indicating than an error occured while using the cache service.
+ */
+public class CacheOperationException extends GafferCheckedException {
 
     public CacheOperationException(final String message) {
         super(message);
@@ -28,5 +34,17 @@ public class CacheOperationException extends Exception {
 
     public CacheOperationException(final Throwable cause) {
         super(cause);
+    }
+
+    public CacheOperationException(final Throwable cause, final Status status) {
+        super(cause, status);
+    }
+
+    public CacheOperationException(final String message, final Status status) {
+        super(message, status);
+    }
+
+    public CacheOperationException(final String message, final Throwable cause, final Status status) {
+        super(message, cause, status);
     }
 }

@@ -91,7 +91,7 @@ public class AccumuloKeyRangePartitioner extends Partitioner {
         try {
             final Collection<Text> splits = connector.tableOperations().listSplits(table);
             final String[] arr = new String[splits.size()];
-            return splits.parallelStream().map(text -> text.toString()).collect(Collectors.toList()).toArray(arr);
+            return splits.parallelStream().map(Text::toString).collect(Collectors.toList()).toArray(arr);
         } catch (final TableNotFoundException | AccumuloSecurityException | AccumuloException e) {
             throw new OperationException("Failed to get accumulo split points from table " + table, e);
         }

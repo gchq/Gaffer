@@ -25,6 +25,10 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Default implementation of the {@link MapFactory} interface, used to create map
+ * instances for the {@link uk.gov.gchq.gaffer.mapstore.MapStore}.
+ */
 public class SimpleMapFactory implements MapFactory {
     public static final String MAP_CLASS = "gaffer.store.mapstore.map.class";
     public static final String MAP_CLASS_DEFAULT = HashMap.class.getName();

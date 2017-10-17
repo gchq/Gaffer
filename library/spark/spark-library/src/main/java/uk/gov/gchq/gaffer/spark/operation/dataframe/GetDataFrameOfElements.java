@@ -18,9 +18,7 @@ package uk.gov.gchq.gaffer.spark.operation.dataframe;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import org.apache.spark.sql.SparkSession;
 
-import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -33,26 +31,23 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * An <code>Operation</code> that returns an Apache Spark <code>DataFrame</code> (i.e. a {@link Dataset} of
- * {@link Row}s) consisting of the <code>Element</code>s converted to {@link Row}s. The fields in the {@link Row}
- * are ordered according to the ordering of the groups in the view, with <code>Entity</code>s first,
- * followed by <code>Edge</code>s.
+ * An {@code Operation} that returns an Apache Spark {@code DataFrame} (i.e. a {@link Dataset} of
+ * {@link Row}s) consisting of the {@code Element}s converted to {@link Row}s. The fields in the {@link Row}
+ * are ordered according to the ordering of the groups in the view, with {@code Entity}s first,
+ * followed by {@code Edge}s.
  * <p>
  * Implementations of this operation should automatically convert all properties that have natural equivalents
- * as a Spark <code>DataType</code> to that <code>DataType</code>. An implementation may allow the user to
+ * as a Spark {@code DataType} to that {@code DataType}. An implementation may allow the user to
  * specify a conversion function for properties that do not have natural equivalents. Thus not all properties
- * from each <code>Element</code> will necessarily make it into the <code>DataFrame</code>.
+ * from each {@code Element} will necessarily make it into the {@code DataFrame}.
  * <p>
- * The schema of the <code>Dataframe</code> is formed of all properties from the first group, followed by all
+ * The schema of the {@code Dataframe} is formed of all properties from the first group, followed by all
  * properties from the second group, with the exception of properties already found in the first group, etc.
  */
 public class GetDataFrameOfElements implements
-        Operation,
         Output<Dataset<Row>>,
         GraphFilters {
 
-    @Required
-    private SparkSession sparkSession;
     private List<Converter> converters;
     private Map<String, String> options;
     private View view;
@@ -61,19 +56,8 @@ public class GetDataFrameOfElements implements
     public GetDataFrameOfElements() {
     }
 
-    public GetDataFrameOfElements(final SparkSession sparkSession,
-                                  final List<Converter> converters) {
-        this();
-        this.sparkSession = sparkSession;
+    public GetDataFrameOfElements(final List<Converter> converters) {
         this.converters = converters;
-    }
-
-    public void setSparkSession(final SparkSession sparkSession) {
-        this.sparkSession = sparkSession;
-    }
-
-    public SparkSession getSparkSession() {
-        return sparkSession;
     }
 
     public void setConverters(final List<Converter> converters) {
@@ -122,7 +106,6 @@ public class GetDataFrameOfElements implements
     @Override
     public GetDataFrameOfElements shallowClone() {
         return new GetDataFrameOfElements.Builder()
-                .sparkSession(sparkSession)
                 .converters(converters)
                 .options(options)
                 .directedType(directedType)
@@ -135,11 +118,6 @@ public class GetDataFrameOfElements implements
             GraphFilters.Builder<GetDataFrameOfElements, Builder> {
         public Builder() {
             super(new GetDataFrameOfElements());
-        }
-
-        public Builder sparkSession(final SparkSession sparkSession) {
-            _getOp().setSparkSession(sparkSession);
-            return _self();
         }
 
         public Builder converters(final List<Converter> converters) {

@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import java.util.Map.Entry;
 
 /**
- * <code>Elements</code> are the fundamental building blocks of the Graph.
+ * {@code Elements} are the fundamental building blocks of the Graph.
  * Elements should have identifier(s), an group and an optional collection of properties.
  * Elements are designed so that multiple elements can share the same identifier(s) but are distinguished via their
  * group.
@@ -116,7 +116,7 @@ public abstract class Element implements ElementId {
             return true;
         }
 
-        if (obj == null || getClass() != obj.getClass()) {
+        if (null == obj || getClass() != obj.getClass()) {
             return false;
         }
 

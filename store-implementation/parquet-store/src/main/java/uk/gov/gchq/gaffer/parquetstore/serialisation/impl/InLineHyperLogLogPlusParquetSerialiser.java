@@ -40,7 +40,7 @@ public class InLineHyperLogLogPlusParquetSerialiser implements ParquetSerialiser
     @Override
     public Object[] serialise(final HyperLogLogPlus object) throws SerialisationException {
         try {
-            if (object != null) {
+            if (null != object) {
                 return new Object[]{object.getBytes(), object.cardinality()};
             }
         } catch (final IOException e) {
@@ -55,7 +55,7 @@ public class InLineHyperLogLogPlusParquetSerialiser implements ParquetSerialiser
             if (objects.length == 2) {
                 if (objects[0] instanceof byte[]) {
                     return HyperLogLogPlus.Builder.build(((byte[]) objects[0]));
-                } else if (objects[0] == null) {
+                } else if (null == objects[0]) {
                     return null;
                 }
             }

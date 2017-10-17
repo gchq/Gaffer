@@ -27,8 +27,13 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 import java.util.Map;
 
+/**
+ * A {@code GetGafferResultCacheExport} operation is used to retrieve data which
+ * has previously been exported to a Gaffer results cache.
+ *
+ * @see ExportToGafferResultCache
+ */
 public class GetGafferResultCacheExport implements
-        Operation,
         GetExport,
         Output<CloseableIterable<?>> {
     private String jobId;

@@ -44,7 +44,7 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.OPERATION_NOT_FOUND;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.OPERATION_NOT_IMPLEMENTED;
 
 /**
- * An <code>IOperationServiceV2</code> has methods to execute {@link uk.gov.gchq.gaffer.operation.Operation}s on the
+ * An {@code IOperationServiceV2} has methods to execute {@link uk.gov.gchq.gaffer.operation.Operation}s on the
  * {@link uk.gov.gchq.gaffer.graph.Graph}.
  */
 @Path("/graph/operations")

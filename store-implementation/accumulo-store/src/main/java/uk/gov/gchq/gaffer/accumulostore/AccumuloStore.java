@@ -113,8 +113,8 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
  * <p>
  * The key detail of the Accumulo implementation is that any Edge inserted by a
  * user is inserted into the accumulo table twice, once with the source object
- * being put first in the key and once with the destination bring put first in
- * the key This is to enable an edge to be found in a Range scan when providing
+ * being put first in the key and once with the destination being put first in
+ * the key. This is to enable an edge to be found in a Range scan when providing
  * only one end of the edge.
  */
 public class AccumuloStore extends Store {
@@ -144,22 +144,24 @@ public class AccumuloStore extends Store {
     /**
      * Performs general initialisation without creating the table.
      *
-     * @param graphId    the graph ID
-     * @param schema     the gaffer Schema
-     * @param properties the accumulo store properties
-     * @throws StoreException the store could not be initialised.
+     * @param graphId    The graph ID.
+     * @param schema     The Gaffer Schema.
+     * @param properties The Accumulo store properties.
+     * @throws StoreException If the store could not be initialised.
      */
     public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
-        final String deprecatedTableName = ((AccumuloProperties) properties).getTable();
+        setProperties(properties);
+
+        final String deprecatedTableName = getProperties().getTable();
         if (null == graphId && null != deprecatedTableName) {
             // Deprecated
-            super.initialise(deprecatedTableName, schema, properties);
+            super.initialise(deprecatedTableName, schema, getProperties());
         } else if (null != deprecatedTableName && !deprecatedTableName.equals(graphId)) {
             throw new IllegalArgumentException(
                     "The table in store.properties should no longer be used. " +
                             "Please use a graphId instead or for now just set the graphId to be the same value as the store.properties table.");
         } else {
-            super.initialise(graphId, schema, properties);
+            super.initialise(graphId, schema, getProperties());
         }
         final String keyPackageClass = getProperties().getKeyPackageClass();
         try {
@@ -173,10 +175,10 @@ public class AccumuloStore extends Store {
     /**
      * Creates an Accumulo {@link org.apache.accumulo.core.client.Connector}
      * using the properties found in properties file associated with the
-     * AccumuloStore
+     * AccumuloStore.
      *
-     * @return A new {@link Connector}
-     * @throws StoreException if there is a failure to connect to accumulo.
+     * @return A new {@link Connector}.
+     * @throws StoreException If there is a failure to connect to accumulo.
      */
     public Connector getConnection() throws StoreException {
         if (null == connection) {
@@ -198,7 +200,7 @@ public class AccumuloStore extends Store {
      * @param conf         A {@link Configuration} to be updated.
      * @param graphFilters The operation {@link GraphFilters} to be applied.
      * @param user         The {@link User} to be used.
-     * @throws StoreException if there is a failure to connect to Accumulo or a problem setting the iterators.
+     * @throws StoreException If there is a failure to connect to Accumulo or a problem setting the iterators.
      */
     public void updateConfiguration(final Configuration conf, final GraphFilters graphFilters, final User user) throws StoreException {
         try {
@@ -309,10 +311,20 @@ public class AccumuloStore extends Store {
                         .withZkHosts(getProperties().getZookeepers()));
     }
 
+    /**
+     * Gets all {@link AccumuloProperties} related to the store.
+     *
+     * @return {@link AccumuloProperties}.
+     */
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be AccumuloProperties")
     @Override
     public AccumuloProperties getProperties() {
         return (AccumuloProperties) super.getProperties();
+    }
+
+    @Override
+    protected Class<AccumuloProperties> getPropertiesClass() {
+        return AccumuloProperties.class;
     }
 
     @Override
@@ -363,10 +375,10 @@ public class AccumuloStore extends Store {
     }
 
     /**
-     * Method to add {@link Element}s into Accumulo
+     * Method to add {@link Element}s into Accumulo.
      *
-     * @param elements the elements to be added
-     * @throws StoreException failure to insert the elements into a table
+     * @param elements The elements to be added.
+     * @throws StoreException If there is a failure to insert the elements into a table.
      */
     public void addElements(final Iterable<? extends Element> elements) throws StoreException {
         insertGraphElements(elements);
@@ -379,7 +391,7 @@ public class AccumuloStore extends Store {
         // BatchWriter.as
         // The BatchWriter takes care of batching them up, sending them without
         // too high a latency, etc.
-        if (elements != null) {
+        if (null != elements) {
             for (final Element element : elements) {
 
                 final Pair<Key, Key> keys;
@@ -408,7 +420,7 @@ public class AccumuloStore extends Store {
                 // If the GraphElement is a Vertex then there will only be 1 key,
                 // and the second will be null.
                 // If the GraphElement is an Edge then there will be 2 keys.
-                if (keys.getSecond() != null) {
+                if (null != keys.getSecond()) {
                     final Mutation m2 = new Mutation(keys.getSecond().getRow());
                     m2.put(keys.getSecond().getColumnFamily(), keys.getSecond().getColumnQualifier(),
                             new ColumnVisibility(keys.getSecond().getColumnVisibility()), keys.getSecond().getTimestamp(),
@@ -431,15 +443,21 @@ public class AccumuloStore extends Store {
     }
 
     /**
-     * Returns the {@link uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage} in use by
+     * Gets the {@link uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage} in use by
      * this AccumuloStore.
      *
-     * @return {@link uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage}
+     * @return {@link uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage}.
      */
     public AccumuloKeyPackage getKeyPackage() {
         return keyPackage;
     }
 
+    /**
+     * Gets the TabletServers.
+     *
+     * @return A list of Strings of TabletServers.
+     * @throws StoreException If failure.
+     */
     public List<String> getTabletServers() throws StoreException {
         return getConnection().instanceOperations().getTabletServers();
     }

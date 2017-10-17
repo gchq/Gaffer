@@ -116,16 +116,17 @@ public class HBaseStore extends Store {
      */
     public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties)
             throws StoreException {
-        final String deprecatedTableName = ((HBaseProperties) properties).getTableName();
+        setProperties(properties);
+        final String deprecatedTableName = getProperties().getTableName();
         if (null == graphId && null != deprecatedTableName) {
             // Deprecated
-            super.initialise(deprecatedTableName, schema, properties);
+            super.initialise(deprecatedTableName, schema, getProperties());
         } else if (null != deprecatedTableName && !deprecatedTableName.equals(graphId)) {
             throw new IllegalArgumentException(
                     "The table in store.properties should no longer be used. " +
                             "Please use a graphId instead or for now just set the graphId to be the same value as the store.properties table.");
         } else {
-            super.initialise(graphId, schema, properties);
+            super.initialise(graphId, schema, getProperties());
         }
     }
 
@@ -204,6 +205,11 @@ public class HBaseStore extends Store {
     @Override
     public HBaseProperties getProperties() {
         return (HBaseProperties) super.getProperties();
+    }
+
+    @Override
+    protected Class<HBaseProperties> getPropertiesClass() {
+        return HBaseProperties.class;
     }
 
     @Override

@@ -128,7 +128,7 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
     }
 
     protected void setupPartitioner(final Job job, final AddElementsFromHdfs operation, final AccumuloStore store) throws IOException {
-        if (operation.getSplitsFilePath() == null) {
+        if (null == operation.getSplitsFilePath()) {
             // Provide a default path if the splits file path is missing
             operation.setSplitsFilePath("");
             LOGGER.warn("HDFS splits file path not set - using the current directory as the default path.");

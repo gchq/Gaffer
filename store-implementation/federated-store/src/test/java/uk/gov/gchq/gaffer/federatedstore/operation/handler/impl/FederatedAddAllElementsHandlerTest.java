@@ -35,18 +35,20 @@ import java.util.LinkedHashSet;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
 
 public class FederatedAddAllElementsHandlerTest {
-    public static final String TEST_USER = "testUser";
+    protected Context context;
     protected User user;
 
     @Before
     public void setUp() throws Exception {
-        user = new User(TEST_USER);
+        user = testUser();
+        context = new Context(user);
     }
 
     @Test
-    final public void shouldMergeResultsFromFieldObjects() throws Exception {
+    public final void shouldMergeResultsFromFieldObjects() throws Exception {
         // Given
         final AddElements op = Mockito.mock(AddElements.class);
         Mockito.when(op.shallowClone()).thenReturn(op);
@@ -62,23 +64,21 @@ public class FederatedAddAllElementsHandlerTest {
         Graph graph3 = getGraphWithMockStore(mockStore3);
         Graph graph4 = getGraphWithMockStore(mockStore4);
 
-        Context testContext = new Context(user);
-
         FederatedStore mockStore = Mockito.mock(FederatedStore.class);
         LinkedHashSet<Graph> linkedGraphs = Sets.newLinkedHashSet();
         linkedGraphs.add(graph1);
         linkedGraphs.add(graph2);
         linkedGraphs.add(graph3);
         linkedGraphs.add(graph4);
-        Mockito.when(mockStore.getGraphs(null)).thenReturn(linkedGraphs);
+        Mockito.when(mockStore.getGraphs(user, null)).thenReturn(linkedGraphs);
 
         // When
-        new FederatedAddElementsHandler().doOperation(op, testContext, mockStore);
+        new FederatedAddElementsHandler().doOperation(op, context, mockStore);
 
-        verify(mockStore1).execute(new OperationChain<>(op), user);
-        verify(mockStore2).execute(new OperationChain<>(op), user);
-        verify(mockStore3).execute(new OperationChain<>(op), user);
-        verify(mockStore4).execute(new OperationChain<>(op), user);
+        verify(mockStore1).execute(Mockito.eq(new OperationChain<>(op)), Mockito.any(Context.class));
+        verify(mockStore2).execute(Mockito.eq(new OperationChain<>(op)), Mockito.any(Context.class));
+        verify(mockStore3).execute(Mockito.eq(new OperationChain<>(op)), Mockito.any(Context.class));
+        verify(mockStore4).execute(Mockito.eq(new OperationChain<>(op)), Mockito.any(Context.class));
     }
 
 

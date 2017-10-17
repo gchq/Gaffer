@@ -76,6 +76,7 @@ public class GetGafferResultCacheExportTest extends OperationTest<GetGafferResul
         assertEquals(jobId, clone.getJobId());
     }
 
+    @Override
     protected GetGafferResultCacheExport getTestObject() {
         return new GetGafferResultCacheExport();
     }

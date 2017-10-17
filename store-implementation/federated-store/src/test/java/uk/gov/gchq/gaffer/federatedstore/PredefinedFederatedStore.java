@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collections;
 
@@ -32,20 +33,20 @@ public class PredefinedFederatedStore extends FederatedStore {
         super.initialise(graphId, schema, properties);
 
         // Accumulo store just contains edges
-        addGraphs(new Graph.Builder()
+        addGraphs(null, User.UNKNOWN_USER_ID, new Graph.Builder()
                 .config(new GraphConfig("AccumuloStoreContainingEdges"))
                 .addSchema(new Schema.Builder()
-                        .merge(schema)
+                        .merge(schema.clone())
                         .entities(Collections.emptyMap())
                         .build())
                 .storeProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockAccStore.properties"))
                 .build());
 
         // Map store just contains entities
-        addGraphs(new Graph.Builder()
+        addGraphs(null, User.UNKNOWN_USER_ID, new Graph.Builder()
                 .config(new GraphConfig("MapStoreContainingEntities"))
                 .addSchema(new Schema.Builder()
-                        .merge(schema)
+                        .merge(schema.clone())
                         .edges(Collections.emptyMap())
                         .build())
                 .storeProperties(StreamUtil.openStream(getClass(), "properties/singleUseMockMapStore.properties"))

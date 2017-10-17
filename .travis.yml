@@ -15,13 +15,10 @@ env:
   - RELEASE=true
   - MODULES=:gaffer2,:core,:cache,:common-util,:data,:exception,:graph,:operation,:serialisation,:store,:type
   - MODULES=:accumulo-store,:spark-accumulo-library,:accumulo-rest
-  - MODULES=:federated-store
   - MODULES=:hbase-store,:hbase-rest
   - MODULES=:parquet-store,:parquet-rest
-  - MODULES=:integration-test,:map-store,:map-rest
-  - MODULES=:example,:basic,:basic-model,:basic-rest,:road-traffic,:road-traffic-model,:road-traffic-generators,:road-traffic-rest,:road-traffic-demo,:federated-demo
-  - MODULES=:doc,:spark-doc
-  - MODULES=:rest-api,:core-rest,:store-implementation,:proxy-store
+  - MODULES=:integration-test,:federated-store,:map-store,:map-rest
+  - MODULES=:rest-api,:core-rest,:store-implementation,:proxy-store,:example,:basic,:basic-model,:basic-rest,:road-traffic,:road-traffic-model,:road-traffic-generators,:road-traffic-rest,:road-traffic-demo,:federated-demo
   - MODULES=:flink-library,:hdfs-library,:spark,:spark-library
   - MODULES=:library,:time-library
   - MODULES=:cache-library,:sketches-library,:bitmap-library,:hazelcast-cache-service,:jcs-cache-service
@@ -35,7 +32,9 @@ env:
 
 before_install: ./cd/before_install.sh
 install: travis_wait 45 ./cd/install.sh
-script: travis_wait 45 ./cd/verify.sh
+script:
+  - travis_wait 45 ./cd/verify.sh
+  - ./cd/deploy.sh
 after_success: travis_wait 45 ./cd/after_success.sh
 
 before_cache: rm -rf $HOME/.m2/repository/uk/gov/gchq/gaffer

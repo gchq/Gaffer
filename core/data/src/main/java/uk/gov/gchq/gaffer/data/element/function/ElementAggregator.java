@@ -29,6 +29,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.BinaryOperator;
 
+/**
+ * An {@link ElementAggregator} is a {@link BinaryOperator} which aggregates two
+ * {@link Element} objects into a single element.
+ */
 public class ElementAggregator extends TupleAdaptedBinaryOperatorComposite<String> {
     private final PropertiesTuple stateTuple = new PropertiesTuple();
     private final PropertiesTuple propertiesTuple = new PropertiesTuple();
@@ -71,6 +75,9 @@ public class ElementAggregator extends TupleAdaptedBinaryOperatorComposite<Strin
         return super.getComponents();
     }
 
+    /**
+     * Prevent any further changes being carried out.
+     */
     public void lock() {
         readOnly = true;
     }
@@ -81,7 +88,7 @@ public class ElementAggregator extends TupleAdaptedBinaryOperatorComposite<Strin
             return true;
         }
 
-        if (obj == null || getClass() != obj.getClass()) {
+        if (null == obj || getClass() != obj.getClass()) {
             return false;
         }
 

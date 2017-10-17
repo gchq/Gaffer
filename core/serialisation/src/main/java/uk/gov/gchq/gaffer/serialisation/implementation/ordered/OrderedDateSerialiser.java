@@ -21,6 +21,11 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
 import java.util.Date;
 
+/**
+ * An {@code OrderedDateSerialiser} serialises a {@link Date} to
+ * an array of bytes by directly converting the underlying long to a byte array.
+ * This serialiser preserves ordering.
+ */
 public class OrderedDateSerialiser implements ToBytesSerialiser<Date> {
 
     private static final long serialVersionUID = 6636121009320739764L;

@@ -16,6 +16,14 @@
 
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
+/**
+ * An {@code EmptyCloseableIterable} is an {@link java.lang.Iterable} which is backed by a
+ * {@link EmptyCloseableIterator}, and contains no objects.
+ *
+ * This is useful when a {@link java.lang.Iterable} is required, but there is no data present.
+ *
+ * @param <T> the type of items in the iterable.
+ */
 public class EmptyClosableIterable<T> implements CloseableIterable<T> {
 
     @Override

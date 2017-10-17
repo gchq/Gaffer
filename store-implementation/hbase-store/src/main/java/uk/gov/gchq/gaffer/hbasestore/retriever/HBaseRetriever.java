@@ -113,12 +113,12 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
 
     @Override
     public void close() {
-        if (iterator != null) {
+        if (null != iterator) {
             iterator.close();
             iterator = null;
         }
 
-        if (idsIterator != null) {
+        if (null != idsIterator) {
             CloseableUtil.close(idsIterator);
             idsIterator = null;
         }
@@ -128,9 +128,9 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
         try {
             Element element = serialisation.getElement(cell, includeMatchedVertex);
             final ViewElementDefinition viewDef = operation.getView().getElement(element.getGroup());
-            if (viewDef != null) {
+            if (null != viewDef) {
                 final ElementTransformer transformer = viewDef.getTransformer();
-                if (transformer != null) {
+                if (null != transformer) {
                     element = transformer.apply(element);
                 }
             }

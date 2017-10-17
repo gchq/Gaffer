@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.store;
 import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 
 /**
- * A <code>StoreException</code> is a fairly generic exception for a wide range of issues occurred in a
+ * A {@code StoreException} is a fairly generic exception for a wide range of issues occurred in a
  * {@link uk.gov.gchq.gaffer.store.Store}.
  */
 public class StoreException extends GafferCheckedException {

@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
+import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.GafferCoprocessor;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -91,7 +92,7 @@ public final class TableUtils {
             System.exit(1);
         }
 
-        final StoreProperties storeProps = StoreProperties.loadStoreProperties(getStorePropertiesPathString(args));
+        final HBaseProperties storeProps = HBaseProperties.loadStoreProperties(getStorePropertiesPathString(args));
         if (null == storeProps) {
             throw new IllegalArgumentException("Store properties are required to create a store");
         }
@@ -100,7 +101,7 @@ public final class TableUtils {
 
         GraphLibrary library;
 
-        if (getFileGraphLibraryPathString(args) == null) {
+        if (null == getFileGraphLibraryPathString(args)) {
             library = new NoGraphLibrary();
         } else {
             library = new FileGraphLibrary(getFileGraphLibraryPathString(args));

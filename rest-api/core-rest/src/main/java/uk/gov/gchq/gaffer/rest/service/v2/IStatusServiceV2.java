@@ -32,7 +32,7 @@ import static uk.gov.gchq.gaffer.rest.ServiceConstants.INTERNAL_SERVER_ERROR;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.OK;
 
 /**
- * An <code>StatusService</code> has methods to check the status of the system
+ * An {@code StatusService} has methods to check the status of the system
  */
 @Path("/graph/status")
 @Produces(APPLICATION_JSON)

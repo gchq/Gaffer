@@ -21,6 +21,18 @@ import uk.gov.gchq.gaffer.commonutil.exception.LimitExceededException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+/**
+ * An {@code LimitedCloseableIterator} is an {@link java.util.Iterator} which is
+ * limited to a maximum size. This is achieved by iterating through the objects
+ * contained in the iterator until the preconfigured starting point is reached
+ * (and discarding these), then by retrieving objects until either:
+ * <ul>
+ *     <li>the end of the iterator is reached, or</li>
+ *     <li>the iterator pointer exceeds the specified limit</li>
+ * </ul>
+ *
+ * @param <T> the type of items in the iterator.
+ */
 public class LimitedCloseableIterator<T> implements CloseableIterator<T> {
     private final CloseableIterator<T> iterator;
     private final Integer end;

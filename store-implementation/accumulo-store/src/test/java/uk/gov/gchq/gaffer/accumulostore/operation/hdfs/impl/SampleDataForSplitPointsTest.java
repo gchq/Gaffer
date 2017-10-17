@@ -141,6 +141,7 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
         assertEquals(new Integer(2), clone.getMinMapTasks());
     }
 
+    @Override
     protected SampleDataForSplitPoints getTestObject() {
         return new SampleDataForSplitPoints();
     }

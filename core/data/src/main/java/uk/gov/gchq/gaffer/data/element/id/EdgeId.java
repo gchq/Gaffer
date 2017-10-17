@@ -22,8 +22,17 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
+/**
+ * An {@code EdgeId} is an interface describing the core methods that are required
+ * in order to identify an {@link uk.gov.gchq.gaffer.data.element.Edge}.
+ */
 @JsonFilter("filterFieldsByName")
 public interface EdgeId extends ElementId {
+
+    /**
+     * Enumerated type to denote which vertex of an {@link uk.gov.gchq.gaffer.data.element.Edge}
+     * matches an input parameter.
+     */
     enum MatchedVertex {
         SOURCE,
         DESTINATION;
@@ -35,12 +44,27 @@ public interface EdgeId extends ElementId {
         }
     }
 
+    /**
+     * Get the source vertex.
+     *
+     * @return the object at the edge source
+     */
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
     Object getSource();
 
+    /**
+     * Get the destination vertex.
+     *
+     * @return the object at the edge destination
+     */
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
     Object getDestination();
 
+    /**
+     * Get the directionality of the current edge.
+     *
+     * @return the directed type
+     */
     DirectedType getDirectedType();
 
     /**
@@ -65,6 +89,11 @@ public interface EdgeId extends ElementId {
 
     void setIdentifiers(final Object source, final Object destination, final DirectedType directedType, final MatchedVertex matchedVertex);
 
+    /**
+     * Get the vertex which is to be reported if a matched vertex is requested.
+     *
+     * @return the matched vertex
+     */
     MatchedVertex getMatchedVertex();
 
     @Override
@@ -89,9 +118,9 @@ public interface EdgeId extends ElementId {
     }
 
     /**
-     * This {@link EdgeId} is related to an
-     * {@link ElementId} if either the ElementId is equal to this EdgeId or it is
-     * an EntityId and it's identifier matches this EdgeId's source or destination.
+     * This is related to an {@link ElementId} if either the ElementId is equal
+     * to this EdgeId or it is an EntityId and its identifier matches this
+     * EdgeId's source or destination.
      *
      * @param that the {@link ElementId} to compare
      * @return An instance of {@link ElementId.Matches} to describe how the ids are related.
@@ -111,16 +140,15 @@ public interface EdgeId extends ElementId {
     }
 
     /**
-     * This {@link EdgeId} is related to an
-     * {@link EntityId} if the EntityId's identifier matches this
-     * EdgeId's source or destination.
+     * This is related to an {@link EntityId} if the EntityId's identifier
+     * matches this EdgeId's source or destination.
      *
      * @param that the {@link ElementId} to compare
      * @return An instance of {@link ElementId.Matches} to describe how the ids are related.
      */
     default Matches isRelated(final EntityId that) {
-        boolean matchesSource = (getSource() == null) ? that.getVertex() == null : getSource().equals(that.getVertex());
-        boolean matchesDestination = (getDestination() == null) ? that.getVertex() == null : getDestination().equals(that.getVertex());
+        boolean matchesSource = (null == getSource()) ? null == that.getVertex() : getSource().equals(that.getVertex());
+        boolean matchesDestination = (null == getDestination()) ? null == that.getVertex() : getDestination().equals(that.getVertex());
         if (matchesSource) {
             if (matchesDestination) {
                 return Matches.BOTH;

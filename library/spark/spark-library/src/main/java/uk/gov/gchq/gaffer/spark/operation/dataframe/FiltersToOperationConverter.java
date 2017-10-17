@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.spark.operation.dataframe;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.rdd.RDD;
-import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.sources.And;
 import org.apache.spark.sql.sources.EqualNullSafe;
 import org.apache.spark.sql.sources.EqualTo;
@@ -70,16 +69,13 @@ import java.util.function.Predicate;
 public class FiltersToOperationConverter {
     private static final Logger LOGGER = LoggerFactory.getLogger(FiltersToOperationConverter.class);
 
-    private final SparkSession sparkSession;
     private final View view;
     private final Schema schema;
     private final Filter[] filters;
 
-    public FiltersToOperationConverter(final SparkSession sparkSession,
-                                       final View view,
+    public FiltersToOperationConverter(final View view,
                                        final Schema schema,
                                        final Filter[] filters) {
-        this.sparkSession = sparkSession;
         this.view = view;
         this.schema = schema;
         this.filters = Arrays.copyOf(filters, filters.length);
@@ -107,7 +103,7 @@ public class FiltersToOperationConverter {
     public Output<RDD<Element>> getOperation() {
         // Check whether the filters specify any groups
         View derivedView = applyGroupFilters(view);
-        if (derivedView == null) {
+        if (null == derivedView) {
             return null;
         }
         // Check whether the filters specify a value for the vertex, source or destination.
@@ -121,7 +117,7 @@ public class FiltersToOperationConverter {
     private View applyGroupFilters(final View view) {
         View derivedView = View.fromJson(view.toCompactJson());
         final Set<String> groups = checkForGroups();
-        if (groups == null) {
+        if (null == groups) {
             // None of the filters specify a group or groups.
             return derivedView;
         } else if (groups.isEmpty()) {
@@ -173,7 +169,6 @@ public class FiltersToOperationConverter {
                     clonedView = viewBuilder.build();
                     LOGGER.info("Setting operation to GetRDDOfElements");
                     operation = new GetRDDOfElements.Builder()
-                            .sparkSession(sparkSession)
                             .input(new EntitySeed(equalTo.value()))
                             .view(clonedView)
                             .build();
@@ -190,7 +185,6 @@ public class FiltersToOperationConverter {
                     clonedView = viewBuilder.build();
                     LOGGER.info("Setting operation to GetRDDOfElements");
                     operation = new GetRDDOfElements.Builder()
-                            .sparkSession(sparkSession)
                             .input(new EntitySeed(equalTo.value()))
                             .view(clonedView)
                             .build();
@@ -198,10 +192,9 @@ public class FiltersToOperationConverter {
                 }
             }
         }
-        if (operation == null) {
+        if (null == operation) {
             LOGGER.debug("Setting operation to GetRDDOfAllElements");
             operation = new GetRDDOfAllElements.Builder()
-                    .sparkSession(sparkSession)
                     .view(clonedView)
                     .build();
         }
@@ -212,7 +205,7 @@ public class FiltersToOperationConverter {
         final List<Set<String>> groupsRelatedToFilters = new ArrayList<>();
         for (final Filter filter : filters) {
             final Set<String> groupsRelatedToFilter = getGroupsFromFilter(filter);
-            if (groupsRelatedToFilter != null && !groupsRelatedToFilter.isEmpty()) {
+            if (null != groupsRelatedToFilter && !groupsRelatedToFilter.isEmpty()) {
                 groupsRelatedToFilters.add(groupsRelatedToFilter);
             }
             LOGGER.info("Groups {} are related to filter {}", StringUtils.join(groupsRelatedToFilter, ','), filter);
@@ -252,7 +245,7 @@ public class FiltersToOperationConverter {
 
         for (final String group : derivedView.getEntityGroups()) {
             if (intersection.contains(group)) {
-                if (groupToFunctions.get(group) != null) {
+                if (null != groupToFunctions.get(group)) {
                     final ViewElementDefinition ved = new ViewElementDefinition.Builder()
                             .merge(derivedView.getEntity(group))
                             .postAggregationFilterFunctions(groupToFunctions.get(group))
@@ -274,7 +267,7 @@ public class FiltersToOperationConverter {
         }
         for (final String group : derivedView.getEdgeGroups()) {
             if (intersection.contains(group)) {
-                if (groupToFunctions.get(group) != null) {
+                if (null != groupToFunctions.get(group)) {
                     final ViewElementDefinition ved = new ViewElementDefinition.Builder()
                             .merge(derivedView.getEdge(group))
                             .postAggregationFilterFunctions(groupToFunctions.get(group))
@@ -343,10 +336,10 @@ public class FiltersToOperationConverter {
             final Set<String> groups = new HashSet<>();
             final Set<String> leftGroups = getGroupsFromFilter(and.left());
             final Set<String> rightGroups = getGroupsFromFilter(and.right());
-            if (leftGroups != null) {
+            if (null != leftGroups) {
                 groups.addAll(leftGroups);
             }
-            if (rightGroups != null) {
+            if (null != rightGroups) {
                 groups.retainAll(rightGroups);
             }
             return groups;
@@ -357,7 +350,7 @@ public class FiltersToOperationConverter {
     /**
      * Converts a Spark {@link Filter} to a map from group to a list of Gaffer {@link TupleAdaptedPredicate}s.
      * <p>
-     * Note that Spark also applies all the filters provided to the <code>buildScan(String[], Filter[])</code> method
+     * Note that Spark also applies all the filters provided to the {@code buildScan(String[], Filter[])} method
      * so not implementing some of the provided {@link Filter}s in Gaffer will not cause errors. However, as many as
      * possible should be implemented so that as much filtering as possible happens in iterators running in Accumulo's
      * tablet servers (this avoids unnecessary data transfer from Accumulo to Spark).
@@ -374,7 +367,7 @@ public class FiltersToOperationConverter {
             final EqualNullSafe equalNullSafe = (EqualNullSafe) filter;
             final Predicate<?> isEqual = new IsEqual(equalNullSafe.value());
             final Set<String> relevantGroups = getGroupsFromFilter(filter);
-            if (relevantGroups != null) {
+            if (null != relevantGroups) {
                 for (final String group : relevantGroups) {
                     if (!map.containsKey(group)) {
                         map.put(group, new ArrayList<>());
@@ -387,7 +380,7 @@ public class FiltersToOperationConverter {
             final GreaterThan greaterThan = (GreaterThan) filter;
             final Predicate<?> isMoreThan = new IsMoreThan((Comparable<?>) greaterThan.value(), false);
             final Set<String> relevantGroups = getGroupsFromFilter(filter);
-            if (relevantGroups != null) {
+            if (null != relevantGroups) {
                 for (final String group : relevantGroups) {
                     if (!map.containsKey(group)) {
                         map.put(group, new ArrayList<>());
@@ -400,7 +393,7 @@ public class FiltersToOperationConverter {
             final GreaterThanOrEqual greaterThan = (GreaterThanOrEqual) filter;
             final Predicate<?> isMoreThan = new IsMoreThan((Comparable<?>) greaterThan.value(), true);
             final Set<String> relevantGroups = getGroupsFromFilter(filter);
-            if (relevantGroups != null) {
+            if (null != relevantGroups) {
                 for (final String group : relevantGroups) {
                     if (!map.containsKey(group)) {
                         map.put(group, new ArrayList<>());
@@ -413,7 +406,7 @@ public class FiltersToOperationConverter {
             final LessThan lessThan = (LessThan) filter;
             final Predicate<?> isLessThan = new IsLessThan((Comparable<?>) lessThan.value(), false);
             final Set<String> relevantGroups = getGroupsFromFilter(filter);
-            if (relevantGroups != null) {
+            if (null != relevantGroups) {
                 for (final String group : relevantGroups) {
                     if (!map.containsKey(group)) {
                         map.put(group, new ArrayList<>());
@@ -426,7 +419,7 @@ public class FiltersToOperationConverter {
             final LessThanOrEqual lessThan = (LessThanOrEqual) filter;
             final Predicate<?> isLessThan = new IsLessThan((Comparable<?>) lessThan.value(), true);
             final Set<String> relevantGroups = getGroupsFromFilter(filter);
-            if (relevantGroups != null) {
+            if (null != relevantGroups) {
                 for (final String group : relevantGroups) {
                     if (!map.containsKey(group)) {
                         map.put(group, new ArrayList<>());
@@ -439,7 +432,7 @@ public class FiltersToOperationConverter {
             final In in = (In) filter;
             final Predicate<?> isIn = new IsIn(new HashSet<>(Arrays.asList(in.values())));
             final Set<String> relevantGroups = getGroupsFromFilter(filter);
-            if (relevantGroups != null) {
+            if (null != relevantGroups) {
                 for (final String group : relevantGroups) {
                     if (!map.containsKey(group)) {
                         map.put(group, new ArrayList<>());
@@ -452,7 +445,7 @@ public class FiltersToOperationConverter {
             final IsNull isNull = (IsNull) filter;
             final Predicate<?> doesntExist = new Not<>(new Exists());
             final Set<String> relevantGroups = getGroupsFromFilter(filter);
-            if (relevantGroups != null) {
+            if (null != relevantGroups) {
                 for (final String group : relevantGroups) {
                     if (!map.containsKey(group)) {
                         map.put(group, new ArrayList<>());
@@ -465,7 +458,7 @@ public class FiltersToOperationConverter {
             final IsNotNull isNotNull = (IsNotNull) filter;
             final Predicate<?> exists = new Exists();
             final Set<String> relevantGroups = getGroupsFromFilter(filter);
-            if (relevantGroups != null) {
+            if (null != relevantGroups) {
                 for (final String group : relevantGroups) {
                     if (!map.containsKey(group)) {
                         map.put(group, new ArrayList<>());
@@ -479,13 +472,13 @@ public class FiltersToOperationConverter {
             final Map<String, List<TupleAdaptedPredicate<String, ?>>> left = getFunctionsFromFilter(and.left());
             final Map<String, List<TupleAdaptedPredicate<String, ?>>> right = getFunctionsFromFilter(and.right());
             final Set<String> relevantGroups = getGroupsFromFilter(filter);
-            if (relevantGroups != null) {
+            if (null != relevantGroups) {
                 for (final String group : relevantGroups) {
                     final List<TupleAdaptedPredicate<String, ?>> concatFilters = new ArrayList<>();
-                    if (left.get(group) != null) {
+                    if (null != left.get(group)) {
                         concatFilters.addAll(left.get(group));
                     }
-                    if (right.get(group) != null) {
+                    if (null != right.get(group)) {
                         concatFilters.addAll(right.get(group));
                     }
                     if (!map.containsKey(group)) {
@@ -518,7 +511,7 @@ public class FiltersToOperationConverter {
         final List<Set<String>> listOfGroups = new ArrayList<>();
         for (final Filter filter : filters) {
             final Set<String> groups = checkForGroups(filter);
-            if (groups != null && !groups.isEmpty()) {
+            if (null != groups && !groups.isEmpty()) {
                 listOfGroups.add(groups);
             }
         }
@@ -545,7 +538,7 @@ public class FiltersToOperationConverter {
      * value.
      *
      * @param filter The {@link Filter} that will be checked for groups.
-     * @return A set of strings containing the required groups, <code>null</code> if no groups are specified in the
+     * @return A set of strings containing the required groups, {@code null} if no groups are specified in the
      * filter.
      */
     private Set<String> checkForGroups(final Filter filter) {

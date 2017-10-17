@@ -32,9 +32,9 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.FileGraphLibrary;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
+import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
-import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclaration;
-import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -127,7 +127,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
         // Given
         Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
-        graphLibrary.addSchema(SCHEMA_ID + 1, schema1);
+        graphLibrary.addSchema(schema1);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
         List<String> opAuths = Lists.newArrayList("auth1");
         idAuths.put(GRAPH_ID + 2, opAuths);
@@ -155,7 +155,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
         // Given
         Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
-        graphLibrary.addSchema(SCHEMA_ID + 1, schema1);
+        graphLibrary.addSchema(schema1);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
         List<String> opAuths = Lists.newArrayList("auth1");
         idAuths.put(SCHEMA_ID + 1, opAuths);
@@ -182,7 +182,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
         // Given
         Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
-        graphLibrary.addSchema(SCHEMA_ID + 1, schema1);
+        graphLibrary.addSchema(schema1);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
         List<String> opAuths = Lists.newArrayList("auth1");
         idAuths.put(GRAPH_ID + 2, opAuths);
@@ -209,7 +209,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
         // Given
         Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
-        graphLibrary.addSchema(SCHEMA_ID + 1, schema1);
+        graphLibrary.addSchema(schema1);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
         List<String> opAuths = Lists.newArrayList("auth1");
         idAuths.put(GRAPH_ID + 2, opAuths);
@@ -236,7 +236,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
         // Given
         Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
-        graphLibrary.addSchema(SCHEMA_ID + 1, schema1);
+        graphLibrary.addSchema(schema1);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
         List<String> opAuths = Lists.newArrayList("auth1");
         idAuths.put(GRAPH_ID + 2, opAuths);
@@ -262,7 +262,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
         // Given
         Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
-        graphLibrary.addSchema(SCHEMA_ID + 1, schema1);
+        graphLibrary.addSchema(schema1);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
         List<String> opAuths = Lists.newArrayList("auth1");
         idAuths.put(GRAPH_ID + 2, opAuths);

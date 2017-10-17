@@ -31,9 +31,9 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
 
     @Override
     protected OtherGraphExporter createExporter(final ExportToOtherGraph export, final Context context, final Store store) {
-        final Graph graph = CreateGraphDelegate.createGraph(store, export.getGraphId(),
+        final Graph graph = GraphDelegate.createGraph(store, export.getGraphId(),
                 export.getSchema(), export.getStoreProperties(), export.getParentSchemaIds(),
                 export.getParentStorePropertiesId());
-        return new OtherGraphExporter(context.getUser(), graph);
+        return new OtherGraphExporter(context, graph);
     }
 }

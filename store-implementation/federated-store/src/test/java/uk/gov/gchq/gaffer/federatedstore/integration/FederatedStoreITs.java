@@ -16,14 +16,18 @@
 package uk.gov.gchq.gaffer.federatedstore.integration;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
-import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.integration.impl.StoreValidationIT;
+import uk.gov.gchq.gaffer.integration.impl.VisibilityIT;
 
 public class FederatedStoreITs extends AbstractStoreITs {
-    private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(
+    private static final FederatedStoreProperties STORE_PROPERTIES = FederatedStoreProperties.loadStoreProperties(
             StreamUtil.openStream(FederatedStoreITs.class, "predefinedFederatedStore.properties"));
 
     public FederatedStoreITs() {
         super(STORE_PROPERTIES);
+        skipTest(VisibilityIT.class, "Visibility is not supported by the MapStore so the federated store doesn't support it when configured with a MapStore.");
+        skipTest(StoreValidationIT.class, "Visibility is not supported by the MapStore so the federated store doesn't support it when configured with a MapStore.");
     }
 }

@@ -21,6 +21,14 @@ import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+/**
+ * A {@code ChainedIterable} is an iterable composed of other {@link java.lang.Iterable}s.
+ *
+ * As a client iterates through this iterable, the child iterables are consumed
+ * sequentially.
+ *
+ * @param <T> the type of items in the iterable.
+ */
 public class ChainedIterable<T> implements CloseableIterable<T> {
     private final Iterable<T>[] itrs;
     private final int n;

@@ -197,7 +197,7 @@ public abstract class AccumuloItemRetriever<OP extends Output<CloseableIterable<
 
         @Override
         public void close() {
-            if (scanner != null) {
+            if (null != scanner) {
                 scanner.close();
             }
         }

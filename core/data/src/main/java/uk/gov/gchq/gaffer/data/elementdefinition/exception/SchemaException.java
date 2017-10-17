@@ -21,7 +21,7 @@ import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import static uk.gov.gchq.gaffer.core.exception.Status.BAD_REQUEST;
 
 /**
- * An <code>SchemaException</code> is thrown when a schema is found to be invalid.
+ * An {@code SchemaException} is thrown when a schema is found to be invalid.
  * This can occur for several reasons including when deserialisation of a json schema fails
  * or a schema has invalid attributes.
  */

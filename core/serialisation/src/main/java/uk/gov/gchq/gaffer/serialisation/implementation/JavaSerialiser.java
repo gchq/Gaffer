@@ -75,7 +75,7 @@ public class JavaSerialiser implements ToBytesSerialiser<Object> {
     }
 
     private void close(final Closeable close) {
-        if (close != null) {
+        if (null != close) {
             try {
                 close.close();
             } catch (final IOException e) {

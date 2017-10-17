@@ -27,6 +27,10 @@ import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunctionComposite;
 
 import java.util.function.Function;
 
+/**
+ * An {@code ElementTransformer} is a {@link Function} which applies a series of
+ * transformations to an {@link Element}.
+ */
 public class ElementTransformer extends TupleAdaptedFunctionComposite<String> {
     private final ElementTuple elementTuple = new ElementTuple();
 
@@ -42,7 +46,7 @@ public class ElementTransformer extends TupleAdaptedFunctionComposite<String> {
             return true;
         }
 
-        if (obj == null || getClass() != obj.getClass()) {
+        if (null == obj || getClass() != obj.getClass()) {
             return false;
         }
 

@@ -25,11 +25,22 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.regex.Pattern;
 
+/**
+ * A {@code GraphLibrary} stores a graphId and its related Schema and StoreProperties.
+ */
 public abstract class GraphLibrary {
     protected static final Pattern ID_ALLOWED_CHARACTERS = Pattern.compile("[a-zA-Z0-9_]*");
 
     public abstract void initialise(final String path);
 
+    /**
+     * Add a new relationship between a graphId, Schema and StoreProperties.
+     *
+     * @param graphId    The graphId to relate to.
+     * @param schema     The schema that relates to the graphId.
+     * @param properties The StoreProperties that relate to the graphId.
+     * @throws OverwritingException If the graphId already has a related Schema and/or StoreProperties.
+     */
     public void add(final String graphId, final Schema schema, final StoreProperties properties) throws OverwritingException {
         validateId(graphId);
 
@@ -45,6 +56,14 @@ public abstract class GraphLibrary {
         _addProperties(propertiesId, properties);
     }
 
+    /**
+     * Adds a new relationship between a graphId, Schema and StoreProperties.
+     * If there is already a relationship using the graphId, it will update it.
+     *
+     * @param graphId    The graphId to relate to.
+     * @param schema     The schema that relates to the graphId.
+     * @param properties The StoreProperties that relate to the graphId.
+     */
     public void addOrUpdate(final String graphId, final Schema schema, final StoreProperties properties) {
         validateId(graphId);
 
@@ -63,7 +82,13 @@ public abstract class GraphLibrary {
         }
     }
 
-
+    /**
+     * Gets the Schema and StoreProperties related to the graphId.
+     *
+     * @param graphId The graphId.
+     * @return a {@link uk.gov.gchq.gaffer.commonutil.pair} containing
+     * related Schema and StoreProperties.
+     */
     public Pair<Schema, StoreProperties> get(final String graphId) {
         validateId(graphId);
 
@@ -78,8 +103,21 @@ public abstract class GraphLibrary {
         return new Pair<>(schema, _getProperties(schemaAndPropsId.getSecond()));
     }
 
+    /**
+     * Gets the Schema Id and StoreProperties Id related to the graphId.
+     *
+     * @param graphId The graphId.
+     * @return A {@link uk.gov.gchq.gaffer.commonutil.pair} containing
+     * related Schema Id and StoreProperties Id.
+     */
     public abstract Pair<String, String> getIds(final String graphId);
 
+    /**
+     * Gets the Schema given the schemaId.
+     *
+     * @param schemaId The schemaId.
+     * @return The {@link Schema} related to the schemaId.
+     */
     public Schema getSchema(final String schemaId) {
         validateId(schemaId);
 
@@ -87,28 +125,54 @@ public abstract class GraphLibrary {
         return null != schemaBytes ? Schema.fromJson(schemaBytes) : null;
     }
 
+    /**
+     * Gets the StoreProperties given the storePropertiesId.
+     *
+     * @param propertiesId The storePropertiesId
+     * @return The {@link StoreProperties} related to the storePropertiesId.
+     */
     public StoreProperties getProperties(final String propertiesId) {
         validateId(propertiesId);
 
         return _getProperties(propertiesId);
     }
 
+    /**
+     * Checks if the graphId with a relationship already exists.
+     *
+     * @param graphId The GraphId.
+     * @return True if a relationship exists.
+     */
     public boolean exists(final String graphId) {
-        return getIds(graphId) != null;
+        return null != getIds(graphId);
     }
 
-    public void addSchema(final String schemaId, final Schema schema) throws OverwritingException {
+    /**
+     * Adds a new relationship between a Schema and a schemaId.
+     *
+     * @param schema The Schema.
+     * @throws OverwritingException If there is already a relationship.
+     */
+    public void addSchema(final Schema schema) throws OverwritingException {
         if (null != schema) {
             final byte[] schemaJson = schema.toJson(false);
-            validateId(schemaId);
-            _addSchema(schemaId, schemaJson);
+            validateId(schema.getId());
+            checkSchemaExists(schema);
+            _addSchema(schema.getId(), schemaJson);
         }
     }
 
-    public void addProperties(final String propertiesId, final StoreProperties properties) {
-        if (properties != null) {
-            validateId(propertiesId);
-            _addProperties(propertiesId, properties);
+    /**
+     * Adds a new relationship between a StoreProperties and a storePropertiesId.
+     *
+     * @param properties The StoreProperties.
+     * @throws OverwritingException If there is already a relationship.
+     */
+    public void addProperties(final StoreProperties properties) {
+        if (null != properties) {
+            validateId(properties.getId());
+            checkPropertiesExist(properties);
+            _addProperties(properties.getId(), properties);
         }
 
     }
@@ -144,11 +208,31 @@ public abstract class GraphLibrary {
                 }
             }
             if (null != existingPair.getSecond()) {
-                if (!existingPair.getSecond().equals(properties)) {
+                if (!existingPair.getSecond().getProperties().equals(properties.getProperties())) {
                     throw new OverwritingException("GraphId " + graphId + " already exists with a different store properties:\n"
                             + "existing storeProperties:\n" + existingPair.getSecond().toString()
                             + "\nnew storeProperties:\n" + properties.toString());
                 }
+            }
+        }
+    }
+
+    private void checkSchemaExists(final Schema schema) {
+        if (null != getSchema(schema.getId())) {
+            if (!JsonUtil.equals(getSchema(schema.getId()).toJson(false), schema.toJson(false))) {
+                throw new OverwritingException("schemaId " + schema.getId() + " already exists with a different schema:\n"
+                        + "existing schema:\n" + StringUtil.toString(getSchema(schema.getId()).toJson(false))
+                        + "\nnew schema:\n" + StringUtil.toString(schema.toJson(false)));
+            }
+        }
+    }
+
+    private void checkPropertiesExist(final StoreProperties properties) {
+        if (null != getProperties(properties.getId())) {
+            if (!getProperties(properties.getId()).getProperties().equals(properties.getProperties())) {
+                throw new OverwritingException("propertiesId " + properties.getId() + " already exists with a different store properties:\n"
+                        + "existing storeProperties:\n" + getProperties(properties.getId()).toString()
+                        + "\nnew storeProperties:\n" + properties.toString());
             }
         }
     }

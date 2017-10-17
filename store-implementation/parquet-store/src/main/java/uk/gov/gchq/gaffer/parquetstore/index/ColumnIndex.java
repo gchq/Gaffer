@@ -35,7 +35,7 @@ import java.util.TreeSet;
  */
 public class ColumnIndex {
     private static final Comparator<MinValuesWithPath> BY_PATH =
-            (MinValuesWithPath mmp1, MinValuesWithPath mmp2) -> mmp1.getPath().compareTo(mmp2.getPath());
+            Comparator.comparing(MinValuesWithPath::getPath);
     private final SortedSet<MinValuesWithPath> minValuesWithPaths;
 
     public ColumnIndex() {

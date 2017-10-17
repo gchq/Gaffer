@@ -68,6 +68,7 @@ public class CountGroupsTest extends OperationTest<CountGroups> {
         assertEquals(input, clone.getInput().iterator().next());
     }
 
+    @Override
     protected CountGroups getTestObject() {
         return new CountGroups();
     }

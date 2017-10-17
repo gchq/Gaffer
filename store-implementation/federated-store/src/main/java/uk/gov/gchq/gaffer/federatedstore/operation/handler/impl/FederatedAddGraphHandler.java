@@ -16,32 +16,22 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
-import uk.gov.gchq.gaffer.federatedstore.FederatedAccessHook;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.export.graph.handler.CreateGraphDelegate;
+import uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.util.Set;
-
 /**
- * A handler for AddGraph operation for the FederatedStore.
- * To load a graph into the FederatedStore you need to provide three things.
- * <ul>
- * <li>GraphID
- * <li>Graph Schema
- * <li>Graph Properties file
- * </ul>
+ * A handler for {@link AddGraph} operation for the FederatedStore.
  *
  * @see OperationHandler
  * @see FederatedStore
- * @see AddGraph
- * @see CreateGraphDelegate
+ * @see GraphDelegate
  */
 public class FederatedAddGraphHandler implements OperationHandler<AddGraph> {
     @Override
@@ -49,22 +39,15 @@ public class FederatedAddGraphHandler implements OperationHandler<AddGraph> {
         final User user = context.getUser();
         boolean isLimitedToLibraryProperties = ((FederatedStore) store).isLimitedToLibraryProperties(user);
 
-        if (isLimitedToLibraryProperties && operation.getStoreProperties() != null) {
+        if (isLimitedToLibraryProperties && null != operation.getStoreProperties()) {
             throw new OperationException("User is limited to only using parentPropertiesId from the graphLibrary, but found storeProperties:" + operation.getProperties().toString());
         }
 
-        final Set<String> graphAuths = operation.getGraphAuths();
-        FederatedAccessHook hook = new FederatedAccessHook();
-        hook.setGraphAuths(graphAuths);
-        if (null == graphAuths) {
-            hook.setAddingUserId(user.getUserId());
-        }
-
-        final Graph graph = CreateGraphDelegate.createGraph(store, operation.getGraphId(),
+        final Graph graph = GraphDelegate.createGraph(store, operation.getGraphId(),
                 operation.getSchema(), operation.getStoreProperties(),
-                operation.getParentSchemaIds(), operation.getParentPropertiesId(), hook);
+                operation.getParentSchemaIds(), operation.getParentPropertiesId());
 
-        ((FederatedStore) store).addGraphs(graph);
+        ((FederatedStore) store).addGraphs(operation.getGraphAuths(), context.getUser().getUserId(), operation.getIsPublic(), graph);
         return null;
     }
 }

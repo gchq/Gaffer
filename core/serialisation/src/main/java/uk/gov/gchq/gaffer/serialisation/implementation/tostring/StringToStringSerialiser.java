@@ -18,6 +18,10 @@ package uk.gov.gchq.gaffer.serialisation.implementation.tostring;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToStringSerialiser;
 
+/**
+ * A {@code StringToStringSerialiser} serialises a {@link String} to
+ * a {@link String} without performing any additional changes to the original object.
+ */
 public class StringToStringSerialiser implements ToStringSerialiser<String> {
 
     private static final long serialVersionUID = -3000859022586008228L;

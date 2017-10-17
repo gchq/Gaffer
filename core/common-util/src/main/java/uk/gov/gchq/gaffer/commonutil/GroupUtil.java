@@ -22,11 +22,10 @@ import java.util.regex.Pattern;
  * Utility methods for Schema groups.
  */
 public final class GroupUtil {
-    private static final Pattern PROPERTY_ALLOWED_CHARACTERS = Pattern.compile("[a-zA-Z0-9|]*");
+    private static final Pattern PROPERTY_ALLOWED_CHARACTERS = Pattern.compile("[a-zA-Z0-9|-]*");
 
     private GroupUtil() {
-        // private to prevent this class being instantiated.
-        // All methods are static and should be called directly.
+        // Private constructor to prevent instantiation.
     }
 
     /**

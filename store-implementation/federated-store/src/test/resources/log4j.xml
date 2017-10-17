@@ -23,21 +23,8 @@
             <param name="ConversionPattern" value="%c{3} %p %x - %m%n"/>
         </layout>
     </appender>
-
-    <logger name="org.reflections.Reflections">
-        <level value="WARN"/>
-    </logger>
-
-    <logger name="uk.gov.gchq.gaffer.accumulostore.utils.TableUtils">
-        <level value="WARN"/>
-    </logger>
-
-    <logger name="server.handler.ContextHandler">
-        <level value="WARN"/>
-    </logger>
-
     <root>
-        <priority value="debug"></priority>
+        <priority value="warn"></priority>
         <appender-ref ref="console"></appender-ref>
     </root>
 </log4j:configuration>

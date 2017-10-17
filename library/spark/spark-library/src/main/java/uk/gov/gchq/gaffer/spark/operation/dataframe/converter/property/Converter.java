@@ -17,6 +17,8 @@ package uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property;
 
 import org.apache.spark.sql.types.DataType;
 
+import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.exception.ConversionException;
+
 import java.io.Serializable;
 
 /**

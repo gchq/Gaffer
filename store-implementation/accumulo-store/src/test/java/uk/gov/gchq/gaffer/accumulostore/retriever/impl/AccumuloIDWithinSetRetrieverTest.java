@@ -207,8 +207,6 @@ public class AccumuloIDWithinSetRetrieverTest {
 
     /**
      * Tests that the directed edges only and undirected edges only options are respected.
-     *
-     * @throws uk.gov.gchq.gaffer.store.StoreException
      */
     @Test
     public void shouldDealWithDirectedEdgesOnlyInMemoryByteEntityStore() throws StoreException {
@@ -264,8 +262,6 @@ public class AccumuloIDWithinSetRetrieverTest {
      * Tests that false positives are filtered out. It does this by explicitly finding a false positive (i.e. something
      * that matches the Bloom filter but that wasn't put into the filter) and adding that to the data, and then
      * checking that isn't returned.
-     *
-     * @throws uk.gov.gchq.gaffer.store.StoreException
      */
     @Test
     public void shouldDealWithFalsePositivesInMemoryByteEntityStore() throws StoreException {
@@ -321,7 +317,7 @@ public class AccumuloIDWithinSetRetrieverTest {
             filter.add(new Key(store.getKeyPackage().getKeyConverter().serialiseVertex(seed.getVertex())));
         }
 
-        // Test random items against it - should only have to shouldRetieveElementsInRangeBetweenSeeds MAX_SIZE_BLOOM_FILTER / 2 on average before find a
+        // Test random items against it - should only have to shouldRetrieveElementsInRangeBetweenSeeds MAX_SIZE_BLOOM_FILTER / 2 on average before find a
         // false positive (but impose an arbitrary limit to avoid an infinite loop if there's a problem).
         int count = 0;
         int maxNumberOfTries = 50 * store.getProperties().getMaxBloomFilterToPassToAnIterator();
@@ -349,8 +345,6 @@ public class AccumuloIDWithinSetRetrieverTest {
     /**
      * Tests that standard filtering (e.g. by summary type, or by time window, or to only receive entities) is still
      * applied.
-     *
-     * @throws uk.gov.gchq.gaffer.store.StoreException
      */
     @Test
     public void shouldStillApplyOtherFilterByteEntityStoreInMemoryEntities() throws StoreException {
@@ -508,7 +502,7 @@ public class AccumuloIDWithinSetRetrieverTest {
             store.execute(new AddElements.Builder()
                             .input(data)
                             .build(),
-                    user);
+                    store.createContext(user));
         } catch (final OperationException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }

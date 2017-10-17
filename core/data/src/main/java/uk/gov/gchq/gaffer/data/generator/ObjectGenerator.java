@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import java.util.function.Function;
 
 /**
- * An <code>ObjectGenerator</code> converts {@link Element}s into domain objects.
+ * An {@code ObjectGenerator} converts {@link Element}s into domain objects.
  * <p>
  * Implementations should be JSON serialisable.
  *

@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.operation;
 
 /**
- * A <code>SeedMatching</code> adds seed matching to operations.
+ * A {@code SeedMatching} adds seed matching to operations.
  */
 public interface SeedMatching {
     /**
@@ -30,7 +30,7 @@ public interface SeedMatching {
     SeedMatchingType getSeedMatching();
 
     /**
-     * A <code>SeedMatchingType</code> defines how the seeds in the operation should be matched.
+     * A {@code SeedMatchingType} defines how the seeds in the operation should be matched.
      */
     enum SeedMatchingType {
         EQUAL, RELATED

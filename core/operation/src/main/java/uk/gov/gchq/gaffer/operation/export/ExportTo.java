@@ -18,6 +18,12 @@ package uk.gov.gchq.gaffer.operation.export;
 
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 
+/**
+ * An {@code ExportTo} is an operation which exports data from a source to a specified
+ * output.
+ *
+ * @param <T> the type of object to export
+ */
 public interface ExportTo<T> extends
         Export,
         InputOutput<T, T> {

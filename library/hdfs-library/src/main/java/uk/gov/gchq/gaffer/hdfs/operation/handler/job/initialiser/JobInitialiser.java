@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import java.io.IOException;
 
 /**
- * A <code>JobInitialiser</code> initialises a job.
+ * A {@code JobInitialiser} initialises a job.
  *
  * @see AvroJobInitialiser
  * @see TextJobInitialiser

@@ -79,6 +79,7 @@ public class BytesSerialiserTest extends ToBytesSerialisationTest<byte[]> {
         return new BytesSerialiser();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Pair<byte[], byte[]>[] getHistoricSerialisationPairs() {
         return new Pair[]{

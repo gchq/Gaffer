@@ -31,13 +31,15 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import java.util.Collection;
 import java.util.Set;
 
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.GRAPH_IDS;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.SKIP_FAILED_FEDERATED_STORE_EXECUTE;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE;
 
 /**
- * A handler for AddElements operation for the FederatedStore.
  * <p>
- * Only attempts to add elements to a graph if it has knowledge of the elements edge/entity group name.
+ * A handler for AddElements operation for the FederatedStore.
+ * </p>
+ * Only attempts to add elements to a graph if it has knowledge of the elements
+ * edge/entity group name.
  * Otherwise will throw exception if all the following is true.
  * <ul>
  * <li> If no sub-graphs have knowledge of the elements edge/entity group name.
@@ -50,8 +52,12 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.SKIP_FAI
  */
 public class FederatedOperationAddElementsHandler implements OperationHandler<AddElements> {
     public Object doOperation(final AddElements addElements, final Context context, final Store store) throws OperationException {
-        final Set<String> allGroups = store.getSchema().getGroups();
-        final Collection<Graph> graphs = ((FederatedStore) store).getGraphs(addElements.getOption(GRAPH_IDS));
+        return doOperation(addElements, context, (FederatedStore) store);
+    }
+
+    public Object doOperation(final AddElements addElements, final Context context, final FederatedStore store) throws OperationException {
+        final Set<String> allGroups = store.getSchema(addElements.getOptions(), context).getGroups();
+        final Collection<Graph> graphs = store.getGraphs(context.getUser(), addElements.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS));
 
         for (final Graph graph : graphs) {
             final Set<String> graphGroups = graph.getSchema().getGroups();
@@ -68,7 +74,7 @@ public class FederatedOperationAddElementsHandler implements OperationHandler<Ad
                 addElementsClone.setInput(retain);
                 graph.execute(addElementsClone, context.getUser());
             } catch (final Exception e) {
-                if (!Boolean.valueOf(addElements.getOption(SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
+                if (!Boolean.valueOf(addElements.getOption(KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
                     throw new OperationException("Graph failed to execute operation. Graph: " + graph.getGraphId() + " Operation: " + addElements.getClass().getSimpleName(), e);
                 }
             }

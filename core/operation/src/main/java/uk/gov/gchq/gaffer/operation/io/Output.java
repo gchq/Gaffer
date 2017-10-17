@@ -21,6 +21,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 
+/**
+ * {@code Output} operations are Gaffer operations which yield an output.
+ *
+ * @param <O> the type of output object
+ */
 public interface Output<O> extends Operation {
     default O castToOutputType(final Object result) {
         try {

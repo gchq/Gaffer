@@ -22,7 +22,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * A <code>TransformToMultiIterable</code> allows {@link Iterable}s to be lazily validated and transformed without
+ * A {@code TransformToMultiIterable} allows {@link Iterable}s to be lazily validated and transformed without
  * loading the entire iterable into memory. The easiest way to use this class is to create an anonymous inner class.
  * This class is very similar to {@link TransformOneToManyIterable} except that this class transforms one to many
  * items.
@@ -37,7 +37,7 @@ public abstract class TransformOneToManyIterable<I, O> implements CloseableItera
     private final boolean autoClose;
 
     /**
-     * Constructs an <code>TransformOneToManyIterable</code> with the given input {@link Iterable} and no validation.
+     * Constructs an {@code TransformOneToManyIterable} with the given input {@link Iterable} and no validation.
      *
      * @param input the input {@link Iterable}
      */
@@ -46,7 +46,7 @@ public abstract class TransformOneToManyIterable<I, O> implements CloseableItera
     }
 
     /**
-     * Constructs an <code>TransformOneToManyIterable</code> with the given input {@link Iterable} and
+     * Constructs an {@code TransformOneToManyIterable} with the given input {@link Iterable} and
      * {@link Validator}. Invalid items will throw an {@link IllegalArgumentException} to be thrown.
      *
      * @param input     the input {@link Iterable}
@@ -57,7 +57,7 @@ public abstract class TransformOneToManyIterable<I, O> implements CloseableItera
     }
 
     /**
-     * Constructs an <code>TransformOneToManyIterable</code> with the given input {@link Iterable},
+     * Constructs an {@code TransformOneToManyIterable} with the given input {@link Iterable},
      * {@link Validator} and a skipInvalid flag to determine whether invalid items should be skipped.
      *
      * @param input       the input {@link Iterable}
@@ -69,7 +69,7 @@ public abstract class TransformOneToManyIterable<I, O> implements CloseableItera
     }
 
     /**
-     * Constructs an <code>TransformOneToManyIterable</code> with the given inputs
+     * Constructs an {@code TransformOneToManyIterable} with the given inputs
      *
      * @param input       the input {@link Iterable}
      * @param validator   the {@link Validator}

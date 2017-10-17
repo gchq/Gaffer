@@ -40,6 +40,7 @@ public class UnionSerialiserTest extends ViaCalculatedValueSerialiserTest<Union,
         return new UnionSerialiser();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Pair<Union, byte[]>[] getHistoricSerialisationPairs() {
         Union union = getExampleOutput();

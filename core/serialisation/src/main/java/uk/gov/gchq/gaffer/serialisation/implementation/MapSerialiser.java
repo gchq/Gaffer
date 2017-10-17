@@ -27,6 +27,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This class is used to serialise and deserialise {@link Map}s.
+ */
 public class MapSerialiser implements ToBytesSerialiser<Map<? extends Object, ? extends Object>> {
 
     private static final long serialVersionUID = 323888878024609587L;
@@ -56,7 +59,7 @@ public class MapSerialiser implements ToBytesSerialiser<Map<? extends Object, ? 
     @Override
     public Map<? extends Object, ? extends Object> deserialise(final byte[] bytes) throws SerialisationException {
         Map map;
-        if (getMapClass() == null) {
+        if (null == getMapClass()) {
             map = new HashMap<>();
         } else {
             try {

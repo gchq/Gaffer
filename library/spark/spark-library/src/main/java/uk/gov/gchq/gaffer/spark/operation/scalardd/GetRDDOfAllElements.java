@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.spark.operation.scalardd;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.rdd.RDD;
-import org.apache.spark.sql.SparkSession;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
@@ -29,22 +28,19 @@ import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
 
 import java.util.Map;
 
+/**
+ * A {@code GetRDDOfAllElements} operation retrieves all the {@link Element}s
+ * from the target store, and returns them inside a {@link RDD}.
+ */
 public class GetRDDOfAllElements implements
-        Operation,
         Output<RDD<Element>>,
-        GraphFilters,
-        Rdd {
+        GraphFilters {
 
     private Map<String, String> options;
-    private SparkSession sparkSession;
     private View view;
     private DirectedType directedType;
 
     public GetRDDOfAllElements() {
-    }
-
-    public GetRDDOfAllElements(final SparkSession sparkSession) {
-        setSparkSession(sparkSession);
     }
 
     @Override
@@ -60,16 +56,6 @@ public class GetRDDOfAllElements implements
     @Override
     public TypeReference<RDD<Element>> getOutputTypeReference() {
         return new TypeReferenceSparkImpl.RDDElement();
-    }
-
-    @Override
-    public SparkSession getSparkSession() {
-        return sparkSession;
-    }
-
-    @Override
-    public void setSparkSession(final SparkSession sparkSession) {
-        this.sparkSession = sparkSession;
     }
 
     @Override
@@ -96,7 +82,6 @@ public class GetRDDOfAllElements implements
     public GetRDDOfAllElements shallowClone() {
         return new GetRDDOfAllElements.Builder()
                 .options(options)
-                .sparkSession(sparkSession)
                 .view(view)
                 .directedType(directedType)
                 .build();
@@ -105,7 +90,7 @@ public class GetRDDOfAllElements implements
     public static class Builder extends Operation.BaseBuilder<GetRDDOfAllElements, Builder>
             implements Output.Builder<GetRDDOfAllElements, RDD<Element>, Builder>,
             GraphFilters.Builder<GetRDDOfAllElements, Builder>,
-            Rdd.Builder<GetRDDOfAllElements, Builder> {
+            Operation.Builder<GetRDDOfAllElements, Builder> {
         public Builder() {
             super(new GetRDDOfAllElements());
         }

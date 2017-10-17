@@ -80,6 +80,7 @@ public class JavaSerialiserTest extends ToBytesSerialisationTest<Object> {
     }
 
 
+    @Override
     public Pair<Object, byte[]>[] getHistoricSerialisationPairs() {
         HashMap<Object, Object> map = Maps.newHashMap();
         map.put("this is a string in key", 123);

@@ -93,6 +93,45 @@ public static class Builder extends Operation.BaseBuilder<GetElements, Builder>
 }
 ```
 
+## Lazy Results
+Operation results are lazy (where possible) so that results are lazily
+loaded whilst a user consumes each result.
+
+For example if a user executes a GetAllElements on Accumulo:
+
+```java
+final Iterable<? extends Element> elements = graph.execute(new GetAllElements(), getUser());
+```
+
+The 'elements' iterable is lazy and the query is only executed on Accumulo when you start iterating around the results. 
+If you iterate around the results a second time, the query on Accumulo will be executed again.
+
+If you add another element 'X' to the graph before you consume the 'elements' iterable you will notice the results now also contain 'X'.
+
+For this reason you should be very careful if you do an AddElements with a lazy iterable returned from a Get query on the same Graph. The problem that could arise is that the AddElements will lazily consume the lazy iterable of elements, potentially causing duplicates to be added. 
+
+To do a Get followed by an Add on the same Graph, we recommend consuming and caching the Get results first. For a small number of results, this can be done simply using the ToList operation in your chain. e.g:
+
+```java
+new OperationChain.Builder()
+                .first(new GetAllElements())
+                .then(new ToList<>())
+                .then(new AddElements())
+                .build();
+```
+
+
+For a large number of results you could add them to the gaffer cache temporarily:
+```java
+new OperationChain.Builder()
+                .first(new GetAllElements())
+                .then(new ExportToGafferResultCache<>())
+                .then(new DiscardOutput())
+                .then((Operation) new GetGafferResultCacheExport())
+                .then(new AddElements())
+                .build()
+```
+
 ## FAQs
 Here are some frequently asked questions.
 
@@ -116,7 +155,7 @@ You need to provide a View to override the groupBy fields for all the element gr
 #### My queries are returning duplicate results - why and how can I deduplicate them?
 For example, if you have a Graph containing the Edge A-B and you do a GetElements with a large number of seeds, with the first seed A and the last seed B, then you will get the Edge A-B back twice. This is because Gaffer stores lazily return the results for your query to avoid loading all the results into memory so it will not realise the A-B has been queried for twice.
 
-You can deduplicate your results in memory using the [ToSet](https://github.com/gchq/Gaffer/wiki/Operation-examples#toset-example) operation. But, be careful to only use this when you have a small number of results. It might be worth also using the [Limit](https://github.com/gchq/Gaffer/wiki/Operation-examples#limit-example) operation prior to ToSet to ensure you don't run out of memory.
+You can deduplicate your results in memory using the [ToSet](https://gchq.github.io/gaffer-doc/getting-started/operation-examples.html#toset-example) operation. But, be careful to only use this when you have a small number of results. It might be worth also using the [Limit](https://gchq.github.io/gaffer-doc/getting-started/operation-examples.html#limit-example) operation prior to ToSet to ensure you don't run out of memory.
 
 e.g: 
 
@@ -276,7 +315,7 @@ points for your AddElementsFromHdfs operation.
 
 #### I want to filter the results of my query based on the destination of the result Edges
 OK, there are several ways of doing this and you will need to chose the most appropriate
-way for your needs. Also worth reading [GetElements example](https://github.com/gchq/Gaffer/wiki/Operation-examples#getelements-example).
+way for your needs. Also worth reading [GetElements example](https://gchq.github.io/gaffer-doc/getting-started/operation-examples.html#getelements-example).
 
 If you are querying with just a single EntitySeed with a vertex value of X and require
 the destination to be Y then you should change your query to use an EdgeSeed 
@@ -287,7 +326,7 @@ EdgeSeed as described above.
  
 If you require your destination to match a provided regex than you will need to use
 the regex filter: uk.gov.gchq.koryphe.impl.predicate.Regex or uk.gov.gchq.koryphe.impl.predicate.MultiRegex.
-See the [Predicate examples](https://github.com/gchq/Gaffer/wiki/Predicate-examples).
+See the [Predicate examples](https://gchq.github.io/gaffer-doc/getting-started/predicate-examples.html).
 The predicate can then be used in you Operation View to filter out elements that
 don't match the regex. 
 

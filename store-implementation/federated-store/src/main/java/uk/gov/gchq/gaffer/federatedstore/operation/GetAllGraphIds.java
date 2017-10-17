@@ -19,15 +19,22 @@ package uk.gov.gchq.gaffer.federatedstore.operation;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 import java.util.Map;
 
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 
-public class GetAllGraphIds implements Operation, Output<Iterable<? extends String>> {
+/**
+ * An Operation to get all the graphIds within scope of the FederatedStore.
+ */
+public class GetAllGraphIds implements Output<Iterable<? extends String>> {
     private Map<String, String> options;
+
+    public GetAllGraphIds() {
+        addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, "");
+    }
 
     @Override
     public TypeReference<Iterable<? extends String>> getOutputTypeReference() {

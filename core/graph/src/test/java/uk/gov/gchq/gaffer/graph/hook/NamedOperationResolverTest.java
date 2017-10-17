@@ -25,13 +25,14 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.ParameterDetail;
-import uk.gov.gchq.gaffer.named.operation.cache.CacheOperationFailedException;
+import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -80,7 +81,7 @@ public class NamedOperationResolverTest {
                 .build();
 
         // When
-        resolver.preExecute(opChain, user);
+        resolver.preExecute(opChain, new Context(user));
 
         // Then
         assertEquals(namedOperationOpChain.getOperations(), opChain.getOperations());
@@ -116,7 +117,7 @@ public class NamedOperationResolverTest {
                         .input(input)
                         .build())
                 .build();
-        resolver.preExecute(opChain, user);
+        resolver.preExecute(opChain, new Context(user));
 
         // Then
         assertSame(op1, opChain.getOperations().get(0));
@@ -163,7 +164,7 @@ public class NamedOperationResolverTest {
                 .build();
         // When
 
-        resolver.preExecute(opChain, user);
+        resolver.preExecute(opChain, new Context(user));
 
         // Then
         assertEquals(opChain.getOperations().get(0).getClass(), GetAllElements.class);
@@ -211,7 +212,7 @@ public class NamedOperationResolverTest {
                         .name(opName)
                         .parameters(paramMap)
                         .build())
-                .build(), user);
+                .build(), new Context(user));
     }
 
     @Test
@@ -252,7 +253,7 @@ public class NamedOperationResolverTest {
                         .name(opName)
                         .parameters(paramMap)
                         .build())
-                .build(), user);
+                .build(), new Context(user));
     }
 
     @Test
@@ -292,6 +293,6 @@ public class NamedOperationResolverTest {
                         .name(opName)
                         .parameters(paramMap)
                         .build())
-                .build(), user);
+                .build(), new Context(user));
     }
 }

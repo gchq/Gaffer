@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A <code>Max</code> operation is intended as a terminal operation for
+ * A {@code Max} operation is intended as a terminal operation for
  * retrieving the "maximum" element from an {@link java.lang.Iterable} of Elements.
  * /**
  * The {@link uk.gov.gchq.gaffer.data.element.Element}s are compared using the provided
@@ -47,7 +47,6 @@ import java.util.Map;
  * @see uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator
  */
 public class Max implements
-        Operation,
         InputOutput<Iterable<? extends Element>, Element>,
         MultiInput<Element>,
         ElementComparison {

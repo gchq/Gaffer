@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.hdfs.operation.partitioner;
 import org.apache.hadoop.mapreduce.Partitioner;
 
 /**
- * A <code>NoPartioner</code> can be used to tell a map reduce job not to use a
+ * A {@code NoPartioner} can be used to tell a map reduce job not to use a
  * {@link Partitioner}.
  * This class cannot be instantiated.
  */

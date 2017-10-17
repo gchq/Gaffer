@@ -29,6 +29,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * The {@link SchemaOptimiser} is used to reduce the size of a given {@link Schema}.
+ */
 public class SchemaOptimiser {
     private static final Logger LOGGER = LoggerFactory.getLogger(SchemaOptimiser.class);
 
@@ -42,6 +45,15 @@ public class SchemaOptimiser {
         this.serialisationFactory = serialisationFactory;
     }
 
+    /**
+     * Optimise the provided {@link Schema} by removing unused types and adding
+     * default serialisers.
+     *
+     * @param schema         the schema to optimise
+     * @param isStoreOrdered determines whether to enforce ordering in the default
+     *                       serialisers or not
+     * @return the optimised schema object
+     */
     public Schema optimise(final Schema schema, final boolean isStoreOrdered) {
         if (null != schema && null != schema.getTypes()) {
             return new Schema.Builder()
@@ -164,12 +176,12 @@ public class SchemaOptimiser {
 
             if (null == serialiser) {
                 throw new IllegalArgumentException("No default serialiser could be found that would support all vertex class types "
-                                                           + vertexClasses.toString() + ", please implement your own or change your vertex class types.");
+                        + vertexClasses.toString() + ", please implement your own or change your vertex class types.");
             }
 
             if (isStoreOrdered && !serialiser.preservesObjectOrdering()) {
                 LOGGER.info("{} serialiser is used for vertex serialisation in an ordered store and it does not preserve the order of bytes. See https://github.com/gchq/Gaffer/wiki/Dev-Guide#serialisers.",
-                            serialiser.getClass().getName());
+                        serialiser.getClass().getName());
             }
 
             return serialiser;

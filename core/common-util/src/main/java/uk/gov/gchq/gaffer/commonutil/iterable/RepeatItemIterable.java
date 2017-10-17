@@ -18,6 +18,12 @@ package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import java.util.Iterator;
 
+/**
+ * A {@code RepeatItemIterable} is an {@link Iterable} which contains multiple
+ * copies of the same object.
+ *
+ * @param <T> the type of items in the iterable.
+ */
 public class RepeatItemIterable<T> implements Iterable<T> {
     private final long repeats;
     private final T item;

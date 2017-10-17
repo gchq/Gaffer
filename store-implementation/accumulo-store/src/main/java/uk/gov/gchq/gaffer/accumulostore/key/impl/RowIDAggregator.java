@@ -160,7 +160,7 @@ public class RowIDAggregator extends WrappingIterator implements OptionDescriber
 
     @Override
     public boolean hasTop() {
-        return topKey != null;
+        return null != topKey;
     }
 
     /**
@@ -190,7 +190,7 @@ public class RowIDAggregator extends WrappingIterator implements OptionDescriber
         Properties properties;
         while (iter.hasNext()) {
             properties = iter.next();
-            if (properties != null) {
+            if (null != properties) {
                 state = aggregator.apply(state, properties);
             }
         }

@@ -76,6 +76,7 @@ public class ImportAccumuloKeyValueFilesTest extends OperationTest<ImportAccumul
         assertEquals(FAIL_DIRECTORY, clone.getFailurePath());
     }
 
+    @Override
     protected ImportAccumuloKeyValueFiles getTestObject() {
         return new ImportAccumuloKeyValueFiles();
     }

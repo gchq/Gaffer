@@ -37,7 +37,7 @@ public class JcsCacheTest {
             cache.putSafe("test", 1);
             fail();
         } catch (final CacheOperationException e) {
-            assertEquals("Entry for key test already exists", e.getMessage());
+            assertEquals("Cache entry already exists for key: test", e.getMessage());
         }
     }
 

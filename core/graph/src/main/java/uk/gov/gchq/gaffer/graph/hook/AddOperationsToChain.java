@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.graph.hook;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.gaffer.store.Context;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A <code>AddOperationsToChain</code> is a {@link GraphHook} that allows a
+ * A {@code AddOperationsToChain} is a {@link GraphHook} that allows a
  * user to insert additional operations at certain points on the operation chain.
  * At the start, before a specific Operation, after a specific Operation, or at the end.
  * A user can also specify authorised Operations to add, and if the user has
@@ -41,16 +41,16 @@ public class AddOperationsToChain implements GraphHook {
      * be updated.
      *
      * @param opChain the {@link OperationChain} being executed.
-     * @param user    the {@link User} executing the operation chain
+     * @param context    the {@link Context} executing the operation chain
      */
     @Override
-    public void preExecute(final OperationChain<?> opChain, final User user) {
+    public void preExecute(final OperationChain<?> opChain, final Context context) {
         final List<Operation> newOpList = new ArrayList<>();
 
         boolean hasAuth = false;
-        if (!authorisedOps.isEmpty() && !user.getOpAuths().isEmpty()) {
+        if (!authorisedOps.isEmpty() && !context.getUser().getOpAuths().isEmpty()) {
             for (final String auth : authorisedOps.keySet()) {
-                if (user.getOpAuths().contains(auth)) {
+                if (context.getUser().getOpAuths().contains(auth)) {
                     final AdditionalOperations additionalOperations = authorisedOps.get(auth);
 
                     newOpList.addAll(additionalOperations.getStart());
@@ -74,7 +74,12 @@ public class AddOperationsToChain implements GraphHook {
 
     @Override
     public <T> T postExecute(final T result,
-                             final OperationChain<?> opChain, final User user) {
+                             final OperationChain<?> opChain, final Context context) {
+        return result;
+    }
+
+    @Override
+    public <T> T onFailure(final T result, final OperationChain<?> opChain, final Context context, final Exception e) {
         return result;
     }
 
@@ -116,7 +121,7 @@ public class AddOperationsToChain implements GraphHook {
 
     public void setAuthorisedOps(final LinkedHashMap<String, AdditionalOperations> authorisedOps) {
         this.authorisedOps.clear();
-        if (authorisedOps != null) {
+        if (null != authorisedOps) {
             this.authorisedOps.putAll(authorisedOps);
         }
     }
@@ -124,22 +129,22 @@ public class AddOperationsToChain implements GraphHook {
     private List<Operation> addOperationsToChain(final OperationChain<?> opChain, final AdditionalOperations additionalOperations) {
         final List<Operation> opList = new ArrayList<>();
 
-        if (opChain != null && !opChain.getOperations().isEmpty()) {
+        if (null != opChain && !opChain.getOperations().isEmpty()) {
             for (final Operation originalOp : opChain.getOperations()) {
                 if (originalOp instanceof OperationChain) {
                     opList.addAll(addOperationsToChain((OperationChain) originalOp, additionalOperations));
                 } else {
                     final List<Operation> beforeOps = additionalOperations.getBefore()
-                                                                          .get(originalOp.getClass()
-                                                                                        .getName());
-                    if (beforeOps != null) {
+                            .get(originalOp.getClass()
+                                    .getName());
+                    if (null != beforeOps) {
                         opList.addAll(beforeOps);
                     }
                     opList.add(originalOp);
                     final List<Operation> afterOps = additionalOperations.getAfter()
-                                                                         .get(originalOp.getClass()
-                                                                                        .getName());
-                    if (afterOps != null) {
+                            .get(originalOp.getClass()
+                                    .getName());
+                    if (null != afterOps) {
                         opList.addAll(afterOps);
                     }
                 }

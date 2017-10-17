@@ -24,6 +24,10 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.export.GetExportHandler;
 
+/**
+ * Implementation of the {@link GetExportHandler} to retrieve exported created by
+ * a {@link SetExporter}.
+ */
 public class GetSetExportHandler extends GetExportHandler<GetSetExport, SetExporter> {
     @Override
     protected CloseableIterable<?> getExport(final GetSetExport export, final SetExporter exporter) throws OperationException {

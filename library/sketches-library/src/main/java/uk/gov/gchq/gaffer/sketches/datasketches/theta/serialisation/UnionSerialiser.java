@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
 /**
- * A <code>UnionSerialiser</code> serialises an {@link Union} using the <code>toByteArray()</code> method from the
+ * A {@code UnionSerialiser} serialises an {@link Union} using the {@code toByteArray()} method from the
  * sketch
  */
 public class UnionSerialiser implements ToBytesSerialiser<Union> {

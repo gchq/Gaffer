@@ -26,7 +26,7 @@ import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import java.util.Date;
 import java.util.Map;
 
-public class InputImpl implements Operation, MultiInput<String> {
+public class InputImpl implements MultiInput<String> {
     @Required
     // Public so the validation of the required field can be tested differently
     public CustomVertex requiredField2;

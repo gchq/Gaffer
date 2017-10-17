@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.exception;
 import java.io.IOException;
 
 /**
- * An <code>SerialisationException</code> is thrown when serialisation/deserialisation fails.
+ * An {@code SerialisationException} is thrown when serialisation/deserialisation fails.
  */
 public class SerialisationException extends IOException {
     private static final long serialVersionUID = 1624476078972832393L;

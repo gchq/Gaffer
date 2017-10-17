@@ -26,6 +26,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+/**
+ * Servlet filter to enforce some additional headers on HTTP responses from the
+ * Gaffer REST API.
+ */
 public class OriginFilter implements Filter {
     @Override
     public void doFilter(final ServletRequest request,

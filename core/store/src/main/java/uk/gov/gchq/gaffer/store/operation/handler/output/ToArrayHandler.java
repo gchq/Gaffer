@@ -36,8 +36,19 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
+/**
+ * A {@code ToArrayHandler} handles {@link ToArray} operations. The input {@link Iterable}
+ * of objects is converted into an array.
+ *
+ * Use of this operation will cause all of the items present in the input iterable
+ * to be brought into memory, so this operation is not suitable for situations where
+ * the size of the input iterable is very large.
+ *
+ * @param <T> the type of object in the input iterable
+ */
 public class ToArrayHandler<T> implements OutputOperationHandler<ToArray<T>, T[]> {
     @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS")
     @Override
@@ -50,11 +61,10 @@ public class ToArrayHandler<T> implements OutputOperationHandler<ToArray<T>, T[]
         final Collection<T> collection;
         if (operation.getInput() instanceof Collection) {
             collection = (Collection) operation.getInput();
-            collection.forEach(e -> {
-                if (null != e) {
-                    classes.add(e.getClass());
-                }
-            });
+            collection.stream()
+                    .filter(Objects::nonNull)
+                    .forEach(e -> classes.add(e.getClass()));
+
         } else {
             collection = new ArrayList<>();
             for (final T t : operation.getInput()) {
@@ -65,7 +75,6 @@ public class ToArrayHandler<T> implements OutputOperationHandler<ToArray<T>, T[]
             }
         }
 
-
         if (classes.isEmpty()) {
             // If we return an empty Object array then we will get a class cast exception
             // when it is casted into T[].
@@ -74,7 +83,7 @@ public class ToArrayHandler<T> implements OutputOperationHandler<ToArray<T>, T[]
 
         // Attempt to find a single common super class for the array.
         final Class clazz;
-        if (classes.size() == 1) {
+        if (1 == classes.size()) {
             clazz = classes.iterator().next();
         } else {
             if (classes.remove(Edge.class)) {
@@ -91,7 +100,7 @@ public class ToArrayHandler<T> implements OutputOperationHandler<ToArray<T>, T[]
                 classes.add(EdgeId.class);
             }
 
-            if (classes.size() == 1) {
+            if (1 == classes.size()) {
                 clazz = classes.iterator().next();
             } else {
                 if (classes.remove(Element.class)) {
@@ -104,7 +113,7 @@ public class ToArrayHandler<T> implements OutputOperationHandler<ToArray<T>, T[]
                     classes.add(ElementId.class);
                 }
 
-                if (classes.size() == 1) {
+                if (1 == classes.size()) {
                     clazz = classes.iterator().next();
                 } else {
                     // This may cause class cast exceptions.

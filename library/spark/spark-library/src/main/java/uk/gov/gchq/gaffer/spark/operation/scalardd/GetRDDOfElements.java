@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.spark.operation.scalardd;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.rdd.RDD;
-import org.apache.spark.sql.SparkSession;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -32,26 +31,23 @@ import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
 
 import java.util.Map;
 
+/**
+ * A {@code GetRDDOfElements} operation retrieves all the {@link Element}s for the
+ * input seeds from the target store, and returns them inside a {@link RDD}.
+ */
 public class GetRDDOfElements implements
-        Operation,
         InputOutput<Iterable<? extends ElementId>, RDD<Element>>,
         MultiInput<ElementId>,
-        SeededGraphFilters,
-        Rdd {
+        SeededGraphFilters {
 
     private Map<String, String> options;
     @Required
-    private SparkSession sparkSession;
     private Iterable<? extends ElementId> input;
     private IncludeIncomingOutgoingType inOutType;
     private View view;
     private DirectedType directedType;
 
     public GetRDDOfElements() {
-    }
-
-    public GetRDDOfElements(final SparkSession sparkSession) {
-        setSparkSession(sparkSession);
     }
 
     @Override
@@ -67,16 +63,6 @@ public class GetRDDOfElements implements
     @Override
     public TypeReference<RDD<Element>> getOutputTypeReference() {
         return new TypeReferenceSparkImpl.RDDElement();
-    }
-
-    @Override
-    public SparkSession getSparkSession() {
-        return sparkSession;
-    }
-
-    @Override
-    public void setSparkSession(final SparkSession sparkSession) {
-        this.sparkSession = sparkSession;
     }
 
     @Override
@@ -123,7 +109,6 @@ public class GetRDDOfElements implements
     public GetRDDOfElements shallowClone() {
         return new GetRDDOfElements.Builder()
                 .options(options)
-                .sparkSession(sparkSession)
                 .input(input)
                 .inOutType(inOutType)
                 .view(view)
@@ -135,7 +120,7 @@ public class GetRDDOfElements implements
             implements InputOutput.Builder<GetRDDOfElements, Iterable<? extends ElementId>, RDD<Element>, Builder>,
             MultiInput.Builder<GetRDDOfElements, ElementId, Builder>,
             SeededGraphFilters.Builder<GetRDDOfElements, Builder>,
-            Rdd.Builder<GetRDDOfElements, Builder> {
+            Operation.Builder<GetRDDOfElements, Builder> {
         public Builder() {
             super(new GetRDDOfElements());
         }

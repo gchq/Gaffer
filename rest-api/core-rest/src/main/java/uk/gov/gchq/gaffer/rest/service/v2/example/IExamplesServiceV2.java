@@ -25,7 +25,7 @@ import javax.ws.rs.Produces;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 /**
- * An <code>IExamplesServiceV2</code> has methods to produce example {@link Operation}s to be applied
+ * An {@code IExamplesServiceV2} has methods to produce example {@link Operation}s to be applied
  * to the methods in {@link uk.gov.gchq.gaffer.rest.service.v2.IOperationServiceV2}.
  * Each example method path should be equal to the corresponding IOperationService method with /example as a prefix.
  * Each example method should return a populated {@link Operation} which can be used to call the

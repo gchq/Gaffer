@@ -16,12 +16,19 @@
 
 package uk.gov.gchq.gaffer.operation.io;
 
-import uk.gov.gchq.gaffer.operation.Operation;
-
+/**
+ * {@code InputOutput} operations are Gaffer operations which consume a single
+ * input and transforms that input into an output type.
+ *
+ * This is a marker interface composed of the {@link Input} and {@link Output} interfaces.
+ *
+ * @param <I> the type of the operation input
+ * @param <O> the type of the operation output
+ */
 public interface InputOutput<I, O> extends Input<I>, Output<O> {
 
     interface Builder<OP extends InputOutput<I, O>, I, O, B extends Builder<OP, I, O, ?>>
-            extends Operation.Builder<OP, B>,
+            extends
             Input.Builder<OP, I, B>,
             Output.Builder<OP, O, B> {
     }

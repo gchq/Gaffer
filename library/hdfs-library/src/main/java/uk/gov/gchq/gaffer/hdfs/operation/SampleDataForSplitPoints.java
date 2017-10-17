@@ -31,7 +31,7 @@ import java.util.Map;
 
 
 /**
- * The <code>SampleDataForSplitPoints</code> operation is for creating a splits file, either for use in a {@link uk.gov.gchq.gaffer.operation.impl.SplitStore} operation or an
+ * The {@code SampleDataForSplitPoints} operation is for creating a splits file, either for use in a {@link uk.gov.gchq.gaffer.operation.impl.SplitStore} operation or an
  * {@link uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs} operation.
  * This operation requires an input and output path as well as a path to a file to use as the resultingSplitsFile.
  * For each input file you must also provide a {@link uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator} class name
@@ -97,10 +97,12 @@ public class SampleDataForSplitPoints implements
         this.validate = validate;
     }
 
+    @Override
     public String getSplitsFilePath() {
         return splitsFilePath;
     }
 
+    @Override
     public void setSplitsFilePath(final String splitsFilePath) {
         this.splitsFilePath = splitsFilePath;
     }
@@ -286,6 +288,7 @@ public class SampleDataForSplitPoints implements
             return _self();
         }
 
+        @Override
         public Builder inputMapperPairs(final Map<String, String> inputMapperPairs) {
             _getOp().setInputMapperPairs(inputMapperPairs);
             return _self();

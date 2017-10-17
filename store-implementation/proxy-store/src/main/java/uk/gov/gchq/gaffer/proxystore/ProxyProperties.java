@@ -20,12 +20,15 @@ import org.apache.commons.lang3.StringUtils;
 
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Properties;
 
-
+/**
+ * Additional store properties for the {@link ProxyStore}.
+ */
 public class ProxyProperties extends StoreProperties {
     public static final String GAFFER_HOST = "gaffer.host";
     public static final String GAFFER_PORT = "gaffer.port";
@@ -42,14 +45,27 @@ public class ProxyProperties extends StoreProperties {
     private static final String GAFFER_REST_API_VERSION = "v2";
 
     public ProxyProperties() {
+        super(ProxyStore.class);
     }
 
     public ProxyProperties(final Path propFileLocation) {
-        super(propFileLocation);
+        super(propFileLocation, ProxyStore.class);
     }
 
     public ProxyProperties(final Properties props) {
-        super(props);
+        super(props, ProxyStore.class);
+    }
+
+    public static ProxyProperties loadStoreProperties(final String pathStr) {
+        return StoreProperties.loadStoreProperties(pathStr, ProxyProperties.class);
+    }
+
+    public static ProxyProperties loadStoreProperties(final InputStream storePropertiesStream) {
+        return StoreProperties.loadStoreProperties(storePropertiesStream, ProxyProperties.class);
+    }
+
+    public static ProxyProperties loadStoreProperties(final Path storePropertiesPath) {
+        return StoreProperties.loadStoreProperties(storePropertiesPath, ProxyProperties.class);
     }
 
     public int getConnectTimeout() {

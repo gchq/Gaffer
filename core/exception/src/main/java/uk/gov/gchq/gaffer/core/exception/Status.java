@@ -21,7 +21,7 @@ import java.util.Arrays;
 
 /**
  * Enumerated types for HTTP status codes, loosely based on the JAX-RS 2.0
- * Status class.
+ * Status class. Also includes HTTP statuses form the WebDAV HTTP extension.
  */
 public enum Status {
     CONTINUE(100, "Continue"),
@@ -89,6 +89,12 @@ public enum Status {
         this.reason = reasonPhrase;
     }
 
+    /**
+     * Converts a HTTP status code into the matching  object.
+     *
+     * @param statusCode the status code to lookup
+     * @return the corresponding status object
+     */
     public static Status fromStatusCode(final int statusCode) {
         return Arrays.asList(values())
                 .stream()

@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * An <code>AddElementsFromFile</code> operation takes a filename, converts each
+ * An {@code AddElementsFromFile} operation takes a filename, converts each
  * line of the file to a Gaffer {@link Element} using the provided
  * {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} then adds these
  * elements to the Graph.

@@ -21,13 +21,14 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.operation.handler.ScoreOperationChainHandler;
-import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolver;
 
 import java.util.Map;
 
 /**
- * An <code>OperationChainLimiter</code> is a {@link GraphHook} that checks a
+ * An {@code OperationChainLimiter} is a {@link GraphHook} that checks a
  * user is authorised to execute an operation chain based on that user's maximum chain score and the configured score value for each operation in the chain.
  * This class requires a map of operation scores.
  * When using a properties file the last entry in the file that an operation can be assigned to will be the score that is used for that operation.
@@ -48,31 +49,36 @@ public class OperationChainLimiter implements GraphHook {
     private ScoreOperationChainHandler scorer = new ScoreOperationChainHandler();
 
     /**
-     * Checks the {@link OperationChain}
-     * is allowed to be executed by the user.
+     * Checks the {@link OperationChain} is allowed to be executed by the user.
      * This is done by checking the user's auths against the auth scores getting the users maximum score limit value.
      * Then checking the operation score of all operations in the chain and comparing the total score value of the chain against a users maximum score limit.
      * If an operation cannot be executed then an {@link IllegalAccessError} is thrown.
      *
-     * @param user    the user to authorise.
+     * @param context    the Context containing the user to authorise.
      * @param opChain the operation chain.
      */
     @Override
-    public void preExecute(final OperationChain<?> opChain, final User user) {
+    public void preExecute(final OperationChain<?> opChain, final Context context) {
         if (null != opChain) {
-            Integer chainScore = scorer.getChainScore(opChain, user);
-            Integer maxAuthScore = scorer.getMaxUserAuthScore(user.getOpAuths());
+            Integer chainScore = scorer.getChainScore(opChain, context.getUser());
+            Integer maxAuthScore = scorer.getMaxUserAuthScore(context.getUser().getOpAuths());
 
             if (chainScore > maxAuthScore) {
-                throw new UnauthorisedException("The maximum score limit for this user is " + maxAuthScore + ".\n" +
+                throw new UnauthorisedException("The maximum score limit for user: " +
+                        context.getUser().toString() + " is " + maxAuthScore + ".\n" +
                         "The requested operation chain exceeded this score limit.");
             }
         }
     }
 
     @Override
-    public <T> T postExecute(final T result, final OperationChain<?> opChain, final User user) {
+    public <T> T postExecute(final T result, final OperationChain<?> opChain, final Context context) {
         // This method can be overridden to add additional authorisation checks on the results.
+        return result;
+    }
+
+    @Override
+    public <T> T onFailure(final T result, final OperationChain<?> opChain, final Context context, final Exception e) {
         return result;
     }
 
@@ -100,5 +106,12 @@ public class OperationChainLimiter implements GraphHook {
 
     public void setAuthScores(final Map<String, Integer> authScores) {
         scorer.setAuthScores(authScores);
+    }
+    public Map<Class<? extends Operation>, ScoreResolver> getScoreResolvers() {
+        return scorer.getScoreResolvers();
+    }
+
+    public void setScoreResolvers(final Map<Class<? extends Operation>, ScoreResolver> resolvers) {
+        scorer.setScoreResolvers(resolvers);
     }
 }

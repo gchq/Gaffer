@@ -16,15 +16,26 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
+import java.util.Arrays;
+
 /**
  * Utility methods for bytes
  */
 public final class ByteUtil {
+
     private ByteUtil() {
-        // private to prevent this class being instantiated.
-        // All methods are static and should be called directly.
+        // Private constructor to prevent instantiation.
     }
 
+    /**
+     * Compares two sorted byte arrays.
+     *
+     * @param bytes1 the first byte array
+     * @param bytes2 the second byte array
+     * @return a negative integer, zero, or a positive integer as the
+     *         first argument is less than, equal to, or greater than the
+     *         second.
+     */
     public static int compareSortedBytes(final byte[] bytes1, final byte[] bytes2) {
         final int minLength = Math.min(bytes1.length, bytes2.length);
         for (int i = 0; i < minLength; i++) {
@@ -44,7 +55,7 @@ public final class ByteUtil {
      * @return true if the provided bytes are equal
      */
     public static boolean areSortedBytesEqual(final byte[] bytes1, final byte[] bytes2) {
-        if (bytes1 == bytes2) {
+        if (Arrays.equals(bytes1, bytes2)) {
             return true;
         }
 
@@ -54,7 +65,7 @@ public final class ByteUtil {
             return false;
         }
 
-        if (last == 0) {
+        if (0 == last) {
             return true;
         }
 

@@ -38,7 +38,7 @@ import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.export.Exporter;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.koryphe.impl.predicate.AreIn;
 
 import java.io.UnsupportedEncodingException;
@@ -46,32 +46,36 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
+/**
+ * Implementation of the {@link Exporter} interface for exporting the results of
+ * a Gaffer query to a {@link Graph}-backed results cache.
+ */
 public class GafferResultCacheExporter implements Exporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferResultCacheExporter.class);
     private final String jobId;
-    private final User user;
+    private final Context context;
     private final Graph resultCache;
     private final String visibility;
     private final TreeSet<String> requiredOpAuths;
     private final Set<String> userOpAuths;
 
-    public GafferResultCacheExporter(final User user,
+    public GafferResultCacheExporter(final Context context,
                                      final String jobId,
                                      final Graph resultCache,
                                      final String visibility,
                                      final Set<String> requiredOpAuths) {
-        this.user = user;
+        this.context = context;
         this.jobId = jobId;
         this.resultCache = resultCache;
         this.visibility = visibility;
         if (null == requiredOpAuths) {
-            this.requiredOpAuths = CollectionUtil.treeSet(user.getUserId());
+            this.requiredOpAuths = CollectionUtil.treeSet(context.getUser().getUserId());
         } else {
             this.requiredOpAuths = new TreeSet<>(requiredOpAuths);
         }
 
-        userOpAuths = new HashSet<>(user.getOpAuths());
-        userOpAuths.add(user.getUserId());
+        userOpAuths = new HashSet<>(context.getUser().getOpAuths());
+        userOpAuths.add(context.getUser().getUserId());
     }
 
     @Override
@@ -114,7 +118,7 @@ public class GafferResultCacheExporter implements Exporter {
 
         resultCache.execute(new AddElements.Builder()
                 .input(elements)
-                .build(), user);
+                .build(), context.getUser());
     }
 
     @Override
@@ -131,7 +135,7 @@ public class GafferResultCacheExporter implements Exporter {
                         .build())
                 .build();
 
-        final CloseableIterable<? extends Element> edges = resultCache.execute(getEdges, user);
+        final CloseableIterable<? extends Element> edges = resultCache.execute(getEdges, context.getUser());
         if (null == edges) {
             return new WrappedCloseableIterable<>();
         }
@@ -176,8 +180,8 @@ public class GafferResultCacheExporter implements Exporter {
         return jobId;
     }
 
-    protected User getUser() {
-        return user;
+    protected Context getContext() {
+        return context;
     }
 
     protected Graph getResultCache() {

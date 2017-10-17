@@ -56,7 +56,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 /**
- * A <code>SchemaElementDefinition</code> is the representation of a single group in a
+ * A {@code SchemaElementDefinition} is the representation of a single group in a
  * {@link Schema}.
  * Each element needs identifiers and can optionally have properties, an aggregator and a validator.
  */
@@ -194,13 +194,6 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         return null != aggregator ? aggregator.getComponents() : null;
     }
 
-    /**
-     * @return a cloned instance of {@link ElementAggregator} fully populated with all the
-     * {@link java.util.function.BinaryOperator}s defined in this
-     * {@link SchemaElementDefinition} and also the
-     * {@link java.util.function.BinaryOperator}s defined in the corresponding property value
-     * {@link TypeDefinition}s.
-     */
     @JsonIgnore
     public ElementAggregator getFullAggregator() {
         if (null == fullAggregatorCache) {
@@ -267,7 +260,11 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                 if (null == viewAggregator) {
                     viewAggregatorProps = Collections.emptySet();
                 } else {
-                    viewAggregatorProps = new HashSet<>(getPropertyMap().size() - mergedGroupBy.size());
+                    int size = getPropertyMap().size() - mergedGroupBy.size();
+                    if (size < 0) {
+                        size = 0;
+                    }
+                    viewAggregatorProps = new HashSet<>(size);
                     for (final TupleAdaptedBinaryOperator<String, ?> component : viewAggregator.getComponents()) {
                         Collections.addAll(viewAggregatorProps, component.getSelection());
                         queryAggregator.getComponents().add(component);
@@ -306,14 +303,6 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         return queryAggregator;
     }
 
-    /**
-     * @return a cloned instance of {@link ElementFilter} fully populated with all the
-     * {@link java.util.function.Predicate}s defined in this
-     * {@link SchemaElementDefinition} and also the
-     * {@link SchemaElementDefinition} and also the
-     * {@link java.util.function.Predicate}s defined in the corresponding identifier and property value
-     * {@link TypeDefinition}s.
-     */
     @JsonIgnore
     public ElementFilter getValidator() {
         return getValidator(true);
@@ -489,7 +478,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             return true;
         }
 
-        if (obj == null || getClass() != obj.getClass()) {
+        if (null == obj || getClass() != obj.getClass()) {
             return false;
         }
 
@@ -719,9 +708,18 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             elDef.ingestAggregatorCache = null;
             elDef.queryAggregatorCacheMap.clear();
 
-            elDef.groupBy = new LinkedHashSet<>(elementDef.groupBy);
-            elDef.parents = null != elementDef.parents ? new LinkedHashSet<>(elementDef.parents) : null;
-            elDef.description = elementDef.description;
+            if (null != elementDef.groupBy && !elementDef.groupBy.isEmpty()) {
+                elDef.groupBy = new LinkedHashSet<>(elementDef.groupBy);
+            }
+
+            if (null != elementDef.parents && !elementDef.parents.isEmpty()) {
+                elDef.parents = new LinkedHashSet<>(elementDef.parents);
+            }
+
+            if (null != elementDef.description) {
+                elDef.description = elementDef.description;
+            }
+
             elDef.aggregate = elDef.aggregate && elementDef.aggregate;
 
             return self();

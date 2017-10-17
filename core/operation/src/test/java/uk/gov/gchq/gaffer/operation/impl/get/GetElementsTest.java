@@ -183,6 +183,7 @@ public class GetElementsTest extends OperationTest<GetElements> {
         assertEquals("true", clone.getOption("testOption"));
     }
 
+    @Override
     protected GetElements getTestObject() {
         return new GetElements.Builder()
                 .input(new EntitySeed())

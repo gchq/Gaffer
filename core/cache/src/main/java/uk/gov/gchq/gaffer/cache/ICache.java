@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.cache;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
+import uk.gov.gchq.gaffer.core.exception.Status;
 
 import java.util.Collection;
 import java.util.Set;
@@ -30,20 +31,73 @@ import java.util.Set;
  */
 public interface ICache <K, V> {
 
+    /**
+     * Retrieve the value associated with the given key.
+     *
+     * @param key the key to lookup in the cache
+     * @return the value associated with the key
+     */
     V get(final K key);
 
+    /**
+     * Add a new key-value pair to the cache.
+     *
+     * @param key the key to add
+     * @param value the value to add
+     * @throws CacheOperationException if there is an error adding the new key-value pair to the cache
+     */
     void put(final K key, final V value) throws CacheOperationException;
 
-    void putSafe(final K key, final V value) throws CacheOperationException;
+    /**
+     * Add a new key-value pair to the cache, but only if there is existing entry associated with the specified key.
+     *
+     * @param key the key to add
+     * @param value the value to add
+     * @throws CacheOperationException if the specified key already exists in the cache with a non-null value
+     */
+    default void putSafe(final K key, final V value) throws CacheOperationException {
+        if (null == get(key)) {
+            put(key, value);
+        } else {
+            throw new CacheOperationException("Cache entry already exists for key: " + key, Status.CONFLICT);
+        }
+    }
 
+    /**
+     * Remove the entry associated with the specified key.
+     *
+     * @param key the key of the entry to remove
+     */
     void remove(final K key);
 
+    /**
+     * Get all values present in the cache.
+     *
+     * @return  a {@link Collection} containing all of the cache values
+     */
     Collection<V> getAllValues();
 
+    /**
+     * Get all keys present in the cache.
+     *
+     * @return  a {@link Set} containing all of the cache keys
+     */
     Set<K> getAllKeys();
 
-    int size();
+    /**
+     * Get the size of the cache.
+     *
+     * @return the number of entries in the caches
+     */
+    default int size() {
+        return getAllKeys().size();
+    }
 
+    /**
+     * Remove all entries from the cache.
+     *
+     * @throws CacheOperationException if there was an error clearing the cache
+     */
     void clear() throws CacheOperationException;
 
 }

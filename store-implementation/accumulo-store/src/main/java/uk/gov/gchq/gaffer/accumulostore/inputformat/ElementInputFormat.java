@@ -98,9 +98,9 @@ public class ElementInputFormat extends InputFormatBase<Element, NullWritable> {
                 try {
                     currentK = converter.getFullElement(entry.getKey(), entry.getValue(), false);
                     final ViewElementDefinition viewDef = view.getElement(currentK.getGroup());
-                    if (viewDef != null) {
+                    if (null != viewDef) {
                         final ElementTransformer transformer = viewDef.getTransformer();
-                        if (transformer != null) {
+                        if (null != transformer) {
                             transformer.apply(currentK);
                         }
                     }
@@ -118,14 +118,14 @@ public class ElementInputFormat extends InputFormatBase<Element, NullWritable> {
 
     public static boolean doPostFilter(final Element element, final View view) {
         final ViewElementDefinition viewDef = view.getElement(element.getGroup());
-        if (viewDef != null) {
+        if (null != viewDef) {
             return postFilter(element, viewDef.getPostTransformFilter());
         }
         return true;
     }
 
     public static boolean postFilter(final Element element, final ElementFilter postFilter) {
-        return postFilter == null || postFilter.test(element);
+        return null == postFilter || postFilter.test(element);
     }
 
 }

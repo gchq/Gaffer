@@ -32,10 +32,12 @@ public class ReservoirLongsUnionSerialiserTest extends ViaCalculatedArrayValueSe
         return ReservoirLongsUnion.newInstance(20);
     }
 
+    @Override
     public Serialiser<ReservoirLongsUnion, byte[]> getSerialisation() {
         return new ReservoirLongsUnionSerialiser();
     }
 
+    @Override
     public Pair<ReservoirLongsUnion, byte[]>[] getHistoricSerialisationPairs() {
         final ReservoirLongsUnion union = getExampleOutput();
         return new Pair[]{new Pair(union, new byte[]{1, 2, 12, 0, 20, 0, 0, 0, -62, 2, 11, 0, 20, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0})};
@@ -50,6 +52,7 @@ public class ReservoirLongsUnionSerialiserTest extends ViaCalculatedArrayValueSe
         return union;
     }
 
+    @Override
     protected Long[] getTestValue(final ReservoirLongsUnion object) {
         final long[] samples = object.getResult().getSamples();
 

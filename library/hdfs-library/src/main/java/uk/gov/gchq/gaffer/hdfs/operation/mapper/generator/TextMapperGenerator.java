@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.function.Function;
 
 /**
- * An <code>TextMapperGenerator</code> is a {@link MapperGenerator} that
+ * An {@code TextMapperGenerator} is a {@link MapperGenerator} that
  * can handle text input data and convert it into an {@link Iterable} of {@link Element}s.
  */
 public class TextMapperGenerator implements MapperGenerator<LongWritable, Text> {

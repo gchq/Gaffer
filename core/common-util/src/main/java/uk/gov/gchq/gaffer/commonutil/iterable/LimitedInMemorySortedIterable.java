@@ -63,7 +63,7 @@ public class LimitedInMemorySortedIterable<E> implements Iterable<E> {
         if (null == comparator) {
             throw new IllegalArgumentException("Comparator is required");
         }
-        if (null != limit && limit < 1) {
+        if (null != limit && 1 > limit) {
             throw new IllegalArgumentException("Limit cannot be less than or equal to 0");
         }
 
@@ -84,8 +84,8 @@ public class LimitedInMemorySortedIterable<E> implements Iterable<E> {
             if (null != limit && size >= limit) {
                 // Check the item against the last item.
                 final Map.Entry<E, OneOrMore<E>> last = backingMap.lastEntry();
-                if (comparator.compare(last.getKey(), e) > 0) {
-                    if (last.getValue().size() > 1) {
+                if (0 < comparator.compare(last.getKey(), e)) {
+                    if (1 < last.getValue().size()) {
                         last.getValue().removeAnyItem();
                     } else {
                         backingMap.remove(last.getKey());
@@ -145,7 +145,7 @@ public class LimitedInMemorySortedIterable<E> implements Iterable<E> {
             return true;
         }
 
-        if (obj == null || getClass() != obj.getClass()) {
+        if (null == obj || getClass() != obj.getClass()) {
             return false;
         }
 

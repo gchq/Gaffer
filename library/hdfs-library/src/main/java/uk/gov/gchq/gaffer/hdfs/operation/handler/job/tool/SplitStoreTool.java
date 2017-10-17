@@ -70,7 +70,7 @@ public class SplitStoreTool extends Configured implements Tool {
         try (final BufferedReader br = new BufferedReader(
                 new InputStreamReader(fs.open(new Path(operation.getInputPath())), CommonConstants.UTF_8))) {
             String line = br.readLine();
-            while (line != null) {
+            while (null != line) {
                 splits.add(new Text(Base64.decodeBase64(line)));
                 line = br.readLine();
             }

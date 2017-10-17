@@ -105,6 +105,7 @@ public class ToVerticesTest extends OperationTest<ToVertices> {
         assertEquals(EdgeVertices.BOTH, clone.getEdgeVertices());
     }
 
+    @Override
     protected ToVertices getTestObject() {
         return new ToVertices();
     }

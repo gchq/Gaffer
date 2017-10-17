@@ -20,7 +20,7 @@ import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.ParameterDetail;
-import uk.gov.gchq.gaffer.named.operation.cache.CacheOperationFailedException;
+import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -68,6 +68,7 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
                     .writers(operation.getWriteAccessRoles())
                     .description(operation.getDescription())
                     .parameters(operation.getParameters())
+                    .score(operation.getScore())
                     .build();
 
             validate(namedOperationDetail.getOperationChainWithDefaultParams(), namedOperationDetail);
@@ -87,7 +88,7 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
             }
         }
 
-        if (namedOperationDetail.getParameters() != null) {
+        if (null != namedOperationDetail.getParameters()) {
             String operationString = namedOperationDetail.getOperations();
             for (final Map.Entry<String, ParameterDetail> parameterDetail : namedOperationDetail.getParameters().entrySet()) {
                 String varName = "${" + parameterDetail.getKey() + "}";
