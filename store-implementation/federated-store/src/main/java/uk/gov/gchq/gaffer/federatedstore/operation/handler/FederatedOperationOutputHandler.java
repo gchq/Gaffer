@@ -43,7 +43,12 @@ public abstract class FederatedOperationOutputHandler<OP extends Output<O>, O> i
 
     @Override
     public O doOperation(final OP operation, final Context context, final Store store) throws OperationException {
+
+        if (null == context.getUser()) {
+            throw new OperationException("No user has been specified/defined");
+        }
         final Collection<Graph> graphs = ((FederatedStore) store).getGraphs(context.getUser(), operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS));
+
         final List<O> results = new ArrayList<>(graphs.size());
         for (final Graph graph : graphs) {
             final OP updatedOp = FederatedStore.updateOperationForGraph(operation, graph);

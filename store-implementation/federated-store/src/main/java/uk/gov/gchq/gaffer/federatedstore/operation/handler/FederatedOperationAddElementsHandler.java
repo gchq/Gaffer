@@ -51,6 +51,11 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP
  */
 public class FederatedOperationAddElementsHandler implements OperationHandler<AddElements> {
     public Object doOperation(final AddElements addElements, final Context context, final Store store) throws OperationException {
+
+        if (null == context.getUser()) {
+            throw new OperationException("No user has been specified/defined");
+        }
+
         final Set<String> allGroups = store.getSchema().getGroups();
         final Collection<Graph> graphs = ((FederatedStore) store).getGraphs(context.getUser(), addElements.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS));
 

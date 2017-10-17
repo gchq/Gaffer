@@ -50,6 +50,9 @@ public class OperationChainValidator {
      */
     public ValidationResult validate(final OperationChain<?> operationChain, final User user, final Store store) {
         final ValidationResult validationResult = new ValidationResult();
+        if (null == user) {
+            validationResult.addError("No user has been specified or defined");
+        }
         if (operationChain.getOperations().isEmpty()) {
             validationResult.addError("Operation chain contains no operations");
         } else {
