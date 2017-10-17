@@ -233,7 +233,9 @@ public final class Graph {
 
     private void updateOperationChainView(final OperationChain<?> operationChain) {
         for (final Operation operation : operationChain.getOperations()) {
-            if (operation instanceof OperationView) {
+            if (operation instanceof OperationChain) {
+                updateOperationChainView((OperationChain) operation);
+            } else if (operation instanceof OperationView) {
                 final OperationView operationView = (OperationView) operation;
                 final View opView;
                 if (null == operationView.getView()) {
