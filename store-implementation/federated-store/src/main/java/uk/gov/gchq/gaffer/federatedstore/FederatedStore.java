@@ -325,7 +325,7 @@ public class FederatedStore extends Store {
     }
 
     @Override
-    protected OperationHandler<? extends OperationChain> getOperationChainHandler() {
+    protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
         final OperationHandler<? extends OperationChain> defaultHandler = super.getOperationChainHandler();
         if (!(defaultHandler instanceof OperationChainHandler)) {
             throw new RuntimeException("The Federated Store requires the default operation chain handler to be an instance of " + OperationChainHandler.class.getName());
