@@ -54,12 +54,7 @@ public abstract class FederatedOperationOutputHandler<OP extends Output<O>, O> i
                     execute = graph.execute(updatedOp, context.getUser());
                 } catch (final Exception e) {
                     if (!Boolean.valueOf(updatedOp.getOption(KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
-                        final String additionalInfo = String.format("set the skip and continue flag: %s for operation: %s",
-                                KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE,
-                                operation.getClass().getSimpleName());
-
-                        throw new OperationException(String.format("Failed to execute %s on graph %s.%n%s",
-                                operation.getClass().getSimpleName(), graph.getGraphId(), additionalInfo), e);
+                        throw new OperationException(FederatedStoreUtil.createOperationErrorMsg(operation, graph.getGraphId(), e), e);
                     }
                 }
                 if (null != execute) {
