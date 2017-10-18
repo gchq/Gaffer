@@ -325,11 +325,34 @@ public class OperationChain<OUT> implements Output<OUT> {
             return new OutputBuilder<>(ops, options);
         }
 
+        /**
+         * <p>
+         * Adds the provided operation to the operation chain.
+         * </p>
+         * <p>
+         * NOTE - this is type unsafe and may cause your operation chain to fail
+         * </p>
+         *
+         * @param op the operation to add
+         * @return the builder to allow chaining builder methods
+         */
         public NoOutputBuilder thenTypeUnsafe(final Input<?> op) {
             ops.add(op);
             return new NoOutputBuilder(ops, options);
         }
 
+        /**
+         * <p>
+         * Adds the provided operation to the operation chain.
+         * </p>
+         * <p>
+         * NOTE - this is type unsafe and may cause your operation chain to fail
+         * </p>
+         *
+         * @param op         the operation to add
+         * @param <NEXT_OUT> the next output type
+         * @return the builder to allow chaining builder methods
+         */
         public <NEXT_OUT> OutputBuilder<NEXT_OUT> thenTypeUnsafe(final InputOutput<?, NEXT_OUT> op) {
             ops.add(op);
             return new OutputBuilder<>(ops, options);
@@ -360,6 +383,17 @@ public class OperationChain<OUT> implements Output<OUT> {
             return opChain;
         }
 
+        /**
+         * <p>
+         * Builds the operation chain and returns it.
+         * </p>
+         * <p>
+         * NOTE - this is type unsafe and may cause your operation chain to fail
+         * </p>
+         *
+         * @param <CUSTOM_OUT> the output type for the operation chain
+         * @return the operation chain
+         */
         public <CUSTOM_OUT> OperationChain<CUSTOM_OUT> buildTypeUnsafe() {
             final OperationChain opChain = new OperationChain<>(ops);
             opChain.setOptions(options);
