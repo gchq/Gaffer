@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.graphframe;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.apache.spark.sql.SparkSession;
 import org.graphframes.GraphFrame;
 import org.junit.Test;
@@ -34,29 +36,101 @@ import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.SparkSessionProvider;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.hamcrest.core.IsCollectionContaining.hasItem;
 
 public class GetGraphFrameOfElementsHandlerTest {
 
-    private static final String ENTITY_GROUP = "BasicEntity";
-    private static final String EDGE_GROUP = "BasicEdge";
-    private static final String EDGE_GROUP2 = "BasicEdge2";
     private static final int NUM_ELEMENTS = 10;
 
     @Test
     public void checkGetCorrectElementsInGraphFrame() throws OperationException {
-        final Graph graph = getGraph("/schema-DataFrame/elements.json", getElements());
+        final Graph graph = getGraph("/schema-GraphFrame/elements.json", getElements());
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         // Edges group - check get correct edges
-        GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
-                .sparkSession(sparkSession)
-                .view(new View.Builder().edge(EDGE_GROUP).entity(ENTITY_GROUP).build())
+        final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
+                .view(new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build())
                 .build();
-        GraphFrame graphFrame = graph.execute(gfOperation, new User());
+        final GraphFrame graphFrame = graph.execute(gfOperation, new User());
 
-        graphFrame.vertices().show();
-        graphFrame.edges().show();
+        final Set<String> vertices = graphFrame.vertices()
+                .javaRDD()
+                .map(row -> Sets.newHashSet(Arrays.asList(row.mkString(",").split(","))))
+                .collect()
+                .stream()
+                .flatMap(Set::stream)
+                .collect(Collectors.toSet());
+
+        final Set<String> edges = graphFrame.edges()
+                .javaRDD()
+                .map(row -> Sets.newHashSet(Arrays.asList(row.mkString(",").split(","))))
+                .collect()
+                .stream()
+                .flatMap(Set::stream)
+                .collect(Collectors.toSet());
+
+        edges.remove("null");
+        vertices.remove("null");
+
+        assertThat(vertices, hasSize(13));
+        assertThat(vertices, hasItems("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "B", "C"));
+        assertThat(vertices, hasItem(TestGroups.ENTITY));
+
+        assertThat(edges, hasSize(24));
+        assertThat(edges, hasItems("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "B", "C"));
+        assertThat(edges, hasItems("10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"));
+        assertThat(edges, hasItem(TestGroups.EDGE));
+    }
+
+    @Test
+    public void checkGetCorrectElementsInGraphFrameWithMultipleGroups() throws OperationException {
+        final Graph graph = getGraph("/schema-GraphFrame/elements.json", getElements());
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
+
+        final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
+                .view(new View.Builder()
+                        .edges(Lists.newArrayList(TestGroups.EDGE, TestGroups.EDGE_2))
+                        .entities(Lists.newArrayList(TestGroups.ENTITY, TestGroups.ENTITY_2))
+                        .build())
+                .build();
+
+        final GraphFrame graphFrame = graph.execute(gfOperation, new User());
+
+        final Set<String> vertices = graphFrame.vertices()
+                .javaRDD()
+                .map(row -> Sets.newHashSet(Arrays.asList(row.mkString(",").split(","))))
+                .collect()
+                .stream()
+                .flatMap(Set::stream)
+                .collect(Collectors.toSet());
+
+        final Set<String> edges = graphFrame.edges()
+                .javaRDD()
+                .map(row -> Sets.newHashSet(Arrays.asList(row.mkString(",").split(","))))
+                .collect()
+                .stream()
+                .flatMap(Set::stream)
+                .collect(Collectors.toSet());
+
+        edges.remove("null");
+        vertices.remove("null");
+
+        assertThat(vertices, hasSize(14));
+        assertThat(vertices, hasItems("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "B", "C"));
+        assertThat(vertices, hasItems(TestGroups.ENTITY, TestGroups.ENTITY_2));
+
+        assertThat(edges, hasSize(24));
+        assertThat(edges, hasItems("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "B", "C"));
+        assertThat(edges, hasItems("10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"));
+        assertThat(edges, hasItem(TestGroups.EDGE));
     }
 
     private Graph getGraph(final String elementsSchema, final List<Element> elements) throws OperationException {
@@ -65,7 +139,7 @@ public class GetGraphFrameOfElementsHandlerTest {
                         .graphId("graphId")
                         .build())
                 .addSchema(getClass().getResourceAsStream(elementsSchema))
-                .addSchema(getClass().getResourceAsStream("/schema-DataFrame/types.json"))
+                .addSchema(getClass().getResourceAsStream("/schema-GraphFrame/types.json"))
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
                 .build();
         graph.execute(new AddElements.Builder().input(elements).build(), new User());
@@ -74,8 +148,24 @@ public class GetGraphFrameOfElementsHandlerTest {
 
     static List<Element> getElements() {
         final List<Element> elements = new ArrayList<>();
+
+        final Entity entityB = new Entity.Builder().group(TestGroups.ENTITY)
+                .vertex("B")
+                .property("columnQualifier", 1)
+                .property("count", 1L)
+                .build();
+
+        final Entity entityC = new Entity.Builder().group(TestGroups.ENTITY)
+                .vertex("C")
+                .property("columnQualifier", 1)
+                .property("count", 1L)
+                .build();
+
+        elements.add(entityB);
+        elements.add(entityC);
+
         for (int i = 0; i < NUM_ELEMENTS; i++) {
-            final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
+            final Entity entity1 = new Entity.Builder().group(TestGroups.ENTITY)
                     .vertex("" + i)
                     .property("columnQualifier", 1)
                     .property("property1", i)
@@ -84,6 +174,17 @@ public class GetGraphFrameOfElementsHandlerTest {
                     .property("property4", 5L)
                     .property("count", 6L)
                     .build();
+
+            final Entity entity2 = new Entity.Builder().group(TestGroups.ENTITY_2)
+                    .vertex("" + i)
+                    .property("columnQualifier", 1)
+                    .property("property1", i)
+                    .property("property2", 3.0F)
+                    .property("property3", 4.0D)
+                    .property("property4", 5L)
+                    .property("count", 6L)
+                    .build();
+
 
             final Edge edge1 = new Edge.Builder().group(TestGroups.EDGE)
                     .source("" + i)
@@ -111,13 +212,10 @@ public class GetGraphFrameOfElementsHandlerTest {
 
             elements.add(edge1);
             elements.add(edge2);
-            elements.add(entity);
+            elements.add(entity1);
+            elements.add(entity2);
         }
         return elements;
     }
-
-
-
-
 
 }

@@ -78,7 +78,7 @@ public class PageRank implements
     }
 
     @Override
-    public Operation shallowClone() throws CloneFailedException {
+    public PageRank shallowClone() throws CloneFailedException {
         return new PageRank.Builder()
                 .input(input)
                 .maxIterations(maxIterations)

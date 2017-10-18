@@ -35,6 +35,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * A {@code GetGraphFrameOfElementsHandler} handles {@link GetGraphFrameOfElements}
+ * operations.
+ *
+ * The implementation found here is very similar to the {@link uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe.GetDataFrameOfElementsHandler}
+ * implementation. The main difference is that the resulting {@link Dataset} of
+ * elements are split into two {@link Dataset}s based on the groups provided in
+ * the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.
+ *
+ * @see uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe.GetDataFrameOfElementsHandler
+ */
 public class GetGraphFrameOfElementsHandler implements OutputOperationHandler<GetGraphFrameOfElements, GraphFrame> {
 
     @Override
@@ -73,6 +84,6 @@ public class GetGraphFrameOfElementsHandler implements OutputOperationHandler<Ge
 
     private String groupsToString(final Set<String> groups) {
         return groups.stream()
-                .collect(Collectors.joining("\',", "(\'", "\')"));
+                .collect(Collectors.joining("\',\'", "(\'", "\')"));
     }
 }

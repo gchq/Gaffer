@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.spark.operation.graphframe;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.apache.spark.sql.SparkSession;
 import org.graphframes.GraphFrame;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -28,16 +27,19 @@ import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
 import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
+import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * An {@code Operation} that returns an Apache Spark {@code GraphFrame} (i.e. an abstraction over a
- * {@link org.apache.spark.sql.Dataset} of {@link org.apache.spark.sql.Row}s) consisting of the
- * {@code Elements}s converted to rows.
- *
- * This GraphFrame object can be used as the basis for a number of graph processing queries.
+ * An {@code Operation} that returns an Apache Spark {@code GraphFrame} (i.e. an
+ * abstraction over a {@link org.apache.spark.sql.Dataset} of {@link
+ * org.apache.spark.sql.Row}s) consisting of the {@code Elements}s converted to
+ * rows.
+ * <p>
+ * This GraphFrame object can be used as the basis for a number of graph
+ * processing queries.
  *
  * @see uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements
  */
@@ -45,21 +47,13 @@ public class GetGraphFrameOfElements implements
         Output<GraphFrame>,
         GraphFilters {
 
-    @Required
-    private SparkSession sparkSession;
     private List<Converter> converters;
     private Map<String, String> options;
+    @Required
     private View view;
     private DirectedType directedType;
 
     public GetGraphFrameOfElements() {
-    }
-
-    public GetGraphFrameOfElements(final SparkSession sparkSession,
-                                  final List<Converter> converters) {
-        this();
-        this.sparkSession = sparkSession;
-        this.converters = converters;
     }
 
     @Override
@@ -75,14 +69,6 @@ public class GetGraphFrameOfElements implements
     @Override
     public void setOptions(final Map<String, String> options) {
         this.options = options;
-    }
-
-    public SparkSession getSparkSession() {
-        return sparkSession;
-    }
-
-    public void setSparkSession(final SparkSession sparkSession) {
-        this.sparkSession = sparkSession;
     }
 
     public List<Converter> getConverters() {
@@ -110,9 +96,19 @@ public class GetGraphFrameOfElements implements
     }
 
     @Override
+    public ValidationResult validate() {
+        final ValidationResult result = Output.super.validate();
+
+        if (!view.hasEntities() || !view.hasEdges()) {
+            result.addError("Cannot create a Graphframe unless the View contains both edges and entities.");
+        }
+
+        return result;
+    }
+
+    @Override
     public GetGraphFrameOfElements shallowClone() {
         return new GetGraphFrameOfElements.Builder()
-                .sparkSession(sparkSession)
                 .converters(converters)
                 .options(options)
                 .directedType(directedType)
@@ -125,11 +121,6 @@ public class GetGraphFrameOfElements implements
             GraphFilters.Builder<GetGraphFrameOfElements, Builder> {
         public Builder() {
             super(new GetGraphFrameOfElements());
-        }
-
-        public Builder sparkSession(final SparkSession sparkSession) {
-            _getOp().setSparkSession(sparkSession);
-            return _self();
         }
 
         public Builder converters(final List<Converter> converters) {

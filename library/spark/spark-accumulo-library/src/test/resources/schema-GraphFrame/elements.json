@@ -4,6 +4,11 @@
       "vertex": "string",
       "properties": {
       }
+    },
+    "BasicEntity2": {
+      "vertex": "string",
+      "properties": {
+      }
     }
   },
   "edges": {
