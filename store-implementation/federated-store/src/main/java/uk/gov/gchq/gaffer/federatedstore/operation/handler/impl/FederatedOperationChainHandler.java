@@ -93,18 +93,20 @@ public class FederatedOperationChainHandler<O> extends FederatedOperationOutputH
     }
 
     private boolean hasSameGraphIds(final String opChainGraphIds, final OperationChain<?> operationChain) {
+        boolean hasSameIds = true;
+
         String graphIds = opChainGraphIds;
         for (final Operation operation : operationChain.getOperations()) {
             final String opGraphIds = operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS);
             if (null == graphIds) {
                 graphIds = opGraphIds;
-            } else if (null != opGraphIds && !graphIds.equals(opGraphIds)) {
-                return false;
-            } else if (operation instanceof OperationChain && !hasSameGraphIds(graphIds, operationChain)) {
-                return false;
+            } else if ((null != opGraphIds && !graphIds.equals(opGraphIds))
+                    || (operation instanceof OperationChain && !hasSameGraphIds(graphIds, operationChain))) {
+                hasSameIds = false;
+                break;
             }
         }
 
-        return true;
+        return hasSameIds;
     }
 }
