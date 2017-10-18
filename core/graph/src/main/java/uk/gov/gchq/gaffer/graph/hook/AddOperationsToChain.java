@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.graph.hook;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.store.Context;
 
 import java.util.ArrayList;
@@ -126,13 +127,13 @@ public class AddOperationsToChain implements GraphHook {
         }
     }
 
-    private List<Operation> addOperationsToChain(final OperationChain<?> opChain, final AdditionalOperations additionalOperations) {
+    private List<Operation> addOperationsToChain(final Operations operations, final AdditionalOperations additionalOperations) {
         final List<Operation> opList = new ArrayList<>();
 
-        if (null != opChain && !opChain.getOperations().isEmpty()) {
-            for (final Operation originalOp : opChain.getOperations()) {
-                if (originalOp instanceof OperationChain) {
-                    opList.addAll(addOperationsToChain((OperationChain) originalOp, additionalOperations));
+        if (null != operations && !operations.getOperations().isEmpty()) {
+            for (final Operation originalOp : operations.getOperations()) {
+                if (originalOp instanceof Operations) {
+                    opList.addAll(addOperationsToChain((Operations) originalOp, additionalOperations));
                 } else {
                     final List<Operation> beforeOps = additionalOperations.getBefore()
                             .get(originalOp.getClass()
