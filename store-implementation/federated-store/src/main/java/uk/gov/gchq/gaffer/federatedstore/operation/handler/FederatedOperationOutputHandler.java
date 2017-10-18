@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
+import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -46,7 +47,7 @@ public abstract class FederatedOperationOutputHandler<OP extends Output<O>, O> i
         final Collection<Graph> graphs = ((FederatedStore) store).getGraphs(context.getUser(), operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS));
         final List<O> results = new ArrayList<>(graphs.size());
         for (final Graph graph : graphs) {
-            final OP updatedOp = FederatedStore.updateOperationForGraph(operation, graph);
+            final OP updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
             if (null != updatedOp) {
                 O execute = null;
                 try {

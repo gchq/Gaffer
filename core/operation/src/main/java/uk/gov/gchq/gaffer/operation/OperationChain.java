@@ -35,9 +35,9 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -123,7 +123,7 @@ public class OperationChain<OUT> implements Output<OUT> {
     @JsonIgnore
     @Override
     public TypeReference<OUT> getOutputTypeReference() {
-        if (null != operations && !operations.isEmpty()) {
+        if (!operations.isEmpty()) {
             final Operation lastOp = operations.get(operations.size() - 1);
             if (lastOp instanceof Output) {
                 return ((Output) lastOp).getOutputTypeReference();
@@ -139,7 +139,7 @@ public class OperationChain<OUT> implements Output<OUT> {
 
     @JsonGetter("operations")
     Operation[] getOperationArray() {
-        return null != operations ? operations.toArray(new Operation[operations.size()]) : new Operation[0];
+        return operations.toArray(new Operation[operations.size()]);
     }
 
     @JsonSetter("operations")
@@ -152,16 +152,11 @@ public class OperationChain<OUT> implements Output<OUT> {
     }
 
     public OperationChain<OUT> shallowClone() throws CloneFailedException {
-        final OperationChain<OUT> clone;
-        if (null == operations) {
-            clone = new OperationChain<>();
-        } else {
-            final List<Operation> clonedOps = operations.stream()
-                    .map(Operation::shallowClone)
-                    .collect(Collectors.toList());
-            clone = new OperationChain<>(clonedOps);
-        }
+        final OperationChain<OUT> clone = new OperationChain<>();
         clone.setOptions(options);
+        for (final Operation operation : operations) {
+            clone.getOperations().add(operation.shallowClone());
+        }
         return clone;
     }
 
@@ -184,10 +179,8 @@ public class OperationChain<OUT> implements Output<OUT> {
 
     @Override
     public void close() throws IOException {
-        if (null != operations) {
-            for (final Operation operation : operations) {
-                CloseableUtil.close(operation);
-            }
+        for (final Operation operation : operations) {
+            CloseableUtil.close(operation);
         }
     }
 
@@ -245,65 +238,132 @@ public class OperationChain<OUT> implements Output<OUT> {
      */
     public static class Builder {
         public NoOutputBuilder first(final Operation op) {
-            return new NoOutputBuilder(op);
+            return new NoOutputBuilder(op, null);
         }
 
         public <NEXT_OUT> OutputBuilder<NEXT_OUT> first(final Output<NEXT_OUT> op) {
-            return new OutputBuilder<>(op);
+            return new OutputBuilder<>(op, null);
         }
     }
 
     public static final class NoOutputBuilder {
         private final List<Operation> ops;
+        private Map<String, String> options;
 
-        private NoOutputBuilder(final Operation op) {
-            this(new ArrayList<>());
+        private NoOutputBuilder(final Operation op, final Map<String, String> options) {
+            this(new ArrayList<>(), options);
             ops.add(op);
         }
 
-        private NoOutputBuilder(final List<Operation> ops) {
+        private NoOutputBuilder(final List<Operation> ops, final Map<String, String> options) {
             this.ops = ops;
+            this.options = options;
         }
 
         public NoOutputBuilder then(final Operation op) {
             ops.add(op);
-            return new NoOutputBuilder(ops);
+            return new NoOutputBuilder(ops, options);
         }
 
         public <NEXT_OUT> OutputBuilder<NEXT_OUT> then(final Output<NEXT_OUT> op) {
             ops.add(op);
-            return new OutputBuilder<>(ops);
+            return new OutputBuilder<>(ops, options);
+        }
+
+        public <NEXT_OUT> OutputBuilder<NEXT_OUT> thenTypeUnsafe(final Output op) {
+            ops.add(op);
+            return new OutputBuilder<>(ops, options);
+        }
+
+        public NoOutputBuilder option(final String name, final String value) {
+            if (null == options) {
+                options = new HashMap<>();
+            }
+            options.put(name, value);
+            return this;
+        }
+
+        public NoOutputBuilder options(final Map<String, String> options) {
+            if (null != options) {
+                if (null == this.options) {
+                    this.options = new HashMap<>(options);
+                } else {
+                    this.options.putAll(options);
+                }
+            }
+            return this;
         }
 
         public OperationChain<Void> build() {
-            return new OperationChain<>(ops);
+            final OperationChain<Void> opChain = new OperationChain<>(ops);
+            opChain.setOptions(options);
+            return opChain;
         }
     }
 
     public static final class OutputBuilder<OUT> {
         private final List<Operation> ops;
+        private Map<String, String> options;
 
-        private OutputBuilder(final Output<OUT> op) {
-            this(new ArrayList<>());
+        private OutputBuilder(final Output<OUT> op, final Map<String, String> options) {
+            this(new ArrayList<>(), options);
             ops.add(op);
         }
 
-        private OutputBuilder(final List<Operation> ops) {
+        private OutputBuilder(final List<Operation> ops, final Map<String, String> options) {
             this.ops = ops;
+            this.options = options;
         }
 
         public NoOutputBuilder then(final Input<? super OUT> op) {
             ops.add(op);
-            return new NoOutputBuilder(ops);
+            return new NoOutputBuilder(ops, options);
         }
 
         public <NEXT_OUT> OutputBuilder<NEXT_OUT> then(final InputOutput<? super OUT, NEXT_OUT> op) {
             ops.add(op);
-            return new OutputBuilder<>(ops);
+            return new OutputBuilder<>(ops, options);
+        }
+
+        public NoOutputBuilder thenTypeUnsafe(final Input<?> op) {
+            ops.add(op);
+            return new NoOutputBuilder(ops, options);
+        }
+
+        public <NEXT_OUT> OutputBuilder<NEXT_OUT> thenTypeUnsafe(final InputOutput<?, NEXT_OUT> op) {
+            ops.add(op);
+            return new OutputBuilder<>(ops, options);
+        }
+
+        public OutputBuilder<OUT> option(final String name, final String value) {
+            if (null == options) {
+                options = new HashMap<>();
+            }
+            options.put(name, value);
+            return this;
+        }
+
+        public OutputBuilder<OUT> options(final Map<String, String> options) {
+            if (null != options) {
+                if (null == this.options) {
+                    this.options = new HashMap<>(options);
+                } else {
+                    this.options.putAll(options);
+                }
+            }
+            return this;
         }
 
         public OperationChain<OUT> build() {
-            return new OperationChain<>(ops);
+            final OperationChain<OUT> opChain = new OperationChain<>(ops);
+            opChain.setOptions(options);
+            return opChain;
+        }
+
+        public <CUSTOM_OUT> OperationChain<CUSTOM_OUT> buildTypeUnsafe() {
+            final OperationChain opChain = new OperationChain<>(ops);
+            opChain.setOptions(options);
+            return opChain;
         }
     }
 }

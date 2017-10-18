@@ -611,7 +611,7 @@ public abstract class Store {
      *
      * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.OperationChain}
      */
-    protected <O> OutputOperationHandler<? extends OperationChain<O>, O> getOperationChainHandler() {
+    protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
         return new OperationChainHandler<>(opChainValidator, opChainOptimisers);
     }
 

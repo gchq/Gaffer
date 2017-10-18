@@ -75,6 +75,15 @@ public class ExportToSetTest extends OperationTest<ExportToSet> {
         assertEquals(input, clone.getInput());
     }
 
+    @Test
+    public void shouldGetOutputClass() {
+        // When
+        final Class<?> outputClass = getTestObject().getOutputClass();
+
+        // Then
+        assertEquals(Object.class, outputClass);
+    }
+
     @Override
     protected ExportToSet getTestObject() {
         return new ExportToSet();

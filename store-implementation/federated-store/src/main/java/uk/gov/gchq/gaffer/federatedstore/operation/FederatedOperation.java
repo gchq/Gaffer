@@ -16,19 +16,18 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
-import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 
 /**
  * A FederatedOperation is an {@link FederatedOperation} that is a special
- * {@link FederatedStore} operation and should always be handled by the
- * {@link FederatedStore}.
+ * {@link uk.gov.gchq.gaffer.federatedstore.FederatedStore} operation and should always be handled by the
+ * {@link uk.gov.gchq.gaffer.federatedstore.FederatedStore}.
  */
 public interface FederatedOperation extends Operation {
     static boolean hasFederatedOperations(final OperationChain<?> operationChain) {
         for (final Operation operation : operationChain.getOperations()) {
-            if(operation instanceof FederatedOperation) {
+            if (operation instanceof FederatedOperation) {
                 return true;
             }
         }

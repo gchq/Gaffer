@@ -13,50 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.federatedstore.operation.handler;
-
-import com.fasterxml.jackson.core.type.TypeReference;
+package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandler;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OperationChainHandler;
 
-import java.lang.reflect.ParameterizedType;
 import java.util.List;
 
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 
 public class FederatedOperationChainHandler<O> extends FederatedOperationOutputHandler<OperationChain<O>, O> {
-    private final OutputOperationHandler<? extends OperationChain<O>, O> defaultHandler;
+    private final OperationChainHandler<O> defaultHandler;
 
-    public FederatedOperationChainHandler(final OutputOperationHandler<? extends OperationChain<O>, O> defaultHandler) {
+    public FederatedOperationChainHandler(final OperationChainHandler<O> defaultHandler) {
         this.defaultHandler = defaultHandler;
     }
 
     @Override
     public O doOperation(final OperationChain<O> operationChain, final Context context, final Store store) throws OperationException {
-        final Class<?> outputClass = getOutputClass(operationChain);
-        final boolean mergeableResultType = outputClass.isAssignableFrom(CloseableIterable.class)
-                || outputClass.isAssignableFrom(Iterable.class)
-                || Void.class.equals(outputClass);
-        if (mergeableResultType
-                && hasSameGraphIds(operationChain)
-                && !FederatedOperation.hasFederatedOperations(operationChain)) {
+        if (canHandleEntireChain(operationChain)) {
+            ((OperationChainHandler) defaultHandler).prepareOperationChain(operationChain, context, store);
             return super.doOperation(operationChain, context, store);
         }
 
-        return ((OutputOperationHandler<OperationChain<O>, O>) defaultHandler).doOperation(operationChain, context, store);
+        return defaultHandler.doOperation(operationChain, context, store);
     }
 
     @Override
     protected O mergeResults(final List<O> results, final OperationChain<O> operationChain, final Context context, final Store store) {
-        if (Void.class.equals(getOutputClass(operationChain))) {
+        if (Void.class.equals(operationChain.getOutputClass())) {
             return null;
         }
 
@@ -67,16 +60,39 @@ public class FederatedOperationChainHandler<O> extends FederatedOperationOutputH
         return (O) new ChainedIterable<>(results.toArray(new Iterable[results.size()]));
     }
 
-    private Class<?> getOutputClass(final OperationChain<O> operationChain) {
-        final TypeReference<O> outputType = operationChain.getOutputTypeReference();
-        return (Class) (outputType.getType() instanceof ParameterizedType ? ((ParameterizedType) outputType.getType()).getRawType() : outputType.getType());
+    protected boolean canHandleEntireChain(final OperationChain<?> operationChain) {
+        return canMergeResult(operationChain)
+                && isHandledByTheSameGraphs(operationChain)
+                && !FederatedOperation.hasFederatedOperations(operationChain);
     }
 
-    private boolean hasSameGraphIds(final OperationChain<O> operationChain) {
+    /**
+     * Checks whether the operation chain has an output type that we can easily
+     * merge. This includes Iterables, CloseableIterables and Void outputs.
+     *
+     * @param operationChain the operation chain to check
+     * @return true if we can merge the result easily.
+     */
+    private boolean canMergeResult(final OperationChain<?> operationChain) {
+        final Class<?> outputClass = operationChain.getOutputClass();
+        return outputClass.isAssignableFrom(CloseableIterable.class)
+                || outputClass.isAssignableFrom(Iterable.class)
+                || Void.class.equals(outputClass);
+    }
+
+    /**
+     * Checks whether the operation chain is to be handled by the same graphs
+     * or whether it needs to be split up and each operation executed on different
+     * graphs.
+     *
+     * @param operationChain the operation chain to check
+     * @return true if the operation chain is handled by the same graphs.
+     */
+    private boolean isHandledByTheSameGraphs(final OperationChain<?> operationChain) {
         return hasSameGraphIds(operationChain.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS), operationChain);
     }
 
-    private boolean hasSameGraphIds(final String opChainGraphIds, final OperationChain<O> operationChain) {
+    private boolean hasSameGraphIds(final String opChainGraphIds, final OperationChain<?> operationChain) {
         String graphIds = opChainGraphIds;
         for (final Operation operation : operationChain.getOperations()) {
             final String opGraphIds = operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS);
