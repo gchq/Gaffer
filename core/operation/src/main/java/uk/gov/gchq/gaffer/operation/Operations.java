@@ -17,7 +17,13 @@ package uk.gov.gchq.gaffer.operation;
 
 import java.util.Collection;
 
+/**
+ * An <code>Operations</code> will hold a list of {@link Operation}s, which are often dealt with recursively.
+ */
 public interface Operations {
-
+    /**
+     * Should return a {@link Collection} of all operations contained within the {@link Operations} implementation.
+     * @return  A {@link Collection} of {@link Operation}s.
+     */
     Collection<Operation> getOperations();
 }
