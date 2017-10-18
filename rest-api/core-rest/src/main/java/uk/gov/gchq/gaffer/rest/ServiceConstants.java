@@ -40,6 +40,9 @@ public final class ServiceConstants {
     public static final String JOB_NOT_FOUND = "Job was not found";
     public static final String JOB_SERVICE_UNAVAILABLE = "The job service is not available";
 
+    // REST - Other
+    public static final String GAFFER_DOCUMENTATION_URL = "https://gchq.github.io/gaffer-doc/";
+
     static {
         final String apiVersion = System.getProperty(SystemProperty.REST_API_VERSION, SystemProperty.CORE_VERSION);
         GAFFER_MEDIA_TYPE = "gaffer.v" + apiVersion.charAt(0) + "; format=json";
