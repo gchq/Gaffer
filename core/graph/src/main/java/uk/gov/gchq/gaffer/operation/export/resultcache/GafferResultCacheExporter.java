@@ -118,7 +118,7 @@ public class GafferResultCacheExporter implements Exporter {
 
         resultCache.execute(new AddElements.Builder()
                 .input(elements)
-                .build(), context.getUser());
+                .build(), context);
     }
 
     @Override
@@ -135,7 +135,7 @@ public class GafferResultCacheExporter implements Exporter {
                         .build())
                 .build();
 
-        final CloseableIterable<? extends Element> edges = resultCache.execute(getEdges, context.getUser());
+        final CloseableIterable<? extends Element> edges = resultCache.execute(getEdges, context);
         if (null == edges) {
             return new WrappedCloseableIterable<>();
         }

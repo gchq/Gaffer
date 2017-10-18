@@ -1634,6 +1634,147 @@ public class GraphTest {
         assertNotNull(graph.getView());
     }
 
+    @Test
+    public void shouldThrowExceptionOnExecuteWithANullContext() throws OperationException {
+        // Given
+        final Context context = null;
+        final OperationChain opChain = mock(OperationChain.class);
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .addSchemas(StreamUtil.schemas(getClass()))
+                .build();
+
+        // When / Then
+        try {
+            graph.execute(opChain, context);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertEquals("A context containing a user is required", e.getMessage());
+        }
+    }
+
+
+    @Test
+    public void shouldThrowExceptionOnExecuteJobWithANullContext() throws OperationException {
+        // Given
+        final Context context = null;
+        final OperationChain opChain = mock(OperationChain.class);
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .addSchemas(StreamUtil.schemas(getClass()))
+                .build();
+
+        // When / Then
+        try {
+            graph.executeJob(opChain, context);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertEquals("A context containing a user is required", e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionOnExecuteWithANullUserInContext() throws OperationException {
+        // Given
+        final User user = null;
+        final Context context = new Context(user);
+        final OperationChain opChain = mock(OperationChain.class);
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .addSchemas(StreamUtil.schemas(getClass()))
+                .build();
+
+        // When / Then
+        try {
+            graph.execute(opChain, context);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertEquals("The context does not contain a user", e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionOnExecuteJobWithANullUserInContext() throws OperationException {
+        // Given
+        final User user = null;
+        final Context context = new Context(user);
+        final OperationChain opChain = mock(OperationChain.class);
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .addSchemas(StreamUtil.schemas(getClass()))
+                .build();
+
+        // When / Then
+        try {
+            graph.executeJob(opChain, context);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertEquals("The context does not contain a user", e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionOnExecuteWithANullUser() throws OperationException {
+        // Given
+        final User user = null;
+        final OperationChain opChain = mock(OperationChain.class);
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .addSchemas(StreamUtil.schemas(getClass()))
+                .build();
+
+        // When / Then
+        try {
+            graph.execute(opChain, user);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertEquals("The context does not contain a user", e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionOnExecuteJobWithANullUser() throws OperationException {
+        // Given
+        final User user = null;
+        final OperationChain opChain = mock(OperationChain.class);
+
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(GRAPH_ID)
+                        .build())
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .addSchemas(StreamUtil.schemas(getClass()))
+                .build();
+
+        // When / Then
+        try {
+            graph.executeJob(opChain, user);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertEquals("The context does not contain a user", e.getMessage());
+        }
+    }
+
     public static class TestStoreImpl extends Store {
         @Override
         public Set<StoreTrait> getTraits() {
