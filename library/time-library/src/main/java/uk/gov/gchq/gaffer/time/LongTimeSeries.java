@@ -15,7 +15,10 @@
  */
 package uk.gov.gchq.gaffer.time;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -24,14 +27,21 @@ import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
+import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.DAY;
+import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.HOUR;
+import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.MILLISECOND;
+import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.MINUTE;
+import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.MONTH;
+import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.SECOND;
+import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.WEEK;
+import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket.YEAR;
 
 /**
  * This is a time series where the values are {@link Long}s. When the time series
@@ -42,27 +52,32 @@ import java.util.TreeSet;
  * 12:34.
  */
 public class LongTimeSeries implements TimeSeries<Long> {
-    private static final Set<TimeBucket> VALID_TIMEBUCKETS = new HashSet<>(Arrays.asList(
-            TimeBucket.MILLISECOND,
-            TimeBucket.SECOND,
-            TimeBucket.MINUTE,
-            TimeBucket.HOUR,
-            TimeBucket.DAY,
-            TimeBucket.WEEK,
-            TimeBucket.MONTH,
-            TimeBucket.YEAR
-    ));
-    private TimeBucket timeBucket;
-    private SortedMap<Long, Long> timeSeries = new TreeMap<>();
+    private static final Set<TimeBucket> VALID_TIME_BUCKETS = Sets.newHashSet(
+            MILLISECOND,
+            SECOND,
+            MINUTE,
+            HOUR,
+            DAY,
+            WEEK,
+            MONTH,
+            YEAR
+    );
 
-    public LongTimeSeries() {
-    }
+    private final TimeBucket timeBucket;
+    private final SortedMap<Long, Long> timeSeries = new TreeMap<>();
 
     public LongTimeSeries(final TimeBucket timeBucket) {
-        if (!VALID_TIMEBUCKETS.contains(timeBucket)) {
+        if (!VALID_TIME_BUCKETS.contains(timeBucket)) {
             throw new IllegalArgumentException("A TimeBucket of " + timeBucket + " is not supported");
         }
         this.timeBucket = timeBucket;
+    }
+
+    @JsonCreator
+    public LongTimeSeries(@JsonProperty("timeBucket") final TimeBucket timeBucket,
+                          @JsonProperty("timeSeries") final Map<Instant, Long> timeSeries) {
+        this(timeBucket);
+        setTimeSeries(timeSeries);
     }
 
     /**
@@ -142,9 +157,7 @@ public class LongTimeSeries implements TimeSeries<Long> {
      */
     public SortedMap<Instant, Long> getTimeSeries() {
         final SortedMap<Instant, Long> map = new TreeMap<>();
-        timeSeries
-                .entrySet()
-                .forEach(e -> map.put(getInstantFromLong(timeBucket, e.getKey()), e.getValue()));
+        timeSeries.forEach((k, v) -> map.put(getInstantFromLong(timeBucket, k), v));
         return map;
     }
 
@@ -154,22 +167,17 @@ public class LongTimeSeries implements TimeSeries<Long> {
      * @param timeSeries The time series to copy entries from.
      */
     public void setTimeSeries(final Map<Instant, Long> timeSeries) {
+        if (null == timeBucket) {
+            throw new IllegalArgumentException("timeBucket should be configured before setting a timeSeries");
+        }
         this.timeSeries.clear();
-        timeSeries
-                .entrySet()
-                .stream()
-                .forEach(e -> put(e.getKey(), e.getValue()));
+        if (null != timeSeries) {
+            timeSeries.forEach(this::put);
+        }
     }
 
     public TimeBucket getTimeBucket() {
         return timeBucket;
-    }
-
-    public void setTimeBucket(final TimeBucket timeBucket) {
-        if (null != this.timeBucket) {
-            throw new IllegalArgumentException("Cannot modify the timebucket");
-        }
-        this.timeBucket = timeBucket;
     }
 
     @Override
@@ -202,7 +210,6 @@ public class LongTimeSeries implements TimeSeries<Long> {
         return new ToStringBuilder(this)
                 .append("timeBucket", timeBucket)
                 .append("timeSeries", timeSeries)
-                .appendSuper(super.toString())
                 .build();
     }
 
@@ -255,28 +262,5 @@ public class LongTimeSeries implements TimeSeries<Long> {
 
     private static Instant getInstantFromLong(final TimeBucket timeBucket, final long l) {
         return Instant.ofEpochMilli(fromLong(timeBucket, l));
-    }
-
-    public static class Builder {
-        private TimeBucket timeBucket;
-        private Map<Instant, Long> timeSeries;
-
-        public LongTimeSeries.Builder timeBucket(final TimeBucket timeBucket) {
-            this.timeBucket = timeBucket;
-            return this;
-        }
-
-        public LongTimeSeries.Builder instantCountPairs(final Map<Instant, Long> timeSeries) {
-            this.timeSeries = timeSeries;
-            return this;
-        }
-
-        public LongTimeSeries build() {
-            final LongTimeSeries set = new LongTimeSeries(timeBucket);
-            if (null != timeSeries) {
-                set.setTimeSeries(timeSeries);
-            }
-            return set;
-        }
     }
 }
