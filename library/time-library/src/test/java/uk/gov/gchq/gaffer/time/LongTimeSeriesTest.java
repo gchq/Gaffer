@@ -19,6 +19,8 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
+import uk.gov.gchq.gaffer.commonutil.StringUtil;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -29,6 +31,9 @@ import java.util.SortedSet;
 import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class LongTimeSeriesTest extends JSONSerialisationTest<LongTimeSeries> {
 
@@ -196,10 +201,7 @@ public class LongTimeSeriesTest extends JSONSerialisationTest<LongTimeSeries> {
         final Map<Instant, Long> counts = new HashMap<>();
         counts.put(Instant.ofEpochMilli(1000L), 10L);
         counts.put(Instant.ofEpochMilli(100000L), 1000L);
-        final LongTimeSeries timeSeries = new LongTimeSeries.Builder()
-                .timeBucket(TimeBucket.SECOND)
-                .instantCountPairs(counts)
-                .build();
+        final LongTimeSeries timeSeries = new LongTimeSeries(TimeBucket.SECOND, counts);
 
         // When
         final long value1 = timeSeries.get(Instant.ofEpochMilli(1000L));
@@ -208,6 +210,47 @@ public class LongTimeSeriesTest extends JSONSerialisationTest<LongTimeSeries> {
         // Then
         assertEquals(10L, value1);
         assertEquals(1000L, value2);
+    }
+
+    @Test
+    @Override
+    public void shouldJsonSerialiseAndDeserialise() {
+        // Given
+        final LongTimeSeries obj = getTestObject();
+
+        // When
+        final byte[] json = toJson(obj);
+        final LongTimeSeries deserialisedObj = fromJson(json);
+
+        // Then
+        JsonAssert.assertEquals(String.format("{%n" +
+                "  \"timeBucket\" : \"SECOND\",%n" +
+                "  \"timeSeries\" : {%n" +
+                "    \"1970-01-01T00:00:01Z\" : 10,%n" +
+                "    \"1970-01-01T00:01:40Z\" : 1000%n" +
+                "  }%n" +
+                "}"), StringUtil.toString(json));
+        assertNotNull(deserialisedObj);
+        assertEquals(obj, deserialisedObj);
+    }
+
+    @Test
+    public void shouldThrowExceptionIfDeserialisedWithoutTimeBucket() {
+        // Given
+        final byte[] json = StringUtil.toBytes(String.format("{%n" +
+                "  \"timeSeries\" : {%n" +
+                "    \"1970-01-01T00:00:01Z\" : 10,%n" +
+                "    \"1970-01-01T00:01:40Z\" : 1000%n" +
+                "  }%n" +
+                "}"));
+
+        // When / Then
+        try {
+            fromJson(json);
+            fail("Exception expected");
+        } catch (final Exception e) {
+            assertTrue("Error message was: " + e.getMessage(), e.getMessage().contains("A TimeBucket of null is not supported"));
+        }
     }
 
     @Override

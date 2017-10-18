@@ -41,7 +41,7 @@ import java.util.SortedMap;
  * In this case, a simpler serialisation is used where the timestamps and values
  * are simply written out directly.
  */
-public class DeltaTimeSeriesSerialiser implements ToBytesSerialiser<LongTimeSeries> {
+public class DeltaLongTimeSeriesSerialiser implements ToBytesSerialiser<LongTimeSeries> {
     private static final long HALF_MAX_VALUE = Long.MAX_VALUE / 2;
     private static final long serialVersionUID = -5820977643949438174L;
 

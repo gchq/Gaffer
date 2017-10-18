@@ -32,8 +32,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class DeltaTimeseriesSerialiserTest extends ToBytesSerialisationTest<LongTimeSeries> {
-    private static final DeltaTimeSeriesSerialiser serialiser = new DeltaTimeSeriesSerialiser();
+public class DeltaLongTimeSeriesSerialiserTest extends ToBytesSerialisationTest<LongTimeSeries> {
+    private static final DeltaLongTimeSeriesSerialiser serialiser = new DeltaLongTimeSeriesSerialiser();
 
     @Test
     public void testSerialiser() throws SerialisationException {
@@ -112,7 +112,7 @@ public class DeltaTimeseriesSerialiserTest extends ToBytesSerialisationTest<Long
 
     @Override
     public Serialiser<LongTimeSeries, byte[]> getSerialisation() {
-        return new DeltaTimeSeriesSerialiser();
+        return new DeltaLongTimeSeriesSerialiser();
     }
 
     @SuppressWarnings("unchecked")
