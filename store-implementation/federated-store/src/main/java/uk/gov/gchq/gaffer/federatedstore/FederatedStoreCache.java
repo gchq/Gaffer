@@ -18,20 +18,23 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.ICache;
+import uk.gov.gchq.gaffer.cache.ICacheService;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
 
+import java.util.Collections;
 import java.util.Set;
 
 /**
- * Wrapper around the {@link CacheServiceLoader} to provide an
- * interface for handling the {@link uk.gov.gchq.gaffer.graph.Graph}s
- * within a {@link uk.gov.gchq.gaffer.federatedstore.FederatedStore}.
+ * Wrapper around the {@link CacheServiceLoader} to provide an interface for
+ * handling the {@link Graph}s within a {@link uk.gov.gchq.gaffer.federatedstore.FederatedStore}.
  */
 public class FederatedStoreCache {
 
     private static final String CACHE_SERVICE_NAME = "federatedStoreGraphs";
+    public static final String ERROR_ADDING_GRAPH_TO_CACHE_GRAPH_ID_S = "Error adding graph to cache. graphId: %s";
 
     /**
      * Get the cache for the FederatedStore.
@@ -47,50 +50,60 @@ public class FederatedStoreCache {
     }
 
     /**
-     * Get all the ID's related to the {@link uk.gov.gchq.gaffer.graph.Graph}'s
-     * stored in the cache.
+     * Get all the ID's related to the {@link Graph}'s stored in the cache.
      *
-     * @return all the Graph ID's within the cache
+     * @return all the Graph ID's within the cache as unmodifiable set.
      */
     public Set<String> getAllGraphIds() {
-        return CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME);
+        final Set<String> allKeysFromCache = CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME);
+        return (null == allKeysFromCache) ? null : Collections.unmodifiableSet(allKeysFromCache);
     }
 
     /**
-     * Add the specified {@link uk.gov.gchq.gaffer.graph.Graph} to the cache.
+     * Add the specified {@link Graph} to the cache.
      *
-     * @param graph     the {@link uk.gov.gchq.gaffer.graph.Graph} to be added
+     * @param graph     the {@link Graph} to be added
      * @param overwrite if true, overwrite any graphs already in the cache with the same ID
      * @throws CacheOperationException if there was an error trying to add to the cache
      */
-    public void addGraphToCache(final Graph graph, final boolean overwrite) throws CacheOperationException {
-        GraphSerialisable graphSerialisable = new GraphSerialisable.Builder().graph(graph).build();
-
-        if (overwrite) {
-            CacheServiceLoader.getService().putInCache(CACHE_SERVICE_NAME, graph.getGraphId(), graphSerialisable);
-        } else {
-            CacheServiceLoader.getService().putSafeInCache(CACHE_SERVICE_NAME, graph.getGraphId(), graphSerialisable);
+    public void addGraphToCache(final Graph graph, final FederatedAccess access, final boolean overwrite) throws CacheOperationException {
+        Pair<GraphSerialisable, FederatedAccess> pair = new Pair<>(new GraphSerialisable.Builder().graph(graph).build(), access);
+        final ICacheService service = CacheServiceLoader.getService();
+        try {
+            if (overwrite) {
+                service.putInCache(CACHE_SERVICE_NAME, graph.getGraphId(), pair);
+            } else {
+                service.putSafeInCache(CACHE_SERVICE_NAME, graph.getGraphId(), pair);
+            }
+        } catch (final CacheOperationException e) {
+            throw new CacheOperationException(String.format(ERROR_ADDING_GRAPH_TO_CACHE_GRAPH_ID_S, graph.getGraphId()), e);
         }
     }
 
     /**
-     * Retrieve the {@link uk.gov.gchq.gaffer.graph.Graph} with the specified ID from the cache.
+     * Retrieve the {@link Graph} with the specified ID from the cache.
      *
-     * @param graphId the ID of the {@link uk.gov.gchq.gaffer.graph.Graph} to retrieve
-     * @return the {@link uk.gov.gchq.gaffer.graph.Graph} related to the specified ID
+     * @param graphId the ID of the {@link Graph} to retrieve
+     * @return the {@link Graph} related to the specified ID
      */
-    public Graph getFromCache(final String graphId) {
-        final GraphSerialisable graphSerialisable = CacheServiceLoader.getService().getFromCache(CACHE_SERVICE_NAME, graphId);
 
+    public Graph getFromCache(final String graphId) {
+        final Pair<GraphSerialisable, FederatedAccess> fromCache = CacheServiceLoader.getService().getFromCache(CACHE_SERVICE_NAME, graphId);
+        final GraphSerialisable graphSerialisable = (null == fromCache) ? null : fromCache.getFirst();
         return (null == graphSerialisable) ? null : graphSerialisable.buildGraph();
     }
 
+    public FederatedAccess getAccessFromCache(final String graphId) {
+        final Pair<GraphSerialisable, FederatedAccess> fromCache = CacheServiceLoader.getService().getFromCache(CACHE_SERVICE_NAME, graphId);
+        return fromCache.getSecond();
+    }
+
     /**
-     * Delete the {@link uk.gov.gchq.gaffer.graph.Graph} related to the specified ID from the cache.
+     * Delete the {@link Graph} related to the specified ID from the cache.
      *
-     * @param graphId the ID of the {@link uk.gov.gchq.gaffer.graph.Graph} to be deleted
+     * @param graphId the ID of the {@link Graph} to be deleted
      */
-    public void deleteFromCache(final String graphId)  {
+    public void deleteFromCache(final String graphId) {
         CacheServiceLoader.getService().removeFromCache(CACHE_SERVICE_NAME, graphId);
     }
 

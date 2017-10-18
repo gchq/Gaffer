@@ -22,6 +22,7 @@ import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
@@ -189,11 +190,15 @@ public class FederatedStore extends Store {
      */
 
     public void addGraphs(final Set<String> graphAuths, final String addingUserId, final boolean isPublic, final Graph... graphs) {
+        FederatedAccess access = new FederatedAccess(graphAuths, addingUserId, isPublicAccessAllowed && isPublic);
+
+        addGraphs(access, graphs);
+    }
+
+    public void addGraphs(final FederatedAccess access, final Graph... graphs) {
         if (isCacheEnabled || !isInitialised) {
             validateCache();
         }
-
-        FederatedAccess access = new FederatedAccess(graphAuths, addingUserId, isPublicAccessAllowed && isPublic);
 
         for (final Graph graph : graphs) {
             _add(graph, access);
@@ -378,21 +383,21 @@ public class FederatedStore extends Store {
     private void loadGraphs() throws StoreException {
         final Set<String> graphIds = getGraphIds();
         for (final String graphId : graphIds) {
-            final Set<String> graphAuths = resolveAuths(graphId);
-            final boolean isPublic = resolveIsPublic(graphId);
-
             if (isCacheEnabled && federatedStoreCache.contains(graphId)) {
-                makeGraphFromCache(graphId, graphAuths, isPublic);
+                makeGraphFromCache(graphId);
             } else {
-                makeGraphFromProperties(graphId, graphAuths, isPublic);
+                makeGraphFromProperties(graphId, resolveAuths(graphId), resolveIsPublic(graphId));
             }
         }
-        makeGraphsRemainingInCache(graphIds);
+        if (isCacheEnabled) {
+            makeGraphsRemainingInCache(graphIds);
+        }
     }
 
-    private void makeGraphFromCache(final String graphId, final Set<String> graphAuths, final boolean isPublic) {
+    private void makeGraphFromCache(final String graphId) {
         Graph graph = federatedStoreCache.getFromCache(graphId);
-        addGraphs(graphAuths, null, isPublic, graph);
+        final FederatedAccess accessFromCache = federatedStoreCache.getAccessFromCache(graphId);
+        addGraphs(accessFromCache, graph);
     }
 
     private void makeGraphFromProperties(final String graphId, final Set<String> graphAuths, final boolean isPublic) throws StoreException {
@@ -411,10 +416,12 @@ public class FederatedStore extends Store {
     }
 
     private void makeGraphsRemainingInCache(final Set<String> graphIds) {
-        final Set<String> allGraphIds = federatedStoreCache.getAllGraphIds();
-        allGraphIds.removeAll(graphIds);
-        for (String graphId : allGraphIds) {
-            makeGraphFromCache(graphId, null, false);
+        if (isCacheEnabled) {
+            final Set<String> allGraphIds = Sets.newHashSet(federatedStoreCache.getAllGraphIds());
+            allGraphIds.removeAll(graphIds);
+            for (String graphId : allGraphIds) {
+                makeGraphFromCache(graphId);
+            }
         }
     }
 
@@ -483,7 +490,7 @@ public class FederatedStore extends Store {
 
     private void _add(final Graph newGraph, final FederatedAccess access) {
         if (isCacheEnabled) {
-            addToCache(newGraph);
+            addToCache(newGraph, access);
         }
 
         graphStorage.put(newGraph, access);
@@ -493,16 +500,16 @@ public class FederatedStore extends Store {
         }
     }
 
-    private void addToCache(final Graph newGraph) {
+    private void addToCache(final Graph newGraph, final FederatedAccess access) {
         final String graphId = newGraph.getGraphId();
         if (federatedStoreCache.contains(graphId)) {
             validateSameAsFromCache(newGraph, graphId);
         } else {
             try {
-                federatedStoreCache.addGraphToCache(newGraph, false);
+                federatedStoreCache.addGraphToCache(newGraph, access, false);
             } catch (final OverwritingException e) {
                 throw new OverwritingException((String.format("User is attempting to overwrite a graph within the cacheService. GraphId: %s", graphId)));
-            } catch (final Exception e) {
+            } catch (CacheOperationException e) {
                 throw new RuntimeException(e);
             }
         }

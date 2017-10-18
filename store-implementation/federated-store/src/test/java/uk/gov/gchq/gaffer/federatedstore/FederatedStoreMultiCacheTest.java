@@ -119,6 +119,8 @@ public class FederatedStoreMultiCacheTest {
                 .user(testUser)
                 .build());
 
+        store2 = new FederatedStore();
+        store2.initialise(FEDERATED_STORE_ID + 1, null, federatedStoreProperties);
 
         assertEquals("There should be 2 graphs", 2, store.getAllGraphIds(testUser).size());
 

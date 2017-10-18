@@ -62,7 +62,7 @@ public class FederatedStoreCacheTest {
 
     @Test
     public void shouldAddAndGetGraphToCache() throws CacheOperationException {
-        federatedStoreCache.addGraphToCache(testGraph, false);
+        federatedStoreCache.addGraphToCache(testGraph, null, false);
         Graph cached = federatedStoreCache.getFromCache(MAP_ID_1);
 
         assertEquals(testGraph.getGraphId(), cached.getGraphId());
@@ -72,7 +72,7 @@ public class FederatedStoreCacheTest {
 
     @Test
     public void shouldGetAllGraphIdsFromCache() throws CacheOperationException {
-        federatedStoreCache.addGraphToCache(testGraph, false);
+        federatedStoreCache.addGraphToCache(testGraph, null, false);
         Set<String> cachedGraphIds = federatedStoreCache.getAllGraphIds();
         assertEquals(1, cachedGraphIds.size());
         assertTrue(cachedGraphIds.contains(testGraph.getGraphId()));
@@ -80,7 +80,7 @@ public class FederatedStoreCacheTest {
 
     @Test
     public void shouldDeleteFromCache() throws CacheOperationException {
-        federatedStoreCache.addGraphToCache(testGraph, false);
+        federatedStoreCache.addGraphToCache(testGraph, null, false);
         Set<String> cachedGraphIds = federatedStoreCache.getAllGraphIds();
         assertEquals(1, cachedGraphIds.size());
         assertTrue(cachedGraphIds.contains(testGraph.getGraphId()));
@@ -92,9 +92,9 @@ public class FederatedStoreCacheTest {
 
     @Test
     public void shouldThrowExceptionIfGraphAlreadyExistsInCache() throws CacheOperationException {
-        federatedStoreCache.addGraphToCache(testGraph, false);
+        federatedStoreCache.addGraphToCache(testGraph, null, false);
         try {
-            federatedStoreCache.addGraphToCache(testGraph, false);
+            federatedStoreCache.addGraphToCache(testGraph, null, false);
             fail("Exception expected");
         } catch (OverwritingException e) {
             assertTrue(e.getMessage().contains("Cache entry already exists"));
@@ -103,14 +103,14 @@ public class FederatedStoreCacheTest {
 
     @Test
     public void shouldThrowExceptionIfGraphIdToBeRemovedIsNull() throws CacheOperationException {
-        federatedStoreCache.addGraphToCache(testGraph, false);
+        federatedStoreCache.addGraphToCache(testGraph, null, false);
         federatedStoreCache.deleteFromCache(null);
         assertEquals(1, federatedStoreCache.getAllGraphIds().size());
     }
 
     @Test
     public void shouldThrowExceptionIfGraphIdToGetIsNull() throws CacheOperationException {
-        federatedStoreCache.addGraphToCache(testGraph, false);
+        federatedStoreCache.addGraphToCache(testGraph, null, false);
         assertNull(federatedStoreCache.getFromCache(null));
     }
 }
