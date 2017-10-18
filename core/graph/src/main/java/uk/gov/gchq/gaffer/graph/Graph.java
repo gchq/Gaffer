@@ -197,11 +197,11 @@ public final class Graph {
             throw new IllegalArgumentException("operationChain is required");
         }
 
-        if(null == context) {
+        if (null == context) {
             throw new IllegalArgumentException("A context containing a user is required");
         }
 
-        if(null == context.getUser()) {
+        if (null == context.getUser()) {
             throw new IllegalArgumentException("The context does not contain a user");
         }
 
