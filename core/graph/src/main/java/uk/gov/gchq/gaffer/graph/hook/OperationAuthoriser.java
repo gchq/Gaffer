@@ -123,7 +123,7 @@ public class OperationAuthoriser implements GraphHook {
     protected void authorise(final Operation operation, final User user) {
         if (null != operation) {
             if (operation instanceof Operations) {
-                final Collection<Operation> operations = ((Operations) operation).getOperations();
+                final Collection<? extends Operation> operations = ((Operations<?>) operation).getOperations();
                 operations.forEach(op -> authorise(op, user));
             }
 

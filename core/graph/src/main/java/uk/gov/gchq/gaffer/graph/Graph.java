@@ -232,7 +232,7 @@ public final class Graph {
         return result;
     }
 
-    private void updateOperationChainView(final Operations operations) {
+    private void updateOperationChainView(final Operations<?> operations) {
         for (final Operation operation : operations.getOperations()) {
             if (operation instanceof Operations) {
                 updateOperationChainView((Operations) operation);
