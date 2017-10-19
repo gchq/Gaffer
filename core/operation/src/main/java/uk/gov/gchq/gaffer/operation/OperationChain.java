@@ -57,7 +57,8 @@ import java.util.stream.Collectors;
  *              {@link uk.gov.gchq.gaffer.operation.Operation} in the chain.
  * @see uk.gov.gchq.gaffer.operation.OperationChain.Builder
  */
-public class OperationChain<OUT> implements Output<OUT> {
+public class OperationChain<OUT> implements Output<OUT>,
+        Operations<Operation> {
     private List<Operation> operations;
     private Map<String, String> options;
 
@@ -127,6 +128,7 @@ public class OperationChain<OUT> implements Output<OUT> {
         return (TypeReference<OUT>) new TypeReferenceImpl.Void();
     }
 
+    @Override
     public List<Operation> getOperations() {
         return operations;
     }
