@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.rest.service.v2.example;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
@@ -81,4 +82,12 @@ public interface ExamplesFactory {
      * @throws InstantiationException if the operation could not be created
      */
     Operation generateExample(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException;
+
+    /**
+     * Generates an example for the {@link Sort} operation.
+     * @return the example class
+     */
+    Sort sort();
+
+
 }
