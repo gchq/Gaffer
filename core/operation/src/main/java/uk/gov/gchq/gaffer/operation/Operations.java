@@ -15,15 +15,32 @@
  */
 package uk.gov.gchq.gaffer.operation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Collection;
 
 /**
  * An <code>Operations</code> will hold a list of {@link Operation}s, which are often dealt with recursively.
+ *
+ * @param <T> the type of the {@link Operation}s
  */
-public interface Operations {
+public interface Operations<T extends Operation> {
     /**
      * Should return a {@link Collection} of all operations contained within the {@link Operations} implementation.
-     * @return  A {@link Collection} of {@link Operation}s.
+     * The collection of operations may be modified by Gaffer.
+     *
+     * @return A {@link Collection} of {@link Operation}s.
      */
-    Collection<Operation> getOperations();
+    Collection<T> getOperations();
+
+    /**
+     * The class of the operations. By default this will return the
+     * {@link Operation} class.
+     *
+     * @return the class of the operations
+     */
+    @JsonIgnore
+    default Class<T> getOperationsClass() {
+        return (Class) Operation.class;
+    }
 }

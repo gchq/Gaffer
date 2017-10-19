@@ -70,7 +70,7 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
         }
     }
 
-    public int getChainScore(final Operations operations, final User user) {
+    public int getChainScore(final Operations<?> operations, final User user) {
         int chainScore = 0;
 
         if (null != operations.getOperations()) {

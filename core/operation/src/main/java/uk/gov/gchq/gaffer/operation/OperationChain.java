@@ -58,7 +58,7 @@ import java.util.stream.Collectors;
  * @see uk.gov.gchq.gaffer.operation.OperationChain.Builder
  */
 public class OperationChain<OUT> implements Output<OUT>,
-        Operations {
+        Operations<Operation> {
     private List<Operation> operations;
     private Map<String, String> options;
 
