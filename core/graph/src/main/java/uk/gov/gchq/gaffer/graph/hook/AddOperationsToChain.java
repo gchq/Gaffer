@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.graph.hook;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.store.Context;
 
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class AddOperationsToChain implements GraphHook {
      * be updated.
      *
      * @param opChain the {@link OperationChain} being executed.
-     * @param context    the {@link Context} executing the operation chain
+     * @param context the {@link Context} executing the operation chain
      */
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
@@ -126,31 +127,39 @@ public class AddOperationsToChain implements GraphHook {
         }
     }
 
-    private List<Operation> addOperationsToChain(final OperationChain<?> opChain, final AdditionalOperations additionalOperations) {
+    private List<Operation> addOperationsToChain(final Operations<?> operations, final AdditionalOperations additionalOperations) {
         final List<Operation> opList = new ArrayList<>();
+        if (null != operations && !operations.getOperations().isEmpty()) {
+            final Class<? extends Operation> operationsClass = operations.getOperationsClass();
+            for (final Operation originalOp : operations.getOperations()) {
+                final List<Operation> beforeOps = additionalOperations.getBefore()
+                        .get(originalOp.getClass().getName());
+                addOps(beforeOps, operationsClass, opList);
 
-        if (null != opChain && !opChain.getOperations().isEmpty()) {
-            for (final Operation originalOp : opChain.getOperations()) {
-                if (originalOp instanceof OperationChain) {
-                    opList.addAll(addOperationsToChain((OperationChain) originalOp, additionalOperations));
-                } else {
-                    final List<Operation> beforeOps = additionalOperations.getBefore()
-                            .get(originalOp.getClass()
-                                    .getName());
-                    if (null != beforeOps) {
-                        opList.addAll(beforeOps);
-                    }
-                    opList.add(originalOp);
-                    final List<Operation> afterOps = additionalOperations.getAfter()
-                            .get(originalOp.getClass()
-                                    .getName());
-                    if (null != afterOps) {
-                        opList.addAll(afterOps);
-                    }
+                if (originalOp instanceof Operations) {
+                    final List<Operation> nestedOpList = addOperationsToChain((Operations) originalOp, additionalOperations);
+                    ((Operations) originalOp).getOperations().clear();
+                    ((Operations) originalOp).getOperations().addAll(nestedOpList);
                 }
+
+                opList.add(originalOp);
+
+                final List<Operation> afterOps = additionalOperations.getAfter()
+                        .get(originalOp.getClass().getName());
+                addOps(afterOps, operationsClass, opList);
             }
         }
 
         return opList;
+    }
+
+    private void addOps(final List<Operation> opsToAdd, final Class<? extends Operation> allowedOpClass, final List<Operation> opList) {
+        if (null != opsToAdd) {
+            for (final Operation op : opsToAdd) {
+                if (null != op && allowedOpClass.isAssignableFrom(op.getClass())) {
+                    opList.add(op);
+                }
+            }
+        }
     }
 }
