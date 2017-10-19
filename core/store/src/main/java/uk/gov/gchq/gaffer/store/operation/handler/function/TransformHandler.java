@@ -36,6 +36,10 @@ public class TransformHandler implements OutputOperationHandler<Transform, Itera
 
     @Override
     public Iterable<? extends Element> doOperation(final Transform operation, final Context context, final Store store) throws OperationException {
+        return doOperation(operation, store.getSchema());
+    }
+
+    public Iterable<? extends Element> doOperation(final Transform operation, final Schema schema) throws OperationException {
         if (null == operation.getInput()) {
             throw new OperationException("Transform operation has null iterable of elements");
         }
@@ -43,8 +47,6 @@ public class TransformHandler implements OutputOperationHandler<Transform, Itera
         // If no entities or edges have been provided then we will assume
         // all elements should be used. This matches the way a View works.
         if (null == operation.getEntities() && null == operation.getEdges()) {
-            final Schema schema = store.getSchema();
-
             final Map<String, ElementTransformer> entityMap = new HashMap<>();
             schema.getEntityGroups().forEach(e -> entityMap.put(e, new ElementTransformer()));
             operation.setEntities(entityMap);
@@ -54,7 +56,7 @@ public class TransformHandler implements OutputOperationHandler<Transform, Itera
             operation.setEdges(edgeMap);
         }
 
-        final ValidationResult result = validator.validate(operation, store.getSchema());
+        final ValidationResult result = validator.validate(operation, schema);
         if (!result.isValid()) {
             throw new OperationException("Transform operation is invalid. " + result.getErrorString());
         }
