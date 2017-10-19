@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedAggregateHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedFilterHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedGetSchemaHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationAddElementsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedTransformHandler;
@@ -63,6 +64,7 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
@@ -231,6 +233,14 @@ public class FederatedStore extends Store {
         return getSchema((Map<String, String>) null, (User) null);
     }
 
+    public Schema getSchema(final GetSchema operation, final Context context) {
+        if (null == operation) {
+            return getSchema((Map<String, String>) null, context);
+        }
+
+        return graphStorage.getSchema(operation, context);
+    }
+
     public Schema getSchema(final Operation operation, final Context context) {
         if (null == operation) {
             return getSchema((Map<String, String>) null, context);
@@ -302,6 +312,8 @@ public class FederatedStore extends Store {
                 .stream()
                 .filter(op -> !Output.class.isAssignableFrom(op) && !AddElements.class.equals(op))
                 .forEach(op -> addOperationHandler(op, new FederatedOperationHandler()));
+
+        addOperationHandler(GetSchema.class, new FederatedGetSchemaHandler());
 
         addOperationHandler(Filter.class, new FederatedFilterHandler());
         addOperationHandler(Aggregate.class, new FederatedAggregateHandler());

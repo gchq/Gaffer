@@ -21,8 +21,10 @@ import com.google.common.collect.Sets;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.exception.OverwritingException;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.Schema.Builder;
 import uk.gov.gchq.gaffer.user.User;
@@ -155,6 +157,41 @@ public class FederatedGraphStorage {
         validateAllGivenGraphIdsAreVisibleForUser(user, graphIds);
         final Set<Graph> rtn = getStream(user, graphIds).collect(Collectors.toSet());
         return Collections.unmodifiableCollection(rtn);
+    }
+
+    public Schema getSchema(final GetSchema operation, final Context context) {
+        if (null == context || null == context.getUser()) {
+            // no user then return an empty schema
+            return new Schema();
+        }
+
+        if (null == operation) {
+            return getSchema((Map<String, String>) null, context);
+        }
+
+        final List<String> graphIds = FederatedStoreUtil.getGraphIds(operation.getOptions());
+        final Stream<Graph> graphs = getStream(context.getUser(), graphIds);
+        final Builder schemaBuilder = new Builder();
+        try {
+            if (operation.isCompact()) {
+                final GetSchema getSchema = new GetSchema.Builder()
+                        .compact(true)
+                        .build();
+                graphs.forEach(g -> {
+                    try {
+                        schemaBuilder.merge(g.execute(getSchema, context));
+                    } catch (final OperationException e) {
+                        throw new RuntimeException("Unable to fetch schema from graph " + g.getGraphId(), e);
+                    }
+                });
+            } else {
+                graphs.forEach(g -> schemaBuilder.merge(g.getSchema()));
+            }
+        } catch (final SchemaException e) {
+            final List<String> resultGraphIds = getStream(context.getUser(), graphIds).map(Graph::getGraphId).collect(Collectors.toList());
+            throw new SchemaException("Unable to merge the schemas for all of your federated graphs: " + resultGraphIds + ". You can limit which graphs to query for using the operation option: " + KEY_OPERATION_OPTIONS_GRAPH_IDS, e);
+        }
+        return schemaBuilder.build();
     }
 
     /**
