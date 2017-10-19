@@ -100,9 +100,7 @@ public class DefaultExamplesFactory implements ExamplesFactory {
                     .build();
         } else if (operation instanceof Sort) {
             return sort();
-        }
-
-        else {
+        } else {
 
             final List<Field> fields = Arrays.asList(opClass.getDeclaredFields());
 
