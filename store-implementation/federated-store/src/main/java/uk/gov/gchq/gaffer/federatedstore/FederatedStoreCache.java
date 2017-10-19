@@ -64,6 +64,7 @@ public class FederatedStoreCache {
      *
      * @param graph     the {@link Graph} to be added
      * @param overwrite if true, overwrite any graphs already in the cache with the same ID
+     * @param access    Access for the graph being stored.
      * @throws CacheOperationException if there was an error trying to add to the cache
      */
     public void addGraphToCache(final Graph graph, final FederatedAccess access, final boolean overwrite) throws CacheOperationException {

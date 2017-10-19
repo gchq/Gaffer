@@ -33,7 +33,6 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 public class FederatedStoreSchemaTest {
@@ -70,7 +69,7 @@ public class FederatedStoreSchemaTest {
     }
 
     @Test
-    public void shouldNotDeadLockWhenPreviousAddGraphHasSchemaCollision() throws Exception {
+    public void shouldBeAbleToAddGraphsWithSchemaCollisions() throws Exception {
         library.addProperties(ACCUMULO_PROPERTIES);
         fStore.setGraphLibrary(library);
 
@@ -99,38 +98,19 @@ public class FederatedStoreSchemaTest {
 
         assertFalse(library.exists("b"));
 
-        boolean addingGraphBWasSuccessful = true;
+        fStore.execute(Operation.asOperationChain(new AddGraph.Builder()
+                .graphId("b")
+                .parentPropertiesId("accProp")
+                .parentSchemaIds(Lists.newArrayList("bSchema"))
+                .build()), TEST_CONTEXT);
 
-        try {
-            fStore.execute(Operation.asOperationChain(new AddGraph.Builder()
-                    .graphId("b")
-                    .parentPropertiesId("accProp")
-                    .parentSchemaIds(Lists.newArrayList("bSchema"))
-                    .build()), TEST_CONTEXT);
-        } catch (final Exception e) {
-            addingGraphBWasSuccessful = false;
-                assertEquals("Element group properties cannot be defined in different" +
-                        " schema parts, they must all be defined in a single " +
-                        "schema part. Please fix this group: e1", e.getCause().getMessage());
-        }
+        fStore.execute(Operation.asOperationChain(new AddGraph.Builder()
+                .graphId("c")
+                .parentPropertiesId("accProp")
+                .parentSchemaIds(Lists.newArrayList("aSchema"))
+                .build()), TEST_CONTEXT);
 
-        try {
-            fStore.execute(Operation.asOperationChain(new AddGraph.Builder()
-                    .graphId("c")
-                    .parentPropertiesId("accProp")
-                    .parentSchemaIds(Lists.newArrayList("aSchema"))
-                    .build()), TEST_CONTEXT);
-
-            assertFalse("If this assertion failed then it is possible this " +
-                    "test is no longer needed, because Schema Collisions are not" +
-                    " being thrown when adding graph \"a\". So deadlock will not" +
-                    " occur, please examine.", addingGraphBWasSuccessful);
-
-        } catch (final Exception e) {
-            assertFalse("This test is not behaving how it was designed, " +
-                    "Adding graph\"c\" should never fail if adding graph \"b\" was successful!", addingGraphBWasSuccessful);
-            assertFalse("Deadlock has occurred, If exception is thrown, then graph \"b\" should not have been added to the library", library.exists("b"));
-        }
+        // No exceptions thrown - as all 3 graphs should be able to be added together.
     }
 
     private SchemaEdgeDefinition getProp(final String propName) {

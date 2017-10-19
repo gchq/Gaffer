@@ -38,8 +38,8 @@ import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
-import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
@@ -98,6 +98,8 @@ public class FederatedStoreTest {
     private static final String CACHE_SERVICE_NAME = "federatedStoreGraphs";
     private static User authUser;
     private static User testUser;
+    private static Context authUserContext;
+    private static Context testUserContext;
 
     FederatedStore store;
     private FederatedStoreProperties federatedProperties;
@@ -114,6 +116,8 @@ public class FederatedStoreTest {
         CacheServiceLoader.shutdown();
         authUser = authUser();
         testUser = testUser();
+        authUserContext = new Context(authUser);
+        testUserContext = new Context(testUser);
     }
 
     @Test
@@ -213,14 +217,13 @@ public class FederatedStoreTest {
     }
 
     @Test
-    public void shouldUpdateTraitsWhenNewGraphIsAdded() throws Exception {
+    public void shouldAlwaysReturnSupportedTraits() throws Exception {
         // Given
         federatedProperties.setGraphIds(ACC_ID_1);
         federatedProperties.setGraphPropFile(ACC_ID_1, PATH_ACC_STORE_PROPERTIES);
         federatedProperties.setGraphSchemaFile(ACC_ID_1, PATH_BASIC_ENTITY_SCHEMA_JSON);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
-        //With less Traits
         Set<StoreTrait> before = store.getTraits();
 
         // When
@@ -230,14 +233,10 @@ public class FederatedStoreTest {
                 .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_ENTITY_SCHEMA_JSON))
                 .build());
 
-        //includes same as before but with more Traits
         Set<StoreTrait> after = store.getTraits();
-
-        // Then
-        assertEquals("Sole graph has 9 traits, so all traits of the federatedStore is 9", 9, before.size());
-        assertEquals("the two graphs share 5 traits", 5, after.size());
-        assertNotEquals(before, after);
-        assertTrue(before.size() > after.size());
+        assertEquals(StoreTrait.values().length, before.size());
+        assertEquals(StoreTrait.values().length, after.size());
+        assertEquals(before, after);
     }
 
     @Test
@@ -247,42 +246,18 @@ public class FederatedStoreTest {
         federatedProperties.setGraphPropFile(ACC_ID_1, PATH_ACC_STORE_PROPERTIES);
         federatedProperties.setGraphSchemaFile(ACC_ID_1, PATH_BASIC_ENTITY_SCHEMA_JSON);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
-        Schema before = store.getSchema();
+        Schema before = store.getSchema((Operation) null, authUserContext);
 
-        // When
-        store.addGraphs(null, null, false, new Graph.Builder()
+        store.addGraphs(null, authUserContext.getUser().getUserId(), false, new Graph.Builder()
                 .config(new GraphConfig(MAP_ID_1))
                 .storeProperties(StreamUtil.openStream(FederatedStoreTest.class, PATH_MAP_STORE_PROPERTIES))
                 .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_EDGE_SCHEMA_JSON))
                 .build());
-        Schema after = store.getSchema();
+
+        Schema after = store.getSchema((Operation) null, authUserContext);
 
         // Then
         assertNotEquals(before, after);
-    }
-
-    @Test
-    public void shouldUpdateTraitsToMinWhenGraphIsRemoved() throws Exception {
-        // Given
-        federatedProperties.setGraphIds(MAP_ID_1 + "," + ACC_ID_1);
-        federatedProperties.setGraphPropFile(MAP_ID_1, PATH_MAP_STORE_PROPERTIES);
-        federatedProperties.setGraphSchemaFile(MAP_ID_1, PATH_BASIC_EDGE_SCHEMA_JSON);
-        federatedProperties.setGraphPropFile(ACC_ID_1, PATH_ACC_STORE_PROPERTIES);
-        federatedProperties.setGraphSchemaFile(ACC_ID_1, PATH_BASIC_ENTITY_SCHEMA_JSON);
-        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
-
-        // When
-        //with less Traits
-        Set<StoreTrait> before = store.getTraits();
-        store.remove(MAP_ID_1, testUser);
-        Set<StoreTrait> after = store.getTraits();
-
-        // Then
-        //includes same as before but with more Traits
-        assertEquals("Shared traits between the two graphs should be " + 5, 5, before.size());
-        assertEquals("Shared traits counter-intuitively will go up after removing graph, because the sole remaining graph has 9 traits", 9, after.size());
-        assertNotEquals(before, after);
-        assertTrue(before.size() < after.size());
     }
 
     @Test
@@ -294,13 +269,13 @@ public class FederatedStoreTest {
         federatedProperties.setGraphPropFile(ACC_ID_1, PATH_ACC_STORE_PROPERTIES);
         federatedProperties.setGraphSchemaFile(ACC_ID_1, PATH_BASIC_ENTITY_SCHEMA_JSON);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
-        Schema before = store.getSchema();
+
+        Schema before = store.getSchema((Operation) null, authUserContext);
 
         // When
         store.remove(MAP_ID_1, testUser);
-        Schema after = store.getSchema();
 
-        // Then
+        Schema after = store.getSchema((Operation) null, authUserContext);
         assertNotEquals(before, after);
     }
 
@@ -351,31 +326,6 @@ public class FederatedStoreTest {
         // Then
         assertEquals(0, sizeBefore);
         assertEquals(2, sizeAfter);
-    }
-
-    @Test
-    public void shouldCombineTraitsToMin() throws Exception {
-        // Given
-        final StoreProperties storeProperties = StoreProperties.loadStoreProperties(StreamUtil.openStream(FederatedStoreITs.class, PATH_FEDERATED_STORE_PROPERTIES));
-        federatedProperties.setProperties(storeProperties.getProperties());
-        HashSet<StoreTrait> traits = new HashSet<>();
-        traits.addAll(SingleUseAccumuloStore.TRAITS);
-        traits.retainAll(MapStore.TRAITS);
-        Set<StoreTrait> before = store.getTraits();
-        int sizeBefore = before.size();
-
-        // When
-        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
-        Set<StoreTrait> after = store.getTraits();
-        int sizeAfter = after.size();
-
-        // Then
-        assertEquals(5, MapStore.TRAITS.size());
-        assertEquals(9, SingleUseAccumuloStore.TRAITS.size());
-        assertNotEquals(SingleUseAccumuloStore.TRAITS, MapStore.TRAITS);
-        assertEquals(0, sizeBefore);
-        assertEquals(5, sizeAfter);
-        assertEquals(traits, after);
     }
 
     @Test

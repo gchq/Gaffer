@@ -17,9 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.apache.commons.lang3.StringUtils;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
@@ -35,8 +33,12 @@ import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.LocationEnum;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedAggregateHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedFilterHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationAddElementsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedTransformHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedValidateHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllElementsHandler;
@@ -48,7 +50,11 @@ import uk.gov.gchq.gaffer.graph.Graph.Builder;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
+import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
+import uk.gov.gchq.gaffer.operation.impl.function.Filter;
+import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -59,9 +65,11 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.File;
@@ -71,19 +79,21 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBLIC_ACCESS_ALLOWED_DEFAULT;
+import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getCleanStrings;
 
 /**
+ * <p>
  * A Store that encapsulates a collection of sub-graphs and executes operations
  * against them and returns results as though it was a single graph.
+ * </p>
  * <p>
  * To create a FederatedStore you need to initialise the store with a
  * graphId and  (if graphId is not known by the {@link uk.gov.gchq.gaffer.store.library.GraphLibrary})
- * the
- * {@link Schema} and {@link StoreProperties}.
+ * the {@link Schema} and {@link StoreProperties}.
  *
  * @see #initialise(String, Schema, StoreProperties)
  * @see Store
@@ -92,7 +102,6 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBL
 public class FederatedStore extends Store {
     public static final String ERROR_ADDING_GRAPH_TO_CACHE = "Error adding graph, GraphId is known within the cache, but %s is different. GraphId: %s";
     protected static final String S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2 = "%s was not able to be created with the supplied properties.%n%s";
-    private static final String SCHEMA_DEL_REGEX = Pattern.quote(",");
     private static final GraphConfigEnum SCHEMA = GraphConfigEnum.SCHEMA;
     private static final GraphConfigEnum PROPERTIES = GraphConfigEnum.PROPERTIES;
     private static final LocationEnum ID = LocationEnum.ID;
@@ -139,14 +148,18 @@ public class FederatedStore extends Store {
     }
 
     /**
+     * <p>
      * Within FederatedStore an {@link Operation} is executed against a
      * collection of many graphs.
+     * </p>
      * <p>
      * Problem: When an Operation contains View information about an Element
      * which is not known by the Graph; It will fail validation when executed.
+     * </p>
      * <p>
      * Solution: For each operation, remove all elements from the View that is
      * unknown to the graph.
+     * </p>
      *
      * @param operation current operation
      * @param graph     current graph
@@ -182,6 +195,7 @@ public class FederatedStore extends Store {
      * public access will be ignored if the FederatedStore denies this action
      * at initialisation, will default to usual access with addingUserId and
      * graphAuths
+     * </p>
      *
      * @param addingUserId the adding userId
      * @param graphs       the graph to add
@@ -211,10 +225,13 @@ public class FederatedStore extends Store {
     }
 
     /**
+     * <p>
      * Removes graphs from the scope of FederatedStore.
+     * </p>
      * <p>
      * To be used by the FederatedStore and Handlers only. Users should remove
      * graphs via the {@link RemoveGraph} operation.
+     * </p>
      *
      * @param graphId to be removed from scope
      * @param user    to match visibility against
@@ -236,20 +253,52 @@ public class FederatedStore extends Store {
         return graphStorage.getAllIds(user);
     }
 
+    @Override
+    public Schema getSchema() {
+        return getSchema((Map<String, String>) null, (User) null);
+    }
+
+    public Schema getSchema(final Operation operation, final Context context) {
+        if (null == operation) {
+            return getSchema((Map<String, String>) null, context);
+        }
+
+        return getSchema(operation.getOptions(), context);
+    }
+
+    public Schema getSchema(final Map<String, String> config, final Context context) {
+        return graphStorage.getSchema(config, context);
+    }
+
+    public Schema getSchema(final Operation operation, final User user) {
+        if (null == operation) {
+            return getSchema((Map<String, String>) null, user);
+        }
+
+        return getSchema(operation.getOptions(), user);
+    }
+
+    public Schema getSchema(final Map<String, String> config, final User user) {
+        return graphStorage.getSchema(config, user);
+    }
+
     /**
      * @return {@link Store#getTraits()}
      */
     @Override
     public Set<StoreTrait> getTraits() {
-        return graphStorage.getTraits();
+        return StoreTrait.ALL_TRAITS;
     }
 
     /**
+     * <p>
      * Gets a collection of graph objects within FederatedStore scope from the
      * given csv of graphIds, with visibility of the given user.
+     * </p>
      * <p>
      * if graphIdsCsv is null then all graph objects within FederatedStore
      * scope are returned.
+     * </p>
      *
      * @param user        the users scope to get graphs for.
      * @param graphIdsCsv the csv of graphIds to get, null returns all graphs.
@@ -284,9 +333,20 @@ public class FederatedStore extends Store {
                 .filter(op -> !Output.class.isAssignableFrom(op) && !AddElements.class.equals(op))
                 .forEach(op -> addOperationHandler(op, new FederatedOperationHandler()));
 
+        addOperationHandler(Filter.class, new FederatedFilterHandler());
+        addOperationHandler(Aggregate.class, new FederatedAggregateHandler());
+        addOperationHandler(Transform.class, new FederatedTransformHandler());
+
+        addOperationHandler(Validate.class, new FederatedValidateHandler());
+
         addOperationHandler(GetAllGraphIds.class, new FederatedGetAllGraphIDHandler());
         addOperationHandler(AddGraph.class, new FederatedAddGraphHandler());
         addOperationHandler(RemoveGraph.class, new FederatedRemoveGraphHandler());
+    }
+
+    @Override
+    protected OperationChainValidator createOperationChainValidator() {
+        return new FederatedOperationChainValidator(new ViewValidator());
     }
 
     @Override
@@ -329,11 +389,6 @@ public class FederatedStore extends Store {
         }
     }
 
-    @Override
-    public Schema getSchema() {
-        return graphStorage.getMergedSchema();
-    }
-
     private static View createValidView(final View view, final Schema delegateGraphSchema) {
         View newView;
         if (view.hasGroups()) {
@@ -359,18 +414,6 @@ public class FederatedStore extends Store {
             newView = view;
         }
         return newView;
-    }
-
-    private static List<String> getCleanStrings(final String value) {
-        final List<String> values;
-        if (value != null) {
-            values = Lists.newArrayList(StringUtils.stripAll(value.split(SCHEMA_DEL_REGEX)));
-            values.remove("");
-            values.remove(null);
-        } else {
-            values = null;
-        }
-        return values;
     }
 
     private void loadCustomPropertiesAuths() {
@@ -417,11 +460,9 @@ public class FederatedStore extends Store {
 
     private void makeGraphsRemainingInCache(final Set<String> graphIds) {
         if (isCacheEnabled) {
-            final Set<String> allGraphIds = Sets.newHashSet(federatedStoreCache.getAllGraphIds());
-            allGraphIds.removeAll(graphIds);
-            for (String graphId : allGraphIds) {
-                makeGraphFromCache(graphId);
-            }
+            federatedStoreCache.getAllGraphIds().stream()
+                    .filter(s -> !graphIds.contains(s))
+                    .forEach(this::makeGraphFromCache);
         }
     }
 
@@ -509,7 +550,7 @@ public class FederatedStore extends Store {
                 federatedStoreCache.addGraphToCache(newGraph, access, false);
             } catch (final OverwritingException e) {
                 throw new OverwritingException((String.format("User is attempting to overwrite a graph within the cacheService. GraphId: %s", graphId)));
-            } catch (CacheOperationException e) {
+            } catch (final CacheOperationException e) {
                 throw new RuntimeException(e);
             }
         }
