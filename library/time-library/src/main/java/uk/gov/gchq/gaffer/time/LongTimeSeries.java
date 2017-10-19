@@ -263,4 +263,23 @@ public class LongTimeSeries implements TimeSeries<Long> {
     private static Instant getInstantFromLong(final TimeBucket timeBucket, final long l) {
         return Instant.ofEpochMilli(fromLong(timeBucket, l));
     }
+
+    public static class Builder {
+        private TimeBucket timeBucket;
+        private Map<Instant, Long> timeSeries;
+
+        public Builder timeBucket(final TimeBucket timeBucket) {
+            this.timeBucket = timeBucket;
+            return this;
+        }
+
+        public Builder instantCountPairs(final Map<Instant, Long> timeSeries) {
+            this.timeSeries = timeSeries;
+            return this;
+        }
+
+        public LongTimeSeries build() {
+            return new LongTimeSeries(timeBucket, timeSeries);
+        }
+    }
 }
