@@ -17,14 +17,13 @@
 package uk.gov.gchq.gaffer.rest.service.v2.example;
 
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
 
 /**
  * An {@code ExamplesFactory} creates example operations for use with Gaffer's
@@ -88,7 +87,7 @@ public interface ExamplesFactory {
      * Generates an example for the {@link Sort} operation.
      * @return the example class
      */
-    OperationChain sort();
+    Sort sort();
 
 
 }

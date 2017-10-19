@@ -396,12 +396,8 @@ public class DefaultExamplesFactory implements ExamplesFactory {
     }
 
     @Override
-    public OperationChain<Iterable<? extends Element>> sort(){
-        final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
-                .first(new GetElements.Builder()
-                        .input(new EntitySeed(1), new EntitySeed(2))
-                        .build())
-                .then(new Sort.Builder()
+    public Sort sort() {
+       final Sort sort = new Sort.Builder()
                         .comparators(new ElementPropertyComparator.Builder()
                                 .groups("entity", "edge")
                                 .property("count")
@@ -409,9 +405,9 @@ public class DefaultExamplesFactory implements ExamplesFactory {
                                 .build())
                         .resultLimit(20)
                         .deduplicate(true)
-                        .build())
-                .build();
-        return opChain;
+                        .build();
+
+        return sort;
     }
 
     private void populateOperation(final Output operation) {
