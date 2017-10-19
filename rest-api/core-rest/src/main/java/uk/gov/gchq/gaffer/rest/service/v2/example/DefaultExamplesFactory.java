@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
+import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -31,6 +32,7 @@ import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
@@ -96,6 +98,8 @@ public class DefaultExamplesFactory implements ExamplesFactory {
                     .first(getAllElements())
                     .then(new Limit<>(1))
                     .build();
+        } else if (operation instanceof Sort) {
+            return sort();
         } else {
 
             final List<Field> fields = Arrays.asList(opClass.getDeclaredFields());
@@ -389,6 +393,21 @@ public class DefaultExamplesFactory implements ExamplesFactory {
         op.setInput(objs);
         populateOperation(op);
         return op;
+    }
+
+    @Override
+    public Sort sort() {
+       final Sort sort = new Sort.Builder()
+                        .comparators(new ElementPropertyComparator.Builder()
+                                .groups("entity", "edge")
+                                .property("count")
+                                .reverse(true)
+                                .build())
+                        .resultLimit(20)
+                        .deduplicate(true)
+                        .build();
+
+        return sort;
     }
 
     private void populateOperation(final Output operation) {
