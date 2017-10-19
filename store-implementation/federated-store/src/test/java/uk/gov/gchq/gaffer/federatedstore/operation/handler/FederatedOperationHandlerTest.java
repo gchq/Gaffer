@@ -157,7 +157,7 @@ public class FederatedOperationHandlerTest {
         Mockito.when(mockStore.getGraphs(user, graphID)).thenReturn(filteredGraphs);
         try {
             new FederatedOperationHandler().doOperation(op, context, mockStore);
-            Assert.fail("Exception Not thrown");
+            fail("Exception Not thrown");
         } catch (OperationException e) {
             Assert.assertEquals(message, e.getCause().getMessage());
         }
@@ -165,12 +165,13 @@ public class FederatedOperationHandlerTest {
     }
 
     @Test
-    final public void shouldNotThrowException() throws Exception {
+    final public void shouldNotThrowExceptionBecauseSkipFlagSetTrue() throws Exception {
         // Given
         final String graphID = "1,3";
         final Operation op = Mockito.mock(Operation.class);
         when(op.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS)).thenReturn(graphID);
         when(op.getOption(KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE)).thenReturn(String.valueOf(true));
+        when(op.getOption(eq(KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE), any(String.class))).thenReturn(String.valueOf(true));
 
         Schema unusedSchema = new Schema.Builder().build();
 
@@ -191,7 +192,7 @@ public class FederatedOperationHandlerTest {
 
         // When
         try {
-           new FederatedOperationHandler().doOperation(op, context, mockStore);
+            new FederatedOperationHandler().doOperation(op, context, mockStore);
         } catch (Exception e) {
             fail("Exception should not have been thrown: " + e.getMessage());
         }
@@ -200,4 +201,6 @@ public class FederatedOperationHandlerTest {
         verify(mockStore1, atLeastOnce()).execute(any(OperationChain.class), eq(context));
         verify(mockStore2, atLeastOnce()).execute(any(OperationChain.class), eq(context));
     }
+
+
 }

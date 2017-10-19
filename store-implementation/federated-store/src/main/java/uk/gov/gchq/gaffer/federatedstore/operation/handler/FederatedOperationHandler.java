@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import java.util.Collection;
 
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.getSkipFailedFederatedStoreExecute;
 
 /**
  * A handler for Operations with no output for FederatedStore
@@ -45,7 +45,7 @@ public class FederatedOperationHandler implements OperationHandler<Operation> {
                 try {
                     graph.execute(updatedOp, context);
                 } catch (final Exception e) {
-                    if (!Boolean.valueOf(updatedOp.getOption(KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
+                    if (!Boolean.valueOf(getSkipFailedFederatedStoreExecute(updatedOp))) {
                         throw new OperationException("Failed to execute " + operation.getClass().getSimpleName() + " on graph " + graph.getGraphId(), e);
                     }
                 }

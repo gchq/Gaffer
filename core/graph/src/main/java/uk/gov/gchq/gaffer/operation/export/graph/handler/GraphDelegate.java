@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.export.graph.handler;
 
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.Graph.Builder;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
@@ -39,6 +40,10 @@ import java.util.List;
  * @see ExportToOtherGraphHandler
  */
 public final class GraphDelegate {
+
+    public static final String SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S = "Schema could not be found in the graphLibrary with id: %s";
+    public static final String STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S = "Store properties could not be found in the graphLibrary with id: %s";
+
     private GraphDelegate() {
         // Private constructor to prevent instantiation.
     }
@@ -174,29 +179,46 @@ public final class GraphDelegate {
                 result.addError("parentStorePropertiesId cannot be used without a GraphLibrary");
             }
         } else if (graphLibrary.exists(graphId)) {
+
             if (null != parentSchemaIds) {
-                result.addError("GraphId " + graphId + " already exists so you cannot use a different schema. Do not set the parentSchemaIds field.");
+                Schema.Builder IdFromLibrary = new Schema.Builder();
+                for (String parentSchemaId : parentSchemaIds) {
+                    IdFromLibrary.merge(graphLibrary.getSchema(parentSchemaId));
+                }
+                Schema fromLibrary = graphLibrary.get(graphId).getFirst();
+                if (!fromLibrary.toString().equals(IdFromLibrary.build().toString())) {
+                    result.addError("GraphId " + graphId + " already exists so you cannot use a different schema. Do not set the parentSchemaIds field.");
+                }
             }
-            if (null != schema) {
+
+            if (null != parentStorePropertiesId) {
+                StoreProperties fromLibrary = graphLibrary.get(graphId).getSecond();
+                if (!fromLibrary.equals(graphLibrary.getProperties(parentStorePropertiesId))) {
+                    result.addError("GraphId " + graphId + " already exists so you cannot use different store properties. Do not set the parentStorePropertiesId field.");
+                }
+            }
+
+            Pair<Schema, StoreProperties> schemaStorePropertiesPair = graphLibrary.get(graphId);
+            Schema schemaFromLib = schemaStorePropertiesPair.getFirst();
+            if (null != schema && !schema.toString().equals(schemaFromLib.toString())) {
                 result.addError("GraphId " + graphId + " already exists so you cannot provide a different schema. Do not set the schema field.");
             }
-            if (null != parentStorePropertiesId) {
-                result.addError("GraphId " + graphId + " already exists so you cannot use different store properties. Do not set the parentStorePropertiesId field.");
-            }
-            if (null != storeProperties) {
+
+            StoreProperties propertyFromLib = schemaStorePropertiesPair.getSecond();
+            if (null != storeProperties && !propertyFromLib.equals(storeProperties)) {
                 result.addError("GraphId " + graphId + " already exists so you cannot provide different store properties. Do not set the storeProperties field.");
             }
         } else {
             if (null != parentSchemaIds) {
                 for (final String exportParentSchemaId : parentSchemaIds) {
                     if (null == store.getGraphLibrary().getSchema(exportParentSchemaId)) {
-                        result.addError("Schema could not be found in the graphLibrary with id: " + parentSchemaIds);
+                        result.addError(String.format(SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S, parentSchemaIds));
                     }
                 }
             }
             if (null != parentStorePropertiesId) {
                 if (null == store.getGraphLibrary().getProperties(parentStorePropertiesId)) {
-                    result.addError("Store properties could not be found in the graphLibrary with id: " + parentStorePropertiesId);
+                    result.addError(String.format(STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S, parentStorePropertiesId));
                 }
             }
         }

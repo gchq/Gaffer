@@ -1,4 +1,5 @@
 {
+  "id": "basicEdgeSchema",
   "edges": {
     "BasicEdge": {
       "source": "vertex.string",

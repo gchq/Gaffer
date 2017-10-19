@@ -87,11 +87,22 @@ public class FederatedStoreCache {
      * @param graphId the ID of the {@link Graph} to retrieve
      * @return the {@link Graph} related to the specified ID
      */
-
-    public Graph getFromCache(final String graphId) {
+    public Graph getGraphFromCache(final String graphId) {
         final Pair<GraphSerialisable, FederatedAccess> fromCache = CacheServiceLoader.getService().getFromCache(CACHE_SERVICE_NAME, graphId);
         final GraphSerialisable graphSerialisable = (null == fromCache) ? null : fromCache.getFirst();
         return (null == graphSerialisable) ? null : graphSerialisable.buildGraph();
+    }
+
+    /**
+     * Retrieve the {@link Graph} with the specified ID from the cache.
+     *
+     * @param graphId the ID of the {@link Graph} to retrieve
+     * @return the {@link Graph} related to the specified ID
+     */
+
+    public GraphSerialisable getGraphSerialisableFromCache(final String graphId) {
+        final Pair<GraphSerialisable, FederatedAccess> fromCache = CacheServiceLoader.getService().getFromCache(CACHE_SERVICE_NAME, graphId);
+        return (null == fromCache) ? null : fromCache.getFirst();
     }
 
     public FederatedAccess getAccessFromCache(final String graphId) {

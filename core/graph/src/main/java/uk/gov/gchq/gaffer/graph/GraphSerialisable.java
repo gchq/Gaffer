@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.Serializable;
@@ -59,10 +60,19 @@ public final class GraphSerialisable implements Serializable {
      * class.
      */
     public Graph buildGraph() {
+        return buildGraph(null);
+    }
+
+    /**
+     * @return returns a new {@link Graph} built from the contents of a this
+     * class.
+     */
+    public Graph buildGraph(final GraphLibrary library) {
         return new Graph.Builder()
                 .addSchema(schema)
                 .addStoreProperties(properties)
                 .config(config)
+                .config(new GraphConfig.Builder().library(library).build())
                 .build();
     }
 

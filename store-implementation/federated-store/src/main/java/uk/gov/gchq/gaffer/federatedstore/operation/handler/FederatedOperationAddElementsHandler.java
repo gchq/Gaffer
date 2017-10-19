@@ -32,7 +32,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.getSkipFailedFederatedStoreExecute;
 
 /**
  * <p>
@@ -74,7 +74,7 @@ public class FederatedOperationAddElementsHandler implements OperationHandler<Ad
                 addElementsClone.setInput(retain);
                 graph.execute(addElementsClone, context.getUser());
             } catch (final Exception e) {
-                if (!Boolean.valueOf(addElements.getOption(KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
+                if (!Boolean.valueOf(getSkipFailedFederatedStoreExecute(addElements))) {
                     throw new OperationException("Graph failed to execute operation. Graph: " + graph.getGraphId() + " Operation: " + addElements.getClass().getSimpleName(), e);
                 }
             }

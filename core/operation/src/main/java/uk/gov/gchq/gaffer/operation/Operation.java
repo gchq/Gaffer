@@ -134,6 +134,22 @@ public interface Operation extends Closeable {
         return getOptions().get(name);
     }
 
+    /**
+     * Gets an operation option by its given name.
+     *
+     * @param name the name of the option
+     * @return the value of the option
+     */
+    default String getOption(final String name, final String defaultValue) {
+        final String rtn;
+        if (null == getOptions()) {
+            rtn = defaultValue;
+        } else {
+            rtn = getOptions().get(name);
+        }
+        return (null == rtn) ? defaultValue : rtn;
+    }
+
     @JsonGetter("options")
     default Map<String, String> _getNullOrOptions() {
         if (null == getOptions()) {

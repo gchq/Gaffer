@@ -34,6 +34,9 @@ import uk.gov.gchq.gaffer.user.User;
  * @see GraphDelegate
  */
 public class FederatedAddGraphHandler implements OperationHandler<AddGraph> {
+
+    public static final String ERROR_BUILDING_GRAPH_GRAPH_ID_S = "Error building graph. graphId: %s";
+
     @Override
     public Void doOperation(final AddGraph operation, final Context context, final Store store) throws OperationException {
         final User user = context.getUser();
@@ -43,9 +46,14 @@ public class FederatedAddGraphHandler implements OperationHandler<AddGraph> {
             throw new OperationException("User is limited to only using parentPropertiesId from the graphLibrary, but found storeProperties:" + operation.getProperties().toString());
         }
 
-        final Graph graph = GraphDelegate.createGraph(store, operation.getGraphId(),
-                operation.getSchema(), operation.getStoreProperties(),
-                operation.getParentSchemaIds(), operation.getParentPropertiesId());
+        final Graph graph;
+        try {
+            graph = GraphDelegate.createGraph(store, operation.getGraphId(),
+                    operation.getSchema(), operation.getStoreProperties(),
+                    operation.getParentSchemaIds(), operation.getParentPropertiesId());
+        } catch (final Exception e) {
+            throw new OperationException(String.format(ERROR_BUILDING_GRAPH_GRAPH_ID_S, operation.getGraphId()), e);
+        }
 
         try {
             ((FederatedStore) store).addGraphs(operation.getGraphAuths(), context.getUser().getUserId(), operation.getIsPublic(), graph);

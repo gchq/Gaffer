@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +25,7 @@ import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -59,10 +61,6 @@ public class FederatedStoreWrongGraphIDsTest {
     public void setUp() throws Exception {
         CacheServiceLoader.shutdown();
         fedProps = new FederatedStoreProperties();
-        fedProps.setGraphIds(GRAPH_1);
-        fedProps.setGraphPropId(GRAPH_1, PROP_1);
-        fedProps.setGraphSchemaId(GRAPH_1, SCHEMA_1);
-        fedProps.setTrueGraphIsPublicValue(GRAPH_1);
         fedProps.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
 
         store = new FederatedStore();
@@ -88,6 +86,7 @@ public class FederatedStoreWrongGraphIDsTest {
     @Test
     public void shouldThrowWhenWrongGraphIDOptionIsUsed() throws Exception {
         store.initialise(FED_ID, null, fedProps);
+        store.execute(new AddGraph.Builder().graphId(GRAPH_1).parentPropertiesId(PROP_1).parentSchemaIds(Lists.newArrayList(SCHEMA_1)).isPublic(true).build(), blankContext);
         final Entity expectedEntity = new Entity.Builder()
                 .group(E1_GROUP)
                 .vertex("v1")

@@ -63,7 +63,7 @@ public class FederatedStoreCacheTest {
     @Test
     public void shouldAddAndGetGraphToCache() throws CacheOperationException {
         federatedStoreCache.addGraphToCache(testGraph, null, false);
-        Graph cached = federatedStoreCache.getFromCache(MAP_ID_1);
+        Graph cached = federatedStoreCache.getGraphFromCache(MAP_ID_1);
 
         assertEquals(testGraph.getGraphId(), cached.getGraphId());
         assertEquals(testGraph.getSchema().toString(), cached.getSchema().toString());
@@ -111,6 +111,6 @@ public class FederatedStoreCacheTest {
     @Test
     public void shouldThrowExceptionIfGraphIdToGetIsNull() throws CacheOperationException {
         federatedStoreCache.addGraphToCache(testGraph, null, false);
-        assertNull(federatedStoreCache.getFromCache(null));
+        assertNull(federatedStoreCache.getGraphFromCache(null));
     }
 }

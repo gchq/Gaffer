@@ -60,7 +60,6 @@ public class FederatedStoreAuthTest {
 
         FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
         federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
-        federatedStoreProperties.setFalseSkipFailedExecution();
 
         MapStoreProperties storeProperties = new MapStoreProperties();
 
