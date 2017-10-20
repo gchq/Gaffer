@@ -409,8 +409,8 @@ public class DefaultExamplesFactory implements ExamplesFactory {
     public Sort sort() {
        final Sort sort = new Sort.Builder()
                         .comparators(new ElementPropertyComparator.Builder()
-                                .groups("entity", "edge")
-                                .property("count")
+                                .groups(getAnEdgeGroup())
+                                .property(getAnEntityPropertyName())
                                 .reverse(true)
                                 .build())
                         .resultLimit(20)
@@ -424,8 +424,8 @@ public class DefaultExamplesFactory implements ExamplesFactory {
     public Max max() {
         final Max max = new Max.Builder()
                 .comparators(new ElementPropertyComparator.Builder()
-                        .groups("entity", "edge")
-                        .property("count")
+                        .groups(getAnEdgeGroup())
+                        .property(getAnEdgePropertyName())
                         .build())
                 .build();
         return max;
@@ -435,8 +435,8 @@ public class DefaultExamplesFactory implements ExamplesFactory {
     public Min min() {
         final Min min = new Min.Builder()
                 .comparators(new ElementPropertyComparator.Builder()
-                        .groups("entity", "edge")
-                        .property("count")
+                        .groups(getAnEdgeGroup())
+                        .property(getAnEdgePropertyName())
                         .build())
                 .build();
         return min;
@@ -446,10 +446,9 @@ public class DefaultExamplesFactory implements ExamplesFactory {
     public ToMap toMap() {
         final ToMap toMap =  new ToMap.Builder()
                 .generator(new MapGenerator.Builder()
-                        .group("group")
-                        .vertex("vertex")
+                        .group(getAnEdgeGroup())
                         .source("source")
-                        .property("count", "total count")
+                        .property(getAnEdgePropertyName(), "edge property " + getAnEdgePropertyName())
                         .build())
                 .build();
         return toMap;
