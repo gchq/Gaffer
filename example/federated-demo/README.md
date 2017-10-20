@@ -38,8 +38,6 @@ To add some example data execute this json in /graph/operations/execute:
 ```json
 {
   "class" : "uk.gov.gchq.gaffer.operation.impl.add.AddElements",
-  "validate" : true,
-  "skipInvalidElements" : false,
   "input" : [ {
     "group" : "BasicEntity",
     "vertex" : "1",
@@ -57,5 +55,35 @@ To add some example data execute this json in /graph/operations/execute:
     },
     "class" : "uk.gov.gchq.gaffer.data.element.Edge"
   } ]
+}
+```
+
+Here is an example of an advanced federated operation chain:
+
+```json
+{
+   "class": "uk.gov.gchq.gaffer.operation.OperationChain",
+   "operations": [
+      {
+         "class": "uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain",
+         "operationChain": {
+            "operations": [
+               {
+                  "class": "uk.gov.gchq.gaffer.operation.impl.get.GetAllElements"
+               },
+               {
+                  "class": "uk.gov.gchq.gaffer.operation.impl.Limit",
+                  "resultLimit": 1,
+                  "truncate": true
+               }
+            ]
+         }
+      },
+      {
+         "class": "uk.gov.gchq.gaffer.operation.impl.Limit",
+         "resultLimit": 1,
+         "truncate": true
+      }
+   ]
 }
 ```

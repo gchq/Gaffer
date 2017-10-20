@@ -54,6 +54,10 @@ public class FederatedOperationChain<O_ITEM> implements Output<CloseableIterable
     private OperationChain operationChain;
     private Map<String, String> options;
 
+    public FederatedOperationChain() {
+        this(new OperationChain());
+    }
+
     public FederatedOperationChain(final Operation... operations) {
         this(new OperationChain(operations));
     }
