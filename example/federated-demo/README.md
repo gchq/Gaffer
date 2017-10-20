@@ -32,3 +32,30 @@ mvn install -Pquick -Pfederated-demo -pl :federated-demo
 If you wish to build all of Gaffer first then just remove the "-pl :federated-demo" part.
 
 The rest api will be deployed to localhost:8080/rest.
+
+To add some example data execute this json in /graph/operations/execute:
+
+```json
+{
+  "class" : "uk.gov.gchq.gaffer.operation.impl.add.AddElements",
+  "validate" : true,
+  "skipInvalidElements" : false,
+  "input" : [ {
+    "group" : "BasicEntity",
+    "vertex" : "1",
+    "properties" : {
+      "count" : 1
+    },
+    "class" : "uk.gov.gchq.gaffer.data.element.Entity"
+  }, {
+    "group" : "BasicEdge",
+    "source" : "1",
+    "destination" : "2",
+    "directed" : true,
+    "properties" : {
+      "count" : 1
+    },
+    "class" : "uk.gov.gchq.gaffer.data.element.Edge"
+  } ]
+}
+```

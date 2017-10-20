@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -24,10 +25,12 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
@@ -47,17 +50,21 @@ import java.util.Map;
  **/
 public class FederatedOperationChain<O_ITEM> implements Output<CloseableIterable<O_ITEM>>,
         Operations<OperationChain> {
+    @Required
     private OperationChain operationChain;
     private Map<String, String> options;
 
-    @JsonCreator
     public FederatedOperationChain(final Operation... operations) {
         this(new OperationChain(operations));
     }
 
-    @JsonCreator
-    public FederatedOperationChain(@JsonProperty("operationChain") final OperationChain operationChain) {
+    public FederatedOperationChain(final OperationChain operationChain) {
         setOperationChain(operationChain);
+    }
+
+    @JsonCreator
+    public FederatedOperationChain(@JsonProperty("operationChain") final OperationChainDAO operationChain) {
+        this((OperationChain) operationChain);
     }
 
     @Override
@@ -69,6 +76,15 @@ public class FederatedOperationChain<O_ITEM> implements Output<CloseableIterable
         return operationChain;
     }
 
+    @JsonGetter("operationChain")
+    OperationChainDAO getOperationChainDao() {
+        if (operationChain instanceof OperationChainDAO) {
+            return (OperationChainDAO) operationChain;
+        }
+
+        return new OperationChainDAO(operationChain);
+    }
+
     @JsonIgnore
     @Override
     public List<OperationChain> getOperations() {
@@ -76,7 +92,10 @@ public class FederatedOperationChain<O_ITEM> implements Output<CloseableIterable
     }
 
     public FederatedOperationChain<O_ITEM> shallowClone() throws CloneFailedException {
-        return new FederatedOperationChain<>(operationChain.shallowClone());
+        return new FederatedOperationChain.Builder<O_ITEM>()
+                .operationChain(operationChain.shallowClone())
+                .options(options)
+                .build();
     }
 
     @Override
