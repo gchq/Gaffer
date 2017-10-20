@@ -32,6 +32,10 @@ import static java.time.temporal.TemporalAdjusters.firstDayOfMonth;
  * Utility methods for dates and times.
  */
 public final class CommonTimeUtil {
+    public static final long MILLISECONDS_IN_SECOND = 1000L;
+    public static final long MILLISECONDS_IN_MINUTE = 60 * MILLISECONDS_IN_SECOND;
+    public static final long MILLISECONDS_IN_HOUR = 60 * MILLISECONDS_IN_MINUTE;
+    public static final long MILLISECONDS_IN_DAY = 24 * MILLISECONDS_IN_HOUR;
 
     private CommonTimeUtil() {
         // Private constructor to prevent instantiation.
@@ -87,9 +91,12 @@ public final class CommonTimeUtil {
     }
 
     /**
-     * Type representing a "bucket" of time.
+     * Type representing a "bucket" of time. Note that <code>MILLISECOND</code>
+     * is at the end as it was added later and some serialisers use the ordinal
+     * associated to the enum. Adding it at the end should avoid breaking
+     * existing serialisers.
      */
     public enum TimeBucket {
-        SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, YEAR;
+        SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, YEAR, MILLISECOND
     }
 }

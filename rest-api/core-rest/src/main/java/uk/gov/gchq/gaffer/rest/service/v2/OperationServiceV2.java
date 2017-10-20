@@ -85,9 +85,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
 
     @Override
     public ChunkedOutput<String> executeChunked(final Operation operation) {
-        return (operation instanceof OperationChain)
-                ? executeChunkedChain((OperationChain) operation)
-                : executeChunkedChain(new OperationChain(operation));
+        return executeChunkedChain(OperationChain.wrap(operation));
     }
 
     @SuppressFBWarnings
@@ -168,13 +166,7 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     @SuppressWarnings("ThrowFromFinallyBlock")
     protected <O> O _execute(final Operation operation) {
 
-        OperationChain<O> opChain;
-
-        if (!(operation instanceof OperationChain)) {
-            opChain = new OperationChain<>(operation);
-        } else {
-            opChain = (OperationChain<O>) operation;
-        }
+        OperationChain<O> opChain = (OperationChain<O>) OperationChain.wrap(operation);
 
         final Context context = userFactory.createContext();
         preOperationHook(opChain, context);

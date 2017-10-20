@@ -17,9 +17,9 @@
 package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Lists;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.GroupCounts;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -36,6 +36,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
+import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -48,6 +49,7 @@ import uk.gov.gchq.gaffer.operation.io.Output;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -61,7 +63,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class OperationChainTest extends JSONSerialisationTest<OperationChain> {
+public class OperationChainTest extends OperationsTest<OperationChain> {
     @Test
     public void shouldSerialiseAndDeserialiseOperationChain() throws SerialisationException {
         // Given
@@ -386,4 +388,22 @@ public class OperationChainTest extends JSONSerialisationTest<OperationChain> {
         return new OperationChain();
     }
 
+    @Override
+    public void shouldGetOperations() {
+        // Given
+        final List<Operation> ops = Lists.newArrayList(
+                mock(Operation.class),
+                mock(GetAllElements.class),
+                mock(Aggregate.class),
+                mock(Limit.class)
+        );
+
+        final OperationChain<Operation> opChain = new OperationChain<>(ops);
+
+        // When
+        final Collection<Operation> getOps = opChain.getOperations();
+
+        // Then
+        assertEquals(ops, getOps);
+    }
 }
