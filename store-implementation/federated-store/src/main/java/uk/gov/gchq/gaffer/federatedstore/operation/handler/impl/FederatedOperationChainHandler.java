@@ -15,98 +15,73 @@
  */
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
+import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperation;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandler;
-import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
+import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
+import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
+import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
+import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationChainHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE;
 
-public class FederatedOperationChainHandler<O> extends FederatedOperationOutputHandler<OperationChain<O>, O> {
-    private final OperationChainHandler<O> defaultHandler;
-
-    public FederatedOperationChainHandler(final OperationChainHandler<O> defaultHandler) {
-        this.defaultHandler = defaultHandler;
-    }
-
+public class FederatedOperationChainHandler<O_ITEM> implements OutputOperationHandler<FederatedOperationChain<O_ITEM>, CloseableIterable<O_ITEM>> {
     @Override
-    public O doOperation(final OperationChain<O> operationChain, final Context context, final Store store) throws OperationException {
-        if (canHandleEntireChain(operationChain)) {
-            ((OperationChainHandler) defaultHandler).prepareOperationChain(operationChain, context, store);
-            return super.doOperation(operationChain, context, store);
+    public CloseableIterable<O_ITEM> doOperation(final FederatedOperationChain<O_ITEM> operation, final Context context, final Store store) throws OperationException {
+        final Collection<Graph> graphs = ((FederatedStore) store).getGraphs(context.getUser(), operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS));
+        final List<Object> results = new ArrayList<>(graphs.size());
+        for (final Graph graph : graphs) {
+            final OperationChain updatedOp = FederatedStoreUtil.updateOperationForGraph(operation.getOperationChain(), graph);
+            if (null != updatedOp) {
+                Object result = null;
+                try {
+                    result = graph.execute(updatedOp, context.getUser());
+                } catch (final Exception e) {
+                    if (!Boolean.valueOf(updatedOp.getOption(KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
+                        throw new OperationException(FederatedStoreUtil.createOperationErrorMsg(operation, graph.getGraphId(), e), e);
+                    }
+                }
+                if (null != result) {
+                    results.add(result);
+                }
+            }
         }
-
-        return defaultHandler.doOperation(operationChain, context, store);
+        return mergeResults(results, operation, context, store);
     }
 
-    @Override
-    protected O mergeResults(final List<O> results, final OperationChain<O> operationChain, final Context context, final Store store) {
-        if (Void.class.equals(operationChain.getOutputClass())) {
+    protected CloseableIterable<O_ITEM> mergeResults(final List<Object> results, final FederatedOperationChain<O_ITEM> operation, final Context context, final Store store) {
+        if (Void.class.equals(operation.getOperationChainOutputClass())) {
             return null;
         }
 
-        // Concatenate all the results into 1 iterable
         if (results.isEmpty()) {
-            throw new IllegalArgumentException(NO_RESULTS_TO_MERGE_ERROR);
+            return new WrappedCloseableIterable<>(Collections.emptyList());
         }
-        return (O) new ChainedIterable<>(results.toArray(new Iterable[results.size()]));
-    }
 
-    protected boolean canHandleEntireChain(final OperationChain<?> operationChain) {
-        return canMergeResult(operationChain)
-                && isHandledByTheSameGraphs(operationChain)
-                && !FederatedOperation.hasFederatedOperations(operationChain);
-    }
-
-    /**
-     * Checks whether the operation chain has an output type that we can easily
-     * merge. This includes Iterables, CloseableIterables and Void outputs.
-     *
-     * @param operationChain the operation chain to check
-     * @return true if we can merge the result easily.
-     */
-    private boolean canMergeResult(final OperationChain<?> operationChain) {
-        final Class<?> outputClass = operationChain.getOutputClass();
-        return outputClass.isAssignableFrom(CloseableIterable.class)
-                || outputClass.isAssignableFrom(Iterable.class)
-                || Void.class.equals(outputClass);
-    }
-
-    /**
-     * Checks whether the operation chain is to be handled by the same graphs
-     * or whether it needs to be split up and each operation executed on different
-     * graphs.
-     *
-     * @param operationChain the operation chain to check
-     * @return true if the operation chain is handled by the same graphs.
-     */
-    private boolean isHandledByTheSameGraphs(final OperationChain<?> operationChain) {
-        return hasSameGraphIds(operationChain.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS), operationChain);
-    }
-
-    private boolean hasSameGraphIds(final String opChainGraphIds, final OperationChain<?> operationChain) {
-        boolean hasSameIds = true;
-
-        String graphIds = opChainGraphIds;
-        for (final Operation operation : operationChain.getOperations()) {
-            final String opGraphIds = operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS);
-            if (null == graphIds) {
-                graphIds = opGraphIds;
-            } else if ((null != opGraphIds && !graphIds.equals(opGraphIds))
-                    || (operation instanceof OperationChain && !hasSameGraphIds(graphIds, operationChain))) {
-                hasSameIds = false;
+        boolean areIterable = true;
+        for (final Object result : results) {
+            if (!(result instanceof Iterable)) {
+                areIterable = false;
                 break;
             }
         }
 
-        return hasSameIds;
+        if (areIterable) {
+            return new ChainedIterable<>(CollectionUtil.toIterableArray((List) results));
+        }
+
+        return new WrappedCloseableIterable(results);
     }
 }

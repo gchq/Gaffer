@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.GraphConfigEnum;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.LocationEnum;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
+import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedAggregateHandler;
@@ -45,7 +46,6 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.Graph.Builder;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
@@ -63,7 +63,6 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationChainHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -297,6 +296,8 @@ public class FederatedStore extends Store {
         addOperationHandler(GetAllGraphIds.class, new FederatedGetAllGraphIDHandler());
         addOperationHandler(AddGraph.class, new FederatedAddGraphHandler());
         addOperationHandler(RemoveGraph.class, new FederatedRemoveGraphHandler());
+
+        addOperationHandler(FederatedOperationChain.class, new FederatedOperationChainHandler());
     }
 
     @Override
@@ -322,15 +323,6 @@ public class FederatedStore extends Store {
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
         return (OperationHandler) new FederatedOperationHandler();
-    }
-
-    @Override
-    protected OperationHandler<? extends OperationChain<?>> getOperationChainHandler() {
-        final OperationHandler<? extends OperationChain> defaultHandler = super.getOperationChainHandler();
-        if (!(defaultHandler instanceof OperationChainHandler)) {
-            throw new RuntimeException("The Federated Store requires the default operation chain handler to be an instance of " + OperationChainHandler.class.getName());
-        }
-        return new FederatedOperationChainHandler<>((OperationChainHandler) defaultHandler);
     }
 
     @Override
