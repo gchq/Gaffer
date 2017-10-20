@@ -16,20 +16,24 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
+import uk.gov.gchq.gaffer.federatedstore.PredefinedFederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.integration.FederatedStoreITs;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -43,17 +47,19 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.predicate.IsTrue;
 
 import java.util.Arrays;
+import java.util.Collections;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 
 public class FederatedOperationChainHandlerTest {
 
+    public static final String GRAPH_IDS = PredefinedFederatedStore.MAP_GRAPH + "," + PredefinedFederatedStore.ACCUMULO_GRAPH;
     private Element[] elements = new Element[]{
             new Entity.Builder()
                     .group(TestGroups.ENTITY)
                     .vertex("1")
-                    .build(),
-            new Entity.Builder()
-                    .group(TestGroups.ENTITY)
-                    .vertex("2")
                     .build(),
             new Edge.Builder()
                     .group(TestGroups.EDGE)
@@ -61,26 +67,159 @@ public class FederatedOperationChainHandlerTest {
                     .dest("2")
                     .directed(true)
                     .build()
-    };;
+    };
+
+    private Element[] elements2 = new Element[]{
+            new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex("2")
+                    .build(),
+            new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("2")
+                    .dest("3")
+                    .directed(true)
+                    .build()
+    };
+
 
     @Test
-    public void shouldHandleChain() throws OperationException {
+    public void shouldHandleChainWithoutSpecialFederation() throws OperationException {
         // Given
         final FederatedStore store = createStore();
         final Context context = new Context();
 
-        final FederatedOperationChain<Iterable<? extends Element>> opChain = new FederatedOperationChain<>(
+        final OperationChain<Iterable<? extends Element>> opChain =
                 new OperationChain.Builder()
-                        .first(new GetAllElements())
-                        .then(new Limit<>(10))
-                        .build()
-        );
+                        .first(new GetAllElements.Builder()
+                                // Ensure the elements are returned form the graphs in the right order
+                                .option(KEY_OPERATION_OPTIONS_GRAPH_IDS, GRAPH_IDS)
+                                .build())
+                        .then(new Limit<>(1))
+                        .build();
 
         // When
         final Iterable result = store.execute(opChain, context);
 
+        // Then - the result will contain just 1 element from the first graph
+        ElementUtil.assertElementEquals(Collections.singletonList(elements[0]), result);
+    }
+
+    @Test
+    public void shouldHandleChainWithIterableOutput() throws OperationException {
+        // Given
+        final FederatedStore store = createStore();
+        final Context context = new Context();
+
+        final FederatedOperationChain<Element> opChain = new FederatedOperationChain.Builder<Element>()
+                .operationChain(
+                        new OperationChain.Builder()
+                                .first(new GetAllElements())
+                                .then(new Limit<>(1))
+                                .build())
+                .option(KEY_OPERATION_OPTIONS_GRAPH_IDS, GRAPH_IDS)
+                .build();
+
+        // When
+        final Iterable result = store.execute(opChain, context);
+
+        // Then - the result will contain 2 elements - 1 from each graph
+        ElementUtil.assertElementEquals(Arrays.asList(elements[0], elements[1]), result);
+    }
+
+    @Test
+    public void shouldHandleChainWithNoOutput() throws OperationException {
+        // Given
+        final FederatedStore store = createStore();
+        final Context context = new Context();
+
+
+        final FederatedOperationChain<Void> opChain = new FederatedOperationChain.Builder<Void>()
+                .operationChain(
+                        new OperationChain.Builder()
+                                .first(new AddElements.Builder()
+                                        .input(elements2)
+                                        .build())
+                                .build())
+                .option(KEY_OPERATION_OPTIONS_GRAPH_IDS, GRAPH_IDS)
+                .build();
+        // When
+        final Iterable result = store.execute(opChain, context);
+
         // Then
-        ElementUtil.assertElementEquals(Arrays.asList(elements), result);
+        assertNull(result);
+        final CloseableIterable<? extends Element> allElements = store.execute(new GetAllElements(), context);
+        ElementUtil.assertElementEquals(
+                Arrays.asList(elements[0], elements[1], elements2[0], elements2[1]), allElements);
+    }
+
+    @Test
+    public void shouldHandleChainWithLongOutput() throws OperationException {
+        // Given
+        final FederatedStore store = createStore();
+        final Context context = new Context();
+
+
+        final FederatedOperationChain<Long> opChain = new FederatedOperationChain.Builder<Long>()
+                .operationChain(
+                        new OperationChain.Builder()
+                                .first(new GetAllElements())
+                                .then(new Count<>())
+                                .build())
+                .option(KEY_OPERATION_OPTIONS_GRAPH_IDS, GRAPH_IDS)
+                .build();
+        // When
+        final Iterable result = store.execute(opChain, context);
+
+        // Then
+        assertEquals(Lists.newArrayList(1L, 1L), Lists.newArrayList(result));
+    }
+
+    @Test
+    public void shouldHandleChainNestedInsideAnOperationChain() throws OperationException {
+        // Given
+        final FederatedStore store = createStore();
+        final Context context = new Context();
+
+        final OperationChain<CloseableIterable<Element>> opChain = new OperationChain.Builder()
+                .first(new FederatedOperationChain.Builder<Element>()
+                        .operationChain(new OperationChain.Builder()
+                                .first(new GetAllElements())
+                                .then(new Limit<>(1))
+                                .build())
+                        .option(KEY_OPERATION_OPTIONS_GRAPH_IDS, GRAPH_IDS)
+                        .build())
+                .build();
+
+        // When
+        final Iterable result = store.execute(opChain, context);
+
+        // Then - the result will contain 2 elements - 1 from each graph
+        ElementUtil.assertElementEquals(Arrays.asList(elements[0], elements[1]), result);
+    }
+
+    @Test
+    public void shouldHandleChainWithExtraLimit() throws OperationException {
+        // Given
+        final FederatedStore store = createStore();
+        final Context context = new Context();
+
+        final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
+                .first(new FederatedOperationChain.Builder<Element>()
+                        .operationChain(new OperationChain.Builder()
+                                .first(new GetAllElements())
+                                .then(new Limit<>(1))
+                                .build())
+                        .option(KEY_OPERATION_OPTIONS_GRAPH_IDS, GRAPH_IDS)
+                        .build())
+                .then(new Limit<>(1))
+                .build();
+
+        // When
+        final Iterable result = store.execute(opChain, context);
+
+        // Then - the result will contain 1 element from the first graph
+        ElementUtil.assertElementEquals(Collections.singletonList(elements[0]), result);
     }
 
     private FederatedStore createStore() throws OperationException {
@@ -107,12 +246,10 @@ public class FederatedOperationChainHandlerTest {
 
         final Context context = new Context();
 
-        store.execute(
-                new FederatedOperationChain<>(
-                        new AddElements.Builder()
-                                .input(elements)
-                                .build()),
-                context
-        ); return store;
+        store.execute(new AddElements.Builder()
+                .input(elements)
+                .build(), context);
+
+        return store;
     }
 }

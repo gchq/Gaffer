@@ -194,6 +194,7 @@ public class OperationChain<OUT> implements Output<OUT>,
 
             isEqual = new EqualsBuilder()
                     .append(this.getOperations(), that.getOperations())
+                    .append(options, that.options)
                     .isEquals();
         }
         return isEqual;
@@ -203,6 +204,7 @@ public class OperationChain<OUT> implements Output<OUT>,
     public int hashCode() {
         return new HashCodeBuilder(17, 21)
                 .append(operations)
+                .append(options)
                 .toHashCode();
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,27 +16,48 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.Operations;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
+/**
+ * <p>
+ * An {@code FederatedOperationChain} holds an {@link OperationChain} that will
+ * be executed in one go on the federated graphs.
+ * </p>
+ *
+ * @param <O_ITEM> the output iterable type of the {@code FederatedOperationChain}.
+ **/
+public class FederatedOperationChain<O_ITEM> implements Output<CloseableIterable<O_ITEM>>,
+        Operations<OperationChain> {
+    private OperationChain operationChain;
+    private Map<String, String> options;
 
-public class FederatedOperationChain<O_ITEM> extends OperationChain<CloseableIterable<O_ITEM>> {
-    public FederatedOperationChain(final Operation operation) {
-        this(OperationChain.wrap(operation));
+    @JsonCreator
+    public FederatedOperationChain(final Operation... operations) {
+        this(new OperationChain(operations));
     }
 
-    public FederatedOperationChain(final OperationChain<?> operationChain) {
-        super(operationChain.getOperations());
-        setOptions(operationChain.getOptions());
+    @JsonCreator
+    public FederatedOperationChain(@JsonProperty("operationChain") final OperationChain operationChain) {
+        setOperationChain(operationChain);
     }
 
     @Override
@@ -44,38 +65,85 @@ public class FederatedOperationChain<O_ITEM> extends OperationChain<CloseableIte
         return (TypeReference) new TypeReferenceImpl.CloseableIterableObj();
     }
 
-    @JsonIgnore
-    public TypeReference<CloseableIterable<O_ITEM>> getOperationChainOutputTypeReference() {
-        return super.getOutputTypeReference();
+    public OperationChain getOperationChain() {
+        return operationChain;
     }
 
     @JsonIgnore
-    public Class<?> getOperationChainOutputClass() {
-        Class<?> outputClass = Object.class;
+    @Override
+    public List<OperationChain> getOperations() {
+        return Collections.singletonList(operationChain);
+    }
 
-        final TypeReference outputType = getOperationChainOutputTypeReference();
-        if (null != outputType) {
-            Type type = outputType.getType();
-            if (type instanceof ParameterizedType) {
-                type = ((ParameterizedType) type).getRawType();
-            }
-            if (type instanceof Class) {
-                outputClass = (Class) type;
-            }
-        }
-
-        return outputClass;
+    public FederatedOperationChain<O_ITEM> shallowClone() throws CloneFailedException {
+        return new FederatedOperationChain<>(operationChain.shallowClone());
     }
 
     @Override
-    public FederatedOperationChain<O_ITEM> shallowClone() throws CloneFailedException {
-        return new FederatedOperationChain<>(super.shallowClone());
+    public Map<String, String> getOptions() {
+        return options;
     }
 
-    @JsonIgnore
-    public OperationChain<?> getOperationChain() {
-        final OperationChain<?> opChain = new OperationChain<>(getOperations());
-        opChain.setOptions(getOptions());
-        return opChain;
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
+    private void setOperationChain(final OperationChain operationChain) {
+        if (null == operationChain) {
+            throw new IllegalArgumentException("operationChain is required");
+        }
+        this.operationChain = operationChain;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("operationChain", operationChain)
+                .build();
+    }
+
+    @Override
+    public void close() throws IOException {
+        operationChain.close();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final FederatedOperationChain<?> federatedOperationChain = (FederatedOperationChain<?>) obj;
+
+        return new EqualsBuilder()
+                .append(operationChain, federatedOperationChain.operationChain)
+                .append(options, federatedOperationChain.options)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(13, 23)
+                .append(operationChain)
+                .append(options)
+                .toHashCode();
+    }
+
+    public static class Builder<O_ITEM> extends
+            Operation.BaseBuilder<FederatedOperationChain<O_ITEM>, Builder<O_ITEM>>
+            implements Output.Builder<FederatedOperationChain<O_ITEM>, CloseableIterable<O_ITEM>, Builder<O_ITEM>> {
+        public Builder() {
+            super(new FederatedOperationChain<>(new OperationChain()));
+        }
+
+        public Builder<O_ITEM> operationChain(final OperationChain operationChain) {
+            _getOp().setOperationChain(operationChain);
+            return this;
+        }
     }
 }

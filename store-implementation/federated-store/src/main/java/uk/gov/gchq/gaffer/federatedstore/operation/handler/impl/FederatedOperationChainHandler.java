@@ -62,7 +62,7 @@ public class FederatedOperationChainHandler<O_ITEM> implements OutputOperationHa
     }
 
     protected CloseableIterable<O_ITEM> mergeResults(final List<Object> results, final FederatedOperationChain<O_ITEM> operation, final Context context, final Store store) {
-        if (Void.class.equals(operation.getOperationChainOutputClass())) {
+        if (Void.class.equals(operation.getOperationChain().getOutputClass())) {
             return null;
         }
 
