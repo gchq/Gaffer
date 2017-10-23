@@ -32,12 +32,16 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE;
@@ -290,5 +294,30 @@ public class FederatedGraphStorageTest {
         graphStorage.put(a, access);
         final boolean remove = graphStorage.remove(GRAPH_ID, blankUser);
         assertFalse(remove);
+    }
+
+    @Test
+    public void shouldGetGraphsInOrder() throws Exception {
+        // Given
+        graphStorage.put(a, access);
+        graphStorage.put(b, access);
+        final List<String> configAB = Arrays.asList(a.getGraphId(), b.getGraphId());
+        final List<String> configBA = Arrays.asList(b.getGraphId(), a.getGraphId());
+
+        // When
+        final Collection<Graph> graphsAB = graphStorage.get(authUser, configAB);
+        final Collection<Graph> graphsBA = graphStorage.get(authUser, configBA);
+
+        // Then
+        // A B
+        final Iterator<Graph> itrAB = graphsAB.iterator();
+        assertSame(a, itrAB.next());
+        assertSame(b, itrAB.next());
+        assertFalse(itrAB.hasNext());
+        // B A
+        final Iterator<Graph> itrBA = graphsBA.iterator();
+        assertSame(b, itrBA.next());
+        assertSame(a, itrBA.next());
+        assertFalse(itrBA.hasNext());
     }
 }

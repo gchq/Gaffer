@@ -23,10 +23,10 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.GraphConfigEnum;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.LocationEnum;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
+import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedAggregateHandler;
@@ -41,13 +41,13 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAdja
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllElementsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllGraphIDHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetElementsHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationChainHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.Graph.Builder;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
@@ -77,7 +77,6 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -106,6 +105,7 @@ public class FederatedStore extends Store {
     public static final GraphConfigEnum PROPERTIES = GraphConfigEnum.PROPERTIES;
     public static final LocationEnum ID = LocationEnum.ID;
     public static final LocationEnum FILE = LocationEnum.FILE;
+
     private FederatedGraphStorage graphStorage = new FederatedGraphStorage();
     private Set<String> customPropertiesAuths;
     public Boolean isPublicAccessAllowed = Boolean.valueOf(IS_PUBLIC_ACCESS_ALLOWED_DEFAULT);
@@ -153,26 +153,11 @@ public class FederatedStore extends Store {
      * @param graph     current graph
      * @param <OP>      Operation type
      * @return cloned operation with modified View for the given graph.
+     * @deprecated see {@link FederatedStoreUtil#updateOperationForGraph(Operation, Graph)}
      */
+    @Deprecated
     public static <OP extends Operation> OP updateOperationForGraph(final OP operation, final Graph graph) {
-        OP resultOp = operation;
-
-        if (operation instanceof OperationView) {
-            final View view = ((OperationView) operation).getView();
-            if (null != view && view.hasGroups()) {
-                resultOp = (OP) operation.shallowClone();
-                final View validView = createValidView(view, graph.getSchema());
-                if (validView.hasGroups()) {
-                    ((OperationView) resultOp).setView(validView);
-                } else {
-                    resultOp = null;
-                }
-            }
-        } else if (operation instanceof AddElements) {
-            resultOp = (OP) operation.shallowClone();
-        }
-
-        return resultOp;
+        return FederatedStoreUtil.updateOperationForGraph(operation, graph);
     }
 
     /**
@@ -324,6 +309,8 @@ public class FederatedStore extends Store {
         addOperationHandler(GetAllGraphIds.class, new FederatedGetAllGraphIDHandler());
         addOperationHandler(AddGraph.class, new FederatedAddGraphHandler());
         addOperationHandler(RemoveGraph.class, new FederatedRemoveGraphHandler());
+
+        addOperationHandler(FederatedOperationChain.class, new FederatedOperationChainHandler());
     }
 
     @Override
@@ -348,7 +335,7 @@ public class FederatedStore extends Store {
 
     @Override
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
-        return new FederatedOperationAddElementsHandler();
+        return (OperationHandler) new FederatedOperationHandler();
     }
 
     @Override
@@ -360,33 +347,6 @@ public class FederatedStore extends Store {
     protected Object doUnhandledOperation(final Operation operation,
                                           final Context context) {
         throw new UnsupportedOperationException();
-    }
-
-    private static View createValidView(final View view, final Schema delegateGraphSchema) {
-        View newView;
-        if (view.hasGroups()) {
-            final View.Builder viewBuilder = new View.Builder().merge(view);
-            viewBuilder.entities(new LinkedHashMap<>());
-            viewBuilder.edges(new LinkedHashMap<>());
-
-            final Set<String> validEntities = new HashSet<>(view.getEntityGroups());
-            final Set<String> validEdges = new HashSet<>(view.getEdgeGroups());
-            validEntities.retainAll(delegateGraphSchema.getEntityGroups());
-            validEdges.retainAll(delegateGraphSchema.getEdgeGroups());
-
-            for (final String entity : validEntities) {
-                viewBuilder.entity(entity, view.getEntity(entity));
-            }
-
-            for (final String edge : validEdges) {
-                viewBuilder.edge(edge, view.getEdge(edge));
-            }
-
-            newView = viewBuilder.build();
-        } else {
-            newView = view;
-        }
-        return newView;
     }
 
     private void loadCustomPropertiesAuths() {

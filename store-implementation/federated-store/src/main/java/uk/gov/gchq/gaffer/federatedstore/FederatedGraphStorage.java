@@ -32,6 +32,7 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -96,7 +97,7 @@ public class FederatedGraphStorage {
     public Collection<String> getAllIds(final User user) {
         final Set<String> rtn = getAllStream(user)
                 .map(Graph::getGraphId)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toCollection(LinkedHashSet::new));
 
         return Collections.unmodifiableSet(rtn);
     }
@@ -109,7 +110,7 @@ public class FederatedGraphStorage {
      */
     public Collection<Graph> getAll(final User user) {
         final Set<Graph> rtn = getAllStream(user)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toCollection(LinkedHashSet::new));
         return Collections.unmodifiableCollection(rtn);
     }
 
@@ -149,13 +150,17 @@ public class FederatedGraphStorage {
      * @param graphIds the graphIds to get graphs for.
      * @return visible graphs from the given graphIds.
      */
-    public Collection<Graph> get(final User user, final Collection<String> graphIds) {
+    public Collection<Graph> get(final User user, final List<String> graphIds) {
         if (null == user) {
             return Collections.emptyList();
         }
 
         validateAllGivenGraphIdsAreVisibleForUser(user, graphIds);
-        final Set<Graph> rtn = getStream(user, graphIds).collect(Collectors.toSet());
+        Stream<Graph> graphs = getStream(user, graphIds);
+        if (null != graphIds) {
+            graphs = graphs.sorted((g1, g2) -> graphIds.indexOf(g1.getGraphId()) - graphIds.indexOf(g2.getGraphId()));
+        }
+        final Set<Graph> rtn = graphs.collect(Collectors.toCollection(LinkedHashSet::new));
         return Collections.unmodifiableCollection(rtn);
     }
 

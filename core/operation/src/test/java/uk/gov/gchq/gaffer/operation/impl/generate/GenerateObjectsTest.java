@@ -45,6 +45,15 @@ public class GenerateObjectsTest extends OperationTest<GenerateObjects> {
     }
 
     @Test
+    public void shouldGetOutputClass() {
+        // When
+        final Class<?> outputClass = getTestObject().getOutputClass();
+
+        // Then
+        assertEquals(Iterable.class, outputClass);
+    }
+
+    @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final List<Element> elements = Arrays.asList(

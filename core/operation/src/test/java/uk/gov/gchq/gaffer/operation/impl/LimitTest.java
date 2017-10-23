@@ -74,6 +74,15 @@ public class LimitTest extends OperationTest<Limit> {
         assertFalse(clone.getTruncate());
     }
 
+    @Test
+    public void shouldGetOutputClass() {
+        // When
+        final Class<?> outputClass = getTestObject().getOutputClass();
+
+        // Then
+        assertEquals(Iterable.class, outputClass);
+    }
+
     @Override
     protected Limit getTestObject() {
         return new Limit();

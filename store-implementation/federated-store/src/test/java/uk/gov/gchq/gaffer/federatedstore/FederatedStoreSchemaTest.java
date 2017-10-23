@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
@@ -79,7 +80,7 @@ public class FederatedStoreSchemaTest {
 
         library.addSchema(aSchema);
 
-        fStore.execute(Operation.asOperationChain(
+        fStore.execute(OperationChain.wrap(
                 new AddGraph.Builder()
                         .graphId("a")
                         .parentPropertiesId("accProp")
