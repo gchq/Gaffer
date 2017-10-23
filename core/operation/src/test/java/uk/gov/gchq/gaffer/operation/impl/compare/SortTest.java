@@ -98,6 +98,15 @@ public class SortTest extends OperationTest<Sort> {
         assertTrue(clone.getResultLimit().equals(resultLimit));
     }
 
+    @Test
+    public void shouldGetOutputClass() {
+        // When
+        final Class<?> outputClass = getTestObject().getOutputClass();
+
+        // Then
+        assertEquals(Iterable.class, outputClass);
+    }
+
     @Override
     protected Sort getTestObject() {
         return new Sort();

@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.operation.impl;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.data.GroupCounts;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
@@ -66,6 +67,15 @@ public class CountGroupsTest extends OperationTest<CountGroups> {
         assertNotSame(countGroups, clone);
         assertEquals(limit, (int) clone.getLimit());
         assertEquals(input, clone.getInput().iterator().next());
+    }
+
+    @Test
+    public void shouldGetOutputClass() {
+        // When
+        final Class<?> outputClass = getTestObject().getOutputClass();
+
+        // Then
+        assertEquals(GroupCounts.class, outputClass);
     }
 
     @Override

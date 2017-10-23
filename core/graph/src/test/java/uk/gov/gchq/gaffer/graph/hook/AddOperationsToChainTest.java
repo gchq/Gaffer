@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.TestUnmodifiableOperationsImpl;
 import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
@@ -39,6 +40,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -322,6 +324,42 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
                         .then(limit)
                         .then(validate)
                         .build())
+                .then(count)
+                .build();
+        JsonAssert.assertEquals(JSONSerialiser.serialise(expectedOpChain), JSONSerialiser.serialise(opChain));
+    }
+
+    @Test
+    public void shouldFailQuietlyIfNestedOperationsCannotBeModified() throws SerialisationException {
+        // Given
+        AddOperationsToChain hook = fromJson(ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH);
+
+        Operation discardOutput = new DiscardOutput();
+        Operation splitStore = new SplitStore();
+        Operation validate = new Validate();
+        Operation getAdjacentIds = new GetAdjacentIds();
+        Operation count = new Count<>();
+        Operation getElements = new GetElements();
+        Operation getAllElements = new GetAllElements();
+        TestUnmodifiableOperationsImpl nestedUnmodifiableOps = new TestUnmodifiableOperationsImpl(Arrays.asList(getAllElements, getElements));
+
+        final OperationChain opChain = new OperationChain.Builder()
+                .first(getAdjacentIds)
+                .then(nestedUnmodifiableOps)
+                .build();
+
+        // When
+        hook.preExecute(opChain, new Context(new User()));
+
+        // Then
+        final OperationChain expectedOpChain = new OperationChain.Builder()
+                .first(discardOutput)
+                .then(splitStore)
+                .then(validate)
+                .then(getAdjacentIds)
+                .then(count)
+                .then(discardOutput)
+                .then(nestedUnmodifiableOps)
                 .then(count)
                 .build();
         JsonAssert.assertEquals(JSONSerialiser.serialise(expectedOpChain), JSONSerialiser.serialise(opChain));

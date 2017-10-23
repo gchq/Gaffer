@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.export.resultcache;
 
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
@@ -74,6 +75,15 @@ public class GetGafferResultCacheExportTest extends OperationTest<GetGafferResul
         assertNotSame(getGafferResultCacheExport, clone);
         assertEquals(key, clone.getKey());
         assertEquals(jobId, clone.getJobId());
+    }
+
+    @Test
+    public void shouldGetOutputClass() {
+        // When
+        final Class<?> outputClass = getTestObject().getOutputClass();
+
+        // Then
+        assertEquals(CloseableIterable.class, outputClass);
     }
 
     @Override

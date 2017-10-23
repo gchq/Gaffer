@@ -20,6 +20,8 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
+import java.util.List;
+
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
@@ -57,6 +59,15 @@ public class ToListTest extends OperationTest<ToList> {
         // Then
         assertNotSame(toList, clone);
         assertEquals(input, clone.getInput().iterator().next());
+    }
+
+    @Test
+    public void shouldGetOutputClass() {
+        // When
+        final Class<?> outputClass = getTestObject().getOutputClass();
+
+        // Then
+        assertEquals(List.class, outputClass);
     }
 
     @Override
