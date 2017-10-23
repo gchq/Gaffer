@@ -55,9 +55,11 @@ public class GetGraphFrameOfElementsHandlerTest {
         final Graph graph = getGraph("/schema-GraphFrame/elements.json", getElements());
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
-        // Edges group - check get correct edges
         final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
-                .view(new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build())
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE)
+                        .entity(TestGroups.ENTITY)
+                        .build())
                 .build();
         final GraphFrame graphFrame = graph.execute(gfOperation, new User());
 
@@ -217,5 +219,4 @@ public class GetGraphFrameOfElementsHandlerTest {
         }
         return elements;
     }
-
 }

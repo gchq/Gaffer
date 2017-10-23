@@ -49,83 +49,6 @@ public class PageRankHandlerTest {
     private static final String EDGE_GROUP = "BasicEdge";
     private static final String EDGE_GROUP2 = "BasicEdge2";
 
-    @Test
-    public void checkGetCorrectElementsInGraphFrame() throws OperationException {
-        final Graph graph = getGraph("/schema-GraphFrame/elements.json", getElements());
-        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
-
-        // Edges group - check get correct edges
-        GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
-                .view(new View.Builder().edge(EDGE_GROUP).entity(ENTITY_GROUP).build())
-                .build();
-
-        final PageRank pageRank = new PageRank.Builder().maxIterations(20).build();
-
-        final OperationChain<GraphFrame> opChain = new OperationChain.Builder().first(gfOperation).then(pageRank).build();
-
-        final GraphFrame result = graph.execute(opChain, new User());
-
-        final Map<String, Double> map = result.vertices()
-                .javaRDD()
-                .map(r -> r.mkString(",").replaceAll("(BasicEntity,)|(null,null,)", ""))
-                .collect()
-                .stream()
-                .collect(Collectors.toMap(str -> str.substring(0, 1), str -> Double.parseDouble(str.substring(2))));
-
-        assertEquals(1.49, map.get("a"), 1E-1);
-        assertEquals(0.78, map.get("b"), 1E-1);
-        assertEquals(1.58, map.get("c"), 1E-1);
-        assertEquals(0.15, map.get("d"), 1E-1);
-    }
-
-    @Test
-    public void checkGetCorrectElementsInGraphFrameWithMultipleEntityTypes() throws OperationException {
-        final Graph graph = getGraph("/schema-GraphFrame/elements.json", getElementsWithMultipleEntityTypes());
-        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
-
-        // Edges group - check get correct edges
-        GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
-                .view(new View.Builder()
-                        .edge(EDGE_GROUP)
-                        .entity(ENTITY_GROUP)
-                        .build())
-                .build();
-
-        final PageRank pageRank = new PageRank.Builder()
-                .maxIterations(20)
-                .build();
-
-        final OperationChain<GraphFrame> opChain = new OperationChain.Builder()
-                .first(gfOperation).then(pageRank).build();
-
-        final GraphFrame result = graph.execute(opChain, new User());
-
-        final Map<String, Double> map = result.vertices()
-                .javaRDD()
-                .map(r -> r.mkString(",").replaceAll("(BasicEntity,)|(null,null,)", ""))
-                .collect()
-                .stream()
-                .collect(Collectors.toMap(str -> str.substring(0, 1), str -> Double.parseDouble(str.substring(2))));
-
-        assertEquals(1.49, map.get("a"), 1E-1);
-        assertEquals(0.78, map.get("b"), 1E-1);
-        assertEquals(1.58, map.get("c"), 1E-1);
-        assertEquals(0.15, map.get("d"), 1E-1);
-    }
-
-    private Graph getGraph(final String elementsSchema, final List<Element> elements) throws OperationException {
-        final Graph graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("graphId")
-                        .build())
-                .addSchema(getClass().getResourceAsStream(elementsSchema))
-                .addSchema(getClass().getResourceAsStream("/schema-GraphFrame/types.json"))
-                .storeProperties(getClass().getResourceAsStream("/store.properties"))
-                .build();
-        graph.execute(new AddElements.Builder().input(elements).build(), new User());
-        return graph;
-    }
-
     static List<Element> getElements() {
         final List<String> names = Lists.newArrayList("Alice", "Bob", "Charlie", "David");
         final List<Element> elements = new ArrayList<>();
@@ -211,5 +134,87 @@ public class PageRankHandlerTest {
         elements.addAll(edges);
 
         return elements;
+    }
+
+    @Test
+    public void checkGetCorrectElementsInGraphFrame() throws OperationException {
+        final Graph graph = getGraph("/schema-GraphFrame/elements.json", getElements());
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
+
+        final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
+                .view(new View.Builder().edge(EDGE_GROUP).entity(ENTITY_GROUP).build())
+                .build();
+
+        final PageRank pageRank = new PageRank.Builder()
+                .maxIterations(20)
+                .build();
+
+        final OperationChain<GraphFrame> opChain = new OperationChain.Builder()
+                .first(gfOperation)
+                .then(pageRank)
+                .build();
+
+        final GraphFrame result = graph.execute(opChain, new User());
+
+        final Map<String, Double> map = result.vertices()
+                .javaRDD()
+                .map(r -> r.mkString(",").replaceAll("(BasicEntity,)|(null,null,)", ""))
+                .collect()
+                .stream()
+                .collect(Collectors.toMap(str -> str.substring(0, 1), str -> Double.parseDouble(str.substring(2))));
+
+        assertEquals(1.49, map.get("a"), 1E-1);
+        assertEquals(0.78, map.get("b"), 1E-1);
+        assertEquals(1.58, map.get("c"), 1E-1);
+        assertEquals(0.15, map.get("d"), 1E-1);
+    }
+
+    @Test
+    public void checkGetCorrectElementsInGraphFrameWithMultipleEntityTypes() throws OperationException {
+        final Graph graph = getGraph("/schema-GraphFrame/elements.json", getElementsWithMultipleEntityTypes());
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
+
+        final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
+                .view(new View.Builder()
+                        .edge(EDGE_GROUP)
+                        .entity(ENTITY_GROUP)
+                        .build())
+                .build();
+
+        final PageRank pageRank = new PageRank.Builder()
+                .maxIterations(20)
+                .build();
+
+        final OperationChain<GraphFrame> opChain = new OperationChain.Builder()
+                .first(gfOperation)
+                .then(pageRank)
+                .build();
+
+        final GraphFrame result = graph.execute(opChain, new User());
+
+        final Map<String, Double> map = result.vertices()
+                .javaRDD()
+                .map(r -> r.mkString(",").replaceAll("(BasicEntity,)|(null,null,)", ""))
+                .collect()
+                .stream()
+                .collect(Collectors.toMap(str -> str.substring(0, 1), str -> Double.parseDouble(str.substring(2))));
+
+        assertEquals(1.49, map.get("a"), 1E-1);
+        assertEquals(0.78, map.get("b"), 1E-1);
+        assertEquals(1.58, map.get("c"), 1E-1);
+        assertEquals(0.15, map.get("d"), 1E-1);
+    }
+
+    private Graph getGraph(final String elementsSchema, final List<Element> elements) throws OperationException {
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("graphId")
+                        .build())
+                .addSchema(getClass().getResourceAsStream(elementsSchema))
+                .addSchema(getClass().getResourceAsStream("/schema-GraphFrame/types.json"))
+                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .build();
+        graph.execute(new AddElements.Builder().input(elements).build(), new User());
+        return graph;
     }
 }

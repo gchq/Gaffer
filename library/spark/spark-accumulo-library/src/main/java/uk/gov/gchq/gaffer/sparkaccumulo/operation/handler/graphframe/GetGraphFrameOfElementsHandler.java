@@ -18,12 +18,15 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.graphframe;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.expressions.Window;
 import org.apache.spark.sql.functions;
 import org.graphframes.GraphFrame;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.spark.SparkContextUtil;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.spark.operation.graphframe.GetGraphFrameOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe.AccumuloStoreRelation;
 import uk.gov.gchq.gaffer.store.Context;
@@ -55,29 +58,26 @@ public class GetGraphFrameOfElementsHandler implements OutputOperationHandler<Ge
 
     public GraphFrame doOperation(final GetGraphFrameOfElements operation, final Context context,
                                   final AccumuloStore store) throws OperationException {
-        final Map<String, String> operationOptions;
-        if (operation.getOptions() != null) {
-            operationOptions = operation.getOptions();
-        } else {
-            operationOptions = new HashMap<>();
-        }
-        final AccumuloStoreRelation relation = new AccumuloStoreRelation(context,
-                operation.getConverters(),
-                operation.getView(),
-                store,
-                operationOptions);
 
-        final Dataset<Row> elements = relation.sqlContext().baseRelationToDataFrame(relation);
+        final GetDataFrameOfElements getDataFrame = new GetDataFrameOfElements.Builder()
+                .converters(operation.getConverters())
+                .view(operation.getView())
+                .options(operation.getOptions())
+                .build();
+
+        final Dataset<Row> elements = store.execute(getDataFrame, context);
 
         elements.createOrReplaceTempView("elements");
 
         final String edgeGroups = groupsToString(operation.getView().getEdgeGroups());
         final String entityGroups = groupsToString(operation.getView().getEntityGroups());
 
-        final Dataset<Row> edges = relation.sqlContext().sql("select * from elements where group in " + edgeGroups)
+        final SparkSession sparkSession = SparkContextUtil.getSparkSession(context, store.getProperties());
+
+        final Dataset<Row> edges = sparkSession.sql("select * from elements where group in " + edgeGroups)
                 .withColumn("id", functions.row_number().over(Window.orderBy("group").partitionBy("group")));
 
-        final Dataset<Row> entities = relation.sqlContext().sql("select * from elements where group in " + entityGroups);
+        final Dataset<Row> entities = sparkSession.sql("select * from elements where group in " + entityGroups);
 
         return GraphFrame.apply(entities.withColumnRenamed("vertex", "id"), edges);
     }
