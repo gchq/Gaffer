@@ -25,7 +25,6 @@ import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
-import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -68,6 +67,7 @@ import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.TEST_USER;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.blankUser;
 import static uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandler.NO_RESULTS_TO_MERGE_ERROR;
+import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
 
@@ -134,7 +134,7 @@ public class FederatedStoreTest {
         assertEquals("Library has changed: " + ID_PROPS_MAP, library.getProperties(ID_PROPS_MAP), getPropertiesFromPath(PATH_MAP_STORE_PROPERTIES));
         assertEquals("Library has changed: " + ID_PROPS_MAP_ALT, library.getProperties(ID_PROPS_MAP_ALT), getPropertiesFromPath(PATH_MAP_STORE_PROPERTIES_ALT));
         assertEquals("Library has changed: " + ID_SCHEMA_EDGE, new String(library.getSchema(ID_SCHEMA_EDGE).toJson(false), CommonConstants.UTF_8), new String(getSchemaFromPath(PATH_BASIC_EDGE_SCHEMA_JSON).toJson(false), CommonConstants.UTF_8));
-        assertTrue("Library has changed: " + ID_SCHEMA_ENTITY, JsonUtil.equals(library.getSchema(ID_SCHEMA_ENTITY).toJson(false), getSchemaFromPath(PATH_BASIC_ENTITY_SCHEMA_JSON).toJson(false)));
+        assertEquals("Library has changed: " + ID_SCHEMA_ENTITY, new String(library.getSchema(ID_SCHEMA_ENTITY).toJson(false), CommonConstants.UTF_8), new String(getSchemaFromPath(PATH_BASIC_ENTITY_SCHEMA_JSON).toJson(false), CommonConstants.UTF_8));
     }
 
     @Test
@@ -189,8 +189,8 @@ public class FederatedStoreTest {
                     .parentSchemaIds(schemas)
                     .build(), userContext);
             fail("a graph was created without a defined properties");
-        } catch (final IllegalArgumentException e) {
-            assertContains(e, STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S, INVALID);
+        } catch (final Exception e) {
+            assertContains(e.getCause(), GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S, MAP_ID_1, "StoreProperties");
         }
     }
 
@@ -204,8 +204,8 @@ public class FederatedStoreTest {
                     .parentPropertiesId(ID_PROPS_MAP)
                     .build(), userContext);
             fail("a graph was created without a defined schema");
-        } catch (final IllegalArgumentException e) {
-            assertContains(e, STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S, INVALID);
+        } catch (final Exception e) {
+            assertContains(e.getCause(), GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S, MAP_ID_1, "Schema");
         }
     }
 
@@ -539,7 +539,6 @@ public class FederatedStoreTest {
         // Then
         assertEquals(1, store.getGraphs(blankUser, null).size());
         assertTrue(store.getGraphs(blankUser, null).iterator().next().getSchema().getEntityGroups().contains("BasicEntity"));
-
     }
 
     @Test

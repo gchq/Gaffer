@@ -64,6 +64,7 @@ public final class GraphSerialisable implements Serializable {
     }
 
     /**
+     * @param library the library to use and add into the builder.
      * @return returns a new {@link Graph} built from the contents of a this
      * class.
      */

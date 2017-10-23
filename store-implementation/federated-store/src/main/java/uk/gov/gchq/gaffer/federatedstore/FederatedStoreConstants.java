@@ -30,7 +30,7 @@ public final class FederatedStoreConstants {
         // only contains constants.
     }
 
-    public static String getSkipFailedFederatedStoreExecute(Operation op) {
+    public static String getSkipFailedFederatedStoreExecute(final Operation op) {
         return op.getOption(KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE, DEFAULT_VALUE_KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE);
     }
 }

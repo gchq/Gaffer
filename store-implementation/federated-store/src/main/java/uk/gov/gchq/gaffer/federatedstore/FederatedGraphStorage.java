@@ -352,7 +352,7 @@ public class FederatedGraphStorage {
 
     private void makeAllGraphsFromCache() {
         final Set<String> allGraphIds = federatedStoreCache.getAllGraphIds();
-        for (String graphId : allGraphIds) {
+        for (final String graphId : allGraphIds) {
             makeGraphFromCache(graphId);
         }
     }
