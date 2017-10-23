@@ -29,6 +29,10 @@ public class GetSchemaHandler implements OutputOperationHandler<GetSchema, Schem
     @Override
     public Schema doOperation(final GetSchema operation, final Context context, final Store store) throws OperationException {
         final Schema schema;
+        if (null == operation) {
+            return new Schema();
+        }
+
         if (operation.isCompact()) {
             schema = Schema.fromJson(store.getSchema().toCompactJson());
         } else {

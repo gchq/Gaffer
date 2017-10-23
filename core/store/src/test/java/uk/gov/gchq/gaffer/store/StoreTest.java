@@ -87,6 +87,7 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.tostring.StringToStringSerialiser;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
@@ -508,6 +509,7 @@ public class StoreTest {
                 CountGroups.class,
                 Limit.class,
                 DiscardOutput.class,
+                GetSchema.class,
 
                 // Function
                 Filter.class,
