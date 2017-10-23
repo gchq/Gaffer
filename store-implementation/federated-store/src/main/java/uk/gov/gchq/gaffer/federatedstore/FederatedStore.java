@@ -32,7 +32,6 @@ import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedAggregateHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedFilterHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedGetSchemaHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationAddElementsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedTransformHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedValidateHandler;
