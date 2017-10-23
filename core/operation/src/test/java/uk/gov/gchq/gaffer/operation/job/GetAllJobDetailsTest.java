@@ -18,9 +18,11 @@ package uk.gov.gchq.gaffer.operation.job;
 
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 
@@ -40,6 +42,15 @@ public class GetAllJobDetailsTest extends OperationTest<GetAllJobDetails> {
     @Override
     protected GetAllJobDetails getTestObject() {
         return new GetAllJobDetails.Builder().build();
+    }
+
+    @Test
+    public void shouldGetOutputClass() {
+        // When
+        final Class<?> outputClass = getTestObject().getOutputClass();
+
+        // Then
+        assertEquals(CloseableIterable.class, outputClass);
     }
 
     @Override

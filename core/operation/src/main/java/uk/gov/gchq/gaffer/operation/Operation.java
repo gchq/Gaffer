@@ -197,12 +197,17 @@ public interface Operation extends Closeable {
         return result;
     }
 
+    /**
+     * This has been replaced with {@link OperationChain#wrap(Operation)}
+     *
+     * @param operation the operation to wrap into a chain
+     * @param <O>       the output type of the operation chain
+     * @return the operation chain
+     * @deprecated see {@link OperationChain#wrap(Operation)}
+     */
+    @Deprecated
     static <O> OperationChain<O> asOperationChain(final Operation operation) {
-        if (operation instanceof OperationChain<?>) {
-            return (OperationChain<O>) operation;
-        } else {
-            return new OperationChain<>(operation);
-        }
+        return (OperationChain<O>) OperationChain.wrap(operation);
     }
 
     interface Builder<OP, B extends Builder<OP, ?>> {

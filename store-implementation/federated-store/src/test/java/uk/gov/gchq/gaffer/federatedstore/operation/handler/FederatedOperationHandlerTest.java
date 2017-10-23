@@ -20,11 +20,8 @@ import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
-import uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -43,12 +40,13 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.*;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
 
 public class FederatedOperationHandlerTest {
     private User user;
@@ -63,8 +61,10 @@ public class FederatedOperationHandlerTest {
     @Test
     public final void shouldMergeResultsFromFieldObjects() throws Exception {
         // Given
-        final Operation op = Mockito.mock(Operation.class);
-
+        final Operation op = mock(Operation.class);
+        final Operation opClone = mock(Operation.class);
+        given(op.shallowClone()).willReturn(opClone);
+        final OperationChain<?> opChainClone = OperationChain.wrap(opClone);
         Schema unusedSchema = new Schema.Builder().build();
         Store mockStore1 = getMockStore(unusedSchema);
         Store mockStore2 = getMockStore(unusedSchema);
@@ -76,29 +76,32 @@ public class FederatedOperationHandlerTest {
         Graph graph3 = getGraphWithMockStore(mockStore3);
         Graph graph4 = getGraphWithMockStore(mockStore4);
 
-        FederatedStore mockStore = Mockito.mock(FederatedStore.class);
+        FederatedStore mockStore = mock(FederatedStore.class);
         LinkedHashSet<Graph> linkedGraphs = Sets.newLinkedHashSet();
         linkedGraphs.add(graph1);
         linkedGraphs.add(graph2);
         linkedGraphs.add(graph3);
         linkedGraphs.add(graph4);
-        Mockito.when(mockStore.getGraphs(user, null)).thenReturn(linkedGraphs);
+        when(mockStore.getGraphs(user, null)).thenReturn(linkedGraphs);
 
         // When
         new FederatedOperationHandler().doOperation(op, context, mockStore);
 
-        verify(mockStore1).execute(Mockito.eq(new OperationChain<>(op).shallowClone()), Mockito.any(Context.class));
-        verify(mockStore2).execute(Mockito.eq(new OperationChain<>(op).shallowClone()), Mockito.any(Context.class));
-        verify(mockStore3).execute(Mockito.eq(new OperationChain<>(op).shallowClone()), Mockito.any(Context.class));
-        verify(mockStore4).execute(Mockito.eq(new OperationChain<>(op).shallowClone()), Mockito.any(Context.class));
-
+        verify(mockStore1).execute(eq(opChainClone), any(Context.class));
+        verify(mockStore2).execute(eq(opChainClone), any(Context.class));
+        verify(mockStore3).execute(eq(opChainClone), any(Context.class));
+        verify(mockStore4).execute(eq(opChainClone), any(Context.class));
     }
 
     @Test
     public final void shouldMergeResultsFromFieldObjectsWithGivenGraphIds() throws Exception {
         // Given
-        final Operation op = Mockito.mock(Operation.class);
+        final Operation op = mock(Operation.class);
+        final Operation opClone = mock(Operation.class);
         given(op.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS)).willReturn("1,3");
+        given(op.shallowClone()).willReturn(opClone);
+
+        final OperationChain<?> opChainClone = OperationChain.wrap(opClone);
 
         Schema unusedSchema = new Schema.Builder().build();
         Store mockStore1 = getMockStore(unusedSchema);
@@ -109,22 +112,22 @@ public class FederatedOperationHandlerTest {
         Graph graph1 = getGraphWithMockStore(mockStore1);
         Graph graph3 = getGraphWithMockStore(mockStore3);
 
-        FederatedStore mockStore = Mockito.mock(FederatedStore.class);
+        FederatedStore mockStore = mock(FederatedStore.class);
         LinkedHashSet<Graph> filteredGraphs = Sets.newLinkedHashSet();
         filteredGraphs.add(graph1);
         filteredGraphs.add(graph3);
-        Mockito.when(mockStore.getGraphs(user, "1,3")).thenReturn(filteredGraphs);
+        when(mockStore.getGraphs(user, "1,3")).thenReturn(filteredGraphs);
 
         // When
         new FederatedOperationHandler().doOperation(op, context, mockStore);
 
-        verify(mockStore1).execute(Mockito.eq(new OperationChain<>(op).shallowClone()), Mockito.any(Context.class));
-        verify(mockStore2, never()).execute(Mockito.eq(new OperationChain<>(op).shallowClone()), Mockito.any(Context.class));
-        verify(mockStore3).execute(Mockito.eq(new OperationChain<>(op).shallowClone()), Mockito.any(Context.class));
-        verify(mockStore4, never()).execute(Mockito.eq(new OperationChain<>(op).shallowClone()), Mockito.any(Context.class));
+        verify(mockStore1).execute(eq(opChainClone), any(Context.class));
+        verify(mockStore2, never()).execute(eq(opChainClone), any(Context.class));
+        verify(mockStore3).execute(eq(opChainClone), any(Context.class));
+        verify(mockStore4, never()).execute(eq(opChainClone), any(Context.class));
     }
 
-    private Graph getGraphWithMockStore(final Store mockStore){
+    private Graph getGraphWithMockStore(final Store mockStore) {
         return new Graph.Builder()
                 .config(new GraphConfig("testGraphId"))
                 .store(mockStore)
@@ -132,7 +135,7 @@ public class FederatedOperationHandlerTest {
     }
 
     private Store getMockStore(final Schema unusedSchema) {
-        Store mockStore1 = Mockito.mock(Store.class);
+        Store mockStore1 = mock(Store.class);
         given(mockStore1.getSchema()).willReturn(unusedSchema);
         return mockStore1;
     }
@@ -140,22 +143,22 @@ public class FederatedOperationHandlerTest {
     @Test
     public void shouldThrowException() throws Exception {
         String message = "test exception";
-        final Operation op = Mockito.mock(Operation.class);
+        final Operation op = mock(Operation.class);
         final String graphID = "1,3";
         given(op.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS)).willReturn(graphID);
 
 
         Schema unusedSchema = new Schema.Builder().build();
 
-        Store mockStoreInner = Mockito.mock(Store.class);
+        Store mockStoreInner = mock(Store.class);
         given(mockStoreInner.getSchema()).willReturn(unusedSchema);
         given(mockStoreInner.createContext(any(User.class))).willReturn(context);
         given(mockStoreInner.execute(any(OperationChain.class), eq(context))).willThrow(new RuntimeException(message));
 
 
-        FederatedStore mockStore = Mockito.mock(FederatedStore.class);
+        FederatedStore mockStore = mock(FederatedStore.class);
         HashSet<Graph> filteredGraphs = Sets.newHashSet(getGraphWithMockStore(mockStoreInner));
-        Mockito.when(mockStore.getGraphs(user, graphID)).thenReturn(filteredGraphs);
+        when(mockStore.getGraphs(user, graphID)).thenReturn(filteredGraphs);
         try {
             new FederatedOperationHandler().doOperation(op, context, mockStore);
             Assert.fail("Exception Not thrown");
@@ -169,30 +172,30 @@ public class FederatedOperationHandlerTest {
     final public void shouldNotThrowException() throws Exception {
         // Given
         final String graphID = "1,3";
-        final Operation op = Mockito.mock(Operation.class);
+        final Operation op = mock(Operation.class);
         when(op.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS)).thenReturn(graphID);
         when(op.getOption(KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE)).thenReturn(String.valueOf(true));
 
         Schema unusedSchema = new Schema.Builder().build();
 
-        Store mockStore1 = Mockito.mock(Store.class);
+        Store mockStore1 = mock(Store.class);
         given(mockStore1.getSchema()).willReturn(unusedSchema);
         given(mockStore1.execute(any(OperationChain.class), eq(context))).willReturn(1);
         given(mockStore1.createContext(any(User.class))).willReturn(context);
-        Store mockStore2 = Mockito.mock(Store.class);
+        Store mockStore2 = mock(Store.class);
         given(mockStore2.getSchema()).willReturn(unusedSchema);
         given(mockStore2.createContext(any(User.class))).willReturn(context);
         given(mockStore2.execute(any(OperationChain.class), eq(context))).willThrow(new RuntimeException("Test Exception"));
 
-        FederatedStore mockStore = Mockito.mock(FederatedStore.class);
+        FederatedStore mockStore = mock(FederatedStore.class);
         LinkedHashSet<Graph> filteredGraphs = Sets.newLinkedHashSet();
         filteredGraphs.add(getGraphWithMockStore(mockStore1));
         filteredGraphs.add(getGraphWithMockStore(mockStore2));
-        Mockito.when(mockStore.getGraphs(user, graphID)).thenReturn(filteredGraphs);
+        when(mockStore.getGraphs(user, graphID)).thenReturn(filteredGraphs);
 
         // When
         try {
-           new FederatedOperationHandler().doOperation(op, context, mockStore);
+            new FederatedOperationHandler().doOperation(op, context, mockStore);
         } catch (Exception e) {
             fail("Exception should not have been thrown: " + e.getMessage());
         }

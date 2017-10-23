@@ -69,8 +69,14 @@ public class AddOperationsToChain implements GraphHook {
             newOpList.addAll(addOperationsToChain(opChain, defaultOperations));
             newOpList.addAll(defaultOperations.getEnd());
         }
-        opChain.getOperations().clear();
-        opChain.getOperations().addAll(newOpList);
+
+        try {
+            opChain.getOperations().clear();
+            opChain.getOperations().addAll(newOpList);
+        } catch (final Exception e) {
+            // ignore exception - this would be caused by the operation list not allowing modifications
+        }
+
     }
 
     @Override
@@ -138,8 +144,12 @@ public class AddOperationsToChain implements GraphHook {
 
                 if (originalOp instanceof Operations) {
                     final List<Operation> nestedOpList = addOperationsToChain((Operations) originalOp, additionalOperations);
-                    ((Operations) originalOp).getOperations().clear();
-                    ((Operations) originalOp).getOperations().addAll(nestedOpList);
+                    try {
+                        ((Operations) originalOp).getOperations().clear();
+                        ((Operations) originalOp).getOperations().addAll(nestedOpList);
+                    } catch (final Exception e) {
+                        // ignore exception - this would be caused by the operation list not allowing modifications
+                    }
                 }
 
                 opList.add(originalOp);

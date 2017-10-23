@@ -72,8 +72,17 @@ public class FilterTest extends OperationTest {
         assertEquals(edge, clone.getInput().iterator().next());
     }
 
+    @Test
+    public void shouldGetOutputClass() {
+        // When
+        final Class<?> outputClass = getTestObject().getOutputClass();
+
+        // Then
+        assertEquals(Iterable.class, outputClass);
+    }
+
     @Override
-    protected Object getTestObject() {
+    protected Filter getTestObject() {
         return new Filter();
     }
 }

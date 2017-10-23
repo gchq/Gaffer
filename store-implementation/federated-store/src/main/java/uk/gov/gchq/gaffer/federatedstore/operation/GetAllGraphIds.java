@@ -29,7 +29,9 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
 /**
  * An Operation to get all the graphIds within scope of the FederatedStore.
  */
-public class GetAllGraphIds implements Output<Iterable<? extends String>> {
+public class GetAllGraphIds implements
+        FederatedOperation,
+        Output<Iterable<? extends String>> {
     private Map<String, String> options;
 
     public GetAllGraphIds() {

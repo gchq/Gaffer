@@ -55,6 +55,15 @@ public class CountTest extends OperationTest {
         assertEquals(input, clone.getInput().iterator().next());
     }
 
+    @Test
+    public void shouldGetOutputClass() {
+        // When
+        final Class<?> outputClass = getTestObject().getOutputClass();
+
+        // Then
+        assertEquals(Long.class, outputClass);
+    }
+
     @Override
     protected Count getTestObject() {
         return new Count();

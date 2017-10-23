@@ -32,3 +32,58 @@ mvn install -Pquick -Pfederated-demo -pl :federated-demo
 If you wish to build all of Gaffer first then just remove the "-pl :federated-demo" part.
 
 The rest api will be deployed to localhost:8080/rest.
+
+To add some example data execute this json in /graph/operations/execute:
+
+```json
+{
+  "class" : "uk.gov.gchq.gaffer.operation.impl.add.AddElements",
+  "input" : [ {
+    "group" : "BasicEntity",
+    "vertex" : "1",
+    "properties" : {
+      "count" : 1
+    },
+    "class" : "uk.gov.gchq.gaffer.data.element.Entity"
+  }, {
+    "group" : "BasicEdge",
+    "source" : "1",
+    "destination" : "2",
+    "directed" : true,
+    "properties" : {
+      "count" : 1
+    },
+    "class" : "uk.gov.gchq.gaffer.data.element.Edge"
+  } ]
+}
+```
+
+Here is an example of an advanced federated operation chain:
+
+```json
+{
+   "class": "uk.gov.gchq.gaffer.operation.OperationChain",
+   "operations": [
+      {
+         "class": "uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain",
+         "operationChain": {
+            "operations": [
+               {
+                  "class": "uk.gov.gchq.gaffer.operation.impl.get.GetAllElements"
+               },
+               {
+                  "class": "uk.gov.gchq.gaffer.operation.impl.Limit",
+                  "resultLimit": 1,
+                  "truncate": true
+               }
+            ]
+         }
+      },
+      {
+         "class": "uk.gov.gchq.gaffer.operation.impl.Limit",
+         "resultLimit": 1,
+         "truncate": true
+      }
+   ]
+}
+```
