@@ -28,6 +28,6 @@ public class FederatedStoreITs extends AbstractStoreITs {
     public FederatedStoreITs() {
         super(STORE_PROPERTIES);
         skipTest(VisibilityIT.class, "Visibility is not supported by the MapStore so the federated store doesn't support it when configured with a MapStore.");
-        skipTest(StoreValidationIT.class, "Visibility is not supported by the MapStore so the federated store doesn't support it when configured with a MapStore.");
+        skipTest(StoreValidationIT.class, "StoreValidation is not supported by the MapStore so the federated store doesn't support it when configured with a MapStore.");
     }
 }
