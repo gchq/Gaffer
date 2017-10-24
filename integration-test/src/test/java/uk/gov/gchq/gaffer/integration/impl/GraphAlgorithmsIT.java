@@ -22,6 +22,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
+import uk.gov.gchq.gaffer.data.Walk;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
@@ -47,6 +48,7 @@ import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -85,7 +87,7 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<Iterable<Edge>> results = graph.execute(op, user);
+        final Iterable<Walk> results = graph.execute(op, user);
 
         // Then
         assertThat(getPaths(results), is(equalTo("AED,ABC")));
@@ -114,7 +116,7 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<Iterable<Edge>> results = graph.execute(op, user);
+        final Iterable<Walk> results = graph.execute(op, user);
 
         // Then
         assertThat(getPaths(results), is(equalTo("AED,ABC,EDA")));
@@ -145,10 +147,10 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<Iterable<Edge>> results = graph.execute(op, user);
+        final Iterable<Walk> results = graph.execute(op, user);
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,AEF,ABC,ABC")));
+        assertThat(getPaths(results), is(equalTo("AED,AEF,ABC")));
     }
 
     @Test
@@ -177,10 +179,10 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<Iterable<Edge>> results = graph.execute(op, user);
+        final Iterable<Walk> results = graph.execute(op, user);
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED,AEF,ABC,ABC,EDA,EFC")));
+        assertThat(getPaths(results), is(equalTo("AED,AEF,ABC,EDA,EFC")));
     }
 
     @Test
@@ -208,7 +210,7 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<Iterable<Edge>> results = graph.execute(op, user);
+        final Iterable<Walk> results = graph.execute(op, user);
 
         // Then
         assertThat(getPaths(results), is(equalTo("AEDA,AEFC")));
@@ -239,7 +241,7 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final Iterable<Iterable<Edge>> results = graph.execute(op, user);
+        final Iterable<Walk> results = graph.execute(op, user);
 
         // Then
         assertThat(getPaths(results), is(equalTo("AEDAE,AEDAB")));
@@ -436,13 +438,10 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
                 .build();
     }
 
-    private String getPaths(final Iterable<Iterable<Edge>> edges) {
+    private String getPaths(final Iterable<Walk> walks) {
         final StringBuilder sb = new StringBuilder();
-        for (final Iterable<Edge> itr : edges) {
-            itr.forEach(e -> {
-                sb.append(e.getMatchedVertexValue());
-                sb.append(e.getAdjacentMatchedVertexValue());
-            });
+        for (final Walk walk : walks) {
+            sb.append(walk.getVerticesOrdered().stream().map(Object::toString).collect(Collectors.joining("")));
             sb.append(',');
         }
         sb.setLength(sb.length() - 1);

@@ -17,36 +17,34 @@
 package uk.gov.gchq.gaffer.store.operation.handler;
 
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
-import uk.gov.gchq.gaffer.commonutil.stream.GafferCollectors;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.Walk;
 import uk.gov.gchq.gaffer.data.element.Edge;
-import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
-import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.Stack;
 import java.util.stream.Collectors;
 
 public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterable<Walk>> {
 
-    private final Set<Object> visitedSeeds = new HashSet<>();
+    private final Set<EntitySeed> visitedSeeds = new HashSet<>();
     private int pathVertices;
     private int hops;
 
@@ -65,14 +63,12 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
             return new EmptyClosableIterable<>();
         }
 
-        Iterable<Object> seeds = Streams.toStream(operation.getInput())
-                .map(EntitySeed::getVertex)
-                .collect(GafferCollectors.toWrappedCloseableIterable());
+        Iterable<? extends EntitySeed> seeds = operation.getInput();
 
-        hops = Iterables.size(operation.getOperations());
+        hops = operation.getOperations().size();
         pathVertices = hops + 1;
 
-        final HashBasedTable<Object, Object, Set<Edge>> edgeTable = HashBasedTable.create();
+        final HashBasedTable<Object, Object, Set<Edge>> subgraph = HashBasedTable.create();
 
         // Execute the GetElements operations
         for (final GetElements op : operations) {
@@ -81,28 +77,27 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
 
             op.setInput(opSeeds);
             final Iterable<Edge> results = (Iterable<Edge>) store.execute(op, context);
+
             visitedSeeds.addAll(opSeeds);
 
-            // Cache results
-            Streams.toStream(results)
-                    .forEach(e -> {
-                        if (null != edgeTable.get(e.getMatchedVertexValue(), e.getAdjacentMatchedVertexValue())) {
-                            final Set<Edge> set = edgeTable.get(e.getMatchedVertexValue(), e.getAdjacentMatchedVertexValue());
-                            set.add(e);
-                        } else {
-                            final Set<Edge> set = new HashSet<>();
-                            set.add(e);
-                            edgeTable.put(e.getMatchedVertexValue(), e.getAdjacentMatchedVertexValue(), set);
-                        }
-                    });
+            // Cache results in HashBasedTable
+            for (final Edge e : results) {
+                if (null != subgraph.get(e.getMatchedVertexValue(), e.getAdjacentMatchedVertexValue())) {
+                    final Set<Edge> set = subgraph.get(e.getMatchedVertexValue(), e.getAdjacentMatchedVertexValue());
+                    set.add(e);
+                } else {
+                    final Set<Edge> set = new HashSet<>();
+                    set.add(e);
+                    subgraph.put(e.getMatchedVertexValue(), e.getAdjacentMatchedVertexValue(), set);
+                }
+            }
 
-            final OperationChain<Set<? extends EntitySeed>> opChain = new OperationChain.Builder()
+            final OperationChain<Iterable<? extends EntitySeed>> opChain = new OperationChain.Builder()
                     .first(new ToVertices.Builder()
                             .input(results)
                             .edgeVertices(ToVertices.EdgeVertices.DESTINATION)
                             .build())
                     .then(new ToEntitySeeds())
-                    .then(new ToSet<>())
                     .build();
 
             seeds = store.execute(opChain, context);
@@ -110,61 +105,40 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
 
         // Track/recombine the edge objects and convert to return type
         return Streams.toStream(operation.getInput())
-                .map(seed -> doPath(seed, edgeTable, new Stack<>()))
-                .flatMap(List::stream)
-                .map(path -> explodePath(path, edgeTable, new ArrayList<>()))
+                .map(seed -> walk(seed.getVertex(), null, subgraph, new LinkedList<>()))
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
     }
 
-    private <T> List<Walk<Edge, Entity>> explodePath(final List<T> path, final HashBasedTable<?, ?, Set<Edge>> graph, final List<Edge> edges) {
-        final List<Walk<Edge, Entity>> paths = new ArrayList<>();
+    private List<Walk> walk(final Object curr, final Object prev, final HashBasedTable<Object, Object, Set<Edge>> subgraph, final LinkedList<Set<Edge>> queue) {
+        final List<Walk> walks = new ArrayList<>();
 
-        if (path.isEmpty()) {
-            paths.add(edges);
-        } else {
-            for (int i = 1; i < path.size(); i++) {
-                final List<Edge> edgeList = new ArrayList<>(graph.get(path.get(i - 1), path.get(i)));
+        if (null != prev) {
+            queue.offer(subgraph.get(prev, curr));
+        }
 
-                if (edgeList.size() == 1) {
-                    edges.add(edgeList.get(0));
-                } else {
-                    for (final Edge edge : edgeList) {
-                        final List<Edge> tmp = new ArrayList<>(edges);
-                        tmp.add(edge);
-                        paths.addAll(explodePath(path.subList(i - 1, i), graph, tmp));
-                    }
-                }
+        if (hops == queue.size()) {
+            final Walk.Builder builder = new Walk.Builder();
+            for (final Set<Edge> edgeSet : queue) {
+                builder.edges(edgeSet);
             }
-            if (hops == edges.size()) {
-                paths.add(edges);
+            final Walk walk = builder.build();
+            walks.add(walk);
+        } else {
+            for (final Object obj : subgraph.row(curr).keySet()) {
+                walks.addAll(walk(obj, curr, subgraph, queue));
             }
         }
 
-        return paths;
-    }
-
-    private <T, U> List<Walk<Edge, Entity>> doPath(final T source, final HashBasedTable<T, T, ?> graph, final Stack<T> path) {
-        final List<Walk<Void, Void>> walks = new ArrayList<>();
-
-        path.push(source);
-
-        if (pathVertices == path.size()) {
-            walks.add(new Walk(path));
-        } else {
-            for (final T obj : graph.row(source).keySet()) {
-                walks.addAll(new ArrayList<>(doPath(obj, graph, path)));
-            }
+        if (!queue.isEmpty()) {
+            queue.pollLast();
         }
 
-        path.pop();
         return walks;
     }
 
-    private Set<EntitySeed> difference(final Set<Object> first, final Set<Object> second) {
-        final Set<Object> difference = Sets.symmetricDifference(first, second);
-        return difference.stream()
-                .map(EntitySeed::new)
-                .collect(Collectors.toSet());
+    private Set<EntitySeed> difference(final Set<EntitySeed> first, final Set<EntitySeed> second) {
+        final Set<EntitySeed> difference = Sets.symmetricDifference(first, second);
+        return ImmutableSet.copyOf(difference);
     }
 }

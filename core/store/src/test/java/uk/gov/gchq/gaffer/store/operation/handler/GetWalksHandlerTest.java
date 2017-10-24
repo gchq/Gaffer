@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.data.Walk;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -52,7 +53,7 @@ public class GetWalksHandlerTest {
         final GetWalksHandler handler = new GetWalksHandler();
 
         // When
-        final Iterable<List<Edge>> result = handler.doOperation(operation, null, null);
+        final Iterable<Walk> result = handler.doOperation(operation, null, null);
 
         // Then
         assertThat(result, is(nullValue()));
@@ -75,7 +76,7 @@ public class GetWalksHandlerTest {
         final GetWalksHandler handler = new GetWalksHandler();
 
         // When
-        final Iterable<List<Edge>> result = handler.doOperation(operation, null, null);
+        final Iterable<Walk> result = handler.doOperation(operation, null, null);
 
         // Then
         assertThat(result, is(nullValue()));
@@ -94,7 +95,7 @@ public class GetWalksHandlerTest {
         final GetWalksHandler handler = new GetWalksHandler();
 
         // When
-        final Iterable<List<Edge>> result = handler.doOperation(operation, null, null);
+        final Iterable<Walk> result = handler.doOperation(operation, null, null);
 
         // Then
         assertThat(result, is(nullValue()));
@@ -118,7 +119,7 @@ public class GetWalksHandlerTest {
 
         // When
         try {
-            final Iterable<List<Edge>> result = handler.doOperation(operation, null, null);
+            final Iterable<Walk> result = handler.doOperation(operation, null, null);
 
             fail("Expected exception not thrown.");
         } catch (final OperationException e) {
