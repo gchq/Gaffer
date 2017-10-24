@@ -37,6 +37,10 @@ public class FilterHandler implements OutputOperationHandler<Filter, Iterable<? 
 
     @Override
     public Iterable<? extends Element> doOperation(final Filter operation, final Context context, final Store store) throws OperationException {
+        return doOperation(operation, store.getSchema());
+    }
+
+    public Iterable<? extends Element> doOperation(final Filter operation, final Schema schema) throws OperationException {
         if (null == operation.getInput()) {
             throw new OperationException("Filter operation has null iterable of elements");
         }
@@ -44,8 +48,6 @@ public class FilterHandler implements OutputOperationHandler<Filter, Iterable<? 
         // If no entities or edges have been provided then we will assume
         // all elements should be used. This matches the way a View works.
         if (null == operation.getEntities() && null == operation.getEdges()) {
-            final Schema schema = store.getSchema();
-
             final Map<String, ElementFilter> entityMap = new HashMap<>();
             schema.getEntityGroups().forEach(e -> entityMap.put(e, new ElementFilter()));
             operation.setEntities(entityMap);
@@ -55,7 +57,7 @@ public class FilterHandler implements OutputOperationHandler<Filter, Iterable<? 
             operation.setEdges(edgeMap);
         }
 
-        final ValidationResult result = validator.validate(operation, store.getSchema());
+        final ValidationResult result = validator.validate(operation, schema);
         if (!result.isValid()) {
             throw new OperationException("Filter operation is invalid. " + result.getErrorString());
         }

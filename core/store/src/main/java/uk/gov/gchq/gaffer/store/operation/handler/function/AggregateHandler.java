@@ -38,6 +38,10 @@ public class AggregateHandler implements OutputOperationHandler<Aggregate, Itera
 
     @Override
     public Iterable<? extends Element> doOperation(final Aggregate operation, final Context context, final Store store) throws OperationException {
+        return doOperation(operation, store.getSchema());
+    }
+
+    public Iterable<? extends Element> doOperation(final Aggregate operation, final Schema schema) throws OperationException {
         if (null == operation.getInput()) {
             throw new OperationException("Aggregate operation has null iterable of elements");
         }
@@ -45,8 +49,6 @@ public class AggregateHandler implements OutputOperationHandler<Aggregate, Itera
         // If no entities or edges have been provided then we will assume
         // all elements should be used. This matches the way a View works.
         if (null == operation.getEntities() && null == operation.getEdges()) {
-            final Schema schema = store.getSchema();
-
             final Map<String, AggregatePair> entityMap = new HashMap<>();
             schema.getEntityGroups().forEach(e -> entityMap.put(e, new AggregatePair()));
             operation.setEntities(entityMap);
@@ -56,12 +58,12 @@ public class AggregateHandler implements OutputOperationHandler<Aggregate, Itera
             operation.setEdges(edgeMap);
         }
 
-        final ValidationResult result = validator.validate(operation, store.getSchema());
+        final ValidationResult result = validator.validate(operation, schema);
         if (!result.isValid()) {
             throw new OperationException("Aggregate operation is invalid. " + result.getErrorString());
         }
 
-        return AggregatorUtil.queryAggregate(operation.getInput(), store.getSchema(), buildView(operation));
+        return AggregatorUtil.queryAggregate(operation.getInput(), schema, buildView(operation));
     }
 
     private View buildView(final Aggregate operation) {

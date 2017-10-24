@@ -16,6 +16,11 @@
 
 package uk.gov.gchq.gaffer.store;
 
+import com.google.common.collect.Sets;
+
+import java.util.Collections;
+import java.util.Set;
+
 /**
  * A {@code StoreTrait} defines functionality for {@link uk.gov.gchq.gaffer.store.Store} implementations.
  */
@@ -79,5 +84,7 @@ public enum StoreTrait {
      * Stores with this trait support user-defined visibility settings to prevent authorised access to records
      * which a user does not have permissions to see.
      */
-    VISIBILITY
+    VISIBILITY;
+
+    public static final Set<StoreTrait> ALL_TRAITS = Collections.unmodifiableSet(Sets.newHashSet(StoreTrait.values()));
 }

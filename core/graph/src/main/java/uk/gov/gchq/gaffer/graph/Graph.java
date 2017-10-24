@@ -33,6 +33,7 @@ import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
@@ -197,6 +198,14 @@ public final class Graph {
             throw new IllegalArgumentException("operationChain is required");
         }
 
+        if (null == context) {
+            throw new IllegalArgumentException("A context containing a user is required");
+        }
+
+        if (null == context.getUser()) {
+            throw new IllegalArgumentException("The context does not contain a user");
+        }
+
         final OperationChain clonedOpChain = operationChain.shallowClone();
         O result = null;
         try {
@@ -223,10 +232,11 @@ public final class Graph {
         return result;
     }
 
-    private void updateOperationChainView(final OperationChain<?> operationChain) {
-        for (final Operation operation : operationChain.getOperations()) {
-
-            if (operation instanceof OperationView) {
+    private void updateOperationChainView(final Operations<?> operations) {
+        for (final Operation operation : operations.getOperations()) {
+            if (operation instanceof Operations) {
+                updateOperationChainView((Operations) operation);
+            } else if (operation instanceof OperationView) {
                 final OperationView operationView = (OperationView) operation;
                 final View opView;
                 if (null == operationView.getView()) {

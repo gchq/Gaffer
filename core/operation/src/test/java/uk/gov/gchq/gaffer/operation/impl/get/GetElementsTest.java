@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.operation.impl.get;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -56,6 +57,15 @@ public class GetElementsTest extends OperationTest<GetElements> {
 
         // Then
         assertEquals(SeedMatchingType.EQUAL, op.getSeedMatching());
+    }
+
+    @Test
+    public void shouldGetOutputClass() {
+        // When
+        final Class<?> outputClass = getTestObject().getOutputClass();
+
+        // Then
+        assertEquals(CloseableIterable.class, outputClass);
     }
 
     @Test
