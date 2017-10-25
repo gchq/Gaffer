@@ -75,12 +75,13 @@ public abstract class GraphLibrary {
 
         if (null != schema) {
             schema.setId(schemaId);
-            addSchema(schema);
+            final byte[] schemaJson = schema.toJson(false);
+            _addSchema(schemaId, schemaJson);
         }
 
         if (null != properties) {
             properties.setId(propertiesId);
-            addProperties(properties);
+            _addProperties(propertiesId, properties);
         }
     }
 
