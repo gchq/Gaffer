@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.rest.service.v2;
 
+import scala.tools.nsc.doc.model.Public;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -74,5 +75,19 @@ public class RestApiV2TestClient extends RestApiTestClient {
                 .path("/graph/status")
                 .request()
                 .get(SystemStatus.class);
+    }
+
+    public Response getProperties() {
+        return client.target(uriString)
+                .path("/properties")
+                .request()
+                .get(Response.class);
+    }
+
+    public Response getProperty(String property) {
+        return client.target(uriString)
+                .path("/properties/" + property)
+                .request()
+                .get(Response.class);
     }
 }
