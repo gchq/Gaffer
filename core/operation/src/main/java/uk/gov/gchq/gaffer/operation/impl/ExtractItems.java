@@ -18,32 +18,31 @@ package uk.gov.gchq.gaffer.operation.impl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
-import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 import java.util.Map;
 
-public class ExtractItems implements InputOutput<Iterable<Iterable<? extends Element>>, Iterable<? extends Element>> {
+public class ExtractItems implements InputOutput<Iterable<Iterable<? extends Object>>, Iterable<? extends Object>> {
 
-    private Iterable<Iterable<? extends Element>> input;
+    private Iterable<Iterable<? extends Object>> input;
     private Map<String, String> options;
     private int selection;
 
     @Override
-    public Iterable<Iterable<? extends Element>> getInput() {
+    public Iterable<Iterable<? extends Object>> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<Iterable<? extends Element>> input) {
+    public void setInput(final Iterable<Iterable<? extends Object>> input) {
         this.input = input;
     }
 
     @Override
-    public TypeReference<Iterable<? extends Element>> getOutputTypeReference() {
-        return new TypeReferenceImpl.IterableElement();
+    public TypeReference<Iterable<? extends Object>> getOutputTypeReference() {
+        return new TypeReferenceImpl.IterableObject();
     }
 
     @Override
@@ -75,7 +74,7 @@ public class ExtractItems implements InputOutput<Iterable<Iterable<? extends Ele
 
     public static final class Builder
             extends Operation.BaseBuilder<ExtractItems, Builder>
-            implements InputOutput.Builder<ExtractItems, Iterable<Iterable<? extends Element>>, Iterable<? extends Element>, Builder> {
+            implements InputOutput.Builder<ExtractItems, Iterable<Iterable<? extends Object>>, Iterable<? extends Object>, Builder> {
 
         protected Builder() {
             super(new ExtractItems());

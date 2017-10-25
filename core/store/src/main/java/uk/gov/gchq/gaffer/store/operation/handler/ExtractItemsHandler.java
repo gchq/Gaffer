@@ -24,18 +24,22 @@ import uk.gov.gchq.gaffer.operation.impl.ExtractItems;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
-public class ExtractItemsHandler implements OutputOperationHandler<ExtractItems,Iterable<? extends Element>> {
+public class ExtractItemsHandler implements OutputOperationHandler<ExtractItems,Iterable<? extends Object>> {
     @Override
-    public Iterable<? extends Element> doOperation(final ExtractItems operation, final Context context, final Store store) throws OperationException {
+    public Iterable<? extends Object> doOperation(final ExtractItems operation, final Context context, final Store store) throws OperationException {
         final int selection = operation.getSelection();
         return Streams.toStream(operation.getInput())
                 .map(i -> extract(i, selection))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
-    private Element extract(final Iterable<? extends Element> input, final int selection) {
+    private Object extract(final Iterable<? extends Object> input, final int selection) {
+        if (input instanceof List) {
+            return ((List) input).get(selection);
+        }
         return Lists.newLinkedList(input).get(selection);
     }
 }
