@@ -37,6 +37,7 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
@@ -1105,7 +1106,7 @@ public class GraphTest {
                             .type("int", new TypeDefinition.Builder()
                                     .clazz(Integer.class)
                                     .aggregateFunction(new Sum())
-                                    // invalid serialiser
+                                            // invalid serialiser
                                     .serialiser(new RawDoubleSerialiser())
                                     .build())
                             .type("string", new TypeDefinition.Builder()
@@ -1815,10 +1816,11 @@ public class GraphTest {
         // Then
         assertEquals(graphId1, graph.getGraphId());
         assertTrue(JsonUtil.equals(library.getSchema("schemaId1").toJson(false), librarySchema.toJson(false)));
-        // Check that the schemaId = graphId1 as the schemaId's are different between the parent and supplied schema
-        assertTrue(library.getIds(graphId1).getFirst().equals(graphId1));
-        // Check that the storePropsId = graphId1 as the storePropsId's are different between the parent and supplied storeProps
-        assertTrue(library.getIds(graphId1).getSecond().equals(graphId1));
+        final Pair<String, String> ids = library.getIds(graphId1);
+        // Check that the schemaIds are different between the parent and supplied schema
+        assertEquals("schemaId1_schemaId2", ids.getFirst());
+        // Check that the storePropsIds are different between the parent and supplied storeProps
+        assertEquals("storePropertiesId1_storePropertiesId2", ids.getSecond());
     }
 
     @Test

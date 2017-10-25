@@ -90,9 +90,7 @@ public final class GraphDelegate {
             if (null == rtn) {
                 rtn = properties;
             } else {
-                // delete the old properties id as we are about to modify the properties
-                rtn.getProperties().remove(StoreProperties.ID);
-                rtn.getProperties().putAll(properties.getProperties());
+                rtn.merge(properties);
             }
         }
         return rtn;

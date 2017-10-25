@@ -345,7 +345,7 @@ public class ExportToOtherGraphHandlerTest {
         assertEquals(GRAPH_ID + 2, graph.getGraphId());
         assertEquals(schema, graph.getSchema());
         storeProperties1.getProperties().remove(ID);
-        storeProperties1.getProperties().putAll(storeProperties.getProperties());
+        storeProperties1.merge(storeProperties);
         assertEquals(storeProperties1, graph.getStoreProperties());
         assertEquals(storeProperties1.getId(), graph.getStoreProperties().getId());
     }
