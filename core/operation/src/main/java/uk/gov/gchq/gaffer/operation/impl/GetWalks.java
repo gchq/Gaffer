@@ -36,7 +36,7 @@ import java.util.ListIterator;
 import java.util.Map;
 
 /**
- * A {@code GetWalks} class is used to retrieve all of the paths in a graph
+ * A {@code GetWalks} class is used to retrieve all of the walks in a graph
  * starting from one of a set of provided {@link EntitySeed}s, with a maximum
  * length.
  *

@@ -16,7 +16,10 @@
 
 package uk.gov.gchq.gaffer.data;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -31,7 +34,6 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 
 import java.util.AbstractMap;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -41,28 +43,79 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+import static uk.gov.gchq.gaffer.commonutil.CollectionUtil.distinct;
+
 /**
+ * A {@code Walk} describes a graph traversal which begins at a vertex and comprises
+ * of:
+ * <ul><li>a sequence of {@link Edge} objects, where the source of one edge must
+ * follow on from the destination of the previous</li>
+ * <li>an optional sequence of {@link Entity} objects which are associated to each
+ * of the vertices visited on the Walk. Vertices with no associated entities are
+ * still represented, but only as empty collections.</li></ul>
+ *
+ * For example, a Walk through a simple graph could look like:
+ *
+ * A --> B --> C
+ *       \     \
+ *       \     (Entity2, Entity3)
+ *       \
+ *       (Entity1)
+ *
+ * Edges:       A -> B, B -> C
+ * Entities:    [], [Entity1], [Entity2, Entity3]
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
 public class Walk implements Iterable<Set<Edge>> {
 
     private final List<Set<Edge>> edges;
     private final List<Entry<Object, Set<Entity>>> entities;
 
-    public Walk(final Builder builder) {
+    /**
+     * Private builder constructor.
+     *
+     * @param builder the builder
+     */
+    private Walk(final Builder builder) {
         this.entities = builder.entities;
         this.edges = builder.edges;
     }
 
+    /**
+     * Constructor used by Jackson.
+     */
+    @JsonCreator
+    public Walk(@JsonProperty("edges") final List<Set<Edge>> edges,
+                @JsonProperty("entities") final List<Entry<Object, Set<Entity>>> entities) {
+        this.edges = edges;
+        this.entities = entities;
+    }
+
+    /**
+     * Retrieve all of the entities associated with a particular vertex on the
+     * walk.
+     *
+     * @param vertex the vertex of interest
+     * @return a {@link Set} of all of the entities associated with the vertex
+     */
     @JsonIgnore
-    public List<Entity> getEntitiesForVertex(final Object vertex) {
+    public Set<Entity> getEntitiesForVertex(final Object vertex) {
         return entities.stream()
                 .filter(e -> e.getKey().equals(vertex))
                 .map(e -> e.getValue())
                 .flatMap(Set::stream)
-                .collect(Collectors.toList());
+                .collect(toSet());
     }
 
+    /**
+     * Get all of the entities at some distance from the start of the walk.
+     *
+     * @param n the distance from the start of the walk (in terms of the number
+     *          of edges that would have to be traversed)
+     * @return the entities at the specified distance
+     */
     @JsonIgnore
     public Set<Entity> getEntitiesAtDistance(final int n) {
         return entities.get(n).getValue();
@@ -72,31 +125,64 @@ public class Walk implements Iterable<Set<Edge>> {
         return edges;
     }
 
-    @JsonIgnore
+    @JsonGetter("entities")
     public List<Entry<Object, Set<Entity>>> getEntitiesAsEntries() {
         return entities;
     }
 
+    @JsonIgnore
     public List<Set<Entity>> getEntities() {
-        return entities.stream().map(entry -> entry.getValue()).collect(Collectors.toList());
+        return entities.stream().map(entry -> entry.getValue()).collect(toList());
     }
 
+    /**
+     * Get an ordered {@link List} of the vertices on the walk.
+     *
+     * This will include any repeated vertices.
+     *
+     * @return a list of the vertices on the walk
+     */
     @JsonIgnore
     public List<Object> getVerticesOrdered() {
-        return entities.stream().map(entry -> entry.getKey()).collect(Collectors.toList());
+        return entities.stream().map(entry -> entry.getKey()).collect(toList());
+    }
+
+    /**
+     * Get the {@link Set} of vertices on the walk.
+     *
+     * @return a set of the vertices on the walk.
+     */
+    @JsonIgnore
+    public Set<Object> getVertexSet() {
+        return entities.stream().map(entry -> entry.getKey()).collect(toSet());
     }
 
     @JsonIgnore
-    public Set<Object> getVertexSet() {
-        return entities.stream().map(entry -> entry.getKey()).collect(Collectors.toSet());
-    }
-
     public int length() {
         return edges.size();
     }
 
+    /**
+     * A walk is also a trail if it contains no repeated edges.
+     *
+     * @return {@code true} if the walk does not contain any repeated edges, otherwise
+     * {@link false}
+     */
+    @JsonIgnore
     public boolean isTrail() {
         return Sets.newHashSet(edges).size() == edges.size();
+    }
+
+    /**
+     * A walk is also a path if it contains no repeated vertices (i.e. does not
+     * contain any loops).
+     *
+     * @return {@code true} if the walk does not contain any repeated vertices,
+     * otherwise {@link false}
+     */
+    @JsonIgnore
+    public boolean isPath() {
+        return distinct(getVerticesOrdered());
     }
 
     @Override
@@ -148,20 +234,11 @@ public class Walk implements Iterable<Set<Edge>> {
             this.entities = new Stack<>();
         }
 
-        public Builder(final Builder builder) {
-            this.edges = builder.edges;
-            this.entities = builder.entities;
-        }
-
         public Builder edge(final Edge edge) {
             if (entities.empty()) {
                 entities.add(new AbstractMap.SimpleEntry<Object, Set<Entity>>(edge.getMatchedVertexValue(), Sets.newHashSet()));
             } else {
-                final Object root = entities.peek().getKey();
-
-                if (!Objects.equals(root, edge.getMatchedVertexValue())) {
-                    throw new IllegalArgumentException("Edge must continue the current walk.");
-                }
+                verifyEdge(entities.peek().getKey(), edge);
             }
 
             edges.add(Sets.newHashSet(edge));
@@ -171,22 +248,20 @@ public class Walk implements Iterable<Set<Edge>> {
         }
 
         public Builder edges(final Edge... edges) {
-            final List<Edge> edgeList = Arrays.asList(edges);
-
-            if (edgeList.stream().map(e -> e.getMatchedVertexValue()).distinct().count() == 1
-                    && edgeList.stream().map(e -> e.getAdjacentMatchedVertexValue()).distinct().count() == 1) {
+            if (!distinct(Streams.toStream(edges).map(Edge::getMatchedVertexValue).collect(toList()))
+                    && !distinct(Streams.toStream(edges).map(Edge::getAdjacentMatchedVertexValue).collect(toList()))) {
                 edgeSet(Sets.newHashSet(edges));
             } else {
-                edgeList(edgeList);
+                edgeList(Arrays.asList(edges));
             }
             return this;
         }
 
         public Builder edges(final Iterable<Edge> edges) {
-            final List<Edge> edgeList = Streams.toStream(edges).collect(Collectors.toList());
+            final List<Edge> edgeList = Streams.toStream(edges).collect(toList());
 
-            if (edgeList.stream().map(e -> e.getMatchedVertexValue()).distinct().count() == 1
-                    && edgeList.stream().map(e -> e.getAdjacentMatchedVertexValue()).distinct().count() == 1) {
+            if (!distinct(edgeList.stream().map(e -> e.getMatchedVertexValue()).collect(toList()))
+                    && !distinct(edgeList.stream().map(e -> e.getAdjacentMatchedVertexValue()).collect(toList()))) {
                 edgeSet(Sets.newHashSet(edges));
             } else {
                 edgeList(edgeList);
@@ -229,17 +304,13 @@ public class Walk implements Iterable<Set<Edge>> {
             if (!edges.empty()) {
                 final Object root = edges.peek().stream().findAny().orElseThrow(RuntimeException::new).getAdjacentMatchedVertexValue();
 
-                if (root != entity.getVertex()) {
-                    throw new IllegalArgumentException("Entity must be added to correct vertex.");
-                }
+                verifyEntity(root, entity);
             }
 
             if (!entities.empty()) {
                 final Object root = entities.peek().getKey();
 
-                if (root != entity.getVertex()) {
-                    throw new IllegalArgumentException("Entity must be added to correct vertex.");
-                }
+                verifyEntity(root, entity);
 
                 final Entry<Object, Set<Entity>> entry = entities.pop();
                 final Set<Entity> currentEntities = entry.getValue();
@@ -258,53 +329,58 @@ public class Walk implements Iterable<Set<Edge>> {
                 return this;
             }
 
-            if (Streams.toStream(entities).map(EntityId::getVertex).distinct().count() != 1) {
+            if (distinct(Streams.toStream(entities).map(EntityId::getVertex).collect(toList()))) {
                 throw new IllegalArgumentException("Entities must all have the same vertex.");
             }
 
-            final Object vertex = entities.iterator().next().getVertex();
+            final Entity entity = entities.iterator().next();
 
             if (!edges.empty()) {
                 final Object root = edges.peek().stream().findAny().orElseThrow(RuntimeException::new).getAdjacentMatchedVertexValue();
-                if (root != vertex) {
-                    throw new IllegalArgumentException("Entity must be added to correct vertex.");
-                }
+                verifyEntity(root, entity);
             }
 
             if (!this.entities.empty()) {
                 final Object root = this.entities.peek().getKey();
 
-                if (root != vertex) {
-                    throw new IllegalArgumentException("Entity must be added to correct vertex.");
-                }
+                verifyEntity(root, entity);
+
                 final Entry<Object, Set<Entity>> entry = this.entities.pop();
                 final Set<Entity> currentEntities = entry.getValue();
                 currentEntities.addAll(Lists.newArrayList(entities));
                 entry.setValue(currentEntities);
                 this.entities.push(entry);
             } else {
-                this.entities.push(new AbstractMap.SimpleEntry<Object, Set<Entity>>(vertex, Sets.newHashSet(entities)));
+                this.entities.push(new AbstractMap.SimpleEntry<Object, Set<Entity>>(entity.getVertex(), Sets.newHashSet(entities)));
             }
 
             return this;
         }
 
         public Builder entities(final Entity... entities) {
-            entities(Arrays.asList(entities));
+            final List<Entity> entityList = Arrays.asList(entities);
+            if (1 == entityList.size()) {
+                entity(entityList.get(0));
+            } else {
+                entities(entityList);
+            }
             return this;
         }
 
-        public int length() {
-            return edges.size();
+        private void verifyEntity(final Object source, final Entity entity) {
+            if (!Objects.equals(source, entity.getVertex())) {
+                throw new IllegalArgumentException("Entity must be added to correct vertex.");
+            }
+        }
+
+        private void verifyEdge(final Object source, final Edge edge) {
+            if (!Objects.equals(source, edge.getMatchedVertexValue())) {
+                throw new IllegalArgumentException("Edge must continue the current walk.");
+            }
         }
 
         public Walk build() {
             return new Walk(this);
-        }
-
-        @Override
-        protected Object clone() throws CloneNotSupportedException {
-            return new Walk.Builder(this);
         }
 
         @Override

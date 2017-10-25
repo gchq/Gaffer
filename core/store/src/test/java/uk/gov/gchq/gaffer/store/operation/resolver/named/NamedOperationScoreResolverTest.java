@@ -61,17 +61,4 @@ public class NamedOperationScoreResolverTest extends ScoreResolverTest {
 
         assertNull(result);
     }
-
-    @Override
-    public void shouldReturnNullAndAddWarningForIncorrectOperationType() {
-        final GetAllElements operation = new GetAllElements();
-
-        final NamedOperationCache cache = mock(NamedOperationCache.class);
-
-        final NamedOperationScoreResolver resolver = new NamedOperationScoreResolver(cache);
-
-        final Integer result = resolver.getScore(operation);
-
-        assertNull(result);
-    }
 }

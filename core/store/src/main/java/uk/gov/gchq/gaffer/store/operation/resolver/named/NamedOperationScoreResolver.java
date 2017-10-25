@@ -20,15 +20,15 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolver;
 
 /**
- * A <code>NamedOperationScoreResolver</code> will resolve the custom Operation Score for a provided {@link NamedOperation}
- * by searching for it within the {@link NamedOperationCache}.
+ * A <code>NamedOperationScoreResolver</code> will resolve the custom Operation
+ * Score for a provided {@link NamedOperation} by searching for it within the
+ * {@link NamedOperationCache}.
  */
-public class NamedOperationScoreResolver implements ScoreResolver {
+public class NamedOperationScoreResolver implements ScoreResolver<NamedOperation<?, ?>> {
     private final NamedOperationCache cache;
 
     public NamedOperationScoreResolver() {
@@ -42,18 +42,14 @@ public class NamedOperationScoreResolver implements ScoreResolver {
     private static final Logger LOGGER = LoggerFactory.getLogger(NamedOperationScoreResolver.class);
 
     @Override
-    public Integer getScore(final Operation operation) {
+    public Integer getScore(final NamedOperation<?, ?> operation) {
         Integer namedOpScore = null;
 
         if (null != operation) {
-            if (operation instanceof NamedOperation) {
-                try {
-                    namedOpScore = cache.getFromCache(((NamedOperation) operation).getOperationName()).getScore();
-                } catch (final CacheOperationFailedException e) {
-                    LOGGER.warn("Error accessing cache for Operation '{}': " + e.getMessage(), operation.getClass().getName());
-                }
-            } else {
-                LOGGER.warn("Operation '{}' is not a Named Operation.", operation.getClass().getName());
+            try {
+                namedOpScore = cache.getFromCache(((NamedOperation) operation).getOperationName()).getScore();
+            } catch (final CacheOperationFailedException e) {
+                LOGGER.warn("Error accessing cache for Operation '{}': " + e.getMessage(), operation.getClass().getName());
             }
         }
 
