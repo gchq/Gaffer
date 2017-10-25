@@ -25,9 +25,12 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.exception.OverwritingException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.Schema.Builder;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -280,4 +283,33 @@ public abstract class AbstractGraphLibraryTest {
         // Then - no exceptions
     }
 
+    @Test
+    public void shouldNotOverwriteSchemaWithClashingName() throws Exception {
+        byte[] entitySchema = new Builder().id("clashingName").entity("e1", new SchemaEntityDefinition.Builder().property("p1", "string").build()).type("string", String.class).build().toJson(true);
+        byte[] edgeSchema = new Builder().id("clashingName").edge("e1", new SchemaEdgeDefinition.Builder().property("p1", "string").build()).type("string", String.class).build().toJson(true);
+
+        graphLibrary.addSchema(Schema.fromJson(entitySchema));
+        graphLibrary.add("graph", Schema.fromJson(edgeSchema), new StoreProperties());
+
+        Schema clashingName = graphLibrary.getSchema("clashingName");
+
+        assertEquals(entitySchema, clashingName.toJson(true));
+        assertNotEquals(edgeSchema, clashingName.toJson(true));
+    }
+
+    @Test
+    public void shouldNotOverwritePropertiesSchemaWithClashingName() throws Exception {
+        StoreProperties propsA = new StoreProperties("clashingName");
+        propsA.set("a", "a");
+        StoreProperties propsB = new StoreProperties("clashingName");
+        propsA.set("b", "b");
+
+        graphLibrary.addProperties(propsA);
+        graphLibrary.add("graph", new Schema(), propsB);
+
+        StoreProperties clashingName = graphLibrary.getProperties("clashingName");
+
+        assertEquals(propsA, clashingName);
+        assertNotEquals(propsB, clashingName);
+    }
 }
