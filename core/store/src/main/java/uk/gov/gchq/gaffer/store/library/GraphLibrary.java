@@ -43,18 +43,21 @@ public abstract class GraphLibrary {
      */
     public void add(final String graphId, final Schema schema, final StoreProperties properties) throws OverwritingException {
         validateId(graphId);
-
-        final String schemaId = null != schema && null != schema.getId() ? schema.getId() : graphId;
-        schema.setId(schemaId);
-
-        final String propertiesId = null != properties && null != properties.getId() ? properties.getId() : graphId;
-        properties.setId(propertiesId);
-
         checkExisting(graphId, schema, properties);
-        _addIds(graphId, new Pair<>(schemaId, propertiesId));
+
+        final String schemaId = null != schema.getId() ? schema.getId() : graphId;
+        if (null != schema) {
+            schema.setId(schemaId);
+        }
+
+        final String propertiesId = null != properties.getId() ? properties.getId() : graphId;
+        if (null != properties) {
+            properties.setId(propertiesId);
+        }
 
         addSchema(schema);
         addProperties(properties);
+        _addIds(graphId, new Pair<>(schemaId, propertiesId));
     }
 
     /**
