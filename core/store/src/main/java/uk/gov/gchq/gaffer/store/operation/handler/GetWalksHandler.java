@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
@@ -42,10 +43,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * An operation handler for {@link GetWalks} operations.
+ *
+ * Currently the handler only supports creating {@link Walk}s which contain {@link Edge}s.
+ */
 public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterable<Walk>> {
 
     private final Set<EntitySeed> visitedSeeds = new HashSet<>();
-    private int pathVertices;
     private int hops;
 
     @Override
@@ -66,7 +71,6 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
         Iterable<? extends EntitySeed> seeds = operation.getInput();
 
         hops = operation.getOperations().size();
-        pathVertices = hops + 1;
 
         final HashBasedTable<Object, Object, Set<Edge>> subgraph = HashBasedTable.create();
 
@@ -76,7 +80,9 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
             final Set<EntitySeed> opSeeds = difference(visitedSeeds, Sets.newHashSet(seeds));
 
             op.setInput(opSeeds);
-            final Iterable<Edge> results = (Iterable<Edge>) store.execute(op, context);
+
+            // Cache the results locally
+            final List<Edge> results = Lists.newArrayList((Iterable<? extends Edge>) store.execute(op, context));
 
             visitedSeeds.addAll(opSeeds);
 

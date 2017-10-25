@@ -28,6 +28,8 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,12 +41,14 @@ import java.util.stream.IntStream;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
+import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.serialise;
 
 public class WalkTest {
 
@@ -66,7 +70,7 @@ public class WalkTest {
     private final static Entity ENTITY_G = new Entity.Builder().group(TestGroups.ENTITY).vertex("G").build();
 
     @Test
-    public void shouldJsonSerialiseAndDeserialise() throws JsonProcessingException {
+    public void shouldJsonSerialiseAndDeserialise() throws JsonProcessingException, SerialisationException {
         // Given
         final Walk walk = new Walk.Builder()
                 .edge(EDGE_AB)
@@ -74,10 +78,12 @@ public class WalkTest {
                 .edge(EDGE_BC)
                 .build();
 
-        // Then
-        final ObjectMapper mapper = createDefaultMapper();
+        // When
+        final byte[] json = JSONSerialiser.serialise(walk);
+        final Walk deserialisedWalk = JSONSerialiser.deserialise(json, Walk.class);
 
-        System.out.println(mapper.writeValueAsString(walk));
+        // Then
+        assertThat(walk, is(equalTo(deserialisedWalk)));
     }
 
     @Test

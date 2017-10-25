@@ -760,7 +760,7 @@ public abstract class Store {
         addOperationHandler(OperationChain.class, getOperationChainHandler());
         addOperationHandler(OperationChainDAO.class, getOperationChainHandler());
 
-        // GetWalks tracking
+        // Walk tracking
         addOperationHandler(GetWalks.class, new GetWalksHandler());
 
         // Other
