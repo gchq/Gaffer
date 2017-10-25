@@ -24,11 +24,23 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 import java.util.Map;
 
+/**
+ * An {@code ExtractItems} is an {@link Operation} which takes an {@link Iterable} of {@link Iterable}s,
+ * extracts a specific object based on user selection, and returns an {@link Iterable}.
+ */
 public class ExtractItems implements InputOutput<Iterable<Iterable<? extends Object>>, Iterable<? extends Object>> {
-
     private Iterable<Iterable<? extends Object>> input;
     private Map<String, String> options;
     private int selection;
+
+    public ExtractItems() {
+        // blank
+    }
+
+    public ExtractItems(final Iterable<Iterable<? extends Object>> input, final int selection) {
+        this.input = input;
+        this.selection = selection;
+    }
 
     @Override
     public Iterable<Iterable<? extends Object>> getInput() {
@@ -46,7 +58,7 @@ public class ExtractItems implements InputOutput<Iterable<Iterable<? extends Obj
     }
 
     @Override
-    public Operation shallowClone() throws CloneFailedException {
+    public ExtractItems shallowClone() throws CloneFailedException {
         return new ExtractItems.Builder()
                 .input(input)
                 .options(options)
@@ -76,7 +88,7 @@ public class ExtractItems implements InputOutput<Iterable<Iterable<? extends Obj
             extends Operation.BaseBuilder<ExtractItems, Builder>
             implements InputOutput.Builder<ExtractItems, Iterable<Iterable<? extends Object>>, Iterable<? extends Object>, Builder> {
 
-        protected Builder() {
+        public Builder() {
             super(new ExtractItems());
         }
 
