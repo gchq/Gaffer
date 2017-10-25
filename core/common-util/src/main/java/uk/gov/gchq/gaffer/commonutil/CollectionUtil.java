@@ -27,6 +27,14 @@ public final class CollectionUtil {
         // Private constructor to prevent instantiation.
     }
 
+    public static Iterable[] toIterableArray(final Collection<? extends Iterable> collection) {
+        if (null == collection) {
+            return null;
+        }
+
+        return collection.toArray(new Iterable[collection.size()]);
+    }
+
     public static <T> TreeSet<T> treeSet(final T item) {
         final TreeSet<T> treeSet = new TreeSet<>();
         if (null != item) {

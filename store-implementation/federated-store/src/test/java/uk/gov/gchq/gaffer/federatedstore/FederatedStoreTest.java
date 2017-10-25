@@ -137,6 +137,7 @@ public class FederatedStoreTest {
         assertEquals("Library has changed: " + ID_SCHEMA_ENTITY, new String(library.getSchema(ID_SCHEMA_ENTITY).toJson(false), CommonConstants.UTF_8), new String(getSchemaFromPath(PATH_BASIC_ENTITY_SCHEMA_JSON).toJson(false), CommonConstants.UTF_8));
     }
 
+
     @Test
     public void shouldLoadGraphsWithIds() throws Exception {
         // When

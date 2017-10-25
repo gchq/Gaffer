@@ -24,9 +24,10 @@ import java.util.List;
 
 /**
  * Simple data access object which enables the serialisation and deserialisation
+ *
  * @param <OUT> the output type of the {@code OperationChainDAO}. This should
- *             match the output type of the last {@link uk.gov.gchq.gaffer.operation.Operation}
- *             in the chain.
+ *              match the output type of the last {@link uk.gov.gchq.gaffer.operation.Operation}
+ *              in the chain.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
 public class OperationChainDAO<OUT> extends OperationChain<OUT> {
@@ -43,6 +44,12 @@ public class OperationChainDAO<OUT> extends OperationChain<OUT> {
         super(operations);
     }
 
+    public OperationChainDAO(final OperationChain<?> operationChain) {
+        super(operationChain.getOperations());
+        setOptions(operationChain.getOptions());
+    }
+
+
     /**
      * Get the class name of this class. This is set to always return {@code null}
      * in order to prevent the serialised version of this class from containing
@@ -58,6 +65,10 @@ public class OperationChainDAO<OUT> extends OperationChain<OUT> {
 
     @JsonSetter("class")
     public void setClassName(final String className) {
-        // Do nothing
+        if (null != className
+                && !OperationChain.class.getName().equals(className)
+                && !OperationChainDAO.class.getName().equals(className)) {
+            throw new IllegalArgumentException("Class name should be " + OperationChain.class.getName() + " or null");
+        }
     }
 }

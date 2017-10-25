@@ -27,6 +27,9 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.Collections;
 
 public class PredefinedFederatedStore extends FederatedStore {
+    public static final String ACCUMULO_GRAPH = "AccumuloStoreContainingEdges";
+    public static final String MAP_GRAPH = "MapStoreContainingEntities";
+    public static final String ALL_GRAPH_IDS = ACCUMULO_GRAPH + "," + MAP_GRAPH;
 
     @Override
     public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
@@ -34,7 +37,7 @@ public class PredefinedFederatedStore extends FederatedStore {
 
         // Accumulo store just contains edges
         addGraphs(null, User.UNKNOWN_USER_ID, false, new Graph.Builder()
-                .config(new GraphConfig("AccumuloStoreContainingEdges"))
+                .config(new GraphConfig(ACCUMULO_GRAPH))
                 .addSchema(new Schema.Builder()
                         .merge(schema.clone())
                         .entities(Collections.emptyMap())
@@ -44,7 +47,7 @@ public class PredefinedFederatedStore extends FederatedStore {
 
         // Map store just contains entities
         addGraphs(null, User.UNKNOWN_USER_ID, false, new Graph.Builder()
-                .config(new GraphConfig("MapStoreContainingEntities"))
+                .config(new GraphConfig(MAP_GRAPH))
                 .addSchema(new Schema.Builder()
                         .merge(schema.clone())
                         .edges(Collections.emptyMap())

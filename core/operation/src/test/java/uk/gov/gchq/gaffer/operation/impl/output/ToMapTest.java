@@ -75,6 +75,15 @@ public class ToMapTest extends OperationTest<ToMap> {
         assertEquals(Lists.newArrayList(input), clone.getInput());
     }
 
+    @Test
+    public void shouldGetOutputClass() {
+        // When
+        final Class<?> outputClass = getTestObject().getOutputClass();
+
+        // Then
+        assertEquals(Iterable.class, outputClass);
+    }
+
     @Override
     protected ToMap getTestObject() {
         return new ToMap();
