@@ -37,6 +37,7 @@ import uk.gov.gchq.gaffer.operation.export.resultcache.GafferResultCacheExporter
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -49,7 +50,6 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -72,6 +72,7 @@ public class GafferResultCacheExporterTest {
     @Before
     public void before() {
         given(store.getSchema()).willReturn(new Schema());
+        given(store.getProperties()).willReturn(new StoreProperties());
         resultCache = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("resultCacheGraph")
@@ -119,7 +120,7 @@ public class GafferResultCacheExporterTest {
         exporter.add(key, null);
 
         // Then
-        verify(store, never()).execute(Mockito.any(OperationChain.class),  Mockito.any(Context.class));
+        verify(store, never()).execute(Mockito.any(OperationChain.class), Mockito.any(Context.class));
     }
 
     @Test

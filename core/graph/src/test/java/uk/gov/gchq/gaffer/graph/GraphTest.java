@@ -288,6 +288,7 @@ public class GraphTest {
         given(store.execute(clonedOpChain, context)).willThrow(exception);
         final Schema schema = new Schema();
         given(store.getSchema()).willReturn(schema);
+        given(store.getProperties()).willReturn(new StoreProperties());
 
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -326,6 +327,7 @@ public class GraphTest {
         given(store.executeJob(clonedOpChain, context)).willThrow(exception);
         final Schema schema = new Schema();
         given(store.getSchema()).willReturn(schema);
+        given(store.getProperties()).willReturn(new StoreProperties());
 
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -362,6 +364,7 @@ public class GraphTest {
         given(store.createContext(user)).willReturn(context);
         final Schema schema = new Schema();
         given(store.getSchema()).willReturn(schema);
+        given(store.getProperties()).willReturn(new StoreProperties());
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
         final Graph graph = new Graph.Builder()
@@ -407,6 +410,7 @@ public class GraphTest {
         given(store.createContext(user)).willReturn(context);
         final Schema schema = new Schema();
         given(store.getSchema()).willReturn(schema);
+        given(store.getProperties()).willReturn(new StoreProperties());
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
         final Graph graph = new Graph.Builder()
@@ -458,6 +462,7 @@ public class GraphTest {
         final Schema schema = new Schema();
 
         given(store.getSchema()).willReturn(schema);
+        given(store.getProperties()).willReturn(new StoreProperties());
         given(hook1.postExecute(result1, clonedOpChain, context)).willReturn(result2);
         given(hook2.postExecute(result2, clonedOpChain, context)).willReturn(result3);
 
@@ -507,6 +512,7 @@ public class GraphTest {
         given(opChain.shallowClone()).willReturn(clonedOpChain);
 
         given(store.getSchema()).willReturn(schema);
+        given(store.getProperties()).willReturn(new StoreProperties());
         given(hook1.postExecute(result1, clonedOpChain, context)).willReturn(result2);
         given(hook2.postExecute(result2, clonedOpChain, context)).willReturn(result3);
 
@@ -553,6 +559,7 @@ public class GraphTest {
         given(opChain.shallowClone()).willReturn(clonedOpChain);
 
         given(store.getSchema()).willReturn(schema);
+        given(store.getProperties()).willReturn(new StoreProperties());
         given(hook1.postExecute(result1, clonedOpChain, context)).willReturn(result2);
         given(hook2.postExecute(result2, clonedOpChain, context)).willReturn(result3);
 
@@ -598,6 +605,7 @@ public class GraphTest {
         final Schema schema = new Schema();
         given(store.createContext(user)).willReturn(context);
         given(store.getSchema()).willReturn(schema);
+        given(store.getProperties()).willReturn(new StoreProperties());
         final RuntimeException e = new RuntimeException("Hook2 failed in postExecute");
         doThrow(e).when(hook1).preExecute(clonedOpChain, context);
         given(hook1.onFailure(null, clonedOpChain, context, e)).willThrow(new RuntimeException("Hook1 failed in onFailure"));
@@ -648,8 +656,8 @@ public class GraphTest {
         final Object result2 = mock(Object.class);
         final Object result3 = mock(Object.class);
         final Schema schema = new Schema();
-
         given(store.getSchema()).willReturn(schema);
+        given(store.getProperties()).willReturn(new StoreProperties());
         given(hook1.postExecute(result1, clonedOpChain, context)).willReturn(result2);
         final RuntimeException e = new RuntimeException("Hook2 failed in postExecute");
         given(hook2.postExecute(result2, clonedOpChain, context)).willThrow(e);
@@ -703,10 +711,11 @@ public class GraphTest {
         given(context.getUser()).willReturn(user);
         given(store.createContext(user)).willReturn(context);
         final Schema schema = new Schema();
+        given(store.getSchema()).willReturn(schema);
+        given(store.getProperties()).willReturn(new StoreProperties());
 
         final RuntimeException e = new RuntimeException("Store failed to execute operation chain");
 
-        given(store.getSchema()).willReturn(schema);
         given(hook1.onFailure(null, clonedOpChain, context, e)).willThrow(new RuntimeException("Hook1 failed in onFailure"));
         given(hook2.onFailure(null, clonedOpChain, context, e)).willReturn(null);
 
@@ -758,6 +767,7 @@ public class GraphTest {
         final Schema schema = new Schema();
         given(store.createContext(user)).willReturn(context);
         given(store.getSchema()).willReturn(schema);
+        given(store.getProperties()).willReturn(new StoreProperties());
         final RuntimeException e = new RuntimeException("Hook2 failed in postExecute");
         doThrow(e).when(hook1).preExecute(clonedOpChain, context);
         given(hook1.onFailure(null, clonedOpChain, context, e)).willThrow(new RuntimeException("Hook1 failed in onFailure"));
@@ -810,6 +820,7 @@ public class GraphTest {
         final Schema schema = new Schema();
 
         given(store.getSchema()).willReturn(schema);
+        given(store.getProperties()).willReturn(new StoreProperties());
         given(hook1.postExecute(result1, clonedOpChain, context)).willReturn(result2);
         final RuntimeException e = new RuntimeException("Hook2 failed in postExecute");
         given(hook2.postExecute(result2, clonedOpChain, context)).willThrow(e);
@@ -866,6 +877,7 @@ public class GraphTest {
         final RuntimeException e = new RuntimeException("Store failed to execute operation chain");
 
         given(store.getSchema()).willReturn(schema);
+        given(store.getProperties()).willReturn(new StoreProperties());
         given(hook1.onFailure(null, clonedOpChain, context, e)).willThrow(new RuntimeException("Hook1 failed in onFailure"));
         given(hook2.onFailure(null, clonedOpChain, context, e)).willReturn(null);
 
@@ -905,7 +917,9 @@ public class GraphTest {
         final Store store = mock(Store.class);
         given(store.getGraphId()).willReturn(GRAPH_ID);
         final Schema schema = mock(Schema.class);
+        given(schema.getId()).willReturn("schemaId");
         given(store.getSchema()).willReturn(schema);
+        given(store.getProperties()).willReturn(new StoreProperties());
         final Set<String> edgeGroups = new HashSet<>();
         edgeGroups.add("edge1");
         edgeGroups.add("edge2");
@@ -947,6 +961,8 @@ public class GraphTest {
     public void shouldExposeGetTraitsMethod() throws OperationException {
         // Given
         final Store store = mock(Store.class);
+        given(store.getSchema()).willReturn(new Schema());
+        given(store.getProperties()).willReturn(new StoreProperties());
         final View view = mock(View.class);
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -972,6 +988,8 @@ public class GraphTest {
             throws OperationException {
         // Given
         final Store store = mock(Store.class);
+        given(store.getSchema()).willReturn(new Schema());
+        given(store.getProperties()).willReturn(new StoreProperties());
         final View view = mock(View.class);
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -1008,6 +1026,8 @@ public class GraphTest {
             () throws OperationException {
         // Given
         final Store store = mock(Store.class);
+        given(store.getSchema()).willReturn(new Schema());
+        given(store.getProperties()).willReturn(new StoreProperties());
         final View opView = mock(View.class);
         final View view = mock(View.class);
         final Graph graph = new Graph.Builder()
@@ -1045,6 +1065,8 @@ public class GraphTest {
             () throws OperationException {
         // Given
         final Store store = mock(Store.class);
+        given(store.getSchema()).willReturn(new Schema());
+        given(store.getProperties()).willReturn(new StoreProperties());
         final View view = mock(View.class);
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
@@ -1103,7 +1125,7 @@ public class GraphTest {
                             .type("int", new TypeDefinition.Builder()
                                     .clazz(Integer.class)
                                     .aggregateFunction(new Sum())
-                                    // invalid serialiser
+                                            // invalid serialiser
                                     .serialiser(new RawDoubleSerialiser())
                                     .build())
                             .type("string", new TypeDefinition.Builder()
@@ -1134,6 +1156,7 @@ public class GraphTest {
         // Given
         final Store store = mock(Store.class);
         given(store.getSchema()).willReturn(new Schema());
+        given(store.getProperties()).willReturn(new StoreProperties());
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(GRAPH_ID)
@@ -1156,6 +1179,7 @@ public class GraphTest {
         // Given
         final Store store = mock(Store.class);
         given(store.getSchema()).willReturn(new Schema());
+        given(store.getProperties()).willReturn(new StoreProperties());
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(GRAPH_ID)
@@ -1176,6 +1200,7 @@ public class GraphTest {
         // Given
         final Store store = mock(Store.class);
         given(store.getSchema()).willReturn(new Schema());
+        given(store.getProperties()).willReturn(new StoreProperties());
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(GRAPH_ID)
