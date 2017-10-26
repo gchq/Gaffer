@@ -31,6 +31,9 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 public class FederatedGetSchemaHandler implements OutputOperationHandler<GetSchema, Schema> {
     @Override
     public Schema doOperation(final GetSchema operation, final Context context, final Store store) throws OperationException {
+        if (null == operation) {
+            throw new OperationException("Operation cannot be null");
+        }
         return ((FederatedStore) store).getSchema(operation, context);
     }
 }

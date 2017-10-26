@@ -30,7 +30,7 @@ public class GetSchemaHandler implements OutputOperationHandler<GetSchema, Schem
     public Schema doOperation(final GetSchema operation, final Context context, final Store store) throws OperationException {
         final Schema schema;
         if (null == operation) {
-            return new Schema();
+            throw new OperationException("Operation cannot be null");
         }
 
         if (operation.isCompact()) {
