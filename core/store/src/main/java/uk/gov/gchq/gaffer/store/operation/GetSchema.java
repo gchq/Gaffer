@@ -25,6 +25,10 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.Map;
 
+/**
+ * A {@code GetSchema} is an {@link uk.gov.gchq.gaffer.operation.Operation} which
+ * returns either the compact or full {@link Schema} for a Gaffer {@link uk.gov.gchq.gaffer.store.Store}.
+ */
 public class GetSchema implements Output<Schema> {
     private Map<String, String> options;
     private boolean compact = false;

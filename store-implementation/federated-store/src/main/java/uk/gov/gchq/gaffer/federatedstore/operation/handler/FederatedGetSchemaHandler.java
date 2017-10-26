@@ -25,8 +25,8 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 /**
- * An {@code FederatedGetSchemaHandler} handles for {@link uk.gov.gchq.gaffer.store.operation.GetSchema}
- * operation by merged federated schemas.
+ * A {@code FederatedGetSchemaHandler} handles the {@link uk.gov.gchq.gaffer.store.operation.GetSchema}
+ * operation by merging federated schemas.
  */
 public class FederatedGetSchemaHandler implements OutputOperationHandler<GetSchema, Schema> {
     @Override
