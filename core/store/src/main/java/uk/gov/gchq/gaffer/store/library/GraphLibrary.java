@@ -237,8 +237,8 @@ public abstract class GraphLibrary {
         if (null != getProperties(properties.getId())) {
             if (!getProperties(properties.getId()).getProperties().equals(properties.getProperties())) {
                 throw new OverwritingException("propertiesId " + properties.getId() + " already exists with a different store properties:\n"
-                        + "existing storeProperties:\n" + getProperties(properties.getId()).toString()
-                        + "\nnew storeProperties:\n" + properties.toString());
+                        + "existing storeProperties:\n" + getProperties(properties.getId()).getProperties().toString()
+                        + "\nnew storeProperties:\n" + properties.getProperties().toString());
             }
         }
     }
