@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
  */
 public abstract class GraphLibrary {
     protected static final Pattern ID_ALLOWED_CHARACTERS = Pattern.compile("[a-zA-Z0-9_]*");
+    public static final String A_GRAPH_LIBRARY_CAN_T_BE_ADDED_WITH_A_NULL_S_GRAPH_ID_S = "A GraphLibrary can't be added with a null %s, graphId: %s";
 
     public abstract void initialise(final String path);
 
@@ -51,7 +52,7 @@ public abstract class GraphLibrary {
             schema.setId(schemaId);
             addSchema(schema);
         } else {
-            throw new IllegalArgumentException("A GraphLibrary with graphId: " + graphId + "can't be added with a null Schema");
+            throw new IllegalArgumentException(String.format(A_GRAPH_LIBRARY_CAN_T_BE_ADDED_WITH_A_NULL_S_GRAPH_ID_S, Schema.class.getSimpleName(), graphId));
         }
 
         String propertiesId;
@@ -60,7 +61,7 @@ public abstract class GraphLibrary {
             properties.setId(propertiesId);
             addProperties(properties);
         } else {
-            throw new IllegalArgumentException("A GraphLibrary with graphId: " + graphId + "can't be added with null StoreProperties");
+            throw new IllegalArgumentException(String.format(A_GRAPH_LIBRARY_CAN_T_BE_ADDED_WITH_A_NULL_S_GRAPH_ID_S, StoreProperties.class.getSimpleName(), graphId));
         }
 
         _addIds(graphId, new Pair<>(schemaId, propertiesId));
