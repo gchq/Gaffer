@@ -45,18 +45,22 @@ public abstract class GraphLibrary {
         validateId(graphId);
         checkExisting(graphId, schema, properties);
 
-        String schemaId = null;
+        final String schemaId;
         if (null != schema) {
             schemaId = null != schema.getId() ? schema.getId() : graphId;
             schema.setId(schemaId);
             addSchema(schema);
+        } else {
+            throw new IllegalArgumentException("A GraphLibrary with graphId: " + graphId + "can't be added with a null Schema");
         }
 
-        String propertiesId = null;
+        String propertiesId;
         if (null != properties) {
             propertiesId = null != properties.getId() ? properties.getId() : graphId;
             properties.setId(propertiesId);
             addProperties(properties);
+        } else {
+            throw new IllegalArgumentException("A GraphLibrary with graphId: " + graphId + "can't be added with null StoreProperties");
         }
 
         _addIds(graphId, new Pair<>(schemaId, propertiesId));

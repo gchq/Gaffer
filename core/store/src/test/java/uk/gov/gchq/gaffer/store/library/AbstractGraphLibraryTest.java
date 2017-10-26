@@ -329,4 +329,24 @@ public abstract class AbstractGraphLibraryTest {
         assertEquals(propsA.getProperties(), storePropertiesFromLibrary.getProperties());
         assertNotEquals(propsB.getProperties(), storePropertiesFromLibrary.getProperties());
     }
+
+    @Test
+    public void shouldThrowExceptionWhenAddingAFullLibraryWithNullSchema() throws Exception {
+        try {
+            graphLibrary.add(TEST_GRAPH_ID, null, storeProperties);
+            fail(EXCEPTION_EXPECTED);
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("can't be added with a null Schema"));
+        }
+    }
+
+    @Test
+    public void shouldThrowExeptionWhenAddingAFullLibraryWithNullStoreProperties() throws Exception {
+        try {
+            graphLibrary.add(TEST_GRAPH_ID, schema, null);
+            fail(EXCEPTION_EXPECTED);
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("can't be added with null StoreProperties"));
+        }
+    }
 }
