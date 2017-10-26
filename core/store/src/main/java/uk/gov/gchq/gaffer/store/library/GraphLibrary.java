@@ -45,18 +45,20 @@ public abstract class GraphLibrary {
         validateId(graphId);
         checkExisting(graphId, schema, properties);
 
-        final String schemaId = null != schema.getId() ? schema.getId() : graphId;
+        String schemaId = null;
         if (null != schema) {
+            schemaId = null != schema.getId() ? schema.getId() : graphId;
             schema.setId(schemaId);
+            addSchema(schema);
         }
 
-        final String propertiesId = null != properties.getId() ? properties.getId() : graphId;
+        String propertiesId = null;
         if (null != properties) {
+            propertiesId = null != properties.getId() ? properties.getId() : graphId;
             properties.setId(propertiesId);
+            addProperties(properties);
         }
 
-        addSchema(schema);
-        addProperties(properties);
         _addIds(graphId, new Pair<>(schemaId, propertiesId));
     }
 
