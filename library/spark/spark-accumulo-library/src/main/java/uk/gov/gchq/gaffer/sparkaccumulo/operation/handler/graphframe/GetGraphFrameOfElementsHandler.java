@@ -71,9 +71,13 @@ public class GetGraphFrameOfElementsHandler implements OutputOperationHandler<Ge
 
         final SparkSession sparkSession = SparkContextUtil.getSparkSession(context, store.getProperties());
 
+        // Create a DataFrame of Edges - must add an "id" column which we fill with
+        // the row number. We add a partitionBy on group to avoid creating a single
+        // partition for all data.
         final Dataset<Row> edges = sparkSession.sql("select * from elements where group in " + edgeGroups)
                 .withColumn("id", functions.row_number().over(Window.orderBy("group").partitionBy("group")));
 
+        // Create a DataFrame of Entities
         final Dataset<Row> entities = sparkSession.sql("select * from elements where group in " + entityGroups);
 
         return GraphFrame.apply(entities.withColumnRenamed("vertex", "id"), edges);
