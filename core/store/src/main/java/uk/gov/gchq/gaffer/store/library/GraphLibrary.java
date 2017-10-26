@@ -43,17 +43,21 @@ public abstract class GraphLibrary {
      */
     public void add(final String graphId, final Schema schema, final StoreProperties properties) throws OverwritingException {
         validateId(graphId);
+        checkExisting(graphId, schema, properties);
 
-        final byte[] schemaJson = null != schema ? schema.toJson(false) : null;
+        final String schemaId = null != schema.getId() ? schema.getId() : graphId;
+        if (null != schema) {
+            schema.setId(schemaId);
+        }
 
-        checkExisting(graphId, schemaJson, properties);
+        final String propertiesId = null != properties.getId() ? properties.getId() : graphId;
+        if (null != properties) {
+            properties.setId(propertiesId);
+        }
 
-        final String schemaId = null != schema && null != schema.getId() ? schema.getId() : graphId;
-        final String propertiesId = null != properties && null != properties.getId() ? properties.getId() : graphId;
-
+        addSchema(schema);
+        addProperties(properties);
         _addIds(graphId, new Pair<>(schemaId, propertiesId));
-        _addSchema(schemaId, schemaJson);
-        _addProperties(propertiesId, properties);
     }
 
     /**
@@ -73,11 +77,13 @@ public abstract class GraphLibrary {
         _addIds(graphId, new Pair<>(schemaId, propertiesId));
 
         if (null != schema) {
+            schema.setId(schemaId);
             final byte[] schemaJson = schema.toJson(false);
             _addSchema(schemaId, schemaJson);
         }
 
         if (null != properties) {
+            properties.setId(propertiesId);
             _addProperties(propertiesId, properties);
         }
     }
@@ -231,8 +237,8 @@ public abstract class GraphLibrary {
         if (null != getProperties(properties.getId())) {
             if (!getProperties(properties.getId()).getProperties().equals(properties.getProperties())) {
                 throw new OverwritingException("propertiesId " + properties.getId() + " already exists with a different store properties:\n"
-                        + "existing storeProperties:\n" + getProperties(properties.getId()).toString()
-                        + "\nnew storeProperties:\n" + properties.toString());
+                        + "existing storeProperties:\n" + getProperties(properties.getId()).getProperties().toString()
+                        + "\nnew storeProperties:\n" + properties.getProperties().toString());
             }
         }
     }

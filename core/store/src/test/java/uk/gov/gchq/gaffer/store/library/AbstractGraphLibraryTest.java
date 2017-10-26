@@ -20,14 +20,19 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
+import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.Schema.Builder;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -45,6 +50,7 @@ public abstract class AbstractGraphLibraryTest {
     private static final String TEST_PROPERTIES_ID = "testPropertiesId";
     private static final String TEST_PROPERTIES_ID_1 = "testPropertiesId1";
     private static final String TEST_UNKNOWN_PROPERTIES_ID = "unknownPropertiesId";
+    private static final String EXCEPTION_EXPECTED = "Exception expected";
 
     private Schema schema = new Schema.Builder().id(TEST_SCHEMA_ID).build();
     private Schema schema1 = new Schema.Builder().id(TEST_SCHEMA_ID_1).build();
@@ -85,7 +91,7 @@ public abstract class AbstractGraphLibraryTest {
         // When / Then
         try {
             graphLibrary.add(TEST_GRAPH_ID + "@#", schema, storeProperties);
-            fail("Exception expected");
+            fail(EXCEPTION_EXPECTED);
         } catch (final IllegalArgumentException e) {
             assertNotNull(e.getMessage());
         }
@@ -119,7 +125,7 @@ public abstract class AbstractGraphLibraryTest {
         // When / Then
         try {
             graphLibrary.add(TEST_GRAPH_ID, schema1, storeProperties);
-            fail("Exception expected");
+            fail(EXCEPTION_EXPECTED);
         } catch (final OverwritingException e) {
             assertTrue(e.getMessage().contains("already exists with a different schema"));
         }
@@ -152,7 +158,7 @@ public abstract class AbstractGraphLibraryTest {
         // When / Then
         try {
             graphLibrary.add(TEST_GRAPH_ID, schema, storeProperties1);
-            fail("Exception expected");
+            fail(EXCEPTION_EXPECTED);
         } catch (final Exception e) {
             assertTrue(e.getMessage().contains("already exists with a different store properties"));
         }
@@ -229,7 +235,7 @@ public abstract class AbstractGraphLibraryTest {
         // Then
         try {
             graphLibrary.addProperties(tempStoreProperties);
-            fail("Exception expected");
+            fail(EXCEPTION_EXPECTED);
         } catch (final OverwritingException e) {
             assertTrue(e.getMessage().contains("already exists with a different store properties"));
         }
@@ -250,7 +256,7 @@ public abstract class AbstractGraphLibraryTest {
         // Then
         try {
             graphLibrary.addSchema(tempSchema);
-            fail("Exception expected");
+            fail(EXCEPTION_EXPECTED);
         } catch (final OverwritingException e) {
             assertTrue(e.getMessage().contains("already exists with a different schema"));
         }
@@ -280,4 +286,47 @@ public abstract class AbstractGraphLibraryTest {
         // Then - no exceptions
     }
 
+    @Test
+    public void shouldNotOverwriteSchemaWithClashingName() throws Exception {
+        final String clashingId = "clashingId";
+        byte[] entitySchema = new Builder().id(clashingId).entity("e1", new SchemaEntityDefinition.Builder().property("p1", "string").build()).type("string", String.class).build().toJson(true);
+        byte[] edgeSchema = new Builder().id(clashingId).edge("e1", new SchemaEdgeDefinition.Builder().property("p1", "string").build()).type("string", String.class).build().toJson(true);
+
+        graphLibrary.addSchema(Schema.fromJson(entitySchema));
+
+        try {
+            graphLibrary.add("graph", Schema.fromJson(edgeSchema), new StoreProperties());
+            fail(EXCEPTION_EXPECTED);
+        } catch (final OverwritingException e) {
+            assertTrue(e.getMessage().contains("schemaId clashingId already exists with a different schema"));
+        }
+
+        Schema schemaFromLibrary = graphLibrary.getSchema(clashingId);
+
+        assertTrue(JsonUtil.equals(entitySchema, schemaFromLibrary.toJson(true)));
+        assertFalse(JsonUtil.equals(schemaFromLibrary.toJson(true), edgeSchema));
+    }
+
+    @Test
+    public void shouldNotOverwriteStorePropertiesWithClashingName() throws Exception {
+        final String clashingId = "clashingId";
+        StoreProperties propsA = new StoreProperties(clashingId);
+        propsA.set("a", "a");
+        StoreProperties propsB = new StoreProperties(clashingId);
+        propsB.set("b", "b");
+
+        graphLibrary.addProperties(propsA);
+
+        try {
+            graphLibrary.add("graph", new Schema(), propsB);
+            fail(EXCEPTION_EXPECTED);
+        } catch (final OverwritingException e) {
+            assertTrue(e.getMessage().contains("propertiesId clashingId already exists with a different store properties"));
+        }
+
+        StoreProperties storePropertiesFromLibrary = graphLibrary.getProperties(clashingId);
+
+        assertEquals(propsA.getProperties(), storePropertiesFromLibrary.getProperties());
+        assertNotEquals(propsB.getProperties(), storePropertiesFromLibrary.getProperties());
+    }
 }
