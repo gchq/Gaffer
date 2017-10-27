@@ -31,6 +31,7 @@ import javax.ws.rs.core.Response;
 import java.util.Map;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.INTERNAL_SERVER_ERROR;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.OK;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.PROPERTY_NOT_FOUND;
@@ -51,8 +52,9 @@ public interface IPropertiesServiceV2 {
     Response getProperties();
 
     @GET
-    @Path("/property/{propertyName}")
-    @ApiOperation(value = "Gets the property value for the specified property name.", response = Object.class, responseContainer = "list", produces = APPLICATION_JSON)
+    @Path("/{propertyName}")
+    @Produces(TEXT_PLAIN)
+    @ApiOperation(value = "Gets the property value for the specified property name.", response = String.class, produces = TEXT_PLAIN)
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
             @ApiResponse(code = 404, message = PROPERTY_NOT_FOUND),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})

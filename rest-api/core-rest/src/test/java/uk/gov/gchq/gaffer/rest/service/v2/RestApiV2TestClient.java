@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.rest.service.v2;
 
-import scala.tools.nsc.doc.model.Public;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;

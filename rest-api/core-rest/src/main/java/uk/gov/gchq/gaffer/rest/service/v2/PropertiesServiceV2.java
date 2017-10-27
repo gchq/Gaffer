@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.rest.service.v2;
 
-import com.google.common.collect.Sets;
-
 import uk.gov.gchq.gaffer.rest.ServiceConstants;
 
 import javax.ws.rs.core.Response;
@@ -30,7 +28,7 @@ import java.util.Map;
  * An implementation of {@link IPropertiesServiceV2} that gets the configured system properties
  */
 public class PropertiesServiceV2 implements IPropertiesServiceV2 {
-    private static final Map<String, Object> PROPERTIES = new HashMap<>();
+    private static final Map<String, String> PROPERTIES = new HashMap<>();
     private static final String PROPERTIES_LIST = "gaffer.properties";
 
     static {
@@ -51,8 +49,8 @@ public class PropertiesServiceV2 implements IPropertiesServiceV2 {
 
     @Override
     public Response getProperty(final String propertyName) {
-        Object prop = PROPERTIES.get(propertyName);
-        return prop == null ? Response.status(404).header(ServiceConstants.GAFFER_MEDIA_TYPE_HEADER, ServiceConstants.GAFFER_MEDIA_TYPE).build()  : Response.ok(Sets.newHashSet(prop)).header(ServiceConstants.GAFFER_MEDIA_TYPE_HEADER, ServiceConstants.GAFFER_MEDIA_TYPE).build();
+        String prop = PROPERTIES.get(propertyName);
+        return prop == null ? Response.status(404).header(ServiceConstants.GAFFER_MEDIA_TYPE_HEADER, ServiceConstants.GAFFER_MEDIA_TYPE).build()  : Response.ok(prop).header(ServiceConstants.GAFFER_MEDIA_TYPE_HEADER, ServiceConstants.GAFFER_MEDIA_TYPE).build();
     }
 
 }
