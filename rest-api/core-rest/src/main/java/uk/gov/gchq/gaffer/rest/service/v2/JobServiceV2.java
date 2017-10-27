@@ -62,13 +62,7 @@ public class JobServiceV2 implements IJobServiceV2 {
     public Response executeJob(final Operation operation) throws OperationException {
         final Context context = userFactory.createContext();
 
-        OperationChain opChain;
-
-        if (operation instanceof OperationChain) {
-            opChain = (OperationChain) operation;
-        } else {
-            opChain = new OperationChain(operation);
-        }
+        final OperationChain opChain = OperationChain.wrap(operation);
 
         preOperationHook(opChain, context);
 

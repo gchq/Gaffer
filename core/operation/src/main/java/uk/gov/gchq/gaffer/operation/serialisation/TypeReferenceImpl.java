@@ -99,7 +99,7 @@ public final class TypeReferenceImpl {
     public static class Map extends TypeReference<java.util.LinkedHashMap> {
     }
 
-    public static class MapStringSet extends TypeReference<java.util.LinkedHashMap<String, Set<Object>>> {
+    public static class MapStringSet extends TypeReference<java.util.Map<String, Set<Object>>> {
     }
 
     public static class Operations extends TypeReference<Set<Class<uk.gov.gchq.gaffer.operation.Operation>>> {

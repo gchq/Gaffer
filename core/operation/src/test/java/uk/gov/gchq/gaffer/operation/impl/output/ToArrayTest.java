@@ -59,6 +59,15 @@ public class ToArrayTest extends OperationTest<ToArray> {
         assertEquals(input, clone.getInput().iterator().next());
     }
 
+    @Test
+    public void shouldGetOutputClass() {
+        // When
+        final Class<?> outputClass = getTestObject().getOutputClass();
+
+        // Then
+        assertEquals(Object.class, outputClass);
+    }
+
     @Override
     protected ToArray getTestObject() {
         return new ToArray();

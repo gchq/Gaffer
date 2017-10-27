@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
+import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -40,7 +41,7 @@ public class FederatedGetAllElementsHandler extends FederatedOperationOutputHand
         if (results.isEmpty()) {
             throw new IllegalArgumentException(NO_RESULTS_TO_MERGE_ERROR);
         }
-        return new ChainedIterable<>(results.toArray(new Iterable[results.size()]));
+        return new ChainedIterable<>(CollectionUtil.toIterableArray(results));
     }
 
 }
