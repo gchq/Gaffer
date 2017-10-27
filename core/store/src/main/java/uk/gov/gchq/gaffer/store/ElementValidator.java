@@ -149,12 +149,7 @@ public class ElementValidator implements Validator<Element> {
         }
 
         final SchemaElementDefinition elementDef = schema.getElement(element.getGroup());
-        if (null == elementDef) {
-            LOGGER.warn("No element definition found for : {}", element.getGroup());
-            return false;
-        }
-
-        return elementDef.getValidator(includeIsA).test(element);
+        return null != elementDef && elementDef.getValidator(includeIsA).test(element);
     }
 
     private ValidationResult validateWithSchemaWithValidationResult(final Element element) {

@@ -88,6 +88,15 @@ public class ExportToGafferResultCacheTest extends OperationTest<ExportToGafferR
         assertEquals(opAuths, clone.getOpAuths());
     }
 
+    @Test
+    public void shouldGetOutputClass() {
+        // When
+        final Class<?> outputClass = getTestObject().getOutputClass();
+
+        // Then
+        assertEquals(Object.class, outputClass);
+    }
+
     @Override
     protected ExportToGafferResultCache getTestObject() {
         return new ExportToGafferResultCache();

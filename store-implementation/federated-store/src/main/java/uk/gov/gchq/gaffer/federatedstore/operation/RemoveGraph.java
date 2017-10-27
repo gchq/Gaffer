@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.federatedstore.operation;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
-import uk.gov.gchq.gaffer.operation.Operation;
 
 import java.util.Map;
 
@@ -36,7 +35,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
  * @see uk.gov.gchq.gaffer.federatedstore.FederatedStore
  * @see uk.gov.gchq.gaffer.graph.Graph
  */
-public class RemoveGraph implements Operation {
+public class RemoveGraph implements FederatedOperation {
 
     @Required
     private String graphId;

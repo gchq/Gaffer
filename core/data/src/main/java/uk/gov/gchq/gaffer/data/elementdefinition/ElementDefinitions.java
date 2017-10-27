@@ -230,7 +230,6 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
             return self();
         }
 
-
         /**
          * Adds an entity definition for a given entity type.
          *

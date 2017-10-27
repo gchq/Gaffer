@@ -24,13 +24,14 @@ import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -50,7 +51,7 @@ public class OperationAuthoriser implements GraphHook {
      * This is done by checking the user's auths against the operation auths.
      * If an operation cannot be executed then an {@link IllegalAccessError} is thrown.
      *
-     * @param context  the user to authorise.
+     * @param context the user to authorise.
      * @param opChain the operation chain.
      */
     @Override
@@ -121,8 +122,8 @@ public class OperationAuthoriser implements GraphHook {
 
     protected void authorise(final Operation operation, final User user) {
         if (null != operation) {
-            if (operation instanceof OperationChain) {
-                final List<Operation> operations = ((OperationChain) operation).getOperations();
+            if (operation instanceof Operations) {
+                final Collection<? extends Operation> operations = ((Operations<?>) operation).getOperations();
                 operations.forEach(op -> authorise(op, user));
             }
 

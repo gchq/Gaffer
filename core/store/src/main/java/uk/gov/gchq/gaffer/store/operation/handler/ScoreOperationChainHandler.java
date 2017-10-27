@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.impl.ScoreOperationChain;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -62,16 +62,21 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
      */
     @Override
     public Integer doOperation(final ScoreOperationChain operation, final Context context, final Store store) throws OperationException {
-        return getChainScore(operation.getOperationChain(), context.getUser());
+
+        if (null != operation.getOperationChain()) {
+            return getChainScore(operation.getOperationChain(), context.getUser());
+        } else {
+            return 0;
+        }
     }
 
-    public int getChainScore(final OperationChain<?> opChain, final User user) {
+    public int getChainScore(final Operations<?> operations, final User user) {
         int chainScore = 0;
 
-        if (null != opChain) {
-            for (final Operation operation : opChain.getOperations()) {
-                if (operation instanceof OperationChain) {
-                    chainScore += getChainScore((OperationChain<?>) operation, user);
+        if (null != operations.getOperations()) {
+            for (final Operation operation : operations.getOperations()) {
+                if (operation instanceof Operations) {
+                    chainScore += getChainScore((Operations) operation, user);
                 } else {
                     ScoreResolver resolver = scoreResolvers.get(operation.getClass());
                     Integer opScore = null;
