@@ -48,18 +48,22 @@ public abstract class GraphLibrary {
 
         final String schemaId;
         if (null != schema) {
+            final Schema clonedSchema;
+            clonedSchema = schema.clone();
             schemaId = null != schema.getId() ? schema.getId() : graphId;
-            schema.setId(schemaId);
-            addSchema(schema);
+            clonedSchema.setId(schemaId);
+            addSchema(clonedSchema);
         } else {
             throw new IllegalArgumentException(String.format(A_GRAPH_LIBRARY_CAN_T_BE_ADDED_WITH_A_NULL_S_GRAPH_ID_S, Schema.class.getSimpleName(), graphId));
         }
 
         String propertiesId;
         if (null != properties) {
+            final StoreProperties clonedProperties;
+            clonedProperties = properties.clone();
             propertiesId = null != properties.getId() ? properties.getId() : graphId;
-            properties.setId(propertiesId);
-            addProperties(properties);
+            clonedProperties.setId(propertiesId);
+            addProperties(clonedProperties);
         } else {
             throw new IllegalArgumentException(String.format(A_GRAPH_LIBRARY_CAN_T_BE_ADDED_WITH_A_NULL_S_GRAPH_ID_S, StoreProperties.class.getSimpleName(), graphId));
         }
