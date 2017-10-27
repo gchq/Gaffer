@@ -74,7 +74,7 @@ public final class GraphDelegate {
                 .build();
     }
 
-    private static StoreProperties resolveStoreProperties(final Store store, final StoreProperties properties, final String parentStorePropertiesId) {
+    public static StoreProperties resolveStoreProperties(final Store store, final StoreProperties properties, final String parentStorePropertiesId) {
         StoreProperties rtn = null;
 
         if (null != parentStorePropertiesId) {
@@ -95,7 +95,7 @@ public final class GraphDelegate {
         return rtn;
     }
 
-    private static Schema resolveSchema(final Store store, final Schema schema, final List<String> parentSchemaIds) {
+    public static Schema resolveSchema(final Store store, final Schema schema, final List<String> parentSchemaIds) {
         final GraphLibrary graphLibrary = store.getGraphLibrary();
 
         Schema rtn = null;

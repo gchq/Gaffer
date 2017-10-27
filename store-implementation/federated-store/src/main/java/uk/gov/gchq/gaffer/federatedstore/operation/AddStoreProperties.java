@@ -22,7 +22,6 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.Map;
 import java.util.Properties;
@@ -51,7 +50,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
  * </p>
  *
  * @see uk.gov.gchq.gaffer.federatedstore.FederatedStore
- * @see Schema
+ * @see uk.gov.gchq.gaffer.store.schema.Schema
  * @see uk.gov.gchq.gaffer.data.element.Properties
  * @see uk.gov.gchq.gaffer.graph.Graph
  */
@@ -59,6 +58,7 @@ public class AddStoreProperties implements FederatedOperation {
 
     @Required
     private StoreProperties storeProperties;
+    private String parentPropertiesId;
     private Map<String, String> options;
 
     public AddStoreProperties() {
@@ -69,6 +69,7 @@ public class AddStoreProperties implements FederatedOperation {
     public AddStoreProperties shallowClone() throws CloneFailedException {
         return new Builder()
                 .storeProperties(storeProperties)
+                .parentPropertiesId(parentPropertiesId)
                 .options(this.options)
                 .build();
     }
@@ -105,6 +106,14 @@ public class AddStoreProperties implements FederatedOperation {
         }
     }
 
+    public String getParentPropertiesId() {
+        return parentPropertiesId;
+    }
+
+    public void setParentPropertiesId(final String parentPropertiesId) {
+        this.parentPropertiesId = parentPropertiesId;
+    }
+
     public static class Builder extends BaseBuilder<AddStoreProperties, Builder> {
         public Builder() {
             super(new AddStoreProperties());
@@ -114,5 +123,11 @@ public class AddStoreProperties implements FederatedOperation {
             _getOp().setStoreProperties(storeProperties);
             return this;
         }
+
+        public Builder parentPropertiesId(final String parentPropertiesId) {
+            this._getOp().setParentPropertiesId(parentPropertiesId);
+            return _self();
+        }
+
     }
 }

@@ -21,6 +21,7 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import java.util.List;
 import java.util.Map;
 
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
@@ -55,7 +56,7 @@ public class AddSchema implements FederatedOperation {
 
     @Required
     private Schema schema;
-    @Required
+    private List<String> parentSchemaIds;
     private Map<String, String> options;
 
     public AddSchema() {
@@ -75,6 +76,7 @@ public class AddSchema implements FederatedOperation {
     public AddSchema shallowClone() throws CloneFailedException {
         return new Builder()
                 .options(options)
+                .parentSchemaIds(parentSchemaIds)
                 .schema(schema).build();
     }
 
@@ -89,6 +91,13 @@ public class AddSchema implements FederatedOperation {
         this.options = options;
     }
 
+    public List<String> getParentSchemaIds() {
+        return parentSchemaIds;
+    }
+
+    public void setParentSchemaIds(final List<String> parentSchemaIds) {
+        this.parentSchemaIds = parentSchemaIds;
+    }
 
     public static class Builder extends BaseBuilder<AddSchema, Builder> {
         public Builder() {
@@ -99,5 +108,11 @@ public class AddSchema implements FederatedOperation {
             _getOp().setSchema(schema);
             return _self();
         }
+
+        public Builder parentSchemaIds(final List<String> parentSchemaIds) {
+            _getOp().setParentSchemaIds(parentSchemaIds);
+            return _self();
+        }
+
     }
 }

@@ -28,6 +28,8 @@ import static org.junit.Assert.assertEquals;
 
 public class AddStorePropertiesTest extends OperationTest<AddStoreProperties> {
 
+    public static final String VALUE_1 = "value1";
+
     @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet("storeProperties");
@@ -43,19 +45,23 @@ public class AddStorePropertiesTest extends OperationTest<AddStoreProperties> {
         MapStoreProperties storeProperties = new MapStoreProperties();
         AddStoreProperties op = new Builder()
                 .storeProperties(storeProperties)
+                .parentPropertiesId(VALUE_1)
                 .build();
 
         assertEquals(storeProperties, op.getStoreProperties());
+        assertEquals(VALUE_1, op.getParentPropertiesId());
     }
 
     @Override
     public void shouldShallowCloneOperation() {
         AddStoreProperties op = new Builder()
                 .storeProperties(new MapStoreProperties())
+                .parentPropertiesId(VALUE_1)
                 .build();
 
         AddStoreProperties clone = op.shallowClone();
 
         assertEquals(op.getStoreProperties(), clone.getStoreProperties());
+        assertEquals(op.getParentPropertiesId(), clone.getParentPropertiesId());
     }
 }

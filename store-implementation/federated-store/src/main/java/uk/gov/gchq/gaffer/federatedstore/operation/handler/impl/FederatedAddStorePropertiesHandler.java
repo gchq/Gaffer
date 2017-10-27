@@ -19,8 +19,10 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
@@ -36,13 +38,18 @@ public class FederatedAddStorePropertiesHandler implements OperationHandler<AddS
         if (null == graphLibrary) {
             throw new OperationException(String.format(ERROR_ADDING_STORE_TO_FEDERATED_STORE_S, THE_STORE_DOES_NOT_HAVE_A_GRAPH_LIBRARY));
         } else {
+            StoreProperties properties;
             try {
-                graphLibrary.addProperties(operation.getStoreProperties());
+                properties = GraphDelegate.resolveStoreProperties(store, operation.getStoreProperties(), operation.getParentPropertiesId());
             } catch (final Exception e) {
-                throw new OperationException(String.format(ERROR_ADDING_STORE_TO_FEDERATED_STORE_S, " storeProperties: " + operation.getStoreProperties()), e);
+                throw new OperationException(String.format(ERROR_ADDING_STORE_TO_FEDERATED_STORE_S, " storeProperties couldn't be resolved."), e);
+            }
+            try {
+                graphLibrary.addProperties(properties);
+            } catch (final Exception e) {
+                throw new OperationException(String.format(ERROR_ADDING_STORE_TO_FEDERATED_STORE_S, " storeProperties: " + properties));
             }
         }
         return null;
     }
-
 }

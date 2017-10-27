@@ -19,10 +19,12 @@ package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddSchema;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 
 public class FederatedAddSchemaHandler implements OperationHandler<AddSchema> {
 
@@ -36,13 +38,18 @@ public class FederatedAddSchemaHandler implements OperationHandler<AddSchema> {
         if (null == graphLibrary) {
             throw new OperationException(String.format(ERROR_ADDING_SCHEMA_TO_FEDERATED_STORE_S, THE_STORE_DOES_NOT_HAVE_A_GRAPH_LIBRARY));
         } else {
+            Schema mergedSchema;
             try {
-                graphLibrary.addSchema(operation.getSchema());
+                mergedSchema = GraphDelegate.resolveSchema(store, operation.getSchema(), operation.getParentSchemaIds());
+            } catch (final Exception e) {
+                throw new OperationException(String.format(ERROR_ADDING_SCHEMA_TO_FEDERATED_STORE_S, " schema couldn't be resolved."), e);
+            }
+            try {
+                graphLibrary.addSchema(mergedSchema);
             } catch (final Exception e) {
                 throw new OperationException(String.format(ERROR_ADDING_SCHEMA_TO_FEDERATED_STORE_S, " schema: " + operation.getSchema()), e);
             }
         }
         return null;
     }
-
 }
