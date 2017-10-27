@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.GraphConfigEnu
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.LocationEnum;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddSchema;
+import uk.gov.gchq.gaffer.federatedstore.operation.AddStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
@@ -37,6 +38,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedTransformHan
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedValidateHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddSchemaHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddStorePropertiesHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllElementsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllGraphIDHandler;
@@ -301,6 +303,7 @@ public class FederatedStore extends Store {
 
         addOperationHandler(FederatedOperationChain.class, new FederatedOperationChainHandler());
         addOperationHandler(AddSchema.class, new FederatedAddSchemaHandler());
+        addOperationHandler(AddStoreProperties.class, new FederatedAddStorePropertiesHandler());
     }
 
     @Override

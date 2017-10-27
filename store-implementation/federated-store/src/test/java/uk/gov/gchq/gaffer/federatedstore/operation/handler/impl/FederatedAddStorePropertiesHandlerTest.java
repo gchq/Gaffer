@@ -21,40 +21,43 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
-import uk.gov.gchq.gaffer.federatedstore.operation.AddSchema;
+import uk.gov.gchq.gaffer.federatedstore.operation.AddStoreProperties;
+import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
-import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.blankUser;
-import static uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddSchemaHandler.ERROR_ADDING_SCHEMA_TO_FEDERATED_STORE_S;
-import static uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddSchemaHandler.THE_STORE_DOES_NOT_HAVE_A_GRAPH_LIBRARY;
+import static uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddStorePropertiesHandler.ERROR_ADDING_STORE_TO_FEDERATED_STORE_S;
+import static uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddStorePropertiesHandler.THE_STORE_DOES_NOT_HAVE_A_GRAPH_LIBRARY;
 
-public class FederatedAddSchemaHandlerTest {
+public class FederatedAddStorePropertiesHandlerTest {
 
-    public static final String TEST_SCHEMA_ID = "testSchemaId";
+    public static final String TEST_PROPS_ID = "testPropsId";
     private FederatedStore federatedStore;
-    private Schema schema;
+    private StoreProperties props;
 
     @Before
     public void setUp() throws Exception {
         federatedStore = new FederatedStore();
         HashMapGraphLibrary.clear();
-        schema = new Schema.Builder().id(TEST_SCHEMA_ID).build();
+        props = new MapStoreProperties();
+        props.setId(TEST_PROPS_ID);
+        props.set("unusual", "testValue");
     }
 
     @Test
     public void shouldThrowWithNoGraphLibrary() throws Exception {
         federatedStore.initialise("fedStoreId", null, new FederatedStoreProperties());
         try {
-            federatedStore.execute(new AddSchema.Builder().schema(schema).build(), new Context(blankUser()));
+            federatedStore.execute(new AddStoreProperties.Builder().storeProperties(props).build(), new Context(blankUser()));
             fail("Exception expected");
         } catch (final OperationException e) {
-            assertTrue(e.getMessage().contains(String.format(ERROR_ADDING_SCHEMA_TO_FEDERATED_STORE_S, THE_STORE_DOES_NOT_HAVE_A_GRAPH_LIBRARY)));
+            assertTrue(e.getMessage().contains(String.format(ERROR_ADDING_STORE_TO_FEDERATED_STORE_S, THE_STORE_DOES_NOT_HAVE_A_GRAPH_LIBRARY)));
         }
     }
 
@@ -63,9 +66,9 @@ public class FederatedAddSchemaHandlerTest {
         HashMapGraphLibrary library = new HashMapGraphLibrary();
         federatedStore.setGraphLibrary(library);
         federatedStore.initialise("fedStoreId", null, new FederatedStoreProperties());
-        federatedStore.execute(new AddSchema.Builder().schema(schema).build(), new Context(blankUser()));
-        Schema actualSchema = library.getSchema(TEST_SCHEMA_ID);
-        assertEquals(schema, actualSchema);
+        federatedStore.execute(new AddStoreProperties.Builder().storeProperties(props).build(), new Context(blankUser()));
+        StoreProperties actualProps = library.getProperties(TEST_PROPS_ID);
+        assertEquals(props.getProperties(), actualProps.getProperties());
     }
 
 }

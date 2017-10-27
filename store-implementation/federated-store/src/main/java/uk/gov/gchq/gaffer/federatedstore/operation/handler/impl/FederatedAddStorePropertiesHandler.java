@@ -17,29 +17,29 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.federatedstore.operation.AddSchema;
+import uk.gov.gchq.gaffer.federatedstore.operation.AddStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
-public class FederatedAddSchemaHandler implements OperationHandler<AddSchema> {
+public class FederatedAddStorePropertiesHandler implements OperationHandler<AddStoreProperties> {
 
-    public static final String ERROR_ADDING_SCHEMA_TO_FEDERATED_STORE_S = "Error adding schema to FederatedStore,%s";
+    public static final String ERROR_ADDING_STORE_TO_FEDERATED_STORE_S = "Error adding storeProperties to FederatedStore,%s";
     public static final String THE_STORE_DOES_NOT_HAVE_A_GRAPH_LIBRARY = " the store doesn't have a graphLibrary";
 
     @Override
-    public Void doOperation(final AddSchema operation, final Context context, final Store store) throws OperationException {
+    public Void doOperation(final AddStoreProperties operation, final Context context, final Store store) throws OperationException {
         FederatedStore federatedStore = (FederatedStore) store;
         GraphLibrary graphLibrary = federatedStore.getGraphLibrary();
         if (null == graphLibrary) {
-            throw new OperationException(String.format(ERROR_ADDING_SCHEMA_TO_FEDERATED_STORE_S, THE_STORE_DOES_NOT_HAVE_A_GRAPH_LIBRARY));
+            throw new OperationException(String.format(ERROR_ADDING_STORE_TO_FEDERATED_STORE_S, THE_STORE_DOES_NOT_HAVE_A_GRAPH_LIBRARY));
         } else {
             try {
-                graphLibrary.addSchema(operation.getSchema());
+                graphLibrary.addProperties(operation.getStoreProperties());
             } catch (final Exception e) {
-                throw new OperationException(String.format(ERROR_ADDING_SCHEMA_TO_FEDERATED_STORE_S, " schema: " + operation.getSchema()), e);
+                throw new OperationException(String.format(ERROR_ADDING_STORE_TO_FEDERATED_STORE_S, " storeProperties: " + operation.getStoreProperties()), e);
             }
         }
         return null;
