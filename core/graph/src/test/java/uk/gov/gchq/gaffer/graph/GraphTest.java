@@ -203,6 +203,7 @@ public class GraphTest {
     public void shouldConstructGraphFromSchemaFolderPath() throws IOException {
         // Given
         final Schema expectedSchema = new Schema.Builder()
+                .id(GRAPH_ID)
                 .json(StreamUtil.elementsSchema(getClass()), StreamUtil.typesSchema(getClass()))
                 .build();
 
@@ -236,6 +237,7 @@ public class GraphTest {
         final URI schemaInputUri = getResourceUri(StreamUtil.ELEMENTS_SCHEMA);
         final URI storeInputUri = getResourceUri(StreamUtil.STORE_PROPERTIES);
         final Schema expectedSchema = new Schema.Builder()
+                .id(GRAPH_ID)
                 .json(StreamUtil.elementsSchema(getClass()), StreamUtil.typesSchema(getClass()))
                 .build();
         Graph graph = null;
