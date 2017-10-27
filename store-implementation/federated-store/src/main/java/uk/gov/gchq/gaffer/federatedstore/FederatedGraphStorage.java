@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.exception.OverwritingException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.Schema.Builder;
@@ -251,5 +252,35 @@ public class FederatedGraphStorage {
                 .stream()
                 .filter(entry -> isValidToView(user, entry.getKey()))
                 .flatMap(entry -> entry.getValue().stream());
+    }
+
+    /**
+     * @param user to match visibility against.
+     * @return the set of {@link StoreTrait} that are common for all visible graphs
+     * @see #get(User, List)
+     */
+    public Set<StoreTrait> getTraits(final User user) {
+        return getTraits(user, null);
+    }
+
+    /**
+     * returns a set of {@link StoreTrait} that are common for all visible graphs.
+     * traits1 = [a,b,c]
+     * traits2 = [b,c]
+     * traits3 = [a,b]
+     * return [b]
+     *
+     * @param user     to match visibility against.
+     * @param graphIds filter on graphIds.
+     * @return the set of {@link StoreTrait} that are common for all visible graphs
+     */
+    public Set<StoreTrait> getTraits(final User user, final List<String> graphIds) {
+        Collection<Graph> graphs = get(user, graphIds);
+
+        final Set<StoreTrait> traits = graphs.isEmpty() ? Sets.newHashSet() : Sets.newHashSet(StoreTrait.values());
+        for (final Graph graph : graphs) {
+            traits.retainAll(graph.getStoreTraits());
+        }
+        return traits;
     }
 }

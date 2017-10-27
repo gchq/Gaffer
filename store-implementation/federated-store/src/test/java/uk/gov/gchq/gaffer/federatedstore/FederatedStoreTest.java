@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -35,6 +36,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -315,6 +317,44 @@ public class FederatedStoreTest {
         //Then
         assertEquals(0, sizeBefore);
         assertEquals(2, sizeAfter);
+    }
+
+    @Test
+    public void shouldCombineTraitsToMin() throws Exception {
+        //Given
+        HashSet<StoreTrait> traits = new HashSet<>();
+        traits.addAll(SingleUseAccumuloStore.TRAITS);
+        traits.retainAll(MapStore.TRAITS);
+
+        //When
+        Set<StoreTrait> before = store.getCurrentTraits(testUser);
+        int sizeBefore = before.size();
+        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
+
+        store.execute(new AddGraph.Builder()
+                .schema(new Schema())
+                .isPublic(true)
+                .graphId(MAP_ID_1)
+                .storeProperties(new MapStoreProperties())
+                .build(), new Context(testUser));
+
+        store.execute(new AddGraph.Builder()
+                .schema(new Schema())
+                .isPublic(true)
+                .graphId(ACC_ID_1)
+                .storeProperties(StoreProperties.loadStoreProperties("/properties/singleUseMockAccStore.properties"))
+                .build(), new Context(testUser));
+
+        Set<StoreTrait> after = store.getCurrentTraits(testUser);
+        int sizeAfter = after.size();
+
+        //Then
+        assertEquals(5, MapStore.TRAITS.size());
+        assertEquals(9, SingleUseAccumuloStore.TRAITS.size());
+        assertNotEquals(SingleUseAccumuloStore.TRAITS, MapStore.TRAITS);
+        assertEquals(0, sizeBefore);
+        assertEquals(5, sizeAfter);
+        assertEquals(traits, after);
     }
 
     @Test

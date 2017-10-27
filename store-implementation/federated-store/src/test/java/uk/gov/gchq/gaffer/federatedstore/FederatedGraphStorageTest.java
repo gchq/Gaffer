@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.graph.Graph.Builder;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.User;
@@ -36,6 +37,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -61,7 +63,6 @@ public class FederatedGraphStorageTest {
     private User testUser;
     private User authUser;
     private User blankUser;
-    private Context nullUserContext;
     private Context testUserContext;
     private Context authUserContext;
     private Context blankUserContext;
@@ -102,7 +103,6 @@ public class FederatedGraphStorageTest {
         testUser = testUser();
         authUser = authUser();
         blankUser = blankUser();
-        nullUserContext = new Context(nullUser);
         testUserContext = new Context(testUser);
         authUserContext = new Context(authUser);
         blankUserContext = new Context(blankUser);
@@ -272,6 +272,32 @@ public class FederatedGraphStorageTest {
         final Schema schema = graphStorage.getSchema(null, blankUserContext);
         assertNotEquals("Revealing hidden schema", 2, schema.getTypes().size());
         assertEquals("Revealing hidden schema", 0, schema.getTypes().size());
+    }
+
+    @Test
+    public void shouldGetTraitsForAddingUser() throws Exception {
+        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
+        graphStorage.put(b, access);
+        final Set<StoreTrait> traits = graphStorage.getTraits(testUser);
+        assertNotEquals("Revealing hidden traits", 5, traits.size());
+        assertEquals(9, traits.size());
+    }
+
+    @Test
+    public void shouldGetTraitsForAuthUser() throws Exception {
+        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
+        graphStorage.put(b, access);
+        final Set<StoreTrait> traits = graphStorage.getTraits(authUser);
+        assertNotEquals("Revealing hidden traits", 5, traits.size());
+        assertEquals(9, traits.size());
+    }
+
+    @Test
+    public void shouldNotGetTraitsForBlankUser() throws Exception {
+        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
+        graphStorage.put(b, access);
+        final Set<StoreTrait> traits = graphStorage.getTraits(blankUser);
+        assertEquals("Revealing hidden traits", 0, traits.size());
     }
 
     @Test

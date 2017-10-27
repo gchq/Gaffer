@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.LocationEnum;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
+import uk.gov.gchq.gaffer.federatedstore.operation.GetTraits;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedAggregateHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedFilterHandler;
@@ -39,6 +40,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAdja
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllElementsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllGraphIDHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetElementsHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetTraitsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationChainHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
@@ -298,6 +300,7 @@ public class FederatedStore extends Store {
         addOperationHandler(RemoveGraph.class, new FederatedRemoveGraphHandler());
 
         addOperationHandler(FederatedOperationChain.class, new FederatedOperationChainHandler());
+        addOperationHandler(GetTraits.class, new FederatedGetTraitsHandler());
     }
 
     @Override
@@ -474,5 +477,13 @@ public class FederatedStore extends Store {
         if (null != getGraphLibrary()) {
             getGraphLibrary().add(newGraph.getGraphId(), newGraph.getSchema(), newGraph.getStoreProperties());
         }
+    }
+
+    public Set<StoreTrait> getCurrentTraits(final User user) {
+        return getCurrentTraits(user, null);
+    }
+
+    public Set<StoreTrait> getCurrentTraits(final User user, final String graphIdsCsv) {
+        return graphStorage.getTraits(user, FederatedStoreUtil.getCleanStrings(graphIdsCsv));
     }
 }
