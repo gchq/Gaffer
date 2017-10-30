@@ -54,7 +54,12 @@ import java.util.Set;
 public class StoreProperties implements Cloneable {
     public static final String STORE_CLASS = "gaffer.store.class";
     public static final String SCHEMA_CLASS = "gaffer.store.schema.class";
+    /**
+     * @deprecated the ID should not be used. The properties ID be supplied to the graph library separately.
+     */
+    @Deprecated
     public static final String ID = "gaffer.store.id";
+
     public static final String STORE_PROPERTIES_CLASS = "gaffer.store.properties.class";
     public static final String OPERATION_DECLARATIONS = "gaffer.store.operation.declarations";
 
@@ -239,6 +244,11 @@ public class StoreProperties implements Cloneable {
         }
     }
 
+    /**
+     * @return properties ID
+     * @deprecated the ID should be supplied to the graph library separately
+     */
+    @Deprecated
     public String getId() {
         return get(ID);
     }
@@ -247,6 +257,7 @@ public class StoreProperties implements Cloneable {
      * Set the ID for the StoreProperties
      *
      * @param id the value of the ID
+     * @deprecated the ID should be supplied to the graph library separately
      */
     public void setId(final String id) {
         set(ID, id);
