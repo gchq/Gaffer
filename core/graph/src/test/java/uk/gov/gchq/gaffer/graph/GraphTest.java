@@ -89,8 +89,10 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -206,7 +208,6 @@ public class GraphTest {
     public void shouldConstructGraphFromSchemaFolderPath() throws IOException {
         // Given
         final Schema expectedSchema = new Schema.Builder()
-                .id(GRAPH_ID)
                 .json(StreamUtil.elementsSchema(getClass()), StreamUtil.typesSchema(getClass()))
                 .build();
 
@@ -240,7 +241,6 @@ public class GraphTest {
         final URI schemaInputUri = getResourceUri(StreamUtil.ELEMENTS_SCHEMA);
         final URI storeInputUri = getResourceUri(StreamUtil.STORE_PROPERTIES);
         final Schema expectedSchema = new Schema.Builder()
-                .id(GRAPH_ID)
                 .json(StreamUtil.elementsSchema(getClass()), StreamUtil.typesSchema(getClass()))
                 .build();
         Graph graph = null;
@@ -921,23 +921,22 @@ public class GraphTest {
         // Given
         final Store store = mock(Store.class);
         given(store.getGraphId()).willReturn(GRAPH_ID);
-        final Schema schema = mock(Schema.class);
-        given(schema.getId()).willReturn("schemaId");
-        given(store.getSchema()).willReturn(schema);
         given(store.getProperties()).willReturn(new StoreProperties());
-        final Set<String> edgeGroups = new HashSet<>();
-        edgeGroups.add("edge1");
-        edgeGroups.add("edge2");
-        edgeGroups.add("edge3");
-        edgeGroups.add("edge4");
-        given(schema.getEdgeGroups()).willReturn(edgeGroups);
 
-        final Set<String> entityGroups = new HashSet<>();
-        entityGroups.add("entity1");
-        entityGroups.add("entity2");
-        entityGroups.add("entity3");
-        entityGroups.add("entity4");
-        given(schema.getEntityGroups()).willReturn(entityGroups);
+        Map<String, SchemaEdgeDefinition> edges = new HashMap<>();
+        edges.put("edge1", new SchemaEdgeDefinition());
+        edges.put("edge2", new SchemaEdgeDefinition());
+        edges.put("edge3", new SchemaEdgeDefinition());
+        edges.put("edge4", new SchemaEdgeDefinition());
+
+        Map<String, SchemaEntityDefinition> entities = new HashMap<>();
+        entities.put("entity1", new SchemaEntityDefinition());
+        entities.put("entity2", new SchemaEntityDefinition());
+        entities.put("entity3", new SchemaEntityDefinition());
+        entities.put("entity4", new SchemaEntityDefinition());
+
+        Schema schema = new Schema.Builder().edges(edges).entities(entities).build();
+        given(store.getSchema()).willReturn(schema);
 
         // When
         final View resultView = new Graph.Builder()
@@ -947,8 +946,8 @@ public class GraphTest {
 
         // Then
         assertNotSame(schema, resultView);
-        assertArrayEquals(entityGroups.toArray(), resultView.getEntityGroups().toArray());
-        assertArrayEquals(edgeGroups.toArray(), resultView.getEdgeGroups().toArray());
+        assertArrayEquals(entities.keySet().toArray(), resultView.getEntityGroups().toArray());
+        assertArrayEquals(edges.keySet().toArray(), resultView.getEdgeGroups().toArray());
 
         for (final ViewElementDefinition resultElementDef : resultView.getEntities().values()) {
             assertNotNull(resultElementDef);

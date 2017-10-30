@@ -1,4 +1,4 @@
-package uk.gov.gchq.gaffer.accumulostore.utils;/*
+/*
  * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,8 @@ package uk.gov.gchq.gaffer.accumulostore.utils;/*
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package uk.gov.gchq.gaffer.accumulostore.utils;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -55,6 +57,10 @@ public class AddUpdateTableIteratorTest {
     public void shouldRunMainWithFileGraphLibrary() throws Exception {
         // Given
         final String[] args = {GRAPH_ID, SCHEMA_DIR, STORE_PROPS_PATH, "update", FILE_GRAPH_LIBRARY_TEST_PATH};
+        final Schema expectedSchema = Schema.fromJson(Paths.get(SCHEMA_DIR));
+        expectedSchema.setId(GRAPH_ID);
+        final StoreProperties expectedProperties = AccumuloProperties.loadStoreProperties(STORE_PROPS_PATH);
+        expectedProperties.setId(GRAPH_ID);
 
         // When
         AddUpdateTableIterator.main(args);
@@ -65,8 +71,8 @@ public class AddUpdateTableIteratorTest {
         assertNotNull("Graph for " + GRAPH_ID + " was not found", pair);
         assertNotNull("Schema not found", pair.getFirst());
         assertNotNull("Store properties not found", pair.getSecond());
-        JsonAssert.assertEquals(Schema.fromJson(Paths.get(SCHEMA_DIR)).toJson(false), pair.getFirst().toJson(false));
-        assertEquals(AccumuloProperties.loadStoreProperties(STORE_PROPS_PATH).getProperties(), pair.getSecond().getProperties());
+        JsonAssert.assertEquals(expectedSchema.toJson(false), pair.getFirst().toJson(false));
+        assertEquals(expectedProperties.getProperties(), pair.getSecond().getProperties());
     }
 
     @Test
@@ -74,6 +80,10 @@ public class AddUpdateTableIteratorTest {
         // Given
         shouldRunMainWithFileGraphLibrary(); // load version graph version 1 into the library.
         final String[] args = {GRAPH_ID, SCHEMA_2_DIR, STORE_PROPS_2_PATH, "update", FILE_GRAPH_LIBRARY_TEST_PATH};
+        final Schema expectedSchema = Schema.fromJson(Paths.get(SCHEMA_2_DIR));
+        expectedSchema.setId(GRAPH_ID);
+        final StoreProperties expectedProperties = AccumuloProperties.loadStoreProperties(STORE_PROPS_2_PATH);
+        expectedProperties.setId(GRAPH_ID);
 
         // When
         AddUpdateTableIterator.main(args);
@@ -83,8 +93,8 @@ public class AddUpdateTableIteratorTest {
         assertNotNull("Graph for " + GRAPH_ID + " was not found", pair);
         assertNotNull("Schema not found", pair.getFirst());
         assertNotNull("Store properties not found", pair.getSecond());
-        JsonAssert.assertEquals(Schema.fromJson(Paths.get(SCHEMA_2_DIR)).toJson(false), pair.getFirst().toJson(false));
-        assertEquals(AccumuloProperties.loadStoreProperties(STORE_PROPS_2_PATH).getProperties(), pair.getSecond().getProperties());
+        JsonAssert.assertEquals(expectedSchema.toJson(false), pair.getFirst().toJson(false));
+        assertEquals(expectedProperties.getProperties(), pair.getSecond().getProperties());
     }
 
     @Test

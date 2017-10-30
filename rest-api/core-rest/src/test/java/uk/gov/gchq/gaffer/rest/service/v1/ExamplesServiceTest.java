@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.rest.service.v1.example.ExamplesService;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -64,6 +65,7 @@ public class ExamplesServiceTest {
     @Before
     public void setup() {
         schema = new Schema.Builder()
+                //.id()
                 .type("string", String.class)
                 .type("true", Boolean.class)
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
@@ -80,6 +82,7 @@ public class ExamplesServiceTest {
 
         final Store store = mock(Store.class);
         given(store.getSchema()).willReturn(schema);
+        given(store.getProperties()).willReturn(new StoreProperties());
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("graphId")
