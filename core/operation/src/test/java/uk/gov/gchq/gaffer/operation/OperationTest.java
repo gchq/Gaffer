@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.operation;
 
 import com.google.common.collect.Maps;
-import org.junit.Assert;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
@@ -30,6 +29,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public abstract class OperationTest<T extends Operation> extends JSONSerialisationTest<T> {
     protected Set<String> getRequiredFields() {
@@ -56,20 +56,22 @@ public abstract class OperationTest<T extends Operation> extends JSONSerialisati
                 .map(f -> f + " is required for: " + op.getClass().getSimpleName())
                 .collect(Collectors.toSet());
 
-        assertEquals(
-                requiredFieldsErrors,
-                validationResult.getErrors()
-        );
+        assertEquals(requiredFieldsErrors, validationResult.getErrors());
     }
 
     @Test
     public void shouldSetGetOption() throws Exception {
+        // Given
         final Operation testObject = getTestObject();
         final HashMap<String, String> expected = Maps.newHashMap();
+
+        // When
         expected.put("one", "two");
         testObject.setOptions(expected);
         final Map<String, String> actual = testObject.getOptions();
-        Assert.assertEquals(expected, actual);
+
+        // Then
+        assertEquals(expected, actual);
         assertEquals("two", testObject.getOption("one"));
     }
 }

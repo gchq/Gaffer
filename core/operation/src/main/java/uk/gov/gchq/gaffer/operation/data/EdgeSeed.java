@@ -53,7 +53,7 @@ public class EdgeSeed extends ElementSeed implements EdgeId {
     }
 
     public EdgeSeed(final Object source, final Object destination, final DirectedType directed) {
-        this(source, destination, directed, MatchedVertex.SOURCE);
+        this(source, destination, directed, EdgeId.MatchedVertex.SOURCE);
     }
 
     public EdgeSeed(final Object source, final Object destination, final boolean directed, final MatchedVertex matchedVertex) {
@@ -123,10 +123,10 @@ public class EdgeSeed extends ElementSeed implements EdgeId {
         this.source = this.destination;
         this.destination = tmp;
         if (matchedVertex != null) {
-            if (matchedVertex == MatchedVertex.DESTINATION) {
-                matchedVertex = MatchedVertex.SOURCE;
+            if (matchedVertex == EdgeId.MatchedVertex.DESTINATION) {
+                matchedVertex = EdgeId.MatchedVertex.SOURCE;
             } else {
-                matchedVertex = MatchedVertex.DESTINATION;
+                matchedVertex = EdgeId.MatchedVertex.DESTINATION;
             }
         }
     }
