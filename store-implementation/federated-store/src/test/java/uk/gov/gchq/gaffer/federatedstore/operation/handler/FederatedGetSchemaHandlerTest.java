@@ -41,6 +41,7 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class FederatedGetSchemaHandlerTest {
     private FederatedGetSchemaHandler handler;
@@ -120,69 +121,12 @@ public class FederatedGetSchemaHandlerTest {
         library.addProperties(accProperties);
         fStore.setGraphLibrary(library);
 
-        final Schema schema = new Schema.Builder()
-                .id("testSchema")
-                .edge("edge", new SchemaEdgeDefinition.Builder()
-                        .source("string")
-                        .destination("string")
-                        .build())
-                .vertexSerialiser(new StringSerialiser())
-                .type("string", new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .serialiser(new StringSerialiser())
-                        .aggregateFunction(new StringConcat())
-                        .build())
-                .build();
-
-        final Schema schema1 = new Schema.Builder()
-                .id("otherSchema")
-                .entity("entity", new SchemaEntityDefinition.Builder()
-                        .vertex("string")
-                        .property("prop1", "string")
-                        .build())
-                .vertexSerialiser(new StringSerialiser())
-                .type("string", new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .aggregateFunction(new StringConcat())
-                        .serialiser(new StringSerialiser())
-                        .build())
-                .build();
-
-        library.addSchema(schema);
-        library.addSchema(schema1);
-
-        final Schema expectedSchema = new Schema.Builder()
-                .id("testSchema_otherSchema")
-                .edge("edge", new SchemaEdgeDefinition.Builder()
-                        .source("string")
-                        .destination("string")
-                        .build())
-                .vertexSerialiser(new StringSerialiser())
-                .type("string", new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .serialiser(new StringSerialiser())
-                        .aggregateFunction(new StringConcat())
-                        .build())
-                .entity("entity", new SchemaEntityDefinition.Builder()
-                        .vertex("string")
-                        .property("prop1", "string")
-                        .build())
-                .build();
-
-        fStore.execute(Operation.asOperationChain(
-                new AddGraph.Builder()
-                .graphId("testSchema")
-                .parentPropertiesId("accProp")
-                .parentSchemaIds(Lists.newArrayList("testSchema", "otherSchema"))
-                .build()), context);
-
         final GetSchema operation = null;
 
-        // When
-        final Schema result = handler.doOperation(operation, context, fStore);
-
-        // Then
-        assertNotNull(result);
-        assertArrayEquals(expectedSchema.toJson(true), result.toJson(true));
+        try {
+            handler.doOperation(operation, context, fStore);
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains("Operation cannot be null"));
+        }
     }
 }

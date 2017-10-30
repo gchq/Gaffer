@@ -101,7 +101,7 @@ public class GetSchemaHandlerTest {
 
         // Then
         assertNotNull(result);
-        assertNotEquals(schema, result);
+        JsonAssert.assertNotEqual(schema.toJson(true), result.toJson(true));
         JsonAssert.assertEquals(compactSchemaBytes, result.toJson(true));
     }
 
