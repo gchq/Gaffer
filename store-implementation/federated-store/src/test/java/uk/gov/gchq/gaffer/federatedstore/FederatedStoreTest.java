@@ -709,7 +709,8 @@ public class FederatedStoreTest {
             store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
             fail("exception should have been thrown");
         } catch (final IllegalArgumentException e) {
-            assertTrue(e.getCause().getMessage().contains("GraphId " + MAP_ID_1 + " already exists with a different schema:"));
+            String message = e.getCause().getMessage();
+            assertTrue(message, message.contains("GraphId " + MAP_ID_1 + " already exists with a different store properties:"));
         }
     }
 

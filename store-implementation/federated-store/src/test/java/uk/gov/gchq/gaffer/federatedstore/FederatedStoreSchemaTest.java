@@ -49,6 +49,7 @@ public class FederatedStoreSchemaTest {
     public static final Context TEST_CONTEXT = new Context(TEST_USER);
     public static final String TEST_FED_STORE = "testFedStore";
     public static final HashMapGraphLibrary library = new HashMapGraphLibrary();
+    public static final String ACC_PROP = "accProp";
 
 
     private FederatedStore fStore;
@@ -57,7 +58,7 @@ public class FederatedStoreSchemaTest {
 
     @Before
     public void setUp() throws Exception {
-        ACCUMULO_PROPERTIES.setId("accProp");
+        ACCUMULO_PROPERTIES.setId(ACC_PROP);
         ACCUMULO_PROPERTIES.setStoreClass(MockAccumuloStore.class);
         ACCUMULO_PROPERTIES.setStorePropertiesClass(AccumuloProperties.class);
 
@@ -69,44 +70,46 @@ public class FederatedStoreSchemaTest {
 
     @Test
     public void shouldBeAbleToAddGraphsWithSchemaCollisions() throws Exception {
-        library.addProperties(ACCUMULO_PROPERTIES);
+        library.addProperties(ACC_PROP,ACCUMULO_PROPERTIES);
         fStore.setGraphLibrary(library);
 
+        String aSchema1ID = "aSchema";
         final Schema aSchema = new Schema.Builder()
-                .id("aSchema")
+                .id(aSchema1ID)
                 .edge("e1", getProp("prop1"))
                 .merge(STRING_SCHEMA)
                 .build();
 
-        library.addSchema(aSchema);
+        library.addSchema(aSchema1ID, aSchema);
 
         fStore.execute(OperationChain.wrap(
                 new AddGraph.Builder()
                         .graphId("a")
-                        .parentPropertiesId("accProp")
-                        .parentSchemaIds(Lists.newArrayList("aSchema"))
+                        .parentPropertiesId(ACC_PROP)
+                        .parentSchemaIds(Lists.newArrayList(aSchema1ID))
                         .build()), TEST_CONTEXT);
 
+        String bSchema1ID = "bSchema";
         final Schema bSchema = new Schema.Builder()
-                .id("bSchema")
+                .id(bSchema1ID)
                 .edge("e1", getProp("prop2"))
                 .merge(STRING_SCHEMA)
                 .build();
 
-        library.addSchema(bSchema);
+        library.addSchema(bSchema1ID, bSchema);
 
         assertFalse(library.exists("b"));
 
         fStore.execute(Operation.asOperationChain(new AddGraph.Builder()
                 .graphId("b")
-                .parentPropertiesId("accProp")
-                .parentSchemaIds(Lists.newArrayList("bSchema"))
+                .parentPropertiesId(ACC_PROP)
+                .parentSchemaIds(Lists.newArrayList(bSchema1ID))
                 .build()), TEST_CONTEXT);
 
         fStore.execute(Operation.asOperationChain(new AddGraph.Builder()
                 .graphId("c")
-                .parentPropertiesId("accProp")
-                .parentSchemaIds(Lists.newArrayList("aSchema"))
+                .parentPropertiesId(ACC_PROP)
+                .parentSchemaIds(Lists.newArrayList(aSchema1ID))
                 .build()), TEST_CONTEXT);
 
         // No exceptions thrown - as all 3 graphs should be able to be added together.

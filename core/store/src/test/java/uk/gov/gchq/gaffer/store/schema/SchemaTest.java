@@ -1357,7 +1357,7 @@ public class SchemaTest {
                 .build();
 
         // When
-        graphLibrary.addSchema(schema);
+        graphLibrary.addSchema("TEST_SCHEMA_ID_merged",schema);
 
         // Then - no exceptions
     }

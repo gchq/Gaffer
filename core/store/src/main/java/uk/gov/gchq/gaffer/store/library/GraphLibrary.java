@@ -181,7 +181,8 @@ public abstract class GraphLibrary {
      */
     @Deprecated
     public void addSchema(final Schema schema) throws OverwritingException {
-        addSchema(schema.getId(), schema);
+        String id = (null == schema) ? null : schema.getId();
+        addSchema(id, schema);
     }
 
     /**

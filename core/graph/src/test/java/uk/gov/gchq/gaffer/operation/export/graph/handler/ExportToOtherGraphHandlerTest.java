@@ -62,7 +62,10 @@ public class ExportToOtherGraphHandlerTest {
 
     private static final String GRAPH_ID = "graphId";
     private static final String STORE_PROPS_ID = "storePropsId";
+    public static final String STORE_PROPS_ID_1 = STORE_PROPS_ID + 1;
     private static final String SCHEMA_ID = "schemaId";
+    public static final String SCHEMA_ID_2 = SCHEMA_ID + 2;
+    public static final String SCHEMA_ID_1 = SCHEMA_ID + 1;
     private static final String ID = "gaffer.store.id";
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
@@ -170,7 +173,7 @@ public class ExportToOtherGraphHandlerTest {
     @Test
     public void shouldCreateNewGraphWithStoresStoreProperties() {
         // Given
-        Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
+        Schema schema1 = new Schema.Builder().id(SCHEMA_ID_1).build();
         given(store.getProperties()).willReturn(storeProperties);
         given(store.getGraphId()).willReturn(GRAPH_ID);
 
@@ -192,7 +195,7 @@ public class ExportToOtherGraphHandlerTest {
     public void shouldCreateNewGraphWithStoresSchema() {
         // Given
         final StoreProperties storeProperties1 = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
-        storeProperties1.setId(STORE_PROPS_ID + 1);
+        storeProperties1.setId(STORE_PROPS_ID_1);
 
         given(store.getSchema()).willReturn(schema);
         given(store.getGraphId()).willReturn(GRAPH_ID);
@@ -216,15 +219,15 @@ public class ExportToOtherGraphHandlerTest {
         // Given
         given(store.getGraphId()).willReturn(GRAPH_ID);
 
-        Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
+        Schema schema1 = new Schema.Builder().id(SCHEMA_ID_1).build();
 
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
-        graphLibrary.addSchema(schema1);
+        graphLibrary.addSchema(SCHEMA_ID_1, schema1);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
 
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 2)
-                .parentSchemaIds(SCHEMA_ID + 1)
+                .parentSchemaIds(SCHEMA_ID_1)
                 .storeProperties(storeProperties)
                 .build();
 
@@ -243,14 +246,14 @@ public class ExportToOtherGraphHandlerTest {
         given(store.getGraphId()).willReturn(GRAPH_ID);
 
         Schema schema1 = new Schema.Builder()
-                .id(SCHEMA_ID + 1)
+                .id(SCHEMA_ID_1)
                 .entity("entity", new SchemaEntityDefinition.Builder()
                         .vertex("vertex")
                         .build())
                 .type("vertex", String.class)
                 .build();
         Schema schema2 = new Schema.Builder()
-                .id(SCHEMA_ID + 2)
+                .id(SCHEMA_ID_2)
                 .edge("edge", new SchemaEdgeDefinition.Builder()
                         .source("vertex")
                         .destination("vertex")
@@ -259,13 +262,13 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
-        graphLibrary.addSchema(schema1);
-        graphLibrary.addSchema(schema2);
+        graphLibrary.addSchema(SCHEMA_ID_1, schema1);
+        graphLibrary.addSchema(SCHEMA_ID_2, schema2);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
 
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 2)
-                .parentSchemaIds(SCHEMA_ID + 1, SCHEMA_ID + 2)
+                .parentSchemaIds(SCHEMA_ID_1, SCHEMA_ID + 2)
                 .schema(schema)
                 .storeProperties(storeProperties)
                 .build();
@@ -296,16 +299,16 @@ public class ExportToOtherGraphHandlerTest {
         given(store.getGraphId()).willReturn(GRAPH_ID);
 
         StoreProperties storeProperties1 = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
-        storeProperties1.setId(STORE_PROPS_ID + 1);
+        storeProperties1.setId(STORE_PROPS_ID_1);
 
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
-        graphLibrary.addProperties(storeProperties1);
+        graphLibrary.addProperties(STORE_PROPS_ID_1, storeProperties1);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
 
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 2)
                 .schema(schema)
-                .parentStorePropertiesId(STORE_PROPS_ID + 1)
+                .parentStorePropertiesId(STORE_PROPS_ID_1)
                 .build();
 
         // When
@@ -323,16 +326,16 @@ public class ExportToOtherGraphHandlerTest {
         given(store.getGraphId()).willReturn(GRAPH_ID);
 
         StoreProperties storeProperties1 = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
-        storeProperties1.setId(STORE_PROPS_ID + 1);
+        storeProperties1.setId(STORE_PROPS_ID_1);
 
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
-        graphLibrary.addProperties(storeProperties1);
+        graphLibrary.addProperties(STORE_PROPS_ID_1, storeProperties1);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
 
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 2)
                 .schema(schema)
-                .parentStorePropertiesId(STORE_PROPS_ID + 1)
+                .parentStorePropertiesId(STORE_PROPS_ID_1)
                 .storeProperties(storeProperties)
                 .build();
 
@@ -379,7 +382,7 @@ public class ExportToOtherGraphHandlerTest {
         given(store.getGraphLibrary()).willReturn(null);
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
-                .parentStorePropertiesId(STORE_PROPS_ID + 1)
+                .parentStorePropertiesId(STORE_PROPS_ID_1)
                 .build();
 
         // When / Then
