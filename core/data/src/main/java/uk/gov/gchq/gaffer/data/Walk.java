@@ -58,6 +58,8 @@ import static uk.gov.gchq.gaffer.commonutil.CollectionUtil.distinct;
  *
  * For example, a Walk through a simple graph could look like:
  *
+ * <pre>
+ * {@code
  * A --> B --> C
  *       \     \
  *       \     (Entity2, Entity3)
@@ -66,6 +68,8 @@ import static uk.gov.gchq.gaffer.commonutil.CollectionUtil.distinct;
  *
  * Edges:       A -> B, B -> C
  * Entities:    [], [Entity1], [Entity2, Entity3]
+ * }
+ * </pre>
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
 public class Walk implements Iterable<Set<Edge>> {
@@ -166,7 +170,7 @@ public class Walk implements Iterable<Set<Edge>> {
      * A walk is also a trail if it contains no repeated edges.
      *
      * @return {@code true} if the walk does not contain any repeated edges, otherwise
-     * {@link false}
+     * {@code false}
      */
     @JsonIgnore
     public boolean isTrail() {
@@ -178,7 +182,7 @@ public class Walk implements Iterable<Set<Edge>> {
      * contain any loops).
      *
      * @return {@code true} if the walk does not contain any repeated vertices,
-     * otherwise {@link false}
+     * otherwise {@code false}
      */
     @JsonIgnore
     public boolean isPath() {
