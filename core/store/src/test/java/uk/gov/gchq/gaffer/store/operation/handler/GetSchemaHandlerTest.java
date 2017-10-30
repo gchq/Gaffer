@@ -34,6 +34,7 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
@@ -59,18 +60,21 @@ public class GetSchemaHandlerTest {
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source("string")
                         .destination("string")
+                        .description("anEdge")
                         .directed("true")
                         .property(TestPropertyNames.PROP_1, "string")
                         .build())
                 .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
                         .source("string")
                         .destination("string")
+                        .description("anotherEdge")
                         .directed("true")
                         .property(TestPropertyNames.PROP_1, "string")
                         .build())
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex("string")
                         .property(TestPropertyNames.PROP_1, "string")
+                        .description("anEntity")
                         .build())
                 .type("string", new TypeDefinition.Builder()
                         .clazz(String.class)
@@ -97,6 +101,7 @@ public class GetSchemaHandlerTest {
 
         // Then
         assertNotNull(result);
+        assertNotEquals(schema, result);
         JsonAssert.assertEquals(compactSchemaBytes, result.toJson(true));
     }
 
@@ -126,7 +131,5 @@ public class GetSchemaHandlerTest {
         } catch (final OperationException e) {
             assertTrue(e.getMessage().contains("Operation cannot be null"));
         }
-
-
     }
 }
