@@ -27,30 +27,7 @@ import java.util.Map;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
 
 /**
- * <p>
- * An Operation used for adding graphs to a FederatedStore.
- * </p>
- * Requires:
- * <ul>
- * <li>graphId
- * <li>storeProperties and/or parentPropertiesId</li>
- * <li>schema and/or parentSchemaIds</li>
- * </ul>
- * <p>
- * parentId can be used solely, if known by the graphLibrary.
- * </p>
- * <p>
- * schema can be used solely.
- * </p>
- * <p>
- * storeProperties can be used, if authorised to by {@link uk.gov.gchq.gaffer.federatedstore.FederatedStore#isLimitedToLibraryProperties(uk.gov.gchq.gaffer.user.User)}
- * both non-parentId and parentId can be used, and will be merged together.
- * </p>
- *
- * @see uk.gov.gchq.gaffer.federatedstore.FederatedStore
- * @see uk.gov.gchq.gaffer.store.schema.Schema
- * @see uk.gov.gchq.gaffer.data.element.Properties
- * @see uk.gov.gchq.gaffer.graph.Graph
+ * An Operation used for getting traits from the FederatedStore.
  */
 public class GetTraits implements FederatedOperation, Output<Iterable<? extends StoreTrait>> {
 
