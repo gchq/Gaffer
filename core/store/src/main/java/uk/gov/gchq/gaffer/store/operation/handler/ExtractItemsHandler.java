@@ -15,6 +15,10 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler;
 
+import com.google.common.collect.Iterables;
+
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.ExtractItems;
 import uk.gov.gchq.gaffer.store.Context;
@@ -60,22 +64,10 @@ public class ExtractItemsHandler implements OutputOperationHandler<ExtractItems,
      * @throws          OperationException if selection would be out of bounds
      */
     private Object extract(final Iterable<? extends Object> input, final int selection) throws OperationException {
-        if (input instanceof List) {
-            return ((List) input).get(selection);
+        try {
+            return Iterables.get(input, selection);
+        } finally {
+            CloseableUtil.close(input);
         }
-
-        int count = 0;
-        final Iterator<?> iterator = input.iterator();
-        while (count < selection) {
-            if (iterator.hasNext()) {
-                iterator.next();
-                iterator.remove();
-                count++;
-            } else {
-                throw new OperationException("Selection exceeds size of iterable");
-            }
-        }
-
-        return iterator.next();
     }
 }
