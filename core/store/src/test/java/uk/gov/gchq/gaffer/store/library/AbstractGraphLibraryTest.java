@@ -196,7 +196,7 @@ public abstract class AbstractGraphLibraryTest {
         graphLibrary.addOrUpdate(TEST_GRAPH_ID, schema, storeProperties);
 
         // Then
-        assertEquals(graphLibrary.getProperties(TEST_PROPERTIES_ID), storeProperties);
+        assertEquals(storeProperties, graphLibrary.getProperties(TEST_PROPERTIES_ID));
 
         // When
         graphLibrary.addOrUpdate(TEST_GRAPH_ID, schema, storeProperties1);
@@ -347,6 +347,16 @@ public abstract class AbstractGraphLibraryTest {
             fail(EXCEPTION_EXPECTED);
         } catch (final IllegalArgumentException e) {
             assertEquals(e.getMessage(), String.format(GraphLibrary.A_GRAPH_LIBRARY_CAN_T_BE_ADDED_WITH_A_NULL_S_GRAPH_ID_S, StoreProperties.class.getSimpleName(), TEST_GRAPH_ID));
+        }
+    }
+
+    @Test
+    public void shouldThrowExeptionWhenAddingAFullLibraryWithNullSchemaAndStoreProperties() throws Exception {
+        try {
+            graphLibrary.add(TEST_GRAPH_ID, null, null);
+            fail(EXCEPTION_EXPECTED);
+        } catch (final IllegalArgumentException e) {
+            assertEquals(e.getMessage(), String.format(GraphLibrary.A_GRAPH_LIBRARY_CAN_T_BE_ADDED_WITH_A_NULL_S_GRAPH_ID_S, Schema.class.getSimpleName() + " and " + StoreProperties.class.getSimpleName(), TEST_GRAPH_ID));
         }
     }
 }

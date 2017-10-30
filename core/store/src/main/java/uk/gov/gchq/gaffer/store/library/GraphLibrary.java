@@ -62,13 +62,27 @@ public abstract class GraphLibrary {
         validateId(graphId);
         checkExisting(graphId, schema, properties);
 
+        nullCheck(graphId, schema, properties);
+
         final String _schemaId = null != schemaId ? schemaId : graphId;
         addSchema(_schemaId, schema);
 
+
         String _propertiesId = null != propertiesId ? propertiesId : graphId;
         addProperties(_propertiesId, properties);
-
         _addIds(graphId, new Pair<>(_schemaId, _propertiesId));
+    }
+
+    private void nullCheck(final String graphId, final Schema schema, final StoreProperties properties) {
+        if (null == schema || null == properties) {
+            if (null == schema && null == properties) {
+                throw new IllegalArgumentException(String.format(A_GRAPH_LIBRARY_CAN_T_BE_ADDED_WITH_A_NULL_S_GRAPH_ID_S, Schema.class.getSimpleName() + " and " + StoreProperties.class.getSimpleName(), graphId));
+            } else if (null == properties) {
+                throw new IllegalArgumentException(String.format(A_GRAPH_LIBRARY_CAN_T_BE_ADDED_WITH_A_NULL_S_GRAPH_ID_S, StoreProperties.class.getSimpleName(), graphId));
+            } else {
+                throw new IllegalArgumentException(String.format(A_GRAPH_LIBRARY_CAN_T_BE_ADDED_WITH_A_NULL_S_GRAPH_ID_S, Schema.class.getSimpleName(), graphId));
+            }
+        }
     }
 
     /**
@@ -97,6 +111,8 @@ public abstract class GraphLibrary {
                             final String schemaId, final Schema schema,
                             final String propertiesId, final StoreProperties properties) {
         validateId(graphId);
+
+        nullCheck(graphId, schema, properties);
 
         final String _schemaId = null != schemaId ? schemaId : graphId;
         _addSchema(_schemaId, schema.toJson(false));
