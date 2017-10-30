@@ -22,25 +22,36 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
+import java.util.Map;
 import java.util.function.Function;
 
 /**
- * A {@code Map} is an {@link Operation} which applies a {@link Function} to map an
- * input {@link Iterable} to an output object
+ * A {@code FlatMap} is an {@link Operation} which takes an {@link Iterable} of {@link Iterable}s,
+ * applies a function to map each of the nested {@link Iterable}s to an object, and returns
+ * an {@link Iterable} containing the resulting objects.
  *
- * @param <I_ITEM> The object type of the input iterable
- * @param <O_ITEM> The object type of the output object
+ * @param <I_ITEM> The object type of the nested iterables
+ * @param <O_ITEM> the object type of the output iterable
  */
-public class Map<I_ITEM, O_ITEM> implements
-        InputOutput<Iterable<I_ITEM>, O_ITEM> {
-
-    private Iterable<I_ITEM> input;
-    private java.util.Map<String, String> options;
+public class FlatMap<I_ITEM, O_ITEM> implements
+        InputOutput<Iterable<Iterable<I_ITEM>>, Iterable<O_ITEM>> {
+    private Iterable<Iterable<I_ITEM>> input;
+    private Map<String, String> options;
     private Function<Iterable<I_ITEM>, O_ITEM> function;
 
     @Override
+    public Iterable<Iterable<I_ITEM>> getInput() {
+        return input;
+    }
+
+    @Override
+    public void setInput(final Iterable<Iterable<I_ITEM>> input) {
+        this.input = input;
+    }
+
+    @Override
     public Operation shallowClone() throws CloneFailedException {
-        return new Map.Builder<I_ITEM, O_ITEM>()
+        return new FlatMap.Builder<I_ITEM, O_ITEM>()
                 .input(input)
                 .options(options)
                 .function(function)
@@ -48,12 +59,12 @@ public class Map<I_ITEM, O_ITEM> implements
     }
 
     @Override
-    public java.util.Map<String, String> getOptions() {
+    public Map<String, String> getOptions() {
         return options;
     }
 
     @Override
-    public void setOptions(final java.util.Map<String, String> options) {
+    public void setOptions(final Map<String, String> options) {
         this.options = options;
     }
 
@@ -66,25 +77,15 @@ public class Map<I_ITEM, O_ITEM> implements
     }
 
     @Override
-    public Iterable<I_ITEM> getInput() {
-        return input;
-    }
-
-    @Override
-    public void setInput(final Iterable<I_ITEM> input) {
-        this.input = input;
-    }
-
-    @Override
-    public TypeReference<O_ITEM> getOutputTypeReference() {
+    public TypeReference<Iterable<O_ITEM>> getOutputTypeReference() {
         return (TypeReference) new TypeReferenceImpl.IterableObj();
     }
 
     public static final class Builder<I_ITEM, O_ITEM> extends
-            Operation.BaseBuilder<Map<I_ITEM, O_ITEM>, Builder<I_ITEM, O_ITEM>> implements
-            InputOutput.Builder<Map<I_ITEM, O_ITEM>, Iterable<I_ITEM>, O_ITEM, Builder<I_ITEM, O_ITEM>> {
+            Operation.BaseBuilder<FlatMap<I_ITEM, O_ITEM>, Builder<I_ITEM, O_ITEM>> implements
+            InputOutput.Builder<FlatMap<I_ITEM, O_ITEM>, Iterable<Iterable<I_ITEM>>, Iterable<O_ITEM>, Builder<I_ITEM, O_ITEM>> {
         public Builder() {
-            super(new Map<>());
+            super(new FlatMap<>());
         }
 
         public Builder function(final Function<Iterable<I_ITEM>, O_ITEM> func) {
