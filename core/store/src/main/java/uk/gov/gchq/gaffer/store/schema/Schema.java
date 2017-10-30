@@ -71,6 +71,9 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementDefinitions.class);
     private final TypeDefinition unknownType = new TypeDefinition();
 
+    /**
+     * @deprecated the ID should not be used. The ID should be supplied to the graph library separately
+     */
     private String id;
 
     /**
@@ -109,10 +112,20 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         return new Schema.Builder().json(jsonBytes).build();
     }
 
+    /**
+     * @return schema id
+     * @deprecated the ID should be supplied to the graph library separately
+     */
+    @Deprecated
     public String getId() {
         return id;
     }
 
+    /**
+     * @param id the schema id
+     * @deprecated the ID should be supplied to the graph library separately
+     */
+    @Deprecated
     public void setId(final String id) {
         this.id = id;
     }
@@ -288,6 +301,12 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             super(schema);
         }
 
+        /**
+         *
+         * @param id the id.
+         * @return this builder.
+         * @deprecated the ID should not be used. The ID should be supplied to the graph library separately
+         */
         public CHILD_CLASS id(final String id) {
             getThisSchema().id = id;
             return self();
@@ -364,6 +383,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             validateSharedGroups(getThisSchema().getEntities(), schema.getEntities());
             validateSharedGroups(getThisSchema().getEdges(), schema.getEdges());
 
+            // Schema ID is deprecated - remove this when ID is removed.
             if (null == getThisSchema().getId()) {
                 getThisSchema().setId(schema.getId());
             } else if (null != schema.getId()

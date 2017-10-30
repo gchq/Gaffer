@@ -88,7 +88,15 @@ public class FederatedStoreGraphVisibilityTest {
         accProp.setStoreClass(SingleUseMockAccumuloStore.class.getName());
         accProp.setStorePropertiesClass(AccumuloProperties.class);
 
-        commonMakeLibraryAndFedGraph(aSchema, accProp);
+        library.add(TEST_GRAPH_ID, TEST_SCHEMA_ID, aSchema, TEST_STORE_PROPS_ID, accProp);
+
+        fedGraph = new Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(TEST_FED_GRAPH_ID)
+                        .library(library)
+                        .build())
+                .addStoreProperties(fedProperties)
+                .build();
 
         fedGraph.execute(
                 new AddGraph.Builder()
@@ -128,7 +136,15 @@ public class FederatedStoreGraphVisibilityTest {
         accProp.setStoreClass(SingleUseMockAccumuloStore.class.getName());
         accProp.setStorePropertiesClass(AccumuloProperties.class);
 
-        commonMakeLibraryAndFedGraph(aSchema, accProp);
+        library.add(TEST_GRAPH_ID, aSchema, accProp);
+
+        fedGraph = new Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(TEST_FED_GRAPH_ID)
+                        .library(library)
+                        .build())
+                .addStoreProperties(fedProperties)
+                .build();
 
         fedGraph.execute(
                 new AddGraph.Builder()
@@ -149,18 +165,6 @@ public class FederatedStoreGraphVisibilityTest {
 
 
         commonAssertions();
-    }
-
-    private void commonMakeLibraryAndFedGraph(final Schema aSchema, final AccumuloProperties accProp) {
-        library.add(TEST_GRAPH_ID, aSchema, accProp);
-
-        fedGraph = new Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId(TEST_FED_GRAPH_ID)
-                        .library(library)
-                        .build())
-                .addStoreProperties(fedProperties)
-                .build();
     }
 
     private void commonAssertions() throws uk.gov.gchq.gaffer.operation.OperationException {

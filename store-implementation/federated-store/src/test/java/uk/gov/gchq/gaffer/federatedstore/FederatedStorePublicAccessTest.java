@@ -57,8 +57,8 @@ public class FederatedStorePublicAccessTest {
         MapStoreProperties mapStoreProperties = new MapStoreProperties();
         mapStoreProperties.setId(PROP_1);
 
-        library.addProperties(mapStoreProperties);
-        library.addSchema(new Schema.Builder().id(SCHEMA_1).build());
+        library.addProperties(PROP_1, mapStoreProperties);
+        library.addSchema(SCHEMA_1, new Schema.Builder().id(SCHEMA_1).build());
         store.setGraphLibrary(library);
         blankUserContext = new Context(FederatedStoreUser.blankUser());
         testUserContext = new Context(FederatedStoreUser.testUser());
