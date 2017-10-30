@@ -44,18 +44,15 @@ public abstract class AbstractGraphLibraryTest {
 
     private static final String TEST_GRAPH_ID = "testGraphId";
     private static final String TEST_GRAPH_ID_1 = "testGraphId1";
+    private static final String TEST_UNKNOWN_ID = "unknownId";
     private static final String TEST_SCHEMA_ID = "testSchemaId";
-    private static final String TEST_SCHEMA_ID_1 = "testSchemaId1";
-    private static final String TEST_UNKNOWN_SCHEMA_ID = "unknownSchemaId";
     private static final String TEST_PROPERTIES_ID = "testPropertiesId";
-    private static final String TEST_PROPERTIES_ID_1 = "testPropertiesId1";
-    private static final String TEST_UNKNOWN_PROPERTIES_ID = "unknownPropertiesId";
     private static final String EXCEPTION_EXPECTED = "Exception expected";
 
-    private Schema schema = new Schema.Builder().id(TEST_SCHEMA_ID).build();
-    private Schema schema1 = new Schema.Builder().id(TEST_SCHEMA_ID_1).build();
-    private StoreProperties storeProperties = new StoreProperties(TEST_PROPERTIES_ID);
-    private StoreProperties storeProperties1 = new StoreProperties(TEST_PROPERTIES_ID_1);
+    private Schema schema = new Schema.Builder().build();
+    private Schema schema1 = new Schema.Builder().build();
+    private StoreProperties storeProperties = new StoreProperties();
+    private StoreProperties storeProperties1 = new StoreProperties();
 
     public abstract GraphLibrary createGraphLibraryInstance();
 
@@ -73,8 +70,8 @@ public abstract class AbstractGraphLibraryTest {
         graphLibrary.add(TEST_GRAPH_ID, schema, storeProperties);
         graphLibrary.add(TEST_GRAPH_ID_1, schema1, storeProperties1);
 
-        assertEquals(new Pair<>(TEST_SCHEMA_ID, TEST_PROPERTIES_ID), graphLibrary.getIds(TEST_GRAPH_ID));
-        assertEquals(new Pair<>(TEST_SCHEMA_ID_1, TEST_PROPERTIES_ID_1), graphLibrary.getIds(TEST_GRAPH_ID_1));
+        assertEquals(new Pair<>(TEST_GRAPH_ID, TEST_GRAPH_ID), graphLibrary.getIds(TEST_GRAPH_ID));
+        assertEquals(new Pair<>(TEST_GRAPH_ID_1, TEST_GRAPH_ID_1), graphLibrary.getIds(TEST_GRAPH_ID_1));
     }
 
     @Test
@@ -83,7 +80,7 @@ public abstract class AbstractGraphLibraryTest {
         graphLibrary.add(TEST_GRAPH_ID, schema, storeProperties);
 
         // Then
-        assertEquals(new Pair<>(TEST_SCHEMA_ID, TEST_PROPERTIES_ID), graphLibrary.getIds(TEST_GRAPH_ID));
+        assertEquals(new Pair<>(TEST_GRAPH_ID, TEST_GRAPH_ID), graphLibrary.getIds(TEST_GRAPH_ID));
     }
 
     @Test
@@ -118,17 +115,33 @@ public abstract class AbstractGraphLibraryTest {
 
     @Test
     public void shouldThrowExceptionWhenGraphIdWithDifferentSchemaExists() {
-
         // Given
         graphLibrary.add(TEST_GRAPH_ID, schema, storeProperties);
+        Schema tempSchema = new Schema.Builder().edge("testEdge", new SchemaEdgeDefinition()).build();
 
         // When / Then
         try {
-            graphLibrary.add(TEST_GRAPH_ID, schema1, storeProperties);
+            graphLibrary.add(TEST_GRAPH_ID, tempSchema, storeProperties);
             fail(EXCEPTION_EXPECTED);
         } catch (final OverwritingException e) {
             assertTrue(e.getMessage().contains("already exists with a different schema"));
         }
+    }
+
+    @Test
+    public void shouldUpdateSchema() {
+        // Given
+        graphLibrary.addOrUpdateSchema(TEST_SCHEMA_ID, schema);
+        Schema tempSchema = new Schema.Builder().edge("testEdge", new SchemaEdgeDefinition()).build();
+
+        // Then
+        JsonAssert.assertEquals(schema.toJson(false), graphLibrary.getSchema(TEST_SCHEMA_ID).toJson(false));
+
+        // When
+        graphLibrary.addOrUpdateSchema(TEST_SCHEMA_ID, tempSchema);
+
+        // Then
+        JsonAssert.assertEquals(tempSchema.toJson(false), graphLibrary.getSchema(TEST_SCHEMA_ID).toJson(false));
     }
 
     @Test
@@ -154,14 +167,33 @@ public abstract class AbstractGraphLibraryTest {
     public void shouldThrowExceptionWhenGraphIdWithDifferentPropertiesExists() {
         // Given
         graphLibrary.add(TEST_GRAPH_ID, schema, storeProperties);
+        StoreProperties tempStoreProperties = storeProperties.clone();
+        tempStoreProperties.set("testKey", "testValue");
 
         // When / Then
         try {
-            graphLibrary.add(TEST_GRAPH_ID, schema, storeProperties1);
+            graphLibrary.add(TEST_GRAPH_ID, schema, tempStoreProperties);
             fail(EXCEPTION_EXPECTED);
         } catch (final Exception e) {
             assertTrue(e.getMessage().contains("already exists with a different store properties"));
         }
+    }
+
+    @Test
+    public void shouldUpdateStoreProperties() {
+        // Given
+        graphLibrary.addOrUpdateProperties(TEST_PROPERTIES_ID, storeProperties);
+        StoreProperties tempStoreProperties = storeProperties.clone();
+        tempStoreProperties.set("testKey", "testValue");
+
+        // Then
+        assertEquals(storeProperties.getProperties(), graphLibrary.getProperties(TEST_PROPERTIES_ID).getProperties());
+
+        // When
+        graphLibrary.addOrUpdateProperties(TEST_PROPERTIES_ID, tempStoreProperties);
+
+        // Then
+        assertEquals(tempStoreProperties.getProperties(), graphLibrary.getProperties(TEST_PROPERTIES_ID).getProperties());
     }
 
     @Test
@@ -196,19 +228,19 @@ public abstract class AbstractGraphLibraryTest {
         graphLibrary.addOrUpdate(TEST_GRAPH_ID, schema, storeProperties);
 
         // Then
-        assertEquals(storeProperties, graphLibrary.getProperties(TEST_PROPERTIES_ID));
+        assertEquals(storeProperties, graphLibrary.getProperties(TEST_GRAPH_ID));
 
         // When
         graphLibrary.addOrUpdate(TEST_GRAPH_ID, schema, storeProperties1);
 
         // Then
-        assertEquals(graphLibrary.getProperties(TEST_PROPERTIES_ID_1), storeProperties1);
+        assertEquals(storeProperties1, graphLibrary.getProperties(TEST_GRAPH_ID));
     }
 
     @Test
     public void shouldReturnNullWhenPropertyIdIsNotFound() {
         // When
-        final StoreProperties unknownStoreProperties = graphLibrary.getProperties(TEST_UNKNOWN_PROPERTIES_ID);
+        final StoreProperties unknownStoreProperties = graphLibrary.getProperties(TEST_UNKNOWN_ID);
 
         // Then
         assertNull(unknownStoreProperties);
@@ -217,7 +249,7 @@ public abstract class AbstractGraphLibraryTest {
     @Test
     public void shouldReturnNullWhenSchemaIdIsNotFound() {
         // When
-        final Schema unknownSchema = graphLibrary.getSchema(TEST_UNKNOWN_SCHEMA_ID);
+        final Schema unknownSchema = graphLibrary.getSchema(TEST_UNKNOWN_ID);
 
         // Then
         assertNull(unknownSchema);
@@ -245,7 +277,6 @@ public abstract class AbstractGraphLibraryTest {
     public void shouldThrowExceptionWhenNewSchemaIsAddedWithSameSchemaIdAndDifferentSchema() {
         // Given
         final Schema tempSchema = new Schema.Builder()
-                .id(TEST_SCHEMA_ID)
                 .edge(TestGroups.ENTITY, new SchemaEdgeDefinition.Builder()
                         .build())
                 .build();
@@ -289,13 +320,13 @@ public abstract class AbstractGraphLibraryTest {
     @Test
     public void shouldNotOverwriteSchemaWithClashingName() throws Exception {
         final String clashingId = "clashingId";
-        byte[] entitySchema = new Builder().id(clashingId).entity("e1", new SchemaEntityDefinition.Builder().property("p1", "string").build()).type("string", String.class).build().toJson(true);
-        byte[] edgeSchema = new Builder().id(clashingId).edge("e1", new SchemaEdgeDefinition.Builder().property("p1", "string").build()).type("string", String.class).build().toJson(true);
+        byte[] entitySchema = new Builder().entity("e1", new SchemaEntityDefinition.Builder().property("p1", "string").build()).type("string", String.class).build().toJson(true);
+        byte[] edgeSchema = new Builder().edge("e1", new SchemaEdgeDefinition.Builder().property("p1", "string").build()).type("string", String.class).build().toJson(true);
 
         graphLibrary.addSchema(clashingId, Schema.fromJson(entitySchema));
 
         try {
-            graphLibrary.add("graph", Schema.fromJson(edgeSchema), new StoreProperties());
+            graphLibrary.add("graph", clashingId, Schema.fromJson(edgeSchema), TEST_PROPERTIES_ID, new StoreProperties());
             fail(EXCEPTION_EXPECTED);
         } catch (final OverwritingException e) {
             assertTrue(e.getMessage().contains("schemaId clashingId already exists with a different schema"));
@@ -310,15 +341,15 @@ public abstract class AbstractGraphLibraryTest {
     @Test
     public void shouldNotOverwriteStorePropertiesWithClashingName() throws Exception {
         final String clashingId = "clashingId";
-        StoreProperties propsA = new StoreProperties(clashingId);
+        StoreProperties propsA = new StoreProperties();
         propsA.set("a", "a");
-        StoreProperties propsB = new StoreProperties(clashingId);
+        StoreProperties propsB = new StoreProperties();
         propsB.set("b", "b");
 
         graphLibrary.addProperties(clashingId, propsA);
 
         try {
-            graphLibrary.add("graph", new Schema(), propsB);
+            graphLibrary.add("graph", TEST_SCHEMA_ID, new Schema(), clashingId, propsB);
             fail(EXCEPTION_EXPECTED);
         } catch (final OverwritingException e) {
             assertTrue(e.getMessage().contains("propertiesId clashingId already exists with a different store properties"));
@@ -341,7 +372,7 @@ public abstract class AbstractGraphLibraryTest {
     }
 
     @Test
-    public void shouldThrowExeptionWhenAddingAFullLibraryWithNullStoreProperties() throws Exception {
+    public void shouldThrowExceptionWhenAddingAFullLibraryWithNullStoreProperties() throws Exception {
         try {
             graphLibrary.add(TEST_GRAPH_ID, schema, null);
             fail(EXCEPTION_EXPECTED);
@@ -351,7 +382,7 @@ public abstract class AbstractGraphLibraryTest {
     }
 
     @Test
-    public void shouldThrowExeptionWhenAddingAFullLibraryWithNullSchemaAndStoreProperties() throws Exception {
+    public void shouldThrowExceptionWhenAddingAFullLibraryWithNullSchemaAndStoreProperties() throws Exception {
         try {
             graphLibrary.add(TEST_GRAPH_ID, null, null);
             fail(EXCEPTION_EXPECTED);

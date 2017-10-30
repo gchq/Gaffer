@@ -55,7 +55,7 @@ public class StoreProperties implements Cloneable {
     public static final String STORE_CLASS = "gaffer.store.class";
     public static final String SCHEMA_CLASS = "gaffer.store.schema.class";
     /**
-     * @deprecated the ID should not be used. The properties ID be supplied to the graph library separately.
+     * @deprecated the ID should not be used. The properties ID should be supplied to the graph library separately.
      */
     @Deprecated
     public static final String ID = "gaffer.store.id";
@@ -80,6 +80,11 @@ public class StoreProperties implements Cloneable {
         updateStorePropertiesClass();
     }
 
+    /**
+     * @param id the StoreProperties id.
+     * @deprecated the id should not be used. The properties id should be supplied to the graph library separately.
+     */
+    @Deprecated
     public StoreProperties(final String id) {
         this();
         if (null != id) {

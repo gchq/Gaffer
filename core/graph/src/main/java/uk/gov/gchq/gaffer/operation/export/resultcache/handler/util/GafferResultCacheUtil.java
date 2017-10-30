@@ -60,19 +60,8 @@ public final class GafferResultCacheUtil {
     }
 
     public static Schema createSchema(final Long timeToLive) {
-        return createSchema(timeToLive, null);
-    }
-
-    public static Schema createSchema(final Long timeToLive, final String schemaId) {
-        final Schema.Builder builder;
-        if (null != schemaId) {
-            builder = new Schema.Builder()
-                    .id(schemaId)
-                    .json(StreamUtil.openStreams(GafferResultCacheUtil.class, "gafferResultCache/schema"));
-        } else {
-            builder = new Schema.Builder()
-                    .json(StreamUtil.openStreams(GafferResultCacheUtil.class, "gafferResultCache/schema"));
-        }
+        final Schema.Builder builder = new Schema.Builder()
+                .json(StreamUtil.openStreams(GafferResultCacheUtil.class, "gafferResultCache/schema"));
 
         if (null != timeToLive) {
             builder.merge(new Schema.Builder()

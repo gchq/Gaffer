@@ -63,14 +63,13 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
     private final User user = new User.Builder().opAuths("auth1", "auth2").build();
     private final Context context = new Context(user);
     private GraphLibrary graphLibrary;
-    private Schema schema = new Schema.Builder().id(SCHEMA_ID).build();
+    private Schema schema = new Schema.Builder().build();
     private StoreProperties storeProperties;
     private Map<String, List<String>> idAuths = new HashMap<>();
 
     @Before
     public void setUp() throws IOException {
         storeProperties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
-        storeProperties.setId(STORE_PROPS_ID);
         given(store.getGraphId()).willReturn(GRAPH_ID);
 
         final File graphLibraryFolder = testFolder.newFolder("graphLibraryTest");
@@ -126,8 +125,8 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
     @Test
     public void shouldCreateGraphWithParentSchemaIdAndStorePropertiesIdAndAuths() {
         // Given
-        Schema schema1 = new Schema.Builder().id(SCHEMA_ID_1).build();
-        graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
+        Schema schema1 = new Schema.Builder().build();
+        graphLibrary.addOrUpdate(GRAPH_ID + 1, SCHEMA_ID, schema, STORE_PROPS_ID, storeProperties);
         graphLibrary.addSchema(SCHEMA_ID_1, schema1);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
         List<String> opAuths = Lists.newArrayList("auth1");
@@ -154,7 +153,7 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
     @Test
     public void shouldThrowExceptionWithParentSchemaIdAndStorePropertiesIdAndNoGraphAuths() {
         // Given
-        Schema schema1 = new Schema.Builder().id(SCHEMA_ID_1).build();
+        Schema schema1 = new Schema.Builder().build();
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
         graphLibrary.addSchema(SCHEMA_ID_1, schema1);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
