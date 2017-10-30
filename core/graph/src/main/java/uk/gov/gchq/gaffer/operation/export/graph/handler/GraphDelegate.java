@@ -60,8 +60,8 @@ public final class GraphDelegate {
     }
 
     private static Graph createGraphAfterResolvingSchemaAndProperties(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId) {
-        StoreProperties resolvedStoreProperties = resolveStoreProperties(store, storeProperties, parentStorePropertiesId);
-        Schema resolvedSchema = resolveSchema(store, schema, parentSchemaIds);
+        StoreProperties resolvedStoreProperties = StoreProperties.resolveStoreProperties(store, storeProperties, parentStorePropertiesId);
+        Schema resolvedSchema = Schema.resolveSchema(store, schema, parentSchemaIds);
 
         return new Builder()
                 .config(new GraphConfig.Builder()
@@ -72,61 +72,6 @@ public final class GraphDelegate {
                 .storeProperties(resolvedStoreProperties)
                 .addToLibrary(false)
                 .build();
-    }
-
-    public static StoreProperties resolveStoreProperties(final Store store, final StoreProperties properties, final String parentStorePropertiesId) {
-        StoreProperties rtn = null;
-
-        if (null != parentStorePropertiesId) {
-            rtn = store.getGraphLibrary().getProperties(parentStorePropertiesId);
-        }
-        if (null != properties) {
-            if (null == rtn) {
-                rtn = properties;
-            } else {
-                // delete the old properties id as we are about to modify the properties
-                rtn.getProperties().remove(StoreProperties.ID);
-                rtn.getProperties().putAll(properties.getProperties());
-            }
-        }
-        if (null == rtn) {
-            rtn = store.getProperties();
-        }
-        return rtn;
-    }
-
-    public static Schema resolveSchema(final Store store, final Schema schema, final List<String> parentSchemaIds) {
-        final GraphLibrary graphLibrary = store.getGraphLibrary();
-
-        Schema rtn = null;
-        if (null != parentSchemaIds) {
-            if (1 == parentSchemaIds.size()) {
-                rtn = graphLibrary.getSchema(parentSchemaIds.get(0));
-            } else {
-                final Schema.Builder schemaBuilder = new Schema.Builder();
-                for (final String id : parentSchemaIds) {
-                    schemaBuilder.merge(graphLibrary.getSchema(id));
-                }
-                rtn = schemaBuilder.build();
-            }
-        }
-
-        if (null != schema) {
-            if (null == rtn) {
-                rtn = schema;
-            } else {
-                // delete the old schema id as we are about to modify the schema
-                rtn = new Schema.Builder()
-                        .merge(rtn)
-                        .id(null)
-                        .merge(schema)
-                        .build();
-            }
-        }
-        if (null == rtn) {
-            rtn = store.getSchema();
-        }
-        return rtn;
     }
 
     private static Graph createGraphWithLibraryAndId(final String graphId, final GraphLibrary graphLibrary) {

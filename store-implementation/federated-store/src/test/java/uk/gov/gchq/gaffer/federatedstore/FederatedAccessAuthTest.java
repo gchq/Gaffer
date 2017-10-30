@@ -23,11 +23,11 @@ import uk.gov.gchq.gaffer.user.User;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.ALL_USERS;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.AUTH_1;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.authUser;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.blankUser;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
+import static uk.gov.gchq.gaffer.user.StoreUser.ALL_USERS;
+import static uk.gov.gchq.gaffer.user.StoreUser.AUTH_1;
+import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
+import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
+import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedAccessAuthTest {
 

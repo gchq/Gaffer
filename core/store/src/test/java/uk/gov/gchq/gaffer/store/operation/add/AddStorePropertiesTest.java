@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.federatedstore.operation;
+package uk.gov.gchq.gaffer.store.operation.add;
 
 import com.google.common.collect.Sets;
 
-import uk.gov.gchq.gaffer.federatedstore.operation.AddStoreProperties.Builder;
-import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationTest;
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.operation.add.AddStoreProperties.Builder;
 
 import java.util.Set;
 
@@ -42,7 +42,7 @@ public class AddStorePropertiesTest extends OperationTest<AddStoreProperties> {
 
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        MapStoreProperties storeProperties = new MapStoreProperties();
+        StoreProperties storeProperties = new StoreProperties();
         AddStoreProperties op = new Builder()
                 .storeProperties(storeProperties)
                 .parentPropertiesId(VALUE_1)
@@ -55,7 +55,7 @@ public class AddStorePropertiesTest extends OperationTest<AddStoreProperties> {
     @Override
     public void shouldShallowCloneOperation() {
         AddStoreProperties op = new Builder()
-                .storeProperties(new MapStoreProperties())
+                .storeProperties(new StoreProperties())
                 .parentPropertiesId(VALUE_1)
                 .build();
 

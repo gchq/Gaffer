@@ -14,54 +14,28 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.federatedstore.operation;
+package uk.gov.gchq.gaffer.store.operation.add;
 
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.List;
 import java.util.Map;
 
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
-
 /**
- * <p>
- * An Operation used for adding graphs to a FederatedStore.
- * </p>
- * Requires:
- * <ul>
- * <li>graphId
- * <li>storeProperties and/or parentPropertiesId</li>
- * <li>schema and/or parentSchemaIds</li>
- * </ul>
- * <p>
- * parentId can be used solely, if known by the graphLibrary.
- * </p>
- * <p>
- * schema can be used solely.
- * </p>
- * <p>
- * storeProperties can be used, if authorised to by {@link uk.gov.gchq.gaffer.federatedstore.FederatedStore#isLimitedToLibraryProperties(uk.gov.gchq.gaffer.user.User)}
- * both non-parentId and parentId can be used, and will be merged together.
- * </p>
+ * An Operation used for adding {@link Schema} to the {@link uk.gov.gchq.gaffer.store.library.GraphLibrary} of a store.
  *
- * @see uk.gov.gchq.gaffer.federatedstore.FederatedStore
  * @see Schema
- * @see uk.gov.gchq.gaffer.data.element.Properties
- * @see uk.gov.gchq.gaffer.graph.Graph
  */
-public class AddSchema implements FederatedOperation {
+public class AddSchema implements Operation {
 
     @Required
     private Schema schema;
     private List<String> parentSchemaIds;
     private Map<String, String> options;
-
-    public AddSchema() {
-        addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, "");
-    }
 
     public Schema getSchema() {
         return schema;
@@ -70,7 +44,6 @@ public class AddSchema implements FederatedOperation {
     public void setSchema(final Schema schema) {
         this.schema = schema;
     }
-
 
     @Override
     public AddSchema shallowClone() throws CloneFailedException {

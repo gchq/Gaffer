@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.user.StoreUser;
 
 public class FederatedStorePublicAccessTest {
 
@@ -54,7 +55,7 @@ public class FederatedStorePublicAccessTest {
         library.addProperties(mapStoreProperties);
         library.addSchema(new Schema.Builder().id(SCHEMA_1).build());
         store.setGraphLibrary(library);
-        blankContext = new Context(FederatedStoreUser.blankUser());
+        blankContext = new Context(StoreUser.blankUser());
     }
 
     @Test

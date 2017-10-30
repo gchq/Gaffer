@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.federatedstore.operation;
+package uk.gov.gchq.gaffer.store.operation.add;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import uk.gov.gchq.gaffer.federatedstore.operation.AddSchema.Builder;
+import uk.gov.gchq.gaffer.store.operation.add.AddSchema.Builder;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 

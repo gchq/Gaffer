@@ -14,56 +14,30 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.federatedstore.operation;
+package uk.gov.gchq.gaffer.store.operation.add;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
 import java.util.Map;
 import java.util.Properties;
 
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
-
 /**
- * <p>
- * An Operation used for adding graphs to a FederatedStore.
- * </p>
- * Requires:
- * <ul>
- * <li>graphId
- * <li>storeProperties and/or parentPropertiesId</li>
- * <li>schema and/or parentSchemaIds</li>
- * </ul>
- * <p>
- * parentId can be used solely, if known by the graphLibrary.
- * </p>
- * <p>
- * schema can be used solely.
- * </p>
- * <p>
- * storeProperties can be used, if authorised to by {@link uk.gov.gchq.gaffer.federatedstore.FederatedStore#isLimitedToLibraryProperties(uk.gov.gchq.gaffer.user.User)}
- * both non-parentId and parentId can be used, and will be merged together.
- * </p>
+ * An Operation used for adding {@link StoreProperties} to the {@link uk.gov.gchq.gaffer.store.library.GraphLibrary} of a store.
  *
- * @see uk.gov.gchq.gaffer.federatedstore.FederatedStore
- * @see uk.gov.gchq.gaffer.store.schema.Schema
- * @see uk.gov.gchq.gaffer.data.element.Properties
- * @see uk.gov.gchq.gaffer.graph.Graph
+ * @see StoreProperties
  */
-public class AddStoreProperties implements FederatedOperation {
+public class AddStoreProperties implements Operation {
 
     @Required
     private StoreProperties storeProperties;
     private String parentPropertiesId;
     private Map<String, String> options;
-
-    public AddStoreProperties() {
-        addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, "");
-    }
 
     @Override
     public AddStoreProperties shallowClone() throws CloneFailedException {

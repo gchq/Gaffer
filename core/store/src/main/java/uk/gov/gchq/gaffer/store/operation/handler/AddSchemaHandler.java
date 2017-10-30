@@ -14,40 +14,36 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
+package uk.gov.gchq.gaffer.store.operation.handler;
 
-import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
-import uk.gov.gchq.gaffer.federatedstore.operation.AddSchema;
+import uk.gov.gchq.gaffer.store.operation.add.AddSchema;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-public class FederatedAddSchemaHandler implements OperationHandler<AddSchema> {
+public class AddSchemaHandler implements OperationHandler<AddSchema> {
 
-    public static final String ERROR_ADDING_SCHEMA_TO_FEDERATED_STORE_S = "Error adding schema to FederatedStore,%s";
+    public static final String ERROR_ADDING_SCHEMA_TO_STORE_S = "Error adding schema to Store,%s";
     public static final String THE_STORE_DOES_NOT_HAVE_A_GRAPH_LIBRARY = " the store doesn't have a graphLibrary";
 
     @Override
     public Void doOperation(final AddSchema operation, final Context context, final Store store) throws OperationException {
-        FederatedStore federatedStore = (FederatedStore) store;
-        GraphLibrary graphLibrary = federatedStore.getGraphLibrary();
+        GraphLibrary graphLibrary = store.getGraphLibrary();
         if (null == graphLibrary) {
-            throw new OperationException(String.format(ERROR_ADDING_SCHEMA_TO_FEDERATED_STORE_S, THE_STORE_DOES_NOT_HAVE_A_GRAPH_LIBRARY));
+            throw new OperationException(String.format(ERROR_ADDING_SCHEMA_TO_STORE_S, THE_STORE_DOES_NOT_HAVE_A_GRAPH_LIBRARY));
         } else {
             Schema mergedSchema;
             try {
-                mergedSchema = GraphDelegate.resolveSchema(store, operation.getSchema(), operation.getParentSchemaIds());
+                mergedSchema = Schema.resolveSchema(store, operation.getSchema(), operation.getParentSchemaIds());
             } catch (final Exception e) {
-                throw new OperationException(String.format(ERROR_ADDING_SCHEMA_TO_FEDERATED_STORE_S, " schema couldn't be resolved."), e);
+                throw new OperationException(String.format(ERROR_ADDING_SCHEMA_TO_STORE_S, " schema couldn't be resolved."), e);
             }
             try {
                 graphLibrary.addSchema(mergedSchema);
             } catch (final Exception e) {
-                throw new OperationException(String.format(ERROR_ADDING_SCHEMA_TO_FEDERATED_STORE_S, " schema: " + operation.getSchema()), e);
+                throw new OperationException(String.format(ERROR_ADDING_SCHEMA_TO_STORE_S, " schema: " + operation.getSchema()), e);
             }
         }
         return null;
