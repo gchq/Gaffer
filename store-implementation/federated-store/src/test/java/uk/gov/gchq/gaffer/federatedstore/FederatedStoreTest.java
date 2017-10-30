@@ -77,6 +77,7 @@ public class FederatedStoreTest {
     public static final String PATH_MAP_STORE_PROPERTIES_ALT = "properties/singleUseMockMapStoreAlt.properties";
     public static final String PATH_BASIC_ENTITY_SCHEMA_JSON = "schema/basicEntitySchema.json";
     public static final String PATH_BASIC_EDGE_SCHEMA_JSON = "schema/basicEdgeSchema.json";
+    public static final String PATH_BASIC_EDGE_SCHEMA_WITH_ID_JSON = "schema/basicEntitySchemaWithSchemaId.json";
     public static final String PATH_INVALID = "nothing.json";
     public static final String EXCEPTION_NOT_THROWN = "exception not thrown";
     public static final String USER_ID = "testUser";
@@ -618,7 +619,7 @@ public class FederatedStoreTest {
     public void shouldAddGraphWithSchemaFromGraphLibraryOverridden() throws Exception {
         federatedProperties.setGraphIds(MAP_ID_1);
         federatedProperties.setGraphPropFile(MAP_ID_1, PATH_MAP_STORE_PROPERTIES);
-        federatedProperties.setGraphSchemaFile(MAP_ID_1, PATH_BASIC_EDGE_SCHEMA_JSON);
+        federatedProperties.setGraphSchemaFile(MAP_ID_1, PATH_BASIC_EDGE_SCHEMA_WITH_ID_JSON);
         federatedProperties.setGraphSchemaId(MAP_ID_1, SCHEMA_ID_1);
         final GraphLibrary mockLibrary = Mockito.mock(GraphLibrary.class);
         Mockito.when(mockLibrary.getSchema(SCHEMA_ID_1)).thenReturn(new Schema.Builder()
@@ -639,7 +640,7 @@ public class FederatedStoreTest {
         federatedProperties.setGraphIds(MAP_ID_1);
         federatedProperties.setGraphPropId(MAP_ID_1, PROPS_ID_1);
         federatedProperties.setGraphPropFile(MAP_ID_1, PATH_MAP_STORE_PROPERTIES);
-        federatedProperties.setGraphSchemaFile(MAP_ID_1, PATH_BASIC_EDGE_SCHEMA_JSON);
+        federatedProperties.setGraphSchemaFile(MAP_ID_1, PATH_BASIC_EDGE_SCHEMA_WITH_ID_JSON);
         federatedProperties.setGraphSchemaId(MAP_ID_1, SCHEMA_ID_1);
         final GraphLibrary mockLibrary = Mockito.mock(GraphLibrary.class);
         final MapStoreProperties prop = new MapStoreProperties();
