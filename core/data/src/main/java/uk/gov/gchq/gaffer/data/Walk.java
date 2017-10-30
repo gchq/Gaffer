@@ -41,7 +41,6 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
@@ -89,6 +88,9 @@ public class Walk implements Iterable<Set<Edge>> {
 
     /**
      * Constructor used by Jackson.
+     *
+     * @param edges the edges to add to the walk
+     * @param entities the entities to add to the walk
      */
     @JsonCreator
     public Walk(@JsonProperty("edges") final List<Set<Edge>> edges,

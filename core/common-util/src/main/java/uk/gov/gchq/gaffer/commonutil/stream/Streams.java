@@ -19,7 +19,6 @@ import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.StreamIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.StreamIterator;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
@@ -55,7 +54,7 @@ public final class Streams {
      * @return a stream containing the contents of the array
      */
     public static <T> Stream<T> toStream(final T[] array) {
-        return StreamSupport.stream(Spliterators.spliterator(array, 0),false);
+        return StreamSupport.stream(Spliterators.spliterator(array, 0), false);
     }
 
     /**
@@ -119,7 +118,7 @@ public final class Streams {
      * @return a stream containing the contents of the array
      */
     public static <T> Stream<T> toParallelStream(final T[] array) {
-        return StreamSupport.stream(Spliterators.spliterator(array, 0),true);
+        return StreamSupport.stream(Spliterators.spliterator(array, 0), true);
     }
 
     private Streams() {

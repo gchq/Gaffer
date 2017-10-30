@@ -133,8 +133,9 @@ public final class CollectionUtil {
         final Set<T> set = new HashSet<>();
 
         for (final T t : collection) {
-            if (!set.add(t))
+            if (!set.add(t)) {
                 return false;
+            }
         }
 
         return true;

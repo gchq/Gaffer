@@ -16,9 +16,7 @@
 package uk.gov.gchq.gaffer.commonutil.stream;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.LimitedInMemorySortedIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashSet;

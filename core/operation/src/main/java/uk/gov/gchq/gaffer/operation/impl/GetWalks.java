@@ -21,7 +21,6 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.data.Walk;
-import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -76,7 +75,7 @@ public class GetWalks implements
 
         // Validate the View objects
         if (null != operations) {
-            for (final ListIterator<GetElements> it = operations.listIterator(); it.hasNext(); ) {
+            for (final ListIterator<GetElements> it = operations.listIterator(); it.hasNext();) {
                 final GetElements op = it.next();
                 if (null != op.getView() && op.getView().hasEntities()) {
                     result.addError("The view for operation " + it.previousIndex() + " must not contain Entities.");
