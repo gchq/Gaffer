@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -116,15 +117,16 @@ public class GetSchemaHandlerTest {
     }
 
     @Test
-    public void shouldReturnEmptySchemaForNullOperation() throws OperationException {
+    public void shouldThrowExceptionForNullOperation() throws OperationException {
         final GetSchema operation = null;
 
-        // When
-        final Schema result = handler.doOperation(operation, context, store);
+        // When / Then
+        try {
+            handler.doOperation(operation, context, store);
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains("Operation cannot be null"));
+        }
 
-        // Then
-        assertNotNull(result);
-        JsonAssert.assertEquals(new Schema().toJson(true), result.toJson(true));
 
     }
 }
