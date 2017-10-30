@@ -301,6 +301,12 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             super(schema);
         }
 
+        /**
+         *
+         * @param id the id.
+         * @return this builder.
+         * @deprecated the ID should not be used. The ID should be supplied to the graph library separately
+         */
         public CHILD_CLASS id(final String id) {
             getThisSchema().id = id;
             return self();
