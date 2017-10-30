@@ -15,16 +15,18 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.ExtractItems;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 
+/**
+ * A {@code ExtractItemsHandler} is a handler for the {@link ExtractItems} {@link uk.gov.gchq.gaffer.operation.Operation}.
+ */
 public class ExtractItemsHandler implements OutputOperationHandler<ExtractItems, Iterable<? extends Object>> {
     @Override
     public List<? extends Object> doOperation(final ExtractItems operation, final Context context, final Store store) throws OperationException {
@@ -40,18 +42,24 @@ public class ExtractItemsHandler implements OutputOperationHandler<ExtractItems,
 
         final int selection = operation.getSelection();
 
-        return Streams.toStream(input)
-                .map(i -> extract(i, selection))
-                .collect(Collectors.toList());
+        final List<Object> results = new ArrayList<>();
+
+        for (final Iterable<? extends Object> iterable : input) {
+            results.add(extract(iterable, selection));
+        }
+
+        return results;
     }
 
     /**
      * For a given {@link Iterable}, extracts a specific object based on the selection.
+     *
      * @param input     Provided iterable from which to extract an object
      * @param selection The index of the object to extract
      * @return          The extracted object
+     * @throws          OperationException if selection would be out of bounds
      */
-    private Object extract(final Iterable<? extends Object> input, final int selection) {
+    private Object extract(final Iterable<? extends Object> input, final int selection) throws OperationException {
         if (input instanceof List) {
             return ((List) input).get(selection);
         }
@@ -59,9 +67,13 @@ public class ExtractItemsHandler implements OutputOperationHandler<ExtractItems,
         int count = 0;
         final Iterator<?> iterator = input.iterator();
         while (count < selection) {
-            iterator.next();
-            iterator.remove();
-            count++;
+            if (iterator.hasNext()) {
+                iterator.next();
+                iterator.remove();
+                count++;
+            } else {
+                throw new OperationException("Selection exceeds size of iterable");
+            }
         }
 
         return iterator.next();
