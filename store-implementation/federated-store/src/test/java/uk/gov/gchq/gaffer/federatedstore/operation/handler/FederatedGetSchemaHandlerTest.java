@@ -117,7 +117,7 @@ public class FederatedGetSchemaHandlerTest {
     }
 
     @Test
-    public void shouldReturnAllSchemasForANullOperation() throws OperationException {
+    public void shouldThrowExceptionForANullOperation() throws OperationException {
         library.addProperties(accProperties);
         fStore.setGraphLibrary(library);
 
