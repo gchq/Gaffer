@@ -70,12 +70,11 @@ public class FederatedStoreSchemaTest {
 
     @Test
     public void shouldBeAbleToAddGraphsWithSchemaCollisions() throws Exception {
-        library.addProperties(ACC_PROP,ACCUMULO_PROPERTIES);
+        library.addProperties(ACC_PROP, ACCUMULO_PROPERTIES);
         fStore.setGraphLibrary(library);
 
         String aSchema1ID = "aSchema";
         final Schema aSchema = new Schema.Builder()
-                .id(aSchema1ID)
                 .edge("e1", getProp("prop1"))
                 .merge(STRING_SCHEMA)
                 .build();
@@ -91,7 +90,6 @@ public class FederatedStoreSchemaTest {
 
         String bSchema1ID = "bSchema";
         final Schema bSchema = new Schema.Builder()
-                .id(bSchema1ID)
                 .edge("e1", getProp("prop2"))
                 .merge(STRING_SCHEMA)
                 .build();

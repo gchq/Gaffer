@@ -65,7 +65,6 @@ public class ExamplesServiceTest {
     @Before
     public void setup() {
         schema = new Schema.Builder()
-                //.id()
                 .type("string", String.class)
                 .type("true", Boolean.class)
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
