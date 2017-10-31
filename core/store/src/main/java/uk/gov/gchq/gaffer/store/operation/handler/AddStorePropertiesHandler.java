@@ -23,7 +23,6 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.add.AddStoreProperties;
 
-import static uk.gov.gchq.gaffer.store.library.GraphLibrary.resolveStoreProperties;
 
 public class AddStorePropertiesHandler implements OperationHandler<AddStoreProperties> {
 
@@ -38,7 +37,7 @@ public class AddStorePropertiesHandler implements OperationHandler<AddStorePrope
         } else {
             StoreProperties properties;
             try {
-                properties = resolveStoreProperties(store, operation.getStoreProperties(), operation.getParentPropertiesId());
+                properties = graphLibrary.resolveStoreProperties(operation.getStoreProperties(), operation.getParentPropertiesId());
             } catch (final Exception e) {
                 throw new OperationException(String.format(ERROR_ADDING_STORE_TO_STORE_S, " storeProperties couldn't be resolved."), e);
             }
