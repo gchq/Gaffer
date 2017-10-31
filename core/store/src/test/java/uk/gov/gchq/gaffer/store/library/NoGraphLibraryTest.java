@@ -29,14 +29,14 @@ public class NoGraphLibraryTest {
     private static final String GRAPH_ID = "noGraphLibraryTestId";
     private static final String SCHEMA_ID = "noGraphLibrarySchemaId";
     private static final String PROPERTIES_ID = "noGraphLibraryPropertiesId";
-    private final StoreProperties storeProperties = new StoreProperties(GRAPH_ID);
-    final Schema schema = new Schema.Builder().id(SCHEMA_ID).build();
+    private final StoreProperties storeProperties = new StoreProperties();
+    final Schema schema = new Schema.Builder().build();
 
     @Test
     public void shouldReturnNullWhenGettingIds() {
 
         // When / Then
-        noGraphLibrary.add(GRAPH_ID, schema, storeProperties);
+        noGraphLibrary.add(GRAPH_ID, SCHEMA_ID, schema, PROPERTIES_ID, storeProperties);
         assertNull(noGraphLibrary.getIds(GRAPH_ID));
     }
 
@@ -44,7 +44,7 @@ public class NoGraphLibraryTest {
     public void shouldReturnNullWhenGettingSchema() {
 
         // When / Then
-        noGraphLibrary.add(GRAPH_ID, schema, storeProperties);
+        noGraphLibrary.add(GRAPH_ID, SCHEMA_ID, schema, PROPERTIES_ID, storeProperties);
         assertNull(noGraphLibrary.getSchema(SCHEMA_ID));
     }
 
@@ -52,7 +52,7 @@ public class NoGraphLibraryTest {
     public void shouldReturnNullWhenGettingProperties() {
 
         // When / Then
-        noGraphLibrary.add(GRAPH_ID, schema, storeProperties);
+        noGraphLibrary.add(GRAPH_ID, SCHEMA_ID, schema, PROPERTIES_ID, storeProperties);
         assertNull(noGraphLibrary.getProperties(PROPERTIES_ID));
     }
 }
