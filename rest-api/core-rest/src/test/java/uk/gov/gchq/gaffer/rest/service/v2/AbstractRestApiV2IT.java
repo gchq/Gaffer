@@ -18,10 +18,10 @@ package uk.gov.gchq.gaffer.rest.service.v2;
 import uk.gov.gchq.gaffer.rest.AbstractRestApiIT;
 import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 
-public class AbstractRestApiV2IT extends AbstractRestApiIT {
+public class AbstractRestApiV2IT extends AbstractRestApiIT<RestApiV2TestClient> {
 
     @Override
-    protected RestApiTestClient getClient() {
+    protected RestApiV2TestClient getClient() {
         return new RestApiV2TestClient();
     }
 }
