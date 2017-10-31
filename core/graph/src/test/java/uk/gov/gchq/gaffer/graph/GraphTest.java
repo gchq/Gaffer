@@ -1700,7 +1700,7 @@ public class GraphTest {
 
         // Then
         assertEquals(graphId1, graph1.getGraphId());
-        assertTrue(JsonUtil.equals(library.getSchema(SCHEMA_ID_1).toJson(false), schema.toJson(false)));
+        JsonAssert.assertEquals(library.getSchema(SCHEMA_ID_1).toJson(false), schema.toJson(false));
         // Check that the schemaId = schemaId1 as both the parent and supplied schema have same id's
         assertTrue(library.getIds(graphId1).getFirst().equals(graphId1));
         // Check that the storePropsId = storePropertiesId1 as both parent and supplied storeProps have same id's
