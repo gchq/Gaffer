@@ -46,7 +46,6 @@ public class HashMapCacheServiceTest {
 
     @Test
     public void shouldReturnInstanceOfHashMapCache() {
-
         // when
         ICache cache = service.getCache(CACHE_NAME);
 

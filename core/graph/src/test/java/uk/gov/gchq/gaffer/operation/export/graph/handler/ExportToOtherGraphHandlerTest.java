@@ -170,8 +170,10 @@ public class ExportToOtherGraphHandlerTest {
     @Test
     public void shouldCreateNewGraphWithStoresStoreProperties() {
         // Given
-        Schema schema1 = new Schema.Builder().build();
         given(store.getProperties()).willReturn(storeProperties);
+        given(store.getGraphLibrary()).willReturn(null);
+
+        Schema schema1 = new Schema.Builder().build();
 
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
@@ -190,9 +192,10 @@ public class ExportToOtherGraphHandlerTest {
     @Test
     public void shouldCreateNewGraphWithStoresSchema() {
         // Given
-        final StoreProperties storeProperties1 = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
-
         given(store.getSchema()).willReturn(schema);
+        given(store.getGraphLibrary()).willReturn(null);
+
+        final StoreProperties storeProperties1 = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
 
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)

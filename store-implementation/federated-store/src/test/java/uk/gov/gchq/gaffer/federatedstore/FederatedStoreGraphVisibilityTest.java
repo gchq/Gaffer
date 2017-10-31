@@ -76,7 +76,6 @@ public class FederatedStoreGraphVisibilityTest {
     public void shouldNotShowHiddenGraphIdWithIDs() throws Exception {
 
         final Schema aSchema = new Schema.Builder()
-                .id(TEST_SCHEMA_ID) // <- with ID
                 .entity("e1", new SchemaEntityDefinition.Builder()
                         .vertex("string")
                         .build())
@@ -84,7 +83,6 @@ public class FederatedStoreGraphVisibilityTest {
                 .build();
 
         final AccumuloProperties accProp = new AccumuloProperties();
-        accProp.setId(TEST_STORE_PROPS_ID); // <- with ID
         accProp.setStoreClass(SingleUseMockAccumuloStore.class.getName());
         accProp.setStorePropertiesClass(AccumuloProperties.class);
 
