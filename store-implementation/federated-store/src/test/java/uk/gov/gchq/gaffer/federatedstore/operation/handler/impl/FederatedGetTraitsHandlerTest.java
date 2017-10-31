@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
-import uk.gov.gchq.gaffer.federatedstore.operation.GetTraits;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.store.Context;
@@ -38,7 +38,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
+import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedGetTraitsHandlerTest {
 
@@ -65,7 +65,7 @@ public class FederatedGetTraitsHandlerTest {
     public void shouldHaveAllTraitsForSupported() throws Exception {
         federatedStore.initialise(FED_STORE_ID, null, new FederatedStoreProperties());
         Iterable<? extends StoreTrait> execute = federatedStore.execute(new GetTraits.Builder()
-                .isSupportedTraits(true)
+                .currentlyAvailableTraits(false)
                 .build(), new Context(testUser()));
 
         assertNotNull(execute);

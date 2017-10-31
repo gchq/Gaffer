@@ -14,31 +14,24 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
+package uk.gov.gchq.gaffer.store.operation.handler;
 
-import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
-import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
-
-public class FederatedGetTraitsHandler implements OutputOperationHandler<GetTraits, Iterable<? extends StoreTrait>> {
+public class GetTraitsHandler implements OutputOperationHandler<GetTraits, Iterable<? extends StoreTrait>> {
 
     @Override
     public Iterable<? extends StoreTrait> doOperation(final GetTraits operation, final Context context, final Store store) throws OperationException {
-        String graphIdsCsv = operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS);
-
-        FederatedStore federatedStore = (FederatedStore) store;
         try {
             return operation.currentlyAvailableTraits()
-                    ? federatedStore.getCurrentlyAvailableTraits(context.getUser(), graphIdsCsv)
-                    : federatedStore.getTraits();
+                    ? store.getCurrentlyAvailableTraits(null)
+                    : store.getTraits();
         } catch (final Exception e) {
-            throw new OperationException("Error getting Traits. isSupportedTraits: " + operation.currentlyAvailableTraits() + " graphIdsCsv: " + graphIdsCsv, e);
+            throw new OperationException("Error getting Traits. isSupportedTraits: " + operation.currentlyAvailableTraits(), e);
         }
     }
 }

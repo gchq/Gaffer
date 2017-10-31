@@ -328,7 +328,7 @@ public class FederatedStoreTest {
         traits.retainAll(MapStore.TRAITS);
 
         //When
-        Set<StoreTrait> before = store.getCurrentTraits(testUser);
+        Set<StoreTrait> before = store.getCurrentlyAvailableTraits(testUser);
         int sizeBefore = before.size();
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
@@ -346,7 +346,7 @@ public class FederatedStoreTest {
                 .storeProperties(StoreProperties.loadStoreProperties("/properties/singleUseMockAccStore.properties"))
                 .build(), new Context(testUser));
 
-        Set<StoreTrait> after = store.getCurrentTraits(testUser);
+        Set<StoreTrait> after = store.getCurrentlyAvailableTraits(testUser);
         int sizeAfter = after.size();
 
         //Then

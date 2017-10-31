@@ -14,44 +14,39 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.federatedstore.operation;
+package uk.gov.gchq.gaffer.store.operation;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 
 import java.util.Map;
 
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
-
 /**
- * An Operation used for getting traits from the FederatedStore.
+ * An Operation used for getting traits from the Store.
  */
-public class GetTraits implements FederatedOperation, Output<Iterable<? extends StoreTrait>> {
+public class GetTraits implements Operation, Output<Iterable<? extends StoreTrait>> {
 
-    public final boolean defaultIsSupportedTraits = false;
-    private boolean isSupportedTraits = defaultIsSupportedTraits;
+    public static final boolean defaultCurrentlyAvailableTraits = true;
+    private boolean currentlyAvailableTraits = defaultCurrentlyAvailableTraits;
     private Map<String, String> options;
 
-    public GetTraits() {
-        addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, null);
+    public boolean currentlyAvailableTraits() {
+        return currentlyAvailableTraits;
     }
 
-    public boolean getIsSupportedTraits() {
-        return isSupportedTraits;
-    }
-
-    public void setIsSupportedTraits(final boolean isSupportedTraits) {
-        this.isSupportedTraits = isSupportedTraits;
+    public void setCurrentlyAvailableTraits(final boolean currentlyAvailableTraits) {
+        this.currentlyAvailableTraits = currentlyAvailableTraits;
     }
 
     @Override
     public GetTraits shallowClone() throws CloneFailedException {
         return new Builder()
                 .options(options)
-                .isSupportedTraits(isSupportedTraits)
+                .currentlyAvailableTraits(currentlyAvailableTraits)
                 .build();
     }
 
@@ -75,8 +70,8 @@ public class GetTraits implements FederatedOperation, Output<Iterable<? extends 
             super(new GetTraits());
         }
 
-        public Builder isSupportedTraits(final boolean isSupportedTraits) {
-            _getOp().setIsSupportedTraits(isSupportedTraits);
+        public Builder currentlyAvailableTraits(final boolean currentlyAvailableTraits) {
+            _getOp().setCurrentlyAvailableTraits(currentlyAvailableTraits);
             return _self();
         }
     }

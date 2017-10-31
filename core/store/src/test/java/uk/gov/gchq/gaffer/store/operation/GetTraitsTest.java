@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.federatedstore.operation;
+package uk.gov.gchq.gaffer.store.operation;
 
 import com.google.common.collect.Sets;
 
-import uk.gov.gchq.gaffer.federatedstore.operation.GetTraits.Builder;
 import uk.gov.gchq.gaffer.operation.OperationTest;
+import uk.gov.gchq.gaffer.store.operation.GetTraits.Builder;
 
 import java.util.Set;
 
@@ -40,20 +40,20 @@ public class GetTraitsTest extends OperationTest<GetTraits> {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         GetTraits op = new Builder()
-                .isSupportedTraits(true)
+                .currentlyAvailableTraits(false)
                 .build();
 
-        assertEquals(true, op.getIsSupportedTraits());
+        assertEquals(false, op.currentlyAvailableTraits());
     }
 
     @Override
     public void shouldShallowCloneOperation() {
         GetTraits op = new Builder()
-                .isSupportedTraits(true)
+                .currentlyAvailableTraits(false)
                 .build();
 
         GetTraits clone = op.shallowClone();
 
-        assertEquals(op.getIsSupportedTraits(), clone.getIsSupportedTraits());
+        assertEquals(op.currentlyAvailableTraits(), clone.currentlyAvailableTraits());
     }
 }

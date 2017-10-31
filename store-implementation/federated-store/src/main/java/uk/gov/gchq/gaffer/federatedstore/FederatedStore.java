@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.LocationEnum;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
-import uk.gov.gchq.gaffer.federatedstore.operation.GetTraits;
 import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedAggregateHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedFilterHandler;
@@ -66,6 +65,7 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
@@ -491,11 +491,11 @@ public class FederatedStore extends Store {
         }
     }
 
-    public Set<StoreTrait> getCurrentTraits(final User user) {
-        return getCurrentTraits(user, null);
+    public Set<StoreTrait> getCurrentlyAvailableTraits(final User user) {
+        return getCurrentlyAvailableTraits(user, null);
     }
 
-    public Set<StoreTrait> getCurrentTraits(final User user, final String graphIdsCsv) {
+    public Set<StoreTrait> getCurrentlyAvailableTraits(final User user, final String graphIdsCsv) {
         return graphStorage.getTraits(user, FederatedStoreUtil.getCleanStrings(graphIdsCsv));
     }
 }
