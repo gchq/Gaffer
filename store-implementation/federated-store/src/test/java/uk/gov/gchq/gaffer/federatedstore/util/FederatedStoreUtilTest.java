@@ -403,6 +403,7 @@ public class FederatedStoreUtilTest {
                 .build();
 
         given(store.getSchema()).willReturn(schema);
+        given(store.getOriginalSchema()).willReturn(schema);
 
         return new Graph.Builder()
                 .config(new GraphConfig.Builder()
