@@ -461,25 +461,4 @@ public class StoreProperties implements Cloneable {
 
         return properties;
     }
-
-    public static StoreProperties resolveStoreProperties(final Store store, final StoreProperties properties, final String parentStorePropertiesId) {
-        StoreProperties rtn = null;
-
-        if (null != parentStorePropertiesId) {
-            rtn = store.getGraphLibrary().getProperties(parentStorePropertiesId);
-        }
-        if (null != properties) {
-            if (null == rtn) {
-                rtn = properties;
-            } else {
-                // delete the old properties id as we are about to modify the properties
-                rtn.getProperties().remove(StoreProperties.ID);
-                rtn.getProperties().putAll(properties.getProperties());
-            }
-        }
-        if (null == rtn) {
-            rtn = store.getProperties();
-        }
-        return rtn;
-    }
 }

@@ -34,6 +34,11 @@ public class AddSchema implements Operation {
 
     @Required
     private Schema schema;
+    /**
+     * A list of schema Id's held within the Library to be retrieved
+     * and merged to form a new schema, before be merged with the optional
+     * {@link #schema} field.
+     */
     private List<String> parentSchemaIds;
     private Map<String, String> options;
 

@@ -34,8 +34,6 @@ import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.io.InputStream;
@@ -546,39 +544,5 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         protected Builder self() {
             return this;
         }
-    }
-
-    public static Schema resolveSchema(final Store store, final Schema schema, final List<String> parentSchemaIds) {
-        final GraphLibrary graphLibrary = store.getGraphLibrary();
-
-        Schema rtn = null;
-        if (null != parentSchemaIds) {
-            if (1 == parentSchemaIds.size()) {
-                rtn = graphLibrary.getSchema(parentSchemaIds.get(0));
-            } else {
-                final Builder schemaBuilder = new Builder();
-                for (final String id : parentSchemaIds) {
-                    schemaBuilder.merge(graphLibrary.getSchema(id));
-                }
-                rtn = schemaBuilder.build();
-            }
-        }
-
-        if (null != schema) {
-            if (null == rtn) {
-                rtn = schema;
-            } else {
-                // delete the old schema id as we are about to modify the schema
-                rtn = new Builder()
-                        .merge(rtn)
-                        .id(null)
-                        .merge(schema)
-                        .build();
-            }
-        }
-        if (null == rtn) {
-            rtn = store.getSchema();
-        }
-        return rtn;
     }
 }

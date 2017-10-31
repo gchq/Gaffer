@@ -16,16 +16,18 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import uk.gov.gchq.gaffer.store.operation.add.AddStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.add.AddStoreProperties;
+
+import static uk.gov.gchq.gaffer.store.library.GraphLibrary.resolveStoreProperties;
 
 public class AddStorePropertiesHandler implements OperationHandler<AddStoreProperties> {
 
-    public static final String ERROR_ADDING_STORE_TO_STORE_S = "Error adding storeProperties to Store,%s";
+    public static final String ERROR_ADDING_STORE_TO_STORE_S = "Error adding storeProperties to Store.%s";
     public static final String THE_STORE_DOES_NOT_HAVE_A_GRAPH_LIBRARY = " the store doesn't have a graphLibrary";
 
     @Override
@@ -36,14 +38,14 @@ public class AddStorePropertiesHandler implements OperationHandler<AddStorePrope
         } else {
             StoreProperties properties;
             try {
-                properties = StoreProperties.resolveStoreProperties(store, operation.getStoreProperties(), operation.getParentPropertiesId());
+                properties = resolveStoreProperties(store, operation.getStoreProperties(), operation.getParentPropertiesId());
             } catch (final Exception e) {
                 throw new OperationException(String.format(ERROR_ADDING_STORE_TO_STORE_S, " storeProperties couldn't be resolved."), e);
             }
             try {
                 graphLibrary.addProperties(properties);
             } catch (final Exception e) {
-                throw new OperationException(String.format(ERROR_ADDING_STORE_TO_STORE_S, " storeProperties: " + properties));
+                throw new OperationException(ERROR_ADDING_STORE_TO_STORE_S, e);
             }
         }
         return null;

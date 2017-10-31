@@ -27,6 +27,8 @@ import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.List;
 
+import static uk.gov.gchq.gaffer.store.library.GraphLibrary.*;
+
 /**
  * Delegation class used to create a graph from the various combinations of
  * settings.
@@ -60,8 +62,8 @@ public final class GraphDelegate {
     }
 
     private static Graph createGraphAfterResolvingSchemaAndProperties(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId) {
-        StoreProperties resolvedStoreProperties = StoreProperties.resolveStoreProperties(store, storeProperties, parentStorePropertiesId);
-        Schema resolvedSchema = Schema.resolveSchema(store, schema, parentSchemaIds);
+        StoreProperties resolvedStoreProperties = resolveStoreProperties(store, storeProperties, parentStorePropertiesId);
+        Schema resolvedSchema = resolveSchema(store, schema, parentSchemaIds);
 
         return new Builder()
                 .config(new GraphConfig.Builder()

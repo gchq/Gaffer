@@ -36,6 +36,11 @@ public class AddStoreProperties implements Operation {
 
     @Required
     private StoreProperties storeProperties;
+    /**
+     * A list of storeProperties Id's held within the Library to be retrieved
+     * and merged to form a new storeProperties, before be merged with the optional
+     * {@link #storeProperties} field.
+     */
     private String parentPropertiesId;
     private Map<String, String> options;
 

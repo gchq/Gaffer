@@ -23,6 +23,8 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import static uk.gov.gchq.gaffer.store.library.GraphLibrary.*;
+
 public class AddSchemaHandler implements OperationHandler<AddSchema> {
 
     public static final String ERROR_ADDING_SCHEMA_TO_STORE_S = "Error adding schema to Store,%s";
@@ -36,7 +38,7 @@ public class AddSchemaHandler implements OperationHandler<AddSchema> {
         } else {
             Schema mergedSchema;
             try {
-                mergedSchema = Schema.resolveSchema(store, operation.getSchema(), operation.getParentSchemaIds());
+                mergedSchema = resolveSchema(store, operation.getSchema(), operation.getParentSchemaIds());
             } catch (final Exception e) {
                 throw new OperationException(String.format(ERROR_ADDING_SCHEMA_TO_STORE_S, " schema couldn't be resolved."), e);
             }

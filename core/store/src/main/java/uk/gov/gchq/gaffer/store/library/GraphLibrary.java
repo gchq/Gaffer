@@ -19,10 +19,12 @@ package uk.gov.gchq.gaffer.store.library;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.exception.OverwritingException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -235,5 +237,54 @@ public abstract class GraphLibrary {
                         + "\nnew storeProperties:\n" + properties.toString());
             }
         }
+    }
+
+    public static Schema resolveSchema(final Store store, final Schema schema, final List<String> parentSchemaIds) {
+        final GraphLibrary graphLibrary = store.getGraphLibrary();
+
+        Schema rtn = null;
+        if (null != parentSchemaIds) {
+            if (1 == parentSchemaIds.size()) {
+                rtn = graphLibrary.getSchema(parentSchemaIds.get(0));
+            } else {
+                final Schema.Builder schemaBuilder = new Schema.Builder();
+                for (final String id : parentSchemaIds) {
+                    schemaBuilder.merge(graphLibrary.getSchema(id));
+                }
+                rtn = schemaBuilder.build();
+            }
+        }
+
+        if (null != schema) {
+            if (null == rtn) {
+                rtn = schema;
+            } else {
+                // delete the old schema id as we are about to modify the schema
+                rtn = new Schema.Builder()
+                        .merge(rtn)
+                        .id(null)
+                        .merge(schema)
+                        .build();
+            }
+        }
+        return rtn;
+    }
+
+    public static StoreProperties resolveStoreProperties(final Store store, final StoreProperties properties, final String parentStorePropertiesId) {
+        StoreProperties rtn = null;
+
+        if (null != parentStorePropertiesId) {
+            rtn = store.getGraphLibrary().getProperties(parentStorePropertiesId);
+        }
+        if (null != properties) {
+            if (null == rtn) {
+                rtn = properties;
+            } else {
+                // delete the old properties id as we are about to modify the properties
+                rtn.getProperties().remove(StoreProperties.ID);
+                rtn.getProperties().putAll(properties.getProperties());
+            }
+        }
+        return rtn;
     }
 }
