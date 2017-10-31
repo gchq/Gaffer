@@ -51,12 +51,13 @@ public class StorePropertiesTest {
     public void shouldRemovePropertyWhenPropertyValueIsNull() {
         // Given
         final StoreProperties props = createStoreProperties();
+        System.out.println(props.getProperties());
 
         // When
-        props.setId(null);
+        props.set("testKey", null);
 
         // Then
-        assertNull(props.getId());
+        assertNull(props.get("testKey"));
     }
 
     @Test
