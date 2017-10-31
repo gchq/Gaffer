@@ -56,20 +56,20 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
     private static final String GRAPH_ID = "graphId";
     private static final String STORE_PROPS_ID = "storePropsId";
     private static final String SCHEMA_ID = "schemaId";
+    public static final String SCHEMA_ID_1 = SCHEMA_ID + 1;
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     private final Store store = mock(Store.class);
     private final User user = new User.Builder().opAuths("auth1", "auth2").build();
     private final Context context = new Context(user);
     private GraphLibrary graphLibrary;
-    private Schema schema = new Schema.Builder().id(SCHEMA_ID).build();
+    private Schema schema = new Schema.Builder().build();
     private StoreProperties storeProperties;
     private Map<String, List<String>> idAuths = new HashMap<>();
 
     @Before
     public void setUp() throws IOException {
         storeProperties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
-        storeProperties.setId(STORE_PROPS_ID);
         given(store.getGraphId()).willReturn(GRAPH_ID);
 
         final File graphLibraryFolder = testFolder.newFolder("graphLibraryTest");
@@ -125,17 +125,17 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
     @Test
     public void shouldCreateGraphWithParentSchemaIdAndStorePropertiesIdAndAuths() {
         // Given
-        Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
-        graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
-        graphLibrary.addSchema(schema1);
+        Schema schema1 = new Schema.Builder().build();
+        graphLibrary.addOrUpdate(GRAPH_ID + 1, SCHEMA_ID, schema, STORE_PROPS_ID, storeProperties);
+        graphLibrary.addSchema(SCHEMA_ID_1, schema1);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
         List<String> opAuths = Lists.newArrayList("auth1");
         idAuths.put(GRAPH_ID + 2, opAuths);
-        idAuths.put(SCHEMA_ID + 1, opAuths);
+        idAuths.put(SCHEMA_ID_1, opAuths);
         idAuths.put(STORE_PROPS_ID, opAuths);
         final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID + 2)
-                .parentSchemaIds(SCHEMA_ID + 1)
+                .parentSchemaIds(SCHEMA_ID_1)
                 .parentStorePropertiesId(STORE_PROPS_ID)
                 .build();
         final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
@@ -153,16 +153,16 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
     @Test
     public void shouldThrowExceptionWithParentSchemaIdAndStorePropertiesIdAndNoGraphAuths() {
         // Given
-        Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
-        graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
-        graphLibrary.addSchema(schema1);
+        Schema schema1 = new Schema.Builder().build();
+        graphLibrary.addOrUpdate(GRAPH_ID + 1, SCHEMA_ID, schema, STORE_PROPS_ID, storeProperties);
+        graphLibrary.addSchema(SCHEMA_ID_1, schema1);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
         List<String> opAuths = Lists.newArrayList("auth1");
-        idAuths.put(SCHEMA_ID + 1, opAuths);
+        idAuths.put(SCHEMA_ID_1, opAuths);
         idAuths.put(STORE_PROPS_ID, opAuths);
         final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID + 2)
-                .parentSchemaIds(SCHEMA_ID + 1)
+                .parentSchemaIds(SCHEMA_ID_1)
                 .parentStorePropertiesId(STORE_PROPS_ID)
                 .build();
         final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
@@ -180,16 +180,16 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
     @Test
     public void shouldThrowExceptionWithParentSchemaIdAndStorePropertiesIdAndNoSchemaAuths() {
         // Given
-        Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
-        graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
-        graphLibrary.addSchema(schema1);
+        Schema schema1 = new Schema.Builder().build();
+        graphLibrary.addOrUpdate(GRAPH_ID + 1, SCHEMA_ID, schema, STORE_PROPS_ID, storeProperties);
+        graphLibrary.addSchema(SCHEMA_ID_1, schema1);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
         List<String> opAuths = Lists.newArrayList("auth1");
         idAuths.put(GRAPH_ID + 2, opAuths);
         idAuths.put(STORE_PROPS_ID, opAuths);
         final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID + 2)
-                .parentSchemaIds(SCHEMA_ID + 1)
+                .parentSchemaIds(SCHEMA_ID_1)
                 .parentStorePropertiesId(STORE_PROPS_ID)
                 .build();
         final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
@@ -207,16 +207,16 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
     @Test
     public void shouldCreateGraphWithParentSchemaIdAndStorePropertiesIdAndNoStorePropsAuths() {
         // Given
-        Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
-        graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
-        graphLibrary.addSchema(schema1);
+        Schema schema1 = new Schema.Builder().build();
+        graphLibrary.addOrUpdate(GRAPH_ID + 1, SCHEMA_ID, schema, STORE_PROPS_ID, storeProperties);
+        graphLibrary.addSchema(SCHEMA_ID_1, schema1);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
         List<String> opAuths = Lists.newArrayList("auth1");
         idAuths.put(GRAPH_ID + 2, opAuths);
-        idAuths.put(SCHEMA_ID + 1, opAuths);
+        idAuths.put(SCHEMA_ID_1, opAuths);
         final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID + 2)
-                .parentSchemaIds(SCHEMA_ID + 1)
+                .parentSchemaIds(SCHEMA_ID_1)
                 .parentStorePropertiesId(STORE_PROPS_ID)
                 .build();
         final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
@@ -234,16 +234,16 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
     @Test
     public void shouldThrowExceptionWithParentSchemaIdWithNoParentStorePropertiesIdAndAuths() {
         // Given
-        Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
-        graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
-        graphLibrary.addSchema(schema1);
+        Schema schema1 = new Schema.Builder().build();
+        graphLibrary.addOrUpdate(GRAPH_ID + 1, SCHEMA_ID, schema, STORE_PROPS_ID, storeProperties);
+        graphLibrary.addSchema(SCHEMA_ID_1, schema1);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
         List<String> opAuths = Lists.newArrayList("auth1");
         idAuths.put(GRAPH_ID + 2, opAuths);
-        idAuths.put(SCHEMA_ID + 1, opAuths);
+        idAuths.put(SCHEMA_ID_1, opAuths);
         final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID + 2)
-                .parentSchemaIds(SCHEMA_ID + 1)
+                .parentSchemaIds(SCHEMA_ID_1)
                 .build();
         final ExportToOtherAuthorisedGraphHandler handler = new ExportToOtherAuthorisedGraphHandler();
         handler.setIdAuths(idAuths);
@@ -260,13 +260,13 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
     @Test
     public void shouldThrowExceptionWithParentStorePropertiesIdWithNoParentSchemaIdAndAuths() {
         // Given
-        Schema schema1 = new Schema.Builder().id(SCHEMA_ID + 1).build();
+        Schema schema1 = new Schema.Builder().build();
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
-        graphLibrary.addSchema(schema1);
+        graphLibrary.addSchema(SCHEMA_ID_1, schema1);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
         List<String> opAuths = Lists.newArrayList("auth1");
         idAuths.put(GRAPH_ID + 2, opAuths);
-        idAuths.put(SCHEMA_ID + 1, opAuths);
+        idAuths.put(SCHEMA_ID_1, opAuths);
         idAuths.put(STORE_PROPS_ID, opAuths);
         final ExportToOtherAuthorisedGraph export = new ExportToOtherAuthorisedGraph.Builder()
                 .graphId(GRAPH_ID + 2)
@@ -288,7 +288,6 @@ public class ExportToOtherAuthorisedGraphHandlerTest {
     @Test
     public void shouldThrowExceptionWhenGraphIdCannotBeFound() {
         // Given
-        schema = new Schema.Builder().id(SCHEMA_ID).build();
         given(store.getGraphLibrary()).willReturn(graphLibrary);
         List<String> graphIdAuths = new ArrayList<>();
         graphIdAuths.add("auth1");
