@@ -68,7 +68,7 @@ public class Transform implements Function,
     }
 
     @Override
-    public Operation shallowClone() throws CloneFailedException {
+    public Transform shallowClone() throws CloneFailedException {
         return new Transform.Builder()
                 .input(input)
                 .options(options)

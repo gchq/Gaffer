@@ -50,7 +50,7 @@ public class FlatMap<I_ITEM, O_ITEM> implements
     }
 
     @Override
-    public Operation shallowClone() throws CloneFailedException {
+    public FlatMap<I_ITEM, O_ITEM> shallowClone() throws CloneFailedException {
         return new FlatMap.Builder<I_ITEM, O_ITEM>()
                 .input(input)
                 .options(options)
@@ -88,7 +88,7 @@ public class FlatMap<I_ITEM, O_ITEM> implements
             super(new FlatMap<>());
         }
 
-        public Builder function(final Function<Iterable<I_ITEM>, O_ITEM> func) {
+        public Builder<I_ITEM, O_ITEM> function(final Function<Iterable<I_ITEM>, O_ITEM> func) {
             _getOp().setFunction(func);
             return _self();
         }

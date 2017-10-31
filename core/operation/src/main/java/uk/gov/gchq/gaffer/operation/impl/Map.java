@@ -39,7 +39,7 @@ public class Map<I_ITEM, O_ITEM> implements
     private Function<Iterable<I_ITEM>, O_ITEM> function;
 
     @Override
-    public Operation shallowClone() throws CloneFailedException {
+    public Map<I_ITEM, O_ITEM> shallowClone() throws CloneFailedException {
         return new Map.Builder<I_ITEM, O_ITEM>()
                 .input(input)
                 .options(options)
@@ -87,7 +87,7 @@ public class Map<I_ITEM, O_ITEM> implements
             super(new Map<>());
         }
 
-        public Builder function(final Function<Iterable<I_ITEM>, O_ITEM> func) {
+        public Builder<I_ITEM, O_ITEM> function(final Function<Iterable<I_ITEM>, O_ITEM> func) {
             _getOp().setFunction(func);
             return _self();
         }

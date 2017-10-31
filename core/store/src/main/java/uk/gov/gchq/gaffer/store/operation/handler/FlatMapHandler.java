@@ -56,9 +56,13 @@ public class FlatMapHandler<I_ITEM, O_ITEM> implements OutputOperationHandler<Fl
 
         final Function<Iterable<I_ITEM>, O_ITEM> function = operation.getFunction();
 
+        if (null == function) {
+            throw new OperationException("Function cannot be null");
+        }
+
         final List<O_ITEM> results = new ArrayList<>();
 
-        for (Iterable<I_ITEM> iterable : input) {
+        for (final Iterable<I_ITEM> iterable : input) {
             results.add(function.apply(iterable));
         }
 

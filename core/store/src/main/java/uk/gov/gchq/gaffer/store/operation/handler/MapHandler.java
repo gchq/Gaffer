@@ -54,6 +54,10 @@ public class MapHandler<I_ITEM, O_ITEM> implements OutputOperationHandler<Map<I_
 
         final Function<Iterable<I_ITEM>, O_ITEM> function = operation.getFunction();
 
+        if (null == function) {
+            throw new OperationException("Function cannot be null");
+        }
+
         return function.apply(input);
     }
 }
