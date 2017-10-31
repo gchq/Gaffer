@@ -46,7 +46,7 @@ public class DefaultScoreResolverTest {
     }
 
     @Test
-    public void shouldGetScore() throws OperationException {
+    public void shouldGetScore() {
         // Given
         final GetAdjacentIds op1 = mock(GetAdjacentIds.class);
 

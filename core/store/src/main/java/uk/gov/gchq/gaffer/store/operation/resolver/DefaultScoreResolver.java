@@ -57,7 +57,7 @@ public class DefaultScoreResolver implements ScoreResolver<Operation> {
             }
             LOGGER.warn("The operation '{}' was not found in the config file provided - the configured default value of {} will be used", operation.getClass().getName(), DEFAULT_OPERATION_SCORE);
         } else {
-            LOGGER.warn("A null Operation was passed to the OperationChainLimiter graph hook");
+            LOGGER.warn("Cannot score a null operation");
         }
         return DEFAULT_OPERATION_SCORE;
     }
