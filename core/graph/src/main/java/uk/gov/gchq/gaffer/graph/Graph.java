@@ -533,8 +533,7 @@ public final class Graph {
             if (null == this.properties) {
                 storeProperties(updateProperties);
             } else {
-                final Properties old = this.properties.getProperties();
-                old.putAll(updateProperties.getProperties());
+                this.properties.merge(updateProperties);
             }
             return this;
         }
@@ -857,7 +856,7 @@ public final class Graph {
                 if (null == mergedStoreProperties) {
                     mergedStoreProperties = properties;
                 } else {
-                    mergedStoreProperties.getProperties().putAll(properties.getProperties());
+                    mergedStoreProperties.merge(properties);
                 }
             }
 

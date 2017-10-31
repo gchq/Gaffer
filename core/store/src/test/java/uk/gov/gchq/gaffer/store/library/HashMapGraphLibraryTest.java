@@ -29,8 +29,8 @@ public class HashMapGraphLibraryTest extends AbstractGraphLibraryTest {
     private static final String TEST_SCHEMA_ID = "testSchemaId";
     private static final String TEST_PROPERTIES_ID = "testPropertiesId";
 
-    private Schema schema = new Schema.Builder().id(TEST_SCHEMA_ID).build();
-    private StoreProperties storeProperties = new StoreProperties(TEST_PROPERTIES_ID);
+    private Schema schema = new Schema.Builder().build();
+    private StoreProperties storeProperties = new StoreProperties();
 
     public GraphLibrary createGraphLibraryInstance() {
         return new HashMapGraphLibrary();
@@ -40,7 +40,7 @@ public class HashMapGraphLibraryTest extends AbstractGraphLibraryTest {
     public void shouldClearGraphLibrary() {
         // When
         final HashMapGraphLibrary graphLibrary = new HashMapGraphLibrary();
-        graphLibrary.add(TEST_GRAPH_ID, schema, storeProperties);
+        graphLibrary.add(TEST_GRAPH_ID, TEST_SCHEMA_ID, schema, TEST_PROPERTIES_ID, storeProperties);
         graphLibrary.clear();
 
         // Then

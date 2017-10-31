@@ -34,7 +34,6 @@ import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
-import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
@@ -50,6 +49,8 @@ public class FederatedGetSchemaHandlerTest {
     private User user;
     private StoreProperties properties;
     private AccumuloProperties accProperties;
+    private static final String ACC_PROP_ID = "accProp";
+    private static final String EDGE_SCHEMA_ID = "edgeSchema";
 
     private final String TEST_FED_STORE = "testFedStore";
     private final HashMapGraphLibrary library = new HashMapGraphLibrary();
@@ -69,7 +70,6 @@ public class FederatedGetSchemaHandlerTest {
         properties = new FederatedStoreProperties();
         accProperties = new AccumuloProperties();
 
-        accProperties.setId("accProp");
         accProperties.setStoreClass(MockAccumuloStore.class);
         accProperties.setStorePropertiesClass(AccumuloProperties.class);
 
@@ -81,11 +81,10 @@ public class FederatedGetSchemaHandlerTest {
 
     @Test
     public void shouldReturnSchema() throws OperationException {
-        library.addProperties(accProperties);
+        library.addProperties(ACC_PROP_ID, accProperties);
         fStore.setGraphLibrary(library);
 
         final Schema edgeSchema = new Schema.Builder()
-                .id("edgeSchema")
                 .edge("edge", new SchemaEdgeDefinition.Builder()
                         .source("string")
                         .destination("string")
@@ -95,14 +94,14 @@ public class FederatedGetSchemaHandlerTest {
                 .merge(STRING_SCHEMA)
                 .build();
 
-        library.addSchema(edgeSchema);
+        library.addSchema(EDGE_SCHEMA_ID, edgeSchema);
 
         fStore.execute(Operation.asOperationChain(
                 new AddGraph.Builder()
-                .graphId("schema")
-                .parentPropertiesId("accProp")
-                .parentSchemaIds(Lists.newArrayList("edgeSchema"))
-                .build()), context);
+                        .graphId("schema")
+                        .parentPropertiesId(ACC_PROP_ID)
+                        .parentSchemaIds(Lists.newArrayList(EDGE_SCHEMA_ID))
+                        .build()), context);
 
         final GetSchema operation = new GetSchema.Builder()
                 .compact(true)
@@ -118,7 +117,7 @@ public class FederatedGetSchemaHandlerTest {
 
     @Test
     public void shouldThrowExceptionForANullOperation() throws OperationException {
-        library.addProperties(accProperties);
+        library.addProperties(ACC_PROP_ID, accProperties);
         fStore.setGraphLibrary(library);
 
         final GetSchema operation = null;

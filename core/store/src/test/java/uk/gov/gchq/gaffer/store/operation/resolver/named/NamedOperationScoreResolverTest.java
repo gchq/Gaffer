@@ -15,22 +15,22 @@
  */
 package uk.gov.gchq.gaffer.store.operation.resolver.named;
 
+import org.junit.Test;
+
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCache;
-import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolverTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class NamedOperationScoreResolverTest extends ScoreResolverTest {
+public class NamedOperationScoreResolverTest {
 
-    @Override
+    @Test
     public void shouldGetScore() throws CacheOperationFailedException {
         final Integer expectedScore = 5;
         final String opName = "otherOp";
@@ -51,26 +51,13 @@ public class NamedOperationScoreResolverTest extends ScoreResolverTest {
         assertEquals(expectedScore, result);
     }
 
-    @Override
+    @Test
     public void shouldCatchExceptionForCacheFailures() {
         final NamedOperation<Element, Iterable<? extends Element>> namedOp = mock(NamedOperation.class);
 
         final NamedOperationScoreResolver resolver = new NamedOperationScoreResolver();
 
         final Integer result = resolver.getScore(namedOp);
-
-        assertNull(result);
-    }
-
-    @Override
-    public void shouldReturnNullAndAddWarningForIncorrectOperationType() {
-        final GetAllElements operation = new GetAllElements();
-
-        final NamedOperationCache cache = mock(NamedOperationCache.class);
-
-        final NamedOperationScoreResolver resolver = new NamedOperationScoreResolver(cache);
-
-        final Integer result = resolver.getScore(operation);
 
         assertNull(result);
     }
