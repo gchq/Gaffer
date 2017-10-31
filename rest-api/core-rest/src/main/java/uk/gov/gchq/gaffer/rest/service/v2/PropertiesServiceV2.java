@@ -28,28 +28,26 @@ import java.util.Map;
  * An implementation of {@link IPropertiesServiceV2} that gets the configured system properties
  */
 public class PropertiesServiceV2 implements IPropertiesServiceV2 {
-    private static final Map<String, String> PROPERTIES = new HashMap<>();
-    private static final String PROPERTIES_LIST = "gaffer.properties";
 
-    static {
-        String properties = System.getProperty(PROPERTIES_LIST);
-        if (properties != null) {
-            String[] props = properties.split(",");
-            for (final String prop : props) {
-                    PROPERTIES.put(prop, System.getProperty(prop));
-            }
-        }
-    }
+    private static final String PROPERTIES_LIST = "gaffer.properties";
 
     @Override
     public Response getProperties() {
-        return Response.ok(Collections.unmodifiableMap(PROPERTIES))
+        final Map<String, String> properties = new HashMap<>();
+        final String propertsList = System.getProperty(PROPERTIES_LIST);
+        if (propertsList != null) {
+            String[] props = propertsList.split(",");
+            for (final String prop : props) {
+                properties.put(prop, System.getProperty(prop));
+            }
+        }
+        return Response.ok(Collections.unmodifiableMap(properties))
                 .header(ServiceConstants.GAFFER_MEDIA_TYPE_HEADER, ServiceConstants.GAFFER_MEDIA_TYPE).build();
     }
 
     @Override
     public Response getProperty(final String propertyName) {
-        String prop = PROPERTIES.get(propertyName);
+        String prop = System.getProperty(propertyName);
         return prop == null ? Response.status(404).header(ServiceConstants.GAFFER_MEDIA_TYPE_HEADER, ServiceConstants.GAFFER_MEDIA_TYPE).build()  : Response.ok(prop).header(ServiceConstants.GAFFER_MEDIA_TYPE_HEADER, ServiceConstants.GAFFER_MEDIA_TYPE).build();
     }
 
