@@ -1,5 +1,4 @@
 {
-  "id": "basicEntitySchema",
   "entities": {
     "BasicEntity": {
       "vertex": "vertex.string",

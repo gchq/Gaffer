@@ -42,15 +42,8 @@ public class FederatedStoreProperties extends StoreProperties {
 
     /**
      * This is used....
-     * e.g gaffer.federatedstore.graph1.auths=auth1,auth2
-     */
-    private static final String AUTHS = "auths";
-
-    /**
-     * This is used....
      * e.g gaffer.federatedstore.graph1.isPublic=false
      */
-    private static final String IS_PUBLIC = "isPublic";
     public static final String IS_PUBLIC_DEFAULT = String.valueOf(false);
     public static final String CACHE_SERVICE_CLASS = CacheProperties.CACHE_SERVICE_CLASS;
     public static final String CACHE_SERVICE_CLASS_DEFAULT = null;

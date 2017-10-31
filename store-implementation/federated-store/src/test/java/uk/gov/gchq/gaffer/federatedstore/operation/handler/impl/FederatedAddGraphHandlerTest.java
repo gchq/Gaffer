@@ -56,6 +56,7 @@ public class FederatedAddGraphHandlerTest {
     private static final String EXPECTED_GRAPH_ID = "testGraphID";
     private static final String EXPECTED_GRAPH_ID_2 = "testGraphID2";
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
+    private static final String EXCEPTION_EXPECTED = "Exception expected";
     private User testUser;
     private User authUser;
     private FederatedStore store;
@@ -153,7 +154,7 @@ public class FederatedAddGraphHandlerTest {
         assertEquals(expectedSchema, next.getSchema());
 
         final GraphLibrary library = new HashMapGraphLibrary();
-        library.add(EXPECTED_GRAPH_ID_2,expectedSchema,storeProperties);
+        library.add(EXPECTED_GRAPH_ID_2, expectedSchema, storeProperties);
         store.setGraphLibrary(library);
 
         federatedAddGraphHandler.doOperation(
@@ -206,6 +207,7 @@ public class FederatedAddGraphHandlerTest {
                             .build(),
                     new Context(testUser),
                     store);
+            fail(EXCEPTION_EXPECTED);
         } catch (final Exception e) {
             assertEquals(String.format(USER_IS_ATTEMPTING_TO_OVERWRITE, EXPECTED_GRAPH_ID), e.getCause().getMessage());
         }
@@ -235,10 +237,9 @@ public class FederatedAddGraphHandlerTest {
                             .build(),
                     new Context(testUser),
                     store);
-            fail("Exception not thrown");
+            fail(EXCEPTION_EXPECTED);
         } catch (OperationException e) {
-            assertTrue(e.getMessage().contains("User is limited to only using parentPropertiesId from the graphLibrary," +
-                    " but found storeProperties:{gaffer.store.class=uk.gov.gchq.gaffer.mapstore.MapStore"));
+            assertEquals(String.format(FederatedAddGraphHandler.USER_IS_LIMITED_TO_ONLY_USING_PARENT_PROPERTIES_ID_FROM_GRAPHLIBRARY_BUT_FOUND_STORE_PROPERTIES_S, "{gaffer.store.class=uk.gov.gchq.gaffer.mapstore.MapStore, gaffer.store.properties.class=uk.gov.gchq.gaffer.mapstore.MapStoreProperties}"), e.getMessage());
         }
 
         federatedAddGraphHandler.doOperation(
@@ -255,7 +256,6 @@ public class FederatedAddGraphHandlerTest {
         assertEquals(0, store.getGraphs(testUser, null).size());
         assertEquals(EXPECTED_GRAPH_ID, graphs.iterator().next().getGraphId());
     }
-
 
     /**
      * Replicating a bug condition when setting auths the
@@ -284,7 +284,6 @@ public class FederatedAddGraphHandlerTest {
                         .build(),
                 new Context(testUser),
                 store);
-
 
         final CloseableIterable<? extends Element> elements = new FederatedGetAllElementsHandler().doOperation(
                 new GetAllElements(),
