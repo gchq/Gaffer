@@ -31,7 +31,6 @@ import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
-import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -1743,7 +1742,7 @@ public class GraphTest {
 
         // Then
         assertEquals(graphId1, graph1.getGraphId());
-        assertTrue(JsonUtil.equals(library.getSchema(SCHEMA_ID_1).toJson(false), librarySchema.toJson(false)));
+        JsonAssert.assertEquals(library.getSchema(SCHEMA_ID_1).toJson(false), librarySchema.toJson(false));
         // Check that the schemaId = schemaId1 as both the supplied schema id is null
         assertTrue(library.getIds(graphId1).getFirst().equals(graphId1));
         // Check that the storePropsId = storePropertiesId1 as the supplied storeProps id is null
