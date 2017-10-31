@@ -49,6 +49,7 @@ import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.Schema.Builder;
+import uk.gov.gchq.gaffer.user.StoreUser;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
@@ -65,8 +66,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStore.S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.authUser;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
+import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
+import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 import static uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandler.NO_RESULTS_TO_MERGE_ERROR;
 
 public class FederatedStoreTest {
@@ -84,7 +85,7 @@ public class FederatedStoreTest {
     public static final String USER_ID = "testUser";
     public static final String PROPS_ID_1 = "PROPS_ID_1";
     public static final String SCHEMA_ID_1 = "SCHEMA_ID_1";
-    public static final String ALL_USERS = FederatedStoreUser.ALL_USERS;
+    public static final String ALL_USERS = StoreUser.ALL_USERS;
     public static final HashSet<String> GRAPH_AUTHS = Sets.newHashSet(ALL_USERS);
     private static User authUser;
     private static User testUser;
@@ -748,7 +749,8 @@ public class FederatedStoreTest {
             store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
             fail("exception should have been thrown");
         } catch (final IllegalArgumentException e) {
-            assertTrue(e.getCause().getMessage().contains("GraphId " + MAP_ID_1 + " already exists with a different store properties:"));
+            String message = e.getCause().getMessage();
+            assertTrue(message, message.contains("GraphId " + MAP_ID_1 + " already exists with a different store properties:"));
         }
     }
 

@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.federatedstore;
 
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.user.StoreUser;
 import uk.gov.gchq.gaffer.user.User;
 
 import static org.junit.Assert.assertFalse;
@@ -26,7 +27,7 @@ import static org.junit.Assert.assertTrue;
 public class FederatedAccessPublicAccessTest {
 
 
-    User blankUser = FederatedStoreUser.blankUser();
+    User blankUser = StoreUser.blankUser();
 
     @Test
     public void shouldHavePublicAccess() throws Exception {

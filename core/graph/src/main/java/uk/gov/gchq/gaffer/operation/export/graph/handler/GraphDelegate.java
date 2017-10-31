@@ -27,6 +27,8 @@ import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.List;
 
+import static uk.gov.gchq.gaffer.store.library.GraphLibrary.*;
+
 /**
  * Delegation class used to create a graph from the various combinations of
  * settings.
@@ -84,9 +86,7 @@ public final class GraphDelegate {
             if (null == rtn) {
                 rtn = properties;
             } else {
-                // delete the old properties id as we are about to modify the properties
-                rtn.getProperties().remove(StoreProperties.ID);
-                rtn.getProperties().putAll(properties.getProperties());
+                rtn.merge(properties);
             }
         }
         if (null == rtn) {

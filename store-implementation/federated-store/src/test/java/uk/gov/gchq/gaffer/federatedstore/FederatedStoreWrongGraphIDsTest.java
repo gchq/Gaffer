@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.user.StoreUser;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -66,18 +67,16 @@ public class FederatedStoreWrongGraphIDsTest {
         HashMapGraphLibrary.clear();
 
         MapStoreProperties mapStoreProperties = new MapStoreProperties();
-        mapStoreProperties.setId(PROP_1);
 
-        library.addProperties(mapStoreProperties);
-        library.addSchema(new Schema.Builder()
-                .id(SCHEMA_1)
+        library.addProperties(PROP_1, mapStoreProperties);
+        library.addSchema(SCHEMA_1, new Schema.Builder()
                 .entity(E1_GROUP, new SchemaEntityDefinition.Builder()
                         .vertex("string")
                         .build())
                 .type("string", String.class)
                 .build());
         store.setGraphLibrary(library);
-        blankContext = new Context(FederatedStoreUser.blankUser());
+        blankContext = new Context(StoreUser.blankUser());
     }
 
 
