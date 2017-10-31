@@ -26,7 +26,6 @@ import org.mockito.Mockito;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.integration.store.TestStore;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -348,7 +347,7 @@ public class ExportToOtherGraphHandlerTest {
     }
 
     @Test
-    public void shouldValidatePropsIdCannotBeUsedWithoutGraphLibrary() {
+    public void shouldValidateParentPropsIdCannotBeUsedWithoutGraphLibrary() {
         // Given
         given(store.getGraphLibrary()).willReturn(null);
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
@@ -368,7 +367,7 @@ public class ExportToOtherGraphHandlerTest {
     }
 
     @Test
-    public void shouldValidateSchemaIdCannotBeUsedWithoutGraphLibrary() {
+    public void shouldValidateParentSchemaIdCannotBeUsedWithoutGraphLibrary() {
         // Given
         given(store.getGraphLibrary()).willReturn(null);
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
@@ -387,7 +386,7 @@ public class ExportToOtherGraphHandlerTest {
     }
 
     @Test
-    public void shouldValidateSchemaIdCannotBeUsedWhenGraphIdAlreadyExists() {
+    public void shouldValidateParentSchemaIdCannotBeUsedWhenGraphIdAlreadyExists() {
         // Given
         graphLibrary.add(GRAPH_ID + 1, SCHEMA_ID_1, new Schema.Builder().edge("edge", new SchemaEdgeDefinition()).build(), STORE_PROPS_ID, new StoreProperties());
         graphLibrary.addSchema(SCHEMA_ID, new Schema.Builder().build());
@@ -407,7 +406,7 @@ public class ExportToOtherGraphHandlerTest {
     }
 
     @Test
-    public void shouldValidateSchemaIdCanBeUsedWhenGraphIdAlreadyExistsAndIsSame() {
+    public void shouldValidateParentSchemaIdCanBeUsedWhenGraphIdAlreadyExistsAndIsSame() {
         // Given
         graphLibrary.add(GRAPH_ID + 1, SCHEMA_ID, new Schema.Builder().build(), STORE_PROPS_ID, new StoreProperties());
         graphLibrary.addSchema(SCHEMA_ID, new Schema.Builder().build());
@@ -423,12 +422,7 @@ public class ExportToOtherGraphHandlerTest {
     @Test
     public void shouldValidateSchemaCannotBeUsedWhenGraphIdAlreadyExists() {
         // Given
-        GraphLibrary mockLibrary = mock(GraphLibrary.class);
-        given(store.getGraphLibrary()).willReturn(mockLibrary);
-        given(mockLibrary.exists(GRAPH_ID + 1)).willReturn(true);
-        Schema schema1 = new Schema();
-        schema1.setId("1");
-        given(mockLibrary.get(GRAPH_ID + 1)).willReturn(new Pair<>(schema1, new StoreProperties()));
+        graphLibrary.add(GRAPH_ID + 1, SCHEMA_ID, new Schema.Builder().edge("testEdge", new SchemaEdgeDefinition()).build(), STORE_PROPS_ID, new StoreProperties());
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .schema(new Schema())
@@ -447,12 +441,8 @@ public class ExportToOtherGraphHandlerTest {
     @Test
     public void shouldValidateSchemaUsedWhenGraphIdAlreadyExistsAndIsSame() {
         // Given
-        GraphLibrary mockLibrary = mock(GraphLibrary.class);
-        given(store.getGraphLibrary()).willReturn(mockLibrary);
-        given(mockLibrary.exists(GRAPH_ID + 1)).willReturn(true);
-        Schema schema1 = new Schema();
-        schema1.setId("1");
-        given(mockLibrary.get(GRAPH_ID + 1)).willReturn(new Pair<>(schema1, new StoreProperties()));
+        Schema schema1 = new Schema.Builder().edge("testEdge", new SchemaEdgeDefinition()).build();
+        graphLibrary.add(GRAPH_ID + 1, SCHEMA_ID + 1, schema1, STORE_PROPS_ID, new StoreProperties());
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .schema(schema1)
@@ -463,16 +453,14 @@ public class ExportToOtherGraphHandlerTest {
     }
 
     @Test
-    public void shouldValidatePropsIdCannotBeUsedWhenGraphIdAlreadyExists() {
+    public void shouldValidateParentPropsIdCannotBeUsedWhenGraphIdAlreadyExists() {
         // Given
-        GraphLibrary mockLibrary = mock(GraphLibrary.class);
-        given(store.getGraphLibrary()).willReturn(mockLibrary);
-        given(mockLibrary.exists(GRAPH_ID + 1)).willReturn(true);
-        given(mockLibrary.get(GRAPH_ID + 1)).willReturn(new Pair<>(new Schema.Builder().id("a").build(), new StoreProperties("other")));
-        given(mockLibrary.getProperties("props1")).willReturn(new StoreProperties("props1"));
+        StoreProperties storeProperties1 = new StoreProperties();
+        storeProperties1.set("testKey", "testValue");
+        graphLibrary.add(GRAPH_ID + 1, SCHEMA_ID, new Schema.Builder().build(), STORE_PROPS_ID, storeProperties1);
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
-                .parentStorePropertiesId(STORE_PROPS_ID_1)
+                .parentStorePropertiesId(STORE_PROPS_ID + 1)
                 .build();
 
         // When / Then
@@ -487,16 +475,12 @@ public class ExportToOtherGraphHandlerTest {
 
 
     @Test
-    public void shouldValidatePropsIdCanBeUsedWhenGraphIdAlreadyExistsAndIsSame() {
+    public void shouldValidateParentPropsIdCanBeUsedWhenGraphIdAlreadyExistsAndIsSame() {
         // Given
-        GraphLibrary mockLibrary = mock(GraphLibrary.class);
-        given(store.getGraphLibrary()).willReturn(mockLibrary);
-        given(mockLibrary.exists(GRAPH_ID + 1)).willReturn(true);
-        given(mockLibrary.get(GRAPH_ID + 1)).willReturn(new Pair<>(new Schema.Builder().id("a").build(), new StoreProperties("props1")));
-        given(mockLibrary.getProperties("props1")).willReturn(new StoreProperties("props1"));
+        graphLibrary.add(GRAPH_ID + 1, SCHEMA_ID, new Schema(), STORE_PROPS_ID_1, new StoreProperties());
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
-                .parentStorePropertiesId("props1")
+                .parentStorePropertiesId(STORE_PROPS_ID_1)
                 .build();
 
         // When / Then
@@ -506,12 +490,9 @@ public class ExportToOtherGraphHandlerTest {
     @Test
     public void shouldValidatePropsCannotBeUsedWhenGraphIdAlreadyExists() {
         // Given
-        GraphLibrary mockLibrary = mock(GraphLibrary.class);
-        given(store.getGraphLibrary()).willReturn(mockLibrary);
-        given(mockLibrary.exists(GRAPH_ID + 1)).willReturn(true);
         StoreProperties storeProperties1 = new StoreProperties();
-        storeProperties1.setId("1");
-        given(mockLibrary.get(GRAPH_ID + 1)).willReturn(new Pair<>(new Schema(), storeProperties1));
+        storeProperties1.set("testKey", "testValue");
+        graphLibrary.add(GRAPH_ID + 1, SCHEMA_ID, new Schema.Builder().build(), STORE_PROPS_ID, storeProperties1);
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .storeProperties(new StoreProperties())
@@ -530,12 +511,9 @@ public class ExportToOtherGraphHandlerTest {
     @Test
     public void shouldValidatePropsCanBeUsedWhenGraphIdAlreadyExistsAndIsSame() {
         // Given
-        GraphLibrary mockLibrary = mock(GraphLibrary.class);
-        given(store.getGraphLibrary()).willReturn(mockLibrary);
-        given(mockLibrary.exists(GRAPH_ID + 1)).willReturn(true);
         StoreProperties storeProperties1 = new StoreProperties();
-        storeProperties1.setId("1");
-        given(mockLibrary.get(GRAPH_ID + 1)).willReturn(new Pair<>(new Schema(), storeProperties1));
+        storeProperties1.set("testKey", "testValue");
+        graphLibrary.add(GRAPH_ID + 1, SCHEMA_ID, new Schema.Builder().build(), STORE_PROPS_ID, storeProperties1);
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .storeProperties(storeProperties1)
@@ -545,13 +523,9 @@ public class ExportToOtherGraphHandlerTest {
         validate(export);
     }
 
-
     @Test
-    public void shouldValidateSchemaIdCannotBeFound() {
+    public void shouldThrowExceptionSchemaIdCannotBeFound() {
         // Given
-        GraphLibrary mockLibrary = mock(GraphLibrary.class);
-        given(store.getGraphLibrary()).willReturn(mockLibrary);
-        given(mockLibrary.exists(GRAPH_ID + 1)).willReturn(false);
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .parentSchemaIds(SCHEMA_ID)
@@ -569,33 +543,8 @@ public class ExportToOtherGraphHandlerTest {
     }
 
     @Test
-    public void shouldValidatePropertiesCannotBeUsedIfNotDefinedOrFound() {
+    public void shouldThrowExceptionPropsIdCannotBeFound() {
         // Given
-        GraphLibrary mockLibrary = mock(GraphLibrary.class);
-        given(store.getGraphLibrary()).willReturn(mockLibrary);
-        given(mockLibrary.exists(GRAPH_ID + 1)).willReturn(false);
-        final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
-                .graphId(GRAPH_ID + 1)
-                .parentSchemaIds(SCHEMA_ID)
-                .storeProperties(new StoreProperties())
-                .build();
-
-        // When / Then
-        try {
-            validate(export);
-            fail(EXCEPTION_EXPECTED);
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Validation errors: \n" +
-                    String.format(SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S, "[schemaId]"), e.getMessage());
-        }
-    }
-
-    @Test
-    public void shouldValidatePropsIdCannotBeFound() {
-        // Given
-        GraphLibrary mockLibrary = mock(GraphLibrary.class);
-        given(store.getGraphLibrary()).willReturn(mockLibrary);
-        given(mockLibrary.exists(GRAPH_ID + 1)).willReturn(false);
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .schema(new Schema())
@@ -613,11 +562,26 @@ public class ExportToOtherGraphHandlerTest {
     }
 
     @Test
-    public void shouldValidateSchemaCannotBeUsedIfNotDefinedOrFound() {
+    public void shouldThrowExceptionPropertiesCannotBeUsedIfNotDefinedOrFound() {
         // Given
-        GraphLibrary mockLibrary = mock(GraphLibrary.class);
-        given(store.getGraphLibrary()).willReturn(mockLibrary);
-        given(mockLibrary.exists(GRAPH_ID + 1)).willReturn(false);
+        final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
+                .graphId(GRAPH_ID + 1)
+                .schema(new Schema())
+                .build();
+
+        // When / Then
+        try {
+            validate(export);
+            fail(EXCEPTION_EXPECTED);
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Validation errors: \n" +
+                    String.format(GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S, GRAPH_ID + 1, "StoreProperties"), e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionSchemaCannotBeUsedIfNotDefinedOrFound() {
+        // Given
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .storeProperties(new StoreProperties())
@@ -634,11 +598,8 @@ public class ExportToOtherGraphHandlerTest {
     }
 
     @Test
-    public void shouldPassValidation() {
+    public void shouldValidateWithSchemaAndStorePropertiesSepcified() {
         // Given
-        GraphLibrary mockLibrary = mock(GraphLibrary.class);
-        given(store.getGraphLibrary()).willReturn(mockLibrary);
-        given(mockLibrary.exists(GRAPH_ID + 1)).willReturn(false);
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .schema(new Schema())
