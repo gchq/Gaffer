@@ -230,7 +230,7 @@ public abstract class GraphLibrary {
      * @deprecated use {@link GraphLibrary#addProperties(String, StoreProperties)}
      */
     @Deprecated
-    public void addProperties(final StoreProperties properties) {
+    public void addProperties(final StoreProperties properties) throws OverwritingException {
         if (null != properties) {
             addProperties(properties.getId(), properties);
         }
@@ -266,9 +266,9 @@ public abstract class GraphLibrary {
         }
     }
 
-    protected abstract void _addIds(final String graphId, final Pair<String, String> schemaAndPropsIds) throws OverwritingException;
+    protected abstract void _addIds(final String graphId, final Pair<String, String> schemaAndPropsIds);
 
-    protected abstract void _addSchema(final String schemaId, final byte[] schema) throws OverwritingException;
+    protected abstract void _addSchema(final String schemaId, final byte[] schema);
 
     protected abstract void _addProperties(final String propertiesId, final StoreProperties properties);
 
