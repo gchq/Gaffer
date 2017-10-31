@@ -1349,8 +1349,8 @@ public class SchemaTest {
     public void shouldAddMergedSchemaToLibrary() {
         // Given
         final HashMapGraphLibrary graphLibrary = new HashMapGraphLibrary();
-        final Schema schema1ToMerge = new Schema.Builder().id("TEST_SCHEMA_ID_1").build();
-        final Schema schema2ToMerge = new Schema.Builder().id("TEST_SCHEMA_ID_2").build();
+        final Schema schema1ToMerge = new Schema.Builder().build();
+        final Schema schema2ToMerge = new Schema.Builder().build();
 
         final Schema schema = new Schema.Builder().merge(schema1ToMerge)
                 .merge(schema2ToMerge)

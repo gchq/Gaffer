@@ -278,6 +278,7 @@ public class StoreProperties implements Cloneable {
      * @param id the value of the ID
      * @deprecated the ID should be supplied to the graph library separately
      */
+    @Deprecated
     public void setId(final String id) {
         set(ID, id);
     }

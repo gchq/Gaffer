@@ -68,7 +68,6 @@ public class ExportToOtherGraphHandlerTest {
     private static final String SCHEMA_ID = "schemaId";
     public static final String SCHEMA_ID_2 = SCHEMA_ID + 2;
     public static final String SCHEMA_ID_1 = SCHEMA_ID + 1;
-    private static final String ID = "gaffer.store.id";
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     private final Store store = mock(Store.class);
@@ -334,7 +333,6 @@ public class ExportToOtherGraphHandlerTest {
         // Then
         assertEquals(GRAPH_ID + 2, graph.getGraphId());
         assertEquals(schema, graph.getSchema());
-        storeProperties1.getProperties().remove(ID);
         storeProperties1.merge(storeProperties);
         assertEquals(storeProperties1, graph.getStoreProperties());
     }

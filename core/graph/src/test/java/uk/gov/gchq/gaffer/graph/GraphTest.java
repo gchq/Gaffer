@@ -31,7 +31,6 @@ import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
-import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -1660,7 +1659,7 @@ public class GraphTest {
 
         // Then
         assertEquals(graphId1, graph1.getGraphId());
-        assertTrue(JsonUtil.equals(library.getSchema(SCHEMA_ID_1).toJson(false), librarySchema.toJson(false)));
+        JsonAssert.assertEquals(library.getSchema(SCHEMA_ID_1).toJson(false), librarySchema.toJson(false));
         final Pair<String, String> ids = library.getIds(graphId1);
         // Check that the schemaIds are different between the parent and supplied schema
         assertEquals(graphId1, ids.getFirst());
@@ -1700,7 +1699,7 @@ public class GraphTest {
 
         // Then
         assertEquals(graphId1, graph1.getGraphId());
-        assertTrue(JsonUtil.equals(library.getSchema(SCHEMA_ID_1).toJson(false), schema.toJson(false)));
+        JsonAssert.assertEquals(library.getSchema(SCHEMA_ID_1).toJson(false), schema.toJson(false));
         // Check that the schemaId = schemaId1 as both the parent and supplied schema have same id's
         assertTrue(library.getIds(graphId1).getFirst().equals(graphId1));
         // Check that the storePropsId = storePropertiesId1 as both parent and supplied storeProps have same id's
@@ -1743,7 +1742,7 @@ public class GraphTest {
 
         // Then
         assertEquals(graphId1, graph1.getGraphId());
-        assertTrue(JsonUtil.equals(library.getSchema(SCHEMA_ID_1).toJson(false), librarySchema.toJson(false)));
+        JsonAssert.assertEquals(library.getSchema(SCHEMA_ID_1).toJson(false), librarySchema.toJson(false));
         // Check that the schemaId = schemaId1 as both the supplied schema id is null
         assertTrue(library.getIds(graphId1).getFirst().equals(graphId1));
         // Check that the storePropsId = storePropertiesId1 as the supplied storeProps id is null

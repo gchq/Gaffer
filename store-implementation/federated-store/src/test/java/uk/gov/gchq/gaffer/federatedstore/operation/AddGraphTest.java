@@ -61,10 +61,9 @@ public class AddGraphTest extends OperationTest<AddGraph> {
                 .parentPropertiesId("testPropID")
                 .parentSchemaIds(Lists.newArrayList("testSchemaID"))
                 .schema(new Schema.Builder()
-                        .id("testSchema")
                         .build())
                 .graphAuths("testAuth")
-                .storeProperties(new StoreProperties("testProps"))
+                .storeProperties(new StoreProperties())
                 .build();
 
         final AddGraph b = a.shallowClone();
