@@ -44,6 +44,9 @@ public final class GraphDelegate {
     public static final String SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S = "Schema could not be found in the graphLibrary with id: %s";
     public static final String GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S = "GraphId %s cannot be created without defined/known %s";
     public static final String STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S = "Store properties could not be found in the graphLibrary with id: %s";
+    public static final String S_CANNOT_BE_USED_WITHOUT_A_GRAPH_LIBRARY = " %s cannot be used without a GraphLibrary";
+    public static final String CANNOT_EXPORT_TO_THE_SAME_GRAPH_S = "Cannot export to the same Graph: %s";
+    public static final String GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD = "Graph: %s already exists so you cannot use a different %s. Do not set the %s field";
 
     private GraphDelegate() {
         // Private constructor to prevent instantiation.
@@ -93,6 +96,9 @@ public final class GraphDelegate {
                 rtn.merge(properties);
             }
         }
+        if (null == rtn) {
+            rtn = store.getProperties();
+        }
         return rtn;
     }
 
@@ -119,10 +125,12 @@ public final class GraphDelegate {
                 // delete the old schema id as we are about to modify the schema
                 rtn = new Schema.Builder()
                         .merge(rtn)
-                        .id(null)
                         .merge(schema)
                         .build();
             }
+        }
+        if (null == rtn) {
+            rtn = store.getSchema();
         }
         return rtn;
     }
@@ -161,15 +169,15 @@ public final class GraphDelegate {
         final ValidationResult result = new ValidationResult();
 
         if (graphId.equals(store.getGraphId())) {
-            result.addError("Cannot export to the same graph: " + graphId);
+            result.addError(String.format(CANNOT_EXPORT_TO_THE_SAME_GRAPH_S, graphId));
         }
         if (null == graphLibrary) {
             // No graph library so we cannot look up the graphId/schemaId/storePropertiesId
             if (null != parentSchemaIds) {
-                result.addError("parentSchemaIds cannot be used without a GraphLibrary");
+                result.addError(String.format(S_CANNOT_BE_USED_WITHOUT_A_GRAPH_LIBRARY, "parentSchemaIds"));
             }
             if (null != parentStorePropertiesId) {
-                result.addError("parentStorePropertiesId cannot be used without a GraphLibrary");
+                result.addError(String.format(S_CANNOT_BE_USED_WITHOUT_A_GRAPH_LIBRARY, "parentStorePropertiesId"));
             }
         } else if (graphLibrary.exists(graphId)) {
 
@@ -183,24 +191,24 @@ public final class GraphDelegate {
                 }
                 Schema fromLibrary = graphLibrary.get(graphId).getFirst();
                 if (!fromLibrary.toString().equals(idFromLibrary.build().toString())) {
-                    result.addError("GraphId " + graphId + " already exists so you cannot use a different schema. Do not set the parentSchemaIds field.");
+                    result.addError(String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, graphId, "Schema", "parentSchemaIds"));
                 }
             }
 
             if (null != parentStorePropertiesId) {
                 StoreProperties fromLibrary = graphLibrary.get(graphId).getSecond();
                 if (!fromLibrary.equals(graphLibrary.getProperties(parentStorePropertiesId))) {
-                    result.addError("GraphId " + graphId + " already exists so you cannot use different store properties. Do not set the parentStorePropertiesId field.");
+                    result.addError(String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, graphId, "StoreProperties", "parentStorePropertiesId"));
                 }
             }
 
             Pair<Schema, StoreProperties> schemaStorePropertiesPair = graphLibrary.get(graphId);
             if (null != schema && null != schemaStorePropertiesPair && !schema.toString().equals(schemaStorePropertiesPair.getFirst().toString())) {
-                result.addError("GraphId " + graphId + " already exists so you cannot provide a different schema. Do not set the schema field.");
+                result.addError(String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, graphId, "Schema", "schema"));
             }
 
             if (null != storeProperties && null != schemaStorePropertiesPair && !schemaStorePropertiesPair.getSecond().equals(storeProperties)) {
-                result.addError("GraphId " + graphId + " already exists so you cannot provide different store properties. Do not set the storeProperties field.");
+                result.addError(String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, graphId, "StoreProperties", "storeProperties"));
             }
         } else {
             if (null != parentSchemaIds) {
