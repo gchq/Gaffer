@@ -110,11 +110,11 @@ public class FederatedStoreTest {
 
         clearLibrary();
         library = new HashMapGraphLibrary();
-        library.addProperties(getPropertiesFromPath(PATH_ACC_STORE_PROPERTIES));
-        library.addProperties(getPropertiesFromPath(PATH_MAP_STORE_PROPERTIES));
-        library.addProperties(getPropertiesFromPath(PATH_MAP_STORE_PROPERTIES_ALT));
-        library.addSchema(getSchemaFromPath(PATH_BASIC_EDGE_SCHEMA_JSON));
-        library.addSchema(getSchemaFromPath(PATH_BASIC_ENTITY_SCHEMA_JSON));
+        library.addProperties(ID_PROPS_ACC, getPropertiesFromPath(PATH_ACC_STORE_PROPERTIES));
+        library.addProperties(ID_PROPS_MAP, getPropertiesFromPath(PATH_MAP_STORE_PROPERTIES));
+        library.addProperties(ID_PROPS_MAP_ALT, getPropertiesFromPath(PATH_MAP_STORE_PROPERTIES_ALT));
+        library.addSchema(ID_SCHEMA_EDGE, getSchemaFromPath(PATH_BASIC_EDGE_SCHEMA_JSON));
+        library.addSchema(ID_SCHEMA_ENTITY, getSchemaFromPath(PATH_BASIC_ENTITY_SCHEMA_JSON));
 
         store = new FederatedStore();
         store.setGraphLibrary(library);
@@ -220,7 +220,7 @@ public class FederatedStoreTest {
             addGraphWithIds(MAP_ID_1, ID_PROPS_MAP, ID_SCHEMA_EDGE);
             fail(EXCEPTION_NOT_THROWN);
         } catch (final Exception e) {
-            assertContains(e.getCause(), "GraphId " + MAP_ID_1 + " already exists");
+            assertContains(e.getCause(), "Graph: " + MAP_ID_1 + " already exists");
         }
 
         // When / Then
@@ -228,7 +228,7 @@ public class FederatedStoreTest {
             addGraphWithIds(MAP_ID_1, ID_PROPS_MAP_ALT, ID_SCHEMA_ENTITY);
             fail(EXCEPTION_NOT_THROWN);
         } catch (final Exception e) {
-            assertContains(e.getCause(), "GraphId " + MAP_ID_1 + " already exists");
+            assertContains(e.getCause(), "Graph: " + MAP_ID_1 + " already exists");
         }
     }
 
@@ -584,7 +584,7 @@ public class FederatedStoreTest {
                     .build(), userContext);
             fail(EXCEPTION_NOT_THROWN);
         } catch (final Exception e) {
-            assertContains(e.getCause(), "GraphId " + MAP_ID_1 + " already exists so you cannot use different store properties");
+            assertContains(e.getCause(), "Graph: " + MAP_ID_1 + " already exists so you cannot use a different StoreProperties");
         }
 
         // When / Then
@@ -596,7 +596,7 @@ public class FederatedStoreTest {
                     .build(), userContext);
             fail(EXCEPTION_NOT_THROWN);
         } catch (final Exception e) {
-            assertContains(e.getCause(), "GraphId " + MAP_ID_1 + " already exists so you cannot use a different schema");
+            assertContains(e.getCause(), "Graph: " + MAP_ID_1 + " already exists so you cannot use a different Schema");
         }
     }
 
