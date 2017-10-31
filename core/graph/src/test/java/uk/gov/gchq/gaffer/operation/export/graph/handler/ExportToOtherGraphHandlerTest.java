@@ -72,14 +72,13 @@ public class ExportToOtherGraphHandlerTest {
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     private final Store store = mock(Store.class);
-    private final Schema schema = new Schema.Builder().id(SCHEMA_ID).build();
+    private final Schema schema = new Schema.Builder().build();
     private GraphLibrary graphLibrary;
     private StoreProperties storeProperties;
 
     @Before
     public void before() throws IOException {
         storeProperties = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
-        storeProperties.setId(STORE_PROPS_ID);
 
         final File graphLibraryFolder = testFolder.newFolder("graphLibrary");
         graphLibrary = new FileGraphLibrary(graphLibraryFolder.getPath());
@@ -96,7 +95,7 @@ public class ExportToOtherGraphHandlerTest {
     public void shouldThrowExceptionWhenExportingToSameGraph() {
         // Given
         given(store.getGraphId()).willReturn(GRAPH_ID);
-        graphLibrary.add(GRAPH_ID, schema, storeProperties);
+        graphLibrary.add(GRAPH_ID, SCHEMA_ID, schema, STORE_PROPS_ID, storeProperties);
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID)
                 .build();
@@ -110,17 +109,11 @@ public class ExportToOtherGraphHandlerTest {
         }
     }
 
-    private Graph createGraph(final ExportToOtherGraph export) {
-        return GraphDelegate.createGraph(store, export.getGraphId(),
-                export.getSchema(), export.getStoreProperties(), export.getParentSchemaIds(),
-                export.getParentStorePropertiesId());
-    }
-
     @Test
     public void shouldCreateExporter() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, OperationException {
         // Given
         given(store.getGraphId()).willReturn(GRAPH_ID);
-        graphLibrary.add(GRAPH_ID + 1, schema, storeProperties);
+        graphLibrary.add(GRAPH_ID + 1, SCHEMA_ID, schema, STORE_PROPS_ID, storeProperties);
         given(store.getGraphLibrary()).willReturn(graphLibrary);
         final Context context = mock(Context.class);
         final User user = new User();
@@ -175,7 +168,7 @@ public class ExportToOtherGraphHandlerTest {
     @Test
     public void shouldCreateNewGraphWithStoresStoreProperties() {
         // Given
-        Schema schema1 = new Schema.Builder().id(SCHEMA_ID_1).build();
+        Schema schema1 = new Schema.Builder().build();
         given(store.getProperties()).willReturn(storeProperties);
         given(store.getGraphId()).willReturn(GRAPH_ID);
 
@@ -197,7 +190,6 @@ public class ExportToOtherGraphHandlerTest {
     public void shouldCreateNewGraphWithStoresSchema() {
         // Given
         final StoreProperties storeProperties1 = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
-        storeProperties1.setId(STORE_PROPS_ID_1);
 
         given(store.getSchema()).willReturn(schema);
         given(store.getGraphId()).willReturn(GRAPH_ID);
@@ -221,7 +213,7 @@ public class ExportToOtherGraphHandlerTest {
         // Given
         given(store.getGraphId()).willReturn(GRAPH_ID);
 
-        Schema schema1 = new Schema.Builder().id(SCHEMA_ID_1).build();
+        Schema schema1 = new Schema.Builder().build();
 
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
         graphLibrary.addSchema(SCHEMA_ID_1, schema1);
@@ -248,14 +240,12 @@ public class ExportToOtherGraphHandlerTest {
         given(store.getGraphId()).willReturn(GRAPH_ID);
 
         Schema schema1 = new Schema.Builder()
-                .id(SCHEMA_ID_1)
                 .entity("entity", new SchemaEntityDefinition.Builder()
                         .vertex("vertex")
                         .build())
                 .type("vertex", String.class)
                 .build();
         Schema schema2 = new Schema.Builder()
-                .id(SCHEMA_ID_2)
                 .edge("edge", new SchemaEdgeDefinition.Builder()
                         .source("vertex")
                         .destination("vertex")
@@ -270,7 +260,7 @@ public class ExportToOtherGraphHandlerTest {
 
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 2)
-                .parentSchemaIds(SCHEMA_ID_1, SCHEMA_ID + 2)
+                .parentSchemaIds(SCHEMA_ID_1, SCHEMA_ID_2)
                 .schema(schema)
                 .storeProperties(storeProperties)
                 .build();
@@ -281,7 +271,6 @@ public class ExportToOtherGraphHandlerTest {
         // Then
         assertEquals(GRAPH_ID + 2, graph.getGraphId());
         JsonAssert.assertEquals(new Schema.Builder()
-                        .id(SCHEMA_ID)
                         .entity("entity", new SchemaEntityDefinition.Builder()
                                 .vertex("vertex")
                                 .build())
@@ -301,7 +290,6 @@ public class ExportToOtherGraphHandlerTest {
         given(store.getGraphId()).willReturn(GRAPH_ID);
 
         StoreProperties storeProperties1 = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
-        storeProperties1.setId(STORE_PROPS_ID_1);
 
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
         graphLibrary.addProperties(STORE_PROPS_ID_1, storeProperties1);
@@ -328,7 +316,6 @@ public class ExportToOtherGraphHandlerTest {
         given(store.getGraphId()).willReturn(GRAPH_ID);
 
         StoreProperties storeProperties1 = StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
-        storeProperties1.setId(STORE_PROPS_ID_1);
 
         graphLibrary.addOrUpdate(GRAPH_ID + 1, schema, storeProperties);
         graphLibrary.addProperties(STORE_PROPS_ID_1, storeProperties1);
@@ -350,7 +337,6 @@ public class ExportToOtherGraphHandlerTest {
         storeProperties1.getProperties().remove(ID);
         storeProperties1.merge(storeProperties);
         assertEquals(storeProperties1, graph.getStoreProperties());
-        assertEquals(storeProperties1.getId(), graph.getStoreProperties().getId());
     }
 
     @Test
@@ -370,12 +356,6 @@ public class ExportToOtherGraphHandlerTest {
                     "Cannot export to the same graph: graphId", e.getMessage());
         }
     }
-
-    private void validate(final ExportToOtherGraph export) {
-        GraphDelegate.validate(store, export.getGraphId(), export.getSchema(), export.getStoreProperties(),
-                export.getParentSchemaIds(), export.getParentStorePropertiesId());
-    }
-
 
     @Test
     public void shouldValidatePropsIdCannotBeUsedWithoutGraphLibrary() {
@@ -403,7 +383,7 @@ public class ExportToOtherGraphHandlerTest {
         given(store.getGraphLibrary()).willReturn(null);
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
-                .parentSchemaIds("schemaId")
+                .parentSchemaIds(SCHEMA_ID)
                 .build();
 
         // When / Then
@@ -426,7 +406,7 @@ public class ExportToOtherGraphHandlerTest {
         given(mockLibrary.getSchema("schemaId")).willReturn(new Schema.Builder().id("schemaId").build());
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
-                .parentSchemaIds("schemaId")
+                .parentSchemaIds(SCHEMA_ID)
                 .build();
 
         // When / Then`
@@ -508,7 +488,7 @@ public class ExportToOtherGraphHandlerTest {
         given(mockLibrary.getProperties("props1")).willReturn(new StoreProperties("props1"));
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
-                .parentStorePropertiesId("props1")
+                .parentStorePropertiesId(STORE_PROPS_ID_1)
                 .build();
 
         // When / Then
@@ -590,7 +570,7 @@ public class ExportToOtherGraphHandlerTest {
         given(mockLibrary.exists(GRAPH_ID + 1)).willReturn(false);
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
-                .parentSchemaIds("schemaId")
+                .parentSchemaIds(SCHEMA_ID)
                 .storeProperties(new StoreProperties())
                 .build();
 
@@ -612,7 +592,7 @@ public class ExportToOtherGraphHandlerTest {
         given(mockLibrary.exists(GRAPH_ID + 1)).willReturn(false);
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
-                .parentSchemaIds("schemaId")
+                .parentSchemaIds(SCHEMA_ID)
                 .storeProperties(new StoreProperties())
                 .build();
 
@@ -635,6 +615,7 @@ public class ExportToOtherGraphHandlerTest {
         final ExportToOtherGraph export = new ExportToOtherGraph.Builder()
                 .graphId(GRAPH_ID + 1)
                 .schema(new Schema())
+                .parentStorePropertiesId(STORE_PROPS_ID)
                 .build();
 
         // When / Then
@@ -643,7 +624,7 @@ public class ExportToOtherGraphHandlerTest {
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             assertEquals("Validation errors: \n" +
-                    String.format(GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S, GRAPH_ID + 1, "StoreProperties"), e.getMessage());
+                    String.format("Store properties could not be found in the graphLibrary with id: %s", STORE_PROPS_ID), e.getMessage());
         }
     }
 
@@ -684,5 +665,16 @@ public class ExportToOtherGraphHandlerTest {
         validate(export);
 
         // Then - no exceptions
+    }
+
+    private Graph createGraph(final ExportToOtherGraph export) {
+        return GraphDelegate.createGraph(store, export.getGraphId(),
+                export.getSchema(), export.getStoreProperties(), export.getParentSchemaIds(),
+                export.getParentStorePropertiesId());
+    }
+
+    private void validate(final ExportToOtherGraph export) {
+        GraphDelegate.validate(store, export.getGraphId(), export.getSchema(), export.getStoreProperties(),
+                export.getParentSchemaIds(), export.getParentStorePropertiesId());
     }
 }

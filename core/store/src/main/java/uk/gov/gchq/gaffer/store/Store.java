@@ -75,6 +75,7 @@ import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.OperationUtil;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
@@ -82,6 +83,7 @@ import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DiscardOutputHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.GetSchemaHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.LimitHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationChainHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -156,6 +158,11 @@ public abstract class Store {
      * to be stored and how to aggregate the elements.
      */
     private Schema schema;
+
+    /**
+     * The original schema containing all of the original descriptions and parent groups.
+     */
+    private Schema originalSchema;
 
     /**
      * The store properties - contains specific configuration information for
@@ -796,6 +803,7 @@ public abstract class Store {
         addOperationHandler(CountGroups.class, new CountGroupsHandler());
         addOperationHandler(Limit.class, new LimitHandler());
         addOperationHandler(DiscardOutput.class, new DiscardOutputHandler());
+        addOperationHandler(GetSchema.class, new GetSchemaHandler());
 
         // Function
         addOperationHandler(Filter.class, new FilterHandler());
@@ -814,5 +822,13 @@ public abstract class Store {
 
     protected void startCacheServiceLoader(final StoreProperties properties) {
         CacheServiceLoader.initialise(properties.getProperties());
+    }
+
+    public void setOriginalSchema(final Schema originalSchema) {
+        this.originalSchema = originalSchema;
+    }
+
+    public Schema getOriginalSchema() {
+        return originalSchema;
     }
 }

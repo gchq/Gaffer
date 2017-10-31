@@ -23,9 +23,11 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -35,6 +37,11 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.UNABLE_TO_MERGE_THE_SCHEMAS_FOR_ALL_OF_YOUR_FEDERATED_GRAPHS;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
 
 public class FederatedStoreSchemaTest {
     private static final String STRING = "string";
@@ -44,8 +51,8 @@ public class FederatedStoreSchemaTest {
                     .aggregateFunction(new StringConcat())
                     .build())
             .build();
-    public static final User TEST_USER = new User("testUser");
-    public static final Context TEST_CONTEXT = new Context(TEST_USER);
+    public User testUser;
+    public Context testContext;
     public static final String TEST_FED_STORE = "testFedStore";
     public static final HashMapGraphLibrary library = new HashMapGraphLibrary();
     public static final String ACC_PROP = "accProp";
@@ -58,7 +65,6 @@ public class FederatedStoreSchemaTest {
     @Before
     public void setUp() throws Exception {
         CacheServiceLoader.shutdown();
-        ACCUMULO_PROPERTIES.setId(ACC_PROP);
         ACCUMULO_PROPERTIES.setStoreClass(MockAccumuloStore.class);
         ACCUMULO_PROPERTIES.setStorePropertiesClass(AccumuloProperties.class);
 
@@ -67,17 +73,19 @@ public class FederatedStoreSchemaTest {
         fStore = new FederatedStore();
         fStore.initialise(TEST_FED_STORE, null, FEDERATED_PROPERTIES);
 
-        library.clear();
+        fStore.setGraphLibrary(library);
+
+        testUser = testUser();
+        testContext = new Context(testUser);
     }
 
     @Test
     public void shouldBeAbleToAddGraphsWithSchemaCollisions() throws Exception {
-        library.addProperties(ACC_PROP,ACCUMULO_PROPERTIES);
+        library.addProperties(ACC_PROP, ACCUMULO_PROPERTIES);
         fStore.setGraphLibrary(library);
 
         String aSchema1ID = "aSchema";
         final Schema aSchema = new Schema.Builder()
-                .id(aSchema1ID)
                 .edge("e1", getProp("prop1"))
                 .merge(STRING_SCHEMA)
                 .build();
@@ -89,11 +97,10 @@ public class FederatedStoreSchemaTest {
                         .graphId("a")
                         .parentPropertiesId(ACC_PROP)
                         .parentSchemaIds(Lists.newArrayList(aSchema1ID))
-                        .build()), TEST_CONTEXT);
+                        .build()), testContext);
 
         String bSchema1ID = "bSchema";
         final Schema bSchema = new Schema.Builder()
-                .id(bSchema1ID)
                 .edge("e1", getProp("prop2"))
                 .merge(STRING_SCHEMA)
                 .build();
@@ -102,19 +109,85 @@ public class FederatedStoreSchemaTest {
 
         assertFalse(library.exists("b"));
 
-        fStore.execute(Operation.asOperationChain(new AddGraph.Builder()
+        fStore.execute(OperationChain.wrap(new AddGraph.Builder()
                 .graphId("b")
                 .parentPropertiesId(ACC_PROP)
                 .parentSchemaIds(Lists.newArrayList(bSchema1ID))
-                .build()), TEST_CONTEXT);
+                .build()), testContext);
 
-        fStore.execute(Operation.asOperationChain(new AddGraph.Builder()
+        fStore.execute(OperationChain.wrap(new AddGraph.Builder()
                 .graphId("c")
                 .parentPropertiesId(ACC_PROP)
                 .parentSchemaIds(Lists.newArrayList(aSchema1ID))
-                .build()), TEST_CONTEXT);
+                .build()), testContext);
 
         // No exceptions thrown - as all 3 graphs should be able to be added together.
+    }
+
+    @Test
+    public void shouldGetCorrectDefaultViewForAChosenGraphOperation() throws
+            Exception {
+        final HashMapGraphLibrary library = new HashMapGraphLibrary();
+        library.add("a", new Schema.Builder()
+                .edge("e1", getProp("prop1"))
+                .merge(STRING_SCHEMA)
+                .build(), ACCUMULO_PROPERTIES);
+
+        library.add("b", new Schema.Builder()
+                .edge("e1", getProp("prop2"))
+                .merge(STRING_SCHEMA)
+                .build(), ACCUMULO_PROPERTIES);
+
+
+        fStore.execute(new AddGraph.Builder()
+                .graphId("a")
+                .build(), testContext);
+
+        fStore.execute(new AddGraph.Builder()
+                .graphId("b")
+                .build(), testContext);
+
+        final CloseableIterable<? extends Element> a = fStore.execute(new OperationChain.Builder()
+                .first(new GetAllElements.Builder()
+                        //No view so makes default view, should get only view compatible with graph "a"
+                        .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, "a")
+                        .build())
+                .build(), testContext);
+
+        assertNotNull(a);
+        assertFalse(a.iterator().hasNext());
+    }
+
+    @Test
+    public void shouldThrowWhenSelectedGraphsSchemaClash() throws Exception {
+        final HashMapGraphLibrary library = new HashMapGraphLibrary();
+        library.add("a", new Schema.Builder()
+                .edge("e1", getProp("prop1"))
+                .merge(STRING_SCHEMA)
+                .build(), ACCUMULO_PROPERTIES);
+
+        library.add("b", new Schema.Builder()
+                .edge("e1", getProp("prop2"))
+                .merge(STRING_SCHEMA)
+                .build(), ACCUMULO_PROPERTIES);
+
+        fStore.execute(new AddGraph.Builder()
+                .graphId("a")
+                .build(), testContext);
+
+        fStore.execute(new AddGraph.Builder()
+                .graphId("b")
+                .build(), testContext);
+
+        try {
+            fStore.execute(new OperationChain.Builder()
+                    .first(new GetAllElements.Builder()
+                            .build())
+                    .build(), testContext);
+            fail("exception expected");
+        } catch (final Exception e) {
+            assertTrue(e.getMessage().contains(UNABLE_TO_MERGE_THE_SCHEMAS_FOR_ALL_OF_YOUR_FEDERATED_GRAPHS.split("%s")[0]));
+        }
     }
 
     private SchemaEdgeDefinition getProp(final String propName) {
@@ -124,6 +197,4 @@ public class FederatedStoreSchemaTest {
                 .property(propName, STRING)
                 .build();
     }
-
-
 }

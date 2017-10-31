@@ -404,6 +404,7 @@ public class FederatedStoreUtilTest {
                 .build();
 
         given(store.getSchema()).willReturn(schema);
+        given(store.getOriginalSchema()).willReturn(schema);
 
         StoreProperties storeProperties = new StoreProperties();
 
