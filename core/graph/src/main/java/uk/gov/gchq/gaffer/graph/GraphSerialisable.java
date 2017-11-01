@@ -148,13 +148,13 @@ public final class GraphSerialisable implements Serializable {
 
         public Builder schema(final Schema schema) {
             this.schema = schema;
-            return this;
+            return _self();
         }
 
         @JsonSetter("properties")
         public Builder properties(final Properties properties) {
             this.properties = properties;
-            return this;
+            return _self();
         }
 
         public Builder properties(final StoreProperties properties) {
@@ -163,12 +163,12 @@ public final class GraphSerialisable implements Serializable {
             } else {
                 this.properties = properties.getProperties();
             }
-            return this;
+            return _self();
         }
 
         public Builder config(final GraphConfig config) {
             this.config = config;
-            return this;
+            return _self();
         }
 
         @JsonIgnore
