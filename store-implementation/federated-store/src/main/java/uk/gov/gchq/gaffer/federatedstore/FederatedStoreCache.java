@@ -90,7 +90,7 @@ public class FederatedStoreCache {
     public Graph getGraphFromCache(final String graphId) {
         final Pair<GraphSerialisable, FederatedAccess> fromCache = CacheServiceLoader.getService().getFromCache(CACHE_SERVICE_NAME, graphId);
         final GraphSerialisable graphSerialisable = (null == fromCache) ? null : fromCache.getFirst();
-        return (null == graphSerialisable) ? null : graphSerialisable.buildGraph();
+        return (null == graphSerialisable) ? null : graphSerialisable.getGraph();
     }
 
     /**

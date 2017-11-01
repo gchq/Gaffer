@@ -59,9 +59,9 @@ public class MapStorePropertiesGraphSerialisableTest {
 
     private GraphSerialisable getGraphSerialisable() {
         return new GraphSerialisable.Builder()
-                .setSchema(schema)
-                .setProperties(properties)
-                .setConfig(config)
+                .schema(schema)
+                .properties(properties)
+                .config(config)
                 .build();
     }
 

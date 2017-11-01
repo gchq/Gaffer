@@ -16,6 +16,10 @@
 
 package uk.gov.gchq.gaffer.graph;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -23,6 +27,7 @@ import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
@@ -36,14 +41,13 @@ import java.util.Properties;
  *
  * @see GraphSerialisable.Builder
  */
+@JsonDeserialize(builder = GraphSerialisable.Builder.class)
 public final class GraphSerialisable implements Serializable {
     private static final long serialVersionUID = 2684203367656032583L;
-    private byte[] schema;
-    private Properties properties;
-    private byte[] config;
-
-    public GraphSerialisable() {
-    }
+    private final byte[] schema;
+    private final Properties properties;
+    private final byte[] config;
+    private transient Graph graph;
 
     private GraphSerialisable(final GraphConfig config, final Schema schema, final Properties properties) {
         try {
@@ -59,8 +63,9 @@ public final class GraphSerialisable implements Serializable {
      * @return returns a new {@link Graph} built from the contents of a this
      * class.
      */
-    public Graph buildGraph() {
-        return buildGraph(null);
+    @JsonIgnore
+    public Graph getGraph() {
+        return getGraph(null);
     }
 
     /**
@@ -68,13 +73,20 @@ public final class GraphSerialisable implements Serializable {
      * @return returns a new {@link Graph} built from the contents of a this
      * class.
      */
-    public Graph buildGraph(final GraphLibrary library) {
-        return new Graph.Builder()
-                .addSchema(schema)
-                .addStoreProperties(properties)
-                .config(config)
-                .config(new GraphConfig.Builder().library(library).build())
-                .build();
+    @JsonIgnore
+    public Graph getGraph(final GraphLibrary library) {
+        if (null == graph) {
+            graph = new Graph.Builder()
+                    .addSchema(schema)
+                    .addStoreProperties(properties)
+                    .config(config)
+                    .config(new GraphConfig.Builder()
+                            .library(library)
+                            .build())
+                    .build();
+        }
+
+        return graph;
     }
 
     @Override
@@ -123,27 +135,39 @@ public final class GraphSerialisable implements Serializable {
         return config;
     }
 
+    @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
     public static class Builder {
 
         private Schema schema;
         private Properties properties;
         private GraphConfig config;
 
-        public Builder setSchema(final Schema schema) {
+        public Builder schema(final Schema schema) {
             this.schema = schema;
             return this;
         }
 
-        public Builder setProperties(final Properties properties) {
+        @JsonSetter("properties")
+        public Builder properties(final Properties properties) {
             this.properties = properties;
             return this;
         }
 
-        public Builder setConfig(final GraphConfig config) {
+        public Builder properties(final StoreProperties properties) {
+            if (null == properties) {
+                this.properties = null;
+            } else {
+                this.properties = properties.getProperties();
+            }
+            return this;
+        }
+
+        public Builder config(final GraphConfig config) {
             this.config = config;
             return this;
         }
 
+        @JsonIgnore
         public Builder graph(final Graph graph) {
             schema = graph.getSchema();
             properties = graph.getStoreProperties().getProperties();
@@ -156,6 +180,15 @@ public final class GraphSerialisable implements Serializable {
         }
 
         public GraphSerialisable build() {
+            if (null == config) {
+                throw new IllegalArgumentException("config is required");
+            }
+            if (null == schema) {
+                throw new IllegalArgumentException("schema is required");
+            }
+            if (null == properties) {
+                throw new IllegalArgumentException("properties is required");
+            }
             return new GraphSerialisable(config, schema, properties);
         }
     }

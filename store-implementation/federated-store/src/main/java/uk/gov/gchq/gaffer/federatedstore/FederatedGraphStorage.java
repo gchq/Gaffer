@@ -331,7 +331,7 @@ public class FederatedGraphStorage {
     }
 
     private void validateSameAsFromCache(final Graph newGraph, final String graphId) {
-        final Graph fromCache = federatedStoreCache.getGraphSerialisableFromCache(graphId).buildGraph(library);
+        final Graph fromCache = federatedStoreCache.getGraphSerialisableFromCache(graphId).getGraph(library);
         if (!newGraph.getStoreProperties().getProperties().equals(fromCache.getStoreProperties().getProperties())) {
             throw new RuntimeException(String.format(ERROR_ADDING_GRAPH_TO_CACHE, GraphConfigEnum.PROPERTIES.toString(), graphId));
         } else {
@@ -377,7 +377,7 @@ public class FederatedGraphStorage {
 
     private void makeGraphFromCache(final String graphId) {
         final GraphSerialisable serialisable = federatedStoreCache.getGraphSerialisableFromCache(graphId);
-        final Graph graph = serialisable.buildGraph(library);
+        final Graph graph = serialisable.getGraph(library);
         final FederatedAccess accessFromCache = federatedStoreCache.getAccessFromCache(graphId);
         put(graph, accessFromCache);
     }

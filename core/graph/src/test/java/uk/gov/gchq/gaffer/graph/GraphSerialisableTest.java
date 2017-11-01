@@ -55,9 +55,9 @@ public class GraphSerialisableTest {
         storeProperties.setStoreClass(TestStore.class);
         properties = storeProperties.getProperties();
         expected = new GraphSerialisable.Builder()
-                .setSchema(schema)
-                .setProperties(properties)
-                .setConfig(config)
+                .schema(schema)
+                .properties(properties)
+                .config(config)
                 .build();
     }
 
