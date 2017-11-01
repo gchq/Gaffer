@@ -75,4 +75,18 @@ public class RestApiV2TestClient extends RestApiTestClient {
                 .request()
                 .get(SystemStatus.class);
     }
+
+    public Response getProperties() {
+        return client.target(uriString)
+                .path("/properties")
+                .request()
+                .get(Response.class);
+    }
+
+    public Response getProperty(String property) {
+        return client.target(uriString)
+                .path("/properties/" + property)
+                .request()
+                .get(Response.class);
+    }
 }
