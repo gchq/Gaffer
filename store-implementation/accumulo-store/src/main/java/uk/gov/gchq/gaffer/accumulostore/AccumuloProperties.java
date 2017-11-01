@@ -65,15 +65,11 @@ public class AccumuloProperties extends StoreProperties {
     public static final String ENABLE_VALIDATOR_ITERATOR_DEFAULT = "true";
 
     public AccumuloProperties() {
-        super();
-        setStoreClass(AccumuloStore.class);
+        super(AccumuloStore.class);
     }
 
     public AccumuloProperties(final Path propFileLocation) {
-        super(propFileLocation);
-        if (null == getStoreClass()) {
-            setStoreClass(AccumuloStore.class);
-        }
+        super(propFileLocation, AccumuloStore.class);
     }
 
     public static AccumuloProperties loadStoreProperties(final String pathStr) {
