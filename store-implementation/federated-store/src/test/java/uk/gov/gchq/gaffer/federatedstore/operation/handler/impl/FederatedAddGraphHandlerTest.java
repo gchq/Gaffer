@@ -209,9 +209,8 @@ public class FederatedAddGraphHandlerTest {
                     store);
             fail(EXCEPTION_EXPECTED);
         } catch (final Exception e) {
-            assertEquals(String.format(USER_IS_ATTEMPTING_TO_OVERWRITE, EXPECTED_GRAPH_ID), e.getCause().getMessage());
+            assertTrue(e.getMessage().contains(String.format(USER_IS_ATTEMPTING_TO_OVERWRITE, EXPECTED_GRAPH_ID)));
         }
-
     }
 
     @Test

@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
@@ -56,12 +57,11 @@ public class FederatedGraphStorage {
     private Map<FederatedAccess, Set<Graph>> storage = new HashMap<>();
     private FederatedStoreCache federatedStoreCache = new FederatedStoreCache();
     private Boolean isCacheEnabled = false;
-    private GraphLibrary library;
+    private GraphLibrary graphLibrary;
 
-    protected void startCacheServiceLoader(final FederatedStoreProperties properties) {
-        if (isCachePropertiesSet(properties)) {
+    protected void startCacheServiceLoader() throws StorageException {
+        if (CacheServiceLoader.isEnabled()) {
             isCacheEnabled = true;
-            initCache(properties);
             makeAllGraphsFromCache();
         }
     }
@@ -74,7 +74,7 @@ public class FederatedGraphStorage {
      * @param access access required to for the graphs, can't be null
      * @see #put(Graph, FederatedAccess)
      */
-    public void put(final Collection<Graph> graphs, final FederatedAccess access) {
+    public void put(final Collection<Graph> graphs, final FederatedAccess access) throws StorageException {
         for (final Graph graph : graphs) {
             put(graph, access);
         }
@@ -90,23 +90,36 @@ public class FederatedGraphStorage {
      * @param graph  the graph to add to the storage.
      * @param access access required to for the graph.
      */
-    public void put(final Graph graph, final FederatedAccess access) {
-        if (exists(graph.getGraphId())) {
-            throw new OverwritingException((String.format(USER_IS_ATTEMPTING_TO_OVERWRITE, graph.getGraphId())));
-        } else if (null == access) {
-            throw new IllegalArgumentException(ACCESS_IS_NULL);
-        }
+    public void put(final Graph graph, final FederatedAccess access) throws StorageException {
+        try {
+            if (exists(graph.getGraphId())) {
+                throw new OverwritingException((String.format(USER_IS_ATTEMPTING_TO_OVERWRITE, graph.getGraphId())));
+            } else if (null == access) {
+                throw new IllegalArgumentException(ACCESS_IS_NULL);
+            }
 
-        if (isCacheEnabled()) {
-            addToCache(graph, access);
-        }
+            if (isCacheEnabled()) {
+                addToCache(graph, access);
+            }
 
-        Set<Graph> existingGraphs = storage.get(access);
-        if (null == existingGraphs) {
-            existingGraphs = Sets.newHashSet(graph);
-            storage.put(access, existingGraphs);
-        } else {
-            existingGraphs.add(graph);
+            Set<Graph> existingGraphs = storage.get(access);
+            if (null == existingGraphs) {
+                existingGraphs = Sets.newHashSet(graph);
+                storage.put(access, existingGraphs);
+            } else {
+                existingGraphs.add(graph);
+            }
+
+            if (null != graphLibrary) {
+                try {
+                    graphLibrary.add(graph.getGraphId(), graph.getSchema(), graph.getStoreProperties());
+                } catch (final Exception e) {
+                    remove(graph.getGraphId(), new User(access.getAddingUserId()));
+                    throw e;
+                }
+            }
+        } catch (final Exception e) {
+            throw new StorageException("Error adding graph " + graph.getGraphId() + " to storage due to: " + e.getMessage(), e);
         }
     }
 
@@ -155,9 +168,7 @@ public class FederatedGraphStorage {
                     for (final Graph graph : graphs) {
                         if (graph.getGraphId().equals(graphId)) {
                             graphs.remove(graph);
-                            if (isCacheEnabled()) {
-                                federatedStoreCache.deleteFromCache(graphId);
-                            }
+                            deleteFromCache(graphId);
                             isRemoved = true;
                         }
                     }
@@ -165,6 +176,12 @@ public class FederatedGraphStorage {
             }
         }
         return isRemoved;
+    }
+
+    private void deleteFromCache(final String graphId) {
+        if (isCacheEnabled()) {
+            federatedStoreCache.deleteFromCache(graphId);
+        }
     }
 
     /**
@@ -331,7 +348,7 @@ public class FederatedGraphStorage {
     }
 
     private void validateSameAsFromCache(final Graph newGraph, final String graphId) {
-        final Graph fromCache = federatedStoreCache.getGraphSerialisableFromCache(graphId).getGraph(library);
+        final Graph fromCache = federatedStoreCache.getGraphSerialisableFromCache(graphId).getGraph(graphLibrary);
         if (!newGraph.getStoreProperties().getProperties().equals(fromCache.getStoreProperties().getProperties())) {
             throw new RuntimeException(String.format(ERROR_ADDING_GRAPH_TO_CACHE, GraphConfigEnum.PROPERTIES.toString(), graphId));
         } else {
@@ -345,6 +362,9 @@ public class FederatedGraphStorage {
         }
     }
 
+    public void setGraphLibrary(final GraphLibrary graphLibrary) {
+        this.graphLibrary = graphLibrary;
+    }
 
     /**
      * Enum for the Graph Properties or Schema
@@ -375,24 +395,14 @@ public class FederatedGraphStorage {
         return rtn;
     }
 
-    private void makeGraphFromCache(final String graphId) {
+    private void makeGraphFromCache(final String graphId) throws StorageException {
         final GraphSerialisable serialisable = federatedStoreCache.getGraphSerialisableFromCache(graphId);
-        final Graph graph = serialisable.getGraph(library);
+        final Graph graph = serialisable.getGraph(graphLibrary);
         final FederatedAccess accessFromCache = federatedStoreCache.getAccessFromCache(graphId);
         put(graph, accessFromCache);
     }
 
-    private boolean isCachePropertiesSet(final FederatedStoreProperties properties) {
-        return properties.getCacheProperties() != null;
-    }
-
-    private void initCache(final FederatedStoreProperties properties) {
-        if (federatedStoreCache.getCache() == null) {
-            CacheServiceLoader.initialise(properties.getProperties());
-        }
-    }
-
-    private void makeAllGraphsFromCache() {
+    private void makeAllGraphsFromCache() throws StorageException {
         final Set<String> allGraphIds = federatedStoreCache.getAllGraphIds();
         for (final String graphId : allGraphIds) {
             makeGraphFromCache(graphId);
