@@ -74,7 +74,7 @@ public final class GafferCollectors {
      *
      * @param comparator  the {@link java.util.Comparator} to use when comparing
      *                    items
-     * @param limit       the maximum number of items to collectde
+     * @param limit       the maximum number of items to collect
      * @param deduplicate true if the results should be deduplicated based the items hashcode/equals methods
      * @param <T>         the type of input items
      * @return a {@link java.util.stream.Collector} which collects all the input
