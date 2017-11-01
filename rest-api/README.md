@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-This page has been copied from the READ API module README. To make any changes please update that README and this page will be automatically updated when the next release is done.
+This page has been copied from the REST API module README. To make any changes please update that README and this page will be automatically updated when the next release is done.
 
 
 REST API
@@ -32,7 +32,7 @@ If you wish to make changes or additions to the REST API for your project then t
 You will need to create a new maven module to build your REST API.
 In your pom you should configure the maven-dependency-plugin to download the core gaffer rest api war and extract it.
 When maven builds your module it will unpack the core war, add your files and repackage the war.
-If you wish to override a file in the core war then you can do this by included your own file with exactly the same name and path.
+If you wish to override a file in the core war then you can do this by including your own file with exactly the same name and path.
 
 Example maven-dependency-plugin configuration:
 ```xml
