@@ -359,6 +359,4 @@ public class FederatedStore extends Store {
             getGraphLibrary().add(newGraph.getGraphId(), newGraph.getSchema(), newGraph.getStoreProperties());
         }
     }
-
-
 }

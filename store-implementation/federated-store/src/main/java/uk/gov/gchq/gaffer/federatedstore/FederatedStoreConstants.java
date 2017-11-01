@@ -24,6 +24,7 @@ public final class FederatedStoreConstants {
     public static final String KEY_OPERATION_OPTIONS_GRAPH_IDS = PREFIX_GAFFER_FEDERATED_STORE + ".operation.graphIds";
     public static final String KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE = PREFIX_GAFFER_FEDERATED_STORE + ".operation.skipFailedFederatedStoreExecute";
     public static final String DEFAULT_VALUE_KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE = String.valueOf(false);
+    public static final String DEFAULT_VALUE_IS_PUBLIC = String.valueOf(false);
 
     private FederatedStoreConstants() {
         // private constructor to prevent users instantiating this class as it

@@ -44,8 +44,10 @@ public class HazelcastCacheTest {
         try {
             cache.putSafe("test", 1);
             fail();
-        } catch (final OverwritingException | CacheOperationException e) {
+        } catch (final OverwritingException e) {
             assertEquals("Cache entry already exists for key: test", e.getMessage());
+        } catch (final CacheOperationException e) {
+            fail("Should have thrown an OverwritingException");
         }
     }
 

@@ -42,9 +42,8 @@ public class FederatedStoreProperties extends StoreProperties {
 
     /**
      * This is used....
-     * e.g gaffer.federatedstore.graph1.isPublic=false
+     * eg.gaffer.federatedstore.cache.service.class="uk.gov.gchq.gaffer.cache.impl.HashMapCacheService"
      */
-    public static final String IS_PUBLIC_DEFAULT = String.valueOf(false);
     public static final String CACHE_SERVICE_CLASS = CacheProperties.CACHE_SERVICE_CLASS;
     public static final String CACHE_SERVICE_CLASS_DEFAULT = null;
 

@@ -125,6 +125,7 @@ public final class GraphDelegate {
                 // delete the old schema id as we are about to modify the schema
                 rtn = new Schema.Builder()
                         .merge(rtn)
+                        .id(null)
                         .merge(schema)
                         .build();
             }
