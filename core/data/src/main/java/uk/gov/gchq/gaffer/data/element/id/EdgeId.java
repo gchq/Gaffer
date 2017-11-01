@@ -160,4 +160,15 @@ public interface EdgeId extends ElementId {
         }
         return Matches.NONE;
     }
+
+    @JsonIgnore
+    default Object getMatchedVertexValue() {
+        return MatchedVertex.DESTINATION == getMatchedVertex() ? getDestination() : getSource();
+    }
+
+    @JsonIgnore
+    default Object getAdjacentMatchedVertexValue() {
+        return MatchedVertex.DESTINATION == getMatchedVertex() ? getSource() : getDestination();
+    }
+
 }

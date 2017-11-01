@@ -161,16 +161,6 @@ public class Edge extends Element implements EdgeId {
         return matchedVertex;
     }
 
-    @JsonIgnore
-    public Object getMatchedVertexValue() {
-        return MatchedVertex.DESTINATION == matchedVertex ? getDestination() : getSource();
-    }
-
-    @JsonIgnore
-    public Object getAdjacentMatchedVertexValue() {
-        return MatchedVertex.DESTINATION == matchedVertex ? getSource() : getDestination();
-    }
-
     @Override
     public Object getIdentifier(final IdentifierType identifierType) {
         switch (identifierType) {
