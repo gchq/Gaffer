@@ -55,12 +55,22 @@ public class ToVerticesHandler implements OutputOperationHandler<ToVertices, Ite
 
             if (e instanceof EdgeId) {
                 final EdgeId edgeId = (EdgeId) e;
-                if (operation.getEdgeVertices() == EdgeVertices.NONE) {
+                if (EdgeVertices.NONE == operation.getEdgeVertices()) {
                     vertices = Stream.empty();
                 } else if (null != edgeId.getMatchedVertex()) {
                     vertices = getMatchedEdgeVertices(operation, edgeId);
                 } else {
-                    vertices = getEdgeVertices(operation.getEdgeVertices(), edgeId);
+                    if (null != operation.getEdgeVertices()) {
+                        vertices = getEdgeVertices(operation.getEdgeVertices(), edgeId);
+                    } else {
+                        if (UseMatchedVertex.EQUAL == operation.getUseMatchedVertex()) {
+                            vertices = getEdgeVertices(EdgeVertices.SOURCE, edgeId);
+                        } else if (UseMatchedVertex.OPPOSITE == operation.getUseMatchedVertex()) {
+                            vertices = getEdgeVertices(EdgeVertices.DESTINATION, edgeId);
+                        } else {
+                            vertices = getEdgeVertices(operation.getEdgeVertices(), edgeId);
+                        }
+                    }
                 }
             } else {
                 vertices = Stream.of(((EntityId) e).getVertex());
