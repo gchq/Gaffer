@@ -51,8 +51,8 @@ public final class GraphSerialisable implements Serializable {
 
     private GraphSerialisable(final GraphConfig config, final Schema schema, final Properties properties) {
         try {
-            this.schema = JSONSerialiser.serialise(schema, true);
-            this.config = JSONSerialiser.serialise(config, true);
+            this.schema = null == schema ? null : JSONSerialiser.serialise(schema, true);
+            this.config = null == config ? null : JSONSerialiser.serialise(config, true);
         } catch (final SerialisationException e) {
             throw new IllegalArgumentException("Unable to serialise given parameter", e);
         }
@@ -180,15 +180,6 @@ public final class GraphSerialisable implements Serializable {
         }
 
         public GraphSerialisable build() {
-            if (null == config) {
-                throw new IllegalArgumentException("config is required");
-            }
-            if (null == schema) {
-                throw new IllegalArgumentException("schema is required");
-            }
-            if (null == properties) {
-                throw new IllegalArgumentException("properties is required");
-            }
             return new GraphSerialisable(config, schema, properties);
         }
     }
