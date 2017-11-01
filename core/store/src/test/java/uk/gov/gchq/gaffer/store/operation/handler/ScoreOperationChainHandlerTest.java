@@ -57,6 +57,8 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 
 public class ScoreOperationChainHandlerTest {
@@ -162,6 +164,7 @@ public class ScoreOperationChainHandlerTest {
         final GetElements op2 = mock(GetElements.class);
         final Limit op3 = mock(Limit.class);
         final Map<Class<? extends Operation>, Integer> opScores = new LinkedHashMap<>();
+        opScores.put(Operation.class, 1);
         opScores.put(GetAdjacentIds.class, 2);
         opScores.put(GetElements.class, 1);
         opScores.put(Limit.class, 1);
@@ -174,7 +177,7 @@ public class ScoreOperationChainHandlerTest {
         resolvers.put(namedOp.getClass(), scoreResolver);
         handler.setScoreResolvers(resolvers);
 
-        given(scoreResolver.getScore(namedOp)).willReturn(3);
+        given(scoreResolver.getScore(eq(namedOp), any())).willReturn(3);
         final OperationChain opChain = new OperationChain(Arrays.asList(op1, op2, op3, namedOp));
 
         given(context.getUser()).willReturn(user);
@@ -223,7 +226,7 @@ public class ScoreOperationChainHandlerTest {
         resolvers.put(namedOp.getClass(), scoreResolver);
         handler.setScoreResolvers(resolvers);
 
-        given(scoreResolver.getScore(namedOp)).willReturn(null);
+        given(scoreResolver.getScore(eq(namedOp), any())).willReturn(null);
         final OperationChain opChain = new OperationChain(Arrays.asList(op1, op2, op3, namedOp));
 
         given(context.getUser()).willReturn(user);
@@ -272,8 +275,8 @@ public class ScoreOperationChainHandlerTest {
         resolvers.put(op2.getClass(), scoreResolver1);
         handler.setScoreResolvers(resolvers);
 
-        given(scoreResolver.getScore(namedOp)).willReturn(3);
-        given(scoreResolver1.getScore(op2)).willReturn(5);
+        given(scoreResolver.getScore(eq(namedOp), any())).willReturn(3);
+        given(scoreResolver1.getScore(eq(op2), any())).willReturn(5);
 
         final OperationChain opChain = new OperationChain(Arrays.asList(op1, op2, namedOp));
 
@@ -356,7 +359,7 @@ public class ScoreOperationChainHandlerTest {
         resolvers.put(namedOp.getClass(), scoreResolver);
         handler.setScoreResolvers(resolvers);
 
-        given(scoreResolver.getScore(namedOp)).willReturn(3);
+        given(scoreResolver.getScore(eq(namedOp), any())).willReturn(3);
 
         final List<? extends Operation> opList = null;
 

@@ -68,6 +68,10 @@
                                 </webapp>
                             </webapps>
                             <systemProperties>
+                                <gaffer.properties>gaffer.properties.app.description,</gaffer.properties>
+                                <gaffer.properties.app.description>
+                                    Road Traffic Example
+                                </gaffer.properties.app.description>
                                 <gaffer.rest-api.basePath>
                                     ${standalone-path}
                                 </gaffer.rest-api.basePath>

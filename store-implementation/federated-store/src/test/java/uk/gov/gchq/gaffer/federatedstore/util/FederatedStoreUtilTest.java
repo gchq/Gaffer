@@ -34,6 +34,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -403,6 +404,11 @@ public class FederatedStoreUtilTest {
                 .build();
 
         given(store.getSchema()).willReturn(schema);
+        given(store.getOriginalSchema()).willReturn(schema);
+
+        StoreProperties storeProperties = new StoreProperties();
+
+        given(store.getProperties()).willReturn(storeProperties);
 
         return new Graph.Builder()
                 .config(new GraphConfig.Builder()

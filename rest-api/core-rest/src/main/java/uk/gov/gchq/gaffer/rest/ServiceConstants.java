@@ -32,6 +32,7 @@ public final class ServiceConstants {
 
     public static final String CLASS_NOT_FOUND = "Class not found";
     public static final String FUNCTION_NOT_FOUND = "Function not found";
+    public static final String PROPERTY_NOT_FOUND = "Property not found";
 
     public static final String OPERATION_NOT_FOUND = "Operation not found";
     public static final String OPERATION_NOT_IMPLEMENTED = "The requested operation is not supported by the target store";

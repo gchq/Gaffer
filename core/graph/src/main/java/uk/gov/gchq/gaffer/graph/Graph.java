@@ -91,8 +91,6 @@ public final class Graph {
      */
     private final Store store;
 
-    private Schema schema;
-
     private GraphConfig config;
 
     /**
@@ -103,15 +101,11 @@ public final class Graph {
      * @param config a {@link GraphConfig} used to store the configuration for
      *               a
      *               Graph.
-     * @param schema a {@link Schema} that defines the graph. Should be the
-     *               copy
-     *               of the schema that the store is initialised with.
      * @param store  a {@link Store} used to store the elements and handle
      *               operations.
      */
-    private Graph(final GraphConfig config, final Schema schema, final Store store) {
+    private Graph(final GraphConfig config, final Store store) {
         this.config = config;
-        this.schema = schema;
         this.store = store;
     }
 
@@ -290,10 +284,10 @@ public final class Graph {
     }
 
     /**
-     * @return the schema.
+     * @return the original schema.
      */
     public Schema getSchema() {
-        return schema;
+        return store.getOriginalSchema();
     }
 
     /**
@@ -539,8 +533,7 @@ public final class Graph {
             if (null == this.properties) {
                 storeProperties(updateProperties);
             } else {
-                final Properties old = this.properties.getProperties();
-                old.putAll(updateProperties.getProperties());
+                this.properties.merge(updateProperties);
             }
             return this;
         }
@@ -790,8 +783,9 @@ public final class Graph {
                 config.getLibrary().add(config.getGraphId(), schema, store.getProperties());
             }
 
+            store.setOriginalSchema(schema);
 
-            return new Graph(config, schema, store);
+            return new Graph(config, store);
         }
 
         private void updateGraphHooks(final GraphConfig config) {
@@ -862,7 +856,7 @@ public final class Graph {
                 if (null == mergedStoreProperties) {
                     mergedStoreProperties = properties;
                 } else {
-                    mergedStoreProperties.getProperties().putAll(properties.getProperties());
+                    mergedStoreProperties.merge(properties);
                 }
             }
 

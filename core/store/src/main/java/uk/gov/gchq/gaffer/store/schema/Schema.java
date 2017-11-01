@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,6 +71,10 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementDefinitions.class);
     private final TypeDefinition unknownType = new TypeDefinition();
 
+    /**
+     * @deprecated the ID should not be used. The ID should be supplied to the graph library separately
+     */
+    @Deprecated
     private String id;
 
     /**
@@ -110,10 +113,20 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         return new Schema.Builder().json(jsonBytes).build();
     }
 
+    /**
+     * @return schema id
+     * @deprecated the ID should be supplied to the graph library separately
+     */
+    @Deprecated
     public String getId() {
         return id;
     }
 
+    /**
+     * @param id the schema id
+     * @deprecated the ID should be supplied to the graph library separately
+     */
+    @Deprecated
     public void setId(final String id) {
         this.id = id;
     }
@@ -289,6 +302,12 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             super(schema);
         }
 
+        /**
+         * @param id the id.
+         * @return this builder.
+         * @deprecated the ID should not be used. The ID should be supplied to the graph library separately
+         */
+        @Deprecated
         public CHILD_CLASS id(final String id) {
             getThisSchema().id = id;
             return self();
@@ -365,10 +384,11 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             validateSharedGroups(getThisSchema().getEntities(), schema.getEntities());
             validateSharedGroups(getThisSchema().getEdges(), schema.getEdges());
 
+            // Schema ID is deprecated - remove this when ID is removed.
             if (null == getThisSchema().getId()) {
                 getThisSchema().setId(schema.getId());
-            } else if (!StringUtils.isEmpty(schema.getId()) && !getThisSchema().getId().equals(schema.getId())) {
-                // Both schemas have an id, as we are creating a new schema we need to create a new schema ID.
+            } else if (null != schema.getId()
+                    && !schema.getId().equals(getThisSchema().getId())) {
                 getThisSchema().setId(getThisSchema().getId() + "_" + schema.getId());
             }
 
