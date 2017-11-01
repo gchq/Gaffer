@@ -48,11 +48,11 @@ Cache Library README.
 ### ScoreOperationChain
 
 Variables:
-- opScores - required list of operation scores. These are the operation score values.
-- authScores - required list of operation authorisation scores. These are the maximum scores allowed for a user with a given role.
+- opScores - required map of operation scores. These are the operation score values.
+- authScores - required map of operation authorisation scores. These are the maximum scores allowed for a user with a given role.
 - scoreResolvers - required (if using NamedOperations) list of score resolvers. These map operation class to its respective score resolver.
 
-Example operation scores list:
+Example operation scores map:
 
 ```json
 { 
@@ -64,7 +64,7 @@ Example operation scores list:
 }
 ```
 
-Example operation authorisation scores list:
+Example operation authorisation scores map:
 
 ```json
 {
