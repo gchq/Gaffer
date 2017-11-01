@@ -35,7 +35,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-public abstract class AbstractRestApiIT {
+public abstract class AbstractRestApiIT<T extends RestApiTestClient> {
     protected static final Element[] DEFAULT_ELEMENTS = {
             new uk.gov.gchq.gaffer.data.element.Entity.Builder()
                     .group(TestGroups.ENTITY)
@@ -56,7 +56,7 @@ public abstract class AbstractRestApiIT {
                     .build()};
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-    protected final RestApiTestClient client = getClient();
+    protected final T client = getClient();
     private final String storePropertiesResourcePath;
     private final String schemaResourcePath;
 
@@ -85,5 +85,5 @@ public abstract class AbstractRestApiIT {
         assertThat(actual, IsCollectionContaining.hasItems(expected));
     }
 
-    protected abstract RestApiTestClient getClient();
+    protected abstract T getClient();
 }

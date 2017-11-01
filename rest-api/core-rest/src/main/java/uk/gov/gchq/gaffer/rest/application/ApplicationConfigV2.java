@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.rest.service.v2.GraphConfigurationServiceV2;
 import uk.gov.gchq.gaffer.rest.service.v2.JobServiceV2;
 import uk.gov.gchq.gaffer.rest.service.v2.OperationServiceV2;
+import uk.gov.gchq.gaffer.rest.service.v2.PropertiesServiceV2;
 import uk.gov.gchq.gaffer.rest.service.v2.StatusServiceV2;
 import uk.gov.gchq.gaffer.rest.service.v2.example.ExampleBinder;
 import uk.gov.gchq.gaffer.rest.service.v2.example.ExamplesServiceV2;
@@ -68,6 +69,7 @@ public class ApplicationConfigV2 extends ApplicationConfig {
         resources.add(GraphConfigurationServiceV2.class);
         resources.add(JobServiceV2.class);
         resources.add(ExamplesServiceV2.class);
+        resources.add(PropertiesServiceV2.class);
     }
 
 }
