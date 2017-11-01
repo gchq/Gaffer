@@ -84,7 +84,6 @@ public class WalkTest {
         // Then
         assertThat(walk, is(equalTo(deserialisedWalk)));
         JsonAssert.assertEquals(String.format("{" +
-                "\"class\": \"uk.gov.gchq.gaffer.data.graph.Walk\"," +
                 "  \"edges\": [" +
                 "  [" +
                 "    {\"group\": \"BasicEdge\"," +

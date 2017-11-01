@@ -70,7 +70,6 @@ import static uk.gov.gchq.gaffer.commonutil.CollectionUtil.distinct;
  * }
  * </pre>
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
 public class Walk implements Iterable<Set<Edge>> {
 
     private final List<Set<Edge>> edges;

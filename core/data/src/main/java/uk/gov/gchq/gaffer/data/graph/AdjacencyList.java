@@ -25,8 +25,8 @@ import java.util.Set;
  * An {@code AdjacencyList} is used to store the contents of a graph in memory in
  * a format which can easily be interrogated.
  *
- * @param <T>
- * @param <U>
+ * @param <T> the type of object representing the vertices
+ * @param <U> the type of object representing the edge
  */
 public class AdjacencyList<T, U> {
 
