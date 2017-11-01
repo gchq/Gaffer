@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -107,6 +108,7 @@ public class FederatedStoreTest {
     public void setUp() throws Exception {
         clearCache();
         federatedProperties = new FederatedStoreProperties();
+        federatedProperties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(true));
 
         clearLibrary();
         library = new HashMapGraphLibrary();
@@ -135,8 +137,9 @@ public class FederatedStoreTest {
         assertEquals("Library has changed: " + ID_PROPS_MAP_ALT, library.getProperties(ID_PROPS_MAP_ALT), getPropertiesFromPath(PATH_MAP_STORE_PROPERTIES_ALT));
         assertEquals("Library has changed: " + ID_SCHEMA_EDGE, new String(library.getSchema(ID_SCHEMA_EDGE).toJson(false), CommonConstants.UTF_8), new String(getSchemaFromPath(PATH_BASIC_EDGE_SCHEMA_JSON).toJson(false), CommonConstants.UTF_8));
         assertEquals("Library has changed: " + ID_SCHEMA_ENTITY, new String(library.getSchema(ID_SCHEMA_ENTITY).toJson(false), CommonConstants.UTF_8), new String(getSchemaFromPath(PATH_BASIC_ENTITY_SCHEMA_JSON).toJson(false), CommonConstants.UTF_8));
+        clearLibrary();
+        clearCache();
     }
-
 
     @Test
     public void shouldLoadGraphsWithIds() throws Exception {
@@ -635,7 +638,7 @@ public class FederatedStoreTest {
     }
 
     @Test
-    public void shouldReturnSpecificGraphsFromCSVString() throws StoreException {
+    public void shouldReturnSpecificGraphsFromCSVString() throws Exception {
         // Given
 
         final List<Collection<Graph>> graphLists = populateGraphs(1, 2, 4);
@@ -652,7 +655,7 @@ public class FederatedStoreTest {
     }
 
     @Test
-    public void shouldReturnNoGraphsFromEmptyString() throws StoreException {
+    public void shouldReturnNoGraphsFromEmptyString() throws Exception {
         // Given
 
         final List<Collection<Graph>> graphLists = populateGraphs();
@@ -667,7 +670,7 @@ public class FederatedStoreTest {
     }
 
     @Test
-    public void shouldReturnGraphsWithLeadingCommaString() throws StoreException {
+    public void shouldReturnGraphsWithLeadingCommaString() throws Exception {
         // Given
         final List<Collection<Graph>> graphLists = populateGraphs(2, 4);
         final Collection<Graph> expectedGraphs = graphLists.get(0);
@@ -806,7 +809,7 @@ public class FederatedStoreTest {
     }
 
     @Test
-    public void shouldReturnASingleGraph() throws StoreException {
+    public void shouldReturnASingleGraph() throws Exception {
         // Given
         final List<Collection<Graph>> graphLists = populateGraphs(1);
         final Collection<Graph> expectedGraphs = graphLists.get(0);
@@ -861,7 +864,7 @@ public class FederatedStoreTest {
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         //check the graph is already in there from the cache
-        assertTrue(CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME).contains(MAP_ID_1));
+        assertTrue("Keys: " + CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME) + " did not contain " + MAP_ID_1, CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME).contains(MAP_ID_1));
         assertEquals(1, store.getAllGraphIds(blankUser).size());
     }
 
@@ -911,7 +914,7 @@ public class FederatedStoreTest {
     }
 
     @Test
-    public void shouldAddGraphsToCache() throws StoreException {
+    public void shouldAddGraphsToCache() throws Exception {
         federatedProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
@@ -944,7 +947,7 @@ public class FederatedStoreTest {
     }
 
     @Test
-    public void shouldAddMultipleGraphsToCache() throws StoreException {
+    public void shouldAddMultipleGraphsToCache() throws Exception {
         federatedProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
         // Given
@@ -985,7 +988,7 @@ public class FederatedStoreTest {
         return false;
     }
 
-    private List<Collection<Graph>> populateGraphs(int... expectedIds) throws StoreException {
+    private List<Collection<Graph>> populateGraphs(int... expectedIds) throws Exception {
         final Collection<Graph> expectedGraphs = new ArrayList<>();
         final Collection<Graph> unexpectedGraphs = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
@@ -1025,8 +1028,9 @@ public class FederatedStoreTest {
     }
 
     private void assertContains(final Throwable e, final String format, final String... s) {
-        boolean contains = e.getMessage().contains(String.format(format, s));
-        assertTrue(e.getMessage(), contains);
+        final String expectedStr = String.format(format, s);
+        boolean contains = e.getMessage().contains(expectedStr);
+        assertTrue("\"" + e.getMessage() + "\" does not contain string \"" + expectedStr + "\"", contains);
     }
 
     private void addGraphWithIds(final String graphId, final String propertiesId, final String... schemaId) throws OperationException {

@@ -33,6 +33,100 @@ If you wish to build all of Gaffer first then just remove the "-pl :federated-de
 
 The rest api will be deployed to localhost:8080/rest.
 
+To add a Map graph, execute this operation:
+
+```json
+{
+    "class": "uk.gov.gchq.gaffer.federatedstore.operation.AddGraph",
+    "graphId": "mapGraph",
+    "storeProperties": {
+        "gaffer.store.class": "uk.gov.gchq.gaffer.mapstore.MapStore",
+        "gaffer.store.mapstore.static": true
+    },
+    "schema": {
+        "edges": {
+            "BasicEdge": {
+                "source": "vertex",
+                "destination": "vertex",
+                "directed": "true",
+                "properties": {
+                    "count": "count"
+                }
+            }
+        },
+        "types": {
+            "vertex": {
+                "class": "java.lang.String"
+            },
+            "count": {
+                "class": "java.lang.Integer",
+                "aggregateFunction": {
+                    "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+                }
+            },
+            "true": {
+                "description": "A simple boolean that must always be true.",
+                "class": "java.lang.Boolean",
+                "validateFunctions": [
+                    {
+                        "class": "uk.gov.gchq.koryphe.impl.predicate.IsTrue"
+                    }
+                ]
+            }
+        }
+    },
+    "isPublic": true
+}
+```
+
+And to add an Accumulo graph execute this:
+
+```json
+{
+    "class": "uk.gov.gchq.gaffer.federatedstore.operation.AddGraph",
+    "graphId": "accumuloGraph",
+    "storeProperties": {
+        "gaffer.store.class": "uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore",
+        "accumulo.instance": "someInstanceName",
+        "accumulo.zookeepers": "aZookeeper",
+        "accumulo.user": "user01",
+        "accumulo.password": "password"
+    },
+    "schema": {
+        "entities": {
+            "BasicEntity": {
+                "vertex": "vertex",
+                "properties": {
+                    "count": "count"
+                }
+            }
+        },
+        "types": {
+            "vertex": {
+                "class": "java.lang.String"
+            },
+            "count": {
+                "class": "java.lang.Integer",
+                "aggregateFunction": {
+                    "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+                }
+            },
+            "true": {
+                "description": "A simple boolean that must always be true.",
+                "class": "java.lang.Boolean",
+                "validateFunctions": [
+                    {
+                        "class": "uk.gov.gchq.koryphe.impl.predicate.IsTrue"
+                    }
+                ]
+            }
+        }
+    },
+    "isPublic": true
+}
+```
+
+
 To add some example data execute this json in /graph/operations/execute:
 
 ```json
@@ -85,5 +179,25 @@ Here is an example of an advanced federated operation chain:
          "truncate": true
       }
    ]
+}
+```
+
+To fetch the merged schemas you can run:
+
+```json
+{
+   "class": "uk.gov.gchq.gaffer.store.operation.GetSchema",
+   "compact": false
+}
+```
+
+To fetch just a the schema for the mapGraph you can add an option:
+```json
+{
+    "class": "uk.gov.gchq.gaffer.store.operation.GetSchema",
+    "compact": false,
+    "options": {
+        "gaffer.federatedstore.operation.graphIds": "mapGraph"
+    }
 }
 ```

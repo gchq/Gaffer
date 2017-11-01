@@ -22,6 +22,7 @@ import com.google.common.collect.Sets;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.FederatedOperationChain;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
@@ -57,6 +58,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -78,7 +80,7 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getClean
  * A Store that encapsulates a collection of sub-graphs and executes operations
  * against them and returns results as though it was a single graph.
  * </p>
- * <p>
+ * <p/>
  * To create a FederatedStore you need to initialise the store with a
  * graphId and  (if graphId is not known by the {@link uk.gov.gchq.gaffer.store.library.GraphLibrary})
  * the {@link Schema} and {@link StoreProperties}.
@@ -107,6 +109,12 @@ public class FederatedStore extends Store {
         super.initialise(graphId, new Schema(), properties);
         customPropertiesAuths = getCustomPropertiesAuths();
         isPublicAccessAllowed = Boolean.valueOf(getProperties().getIsPublicAccessAllowed());
+    }
+
+    @Override
+    public void setGraphLibrary(final GraphLibrary library) {
+        super.setGraphLibrary(library);
+        graphStorage.setGraphLibrary(library);
     }
 
     /**
@@ -161,20 +169,20 @@ public class FederatedStore extends Store {
      * @param graphAuths   the access auths for the graph being added
      */
 
-    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final boolean isPublic, final Graph... graphs) {
+    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final boolean isPublic, final Graph... graphs) throws StorageException {
         FederatedAccess access = new FederatedAccess(graphAuths, addingUserId, isPublicAccessAllowed && isPublic);
 
         addGraphs(access, graphs);
     }
 
-    public void addGraphs(final FederatedAccess access, final Graph... graphs) {
+    public void addGraphs(final FederatedAccess access, final Graph... graphs) throws StorageException {
         for (final Graph graph : graphs) {
             _add(graph, access);
         }
     }
 
     @Deprecated
-    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final Graph... graphs) {
+    public void addGraphs(final Set<String> graphAuths, final String addingUserId, final Graph... graphs) throws StorageException {
         addGraphs(graphAuths, addingUserId, false, graphs);
     }
 
@@ -343,8 +351,13 @@ public class FederatedStore extends Store {
     }
 
     @Override
-    protected void startCacheServiceLoader(final StoreProperties unused) {
-        graphStorage.startCacheServiceLoader(getProperties());
+    protected void startCacheServiceLoader(final StoreProperties properties) {
+        super.startCacheServiceLoader(properties);
+        try {
+            graphStorage.startCacheServiceLoader();
+        } catch (final StorageException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 
     private Set<String> getCustomPropertiesAuths() {
@@ -352,11 +365,7 @@ public class FederatedStore extends Store {
         return (Strings.isNullOrEmpty(value)) ? null : Sets.newHashSet(getCleanStrings(value));
     }
 
-    private void _add(final Graph newGraph, final FederatedAccess access) {
+    private void _add(final Graph newGraph, final FederatedAccess access) throws StorageException {
         graphStorage.put(newGraph, access);
-
-        if (null != getGraphLibrary()) {
-            getGraphLibrary().add(newGraph.getGraphId(), newGraph.getSchema(), newGraph.getStoreProperties());
-        }
     }
 }

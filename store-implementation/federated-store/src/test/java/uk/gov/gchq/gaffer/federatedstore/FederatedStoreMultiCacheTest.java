@@ -16,10 +16,12 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
@@ -54,6 +56,7 @@ public class FederatedStoreMultiCacheTest {
         CacheServiceLoader.shutdown();
         federatedStoreProperties = new FederatedStoreProperties();
         federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+        federatedStoreProperties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(true));
         store = new FederatedStore();
         store.initialise(FEDERATED_STORE_ID, null, federatedStoreProperties);
         store.execute(new AddGraph.Builder()
@@ -70,6 +73,12 @@ public class FederatedStoreMultiCacheTest {
         store2 = new FederatedStore();
         store2.initialise(FEDERATED_STORE_ID + 1, null, federatedStoreProperties);
         blankUser = FederatedStoreUser.blankUser();
+    }
+
+    @After
+    public void after() {
+        HashMapGraphLibrary.clear();
+        CacheServiceLoader.shutdown();
     }
 
     @Test

@@ -27,12 +27,20 @@ import java.util.Properties;
  * {@link HashMapCache} as the cache implementation.
  */
 public class HashMapCacheService implements ICacheService {
+    public static final String STATIC_CACHE = "gaffer.cache.hashmap.static";
 
-    private final HashMap<String, HashMapCache> caches = new HashMap<>();
+    private static final HashMap<String, HashMapCache> staticCaches = new HashMap<>();
+    private final HashMap<String, HashMapCache> nonStaticCaches = new HashMap<>();
+
+    private HashMap<String, HashMapCache> caches = nonStaticCaches;
 
     @Override
     public void initialise(final Properties properties) {
-        // do nothing
+        if (Boolean.parseBoolean(properties.getProperty(STATIC_CACHE))) {
+            caches = staticCaches;
+        } else {
+            caches = nonStaticCaches;
+        }
     }
 
     @Override
