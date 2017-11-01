@@ -52,9 +52,13 @@ public final class GraphSerialisable implements Serializable {
     private GraphSerialisable(final GraphConfig config, final Schema schema, final Properties properties) {
         try {
             this.schema = null == schema ? null : JSONSerialiser.serialise(schema, true);
+        } catch (final SerialisationException e) {
+            throw new IllegalArgumentException("Unable to serialise schema", e);
+        }
+        try {
             this.config = null == config ? null : JSONSerialiser.serialise(config, true);
         } catch (final SerialisationException e) {
-            throw new IllegalArgumentException("Unable to serialise given parameter", e);
+            throw new IllegalArgumentException("Unable to serialise config", e);
         }
         this.properties = properties;
     }
