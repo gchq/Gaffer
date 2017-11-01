@@ -22,12 +22,12 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
-import uk.gov.gchq.gaffer.data.Walk;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.data.graph.Walk;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -46,7 +46,9 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -247,6 +249,34 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
         assertThat(getPaths(results), is(equalTo("AEDAE,AEDAB")));
     }
 
+    @Test
+    public void shouldGetPathsWithLoops_3() throws Exception {
+        // Given
+        final User user = new User();
+
+        final EntitySeed seed = new EntitySeed("A");
+
+        final GetElements operation = new GetElements.Builder()
+                .directedType(DirectedType.DIRECTED)
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE_3, new ViewElementDefinition.Builder()
+                                .properties(TestPropertyNames.COUNT)
+                                .build())
+                        .build()).inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
+                .build();
+
+        final GetWalks op = new GetWalks.Builder()
+                .input(seed)
+                .operations(operation, operation, operation, operation)
+                .build();
+
+        // When
+        final Iterable<Walk> results = graph.execute(op, user);
+
+        // Then
+        assertThat(getPaths(results), is(equalTo("AAAAA")));
+    }
+
     private Set<Entity> createEntitySet() {
         final Set<Entity> entities = new HashSet<>();
 
@@ -360,6 +390,16 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
                 .build();
         edges.add(eighthEdge);
 
+        final Edge ninthEdge = new Edge.Builder()
+                .group(TestGroups.EDGE_3)
+                .source("A")
+                .dest("A")
+                .directed(true)
+                .property(TestPropertyNames.INT, 1)
+                .property(TestPropertyNames.COUNT, 1L)
+                .build();
+        edges.add(ninthEdge);
+
         return edges;
     }
 
@@ -430,6 +470,14 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
                         .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
                         .groupBy(TestPropertyNames.INT)
                         .build())
+                .edge(TestGroups.EDGE_3, new SchemaEdgeDefinition.Builder()
+                        .source(TestTypes.ID_STRING)
+                        .destination(TestTypes.ID_STRING)
+                        .directed(TestTypes.DIRECTED_EITHER)
+                        .property(TestPropertyNames.INT, TestTypes.PROP_INTEGER)
+                        .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
+                        .groupBy(TestPropertyNames.INT)
+                        .build())
                 .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
                         .vertex(TestTypes.ID_STRING)
                         .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP_2)
@@ -445,6 +493,6 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
             sb.append(',');
         }
         sb.setLength(sb.length() - 1);
-        return sb.toString().replaceAll("(.)\\1{1,}", "$1");
+        return sb.toString();
     }
 }

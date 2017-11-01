@@ -17,17 +17,17 @@
 package uk.gov.gchq.gaffer.data;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.data.graph.Walk;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
@@ -47,8 +47,6 @@ import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.fail;
-import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
-import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.serialise;
 
 public class WalkTest {
 
@@ -82,8 +80,40 @@ public class WalkTest {
         final byte[] json = JSONSerialiser.serialise(walk);
         final Walk deserialisedWalk = JSONSerialiser.deserialise(json, Walk.class);
 
+
         // Then
         assertThat(walk, is(equalTo(deserialisedWalk)));
+        JsonAssert.assertEquals(String.format("{" +
+                "\"class\": \"uk.gov.gchq.gaffer.data.graph.Walk\"," +
+                "  \"edges\": [" +
+                "  [" +
+                "    {\"group\": \"BasicEdge\"," +
+                "     \"source\": \"A\"," +
+                "     \"destination\": \"B\"," +
+                "     \"directed\": true," +
+                "     \"properties\": {}," +
+                "     \"class\": \"uk.gov.gchq.gaffer.data.element.Edge\"}" +
+                "  ]," +
+                "  [" +
+                "    {\"group\": \"BasicEdge\"," +
+                "     \"source\": \"B\"," +
+                "     \"destination\": \"C\"," +
+                "     \"directed\": true," +
+                "     \"properties\": {}," +
+                "     \"class\": \"uk.gov.gchq.gaffer.data.element.Edge\"}" +
+                "    ]" +
+                "  ]," +
+                "  \"entities\": [" +
+                "    {\"A\": []}," +
+                "    {\"B\": [" +
+                "      {\"group\": \"BasicEntity\"," +
+                "      \"vertex\": \"B\"," +
+                "      \"properties\": {}," +
+                "      \"class\": \"uk.gov.gchq.gaffer.data.element.Entity\"}]" +
+                "    }," +
+                "    {\"C\": []}" +
+                "  ]" +
+                "}\n"), new String(json));
     }
 
     @Test

@@ -20,8 +20,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
-import uk.gov.gchq.gaffer.data.Walk;
+import uk.gov.gchq.gaffer.data.graph.Walk;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
@@ -29,6 +30,7 @@ import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.koryphe.ValidationResult;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
@@ -38,18 +40,20 @@ import java.util.Map;
  * A {@code GetWalks} class is used to retrieve all of the walks in a graph
  * starting from one of a set of provided {@link EntitySeed}s, with a maximum
  * length.
- *
- * A GetWalks operation is configured using a user-supplied list of {@link GetElements}
- * operations. These are executed sequentially, with the output of one operation
- * providing the input {@link EntitySeed}s for the next.
+ * <p>
+ * A GetWalks operation is configured using a user-supplied list of {@link
+ * GetElements} operations. These are executed sequentially, with the output of
+ * one operation providing the input {@link EntitySeed}s for the next.
  */
 public class GetWalks implements
         InputOutput<Iterable<? extends EntitySeed>, Iterable<Walk>>,
-        MultiInput<EntitySeed> {
+        MultiInput<EntitySeed>,
+        Operations<GetElements> {
 
     private List<GetElements> operations;
     private Iterable<? extends EntitySeed> input;
     private Map<String, String> options;
+    private Integer resultsLimit = 1000000;
 
     @Override
     public Iterable<? extends EntitySeed> getInput() {
@@ -61,12 +65,26 @@ public class GetWalks implements
         this.input = input;
     }
 
+    @Override
     public List<GetElements> getOperations() {
         return operations;
     }
 
     public void setOperations(final List<GetElements> operations) {
         this.operations = operations;
+    }
+
+    public void addOperation(final GetElements operation) {
+        if (null == this.operations) {
+            this.operations = new ArrayList<>();
+        }
+
+        this.operations.add(operation);
+    }
+
+    @Override
+    public Class<GetElements> getOperationsClass() {
+        return GetElements.class;
     }
 
     @Override
@@ -95,11 +113,16 @@ public class GetWalks implements
 
     @Override
     public GetWalks shallowClone() throws CloneFailedException {
-        return new GetWalks.Builder()
-                .input(input)
-                .operations(operations)
-                .options(options)
-                .build();
+        final GetWalks.Builder builder = new GetWalks.Builder();
+
+        builder.input(input);
+        builder.options(options);
+
+        for (final GetElements op : operations) {
+            builder.operation(op.shallowClone());
+        }
+
+        return builder.build();
     }
 
     @Override
@@ -110,6 +133,14 @@ public class GetWalks implements
     @Override
     public void setOptions(final Map<String, String> options) {
         this.options = options;
+    }
+
+    public Integer getResultsLimit() {
+        return resultsLimit;
+    }
+
+    public void setResultsLimit(final Integer resultsLimit) {
+        this.resultsLimit = resultsLimit;
     }
 
     public static final class Builder
@@ -130,6 +161,16 @@ public class GetWalks implements
 
         public Builder operations(final GetElements... operations) {
             _getOp().setOperations(Arrays.asList(operations));
+            return _self();
+        }
+
+        public Builder operation(final GetElements operation) {
+            _getOp().addOperation(operation);
+            return _self();
+        }
+
+        public Builder resultsLimit(final Integer resultLimit) {
+            _getOp().setResultsLimit(resultLimit);
             return _self();
         }
     }

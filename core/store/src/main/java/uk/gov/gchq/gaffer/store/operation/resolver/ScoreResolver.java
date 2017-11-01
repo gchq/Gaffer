@@ -24,11 +24,11 @@ import uk.gov.gchq.gaffer.operation.Operation;
  * The implementations of {@link ScoreResolver} are used in the {@link uk.gov.gchq.gaffer.store.operation.handler.ScoreOperationChainHandler}.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-public interface ScoreResolver<T extends Operation> {
+public interface ScoreResolver {
     /**
      * Should return a (nullable) score for a given operation.
      * @param operation the provided operation for which the score should be resolved
      * @return          the score for the operation, otherwise null if not found
      */
-    Integer getScore(final T operation);
+    Integer getScore(final Operation operation);
 }

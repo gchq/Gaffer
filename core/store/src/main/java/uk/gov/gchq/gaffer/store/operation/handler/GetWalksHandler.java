@@ -16,28 +16,28 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
-import uk.gov.gchq.gaffer.data.Walk;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.graph.AdjacencyList;
+import uk.gov.gchq.gaffer.data.graph.Walk;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -45,82 +45,78 @@ import java.util.stream.Collectors;
 
 /**
  * An operation handler for {@link GetWalks} operations.
- *
- * Currently the handler only supports creating {@link Walk}s which contain {@link Edge}s.
+ * <p>
+ * Currently the handler only supports creating {@link Walk}s which contain
+ * {@link Edge}s.
  */
 public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterable<Walk>> {
 
-    private final Set<EntitySeed> visitedSeeds = new HashSet<>();
     private int hops;
 
     @Override
-    public Iterable<Walk> doOperation(final GetWalks operation, final Context context, final Store store) throws OperationException {
+    public Iterable<Walk> doOperation(final GetWalks getWalks, final Context context, final Store store) throws OperationException {
 
         // Check input
-        if (null == operation.getInput()) {
+        if (null == getWalks.getInput()) {
             return null;
         }
 
         // Check operations input
-        final Iterable<GetElements> operations = operation.getOperations();
+        final Iterable<GetElements> operations = getWalks.getOperations();
 
         if (null == operations || Iterables.isEmpty(operations)) {
             return new EmptyClosableIterable<>();
         }
 
-        Iterable<? extends EntitySeed> seeds = operation.getInput();
+        hops = getWalks.getOperations().size();
 
-        hops = operation.getOperations().size();
+        final List<AdjacencyList<Object, Edge>> adjacencyLists = new ArrayList<>();
 
-        final HashBasedTable<Object, Object, Set<Edge>> subgraph = HashBasedTable.create();
+        List<Edge> results = null;
 
         // Execute the GetElements operations
-        for (final GetElements op : operations) {
+        for (final GetElements getElements : operations) {
+            if (null == results) {
+                getElements.setInput(getWalks.getInput());
 
-            final Set<EntitySeed> opSeeds = difference(visitedSeeds, Sets.newHashSet(seeds));
+                // Cache the results locally
+                results = getLimitedResults(store, context, getWalks, getElements);
+            } else {
+                final OperationChain<CloseableIterable<? extends Element>> opChain = new OperationChain.Builder()
+                        .first(new ToVertices.Builder()
+                                .input(results)
+                                .useMatchedVertex(ToVertices.UseMatchedVertex.OPPOSITE)
+                                .build())
+                        .then(new ToEntitySeeds())
+                        .then(getElements)
+                        .build();
 
-            op.setInput(opSeeds);
-
-            // Cache the results locally
-            final List<Edge> results = Lists.newArrayList((Iterable<? extends Edge>) store.execute(op, context));
-
-            visitedSeeds.addAll(opSeeds);
-
-            // Cache results in HashBasedTable
-            for (final Edge e : results) {
-                if (null != subgraph.get(e.getMatchedVertexValue(), e.getAdjacentMatchedVertexValue())) {
-                    final Set<Edge> set = subgraph.get(e.getMatchedVertexValue(), e.getAdjacentMatchedVertexValue());
-                    set.add(e);
-                } else {
-                    final Set<Edge> set = new HashSet<>();
-                    set.add(e);
-                    subgraph.put(e.getMatchedVertexValue(), e.getAdjacentMatchedVertexValue(), set);
-                }
+                // Cache the results locally
+                results = getLimitedResults(store, context, getWalks, opChain);
             }
 
-            final OperationChain<Iterable<? extends EntitySeed>> opChain = new OperationChain.Builder()
-                    .first(new ToVertices.Builder()
-                            .input(results)
-                            .edgeVertices(ToVertices.EdgeVertices.DESTINATION)
-                            .build())
-                    .then(new ToEntitySeeds())
-                    .build();
+            final AdjacencyList<Object, Edge> adjacencyList = new AdjacencyList<>();
 
-            seeds = store.execute(opChain, context);
+            // Store results in an AdjacencyList
+            for (final Edge e : results) {
+                adjacencyList.put(e.getMatchedVertexValue(), e.getAdjacentMatchedVertexValue(), e);
+            }
+
+            adjacencyLists.add(adjacencyList);
         }
 
         // Track/recombine the edge objects and convert to return type
-        return Streams.toStream(operation.getInput())
-                .map(seed -> walk(seed.getVertex(), null, subgraph, new LinkedList<>()))
+        return Streams.toStream(getWalks.getInput())
+                .map(seed -> walk(seed.getVertex(), null, adjacencyLists, new LinkedList<>()))
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
     }
 
-    private List<Walk> walk(final Object curr, final Object prev, final HashBasedTable<Object, Object, Set<Edge>> subgraph, final LinkedList<Set<Edge>> queue) {
+    private List<Walk> walk(final Object curr, final Object prev, final List<AdjacencyList<Object, Edge>> adjacencyLists, final LinkedList<Set<Edge>> queue) {
         final List<Walk> walks = new ArrayList<>();
 
-        if (null != prev) {
-            queue.offer(subgraph.get(prev, curr));
+        if (null != prev && hops != queue.size()) {
+            queue.offer(adjacencyLists.get(queue.size()).get(prev, curr));
         }
 
         if (hops == queue.size()) {
@@ -131,8 +127,8 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
             final Walk walk = builder.build();
             walks.add(walk);
         } else {
-            for (final Object obj : subgraph.row(curr).keySet()) {
-                walks.addAll(walk(obj, curr, subgraph, queue));
+            for (final Object obj : adjacencyLists.get(queue.size()).getDestinations(curr)) {
+                walks.addAll(walk(obj, curr, adjacencyLists, queue));
             }
         }
 
@@ -143,8 +139,9 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
         return walks;
     }
 
-    private Set<EntitySeed> difference(final Set<EntitySeed> first, final Set<EntitySeed> second) {
-        final Set<EntitySeed> difference = Sets.symmetricDifference(first, second);
-        return ImmutableSet.copyOf(difference);
+    private <T> List<Edge> getLimitedResults(final Store store, final Context context, final GetWalks getWalks, final Output<T> opChain) throws OperationException {
+        final Iterable<Edge> iterable = new LimitedCloseableIterable<Edge>((Iterable<Edge>) store.execute(opChain, context), 0, getWalks.getResultsLimit(), false);
+
+        return Lists.newArrayList(iterable);
     }
 }

@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.commonutil;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import javassist.compiler.ast.ASTree;
 import org.junit.Test;
 
 import java.util.Collection;

@@ -23,10 +23,13 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.OperationTest;
+import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
 import java.util.List;
@@ -39,6 +42,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultMapper;
 
 public class GetWalksTest extends OperationTest<GetWalks> {
@@ -102,7 +106,17 @@ public class GetWalksTest extends OperationTest<GetWalks> {
         // Then
         assertNotSame(getWalks, clone);
         assertEquals(input, Lists.newArrayList(clone.getInput()));
-        assertEquals(operations, clone.getOperations());
+        int i = 0;
+        for (final GetElements op : clone.getOperations()) {
+            final GetElements original = operations.get(i);
+            assertNotSame(original, clone);
+            assertEquals(original.getInput(), op.getInput());
+            assertEquals(original.getIncludeIncomingOutGoing(), op.getIncludeIncomingOutGoing());
+            assertEquals(original.getView(), op.getView());
+            assertEquals(original.getDirectedType(), op.getDirectedType());
+            assertEquals(original.getSeedMatching(), op.getSeedMatching());
+            i++;
+        }
     }
 
     @Test

@@ -43,8 +43,9 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.*;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.*;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
 
 public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, O> {
     public static final String TEST_ENTITY = "TestEntity";

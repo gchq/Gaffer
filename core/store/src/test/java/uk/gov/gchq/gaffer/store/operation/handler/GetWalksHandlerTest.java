@@ -19,22 +19,16 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.data.Walk;
-import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.data.graph.Walk;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
-import java.util.Collections;
-import java.util.List;
-
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.fail;
 
 public class GetWalksHandlerTest {
 
@@ -47,29 +41,6 @@ public class GetWalksHandlerTest {
                         .build())
                 .build();
         final GetWalks operation = new GetWalks.Builder()
-                .operations(operations)
-                .build();
-
-        final GetWalksHandler handler = new GetWalksHandler();
-
-        // When
-        final Iterable<Walk> result = handler.doOperation(operation, null, null);
-
-        // Then
-        assertThat(result, is(nullValue()));
-    }
-
-    @Test
-    public void shouldHandleEmptyInput() throws Exception {
-        // Given
-        final List<EntitySeed> input = Collections.emptyList();
-        final GetElements operations = new GetElements.Builder()
-                .view(new View.Builder()
-                        .edge(TestGroups.EDGE)
-                        .build())
-                .build();
-        final GetWalks operation = new GetWalks.Builder()
-                .input(input)
                 .operations(operations)
                 .build();
 
@@ -98,34 +69,7 @@ public class GetWalksHandlerTest {
         final Iterable<Walk> result = handler.doOperation(operation, null, null);
 
         // Then
-        assertThat(result, is(nullValue()));
-    }
-
-    @Test
-    public void shouldHandleInvalidViewOnGetElementsOperation() throws Exception {
-        // Given
-        final EntitySeed input = new EntitySeed("A");
-        final GetElements operations = new GetElements.Builder()
-                .view(new View.Builder()
-                        .entity(TestGroups.ENTITY)
-                        .build())
-                .build();
-        final GetWalks operation = new GetWalks.Builder()
-                .input(input)
-                .operations(operations)
-                .build();
-
-        final GetWalksHandler handler = new GetWalksHandler();
-
-        // When
-        try {
-            final Iterable<Walk> result = handler.doOperation(operation, null, null);
-
-            fail("Expected exception not thrown.");
-        } catch (final OperationException e) {
-            // Then
-            assertThat(e.getMessage(), containsString("must not contain Entities."));
-        }
+        assertThat(result, is(new EmptyClosableIterable<>()));
     }
 
 }

@@ -388,7 +388,7 @@ public class Edge extends Element implements EdgeId {
         private Object source;
         private Object dest;
         private boolean directed;
-        private MatchedVertex matchedVertex;
+        private MatchedVertex matchedVertex = MatchedVertex.SOURCE;
         private Properties properties = new Properties();
 
         public Builder group(final String group) {
