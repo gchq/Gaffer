@@ -19,7 +19,7 @@ function getVersion() {
     return footer.substr(footer.lastIndexOf(':') + 2, 2);
 }
 
-function updatePageUsingProperties(elementPropertiesObj) {
+function updateElementTextUsingProperties(elementPropertiesObj) {
 Object.keys(elementPropertiesObj).forEach(function(elementId){
 $.get(
         getVersion() + '/properties/' + elementPropertiesObj[elementId],
@@ -146,7 +146,7 @@ function init(onSwaggerComplete){
         onComplete: function(swaggerApi, swaggerUi){
           log("Loaded swagger");
               $('pre code').each(function(i,e){hljs.highlightBlock(e)});
-              updatePageUsingProperties({"title": "gaffer.properties.app.title"});
+              updateElementTextUsingProperties({"title": "gaffer.properties.app.title"});
               addExampleButtons();
               if(onSwaggerComplete) {
                   onSwaggerComplete();
