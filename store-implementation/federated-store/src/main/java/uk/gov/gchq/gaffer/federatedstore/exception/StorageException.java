@@ -25,6 +25,10 @@ import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
 public class StorageException extends GafferCheckedException {
     private static final long serialVersionUID = -1391854996347271983L;
 
+    public StorageException(final Throwable cause) {
+        super(cause);
+    }
+
     /**
      * Constructs a new storage exception with the specified detail message.
      *
