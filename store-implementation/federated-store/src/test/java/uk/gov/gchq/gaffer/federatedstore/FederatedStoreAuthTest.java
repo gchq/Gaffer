@@ -22,6 +22,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -46,23 +47,30 @@ public class FederatedStoreAuthTest {
         authUser = authUser();
     }
 
+    private static final String FEDERATEDSTORE_GRAPH_ID = "federatedStore";
+    private static final String EXPECTED_GRAPH_ID = "testGraphID";
+    private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
+
     @Test
     public void shouldAddGraphWithAuth() throws Exception {
 
         FederatedStore store = new FederatedStore();
 
         Schema expectedSchema = new Schema.Builder().build();
-        String expectedGraphId = "testGraphID";
 
-        FederatedStoreProperties storeProperties = new FederatedStoreProperties();
-        storeProperties.setFalseSkipFailedExecution();
+        FederatedStoreProperties federatedStoreProperties = new FederatedStoreProperties();
+        federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+
+        MapStoreProperties storeProperties = new MapStoreProperties();
 
         assertEquals(0, store.getGraphs(testUser, null).size());
+
+        store.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
 
         FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
-                        .graphId(expectedGraphId)
+                        .graphId(EXPECTED_GRAPH_ID)
                         .schema(expectedSchema)
                         .storeProperties(storeProperties)
                         .graphAuths("auth1")
@@ -74,10 +82,10 @@ public class FederatedStoreAuthTest {
 
         assertEquals(1, graphs.size());
         Graph next = graphs.iterator().next();
-        assertEquals(expectedGraphId, next.getGraphId());
+        assertEquals(EXPECTED_GRAPH_ID, next.getGraphId());
         assertEquals(expectedSchema, next.getSchema());
 
-         graphs = store.getGraphs(blankUser(), null);
+        graphs = store.getGraphs(blankUser(), null);
 
         assertNotNull(graphs);
         assertTrue(graphs.isEmpty());

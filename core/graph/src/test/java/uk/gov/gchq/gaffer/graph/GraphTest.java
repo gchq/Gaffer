@@ -1668,7 +1668,7 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldBuildGraphFromConfigAndKSetIdsToGraphsWhenIdentical() {
+    public void shouldBuildGraphFromConfigAndSetIdsToGraphsWhenIdentical() {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(TestStoreImpl.class.getName());
@@ -1811,7 +1811,6 @@ public class GraphTest {
             assertEquals("A context containing a user is required", e.getMessage());
         }
     }
-
 
     @Test
     public void shouldThrowExceptionOnExecuteJobWithANullContext() throws OperationException {

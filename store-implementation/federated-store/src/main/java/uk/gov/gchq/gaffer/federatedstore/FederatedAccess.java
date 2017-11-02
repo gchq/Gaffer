@@ -20,13 +20,14 @@ import com.google.common.collect.Sets;
 
 import uk.gov.gchq.gaffer.user.User;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBLIC_DEFAULT;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.DEFAULT_VALUE_IS_PUBLIC;
 
 /**
  * Conditions required for a {@link User} to have access to a graph within the
@@ -56,8 +57,10 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBL
  *
  * @see #isValidToExecute(User)
  */
-public class FederatedAccess {
-    private boolean isPublic = Boolean.valueOf(IS_PUBLIC_DEFAULT);
+public class FederatedAccess implements Serializable {
+    private static final long serialVersionUID = 1399629017857618033L;
+
+    private boolean isPublic = Boolean.valueOf(DEFAULT_VALUE_IS_PUBLIC);
     private Set<String> graphAuths = new HashSet<>();
     private String addingUserId;
 
@@ -69,6 +72,10 @@ public class FederatedAccess {
     public FederatedAccess(final Set<String> graphAuths, final String addingUser, final boolean isPublic) {
         this(graphAuths, addingUser);
         this.isPublic = isPublic;
+    }
+
+    public String getAddingUserId() {
+        return addingUserId;
     }
 
     public void setAddingUserId(final String creatorUserId) {

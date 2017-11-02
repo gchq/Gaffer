@@ -50,6 +50,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
 
 public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, O> {
     public static final String TEST_ENTITY = "TestEntity";
+    public static final String TEST_GRAPH_ID = "testGraphId";
     public static final String PROPERTY_TYPE = "property";
     protected O o1;
     protected O o2;
@@ -142,10 +143,9 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
     @Test
     final public void shouldThrowException() throws Exception {
         // Given
-        final String graphID = "graphId";
         final String message = "Test Exception";
         final OP op = getExampleOperation();
-        op.addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, graphID);
+        op.addOption(KEY_OPERATION_OPTIONS_GRAPH_IDS, TEST_GRAPH_ID);
 
         Schema unusedSchema = new Schema.Builder().build();
         StoreProperties storeProperties = new StoreProperties();
@@ -157,7 +157,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
         given(mockStoreInner.createContext(any(User.class))).willReturn(context);
         FederatedStore mockStore = Mockito.mock(FederatedStore.class);
         HashSet<Graph> filteredGraphs = Sets.newHashSet(getGraphWithMockStore(mockStoreInner));
-        Mockito.when(mockStore.getGraphs(user, graphID)).thenReturn(filteredGraphs);
+        Mockito.when(mockStore.getGraphs(user, TEST_GRAPH_ID)).thenReturn(filteredGraphs);
 
         // When
         try {
@@ -218,7 +218,7 @@ public abstract class FederatedOperationOutputHandlerTest<OP extends Output<O>, 
     private Graph getGraphWithMockStore(final Store mockStore) {
         return new Graph.Builder()
                 .config(new GraphConfig.Builder()
-                        .graphId("TestGraphId")
+                        .graphId(TEST_GRAPH_ID)
                         .build())
                 .store(mockStore)
                 .build();

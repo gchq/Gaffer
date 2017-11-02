@@ -9,6 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
+import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -34,7 +35,7 @@ public class HazelcastCacheTest {
     }
 
     @Test
-    public void shouldThrowAnExceptionIfEntryAlreadyExistsWhenUsingPutSafe(){
+    public void shouldThrowAnExceptionIfEntryAlreadyExistsWhenUsingPutSafe() {
         try {
             cache.put("test", 1);
         } catch (final CacheOperationException e) {
@@ -43,8 +44,10 @@ public class HazelcastCacheTest {
         try {
             cache.putSafe("test", 1);
             fail();
-        } catch (final CacheOperationException e) {
+        } catch (final OverwritingException e) {
             assertEquals("Cache entry already exists for key: test", e.getMessage());
+        } catch (final CacheOperationException e) {
+            fail("Should have thrown an OverwritingException");
         }
     }
 
