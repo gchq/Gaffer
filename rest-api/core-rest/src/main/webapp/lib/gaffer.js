@@ -20,15 +20,27 @@ function getVersion() {
 }
 
 function updateElementTextUsingProperties(elementPropertiesObj) {
-Object.keys(elementPropertiesObj).forEach(function(elementId){
-$.get(
-        getVersion() + '/properties/' + elementPropertiesObj[elementId],
-        null,
-        function(propertyValue){
-            $('#'+ elementId).text(propertyValue);
-        }
-    )
-})
+    Object.keys(elementPropertiesObj).forEach(function(elementId){
+        $.get(
+            getVersion() + '/properties/' + elementPropertiesObj[elementId],
+            null,
+            function(propertyValue){
+                $('#'+ elementId).text(propertyValue);
+            }
+        )
+    })
+}
+
+function updateElementColourUsingProperties(elementPropertiesObj) {
+    Object.keys(elementPropertiesObj).forEach(function(elementId){
+        $.get(
+            getVersion() + '/properties/' + elementPropertiesObj[elementId],
+            null,
+            function(propertyBannerColour){
+                $('#' + elementId).css({'background-color': propertyBannerColour});
+            }
+        )
+    })
 }
 
 function addExampleButtons(){
@@ -146,7 +158,8 @@ function init(onSwaggerComplete){
         onComplete: function(swaggerApi, swaggerUi){
           log("Loaded swagger");
               $('pre code').each(function(i,e){hljs.highlightBlock(e)});
-              updateElementTextUsingProperties({"title": "gaffer.properties.app.title"});
+              updateElementColourUsingProperties({"banner": "gaffer.properties.app.banner.colour"});
+              updateElementTextUsingProperties({"title": "gaffer.properties.app.title", "banner": "gaffer.properties.app.banner.description"});
               addExampleButtons();
               if(onSwaggerComplete) {
                   onSwaggerComplete();
