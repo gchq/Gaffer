@@ -126,10 +126,6 @@ public class FederatedStoreTest {
         blankUser = blankUser();
     }
 
-    private void clearLibrary() {
-        HashMapGraphLibrary.clear();
-    }
-
     @After
     public void tearDown() throws Exception {
         assertEquals("Library has changed: " + ID_PROPS_ACC, library.getProperties(ID_PROPS_ACC), getPropertiesFromPath(PATH_ACC_STORE_PROPERTIES));
@@ -1067,5 +1063,9 @@ public class FederatedStoreTest {
 
     private void clearCache() {
         CacheServiceLoader.shutdown();
+    }
+
+    private void clearLibrary() {
+        HashMapGraphLibrary.clear();
     }
 }
