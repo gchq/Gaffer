@@ -256,6 +256,10 @@ public class FederatedStore extends Store {
         return StoreTrait.ALL_TRAITS;
     }
 
+    public Set<StoreTrait> getTraits(final GetTraits getTraits, final Context context) {
+        return graphStorage.getTraits(getTraits, context);
+    }
+
     /**
      * <p>
      * Gets a collection of graph objects within FederatedStore scope from the
@@ -489,13 +493,5 @@ public class FederatedStore extends Store {
         if (null != getGraphLibrary()) {
             getGraphLibrary().add(newGraph.getGraphId(), newGraph.getSchema(), newGraph.getStoreProperties());
         }
-    }
-
-    public Set<StoreTrait> getCurrentlyAvailableTraits(final User user) {
-        return getCurrentlyAvailableTraits(user, null);
-    }
-
-    public Set<StoreTrait> getCurrentlyAvailableTraits(final User user, final String graphIdsCsv) {
-        return graphStorage.getTraits(user, FederatedStoreUtil.getCleanStrings(graphIdsCsv));
     }
 }

@@ -34,14 +34,11 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class GetTraitsHandlerTest {
@@ -49,48 +46,50 @@ public class GetTraitsHandlerTest {
     public static final String STORE_ID = "StoreId";
     public static final String STRING = "string";
     private Store store;
-    private HashSet<StoreTrait> storeTraits;
+    private Set<StoreTrait> expectedTraits;
     private Schema string;
 
     @Before
     public void setUp() throws Exception {
-        storeTraits = Sets.newHashSet(StoreTrait.ALL_TRAITS);
-        storeTraits.remove(StoreTrait.ORDERED);
+        expectedTraits = Sets.newHashSet(StoreTrait.ALL_TRAITS);
+        expectedTraits.remove(StoreTrait.ORDERED);
 
         store = new TestAddToGraphLibraryImpl() {
             @Override
             public Set<StoreTrait> getTraits() {
-                return Sets.newHashSet(storeTraits);
+                return Sets.newHashSet(expectedTraits);
             }
         };
-        assertNotEquals(StoreTrait.ALL_TRAITS, storeTraits);
+        assertNotEquals(StoreTrait.ALL_TRAITS, expectedTraits);
         string = new Schema.Builder().type(STRING, String.class).build();
     }
 
     @After
     public void tearDown() throws Exception {
-        HashSet<StoreTrait> temp = Sets.newHashSet(StoreTrait.ALL_TRAITS);
+        final Set<StoreTrait> temp = Sets.newHashSet(StoreTrait.ALL_TRAITS);
         temp.remove(StoreTrait.ORDERED);
-        assertEquals(temp, this.storeTraits);
-        assertNotEquals(StoreTrait.ALL_TRAITS, storeTraits);
+        assertEquals(temp, this.expectedTraits);
+        assertNotEquals(StoreTrait.ALL_TRAITS, expectedTraits);
     }
 
     @Test
     public void shouldGetTraitsForSchemaEmpty() throws Exception {
-        HashSet<StoreTrait> actual = getStoreTraits(new Schema());
+        // When
+        final Set<StoreTrait> actual = getStoreTraits(new Schema());
 
-        HashSet<StoreTrait> expected = Sets.newHashSet(this.storeTraits);
+        // Then
+        final Set<StoreTrait> expected = Sets.newHashSet(this.expectedTraits);
         expected.remove(StoreTrait.QUERY_AGGREGATION);
         expected.remove(StoreTrait.STORE_VALIDATION);
         expected.remove(StoreTrait.VISIBILITY);
         expected.remove(StoreTrait.INGEST_AGGREGATION);
-
         assertEquals(expected, actual);
     }
 
     @Test
     public void shouldGetTraitsForSchemaWithGroupBy() throws Exception {
-        HashSet<StoreTrait> actual = getStoreTraits(new Schema.Builder()
+        // When
+        final Set<StoreTrait> actual = getStoreTraits(new Schema.Builder()
                 .entity("e1", new SchemaEntityDefinition.Builder()
                         .groupBy("gb")
                         .vertex(STRING)
@@ -98,17 +97,16 @@ public class GetTraitsHandlerTest {
                 .merge(string)
                 .build());
 
-        HashSet<StoreTrait> expected = Sets.newHashSet(this.storeTraits);
+        final Set<StoreTrait> expected = Sets.newHashSet(this.expectedTraits);
         expected.remove(StoreTrait.STORE_VALIDATION);
         expected.remove(StoreTrait.VISIBILITY);
         assertEquals(expected, actual);
     }
 
-
     @Test
     public void shouldGetTraitsForSchemaWithValidator() throws Exception {
-
-        HashSet<StoreTrait> actual = getStoreTraits(new Schema.Builder()
+        // When
+        final Set<StoreTrait> actual = getStoreTraits(new Schema.Builder()
                 .entity("e1", new SchemaEntityDefinition.Builder()
                         .property("p1", STRING)
                         .validator(new ElementFilter.Builder()
@@ -121,32 +119,34 @@ public class GetTraitsHandlerTest {
                 .merge(string)
                 .build());
 
-        HashSet<StoreTrait> expected = Sets.newHashSet(this.storeTraits);
+        // Then
+        final Set<StoreTrait> expected = Sets.newHashSet(this.expectedTraits);
         expected.remove(StoreTrait.QUERY_AGGREGATION);
         expected.remove(StoreTrait.VISIBILITY);
         expected.remove(StoreTrait.INGEST_AGGREGATION);
-
         assertEquals(expected, actual);
     }
 
 
     @Test
     public void shouldGetTraitsForSchemaWithVisibility() throws Exception {
-        HashSet<StoreTrait> actual = getStoreTraits(new Schema.Builder()
+        // When
+        final Set<StoreTrait> actual = getStoreTraits(new Schema.Builder()
                 .visibilityProperty(STRING)
                 .build());
 
-        HashSet<StoreTrait> expected = Sets.newHashSet(this.storeTraits);
+        // Then
+        final Set<StoreTrait> expected = Sets.newHashSet(this.expectedTraits);
         expected.remove(StoreTrait.QUERY_AGGREGATION);
         expected.remove(StoreTrait.STORE_VALIDATION);
         expected.remove(StoreTrait.INGEST_AGGREGATION);
-
         assertEquals(expected, actual);
     }
 
     @Test
     public void shouldGetTraitsForSchemaWithAggregatorAndGroupBy() throws Exception {
-        HashSet<StoreTrait> actual = getStoreTraits(new Schema.Builder()
+        // When
+        final Set<StoreTrait> actual = getStoreTraits(new Schema.Builder()
                 .entity("e1", new SchemaEntityDefinition.Builder()
                         .property("p1", STRING)
                         .vertex(STRING)
@@ -159,48 +159,39 @@ public class GetTraitsHandlerTest {
                 .merge(string)
                 .build());
 
-        HashSet<StoreTrait> expected = Sets.newHashSet(this.storeTraits);
+        // Then
+        final Set<StoreTrait> expected = Sets.newHashSet(this.expectedTraits);
         expected.remove(StoreTrait.STORE_VALIDATION);
         expected.remove(StoreTrait.VISIBILITY);
-
         assertEquals(expected, actual);
-    }
-
-    private HashSet<StoreTrait> getStoreTraits(final Schema schema) throws StoreException, uk.gov.gchq.gaffer.operation.OperationException {
-        store.initialise(STORE_ID, schema, new StoreProperties());
-        Iterable<? extends StoreTrait> execute = store.execute(new GetTraits.Builder()
-                .build(), new Context(testUser()));
-
-        assertNotNull(execute);
-        Iterator<? extends StoreTrait> iterator = execute.iterator();
-        assertTrue(iterator.hasNext());
-
-
-        HashSet<StoreTrait> actual = Sets.newHashSet();
-        while (iterator.hasNext()) {
-            actual.add(iterator.next());
-        }
-        return actual;
     }
 
     @Test
     public void shouldHaveAllTraitsForSupported() throws Exception {
+        // Given
         store.initialise(STORE_ID, new Schema(), new StoreProperties());
-        Iterable<? extends StoreTrait> execute = store.execute(new GetTraits.Builder()
-                .currentlyAvailableTraits(false)
-                .build(), new Context(testUser()));
 
-        assertNotNull(execute);
-        Iterator<? extends StoreTrait> iterator = execute.iterator();
-        assertTrue(iterator.hasNext());
+        // When
+        Set<StoreTrait> traits = store.execute(
+                new GetTraits.Builder()
+                        .currentTraits(false)
+                        .build(),
+                new Context(testUser()));
 
+        // Then
+        assertEquals(expectedTraits, traits);
+    }
 
-        HashSet<StoreTrait> actual = Sets.newHashSet();
-        while (iterator.hasNext()) {
-            actual.add(iterator.next());
-        }
+    private Set<StoreTrait> getStoreTraits(final Schema schema) throws StoreException, uk.gov.gchq.gaffer.operation.OperationException {
+        store.initialise(STORE_ID, schema, new StoreProperties());
+        Set<StoreTrait> execute = store.execute(
+                new GetTraits.Builder()
+                        .currentTraits(true)
+                        .build(),
+                new Context(testUser()));
 
-
-        assertEquals(storeTraits, actual);
+        final Set<StoreTrait> actual = Sets.newHashSet(execute);
+        assertFalse(actual.isEmpty());
+        return actual;
     }
 }

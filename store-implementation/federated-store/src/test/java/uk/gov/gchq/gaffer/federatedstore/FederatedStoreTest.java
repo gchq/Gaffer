@@ -47,6 +47,7 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.Schema.Builder;
 import uk.gov.gchq.gaffer.user.StoreUser;
@@ -66,9 +67,14 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStore.S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2;
+import static uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandler.NO_RESULTS_TO_MERGE_ERROR;
+import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
+import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
-import static uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandler.NO_RESULTS_TO_MERGE_ERROR;
 
 public class FederatedStoreTest {
     public static final String PATH_FEDERATED_STORE_PROPERTIES = "/properties/federatedStoreTest.properties";
@@ -323,21 +329,13 @@ public class FederatedStoreTest {
     @Test
     public void shouldCombineTraitsToMin() throws Exception {
         //Given
-        HashSet<StoreTrait> traits = new HashSet<>();
-        traits.addAll(SingleUseAccumuloStore.TRAITS);
-        traits.retainAll(MapStore.TRAITS);
+        final GetTraits getTraits = new GetTraits.Builder()
+                .currentTraits(true)
+                .build();
 
         //When
-        Set<StoreTrait> before = store.getCurrentlyAvailableTraits(testUser);
-        int sizeBefore = before.size();
+        final Set<StoreTrait> before = store.getTraits(getTraits, testUserContext);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
-
-        store.execute(new AddGraph.Builder()
-                .schema(new Schema())
-                .isPublic(true)
-                .graphId(MAP_ID_1)
-                .storeProperties(new MapStoreProperties())
-                .build(), new Context(testUser));
 
         store.execute(new AddGraph.Builder()
                 .schema(new Schema())
@@ -346,16 +344,33 @@ public class FederatedStoreTest {
                 .storeProperties(StoreProperties.loadStoreProperties("/properties/singleUseMockAccStore.properties"))
                 .build(), new Context(testUser));
 
-        Set<StoreTrait> after = store.getCurrentlyAvailableTraits(testUser);
-        int sizeAfter = after.size();
+        final Set<StoreTrait> afterAcc = store.getTraits(getTraits, testUserContext);
+
+        store.execute(new AddGraph.Builder()
+                .schema(new Schema())
+                .isPublic(true)
+                .graphId(MAP_ID_1)
+                .storeProperties(new MapStoreProperties())
+                .build(), new Context(testUser));
+
+        final Set<StoreTrait> afterMap = store.getTraits(getTraits, testUserContext);
 
         //Then
-        assertEquals(5, MapStore.TRAITS.size());
-        assertEquals(9, SingleUseAccumuloStore.TRAITS.size());
         assertNotEquals(SingleUseAccumuloStore.TRAITS, MapStore.TRAITS);
-        assertEquals(0, sizeBefore);
-        assertEquals(5, sizeAfter);
-        assertEquals(traits, after);
+        assertEquals(StoreTrait.ALL_TRAITS, before);
+        assertEquals(Sets.newHashSet(
+                TRANSFORMATION,
+                PRE_AGGREGATION_FILTERING,
+                POST_AGGREGATION_FILTERING,
+                POST_TRANSFORMATION_FILTERING,
+                ORDERED
+        ), afterAcc);
+        assertEquals(Sets.newHashSet(
+                TRANSFORMATION,
+                PRE_AGGREGATION_FILTERING,
+                POST_AGGREGATION_FILTERING,
+                POST_TRANSFORMATION_FILTERING
+        ), afterMap);
     }
 
     @Test

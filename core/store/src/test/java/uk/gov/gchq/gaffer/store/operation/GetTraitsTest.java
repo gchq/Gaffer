@@ -34,26 +34,41 @@ public class GetTraitsTest extends OperationTest<GetTraits> {
 
     @Override
     protected GetTraits getTestObject() {
-        return new GetTraits();
+        return new GetTraits.Builder()
+                .currentTraits(true)
+                .build();
     }
 
     @Override
     public void builderShouldCreatePopulatedOperation() {
         GetTraits op = new Builder()
-                .currentlyAvailableTraits(false)
+                .currentTraits(false)
                 .build();
 
-        assertEquals(false, op.currentlyAvailableTraits());
+        assertEquals(false, op.isCurrentTraits());
     }
 
     @Override
     public void shouldShallowCloneOperation() {
         GetTraits op = new Builder()
-                .currentlyAvailableTraits(false)
+                .currentTraits(false)
                 .build();
 
         GetTraits clone = op.shallowClone();
 
-        assertEquals(op.currentlyAvailableTraits(), clone.currentlyAvailableTraits());
+        assertEquals(op.isCurrentTraits(), clone.isCurrentTraits());
+    }
+
+    @Override
+    public void shouldJsonSerialiseAndDeserialise() {
+        // Given
+        final GetTraits obj = getTestObject();
+
+        // When
+        final byte[] json = toJson(obj);
+        final GetTraits deserialisedObj = fromJson(json);
+
+        // Then
+        assertEquals(obj.isCurrentTraits(), deserialisedObj.isCurrentTraits());
     }
 }

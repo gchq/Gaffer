@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.exception.OverwritingException;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.Schema.Builder;
 import uk.gov.gchq.gaffer.user.User;
@@ -233,6 +234,59 @@ public class FederatedGraphStorage {
         return schemaBuilder.build();
     }
 
+    /**
+     * returns a set of {@link StoreTrait} that are common for all visible graphs.
+     * traits1 = [a,b,c]
+     * traits2 = [b,c]
+     * traits3 = [a,b]
+     * return [b]
+     *
+     * @param op      the GetTraits operation
+     * @param context the user context
+     * @return the set of {@link StoreTrait} that are common for all visible graphs
+     */
+    public Set<StoreTrait> getTraits(final GetTraits op, final Context context) {
+        final Set<StoreTrait> traits = Sets.newHashSet(StoreTrait.values());
+        if (null != op && op.isCurrentTraits()) {
+            final List<String> graphIds = FederatedStoreUtil.getGraphIds(op.getOptions());
+            final Stream<Graph> graphs = getStream(context.getUser(), graphIds);
+            final GetTraits getTraits = new GetTraits.Builder()
+                    .currentTraits(op.isCurrentTraits())
+                    .build();
+            graphs.forEach(g -> {
+                try {
+                    traits.retainAll(g.execute(getTraits, context));
+                } catch (final OperationException e) {
+                    throw new RuntimeException("Unable to fetch traits from graph " + g.getGraphId(), e);
+                }
+            });
+        }
+
+        return traits;
+    }
+
+    /**
+     * returns a set of {@link StoreTrait} that are common for all visible graphs.
+     * traits1 = [a,b,c]
+     * traits2 = [b,c]
+     * traits3 = [a,b]
+     * return [b]
+     *
+     * @param config containing optional graphIds csv.
+     * @param user   to match visibility against.
+     * @return the set of {@link StoreTrait} that are common for all visible graphs
+     */
+    public Set<StoreTrait> getTraits(final Map<String, String> config, final User user) {
+        final List<String> graphIds = FederatedStoreUtil.getGraphIds(config);
+        Collection<Graph> graphs = get(user, graphIds);
+
+        final Set<StoreTrait> traits = graphs.isEmpty() ? Sets.newHashSet() : Sets.newHashSet(StoreTrait.values());
+        for (final Graph graph : graphs) {
+            traits.retainAll(graph.getStoreTraits());
+        }
+        return traits;
+    }
+
     private void validateAllGivenGraphIdsAreVisibleForUser(final User user, final Collection<String> graphIds) {
         if (null != graphIds) {
             final Collection<String> visibleIds = getAllIds(user);
@@ -290,35 +344,5 @@ public class FederatedGraphStorage {
                 .stream()
                 .filter(entry -> isValidToView(user, entry.getKey()))
                 .flatMap(entry -> entry.getValue().stream());
-    }
-
-    /**
-     * @param user to match visibility against.
-     * @return the set of {@link StoreTrait} that are common for all visible graphs
-     * @see #get(User, List)
-     */
-    public Set<StoreTrait> getTraits(final User user) {
-        return getTraits(user, null);
-    }
-
-    /**
-     * returns a set of {@link StoreTrait} that are common for all visible graphs.
-     * traits1 = [a,b,c]
-     * traits2 = [b,c]
-     * traits3 = [a,b]
-     * return [b]
-     *
-     * @param user     to match visibility against.
-     * @param graphIds filter on graphIds.
-     * @return the set of {@link StoreTrait} that are common for all visible graphs
-     */
-    public Set<StoreTrait> getTraits(final User user, final List<String> graphIds) {
-        Collection<Graph> graphs = get(user, graphIds);
-
-        final Set<StoreTrait> traits = graphs.isEmpty() ? Sets.newHashSet() : Sets.newHashSet(StoreTrait.values());
-        for (final Graph graph : graphs) {
-            traits.retainAll(graph.getStoreTraits());
-        }
-        return traits;
     }
 }

@@ -16,22 +16,70 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
+import com.google.common.collect.Sets;
+import org.apache.commons.collections.CollectionUtils;
+
+import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
-public class GetTraitsHandler implements OutputOperationHandler<GetTraits, Iterable<? extends StoreTrait>> {
+import java.util.Set;
+
+public class GetTraitsHandler implements OutputOperationHandler<GetTraits, Set<StoreTrait>> {
+    private Set<StoreTrait> currentTraits;
 
     @Override
-    public Iterable<? extends StoreTrait> doOperation(final GetTraits operation, final Context context, final Store store) throws OperationException {
-        try {
-            return operation.currentlyAvailableTraits()
-                    ? store.getCurrentlyAvailableTraits(null)
-                    : store.getTraits();
-        } catch (final Exception e) {
-            throw new OperationException("Error getting Traits. isSupportedTraits: " + operation.currentlyAvailableTraits(), e);
+    public Set<StoreTrait> doOperation(final GetTraits operation, final Context context, final Store store) throws OperationException {
+        if (!operation.isCurrentTraits()) {
+            return store.getTraits();
         }
+
+        if (null == currentTraits) {
+            currentTraits = createCurrentTraits(store);
+        }
+        return currentTraits;
+    }
+
+    private Set<StoreTrait> createCurrentTraits(final Store store) {
+        final Set<StoreTrait> traits = Sets.newHashSet(store.getTraits());
+        final Schema schema = store.getSchema();
+        final Iterable<SchemaElementDefinition> defs = new ChainedIterable<>(schema.getEntities().values(), schema.getEdges().values());
+
+        final boolean hasAggregatedGroups = CollectionUtils.isNotEmpty(schema.getAggregatedGroups());
+        final boolean hasVisibility = null != schema.getVisibilityProperty();
+        boolean hasGroupBy = false;
+        boolean hasValidation = false;
+        for (final SchemaElementDefinition def : defs) {
+            if (!hasValidation && def.hasValidation()) {
+                hasValidation = true;
+            }
+            if (!hasGroupBy && CollectionUtils.isNotEmpty(def.getGroupBy())) {
+                hasGroupBy = true;
+            }
+            if (hasGroupBy && hasValidation) {
+                break;
+            }
+        }
+
+        if (!hasAggregatedGroups) {
+            traits.remove(StoreTrait.INGEST_AGGREGATION);
+            traits.remove(StoreTrait.QUERY_AGGREGATION);
+        }
+        if (!hasGroupBy && traits.contains(StoreTrait.INGEST_AGGREGATION)) {
+            traits.remove(StoreTrait.QUERY_AGGREGATION);
+        }
+        if (!hasValidation) {
+            traits.remove(StoreTrait.STORE_VALIDATION);
+        }
+        if (!hasVisibility) {
+            traits.remove(StoreTrait.VISIBILITY);
+        }
+
+        return traits;
     }
 }

@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.store;
 
-import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,9 +124,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.output.ToStreamHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToVerticesHandler;
 import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
-import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
@@ -136,7 +133,6 @@ import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -155,13 +151,11 @@ import java.util.concurrent.Executors;
  */
 public abstract class Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(Store.class);
-    public static final String CURRENTLY_AVAILABLE_TRAITS_IS_NULL_STORE_MAY_NOT_HAVE_BEEN_INITIALISED_GRAPH_ID_S = "currentlyAvailableTraits is null, store may not have been initialised. graphId: %s";
     private final Class<? extends Serialiser> requiredParentSerialiserClass;
     private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new LinkedHashMap<>();
     protected final List<OperationChainOptimiser> opChainOptimisers = new ArrayList<>();
     protected final OperationChainValidator opChainValidator;
     private final SchemaOptimiser schemaOptimiser;
-    private Set<StoreTrait> currentlyAvailableTraits;
 
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to aggregate the elements.
@@ -240,61 +234,6 @@ public abstract class Store {
         validateSchemas();
         addOpHandlers();
         addExecutorService();
-
-        currentlyAvailableTraits = getCurrentlyAvailableTraits(schema);
-    }
-
-    private Set<StoreTrait> getCurrentlyAvailableTraits(final Schema schema) {
-        Set<StoreTrait> traits = Sets.newHashSet(getTraits());
-
-        boolean hasGroupBy = false;
-        boolean hasValidation = false;
-        for (Iterator<SchemaEntityDefinition> iterator = schema.getEntities().values().iterator();
-             iterator.hasNext() && !hasGroupBy && !hasValidation; ) {
-
-            final SchemaEntityDefinition def = iterator.next();
-            if (def.hasValidation()) {
-                hasValidation = true;
-            }
-            Set<String> groupBy = def.getGroupBy();
-            if (null != groupBy && !groupBy.isEmpty()) {
-                hasGroupBy = true;
-            }
-        }
-
-        for (Iterator<SchemaEdgeDefinition> iterator = schema.getEdges().values().iterator();
-             iterator.hasNext() && !hasGroupBy && !hasValidation; ) {
-
-            final SchemaEdgeDefinition def = iterator.next();
-            if (def.hasValidation()) {
-                hasValidation = true;
-            }
-            Set<String> groupBy = def.getGroupBy();
-            if (null != groupBy && !groupBy.isEmpty()) {
-                hasGroupBy = true;
-            }
-        }
-
-        if (!hasGroupBy) {
-            traits.remove(StoreTrait.QUERY_AGGREGATION);
-        }
-
-        if (!hasValidation) {
-            traits.remove(StoreTrait.STORE_VALIDATION);
-        }
-
-        if (null == schema.getVisibilityProperty()) {
-            traits.remove(StoreTrait.VISIBILITY);
-        }
-
-        List<String> aggregatedGroups = schema.getAggregatedGroups();
-        if (null == aggregatedGroups || aggregatedGroups.isEmpty()) {
-            traits.remove(StoreTrait.INGEST_AGGREGATION);
-            traits.remove(StoreTrait.QUERY_AGGREGATION);
-        }
-
-
-        return traits;
     }
 
     /**
@@ -878,12 +817,5 @@ public abstract class Store {
 
     public Schema getOriginalSchema() {
         return originalSchema;
-    }
-
-    public Set<StoreTrait> getCurrentlyAvailableTraits(User unused) throws StoreException {
-        if (null == currentlyAvailableTraits) {
-            throw new StoreException(String.format(CURRENTLY_AVAILABLE_TRAITS_IS_NULL_STORE_MAY_NOT_HAVE_BEEN_INITIALISED_GRAPH_ID_S, this.getGraphId()));
-        }
-        return currentlyAvailableTraits;
     }
 }

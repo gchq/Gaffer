@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
+import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -23,27 +24,26 @@ import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
-import uk.gov.gchq.gaffer.store.operation.GetTraits;
-import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import java.util.Iterator;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedGetTraitsHandlerTest {
-
     public static final String MAP_STORE = "mapStore";
     public static final String FED_STORE_ID = "fedStoreId";
+    public static final String ACC_STORE = "accStore";
     private FederatedStore federatedStore;
 
     @Before
@@ -52,37 +52,38 @@ public class FederatedGetTraitsHandlerTest {
     }
 
     @Test
-    public void shouldHaveNoTraitsForEmptyStore() throws Exception {
+    public void shouldGetAllTraitsForEmptyStore() throws Exception {
+        // Given
         federatedStore.initialise(FED_STORE_ID, null, new FederatedStoreProperties());
-        Iterable<? extends StoreTrait> execute = federatedStore.execute(new GetTraits.Builder()
-                .build(), new Context(testUser()));
 
-        assertNotNull(execute);
-        assertFalse(execute.iterator().hasNext());
+        // When
+        final Set<StoreTrait> traits = federatedStore.execute(
+                new GetTraits.Builder()
+                        .currentTraits(false)
+                        .build(),
+                new Context(testUser()));
+
+        // Then
+        assertEquals(StoreTrait.ALL_TRAITS, traits);
     }
 
     @Test
-    public void shouldHaveAllTraitsForSupported() throws Exception {
+    public void shouldGetAllTraitsForEmptyStoreWithCurrentTraits() throws Exception {
+        // Given
         federatedStore.initialise(FED_STORE_ID, null, new FederatedStoreProperties());
-        Iterable<? extends StoreTrait> execute = federatedStore.execute(new GetTraits.Builder()
-                .currentlyAvailableTraits(false)
+
+        // When
+        final Set<StoreTrait> traits = federatedStore.execute(new GetTraits.Builder()
+                .currentTraits(true)
                 .build(), new Context(testUser()));
 
-        assertNotNull(execute);
-        Iterator<? extends StoreTrait> iterator = execute.iterator();
-        assertTrue(iterator.hasNext());
-
-        Set<StoreTrait> allTraits = StoreTrait.ALL_TRAITS;
-        int count = 0;
-        while (iterator.hasNext()) {
-            assertTrue(allTraits.contains(iterator.next()));
-            count++;
-        }
-        assertEquals(allTraits.size(), count);
+        // Then
+        assertEquals(StoreTrait.ALL_TRAITS, traits);
     }
 
     @Test
-    public void shouldHaveTraitsWhenContainsMapStore() throws Exception {
+    public void shouldGetAllTraitsWhenContainsMapStore() throws Exception {
+        // Given
         federatedStore.initialise(FED_STORE_ID, null, new FederatedStoreProperties());
         federatedStore.execute(new AddGraph.Builder()
                 .isPublic(true)
@@ -91,24 +92,51 @@ public class FederatedGetTraitsHandlerTest {
                 .schema(new Schema())
                 .build(), new Context(testUser()));
 
-        Iterable<? extends StoreTrait> execute = federatedStore.execute(new GetTraits.Builder()
-                .build(), new Context(testUser()));
+        // When
+        final Set<StoreTrait> traits = federatedStore.execute(
+                new GetTraits.Builder()
+                        .currentTraits(false)
+                        .build(),
+                new Context(testUser()));
 
-        assertNotNull(execute);
-        Iterator<? extends StoreTrait> iterator = execute.iterator();
-        assertTrue(iterator.hasNext());
-        Set<StoreTrait> allTraits = MapStore.TRAITS;
-        int count = 0;
-        while (iterator.hasNext()) {
-            assertTrue(allTraits.contains(iterator.next()));
-            count++;
-        }
-        assertEquals(allTraits.size(), count);
+        // Then
+        assertEquals(StoreTrait.ALL_TRAITS, traits);
     }
 
     @Test
-    public void shouldHaveTraitsWhenContainsMapStoreWithOptions() throws Exception {
+    public void shouldGetCurrentTraitsWhenContainsMapStore() throws Exception {
+        // Given
         federatedStore.initialise(FED_STORE_ID, null, new FederatedStoreProperties());
+        federatedStore.execute(new AddGraph.Builder()
+                .isPublic(true)
+                .graphId(MAP_STORE)
+                .storeProperties(new MapStoreProperties())
+                .schema(new Schema())
+                .build(), new Context(testUser()));
+
+        // When
+        final Set<StoreTrait> traits = federatedStore.execute(
+                new GetTraits.Builder()
+                        .currentTraits(true)
+                        .build(),
+                new Context(testUser()));
+
+        // Then
+        assertEquals(
+                Sets.newHashSet(
+                        TRANSFORMATION,
+                        PRE_AGGREGATION_FILTERING,
+                        POST_AGGREGATION_FILTERING,
+                        POST_TRANSFORMATION_FILTERING
+                ),
+                traits);
+    }
+
+    @Test
+    public void shouldGetCurrentTraitsWhenContainsMapStoreWithOptions() throws Exception {
+        // Given
+        federatedStore.initialise(FED_STORE_ID, null, new FederatedStoreProperties());
+
         federatedStore.execute(new AddGraph.Builder()
                 .isPublic(true)
                 .graphId(MAP_STORE)
@@ -118,25 +146,59 @@ public class FederatedGetTraitsHandlerTest {
 
         federatedStore.execute(new AddGraph.Builder()
                 .isPublic(true)
-                .graphId("accStore")
+                .graphId(ACC_STORE)
                 .storeProperties(StoreProperties.loadStoreProperties("/properties/singleUseMockAccStore.properties"))
                 .schema(new Schema())
                 .build(), new Context(testUser()));
 
-        Iterable<? extends StoreTrait> execute = federatedStore.execute(new GetTraits.Builder()
-                .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, MAP_STORE)
+        // When
+        final Set<StoreTrait> traits = federatedStore.execute(
+                new GetTraits.Builder()
+                        .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, MAP_STORE)
+                        .currentTraits(true)
+                        .build(),
+                new Context(testUser()));
+
+        // Then
+        assertEquals(
+                Sets.newHashSet(
+                        TRANSFORMATION,
+                        PRE_AGGREGATION_FILTERING,
+                        POST_AGGREGATION_FILTERING,
+                        POST_TRANSFORMATION_FILTERING
+                ),
+                traits);
+    }
+
+    @Test
+    public void shouldGetAllTraitsWhenContainsMapStoreWithOptions() throws Exception {
+        // Given
+        federatedStore.initialise(FED_STORE_ID, null, new FederatedStoreProperties());
+
+        federatedStore.execute(new AddGraph.Builder()
+                .isPublic(true)
+                .graphId(MAP_STORE)
+                .storeProperties(new MapStoreProperties())
+                .schema(new Schema())
                 .build(), new Context(testUser()));
 
-        assertNotNull(execute);
-        Iterator<? extends StoreTrait> iterator = execute.iterator();
-        assertTrue(iterator.hasNext());
-        Set<StoreTrait> allTraits = MapStore.TRAITS;
-        int count = 0;
-        while (iterator.hasNext()) {
-            assertTrue(allTraits.contains(iterator.next()));
-            count++;
-        }
-        assertEquals(allTraits.size(), count);
+        federatedStore.execute(new AddGraph.Builder()
+                .isPublic(true)
+                .graphId(ACC_STORE)
+                .storeProperties(StoreProperties.loadStoreProperties("/properties/singleUseMockAccStore.properties"))
+                .schema(new Schema())
+                .build(), new Context(testUser()));
+
+        // When
+        final Set<StoreTrait> traits = federatedStore.execute(
+                new GetTraits.Builder()
+                        .option(FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS, MAP_STORE)
+                        .currentTraits(false)
+                        .build(),
+                new Context(testUser()));
+
+        // Then
+        assertEquals(StoreTrait.ALL_TRAITS, traits);
     }
 
 }

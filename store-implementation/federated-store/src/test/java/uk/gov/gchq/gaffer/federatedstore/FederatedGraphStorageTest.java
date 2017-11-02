@@ -279,7 +279,7 @@ public class FederatedGraphStorageTest {
     public void shouldGetTraitsForAddingUser() throws Exception {
         graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
         graphStorage.put(b, access);
-        final Set<StoreTrait> traits = graphStorage.getTraits(testUser);
+        final Set<StoreTrait> traits = graphStorage.getTraits(null, testUser);
         assertNotEquals("Revealing hidden traits", 5, traits.size());
         assertEquals(9, traits.size());
     }
@@ -288,7 +288,7 @@ public class FederatedGraphStorageTest {
     public void shouldGetTraitsForAuthUser() throws Exception {
         graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
         graphStorage.put(b, access);
-        final Set<StoreTrait> traits = graphStorage.getTraits(authUser);
+        final Set<StoreTrait> traits = graphStorage.getTraits(null, authUser);
         assertNotEquals("Revealing hidden traits", 5, traits.size());
         assertEquals(9, traits.size());
     }
@@ -297,7 +297,7 @@ public class FederatedGraphStorageTest {
     public void shouldNotGetTraitsForBlankUser() throws Exception {
         graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
         graphStorage.put(b, access);
-        final Set<StoreTrait> traits = graphStorage.getTraits(blankUser);
+        final Set<StoreTrait> traits = graphStorage.getTraits(null, blankUser);
         assertEquals("Revealing hidden traits", 0, traits.size());
     }
 

@@ -24,21 +24,11 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
+import java.util.Set;
 
-public class FederatedGetTraitsHandler implements OutputOperationHandler<GetTraits, Iterable<? extends StoreTrait>> {
-
+public class FederatedGetTraitsHandler implements OutputOperationHandler<GetTraits, Set<StoreTrait>> {
     @Override
-    public Iterable<? extends StoreTrait> doOperation(final GetTraits operation, final Context context, final Store store) throws OperationException {
-        String graphIdsCsv = operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS);
-
-        FederatedStore federatedStore = (FederatedStore) store;
-        try {
-            return operation.currentlyAvailableTraits()
-                    ? federatedStore.getCurrentlyAvailableTraits(context.getUser(), graphIdsCsv)
-                    : federatedStore.getTraits();
-        } catch (final Exception e) {
-            throw new OperationException("Error getting Traits. isSupportedTraits: " + operation.currentlyAvailableTraits() + " graphIdsCsv: " + graphIdsCsv, e);
-        }
+    public Set<StoreTrait> doOperation(final GetTraits operation, final Context context, final Store store) throws OperationException {
+        return ((FederatedStore) store).getTraits(operation, context);
     }
 }

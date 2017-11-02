@@ -22,32 +22,34 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.TypeReferenceStoreImpl;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * An Operation used for getting traits from the Store.
  */
-public class GetTraits implements Operation, Output<Iterable<? extends StoreTrait>> {
+public class GetTraits implements Operation, Output<Set<StoreTrait>> {
+    public static final boolean DEFAULT_CURRENT_TRAITS = true;
 
-    public static final boolean defaultCurrentlyAvailableTraits = true;
-    private boolean currentlyAvailableTraits = defaultCurrentlyAvailableTraits;
+    private boolean currentTraits = DEFAULT_CURRENT_TRAITS;
     private Map<String, String> options;
-
-    public boolean currentlyAvailableTraits() {
-        return currentlyAvailableTraits;
-    }
-
-    public void setCurrentlyAvailableTraits(final boolean currentlyAvailableTraits) {
-        this.currentlyAvailableTraits = currentlyAvailableTraits;
-    }
 
     @Override
     public GetTraits shallowClone() throws CloneFailedException {
         return new Builder()
                 .options(options)
-                .currentlyAvailableTraits(currentlyAvailableTraits)
+                .currentTraits(currentTraits)
                 .build();
+    }
+
+    public boolean isCurrentTraits() {
+        return currentTraits;
+    }
+
+    public void setCurrentTraits(final boolean currentTraits) {
+        this.currentTraits = currentTraits;
     }
 
     @Override
@@ -61,8 +63,8 @@ public class GetTraits implements Operation, Output<Iterable<? extends StoreTrai
     }
 
     @Override
-    public TypeReference<Iterable<? extends StoreTrait>> getOutputTypeReference() {
-        return new IterableStoreTrait();
+    public TypeReference<Set<StoreTrait>> getOutputTypeReference() {
+        return new TypeReferenceStoreImpl.StoreTraits();
     }
 
     public static class Builder extends BaseBuilder<GetTraits, Builder> {
@@ -70,12 +72,9 @@ public class GetTraits implements Operation, Output<Iterable<? extends StoreTrai
             super(new GetTraits());
         }
 
-        public Builder currentlyAvailableTraits(final boolean currentlyAvailableTraits) {
-            _getOp().setCurrentlyAvailableTraits(currentlyAvailableTraits);
+        public Builder currentTraits(final boolean currentTraits) {
+            _getOp().setCurrentTraits(currentTraits);
             return _self();
         }
-    }
-
-    public static class IterableStoreTrait extends TypeReference<Iterable<? extends StoreTrait>> {
     }
 }
