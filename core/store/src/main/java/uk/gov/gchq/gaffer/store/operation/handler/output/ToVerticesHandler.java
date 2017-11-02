@@ -32,11 +32,12 @@ import java.util.stream.Stream;
 
 /**
  * A {@code ToVerticesHandler} handles for {@link ToVertices} operations.
- * <p/>
+ * <p>
  * For {@link uk.gov.gchq.gaffer.data.element.Entity} objects, the vertex object
  * is used. For {@link uk.gov.gchq.gaffer.data.element.Edge}s the correct object
  * is selected based on the values of the {@link EdgeVertices} and {@link UseMatchedVertex}
  * values.
+ * </p>
  */
 public class ToVerticesHandler implements OutputOperationHandler<ToVertices, Iterable<? extends Object>> {
 
