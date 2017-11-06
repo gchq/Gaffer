@@ -70,9 +70,6 @@
                                 </webapp>
                             </webapps>
                             <systemProperties>
-                                <gaffer.properties>
-                                    gaffer.properties.app.description,gaffer.properties.app.title
-                                </gaffer.properties>
                                 <gaffer.properties.app.title>
                                     Road Traffic Example
                                 </gaffer.properties.app.title>

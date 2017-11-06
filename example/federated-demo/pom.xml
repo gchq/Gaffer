@@ -127,9 +127,6 @@
                             <path>/${standalone-path}</path>
                             <port>${standalone-port}</port>
                             <systemProperties>
-                                <gaffer.properties>
-                                    gaffer.properties.app.description,gaffer.properties.app.title
-                                </gaffer.properties>
                                 <gaffer.properties.app.title>
                                     Federated Gaffer Example
                                 </gaffer.properties.app.title>
