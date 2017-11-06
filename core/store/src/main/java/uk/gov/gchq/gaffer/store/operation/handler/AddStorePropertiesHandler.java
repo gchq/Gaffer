@@ -42,7 +42,7 @@ public class AddStorePropertiesHandler implements OperationHandler<AddStorePrope
                 throw new OperationException(String.format(ERROR_ADDING_STORE_TO_STORE_S, " storeProperties couldn't be resolved."), e);
             }
             try {
-                graphLibrary.addProperties(properties);
+                graphLibrary.addProperties(operation.getId(), properties);
             } catch (final Exception e) {
                 throw new OperationException(ERROR_ADDING_STORE_TO_STORE_S, e);
             }

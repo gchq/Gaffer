@@ -41,7 +41,7 @@ public class AddSchemaHandler implements OperationHandler<AddSchema> {
                 throw new OperationException(String.format(ERROR_ADDING_SCHEMA_TO_STORE_S, " schema couldn't be resolved."), e);
             }
             try {
-                graphLibrary.addSchema(mergedSchema);
+                graphLibrary.addSchema(operation.getId(), mergedSchema);
             } catch (final Exception e) {
                 throw new OperationException(String.format(ERROR_ADDING_SCHEMA_TO_STORE_S, " schema: " + operation.getSchema()), e);
             }

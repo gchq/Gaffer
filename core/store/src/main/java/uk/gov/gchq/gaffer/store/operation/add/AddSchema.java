@@ -34,6 +34,9 @@ public class AddSchema implements Operation {
 
     @Required
     private Schema schema;
+
+    @Required
+    private String id;
     /**
      * A list of schema Id's held within the Library to be retrieved
      * and merged to form a new schema, before be merged with the optional
@@ -50,14 +53,23 @@ public class AddSchema implements Operation {
         this.schema = schema;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(final String id) {
+        this.id = id;
+    }
+
     @Override
     public AddSchema shallowClone() throws CloneFailedException {
         return new Builder()
                 .options(options)
                 .parentSchemaIds(parentSchemaIds)
-                .schema(schema).build();
+                .schema(schema)
+                .id(id)
+                .build();
     }
-
 
     @Override
     public Map<String, String> getOptions() {
@@ -92,5 +104,9 @@ public class AddSchema implements Operation {
             return _self();
         }
 
+        public Builder id(final String id) {
+            _getOp().setId(id);
+            return _self();
+        }
     }
 }

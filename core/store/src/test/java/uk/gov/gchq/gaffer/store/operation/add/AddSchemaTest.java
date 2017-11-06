@@ -31,13 +31,27 @@ import static org.junit.Assert.assertEquals;
 
 public class AddSchemaTest extends OperationTest<AddSchema> {
 
+    public static final String TEST_ID = "testId";
     private Schema schema;
     private ArrayList<String> parentSchemaIds;
     private AddSchema op;
 
+    @Before
+    public void setUp() throws Exception {
+        schema = new Schema.Builder()
+                .id("schemaID")
+                .build();
+        parentSchemaIds = Lists.newArrayList("value1");
+        op = new Builder()
+                .parentSchemaIds(parentSchemaIds)
+                .schema(schema)
+                .id(TEST_ID)
+                .build();
+    }
+
     @Override
     protected Set<String> getRequiredFields() {
-        return Sets.newHashSet("schema");
+        return Sets.newHashSet("schema", "id");
     }
 
     @Override
@@ -49,6 +63,7 @@ public class AddSchemaTest extends OperationTest<AddSchema> {
     public void builderShouldCreatePopulatedOperation() {
         assertEquals(schema, op.getSchema());
         assertEquals(parentSchemaIds, op.getParentSchemaIds());
+        assertEquals(TEST_ID, op.getId());
     }
 
     @Override
@@ -58,17 +73,6 @@ public class AddSchemaTest extends OperationTest<AddSchema> {
         //then
         assertEquals(op.getSchema(), clone.getSchema());
         assertEquals(op.getParentSchemaIds(), clone.getParentSchemaIds());
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        schema = new Schema.Builder()
-                .id("schemaID")
-                .build();
-        parentSchemaIds = Lists.newArrayList("value1");
-        op = new Builder()
-                .parentSchemaIds(parentSchemaIds)
-                .schema(schema)
-                .build();
+        assertEquals(op.getId(), clone.getId());
     }
 }
