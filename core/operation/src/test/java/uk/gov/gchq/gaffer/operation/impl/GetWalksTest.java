@@ -70,22 +70,6 @@ public class GetWalksTest extends OperationTest<GetWalks> {
     }
 
     @Test
-    public void shouldValidateOperationWhenOperationContainsInvalidView() {
-        // Given
-        final GetWalks getWalks = new GetWalks.Builder()
-                .input(new EntitySeed("1"), new EntitySeed("2"))
-                .operations(new GetElements.Builder()
-                        .view(new View.Builder()
-                                .entity(TestGroups.ENTITY)
-                                .build())
-                        .build())
-                .build();
-
-        // Then
-        assertFalse(getWalks.validate().isValid());
-    }
-
-    @Test
     public void shouldValidateOperationWhenSecondOperationContainsNonNullInput() {
         // Given
         final GetWalks getWalks = new GetWalks.Builder()
@@ -121,7 +105,7 @@ public class GetWalksTest extends OperationTest<GetWalks> {
                 .build();
 
         // Then
-        assertTrue(getWalks.validate().isValid());
+        assertFalse(getWalks.validate().isValid());
     }
 
     @Override
