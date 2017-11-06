@@ -54,11 +54,11 @@ public class AddSchemaHandlerTest {
         store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
         try {
             //when
-            store.execute(new Builder().schema(schema).build(), new Context(StoreUser.blankUser()));
+            store.execute(new Builder().schema(schema).id(TEST_SCHEMA_ID).build(), new Context(StoreUser.blankUser()));
             fail("Exception expected");
         } catch (final Exception e) {
             //then
-            assertEquals(e.getMessage(), String.format("Operation class %s is not supported by the %s.", AddSchema.class.getName(), TestAddToGraphLibraryImpl.class.getSimpleName()));
+            assertEquals(String.format("Operation class %s is not supported by the %s.", AddSchema.class.getName(), TestAddToGraphLibraryImpl.class.getSimpleName()), e.getMessage());
         }
     }
 
@@ -70,7 +70,7 @@ public class AddSchemaHandlerTest {
         store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
 
         //when
-        store.execute(new Builder().schema(schema).build(), new Context(StoreUser.blankUser()));
+        store.execute(new Builder().schema(schema).id(TEST_SCHEMA_ID).build(), new Context(StoreUser.blankUser()));
         //then
         Schema actualSchema = library.getSchema(TEST_SCHEMA_ID);
         assertEquals(schema, actualSchema);

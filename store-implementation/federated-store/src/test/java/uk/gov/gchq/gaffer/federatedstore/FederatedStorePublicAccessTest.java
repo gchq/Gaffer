@@ -61,7 +61,7 @@ public class FederatedStorePublicAccessTest {
         library.addSchema(SCHEMA_1, new Schema.Builder().build());
         store.setGraphLibrary(library);
         blankUserContext = new Context(StoreUser.blankUser());
-        testUserContext = new Context(FederatedStoreUser.testUser());
+        testUserContext = new Context(StoreUser.testUser());
     }
 
     @Test

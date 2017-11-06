@@ -346,46 +346,46 @@ public abstract class GraphLibrary {
         }
     }
 
+
     public Schema resolveSchema(final Schema schema, final List<String> parentSchemaIds) {
-        Schema rtn = null;
+        Schema resultSchema = null;
         if (null != parentSchemaIds) {
             if (1 == parentSchemaIds.size()) {
-                rtn = this.getSchema(parentSchemaIds.get(0));
+                resultSchema = this.getSchema(parentSchemaIds.get(0));
             } else {
                 final Schema.Builder schemaBuilder = new Schema.Builder();
                 for (final String id : parentSchemaIds) {
                     schemaBuilder.merge(this.getSchema(id));
                 }
-                rtn = schemaBuilder.build();
+                resultSchema = schemaBuilder.build();
             }
         }
-
         if (null != schema) {
-            if (null == rtn) {
-                rtn = schema;
+            if (null == resultSchema) {
+                resultSchema = schema;
             } else {
-                rtn = new Schema.Builder()
-                        .merge(rtn)
+                resultSchema = new Schema.Builder()
+                        .merge(resultSchema)
                         .merge(schema)
                         .build();
             }
         }
-        return rtn;
+        return resultSchema;
     }
 
     public StoreProperties resolveStoreProperties(final StoreProperties properties, final String parentStorePropertiesId) {
-        StoreProperties rtn = null;
-
+        StoreProperties resultProps = null;
         if (null != parentStorePropertiesId) {
-            rtn = this.getProperties(parentStorePropertiesId);
+            resultProps = this.getProperties(parentStorePropertiesId);
         }
         if (null != properties) {
-            if (null == rtn) {
-                rtn = properties;
+            if (null == resultProps) {
+                resultProps = properties;
             } else {
-                rtn.merge(properties);
+                resultProps.merge(properties);
             }
         }
-        return rtn;
+        return resultProps;
     }
+
 }

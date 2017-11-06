@@ -26,9 +26,6 @@ import org.mockito.Mockito;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
-import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
-import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -38,11 +35,9 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
-import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -55,11 +50,9 @@ import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.Schema.Builder;
 import uk.gov.gchq.gaffer.user.StoreUser;
-import uk.gov.gchq.gaffer.user.StoreUser;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -71,17 +64,14 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStore.S1_WAS_NOT_ABLE_TO_BE_CREATED_WITH_THE_SUPPLIED_PROPERTIES_GRAPH_ID_S2;
-import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
-import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 import static uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandler.NO_RESULTS_TO_MERGE_ERROR;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
+import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER;
+import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
 
 public class FederatedStoreTest {
     public static final String ID_SCHEMA_ENTITY = "basicEntitySchema";
@@ -91,8 +81,6 @@ public class FederatedStoreTest {
     public static final String INVALID = "invalid";
     public static final String ID_PROPS_MAP_ALT = "mockMapPropsAlt";
     private static final String FEDERATED_STORE_ID = "testFederatedStoreId";
-    public static final String PATH_FEDERATED_STORE_PROPERTIES = "/properties/federatedStoreTest.properties";
-    public static final String FEDERATED_STORE_ID = "testFederatedStoreId";
     private static final String ACC_ID_1 = "mockAccGraphId1";
     private static final String MAP_ID_1 = "mockMapGraphId1";
     private static final String PATH_ACC_STORE_PROPERTIES = "properties/singleUseMockAccStore.properties";
@@ -100,27 +88,17 @@ public class FederatedStoreTest {
     private static final String PATH_MAP_STORE_PROPERTIES_ALT = "properties/singleUseMockMapStoreAlt.properties";
     private static final String PATH_BASIC_ENTITY_SCHEMA_JSON = "schema/basicEntitySchema.json";
     private static final String PATH_BASIC_EDGE_SCHEMA_JSON = "schema/basicEdgeSchema.json";
-    public static final String PATH_INVALID = "nothing.json";
     private static final String EXCEPTION_NOT_THROWN = "exception not thrown";
-    private static final String USER_ID = "blankUser";
     public static final String UNUSUAL_KEY = "unusualKey";
     public static final String KEY_DOES_NOT_BELONG = UNUSUAL_KEY + " was added to " + ID_PROPS_MAP + " it should not be there";
-    private static final String ALL_USERS = FederatedStoreUser.ALL_USERS;
-    private static final String USER_ID = "testUser";
-    public static final String PROPS_ID_1 = "PROPS_ID_1";
-    public static final String SCHEMA_ID_1 = "SCHEMA_ID_1";
     private static final String ALL_USERS = StoreUser.ALL_USERS;
     private static final HashSet<String> GRAPH_AUTHS = Sets.newHashSet(ALL_USERS);
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private static final String INVALID_CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.invalid";
     private static final String CACHE_SERVICE_NAME = "federatedStoreGraphs";
     public static final String PATH_INCOMPLETE_SCHEMA = "/schema/edgeX2NoTypesSchema.json";
-    private static User authUser;
-    private static User testUser;
-    private static Context authUserContext;
-    private static Context testUserContext;
-
-    FederatedStore store;
+    public static final String PATH_INCOMPLETE_SCHEMA_PART_2 = "/schema/edgeTypeSchema.json";
+    private FederatedStore store;
     private FederatedStoreProperties federatedProperties;
     private HashMapGraphLibrary library;
     private Context userContext;
@@ -755,7 +733,7 @@ public class FederatedStoreTest {
         final CloseableIterable<? extends Element> elements = fedGraph.execute(
                 new GetAllElements(),
                 new User.Builder()
-                        .userId(USER_ID + "Other")
+                        .userId(TEST_USER + "Other")
                         .opAuth("auth")
                         .build());
 
@@ -763,7 +741,7 @@ public class FederatedStoreTest {
             fedGraph.execute(
                     new GetAllElements(),
                     new User.Builder()
-                            .userId(USER_ID + "Other")
+                            .userId(TEST_USER + "Other")
                             .opAuths("x")
                             .build());
             fail("expected exception");
@@ -874,7 +852,7 @@ public class FederatedStoreTest {
                 .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_EDGE_SCHEMA_JSON))
                 .build();
 
-        store.addGraphs(null, TEST_USER, true, graphToAdd);
+        store.addGraphs(null, StoreUser.TEST_USER, true, graphToAdd);
 
         //check the store and the cache
         assertEquals(1, store.getAllGraphIds(blankUser).size());
@@ -915,7 +893,7 @@ public class FederatedStoreTest {
 
         // When / Then
         try {
-            store.addGraphs(null, TEST_USER, false, graphToAdd);
+            store.addGraphs(null, StoreUser.TEST_USER, false, graphToAdd);
             fail(EXCEPTION_NOT_THROWN);
         } catch (final Exception e) {
             assertTrue(e.getMessage().contains("No cache has been set"));
@@ -948,7 +926,7 @@ public class FederatedStoreTest {
                 .build();
 
         // When
-        store.addGraphs(null, TEST_USER, true, graphToAdd);
+        store.addGraphs(null, StoreUser.TEST_USER, true, graphToAdd);
 
         // Then
         assertEquals(1, store.getGraphs(blankUser, ACC_ID_1).size());
@@ -984,7 +962,7 @@ public class FederatedStoreTest {
         }
 
         // When
-        store.addGraphs(null, TEST_USER, false, graphsToAdd.toArray(new Graph[graphsToAdd.size()]));
+        store.addGraphs(null, StoreUser.TEST_USER, false, graphsToAdd.toArray(new Graph[graphsToAdd.size()]));
 
         // Then
         for (int i = 0; i < 10; i++) {

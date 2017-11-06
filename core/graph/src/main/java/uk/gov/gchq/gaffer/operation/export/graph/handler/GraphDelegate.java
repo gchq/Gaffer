@@ -72,63 +72,25 @@ public final class GraphDelegate {
     }
 
     private static StoreProperties resolveStoreProperties(final Store store, final StoreProperties properties, final String parentStorePropertiesId, final Pair<Schema, StoreProperties> existingGraphPair) {
-        StoreProperties resultProps = null;
+        StoreProperties resultProps;
         if (null != existingGraphPair) {
             // If there is an existing graph then ignore any user provided properties and just use the existing properties
             resultProps = existingGraphPair.getSecond();
         } else {
             final GraphLibrary graphLibrary = store.getGraphLibrary();
-            if (null != graphLibrary && null != parentStorePropertiesId) {
-                resultProps = graphLibrary.getProperties(parentStorePropertiesId);
-            }
-            if (null != properties) {
-                if (null == resultProps) {
-                    resultProps = properties;
-                } else {
-                    resultProps.merge(properties);
-                }
-            }
-            if (null == resultProps) {
-                // If no properties have been provided then default to using the store properties
-                resultProps = store.getProperties();
-            }
+            resultProps = (null == graphLibrary) ? properties : graphLibrary.resolveStoreProperties(properties, parentStorePropertiesId);
         }
         return resultProps;
     }
 
     private static Schema resolveSchema(final Store store, final Schema schema, final List<String> parentSchemaIds, final Pair<Schema, StoreProperties> existingGraphPair) {
-        Schema resultSchema = null;
+        Schema resultSchema;
         if (null != existingGraphPair) {
             // If there is an existing graph then ignore any user provided schemas and just use the existing schema
             resultSchema = existingGraphPair.getFirst();
         } else {
             final GraphLibrary graphLibrary = store.getGraphLibrary();
-            if (null != graphLibrary && null != parentSchemaIds) {
-                if (1 == parentSchemaIds.size()) {
-                    resultSchema = graphLibrary.getSchema(parentSchemaIds.get(0));
-                } else {
-                    final Schema.Builder schemaBuilder = new Schema.Builder();
-                    for (final String id : parentSchemaIds) {
-                        schemaBuilder.merge(graphLibrary.getSchema(id));
-                    }
-                    resultSchema = schemaBuilder.build();
-                }
-            }
-            if (null != schema) {
-                if (null == resultSchema) {
-                    resultSchema = schema;
-                } else {
-                    // delete the old schema id as we are about to modify the schema
-                    resultSchema = new Schema.Builder()
-                            .merge(resultSchema)
-                            .merge(schema)
-                            .build();
-                }
-            }
-            if (null == resultSchema) {
-                // If no schemas have been provided then default to using the store schema
-                resultSchema = store.getSchema();
-            }
+            resultSchema = (null == graphLibrary) ? schema : graphLibrary.resolveSchema(schema, parentSchemaIds);
         }
         return resultSchema;
     }
