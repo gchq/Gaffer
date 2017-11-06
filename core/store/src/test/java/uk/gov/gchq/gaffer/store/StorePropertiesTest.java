@@ -41,7 +41,6 @@ public class StorePropertiesTest {
         props1.merge(props2);
 
         // Then
-        assertEquals("1_2", props1.getId());
         assertEquals("value1", props1.get("key1"));
         assertEquals("value2", props1.get("key2"));
         assertEquals("value2", props1.get("testKey"));

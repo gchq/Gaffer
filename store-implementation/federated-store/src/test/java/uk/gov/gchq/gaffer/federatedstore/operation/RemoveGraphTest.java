@@ -29,19 +29,19 @@ import java.util.Set;
 
 public class RemoveGraphTest extends OperationTest<RemoveGraph> {
 
+    private static final String EXPECTED_GRAPH_ID = "testGraphID";
+
     @Test
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException, JsonProcessingException {
 
-        String expectedGraphId = "testGraphID";
-
         RemoveGraph op = new Builder()
-                .setGraphId(expectedGraphId)
+                .setGraphId(EXPECTED_GRAPH_ID)
                 .build();
 
         byte[] serialise = toJson(op);
         RemoveGraph deserialise = fromJson(serialise);
 
-        Assert.assertEquals(expectedGraphId, deserialise.getGraphId());
+        Assert.assertEquals(EXPECTED_GRAPH_ID, deserialise.getGraphId());
     }
 
     @Override
@@ -51,12 +51,11 @@ public class RemoveGraphTest extends OperationTest<RemoveGraph> {
 
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        String expectedGraphId = "testGraphID";
         RemoveGraph op = new Builder()
-                .setGraphId(expectedGraphId)
+                .setGraphId(EXPECTED_GRAPH_ID)
                 .build();
 
-        Assert.assertEquals(expectedGraphId, op.getGraphId());
+        Assert.assertEquals(EXPECTED_GRAPH_ID, op.getGraphId());
     }
 
     @Override
