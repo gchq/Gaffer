@@ -19,18 +19,6 @@ function getVersion() {
     return footer.substr(footer.lastIndexOf(':') + 2, 2);
 }
 
-function updateElementTextUsingProperties(elementPropertiesObj) {
-Object.keys(elementPropertiesObj).forEach(function(elementId){
-$.get(
-        getVersion() + '/properties/' + elementPropertiesObj[elementId],
-        null,
-        function(propertyValue){
-            $('#'+ elementId).text(propertyValue);
-        }
-    )
-})
-}
-
 function addExampleButtons(){
 
     var tables = $("#resource_operations .operation-params")
@@ -138,7 +126,7 @@ function initExampleOperations() {
      )
 }
 
-function init(onSwaggerComplete){
+function init(onSwaggerComplete, onPropertiesLoad){
       window.swaggerUi = new SwaggerUi({
         url: "latest/swagger.json",
         dom_id: "swagger-ui-container",
@@ -146,7 +134,7 @@ function init(onSwaggerComplete){
         onComplete: function(swaggerApi, swaggerUi){
           log("Loaded swagger");
               $('pre code').each(function(i,e){hljs.highlightBlock(e)});
-              updateElementTextUsingProperties({"title": "gaffer.properties.app.title"});
+              initFromProperties(onPropertiesLoad);
               addExampleButtons();
               if(onSwaggerComplete) {
                   onSwaggerComplete();
@@ -167,4 +155,34 @@ function init(onSwaggerComplete){
       });
 
       window.swaggerUi.load();
+}
+
+function initFromProperties(onPropertiesLoad) {
+    var onSuccess = function(properties) {
+        updateTitle(properties);
+        if(onPropertiesLoad) {
+            onPropertiesLoad(properties);
+        }
+    };
+
+    $.get(getVersion() + '/properties', null, onSuccess);
+}
+
+function updateTitle(properties) {
+    updateElementText('gaffer.properties.app.title', properties, function(value, id) {
+        document.title = value;
+    })
+}
+
+function updateElementText(key, properties, onSuccess) {
+    updateElementTextWithId(key.split('.').pop(), key, properties, onSuccess);
+}
+
+function updateElementTextWithId(id, key, properties, onSuccess) {
+    if(key in properties) {
+        $('#' + id).text(properties[key]);
+        if(onSuccess) {
+            onSuccess(properties[key], id);
+        }
+    }
 }
