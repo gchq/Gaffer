@@ -79,8 +79,7 @@ import static uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil.getClean
  * <p>
  * A Store that encapsulates a collection of sub-graphs and executes operations
  * against them and returns results as though it was a single graph.
- * </p>
- * <p/>
+ * <p>
  * To create a FederatedStore you need to initialise the store with a
  * graphId and  (if graphId is not known by the {@link uk.gov.gchq.gaffer.store.library.GraphLibrary})
  * the {@link Schema} and {@link StoreProperties}.
@@ -167,8 +166,8 @@ public class FederatedStore extends Store {
      * @param graphs       the graph to add
      * @param isPublic     if this class should have public access.
      * @param graphAuths   the access auths for the graph being added
+     * @throws StorageException if unable to put graph into storage
      */
-
     public void addGraphs(final Set<String> graphAuths, final String addingUserId, final boolean isPublic, final Graph... graphs) throws StorageException {
         FederatedAccess access = new FederatedAccess(graphAuths, addingUserId, isPublicAccessAllowed && isPublic);
 

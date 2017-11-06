@@ -75,6 +75,7 @@ public class FederatedGraphStorage {
      *
      * @param graphs the graphs to add to the storage.
      * @param access access required to for the graphs, can't be null
+     * @throws StorageException if unable to put arguments into storage
      * @see #put(Graph, FederatedAccess)
      */
     public void put(final Collection<Graph> graphs, final FederatedAccess access) throws StorageException {
@@ -92,6 +93,7 @@ public class FederatedGraphStorage {
      *
      * @param graph  the graph to add to the storage.
      * @param access access required to for the graph.
+     * @throws StorageException if unable to put arguments into storage
      */
     public void put(final Graph graph, final FederatedAccess access) throws StorageException {
         String graphId = graph.getGraphId();
@@ -323,7 +325,7 @@ public class FederatedGraphStorage {
             Set<Graph> graphs = storage.get(access);
             boolean foundAccess = false;
             if (null != graphs) {
-                for (Graph g : graphs) {
+                for (final Graph g : graphs) {
                     if (g.getGraphId().equals(graphId)) {
                         foundAccess = true;
                         break;
