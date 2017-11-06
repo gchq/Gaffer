@@ -43,6 +43,7 @@ public final class ServiceConstants {
 
     // REST - Other
     public static final String GAFFER_DOCUMENTATION_URL = "https://gchq.github.io/gaffer-doc/";
+    public static final String GAFFER_LOGO_URL = "https://gchq.github.io/gaffer-doc/logos/logoWithText.png";
 
     static {
         final String apiVersion = System.getProperty(SystemProperty.REST_API_VERSION, SystemProperty.CORE_VERSION);
