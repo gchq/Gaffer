@@ -163,24 +163,23 @@ function initFromProperties(onPropertiesLoad) {
         if(onPropertiesLoad) {
             onPropertiesLoad(properties);
         }
-    };
-
+    }
     $.get(getVersion() + '/properties', null, onSuccess);
 }
 
 function updateTitle(properties) {
-    updateElementText('gaffer.properties.app.title', properties, function(value, id) {
+    updateElement('gaffer.properties.app.title', properties, function(value, id) {
+        $('#' + id).text(value);
         document.title = value;
-    })
+    });
 }
 
-function updateElementText(key, properties, onSuccess) {
-    updateElementTextWithId(key.split('.').pop(), key, properties, onSuccess);
+function updateElement(key, properties, onSuccess) {
+    updateElementWithId(key.split('.').pop(), key, properties, onSuccess);
 }
 
-function updateElementTextWithId(id, key, properties, onSuccess) {
+function updateElementWithId(id, key, properties, onSuccess) {
     if(key in properties) {
-        $('#' + id).text(properties[key]);
         if(onSuccess) {
             onSuccess(properties[key], id);
         }
