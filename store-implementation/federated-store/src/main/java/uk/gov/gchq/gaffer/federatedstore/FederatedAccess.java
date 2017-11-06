@@ -16,17 +16,21 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.user.User;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBLIC_DEFAULT;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.DEFAULT_VALUE_IS_PUBLIC;
 
 /**
  * Conditions required for a {@link User} to have access to a graph within the
@@ -56,19 +60,25 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties.IS_PUBL
  *
  * @see #isValidToExecute(User)
  */
-public class FederatedAccess {
-    private boolean isPublic = Boolean.valueOf(IS_PUBLIC_DEFAULT);
+public class FederatedAccess implements Serializable {
+    private static final long serialVersionUID = 1399629017857618033L;
+
+    private boolean isPublic = Boolean.valueOf(DEFAULT_VALUE_IS_PUBLIC);
     private Set<String> graphAuths = new HashSet<>();
     private String addingUserId;
 
     public FederatedAccess(final Set<String> graphAuths, final String addingUserId) {
-        this.graphAuths = graphAuths;
-        this.addingUserId = addingUserId;
+        setGraphAuths(graphAuths);
+        setAddingUserId(addingUserId);
     }
 
     public FederatedAccess(final Set<String> graphAuths, final String addingUser, final boolean isPublic) {
         this(graphAuths, addingUser);
         this.isPublic = isPublic;
+    }
+
+    public String getAddingUserId() {
+        return addingUserId;
     }
 
     public void setAddingUserId(final String creatorUserId) {
@@ -114,6 +124,34 @@ public class FederatedAccess {
         this.graphAuths = graphAuths;
     }
 
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final FederatedAccess that = (FederatedAccess) o;
+
+        return new EqualsBuilder()
+                .append(isPublic, that.isPublic)
+                .append(graphAuths, that.graphAuths)
+                .append(addingUserId, that.addingUserId)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(isPublic)
+                .append(graphAuths)
+                .append(addingUserId)
+                .toHashCode();
+    }
+
     public static class Builder {
         private String addingUser;
         private Set<String> graphAuths;
@@ -134,9 +172,7 @@ public class FederatedAccess {
                 this.graphAuths = null;
             } else {
                 final HashSet<String> authSet = Sets.newHashSet(graphAuths);
-                authSet.remove(null);
-                authSet.remove("");
-
+                authSet.removeAll(Lists.newArrayList("", null));
                 this.graphAuths = authSet;
             }
             return self;
@@ -145,8 +181,7 @@ public class FederatedAccess {
         public Builder addGraphAuths(final Collection<? extends String> graphAuths) {
             if (null != graphAuths) {
                 final HashSet<String> authSet = Sets.newHashSet(graphAuths);
-                authSet.remove(null);
-                authSet.remove("");
+                authSet.removeAll(Lists.newArrayList("", null));
                 if (null == this.graphAuths) {
                     this.graphAuths = authSet;
                 } else {

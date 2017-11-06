@@ -16,11 +16,15 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
 import com.google.common.collect.Lists;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
@@ -38,7 +42,6 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -64,10 +67,15 @@ public class FederatedGetSchemaHandlerTest {
 
     @Before
     public void setup() throws StoreException {
+        HashMapGraphLibrary.clear();
+        CacheServiceLoader.shutdown();
+
         handler = new FederatedGetSchemaHandler();
         user = new User("testUser");
         context = new Context(user);
         properties = new FederatedStoreProperties();
+        properties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(true));
+
         accProperties = new AccumuloProperties();
 
         accProperties.setStoreClass(MockAccumuloStore.class);
@@ -77,6 +85,12 @@ public class FederatedGetSchemaHandlerTest {
         fStore.initialise(TEST_FED_STORE, null, properties);
 
         library.clear();
+    }
+
+    @After
+    public void after() {
+        HashMapGraphLibrary.clear();
+        CacheServiceLoader.shutdown();
     }
 
     @Test
@@ -112,7 +126,7 @@ public class FederatedGetSchemaHandlerTest {
 
         // Then
         assertNotNull(result);
-        assertArrayEquals(edgeSchema.toJson(true), result.toJson(true));
+        JsonAssert.assertEquals(edgeSchema.toJson(true), result.toJson(true));
     }
 
     @Test
