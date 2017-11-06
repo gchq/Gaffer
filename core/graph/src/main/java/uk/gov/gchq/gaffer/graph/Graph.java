@@ -204,6 +204,7 @@ public final class Graph {
         final OperationChain clonedOpChain = operationChain.shallowClone();
         O result = null;
         try {
+            updateOperationChainView(clonedOpChain);
             for (final GraphHook graphHook : config.getHooks()) {
                 graphHook.preExecute(clonedOpChain, context);
             }

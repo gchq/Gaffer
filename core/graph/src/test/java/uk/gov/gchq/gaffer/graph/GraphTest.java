@@ -55,6 +55,7 @@ import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
@@ -995,10 +996,15 @@ public class GraphTest {
         final Store store = mock(Store.class);
         given(store.getSchema()).willReturn(new Schema());
         given(store.getProperties()).willReturn(new StoreProperties());
-        final View view = mock(View.class);
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY)
+                .edge(TestGroups.EDGE)
+                .build();
+        final GraphHook hook = new ViewCheckerGraphHook();
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId(GRAPH_ID)
+                        .addHook(hook)
                         .view(view)
                         .build())
                 .store(store)
@@ -1008,8 +1014,7 @@ public class GraphTest {
         given(context.getUser()).willReturn(user);
         given(store.createContext(user)).willReturn(context);
         final Integer expectedResult = 5;
-        final GetElements operation = mock(GetElements.class);
-        given(operation.getView()).willReturn(null);
+        final GetElements operation = new GetElements();
 
         final OperationChain<Integer> opChain = mock(OperationChain.class);
         final OperationChain clonedOpChain = mock(OperationChain.class);
@@ -1023,7 +1028,7 @@ public class GraphTest {
         // Then
         assertEquals(expectedResult, result);
         verify(store).execute(clonedOpChain, context);
-        verify(operation).setView(view);
+        JsonAssert.assertEquals(view.toJson(false), operation.getView().toJson(false));
     }
 
     @Test
@@ -1975,6 +1980,27 @@ public class GraphTest {
         @Override
         public InputStream getInput() throws IOException {
             return StreamUtil.openStream(getClass(), "/schema/" + schemaFile);
+        }
+    }
+
+    private static class ViewCheckerGraphHook implements GraphHook {
+        @Override
+        public void preExecute(final OperationChain<?> opChain, final Context context) {
+            for (Operation operation : opChain.getOperations()) {
+                if (operation instanceof OperationView && null == ((OperationView) operation).getView()) {
+                    throw new IllegalArgumentException("View should not be null");
+                }
+            }
+        }
+
+        @Override
+        public <T> T postExecute(final T result, final OperationChain<?> opChain, final Context context) {
+            return result;
+        }
+
+        @Override
+        public <T> T onFailure(final T result, final OperationChain<?> opChain, final Context context, final Exception e) {
+            return result;
         }
     }
 }
