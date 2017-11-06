@@ -70,12 +70,6 @@
                                 </webapp>
                             </webapps>
                             <systemProperties>
-                                <gaffer.properties.app.banner.colour>
-                                    red
-                                </gaffer.properties.app.banner.colour>
-                                <gaffer.properties.app.banner.description>
-                                    Application 1 - Prototype
-                                </gaffer.properties.app.banner.description>
                                 <gaffer.properties.app.title>
                                     Road Traffic Example
                                 </gaffer.properties.app.title>
