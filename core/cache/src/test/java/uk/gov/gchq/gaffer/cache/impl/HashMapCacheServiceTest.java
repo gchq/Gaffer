@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
+import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -37,6 +38,7 @@ public class HashMapCacheServiceTest {
     public void before() {
         service.initialise(null);
     }
+
     @After
     public void after() {
         service.shutdown();
@@ -44,7 +46,6 @@ public class HashMapCacheServiceTest {
 
     @Test
     public void shouldReturnInstanceOfHashMapCache() {
-
         // when
         ICache cache = service.getCache(CACHE_NAME);
 
@@ -92,11 +93,11 @@ public class HashMapCacheServiceTest {
         try {
             service.putSafeInCache(CACHE_NAME, "test", 2);
             Assert.fail("Expected an exception");
-        } catch (final CacheOperationException e) {
+        } catch (final OverwritingException e) {
             assertEquals((Integer) 1, service.getFromCache(CACHE_NAME, "test"));
         }
 
-        service.putInCache(CACHE_NAME,"test", 2);
+        service.putInCache(CACHE_NAME, "test", 2);
 
         assertEquals((Integer) 2, service.getFromCache(CACHE_NAME, "test"));
     }
