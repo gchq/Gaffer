@@ -32,11 +32,12 @@ import java.util.stream.Stream;
 
 /**
  * A {@code ToVerticesHandler} handles for {@link ToVertices} operations.
- *
+ * <p>
  * For {@link uk.gov.gchq.gaffer.data.element.Entity} objects, the vertex object
  * is used. For {@link uk.gov.gchq.gaffer.data.element.Edge}s the correct object
  * is selected based on the values of the {@link EdgeVertices} and {@link UseMatchedVertex}
  * values.
+ * </p>
  */
 public class ToVerticesHandler implements OutputOperationHandler<ToVertices, Iterable<? extends Object>> {
 
@@ -59,18 +60,14 @@ public class ToVerticesHandler implements OutputOperationHandler<ToVertices, Ite
                     vertices = Stream.empty();
                 } else if (null != edgeId.getMatchedVertex()) {
                     vertices = getMatchedEdgeVertices(operation, edgeId);
+                } else if (null != operation.getEdgeVertices()) {
+                    vertices = getEdgeVertices(operation.getEdgeVertices(), edgeId);
+                } else if (UseMatchedVertex.EQUAL == operation.getUseMatchedVertex()) {
+                    vertices = getEdgeVertices(EdgeVertices.SOURCE, edgeId);
+                } else if (UseMatchedVertex.OPPOSITE == operation.getUseMatchedVertex()) {
+                    vertices = getEdgeVertices(EdgeVertices.DESTINATION, edgeId);
                 } else {
-                    if (null != operation.getEdgeVertices()) {
-                        vertices = getEdgeVertices(operation.getEdgeVertices(), edgeId);
-                    } else {
-                        if (UseMatchedVertex.EQUAL == operation.getUseMatchedVertex()) {
-                            vertices = getEdgeVertices(EdgeVertices.SOURCE, edgeId);
-                        } else if (UseMatchedVertex.OPPOSITE == operation.getUseMatchedVertex()) {
-                            vertices = getEdgeVertices(EdgeVertices.DESTINATION, edgeId);
-                        } else {
-                            vertices = getEdgeVertices(operation.getEdgeVertices(), edgeId);
-                        }
-                    }
+                    vertices = getEdgeVertices(operation.getEdgeVertices(), edgeId);
                 }
             } else {
                 vertices = Stream.of(((EntityId) e).getVertex());
