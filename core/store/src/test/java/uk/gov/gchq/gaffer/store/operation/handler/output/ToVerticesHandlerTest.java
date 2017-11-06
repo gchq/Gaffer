@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
 import com.google.common.collect.Sets;
+import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
@@ -34,6 +35,7 @@ import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
@@ -42,12 +44,25 @@ import static org.mockito.Mockito.mock;
 
 public class ToVerticesHandlerTest {
 
+    private Object vertex1, vertex2, vertex3,
+            vertex4, vertex5, vertex6,
+            vertex7, vertex8;
+
+    @Before
+    public void setup() {
+        vertex1 = "vertex1";
+        vertex2 = "vertex2";
+        vertex3 = "vertex3";
+        vertex4 = "vertex4";
+        vertex5 = "vertex5";
+        vertex6 = "vertex6";
+        vertex7 = "vertex7";
+        vertex8 = "vertex8";
+    }
+
     @Test
     public void shouldConvertElementSeedsToVertices() throws OperationException {
         // Given
-        final Object vertex1 = "vertex1";
-        final Object vertex2 = "vertex2";
-
         final List elementIds = Arrays.asList(new EntitySeed(vertex1), new EntitySeed(vertex2));
 
         final ToVerticesHandler handler = new ToVerticesHandler();
@@ -66,9 +81,6 @@ public class ToVerticesHandlerTest {
     @Test
     public void shouldBeAbleToIterableOverTheResultsMultipleTimes() throws OperationException {
         // Given
-        final Object vertex1 = "vertex1";
-        final Object vertex2 = "vertex2";
-
         final List elementIds = Arrays.asList(new EntitySeed(vertex1), new EntitySeed(vertex2));
 
         final ToVerticesHandler handler = new ToVerticesHandler();
@@ -90,15 +102,6 @@ public class ToVerticesHandlerTest {
     @Test
     public void shouldConvertEdgeSeedsToVertices_matchedVertexEqual() throws OperationException {
         // Given
-        final Object vertex1 = "vertex1";
-        final Object vertex2 = "vertex2";
-        final Object vertex3 = "vertex3";
-        final Object vertex4 = "vertex4";
-        final Object vertex5 = "vertex5";
-        final Object vertex6 = "vertex6";
-        final Object vertex7 = "vertex7";
-        final Object vertex8 = "vertex8";
-
         final List elementIds = Arrays.asList(
                 new EdgeSeed(vertex1, vertex2, false, EdgeId.MatchedVertex.SOURCE),
                 new EdgeSeed(vertex3, vertex4, false, EdgeId.MatchedVertex.DESTINATION),
@@ -123,15 +126,6 @@ public class ToVerticesHandlerTest {
     @Test
     public void shouldConvertEdgeSeedsToVertices_matchedVertexOpposite() throws OperationException {
         // Given
-        final Object vertex1 = "vertex1";
-        final Object vertex2 = "vertex2";
-        final Object vertex3 = "vertex3";
-        final Object vertex4 = "vertex4";
-        final Object vertex5 = "vertex5";
-        final Object vertex6 = "vertex6";
-        final Object vertex7 = "vertex7";
-        final Object vertex8 = "vertex8";
-
         final List elementIds = Arrays.asList(
                 new EdgeSeed(vertex1, vertex2, false, EdgeId.MatchedVertex.SOURCE),
                 new EdgeSeed(vertex3, vertex4, false, EdgeId.MatchedVertex.DESTINATION),
@@ -156,10 +150,6 @@ public class ToVerticesHandlerTest {
     @Test
     public void shouldConvertEdgeSeedsToVertices_sourceAndDestination() throws OperationException {
         // Given
-        final Object vertex1 = "vertex1";
-        final Object vertex2 = "vertex2";
-        final Object vertex3 = "vertex3";
-
         final List elementIds = Arrays.asList(new EdgeSeed(vertex1, vertex2, false), new EdgeSeed(vertex1, vertex3, false));
 
         final ToVerticesHandler handler = new ToVerticesHandler();
@@ -178,9 +168,6 @@ public class ToVerticesHandlerTest {
     @Test
     public void shouldConvertEdgeSeedsToVertices_sourceOnly() throws OperationException {
         // Given
-        final Object vertex1 = "vertex1";
-        final Object vertex2 = "vertex2";
-
         final List elementIds = Collections.singletonList(new EdgeSeed(vertex1, vertex2, false));
         final ToVerticesHandler handler = new ToVerticesHandler();
         final ToVertices operation = mock(ToVertices.class);
@@ -198,9 +185,6 @@ public class ToVerticesHandlerTest {
     @Test
     public void shouldConvertEdgeSeedsToVertices_destinationOnly() throws OperationException {
         // Given
-        final Object vertex1 = "vertex1";
-        final Object vertex2 = "vertex2";
-
         final List elementIds = Collections.singletonList(new EdgeSeed(vertex1, vertex2, false));
 
         final ToVerticesHandler handler = new ToVerticesHandler();
@@ -214,6 +198,72 @@ public class ToVerticesHandlerTest {
 
         //Then
         assertThat(Sets.newHashSet(results), containsInAnyOrder(vertex2));
+    }
+
+    @Test
+    public void shouldCorrectlyConvertEdgeSeedsWithEqualUseMatchedVertex() throws OperationException {
+        // Given
+        final List elementIds = Arrays.asList(
+                new EdgeSeed(vertex1, vertex2, false, null),
+                new EdgeSeed(vertex3, vertex4, false, null),
+                new EdgeSeed(vertex5, vertex6, false, null),
+                new EdgeSeed(vertex7, vertex8, false, null));
+
+        final ToVerticesHandler handler = new ToVerticesHandler();
+        final ToVertices operation = mock(ToVertices.class);
+
+        given(operation.getInput()).willReturn(elementIds);
+        given(operation.getUseMatchedVertex()).willReturn(ToVertices.UseMatchedVertex.EQUAL);
+
+        // When
+        final Iterable<Object> results = handler.doOperation(operation, new Context(), null);
+
+        // Then
+        assertThat(Sets.newHashSet(results), containsInAnyOrder(vertex1, vertex3, vertex5, vertex7));
+    }
+
+    @Test
+    public void shouldCorrectlyConvertEdgeSeedsWithOppositeUseMatchedVertex() throws OperationException {
+        // Given
+        final List elementIds = Arrays.asList(
+                new EdgeSeed(vertex1, vertex2, false, null),
+                new EdgeSeed(vertex3, vertex4, false, null),
+                new EdgeSeed(vertex5, vertex6, false, null),
+                new EdgeSeed(vertex7, vertex8, false, null));
+
+        final ToVerticesHandler handler = new ToVerticesHandler();
+        final ToVertices operation = mock(ToVertices.class);
+
+        given(operation.getInput()).willReturn(elementIds);
+        given(operation.getUseMatchedVertex()).willReturn(ToVertices.UseMatchedVertex.OPPOSITE);
+
+        // When
+        final Iterable<Object> results = handler.doOperation(operation, new Context(), null);
+
+        // Then
+        assertThat(Sets.newHashSet(results), containsInAnyOrder(vertex2, vertex4, vertex6, vertex8));
+    }
+
+    @Test
+    public void shouldCorrectlyConvertEdgeSeedsWithNoneUseMatchedVertex() throws OperationException {
+        // Given
+        final List elementIds = Arrays.asList(
+                new EdgeSeed(vertex1, vertex2, false, null),
+                new EdgeSeed(vertex3, vertex4, false, null),
+                new EdgeSeed(vertex5, vertex6, false, null),
+                new EdgeSeed(vertex7, vertex8, false, null));
+
+        final ToVerticesHandler handler = new ToVerticesHandler();
+        final ToVertices operation = mock(ToVertices.class);
+
+        given(operation.getInput()).willReturn(elementIds);
+        given(operation.getUseMatchedVertex()).willReturn(ToVertices.UseMatchedVertex.IGNORE);
+
+        // When
+        final Iterable<Object> results = handler.doOperation(operation, new Context(), null);
+
+        // Then
+        assertThat(Sets.newHashSet(results), is(empty()));
     }
 
     @Test

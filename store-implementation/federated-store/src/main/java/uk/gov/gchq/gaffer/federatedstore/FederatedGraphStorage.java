@@ -23,10 +23,12 @@ import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphSerialisable;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
@@ -38,6 +40,7 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -72,6 +75,7 @@ public class FederatedGraphStorage {
      *
      * @param graphs the graphs to add to the storage.
      * @param access access required to for the graphs, can't be null
+     * @throws StorageException if unable to put arguments into storage
      * @see #put(Graph, FederatedAccess)
      */
     public void put(final Collection<Graph> graphs, final FederatedAccess access) throws StorageException {
@@ -89,39 +93,41 @@ public class FederatedGraphStorage {
      *
      * @param graph  the graph to add to the storage.
      * @param access access required to for the graph.
+     * @throws StorageException if unable to put arguments into storage
      */
     public void put(final Graph graph, final FederatedAccess access) throws StorageException {
+        String graphId = graph.getGraphId();
         try {
-            if (exists(graph.getGraphId())) {
-                throw new OverwritingException((String.format(USER_IS_ATTEMPTING_TO_OVERWRITE, graph.getGraphId())));
-            } else if (null == access) {
+            if (null == access) {
                 throw new IllegalArgumentException(ACCESS_IS_NULL);
             }
+            if (!exists(graph, access)) {
+                if (isCacheEnabled()) {
+                    addToCache(graph, access);
+                }
 
-            if (isCacheEnabled()) {
-                addToCache(graph, access);
-            }
+                Set<Graph> existingGraphs = storage.get(access);
+                if (null == existingGraphs) {
+                    existingGraphs = Sets.newHashSet(graph);
+                    storage.put(access, existingGraphs);
+                } else {
+                    existingGraphs.add(graph);
+                }
 
-            Set<Graph> existingGraphs = storage.get(access);
-            if (null == existingGraphs) {
-                existingGraphs = Sets.newHashSet(graph);
-                storage.put(access, existingGraphs);
-            } else {
-                existingGraphs.add(graph);
-            }
-
-            if (null != graphLibrary) {
-                try {
-                    graphLibrary.add(graph.getGraphId(), graph.getSchema(), graph.getStoreProperties());
-                } catch (final Exception e) {
-                    remove(graph.getGraphId(), new User(access.getAddingUserId()));
-                    throw e;
+                if (null != graphLibrary) {
+                    try {
+                        graphLibrary.add(graphId, graph.getSchema(), graph.getStoreProperties());
+                    } catch (final Exception e) {
+                        remove(graphId, new User(access.getAddingUserId()));
+                        throw e;
+                    }
                 }
             }
         } catch (final Exception e) {
-            throw new StorageException("Error adding graph " + graph.getGraphId() + " to storage due to: " + e.getMessage(), e);
+            throw new StorageException("Error adding graph " + graphId + " to storage due to: " + e.getMessage(), e);
         }
     }
+
 
     /**
      * Returns all the graphIds that are visible for the given user.
@@ -165,13 +171,15 @@ public class FederatedGraphStorage {
             if (isValidToView(user, entry.getKey())) {
                 final Set<Graph> graphs = entry.getValue();
                 if (null != graphs) {
+                    HashSet<Graph> remove = Sets.newHashSet();
                     for (final Graph graph : graphs) {
                         if (graph.getGraphId().equals(graphId)) {
-                            graphs.remove(graph);
+                            remove.add(graph);
                             deleteFromCache(graphId);
                             isRemoved = true;
                         }
                     }
+                    graphs.removeAll(remove);
                 }
             }
         }
@@ -284,16 +292,53 @@ public class FederatedGraphStorage {
         }
     }
 
-    private boolean exists(final String graphId) {
+    private boolean exists(final Graph graph, final FederatedAccess access) throws StorageException {
+        Graph found = null;
+        String graphId = graph.getGraphId();
+        outer:
         for (final Set<Graph> graphs : storage.values()) {
-            for (final Graph graph : graphs) {
-                if (graph.getGraphId().equals(graphId)) {
-                    return true;
+            for (final Graph g : graphs) {
+                if (g.getGraphId().equals(graphId)) {
+                    found = g;
+                    break outer;
                 }
             }
         }
 
-        return false;
+        boolean rtn = false;
+
+        if (null != found) {
+            byte[] graphJson;
+            byte[] existJson;
+            try {
+                graphJson = JSONSerialiser.serialise(graph);
+                existJson = JSONSerialiser.serialise(found);
+            } catch (final SerialisationException e) {
+                throw new StorageException(e);
+            }
+            if (JsonUtil.equals(graphJson, existJson)) {
+                rtn = true;
+            } else {
+                throw new OverwritingException((String.format(USER_IS_ATTEMPTING_TO_OVERWRITE, graphId)));
+            }
+
+            Set<Graph> graphs = storage.get(access);
+            boolean foundAccess = false;
+            if (null != graphs) {
+                for (final Graph g : graphs) {
+                    if (g.getGraphId().equals(graphId)) {
+                        foundAccess = true;
+                        break;
+                    }
+                }
+                if (!foundAccess) {
+                    throw new OverwritingException((String.format(USER_IS_ATTEMPTING_TO_OVERWRITE, graphId)));
+                }
+            } else {
+                throw new OverwritingException((String.format(USER_IS_ATTEMPTING_TO_OVERWRITE, graphId)));
+            }
+        }
+        return rtn;
     }
 
     /**
@@ -382,6 +427,7 @@ public class FederatedGraphStorage {
         public String toString() {
             return value;
         }
+
     }
 
     private Boolean isCacheEnabled() {

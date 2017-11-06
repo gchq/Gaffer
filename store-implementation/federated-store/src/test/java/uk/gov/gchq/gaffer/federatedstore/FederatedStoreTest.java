@@ -628,8 +628,8 @@ public class FederatedStoreTest {
                             .opAuths("x")
                             .build()));
             fail("expected exception");
-        } catch (final IllegalArgumentException e) {
-            assertEquals(NO_RESULTS_TO_MERGE_ERROR, e.getMessage());
+        } catch (final OperationException e) {
+            assertEquals(NO_RESULTS_TO_MERGE_ERROR, e.getCause().getMessage());
         }
     }
 
@@ -741,8 +741,8 @@ public class FederatedStoreTest {
                             .opAuths("x")
                             .build());
             fail("expected exception");
-        } catch (final IllegalArgumentException e) {
-            assertEquals(NO_RESULTS_TO_MERGE_ERROR, e.getMessage());
+        } catch (final OperationException e) {
+            assertEquals(NO_RESULTS_TO_MERGE_ERROR, e.getCause().getMessage());
         }
 
         // Then

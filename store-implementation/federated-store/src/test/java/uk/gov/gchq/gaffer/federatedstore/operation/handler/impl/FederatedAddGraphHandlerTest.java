@@ -178,7 +178,7 @@ public class FederatedAddGraphHandlerTest {
     }
 
     @Test
-    public void shouldNotOverwriteGraph() throws Exception {
+    public void shouldThrowWhenOverwriteGraphIsDifferent() throws Exception {
         Schema expectedSchema = new Schema.Builder().build();
 
         MapStoreProperties storeProperties = new MapStoreProperties();
@@ -203,6 +203,9 @@ public class FederatedAddGraphHandlerTest {
                     new AddGraph.Builder()
                             .graphId(EXPECTED_GRAPH_ID)
                             .schema(expectedSchema)
+                            .schema(new Schema.Builder()
+                                    .type("unusual", String.class)
+                                    .build())
                             .storeProperties(storeProperties)
                             .build(),
                     new Context(testUser),
@@ -211,6 +214,74 @@ public class FederatedAddGraphHandlerTest {
         } catch (final Exception e) {
             assertTrue(e.getMessage().contains(String.format(USER_IS_ATTEMPTING_TO_OVERWRITE, EXPECTED_GRAPH_ID)));
         }
+    }
+
+    @Test
+    public void shouldThrowWhenOverwriteGraphIsSameAndAccessIsDifferent() throws Exception {
+        Schema expectedSchema = new Schema.Builder().build();
+
+        MapStoreProperties storeProperties = new MapStoreProperties();
+
+        assertEquals(0, store.getGraphs(testUser, null).size());
+
+        store.initialise(FEDERATEDSTORE_GRAPH_ID, new Schema(), federatedStoreProperties);
+
+        FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
+
+        federatedAddGraphHandler.doOperation(
+                new AddGraph.Builder()
+                        .graphId(EXPECTED_GRAPH_ID)
+                        .schema(expectedSchema)
+                        .storeProperties(storeProperties)
+                        .build(),
+                new Context(testUser),
+                store);
+
+        try {
+            federatedAddGraphHandler.doOperation(
+                    new AddGraph.Builder()
+                            .graphId(EXPECTED_GRAPH_ID)
+                            .schema(expectedSchema)
+                            .graphAuths("X")
+                            .storeProperties(storeProperties)
+                            .build(),
+                    new Context(testUser),
+                    store);
+            fail(EXCEPTION_EXPECTED);
+        } catch (final Exception e) {
+            assertTrue(e.getMessage().contains(String.format(USER_IS_ATTEMPTING_TO_OVERWRITE, EXPECTED_GRAPH_ID)));
+        }
+    }
+
+    @Test
+    public void shouldNotThrowWhenOverwriteGraphIsSame() throws Exception {
+        Schema expectedSchema = new Schema.Builder().build();
+
+        MapStoreProperties storeProperties = new MapStoreProperties();
+
+        assertEquals(0, store.getGraphs(testUser, null).size());
+
+        store.initialise(FEDERATEDSTORE_GRAPH_ID, new Schema(), federatedStoreProperties);
+
+        FederatedAddGraphHandler federatedAddGraphHandler = new FederatedAddGraphHandler();
+
+        federatedAddGraphHandler.doOperation(
+                new AddGraph.Builder()
+                        .graphId(EXPECTED_GRAPH_ID)
+                        .schema(expectedSchema)
+                        .storeProperties(storeProperties)
+                        .build(),
+                new Context(testUser),
+                store);
+
+        federatedAddGraphHandler.doOperation(
+                new AddGraph.Builder()
+                        .graphId(EXPECTED_GRAPH_ID)
+                        .schema(expectedSchema)
+                        .storeProperties(storeProperties)
+                        .build(),
+                new Context(testUser),
+                store);
     }
 
     @Test

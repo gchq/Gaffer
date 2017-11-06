@@ -16,7 +16,10 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import uk.gov.gchq.gaffer.user.User;
 
@@ -65,8 +68,8 @@ public class FederatedAccess implements Serializable {
     private String addingUserId;
 
     public FederatedAccess(final Set<String> graphAuths, final String addingUserId) {
-        this.graphAuths = graphAuths;
-        this.addingUserId = addingUserId;
+        setGraphAuths(graphAuths);
+        setAddingUserId(addingUserId);
     }
 
     public FederatedAccess(final Set<String> graphAuths, final String addingUser, final boolean isPublic) {
@@ -121,6 +124,34 @@ public class FederatedAccess implements Serializable {
         this.graphAuths = graphAuths;
     }
 
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final FederatedAccess that = (FederatedAccess) o;
+
+        return new EqualsBuilder()
+                .append(isPublic, that.isPublic)
+                .append(graphAuths, that.graphAuths)
+                .append(addingUserId, that.addingUserId)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(isPublic)
+                .append(graphAuths)
+                .append(addingUserId)
+                .toHashCode();
+    }
+
     public static class Builder {
         private String addingUser;
         private Set<String> graphAuths;
@@ -141,9 +172,7 @@ public class FederatedAccess implements Serializable {
                 this.graphAuths = null;
             } else {
                 final HashSet<String> authSet = Sets.newHashSet(graphAuths);
-                authSet.remove(null);
-                authSet.remove("");
-
+                authSet.removeAll(Lists.newArrayList("", null));
                 this.graphAuths = authSet;
             }
             return self;
@@ -152,8 +181,7 @@ public class FederatedAccess implements Serializable {
         public Builder addGraphAuths(final Collection<? extends String> graphAuths) {
             if (null != graphAuths) {
                 final HashSet<String> authSet = Sets.newHashSet(graphAuths);
-                authSet.remove(null);
-                authSet.remove("");
+                authSet.removeAll(Lists.newArrayList("", null));
                 if (null == this.graphAuths) {
                     this.graphAuths = authSet;
                 } else {
