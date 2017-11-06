@@ -18,9 +18,10 @@ package uk.gov.gchq.gaffer.store.operation.add;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.junit.Before;
 
-import uk.gov.gchq.gaffer.store.operation.add.AddSchema.Builder;
 import uk.gov.gchq.gaffer.operation.OperationTest;
+import uk.gov.gchq.gaffer.store.operation.add.AddSchema.Builder;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.ArrayList;
@@ -29,6 +30,10 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 
 public class AddSchemaTest extends OperationTest<AddSchema> {
+
+    private Schema schema;
+    private ArrayList<String> parentSchemaIds;
+    private AddSchema op;
 
     @Override
     protected Set<String> getRequiredFields() {
@@ -42,33 +47,28 @@ public class AddSchemaTest extends OperationTest<AddSchema> {
 
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        Schema schema = new Schema.Builder()
-                .id("schemaID")
-                .build();
-        ArrayList<String> value1 = Lists.newArrayList("value1");
-        AddSchema op = new Builder()
-                .parentSchemaIds(value1)
-                .schema(schema)
-                .build();
-
         assertEquals(schema, op.getSchema());
-        assertEquals(value1, op.getParentSchemaIds());
+        assertEquals(parentSchemaIds, op.getParentSchemaIds());
     }
 
     @Override
     public void shouldShallowCloneOperation() {
-        Schema schema = new Schema.Builder()
-                .id("schemaID")
-                .build();
-        ArrayList<String> value1 = Lists.newArrayList("value1");
-        AddSchema op = new Builder()
-                .schema(schema)
-                .parentSchemaIds(value1)
-                .build();
-
+        //when
         AddSchema clone = op.shallowClone();
-
+        //then
         assertEquals(op.getSchema(), clone.getSchema());
         assertEquals(op.getParentSchemaIds(), clone.getParentSchemaIds());
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        schema = new Schema.Builder()
+                .id("schemaID")
+                .build();
+        parentSchemaIds = Lists.newArrayList("value1");
+        op = new Builder()
+                .parentSchemaIds(parentSchemaIds)
+                .schema(schema)
+                .build();
     }
 }

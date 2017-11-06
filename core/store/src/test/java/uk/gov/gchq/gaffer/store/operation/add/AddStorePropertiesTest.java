@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation.add;
 
 import com.google.common.collect.Sets;
+import org.junit.Before;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -29,6 +30,19 @@ import static org.junit.Assert.assertEquals;
 public class AddStorePropertiesTest extends OperationTest<AddStoreProperties> {
 
     public static final String VALUE_1 = "value1";
+    private AddStoreProperties op;
+    private StoreProperties storeProperties;
+
+    @Before
+    public void setUp() throws Exception {
+
+        storeProperties = new StoreProperties();
+
+        op = new Builder()
+                .storeProperties(storeProperties)
+                .parentPropertiesId(VALUE_1)
+                .build();
+    }
 
     @Override
     protected Set<String> getRequiredFields() {
@@ -42,25 +56,17 @@ public class AddStorePropertiesTest extends OperationTest<AddStoreProperties> {
 
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        StoreProperties storeProperties = new StoreProperties();
-        AddStoreProperties op = new Builder()
-                .storeProperties(storeProperties)
-                .parentPropertiesId(VALUE_1)
-                .build();
-
+        //then
         assertEquals(storeProperties, op.getStoreProperties());
         assertEquals(VALUE_1, op.getParentPropertiesId());
     }
 
     @Override
     public void shouldShallowCloneOperation() {
-        AddStoreProperties op = new Builder()
-                .storeProperties(new StoreProperties())
-                .parentPropertiesId(VALUE_1)
-                .build();
-
+        //when
         AddStoreProperties clone = op.shallowClone();
 
+        //then
         assertEquals(op.getStoreProperties(), clone.getStoreProperties());
         assertEquals(op.getParentPropertiesId(), clone.getParentPropertiesId());
     }

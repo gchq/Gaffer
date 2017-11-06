@@ -27,8 +27,6 @@ import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.List;
 
-import static uk.gov.gchq.gaffer.store.library.GraphLibrary.*;
-
 /**
  * Delegation class used to create a graph from the various combinations of
  * settings.
