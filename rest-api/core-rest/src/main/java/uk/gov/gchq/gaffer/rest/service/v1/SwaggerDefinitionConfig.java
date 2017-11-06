@@ -23,6 +23,7 @@ import io.swagger.annotations.License;
 import io.swagger.annotations.SwaggerDefinition;
 
 import uk.gov.gchq.gaffer.rest.ServiceConstants;
+import uk.gov.gchq.gaffer.rest.SystemProperty;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
@@ -36,8 +37,8 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
                 version = "v1",
                 title = "",
                 contact = @Contact(
-                        name = ServiceConstants.CONTACT_DEFAULT,
-                        url = ServiceConstants.CONTACT_URL_DEFAULT
+                        name = SystemProperty.APP_CONTACT_DEFAULT,
+                        url = SystemProperty.APP_CONTACT_URL_DEFAULT
                 ),
                 license = @License(
                         name = "Apache 2.0",

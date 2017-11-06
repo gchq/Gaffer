@@ -160,37 +160,36 @@ function init(onSwaggerComplete, onPropertiesLoad){
 function initFromProperties(onPropertiesLoad) {
     var onSuccess = function(properties) {
         updateTitle(properties);
-        updateElementTextWithId('banner', 'gaffer.properties.app.banner.description', properties);
-        updateElementColourWithId('banner', 'gaffer.properties.app.banner.colour', properties);
+        updateBanner(properties);
         if(onPropertiesLoad) {
             onPropertiesLoad(properties);
         }
-    };
+    }
     $.get(getVersion() + '/properties', null, onSuccess);
 }
 
 function updateTitle(properties) {
-    updateElementText('gaffer.properties.app.title', properties, function(value, id) {
+    updateElement('gaffer.properties.app.title', properties, function(value, id) {
+        $('#' + id).text(value);
         document.title = value;
-    })
+    });
 }
 
-function updateElementText(key, properties, onSuccess) {
-    updateElementTextWithId(key.split('.').pop(), key, properties, onSuccess);
+function updateBanner(properties) {
+    updateElementWithId('banner', 'gaffer.properties.app.banner.colour', properties, function(value, id) {
+        $('#' + id).css({'background-color': value});
+    });
+    updateElementWithId('banner', 'gaffer.properties.app.banner.description', properties, function (value, id) {
+        $('#' + id).text(value);
+    });
 }
 
-function updateElementColourWithId(id, key, properties, onSuccess) {
+function updateElement(key, properties, onSuccess) {
+    updateElementWithId(key.split('.').pop(), key, properties, onSuccess);
+}
+
+function updateElementWithId(id, key, properties, onSuccess) {
     if(key in properties) {
-        $('#' + id).css({'background-color': properties[key]});
-        if(onSuccess) {
-            onSuccess(properties[key], id)
-        }
-    }
-}
-
-function updateElementTextWithId(id, key, properties, onSuccess) {
-    if(key in properties) {
-        $('#' + id).text(properties[key]);
         if(onSuccess) {
             onSuccess(properties[key], id);
         }

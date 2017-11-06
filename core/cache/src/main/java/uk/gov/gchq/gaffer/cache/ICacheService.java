@@ -45,8 +45,8 @@ public interface ICacheService {
      * Get the named cache from the cache service.
      *
      * @param cacheName the name of the cache to retrieve
-     * @param <K> The object type that acts as the key for the cache
-     * @param <V> The value that is stored in the cache
+     * @param <K>       The object type that acts as the key for the cache
+     * @param <V>       The value that is stored in the cache
      * @return the requested cache object
      */
     <K, V> ICache<K, V> getCache(final String cacheName);
@@ -55,9 +55,9 @@ public interface ICacheService {
      * Get the value associated with the specified cache and key.
      *
      * @param cacheName the name of the cache to look in
-     * @param key the key of the entry to lookup
-     * @param <K> The object type that acts as the key for the cache
-     * @param <V> The value that is stored in the cache
+     * @param key       the key of the entry to lookup
+     * @param <K>       The object type that acts as the key for the cache
+     * @param <V>       The value that is stored in the cache
      * @return the requested cache object
      */
     default <K, V> V getFromCache(final String cacheName, final K key) {
@@ -69,10 +69,10 @@ public interface ICacheService {
      * Add a new key-value pair to the specified cache.
      *
      * @param cacheName the name of the cache
-     * @param key the key to add
-     * @param value the value to add
-     * @param <K> The object type that acts as the key for the cache
-     * @param <V> The value that is stored in the cache
+     * @param key       the key to add
+     * @param value     the value to add
+     * @param <K>       The object type that acts as the key for the cache
+     * @param <V>       The value that is stored in the cache
      * @throws CacheOperationException if there is an error adding the new key-value pair to the cache
      */
     default <K, V> void putInCache(final String cacheName, final K key, final V value) throws CacheOperationException {
@@ -81,14 +81,14 @@ public interface ICacheService {
     }
 
     /**
-     * Add a new key-value pair to the specified cache, but only if there is existing
+     * Add a new key-value pair to the specified cache, but only if there is no existing
      * entry associated with the specified key.
      *
      * @param cacheName the name of the cache
-     * @param key the key to add
-     * @param value the value to add
-     * @param <K> The object type that acts as the key for the cache
-     * @param <V> The value that is stored in the cache
+     * @param key       the key to add
+     * @param value     the value to add
+     * @param <K>       The object type that acts as the key for the cache
+     * @param <V>       The value that is stored in the cache
      * @throws CacheOperationException if the specified key already exists in the cache with a non-null value
      */
     default <K, V> void putSafeInCache(final String cacheName, final K key, final V value) throws CacheOperationException {
@@ -100,9 +100,9 @@ public interface ICacheService {
      * Remove the entry associated with the specified key from the specified cache.
      *
      * @param cacheName the name of the cache to look in
-     * @param key the key of the entry to remove
-     * @param <K> The object type that acts as the key for the cache
-     * @param <V> The value that is stored in the cache
+     * @param key       the key of the entry to remove
+     * @param <K>       The object type that acts as the key for the cache
+     * @param <V>       The value that is stored in the cache
      */
     default <K, V> void removeFromCache(final String cacheName, final K key) {
         final ICache<K, V> cache = getCache(cacheName);
@@ -113,8 +113,8 @@ public interface ICacheService {
      * Get all of the values associated with the specified cache.
      *
      * @param cacheName the name of the cache to look in
-     * @param <K> The object type that acts as the key for the cache
-     * @param <V> The value that is stored in the cache
+     * @param <K>       The object type that acts as the key for the cache
+     * @param <V>       The value that is stored in the cache
      * @return the requested cache objects
      */
     default <K, V> Collection<V> getAllValuesFromCache(final String cacheName) {
@@ -126,8 +126,8 @@ public interface ICacheService {
      * Get all of the keys associated with the specified cache.
      *
      * @param cacheName the name of the cache to look in
-     * @param <K> The object type that acts as the key for the cache
-     * @param <V> The value that is stored in the cache
+     * @param <K>       The object type that acts as the key for the cache
+     * @param <V>       The value that is stored in the cache
      * @return the requested cache keys
      */
     default <K, V> Set<K> getAllKeysFromCache(final String cacheName) {

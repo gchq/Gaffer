@@ -80,6 +80,13 @@ public final class CacheServiceLoader {
     }
 
     /**
+     * @return true if the cache is enabled
+     */
+    public static boolean isEnabled() {
+        return null != service;
+    }
+
+    /**
      * Gracefully shutdown and reset the cache service.
      */
     public static void shutdown() {

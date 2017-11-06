@@ -22,17 +22,18 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.Graph.Builder;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -45,18 +46,34 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
 
 public class FederatedStoreGraphVisibilityTest {
 
+    private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
+    private static final String TEST_STORE_PROPS_ID = "testStorePropsId";
+    private static final String TEST_SCHEMA_ID = "testSchemaId";
+    private static final String TEST_GRAPH_ID = "testGraphId";
+    private static final String TEST_FED_GRAPH_ID = "testFedGraphId";
     private static User addingUser;
     private static User nonAddingUser;
     private static User authNonAddingUser;
     private Graph fedGraph;
-    private StoreProperties fedProperties;
+    private FederatedStoreProperties fedProperties;
+    private HashMapGraphLibrary library;
 
     @Before
     public void setUp() throws Exception {
         HashMapGraphLibrary.clear();
-        fedProperties = new FederatedStoreProperties();
+        CacheServiceLoader.shutdown();
 
-        final HashMapGraphLibrary library = new HashMapGraphLibrary();
+        fedProperties = new FederatedStoreProperties();
+        fedProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
+
+        addingUser = testUser();
+        nonAddingUser = blankUser();
+        authNonAddingUser = authUser();
+        library = new HashMapGraphLibrary();
+    }
+
+    @Test
+    public void shouldNotShowHiddenGraphIdWithIDs() throws Exception {
 
         final Schema aSchema = new Schema.Builder()
                 .entity("e1", new SchemaEntityDefinition.Builder()
@@ -69,39 +86,86 @@ public class FederatedStoreGraphVisibilityTest {
         accProp.setStoreClass(SingleUseMockAccumuloStore.class.getName());
         accProp.setStorePropertiesClass(AccumuloProperties.class);
 
-        library.add("a", aSchema, accProp);
+        library.add(TEST_GRAPH_ID, TEST_SCHEMA_ID, aSchema, TEST_STORE_PROPS_ID, accProp);
 
         fedGraph = new Builder()
                 .config(new GraphConfig.Builder()
-                        .graphId("testFedGraph")
+                        .graphId(TEST_FED_GRAPH_ID)
                         .library(library)
                         .build())
                 .addStoreProperties(fedProperties)
                 .build();
 
-        addingUser = testUser();
-        nonAddingUser = blankUser();
-        authNonAddingUser = authUser();
-    }
-
-    @Test
-    public void shouldNotShowHiddenGraphId() throws Exception {
         fedGraph.execute(
                 new AddGraph.Builder()
                         .graphId("g1")
-                        .parentPropertiesId("a")
+                        .parentPropertiesId(TEST_STORE_PROPS_ID) // <- with ID
+                        .parentSchemaIds(Arrays.asList(TEST_SCHEMA_ID)) // <- with ID
                         .build(),
                 addingUser);
 
         fedGraph.execute(
                 new AddGraph.Builder()
                         .graphId("g2")
-                        .parentPropertiesId("a")
+                        .parentPropertiesId(TEST_STORE_PROPS_ID) // <- with ID
+                        .parentSchemaIds(Arrays.asList(TEST_SCHEMA_ID)) // <- with ID
                         .graphAuths("auth1")
                         .build(),
                 addingUser);
 
 
+        commonAssertions();
+    }
+
+    /*
+     * Adhoc test to make sure that the naming of props and schemas without ID's
+     * is still retrievable via the name of the graph that is was added to the library.
+     */
+    @Test
+    public void shouldNotShowHiddenGraphIdWithoutIDs() throws Exception {
+        final Schema aSchema = new Schema.Builder() // <- without ID
+                .entity("e1", new SchemaEntityDefinition.Builder()
+                        .vertex("string")
+                        .build())
+                .type("string", String.class)
+                .build();
+
+        final AccumuloProperties accProp = new AccumuloProperties(); // <- without ID
+        accProp.setStoreClass(SingleUseMockAccumuloStore.class.getName());
+        accProp.setStorePropertiesClass(AccumuloProperties.class);
+
+        library.add(TEST_GRAPH_ID, aSchema, accProp);
+
+        fedGraph = new Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId(TEST_FED_GRAPH_ID)
+                        .library(library)
+                        .build())
+                .addStoreProperties(fedProperties)
+                .build();
+
+        fedGraph.execute(
+                new AddGraph.Builder()
+                        .graphId("g1")
+                        .parentPropertiesId(TEST_GRAPH_ID) // <- without ID
+                        .parentSchemaIds(Arrays.asList(TEST_GRAPH_ID)) // <- without ID
+                        .build(),
+                addingUser);
+
+        fedGraph.execute(
+                new AddGraph.Builder()
+                        .graphId("g2")
+                        .parentPropertiesId(TEST_GRAPH_ID) // <- without ID
+                        .parentSchemaIds(Arrays.asList(TEST_GRAPH_ID)) // <- without ID
+                        .graphAuths("auth1")
+                        .build(),
+                addingUser);
+
+
+        commonAssertions();
+    }
+
+    private void commonAssertions() throws uk.gov.gchq.gaffer.operation.OperationException {
         Iterable<? extends String> graphIds = fedGraph.execute(
                 new GetAllGraphIds(),
                 nonAddingUser);
@@ -148,5 +212,6 @@ public class FederatedStoreGraphVisibilityTest {
         assertTrue(sets.contains("g1"));
         assertTrue(sets.contains("g2"));
     }
+
 
 }
