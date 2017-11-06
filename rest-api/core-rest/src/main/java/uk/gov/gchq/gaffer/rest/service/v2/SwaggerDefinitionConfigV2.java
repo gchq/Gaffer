@@ -32,9 +32,9 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
  */
 @SwaggerDefinition(
         info = @Info(
-                description = "The Gaffer REST service.",
+                description = "",
                 version = "v2",
-                title = "Gaffer REST API",
+                title = "",
                 contact = @Contact(
                         name = "Gaffer Developers",
                         url = "https://github.com/gchq/Gaffer"

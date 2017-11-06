@@ -159,7 +159,7 @@ function init(onSwaggerComplete){
           log("Loaded swagger");
               $('pre code').each(function(i,e){hljs.highlightBlock(e)});
               updateElementColourUsingProperties({"banner": "gaffer.properties.app.banner.colour"});
-              updateElementTextUsingProperties({"title": "gaffer.properties.app.title", "banner": "gaffer.properties.app.banner.description"});
+              updateElementTextUsingProperties({"title": "gaffer.properties.app.title", "banner": "gaffer.properties.app.banner.description", "description": "gaffer.properties.app.description"});
               addExampleButtons();
               if(onSwaggerComplete) {
                   onSwaggerComplete();
