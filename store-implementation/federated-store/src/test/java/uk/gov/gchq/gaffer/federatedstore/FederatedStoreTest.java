@@ -23,10 +23,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -74,8 +74,15 @@ import static uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOpera
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
 import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
+import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
+import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
+import static uk.gov.gchq.gaffer.store.StoreTrait.values;
 import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER;
 import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
+import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedStoreTest {
     public static final String ID_SCHEMA_ENTITY = "basicEntitySchema";
@@ -255,8 +262,8 @@ public class FederatedStoreTest {
         addGraphWithPaths(MAP_ID_1, PATH_MAP_STORE_PROPERTIES, PATH_BASIC_ENTITY_SCHEMA_JSON);
 
         Set<StoreTrait> after = store.getTraits();
-        assertEquals(StoreTrait.values().length, before.size());
-        assertEquals(StoreTrait.values().length, after.size());
+        assertEquals(values().length, before.size());
+        assertEquals(values().length, after.size());
         assertEquals(before, after);
     }
 
@@ -337,7 +344,7 @@ public class FederatedStoreTest {
                 .build();
 
         //When
-        final Set<StoreTrait> before = store.getTraits(getTraits, testUserContext);
+        final Set<StoreTrait> before = store.getTraits(getTraits, userContext);
         store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
 
         store.execute(new AddGraph.Builder()
@@ -345,18 +352,18 @@ public class FederatedStoreTest {
                 .isPublic(true)
                 .graphId(ACC_ID_1)
                 .storeProperties(StoreProperties.loadStoreProperties("/properties/singleUseMockAccStore.properties"))
-                .build(), new Context(testUser));
+                .build(), new Context(testUser()));
 
-        final Set<StoreTrait> afterAcc = store.getTraits(getTraits, testUserContext);
+        final Set<StoreTrait> afterAcc = store.getTraits(getTraits, userContext);
 
         store.execute(new AddGraph.Builder()
                 .schema(new Schema())
                 .isPublic(true)
                 .graphId(MAP_ID_1)
                 .storeProperties(new MapStoreProperties())
-                .build(), new Context(testUser));
+                .build(), new Context(testUser()));
 
-        final Set<StoreTrait> afterMap = store.getTraits(getTraits, testUserContext);
+        final Set<StoreTrait> afterMap = store.getTraits(getTraits, userContext);
 
         //Then
         assertNotEquals(SingleUseAccumuloStore.TRAITS, MapStore.TRAITS);

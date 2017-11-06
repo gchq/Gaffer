@@ -20,6 +20,7 @@ import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
@@ -45,16 +46,19 @@ public class FederatedGetTraitsHandlerTest {
     public static final String FED_STORE_ID = "fedStoreId";
     public static final String ACC_STORE = "accStore";
     private FederatedStore federatedStore;
+    private FederatedStoreProperties properties;
 
     @Before
     public void setUp() throws Exception {
         federatedStore = new FederatedStore();
+        properties = new FederatedStoreProperties();
+        properties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(false));
     }
 
     @Test
     public void shouldGetAllTraitsForEmptyStore() throws Exception {
         // Given
-        federatedStore.initialise(FED_STORE_ID, null, new FederatedStoreProperties());
+        federatedStore.initialise(FED_STORE_ID, null, properties);
 
         // When
         final Set<StoreTrait> traits = federatedStore.execute(
@@ -70,7 +74,7 @@ public class FederatedGetTraitsHandlerTest {
     @Test
     public void shouldGetAllTraitsForEmptyStoreWithCurrentTraits() throws Exception {
         // Given
-        federatedStore.initialise(FED_STORE_ID, null, new FederatedStoreProperties());
+        federatedStore.initialise(FED_STORE_ID, null, properties);
 
         // When
         final Set<StoreTrait> traits = federatedStore.execute(new GetTraits.Builder()
@@ -84,7 +88,7 @@ public class FederatedGetTraitsHandlerTest {
     @Test
     public void shouldGetAllTraitsWhenContainsMapStore() throws Exception {
         // Given
-        federatedStore.initialise(FED_STORE_ID, null, new FederatedStoreProperties());
+        federatedStore.initialise(FED_STORE_ID, null, properties);
         federatedStore.execute(new AddGraph.Builder()
                 .isPublic(true)
                 .graphId(MAP_STORE)
@@ -106,7 +110,7 @@ public class FederatedGetTraitsHandlerTest {
     @Test
     public void shouldGetCurrentTraitsWhenContainsMapStore() throws Exception {
         // Given
-        federatedStore.initialise(FED_STORE_ID, null, new FederatedStoreProperties());
+        federatedStore.initialise(FED_STORE_ID, null, properties);
         federatedStore.execute(new AddGraph.Builder()
                 .isPublic(true)
                 .graphId(MAP_STORE)
@@ -135,7 +139,7 @@ public class FederatedGetTraitsHandlerTest {
     @Test
     public void shouldGetCurrentTraitsWhenContainsMapStoreWithOptions() throws Exception {
         // Given
-        federatedStore.initialise(FED_STORE_ID, null, new FederatedStoreProperties());
+        federatedStore.initialise(FED_STORE_ID, null, properties);
 
         federatedStore.execute(new AddGraph.Builder()
                 .isPublic(true)
@@ -173,7 +177,7 @@ public class FederatedGetTraitsHandlerTest {
     @Test
     public void shouldGetAllTraitsWhenContainsMapStoreWithOptions() throws Exception {
         // Given
-        federatedStore.initialise(FED_STORE_ID, null, new FederatedStoreProperties());
+        federatedStore.initialise(FED_STORE_ID, null, properties);
 
         federatedStore.execute(new AddGraph.Builder()
                 .isPublic(true)
