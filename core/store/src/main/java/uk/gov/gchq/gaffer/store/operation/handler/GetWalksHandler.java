@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.graph.AdjacencyMap;
 import uk.gov.gchq.gaffer.data.graph.Walk;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -37,6 +38,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -85,6 +87,12 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
 
         // Execute the GetElements operations
         for (final GetElements getElements : getWalks.getOperations()) {
+
+            getElements.setView(new View.Builder()
+                    .merge(getElements.getView())
+                    .entities(Collections.emptyMap())
+                    .build());
+
             if (null == results) {
                 getElements.setInput(getWalks.getInput());
 
@@ -161,14 +169,14 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
      * the number of results to return according to the limit set by the {@link GetWalks}
      * operation.
      *
-     * @param store the store
-     * @param context the context
+     * @param store    the store
+     * @param context  the context
      * @param getWalks the {@link GetWalks} operation
-     * @param opChain the operation chain
-     * @param <T> the output type of the operation chain
+     * @param opChain  the operation chain
+     * @param <T>      the output type of the operation chain
      * @return a list of results, trimmed to the specified limit
      * @throws OperationException if there was an error while processing the operation
-     * chain
+     *                            chain
      */
     private <T> List<Edge> getLimitedResults(final Store store, final Context context, final GetWalks getWalks, final Output<T> opChain) throws OperationException {
         final Iterable<Edge> iterable = new LimitedCloseableIterable<>((Iterable<Edge>) store.execute(opChain, context), 0, getWalks.getResultsLimit(), false);

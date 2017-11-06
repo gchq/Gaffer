@@ -20,10 +20,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.graph.Walk;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Operations;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
@@ -38,30 +38,30 @@ import java.util.Map;
 
 /**
  * A {@code GetWalks} class is used to retrieve all of the walks in a graph
- * starting from one of a set of provided {@link EntitySeed}s, with a maximum
+ * starting from one of a set of provided {@link EntityId}s, with a maximum
  * length.
  * <p>
  * A GetWalks operation is configured using a user-supplied list of {@link
  * GetElements} operations. These are executed sequentially, with the output of
- * one operation providing the input {@link EntitySeed}s for the next.
+ * one operation providing the input {@link EntityId}s for the next.
  */
 public class GetWalks implements
-        InputOutput<Iterable<? extends EntitySeed>, Iterable<Walk>>,
-        MultiInput<EntitySeed>,
+        InputOutput<Iterable<? extends EntityId>, Iterable<Walk>>,
+        MultiInput<EntityId>,
         Operations<GetElements> {
 
     private List<GetElements> operations;
-    private Iterable<? extends EntitySeed> input;
+    private Iterable<? extends EntityId> input;
     private Map<String, String> options;
     private Integer resultsLimit = 1000000;
 
     @Override
-    public Iterable<? extends EntitySeed> getInput() {
+    public Iterable<? extends EntityId> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<? extends EntitySeed> input) {
+    public void setInput(final Iterable<? extends EntityId> input) {
         this.input = input;
     }
 
@@ -102,8 +102,8 @@ public class GetWalks implements
                 }
 
                 // Validate that the input is set correctly
-                if (it.previousIndex() > 0 && null != op.getInput()) {
-                    result.addError("The input for all operations (except the first) must be null.");
+                if (null != op.getInput()) {
+                    result.addError("The input for all the nested operations must be null.");
                 }
             }
         } else {
@@ -152,8 +152,8 @@ public class GetWalks implements
 
     public static final class Builder
             extends Operation.BaseBuilder<GetWalks, Builder>
-            implements InputOutput.Builder<GetWalks, Iterable<? extends EntitySeed>, Iterable<Walk>, Builder>,
-            MultiInput.Builder<GetWalks, EntitySeed, Builder> {
+            implements InputOutput.Builder<GetWalks, Iterable<? extends EntityId>, Iterable<Walk>, Builder>,
+            MultiInput.Builder<GetWalks, EntityId, Builder> {
 
         public Builder() {
             super(new GetWalks());
