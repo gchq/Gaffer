@@ -19,9 +19,9 @@ package uk.gov.gchq.gaffer.store.library;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.exception.OverwritingException;
 
 /**
  * A {@code NoGraphLibrary} will not store any relationships between graphIds,

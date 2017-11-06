@@ -50,6 +50,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
 
 public class FederatedOperationHandlerTest {
+    private static final String TEST_GRAPH_ID = "testGraphId";
     private User user;
     private Context context;
 
@@ -132,7 +133,7 @@ public class FederatedOperationHandlerTest {
 
     private Graph getGraphWithMockStore(final Store mockStore) {
         return new Graph.Builder()
-                .config(new GraphConfig("testGraphId"))
+                .config(new GraphConfig(TEST_GRAPH_ID))
                 .store(mockStore)
                 .build();
     }
@@ -165,7 +166,7 @@ public class FederatedOperationHandlerTest {
         when(mockStore.getGraphs(user, graphID)).thenReturn(filteredGraphs);
         try {
             new FederatedOperationHandler().doOperation(op, context, mockStore);
-            Assert.fail("Exception Not thrown");
+            fail("Exception Not thrown");
         } catch (OperationException e) {
             Assert.assertEquals(message, e.getCause().getMessage());
         }
@@ -173,12 +174,13 @@ public class FederatedOperationHandlerTest {
     }
 
     @Test
-    final public void shouldNotThrowException() throws Exception {
+    final public void shouldNotThrowExceptionBecauseSkipFlagSetTrue() throws Exception {
         // Given
         final String graphID = "1,3";
         final Operation op = mock(Operation.class);
         when(op.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS)).thenReturn(graphID);
         when(op.getOption(KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE)).thenReturn(String.valueOf(true));
+        when(op.getOption(eq(KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE), any(String.class))).thenReturn(String.valueOf(true));
 
         Schema unusedSchema = new Schema.Builder().build();
         StoreProperties storeProperties = new StoreProperties();
@@ -207,4 +209,6 @@ public class FederatedOperationHandlerTest {
         verify(mockStore1, atLeastOnce()).execute(any(OperationChain.class), eq(context));
         verify(mockStore2, atLeastOnce()).execute(any(OperationChain.class), eq(context));
     }
+
+
 }
