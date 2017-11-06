@@ -68,7 +68,7 @@ public class WalkTest {
     private final static Entity ENTITY_G = new Entity.Builder().group(TestGroups.ENTITY).vertex("G").build();
 
     @Test
-    public void shouldJsonSerialiseAndDeserialise() throws JsonProcessingException, SerialisationException {
+    public void shouldJsonSerialiseAndDeserialise() throws Exception {
         // Given
         final Walk walk = new Walk.Builder()
                 .edge(EDGE_AB)

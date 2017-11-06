@@ -102,7 +102,7 @@ public class GetWalks implements
                 }
 
                 // Validate that the input is set correctly
-                if (it.hasPrevious() && null != op.getInput()) {
+                if (it.previousIndex() > 0 && null != op.getInput()) {
                     result.addError("The input for all operations (except the first) must be null.");
                 }
             }
