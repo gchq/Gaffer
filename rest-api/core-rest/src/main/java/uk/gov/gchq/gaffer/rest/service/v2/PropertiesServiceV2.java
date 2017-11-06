@@ -61,23 +61,18 @@ public class PropertiesServiceV2 implements IPropertiesServiceV2 {
 
     @Override
     public Response getProperties() {
-        final Map<String, String> properties;
-
-        final String propertiesList = System.getProperty(EXPOSED_PROPERTIES);
-        if (null == propertiesList) {
-            properties = Collections.emptyMap();
-        } else {
-            final String[] props = propertiesList.split(",");
-            properties = new LinkedHashMap<>(CORE_EXPOSED_PROPERTIES);
-            Stream.concat(CORE_EXPOSED_PROPERTIES.keySet().stream(), Arrays.stream(props))
-                    .filter(StringUtils::isNotEmpty)
-                    .forEach(prop -> {
-                        final String value = System.getProperty(prop);
-                        if (null != value) {
-                            properties.put(prop, value);
-                        }
-                    });
-        }
+        final Map<String, String> properties = new LinkedHashMap<>();
+        final String customPropNamesCsv = System.getProperty(EXPOSED_PROPERTIES);
+        final Stream<String> customPropNames = null != customPropNamesCsv ? Arrays.stream(customPropNamesCsv.split(",")) : Stream.empty();
+        Stream.concat(CORE_EXPOSED_PROPERTIES.keySet().stream(), customPropNames)
+                .filter(StringUtils::isNotEmpty)
+                .forEach(prop -> {
+                    String value = System.getProperty(prop);
+                    if (null == value) {
+                        value = CORE_EXPOSED_PROPERTIES.get(prop);
+                    }
+                    properties.put(prop, value);
+                });
 
         return Response.ok(Collections.unmodifiableMap(properties))
                 .header(ServiceConstants.GAFFER_MEDIA_TYPE_HEADER, ServiceConstants.GAFFER_MEDIA_TYPE)
