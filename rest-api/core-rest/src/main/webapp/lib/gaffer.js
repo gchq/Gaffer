@@ -126,7 +126,7 @@ function initExampleOperations() {
      )
 }
 
-function init(onSwaggerComplete){
+function init(onSwaggerComplete, onPropertiesLoad){
       window.swaggerUi = new SwaggerUi({
         url: "latest/swagger.json",
         dom_id: "swagger-ui-container",
@@ -134,6 +134,7 @@ function init(onSwaggerComplete){
         onComplete: function(swaggerApi, swaggerUi){
           log("Loaded swagger");
               $('pre code').each(function(i,e){hljs.highlightBlock(e)});
+              initFromProperties(onPropertiesLoad);
               addExampleButtons();
               if(onSwaggerComplete) {
                   onSwaggerComplete();
@@ -154,4 +155,33 @@ function init(onSwaggerComplete){
       });
 
       window.swaggerUi.load();
+}
+
+function initFromProperties(onPropertiesLoad) {
+    var onSuccess = function(properties) {
+        updateTitle(properties);
+        if(onPropertiesLoad) {
+            onPropertiesLoad(properties);
+        }
+    }
+    $.get(getVersion() + '/properties', null, onSuccess);
+}
+
+function updateTitle(properties) {
+    updateElement('gaffer.properties.app.title', properties, function(value, id) {
+        $('#' + id).text(value);
+        document.title = value;
+    });
+}
+
+function updateElement(key, properties, onSuccess) {
+    updateElementWithId(key.split('.').pop(), key, properties, onSuccess);
+}
+
+function updateElementWithId(id, key, properties, onSuccess) {
+    if(key in properties) {
+        if(onSuccess) {
+            onSuccess(properties[key], id);
+        }
+    }
 }

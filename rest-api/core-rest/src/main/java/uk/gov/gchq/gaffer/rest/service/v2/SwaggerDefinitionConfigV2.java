@@ -23,6 +23,7 @@ import io.swagger.annotations.License;
 import io.swagger.annotations.SwaggerDefinition;
 
 import uk.gov.gchq.gaffer.rest.ServiceConstants;
+import uk.gov.gchq.gaffer.rest.SystemProperty;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
@@ -32,12 +33,12 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
  */
 @SwaggerDefinition(
         info = @Info(
-                description = "The Gaffer REST service.",
+                description = ServiceConstants.DESCRIPTION_DEFAULT,
                 version = "v2",
-                title = "Gaffer REST API",
+                title = "",
                 contact = @Contact(
-                        name = "Gaffer Developers",
-                        url = "https://github.com/gchq/Gaffer"
+                        name = SystemProperty.APP_CONTACT_DEFAULT,
+                        url = SystemProperty.APP_CONTACT_URL_DEFAULT
                 ),
                 license = @License(
                         name = "Apache 2.0",
