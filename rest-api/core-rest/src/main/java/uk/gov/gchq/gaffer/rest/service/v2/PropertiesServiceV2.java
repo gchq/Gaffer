@@ -25,9 +25,11 @@ import uk.gov.gchq.gaffer.rest.SystemProperty;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_CONTACT;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_CONTACT_DEFAULT;
@@ -67,11 +69,14 @@ public class PropertiesServiceV2 implements IPropertiesServiceV2 {
         } else {
             final String[] props = propertiesList.split(",");
             properties = new LinkedHashMap<>(CORE_EXPOSED_PROPERTIES);
-            for (final String prop : props) {
-                if (StringUtils.isNotEmpty(prop)) {
-                    properties.put(prop, System.getProperty(prop));
-                }
-            }
+            Stream.concat(CORE_EXPOSED_PROPERTIES.keySet().stream(), Arrays.stream(props))
+                    .filter(StringUtils::isNotEmpty)
+                    .forEach(prop -> {
+                        final String value = System.getProperty(prop);
+                        if (null != value) {
+                            properties.put(prop, value);
+                        }
+                    });
         }
 
         return Response.ok(Collections.unmodifiableMap(properties))

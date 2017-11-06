@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.rest.SystemProperty;
 import javax.ws.rs.core.Response;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -87,17 +88,22 @@ public class PropertyServiceV2IT extends AbstractRestApiV2IT {
         System.setProperty("gaffer.test1", "1");
         System.setProperty("gaffer.test2", "2");
         System.setProperty("gaffer.test3", "3");
+        System.setProperty(SystemProperty.APP_TITLE, "newTitle");
+
         // When
         final Response response = getClient().getProperties();
 
         //Then
         assertEquals(200, response.getStatus());
         Map<String, Object> properties = response.readEntity(Map.class);
-        assertEquals(PropertiesServiceV2.CORE_EXPOSED_PROPERTIES.size() + 2, properties.size());
-        assertEquals("1", properties.get("gaffer.test1"));
-        assertEquals("1", properties.get("gaffer.test1"));
+
+        final LinkedHashMap<String, String> expectedProperties = new LinkedHashMap<>(PropertiesServiceV2.CORE_EXPOSED_PROPERTIES);
+        expectedProperties.put("gaffer.test1", "1");
+        expectedProperties.put("gaffer.test2", "2");
+        expectedProperties.put(SystemProperty.APP_TITLE, "newTitle");
         assertEquals("1", properties.get("gaffer.test1"));
         assertEquals("2", properties.get("gaffer.test2"));
+        assertEquals(expectedProperties, properties);
     }
 
     @Test
@@ -106,6 +112,7 @@ public class PropertyServiceV2IT extends AbstractRestApiV2IT {
         System.setProperty("gaffer.properties", "gaffer.test1,gaffer.test2");
         System.setProperty("gaffer.test1", "1");
         System.setProperty("gaffer.test2", "2");
+
         // When
         final Response response = getClient().getProperty("gaffer.test1");
 
@@ -121,6 +128,7 @@ public class PropertyServiceV2IT extends AbstractRestApiV2IT {
         System.setProperty("gaffer.properties", "gaffer.test1,gaffer.test2");
         System.setProperty("gaffer.test1", "1");
         System.setProperty("gaffer.test2", "2");
+
         // When
         final Response response = getClient().getProperty(SystemProperty.APP_TITLE);
 
@@ -137,6 +145,7 @@ public class PropertyServiceV2IT extends AbstractRestApiV2IT {
         System.setProperty("gaffer.test1", "1");
         System.setProperty("gaffer.test2", "2");
         System.setProperty(SystemProperty.APP_TITLE, "newTitle");
+
         // When
         final Response response = getClient().getProperty(SystemProperty.APP_TITLE);
 
