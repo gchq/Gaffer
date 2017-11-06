@@ -19,30 +19,6 @@ function getVersion() {
     return footer.substr(footer.lastIndexOf(':') + 2, 2);
 }
 
-function updateElementTextUsingProperties(elementPropertiesObj) {
-    Object.keys(elementPropertiesObj).forEach(function(elementId){
-        $.get(
-            getVersion() + '/properties/' + elementPropertiesObj[elementId],
-            null,
-            function(propertyValue){
-                $('#'+ elementId).text(propertyValue);
-            }
-        )
-    })
-}
-
-function updateElementColourUsingProperties(elementPropertiesObj) {
-    Object.keys(elementPropertiesObj).forEach(function(elementId){
-        $.get(
-            getVersion() + '/properties/' + elementPropertiesObj[elementId],
-            null,
-            function(propertyBannerColour){
-                $('#' + elementId).css({'background-color': propertyBannerColour});
-            }
-        )
-    })
-}
-
 function addExampleButtons(){
 
     var tables = $("#resource_operations .operation-params")
@@ -150,7 +126,7 @@ function initExampleOperations() {
      )
 }
 
-function init(onSwaggerComplete){
+function init(onSwaggerComplete, onPropertiesLoad){
       window.swaggerUi = new SwaggerUi({
         url: "latest/swagger.json",
         dom_id: "swagger-ui-container",
@@ -158,8 +134,7 @@ function init(onSwaggerComplete){
         onComplete: function(swaggerApi, swaggerUi){
           log("Loaded swagger");
               $('pre code').each(function(i,e){hljs.highlightBlock(e)});
-              updateElementColourUsingProperties({"banner": "gaffer.properties.app.banner.colour"});
-              updateElementTextUsingProperties({"title": "gaffer.properties.app.title", "banner": "gaffer.properties.app.banner.description"});
+              initFromProperties(onPropertiesLoad);
               addExampleButtons();
               if(onSwaggerComplete) {
                   onSwaggerComplete();
@@ -180,4 +155,44 @@ function init(onSwaggerComplete){
       });
 
       window.swaggerUi.load();
+}
+
+function initFromProperties(onPropertiesLoad) {
+    var onSuccess = function(properties) {
+        updateTitle(properties);
+        updateElementTextWithId('banner', 'gaffer.properties.app.banner.description', properties);
+        updateElementColourWithId('banner', 'gaffer.properties.app.banner.colour', properties);
+        if(onPropertiesLoad) {
+            onPropertiesLoad(properties);
+        }
+    };
+    $.get(getVersion() + '/properties', null, onSuccess);
+}
+
+function updateTitle(properties) {
+    updateElementText('gaffer.properties.app.title', properties, function(value, id) {
+        document.title = value;
+    })
+}
+
+function updateElementText(key, properties, onSuccess) {
+    updateElementTextWithId(key.split('.').pop(), key, properties, onSuccess);
+}
+
+function updateElementColourWithId(id, key, properties, onSuccess) {
+    if(key in properties) {
+        $('#' + id).css({'background-color': properties[key]});
+        if(onSuccess) {
+            onSuccess(properties[key], id)
+        }
+    }
+}
+
+function updateElementTextWithId(id, key, properties, onSuccess) {
+    if(key in properties) {
+        $('#' + id).text(properties[key]);
+        if(onSuccess) {
+            onSuccess(properties[key], id);
+        }
+    }
 }

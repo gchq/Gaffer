@@ -42,6 +42,9 @@ public final class ServiceConstants {
     public static final String JOB_SERVICE_UNAVAILABLE = "The job service is not available";
 
     // REST - Other
+    public static final String DESCRIPTION_DEFAULT = "The Gaffer REST service.";
+    public static final String CONTACT_DEFAULT = "Gaffer Developers";
+    public static final String CONTACT_URL_DEFAULT = "https://github.com/gchq/Gaffer";
     public static final String GAFFER_DOCUMENTATION_URL = "https://gchq.github.io/gaffer-doc/";
 
     static {
