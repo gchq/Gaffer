@@ -135,6 +135,15 @@ function init(onSwaggerComplete){
           log("Loaded swagger");
               $('pre code').each(function(i,e){hljs.highlightBlock(e)});
               addExampleButtons();
+              $.get(
+                    getVersion() + '/graph/operations/uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails',
+                    null,
+                    function(response) {
+                        if(200 != response.response_code) {
+                            document.getElementById("resource_job").setAttribute("hidden", true);
+                        }
+                    }
+              )
               if(onSwaggerComplete) {
                   onSwaggerComplete();
               }
