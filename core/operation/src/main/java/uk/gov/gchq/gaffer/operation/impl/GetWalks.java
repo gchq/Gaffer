@@ -95,8 +95,15 @@ public class GetWalks implements
         if (null != operations) {
             for (final ListIterator<GetElements> it = operations.listIterator(); it.hasNext();) {
                 final GetElements op = it.next();
+
+                // Validate the View objects
                 if (null != op.getView() && op.getView().hasEntities()) {
                     result.addError("The view for operation " + it.previousIndex() + " must not contain Entities.");
+                }
+
+                // Validate that the input is set correctly
+                if (it.hasPrevious() && null != op.getInput()) {
+                    result.addError("The input for all operations (except the first) must be null.");
                 }
             }
         } else {

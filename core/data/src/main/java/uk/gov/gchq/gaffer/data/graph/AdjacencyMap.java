@@ -22,18 +22,18 @@ import com.google.common.collect.Sets;
 import java.util.Set;
 
 /**
- * An {@code AdjacencyList} is used to store the contents of a graph in memory in
+ * An {@code AdjacencyMap} is used to store the contents of a graph in memory in
  * a format which can easily be interrogated.
  *
  * @param <T> the type of object representing the vertices
  * @param <U> the type of object representing the edge
  */
-public class AdjacencyList<T, U> {
+public class AdjacencyMap<T, U> {
 
     private final HashBasedTable<T, T, Set<U>> graph = HashBasedTable.create();
 
     /**
-     * Get the entries in the AdjacencyList which match the provided source and
+     * Get the entries in the AdjacencyMap which match the provided source and
      * destination vertices.
      *
      * @param source      the source vertex
@@ -47,7 +47,7 @@ public class AdjacencyList<T, U> {
     }
 
     /**
-     * Add an entry to the AdjacencyList.
+     * Add an entry to the AdjacencyMap.
      *
      * @param source      the source vertex
      * @param destination the destination vertex
@@ -61,7 +61,7 @@ public class AdjacencyList<T, U> {
     }
 
     /**
-     * Add an entry to the AdjacencyList.
+     * Add an entry to the AdjacencyMap.
      *
      * @param source      the source vertex
      * @param destination the destination vertex

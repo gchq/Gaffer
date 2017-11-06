@@ -23,6 +23,7 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
@@ -34,6 +35,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
@@ -54,11 +56,13 @@ public class GetWalksTest extends OperationTest<GetWalks> {
         final GetWalks getWalks = new GetWalks.Builder()
                 .input(new EntitySeed("1"), new EntitySeed("2"))
                 .operations(new GetElements())
+                .resultsLimit(100)
                 .build();
 
         // Then
         assertThat(getWalks.getInput(), is(notNullValue()));
         assertThat(getWalks.getInput(), iterableWithSize(2));
+        assertThat(getWalks.getResultsLimit(), is(equalTo(100)));
         assertThat(getWalks.getOperations(), iterableWithSize(1));
         assertThat(getWalks.getInput(), containsInAnyOrder(new EntitySeed("1"), new EntitySeed("2")));
     }
@@ -84,6 +88,28 @@ public class GetWalksTest extends OperationTest<GetWalks> {
                                 .entity(TestGroups.ENTITY)
                                 .build())
                         .build())
+                .build();
+
+        // Then
+        assertFalse(getWalks.validate().isValid());
+    }
+
+    @Test
+    public void shouldValidateOperationWhenOperationContainsNonNullInput() {
+// Given
+        final GetWalks getWalks = new GetWalks.Builder()
+                .input(new EntitySeed("1"), new EntitySeed("2"))
+                .operations(new GetElements.Builder()
+                        .view(new View.Builder()
+                                .entity(TestGroups.ENTITY)
+                                .build())
+                        .build(),
+                        new GetElements.Builder()
+                                .input(new EntitySeed("seed"))
+                                .view(new View.Builder()
+                                        .entity(TestGroups.ENTITY)
+                                        .build())
+                                .build())
                 .build();
 
         // Then
