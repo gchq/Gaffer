@@ -16,9 +16,10 @@
 
 package uk.gov.gchq.gaffer.store.library;
 
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.exception.OverwritingException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -71,5 +72,12 @@ public class HashMapGraphLibrary extends GraphLibrary {
     protected StoreProperties _getProperties(final String propertiesId) {
         final StoreProperties storeProperties = PROPERTIES.get(propertiesId);
         return (null == storeProperties) ? null : storeProperties.clone();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("graphs", GRAPHS)
+                .toString();
     }
 }
