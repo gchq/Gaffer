@@ -501,7 +501,6 @@ public class SchemaTest {
         final String type2 = "type2";
         final Serialiser vertexSerialiser = mock(Serialiser.class);
         final Schema schema1 = new Schema.Builder()
-                .id("1")
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .property(TestPropertyNames.PROP_1, type1)
                         .build())
@@ -515,7 +514,6 @@ public class SchemaTest {
                 .build();
 
         final Schema schema2 = new Schema.Builder()
-                .id("2")
                 .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
                         .property(TestPropertyNames.COUNT, typeShared)
                         .build())
@@ -535,7 +533,6 @@ public class SchemaTest {
                 .build();
 
         // Then
-        assertEquals("1_2_2", mergedSchema.getId());
         assertEquals(2, mergedSchema.getEdges().size());
         assertEquals(1, mergedSchema.getEdge(TestGroups.EDGE).getPropertyMap().size());
         assertEquals(type1, mergedSchema.getEdge(TestGroups.EDGE).getPropertyMap().get(TestPropertyNames.PROP_1));
@@ -563,7 +560,6 @@ public class SchemaTest {
         final String type2 = "type2";
         final Serialiser vertexSerialiser = mock(Serialiser.class);
         final Schema schema1 = new Schema.Builder()
-                .id("1")
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .property(TestPropertyNames.PROP_1, type1)
                         .build())
@@ -577,7 +573,6 @@ public class SchemaTest {
                 .build();
 
         final Schema schema2 = new Schema.Builder()
-                .id("2")
                 .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
                         .property(TestPropertyNames.COUNT, typeShared)
                         .build())
@@ -597,7 +592,6 @@ public class SchemaTest {
                 .build();
 
         // Then
-        assertEquals("2_1_1", mergedSchema.getId());
         assertEquals(2, mergedSchema.getEdges().size());
         assertEquals(1, mergedSchema.getEdge(TestGroups.EDGE).getPropertyMap().size());
         assertEquals(type1, mergedSchema.getEdge(TestGroups.EDGE).getPropertyMap().get(TestPropertyNames.PROP_1));

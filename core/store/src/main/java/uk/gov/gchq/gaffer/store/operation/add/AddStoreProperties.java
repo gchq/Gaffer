@@ -36,6 +36,9 @@ public class AddStoreProperties implements Operation {
 
     @Required
     private StoreProperties storeProperties;
+
+    @Required
+    private String id;
     /**
      * A list of storeProperties Id's held within the Library to be retrieved
      * and merged to form a new storeProperties, before be merged with the optional
@@ -44,12 +47,21 @@ public class AddStoreProperties implements Operation {
     private String parentPropertiesId;
     private Map<String, String> options;
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(final String id) {
+        this.id = id;
+    }
+
     @Override
     public AddStoreProperties shallowClone() throws CloneFailedException {
         return new Builder()
                 .storeProperties(storeProperties)
                 .parentPropertiesId(parentPropertiesId)
                 .options(this.options)
+                .id(id)
                 .build();
     }
 
@@ -108,5 +120,9 @@ public class AddStoreProperties implements Operation {
             return _self();
         }
 
+        public Builder id(final String id) {
+            _getOp().setId(id);
+            return _self();
+        }
     }
 }

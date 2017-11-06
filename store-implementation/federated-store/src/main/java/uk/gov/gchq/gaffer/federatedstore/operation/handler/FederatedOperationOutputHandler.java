@@ -30,7 +30,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.getSkipFailedFederatedStoreExecute;
 
 /**
  * A abstract handler for Operations with output for FederatedStore
@@ -53,7 +53,7 @@ public abstract class FederatedOperationOutputHandler<OP extends Output<O>, O> i
                 try {
                     execute = graph.execute(updatedOp, context.getUser());
                 } catch (final Exception e) {
-                    if (!Boolean.valueOf(updatedOp.getOption(KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
+                    if (!Boolean.valueOf(getSkipFailedFederatedStoreExecute(updatedOp))) {
                         throw new OperationException(FederatedStoreUtil.createOperationErrorMsg(operation, graph.getGraphId(), e), e);
                     }
                 }
@@ -62,7 +62,11 @@ public abstract class FederatedOperationOutputHandler<OP extends Output<O>, O> i
                 }
             }
         }
-        return mergeResults(results, operation, context, store);
+        try {
+            return mergeResults(results, operation, context, store);
+        } catch (final Exception e) {
+            throw new OperationException(e);
+        }
     }
 
     protected abstract O mergeResults(final List<O> results, final OP operation, final Context context, final Store store);

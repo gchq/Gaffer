@@ -348,7 +348,11 @@ public class ViewElementDefinition implements ElementDefinition {
         }
 
         public CHILD_CLASS transientProperties(final Map<String, Class<?>> transientProperties) {
-            elDef.transientProperties = new LinkedHashMap<>(transientProperties);
+            if (null == transientProperties) {
+                elDef.transientProperties = new LinkedHashMap<>();
+            } else {
+                elDef.transientProperties = new LinkedHashMap<>(transientProperties);
+            }
             return self();
         }
 
@@ -364,7 +368,9 @@ public class ViewElementDefinition implements ElementDefinition {
 
         public CHILD_CLASS preAggregationFilterFunctions(final List<TupleAdaptedPredicate<String, ?>> filterFunctions) {
             getElementDef().preAggregationFilter = new ElementFilter();
-            getElementDef().preAggregationFilter.getComponents().addAll(filterFunctions);
+            if (null != filterFunctions) {
+                getElementDef().preAggregationFilter.getComponents().addAll(filterFunctions);
+            }
             return self();
         }
 
@@ -385,7 +391,9 @@ public class ViewElementDefinition implements ElementDefinition {
 
         public CHILD_CLASS postAggregationFilterFunctions(final List<TupleAdaptedPredicate<String, ?>> filterFunctions) {
             getElementDef().postAggregationFilter = new ElementFilter();
-            getElementDef().postAggregationFilter.getComponents().addAll(filterFunctions);
+            if (null != filterFunctions) {
+                getElementDef().postAggregationFilter.getComponents().addAll(filterFunctions);
+            }
             return self();
         }
 
@@ -401,7 +409,9 @@ public class ViewElementDefinition implements ElementDefinition {
 
         public CHILD_CLASS postTransformFilterFunctions(final List<TupleAdaptedPredicate<String, ?>> filterFunctions) {
             getElementDef().postTransformFilter = new ElementFilter();
-            getElementDef().postTransformFilter.getComponents().addAll(filterFunctions);
+            if (null != filterFunctions) {
+                getElementDef().postTransformFilter.getComponents().addAll(filterFunctions);
+            }
             return self();
         }
 
@@ -412,7 +422,9 @@ public class ViewElementDefinition implements ElementDefinition {
 
         public CHILD_CLASS transformFunctions(final List<TupleAdaptedFunction<String, ?, ?>> transformFunctions) {
             getElementDef().transformer = new ElementTransformer();
-            getElementDef().transformer.getComponents().addAll(transformFunctions);
+            if (null != transformFunctions) {
+                getElementDef().transformer.getComponents().addAll(transformFunctions);
+            }
             return self();
         }
 
@@ -435,63 +447,67 @@ public class ViewElementDefinition implements ElementDefinition {
 
         @JsonIgnore
         protected CHILD_CLASS json(final byte[] jsonBytes, final Class<? extends ViewElementDefinition> clazz) throws SchemaException {
-            try {
-                merge(JSONSerialiser.deserialise(jsonBytes, clazz));
-            } catch (final SerialisationException e) {
-                throw new SchemaException("Unable to deserialise json", e);
+            if (null != jsonBytes) {
+                try {
+                    merge(JSONSerialiser.deserialise(jsonBytes, clazz));
+                } catch (final SerialisationException e) {
+                    throw new SchemaException("Unable to deserialise json", e);
+                }
             }
             return self();
         }
 
         public CHILD_CLASS merge(final ViewElementDefinition elementDef) {
-            for (final Entry<String, Class<?>> entry : elementDef.getTransientPropertyMap().entrySet()) {
-                final String newProp = entry.getKey();
-                final Class<?> newPropClass = entry.getValue();
-                if (!getElementDef().transientProperties.containsKey(newProp)) {
-                    getElementDef().transientProperties.put(newProp, newPropClass);
-                } else {
-                    final Class<?> clazz = getElementDef().transientProperties.get(newProp);
-                    if (!clazz.equals(newPropClass)) {
-                        throw new SchemaException("Unable to merge schemas. Conflict of transient property classes for " + newProp
-                                + ". Classes are: " + clazz.getName() + " and " + newPropClass.getName());
+            if (null != elementDef) {
+                for (final Entry<String, Class<?>> entry : elementDef.getTransientPropertyMap().entrySet()) {
+                    final String newProp = entry.getKey();
+                    final Class<?> newPropClass = entry.getValue();
+                    if (!getElementDef().transientProperties.containsKey(newProp)) {
+                        getElementDef().transientProperties.put(newProp, newPropClass);
+                    } else {
+                        final Class<?> clazz = getElementDef().transientProperties.get(newProp);
+                        if (!clazz.equals(newPropClass)) {
+                            throw new SchemaException("Unable to merge schemas. Conflict of transient property classes for " + newProp
+                                    + ". Classes are: " + clazz.getName() + " and " + newPropClass.getName());
+                        }
                     }
                 }
-            }
 
-            if (null == getElementDef().preAggregationFilter) {
-                getElementDef().preAggregationFilter = elementDef.preAggregationFilter;
-            } else if (null != elementDef.preAggregationFilter) {
-                getElementDef().preAggregationFilter.getComponents().addAll(elementDef.preAggregationFilter.getComponents());
-            }
+                if (null == getElementDef().preAggregationFilter) {
+                    getElementDef().preAggregationFilter = elementDef.preAggregationFilter;
+                } else if (null != elementDef.preAggregationFilter) {
+                    getElementDef().preAggregationFilter.getComponents().addAll(elementDef.preAggregationFilter.getComponents());
+                }
 
-            if (null == getElementDef().postAggregationFilter) {
-                getElementDef().postAggregationFilter = elementDef.postAggregationFilter;
-            } else if (null != elementDef.postAggregationFilter) {
-                getElementDef().postAggregationFilter.getComponents().addAll(elementDef.postAggregationFilter.getComponents());
-            }
+                if (null == getElementDef().postAggregationFilter) {
+                    getElementDef().postAggregationFilter = elementDef.postAggregationFilter;
+                } else if (null != elementDef.postAggregationFilter) {
+                    getElementDef().postAggregationFilter.getComponents().addAll(elementDef.postAggregationFilter.getComponents());
+                }
 
-            if (null == getElementDef().postTransformFilter) {
-                getElementDef().postTransformFilter = elementDef.postTransformFilter;
-            } else if (null != elementDef.postTransformFilter) {
-                getElementDef().postTransformFilter.getComponents().addAll(elementDef.postTransformFilter.getComponents());
-            }
+                if (null == getElementDef().postTransformFilter) {
+                    getElementDef().postTransformFilter = elementDef.postTransformFilter;
+                } else if (null != elementDef.postTransformFilter) {
+                    getElementDef().postTransformFilter.getComponents().addAll(elementDef.postTransformFilter.getComponents());
+                }
 
-            if (null == getElementDef().transformer) {
-                getElementDef().transformer = elementDef.transformer;
-            } else if (null != elementDef.transformer) {
-                getElementDef().transformer.getComponents().addAll(elementDef.transformer.getComponents());
-            }
+                if (null == getElementDef().transformer) {
+                    getElementDef().transformer = elementDef.transformer;
+                } else if (null != elementDef.transformer) {
+                    getElementDef().transformer.getComponents().addAll(elementDef.transformer.getComponents());
+                }
 
-            if (null != elementDef.getGroupBy()) {
-                getElementDef().groupBy = new LinkedHashSet<>(elementDef.getGroupBy());
-            }
+                if (null != elementDef.getGroupBy()) {
+                    getElementDef().groupBy = new LinkedHashSet<>(elementDef.getGroupBy());
+                }
 
-            if (null != elementDef.getProperties()) {
-                properties(elementDef.getProperties());
-            }
+                if (null != elementDef.getProperties()) {
+                    properties(elementDef.getProperties());
+                }
 
-            if (null != elementDef.getExcludeProperties() && !elementDef.getExcludeProperties().isEmpty()) {
-                excludeProperties(elementDef.getExcludeProperties());
+                if (null != elementDef.getExcludeProperties() && !elementDef.getExcludeProperties().isEmpty()) {
+                    excludeProperties(elementDef.getExcludeProperties());
+                }
             }
 
             return self();

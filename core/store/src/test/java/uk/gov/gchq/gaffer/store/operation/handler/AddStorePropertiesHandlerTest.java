@@ -55,7 +55,7 @@ public class AddStorePropertiesHandlerTest {
     public void shouldThrowWithNoGraphLibrary() throws Exception {
         store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
         try {
-            store.execute(new Builder().storeProperties(props).build(), new Context(StoreUser.blankUser()));
+            store.execute(new Builder().storeProperties(props).id(TEST_PROPS_ID).build(), new Context(StoreUser.blankUser()));
             fail("Exception expected");
         } catch (final Exception e) {
             assertEquals(e.getMessage(), String.format("Operation class %s is not supported by the %s.", AddStoreProperties.class.getName(), TestAddToGraphLibraryImpl.class.getSimpleName()));
@@ -67,7 +67,7 @@ public class AddStorePropertiesHandlerTest {
         HashMapGraphLibrary library = new HashMapGraphLibrary();
         store.setGraphLibrary(library);
         store.initialise(TEST_STORE_ID, new Schema(), new StoreProperties());
-        store.execute(new Builder().storeProperties(props).build(), new Context(StoreUser.blankUser()));
+        store.execute(new Builder().storeProperties(props).id(TEST_PROPS_ID).build(), new Context(StoreUser.blankUser()));
         StoreProperties actualProps = library.getProperties(TEST_PROPS_ID);
         assertEquals(props.getProperties(), actualProps.getProperties());
     }
