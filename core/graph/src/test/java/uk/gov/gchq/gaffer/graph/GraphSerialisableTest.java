@@ -19,7 +19,9 @@ package uk.gov.gchq.gaffer.graph;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.cache.impl.HashMapCache;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.graph.GraphSerialisable.Builder;
 import uk.gov.gchq.gaffer.integration.store.TestStore;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -74,6 +76,25 @@ public class GraphSerialisableTest {
         final Graph graph = new Graph.Builder().addSchema(schema).addStoreProperties(new StoreProperties(properties)).config(config).build();
         final GraphSerialisable result = new GraphSerialisable.Builder().graph(graph).build();
         assertEquals(expected, result);
+    }
 
+    @Test
+    public void shouldSerialiseWithJavaSerialiser() throws Exception {
+        HashMapCache<String, GraphSerialisable> cache = new HashMapCache<>(true);
+        String key = "key";
+        GraphSerialisable expected = new Builder().config(config).schema(schema).properties(properties).build();
+        cache.put(key, expected);
+        GraphSerialisable actual = cache.get(key);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void shouldSerialiseWithJsonSerialiser() throws Exception {
+        HashMapCache<String, GraphSerialisable> cache = new HashMapCache<>(false);
+        String key = "key";
+        GraphSerialisable expected = new Builder().config(config).schema(schema).properties(properties).build();
+        cache.put(key, expected);
+        GraphSerialisable actual = cache.get(key);
+        assertEquals(expected, actual);
     }
 }
