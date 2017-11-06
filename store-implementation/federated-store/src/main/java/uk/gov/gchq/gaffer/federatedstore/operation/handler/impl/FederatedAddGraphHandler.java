@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler.impl;
 
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
+import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -34,20 +35,36 @@ import uk.gov.gchq.gaffer.user.User;
  * @see GraphDelegate
  */
 public class FederatedAddGraphHandler implements OperationHandler<AddGraph> {
+
+    public static final String ERROR_BUILDING_GRAPH_GRAPH_ID_S = "Error building graph %s";
+    public static final String ERROR_ADDING_GRAPH_GRAPH_ID_S = "Error adding graph %s";
+    public static final String USER_IS_LIMITED_TO_ONLY_USING_PARENT_PROPERTIES_ID_FROM_GRAPHLIBRARY_BUT_FOUND_STORE_PROPERTIES_S = "User is limited to only using parentPropertiesId from the graphLibrary, but found storeProperties: %s";
+
     @Override
     public Void doOperation(final AddGraph operation, final Context context, final Store store) throws OperationException {
         final User user = context.getUser();
         boolean isLimitedToLibraryProperties = ((FederatedStore) store).isLimitedToLibraryProperties(user);
 
         if (isLimitedToLibraryProperties && null != operation.getStoreProperties()) {
-            throw new OperationException("User is limited to only using parentPropertiesId from the graphLibrary, but found storeProperties:" + operation.getProperties().toString());
+            throw new OperationException(String.format(USER_IS_LIMITED_TO_ONLY_USING_PARENT_PROPERTIES_ID_FROM_GRAPHLIBRARY_BUT_FOUND_STORE_PROPERTIES_S, operation.getProperties().toString()));
         }
 
-        final Graph graph = GraphDelegate.createGraph(store, operation.getGraphId(),
-                operation.getSchema(), operation.getStoreProperties(),
-                operation.getParentSchemaIds(), operation.getParentPropertiesId());
+        final Graph graph;
+        try {
+            graph = GraphDelegate.createGraph(store, operation.getGraphId(),
+                    operation.getSchema(), operation.getStoreProperties(),
+                    operation.getParentSchemaIds(), operation.getParentPropertiesId());
+        } catch (final Exception e) {
+            throw new OperationException(String.format(ERROR_BUILDING_GRAPH_GRAPH_ID_S, operation.getGraphId()), e);
+        }
 
-        ((FederatedStore) store).addGraphs(operation.getGraphAuths(), context.getUser().getUserId(), operation.getIsPublic(), graph);
+        try {
+            ((FederatedStore) store).addGraphs(operation.getGraphAuths(), context.getUser().getUserId(), operation.getIsPublic(), graph);
+        } catch (final StorageException e) {
+            throw new OperationException(e.getMessage(), e);
+        } catch (final Exception e) {
+            throw new OperationException(String.format(ERROR_ADDING_GRAPH_GRAPH_ID_S, operation.getGraphId()), e);
+        }
         return null;
     }
 }

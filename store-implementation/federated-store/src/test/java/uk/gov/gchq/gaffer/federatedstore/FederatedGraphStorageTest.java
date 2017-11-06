@@ -20,14 +20,17 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.Graph.Builder;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.User;
@@ -299,8 +302,7 @@ public class FederatedGraphStorageTest {
     @Test
     public void shouldGetGraphsInOrder() throws Exception {
         // Given
-        graphStorage.put(a, access);
-        graphStorage.put(b, access);
+        graphStorage.put(Lists.newArrayList(a, b), access);
         final List<String> configAB = Arrays.asList(a.getGraphId(), b.getGraphId());
         final List<String> configBA = Arrays.asList(b.getGraphId(), a.getGraphId());
 
@@ -319,5 +321,32 @@ public class FederatedGraphStorageTest {
         assertSame(b, itrBA.next());
         assertSame(a, itrBA.next());
         assertFalse(itrBA.hasNext());
+    }
+
+    @Test
+    public void shouldNotAddGraphWhenLibraryThrowsExceptionDuringAdd() throws Exception {
+        //given
+        GraphLibrary mock = Mockito.mock(GraphLibrary.class);
+        String testMockException = "testMockException";
+        String graphId = a.getGraphId();
+        Mockito.doThrow(new RuntimeException(testMockException))
+                .when(mock)
+                .add(graphId, a.getSchema(), a.getStoreProperties());
+        graphStorage.setGraphLibrary(mock);
+        try {
+            graphStorage.put(a, access);
+            fail("Exception expected");
+        } catch (final Exception e) {
+            assertTrue(e instanceof StorageException);
+            assertEquals(testMockException, e.getCause().getMessage());
+        }
+        try {
+            //when
+            graphStorage.get(testUser, Lists.newArrayList(graphId));
+            fail("Exception exptected");
+        } catch (final IllegalArgumentException e) {
+            //then
+            assertEquals(String.format(GRAPH_IDS_NOT_VISIBLE, Arrays.toString(new String[]{graphId})), e.getMessage());
+        }
     }
 }
