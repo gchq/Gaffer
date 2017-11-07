@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.operation.export.graph.handler;
 
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherGraph;
+import uk.gov.gchq.gaffer.operation.export.graph.GraphForExportDelegate;
 import uk.gov.gchq.gaffer.operation.export.graph.OtherGraphExporter;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -31,17 +31,14 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
 
     @Override
     protected OtherGraphExporter createExporter(final ExportToOtherGraph export, final Context context, final Store store) {
-        return new OtherGraphExporter(context, _getGraph(export, store));
+        return new OtherGraphExporter(context, new GraphForExportDelegate.Builder()
+                .store(store)
+                .graphId(export.getGraphId())
+                .schema(export.getSchema())
+                .storeProperties(export.getStoreProperties())
+                .parentSchemaIds(export.getParentSchemaIds())
+                .parentStorePropertiesId(export.getParentStorePropertiesId())
+                .build());
     }
 
-    protected static Graph _getGraph(final ExportToOtherGraph export, final Store store) {
-        String graphId = export.getGraphId();
-        if (store.getGraphId().equals(graphId)) {
-            throw new IllegalArgumentException(String.format(GraphDelegate.CANNOT_EXPORT_TO_THE_SAME_GRAPH_S, graphId));
-        }
-
-        return GraphDelegate.createGraph(store, graphId,
-                export.getSchema(), export.getStoreProperties(), export.getParentSchemaIds(),
-                export.getParentStorePropertiesId());
-    }
 }

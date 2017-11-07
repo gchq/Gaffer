@@ -20,7 +20,7 @@ import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
@@ -52,7 +53,8 @@ public class FederatedGetTraitsHandlerTest {
     public void setUp() throws Exception {
         federatedStore = new FederatedStore();
         properties = new FederatedStoreProperties();
-        properties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(false));
+        HashMapGraphLibrary.clear();
+        CacheServiceLoader.shutdown();
     }
 
     @Test
@@ -75,6 +77,7 @@ public class FederatedGetTraitsHandlerTest {
     public void shouldGetAllTraitsForEmptyStoreWithCurrentTraits() throws Exception {
         // Given
         federatedStore.initialise(FED_STORE_ID, null, properties);
+        assertEquals("graph is not starting empty", 0, federatedStore.getAllGraphIds(testUser()).size());
 
         // When
         final Set<StoreTrait> traits = federatedStore.execute(new GetTraits.Builder()
