@@ -49,6 +49,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.AUTH_1;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.AUTH_2;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.TEST_USER;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.authUser;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.blankUser;
@@ -56,9 +57,12 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
 
 public class FederatedGraphStorageTest {
 
-    public static final String GRAPH_ID = "a";
+    public static final String GRAPH_ID_A = "a";
+    public static final String GRAPH_ID_B = "b";
+    public static final String EXCEPTION_EXPECTED = "Exception expected";
     public static final String X = "x";
     private FederatedGraphStorage graphStorage;
+    private AccumuloProperties accumuloProperties;
     private Graph a;
     private Graph b;
     private User nullUser;
@@ -70,6 +74,7 @@ public class FederatedGraphStorageTest {
     private Context authUserContext;
     private Context blankUserContext;
     private FederatedAccess access;
+    private FederatedAccess altAccess;
     private SchemaEntityDefinition e1;
     private SchemaEntityDefinition e2;
 
@@ -80,7 +85,7 @@ public class FederatedGraphStorageTest {
                 .vertex("string")
                 .build();
         a = new Builder()
-                .config(new GraphConfig(GRAPH_ID))
+                .config(new GraphConfig(GRAPH_ID_A))
                 .storeProperties(new MapStoreProperties())
                 .addSchema(new Schema.Builder()
                         .entity("e1", e1)
@@ -91,12 +96,12 @@ public class FederatedGraphStorageTest {
         e2 = new SchemaEntityDefinition.Builder()
                 .vertex("string2")
                 .build();
-        final AccumuloProperties accProperties = new AccumuloProperties();
-        accProperties.setStoreClass(SingleUseMockAccumuloStore.class);
+        accumuloProperties = new AccumuloProperties();
+        accumuloProperties.setStoreClass(SingleUseMockAccumuloStore.class);
 
         b = new Builder()
-                .config(new GraphConfig("b"))
-                .storeProperties(accProperties)
+                .config(new GraphConfig(GRAPH_ID_B))
+                .storeProperties(accumuloProperties)
                 .addSchema(new Schema.Builder()
                         .entity("e2", e2)
                         .type("string2", String.class)
@@ -112,6 +117,7 @@ public class FederatedGraphStorageTest {
         blankUserContext = new Context(blankUser);
 
         access = new FederatedAccess(Sets.newHashSet(AUTH_1), TEST_USER);
+        altAccess = new FederatedAccess(Sets.newHashSet(AUTH_2), TEST_USER);
     }
 
     @Test
@@ -126,7 +132,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(a, access);
         final Collection<String> allIds = graphStorage.getAllIds(testUser);
         assertEquals(1, allIds.size());
-        assertEquals(GRAPH_ID, allIds.iterator().next());
+        assertEquals(GRAPH_ID_A, allIds.iterator().next());
     }
 
     @Test
@@ -134,7 +140,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(a, access);
         final Collection<String> allIds = graphStorage.getAllIds(authUser);
         assertEquals(1, allIds.size());
-        assertEquals(GRAPH_ID, allIds.iterator().next());
+        assertEquals(GRAPH_ID_A, allIds.iterator().next());
     }
 
     @Test
@@ -172,7 +178,7 @@ public class FederatedGraphStorageTest {
     @Test
     public void shouldGetGraphForAddingUserWithCorrectId() throws Exception {
         graphStorage.put(a, access);
-        final Collection<Graph> allGraphs = graphStorage.get(testUser, Lists.newArrayList(GRAPH_ID));
+        final Collection<Graph> allGraphs = graphStorage.get(testUser, Lists.newArrayList(GRAPH_ID_A));
         assertEquals(1, allGraphs.size());
         assertEquals(a, allGraphs.iterator().next());
     }
@@ -180,7 +186,7 @@ public class FederatedGraphStorageTest {
     @Test
     public void shouldGetGraphForAuthUserWithCorrectId() throws Exception {
         graphStorage.put(a, access);
-        final Collection<Graph> allGraphs = graphStorage.get(authUser, Lists.newArrayList(GRAPH_ID));
+        final Collection<Graph> allGraphs = graphStorage.get(authUser, Lists.newArrayList(GRAPH_ID_A));
         assertEquals(1, allGraphs.size());
         assertEquals(a, allGraphs.iterator().next());
     }
@@ -189,10 +195,10 @@ public class FederatedGraphStorageTest {
     public void shouldNotGetGraphForBlankUserWithCorrectId() throws Exception {
         graphStorage.put(a, access);
         try {
-            graphStorage.get(blankUser, Lists.newArrayList(GRAPH_ID));
-            fail("exception not thrown");
+            graphStorage.get(blankUser, Lists.newArrayList(GRAPH_ID_A));
+            fail(EXCEPTION_EXPECTED);
         } catch (final IllegalArgumentException e) {
-            assertEquals(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(GRAPH_ID)), e.getMessage());
+            assertEquals(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(GRAPH_ID_A)), e.getMessage());
         }
     }
 
@@ -201,7 +207,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(a, access);
         try {
             graphStorage.get(testUser, Lists.newArrayList(X));
-            fail("exception not thrown");
+            fail(EXCEPTION_EXPECTED);
         } catch (final IllegalArgumentException e) {
             assertEquals(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(X)), e.getMessage());
         }
@@ -212,7 +218,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(a, access);
         try {
             graphStorage.get(authUser, Lists.newArrayList(X));
-            fail("exception not thrown");
+            fail(EXCEPTION_EXPECTED);
         } catch (final IllegalArgumentException e) {
             assertEquals(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(X)), e.getMessage());
         }
@@ -223,7 +229,7 @@ public class FederatedGraphStorageTest {
         graphStorage.put(a, access);
         try {
             graphStorage.get(blankUser, Lists.newArrayList(X));
-            fail("exception not thrown");
+            fail(EXCEPTION_EXPECTED);
         } catch (final IllegalArgumentException e) {
             assertEquals(String.format(GRAPH_IDS_NOT_VISIBLE, Sets.newHashSet(X)), e.getMessage());
         }
@@ -281,21 +287,21 @@ public class FederatedGraphStorageTest {
     @Test
     public void shouldRemoveForAddingUser() throws Exception {
         graphStorage.put(a, access);
-        final boolean remove = graphStorage.remove(GRAPH_ID, testUser);
+        final boolean remove = graphStorage.remove(GRAPH_ID_A, testUser);
         assertTrue(remove);
     }
 
     @Test
     public void shouldRemoveForAuthUser() throws Exception {
         graphStorage.put(a, access);
-        final boolean remove = graphStorage.remove(GRAPH_ID, authUser);
+        final boolean remove = graphStorage.remove(GRAPH_ID_A, authUser);
         assertTrue(remove);
     }
 
     @Test
     public void shouldNotRemoveForBlankUser() throws Exception {
         graphStorage.put(a, access);
-        final boolean remove = graphStorage.remove(GRAPH_ID, blankUser);
+        final boolean remove = graphStorage.remove(GRAPH_ID_A, blankUser);
         assertFalse(remove);
     }
 
@@ -335,7 +341,7 @@ public class FederatedGraphStorageTest {
         graphStorage.setGraphLibrary(mock);
         try {
             graphStorage.put(a, access);
-            fail("Exception expected");
+            fail(EXCEPTION_EXPECTED);
         } catch (final Exception e) {
             assertTrue(e instanceof StorageException);
             assertEquals(testMockException, e.getCause().getMessage());
@@ -343,10 +349,98 @@ public class FederatedGraphStorageTest {
         try {
             //when
             graphStorage.get(testUser, Lists.newArrayList(graphId));
-            fail("Exception exptected");
+            fail(EXCEPTION_EXPECTED);
         } catch (final IllegalArgumentException e) {
             //then
             assertEquals(String.format(GRAPH_IDS_NOT_VISIBLE, Arrays.toString(new String[]{graphId})), e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenAddingNullSchema() {
+        // Given
+        Graph nullGraph = null;
+
+        // When / Then
+        try {
+            graphStorage.put(nullGraph, access);
+        } catch (StorageException e) {
+            assertEquals("Graph cannot be null", e.getMessage());
+        }
+    }
+
+    @Test
+    public void checkSchemaNotLeakedWhenOverwritingExistingGraph() throws Exception {
+        // Given
+        graphStorage.setGraphLibrary(Mockito.mock(GraphLibrary.class));
+        final Graph graph1 = new Graph.Builder()
+                .config(new GraphConfig.Builder().graphId(GRAPH_ID_A).build())
+                .storeProperties(accumuloProperties)
+                .addSchema(new Schema())
+                .build();
+        graphStorage.put(graph1, access);
+
+        final Graph graph2 = new Graph.Builder()
+                .config(new GraphConfig.Builder().graphId(GRAPH_ID_A).build())
+                .addSchema(new Schema.Builder()
+                        .entity("e2", e2)
+                        .type("string2", String.class)
+                        .build())
+                .storeProperties(accumuloProperties)
+                .build();
+
+        // When / Then
+        try {
+            graphStorage.put(graph2, access);
+            fail(EXCEPTION_EXPECTED);
+        } catch (StorageException e) {
+            assertEquals("Error adding graph " + GRAPH_ID_A + " to storage due to: " + String.format(FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE, GRAPH_ID_A), e.getMessage());
+        }
+    }
+
+    @Test
+    public void checkSchemaNotLeakedWhenAlreadyExistsUnderDifferentAccess() throws Exception {
+        // Given
+        final Graph graph1 = new Graph.Builder()
+                .config(new GraphConfig.Builder().graphId(GRAPH_ID_A).build())
+                .storeProperties(accumuloProperties)
+                .addSchema(new Schema())
+                .build();
+        graphStorage.put(graph1, access);
+
+        // When / Then
+        try {
+            graphStorage.put(graph1, altAccess);
+        } catch (StorageException e) {
+            assertEquals("Error adding graph " + GRAPH_ID_A + " to storage due to: " + String.format(FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE, GRAPH_ID_A), e.getMessage());
+        }
+    }
+
+    @Test
+    public void checkSchemaNotLeakedWhenAlreadyExistsUnderDifferentAccessWithOtherGraphs() throws Exception {
+        // Given
+        final Graph graph1 = new Graph.Builder()
+                .config(new GraphConfig.Builder().graphId(GRAPH_ID_A).build())
+                .storeProperties(accumuloProperties)
+                .addSchema(new Schema())
+                .build();
+        graphStorage.put(graph1, access);
+
+        final Graph graph2 = new Graph.Builder()
+                .config(new GraphConfig.Builder().graphId(GRAPH_ID_B).build())
+                .addSchema(new Schema.Builder()
+                        .entity("e2", e2)
+                        .type("string2", String.class)
+                        .build())
+                .storeProperties(accumuloProperties)
+                .build();
+        graphStorage.put(graph2, altAccess);
+
+        // When / Then
+        try {
+            graphStorage.put(graph2, access);
+        } catch (StorageException e) {
+            assertEquals("Error adding graph " + GRAPH_ID_B + " to storage due to: " + String.format(FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE, GRAPH_ID_B), e.getMessage());
         }
     }
 }

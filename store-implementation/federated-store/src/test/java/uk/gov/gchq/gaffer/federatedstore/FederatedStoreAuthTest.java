@@ -77,7 +77,7 @@ public class FederatedStoreAuthTest {
                         .storeProperties(graphStoreProperties)
                         .graphAuths("auth1")
                         .build(),
-                new Context(authUser),
+                new Context(testUser),
                 federatedStore);
 
         Collection<Graph> graphs = federatedStore.getGraphs(authUser, null);
