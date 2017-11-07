@@ -20,7 +20,6 @@ import com.google.common.collect.Lists;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -30,6 +29,7 @@ import uk.gov.gchq.gaffer.data.graph.Walk;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
+import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
@@ -45,10 +45,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
+ * <p>
  * An operation handler for {@link GetWalks} operations.
+ * </p>
  * <p>
  * Currently the handler only supports creating {@link Walk}s which contain
  * {@link Edge}s.
+ * </p>
  */
 public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterable<Walk>> {
 
@@ -87,34 +90,10 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
 
         // Execute the GetElements operations
         for (final GetElements getElements : getWalks.getOperations()) {
-
-            getElements.setView(new View.Builder()
-                    .merge(getElements.getView())
-                    .entities(Collections.emptyMap())
-                    .build());
-
-            if (null == results) {
-                getElements.setInput(getWalks.getInput());
-
-                // Cache the results locally
-                results = getLimitedResults(store, context, getWalks, getElements);
-            } else {
-                final OperationChain<CloseableIterable<? extends Element>> opChain = new OperationChain.Builder()
-                        .first(new ToVertices.Builder()
-                                .input(results)
-                                .useMatchedVertex(ToVertices.UseMatchedVertex.OPPOSITE)
-                                .build())
-                        .then(new ToEntitySeeds())
-                        .then(getElements)
-                        .build();
-
-                // Cache the results locally
-                results = getLimitedResults(store, context, getWalks, opChain);
-            }
-
-            final AdjacencyMap<Object, Edge> adjacencyMap = new AdjacencyMap<>();
+            results = executeGetElements(getElements, getWalks, context, store, results);
 
             // Store results in an AdjacencyMap
+            final AdjacencyMap<Object, Edge> adjacencyMap = new AdjacencyMap<>();
             for (final Edge e : results) {
                 adjacencyMap.put(e.getMatchedVertexValue(), e.getAdjacentMatchedVertexValue(), e);
             }
@@ -135,6 +114,49 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
 
     public void setMaxHops(final Integer maxHops) {
         this.maxHops = maxHops;
+    }
+
+    private List<Edge> executeGetElements(final GetElements getElements,
+                                          final GetWalks getWalks,
+                                          final Context context,
+                                          final Store store,
+                                          final List<Edge> results) throws OperationException {
+        getElements.setView(new View.Builder()
+                .merge(getElements.getView())
+                .entities(Collections.emptyMap())
+                .build());
+
+        final OperationChain.OutputBuilder<CloseableIterable<? extends Element>> opChainBuilder;
+        if (null == results) {
+            getElements.setInput(getWalks.getInput());
+            opChainBuilder = new OperationChain.Builder()
+                    .first(getElements);
+        } else {
+            opChainBuilder = new OperationChain.Builder()
+                    .first(new ToVertices.Builder()
+                            .input(results)
+                            .useMatchedVertex(ToVertices.UseMatchedVertex.OPPOSITE)
+                            .build())
+                    .then(new ToEntitySeeds())
+                    .then(getElements);
+        }
+
+        // Limit the number of results if required
+        final Output<? extends Iterable<? extends Element>> opChain;
+        if (null != getWalks.getResultsLimit()) {
+            opChain = opChainBuilder
+                    .then(new Limit.Builder<Element>()
+                            .resultLimit(getWalks.getResultsLimit())
+                            .truncate(false)
+                            .build())
+                    .build();
+        } else {
+            opChain = opChainBuilder.build();
+        }
+
+        // Execute an the operation chain on the supplied store and cache
+        // the results in memory using an ArrayList.
+        return Lists.newArrayList((Iterable<Edge>) store.execute(opChain, context));
     }
 
     private List<Walk> walk(final Object curr, final Object prev, final List<AdjacencyMap<Object, Edge>> adjacencyMaps, final LinkedList<Set<Edge>> queue) {
@@ -162,25 +184,5 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
         }
 
         return walks;
-    }
-
-    /**
-     * Execute an {@link OperationChain} on the supplied {@link Store} and limit
-     * the number of results to return according to the limit set by the {@link GetWalks}
-     * operation.
-     *
-     * @param store    the store
-     * @param context  the context
-     * @param getWalks the {@link GetWalks} operation
-     * @param opChain  the operation chain
-     * @param <T>      the output type of the operation chain
-     * @return a list of results, trimmed to the specified limit
-     * @throws OperationException if there was an error while processing the operation
-     *                            chain
-     */
-    private <T> List<Edge> getLimitedResults(final Store store, final Context context, final GetWalks getWalks, final Output<T> opChain) throws OperationException {
-        final Iterable<Edge> iterable = new LimitedCloseableIterable<>((Iterable<Edge>) store.execute(opChain, context), 0, getWalks.getResultsLimit(), false);
-
-        return Lists.newArrayList(iterable);
     }
 }
