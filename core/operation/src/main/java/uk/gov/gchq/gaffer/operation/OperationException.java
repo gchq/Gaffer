@@ -27,6 +27,10 @@ import static uk.gov.gchq.gaffer.core.exception.Status.INTERNAL_SERVER_ERROR;
 public class OperationException extends GafferCheckedException {
     private static final long serialVersionUID = 3855512637690609379L;
 
+    public OperationException(final Throwable cause) {
+        super(cause);
+    }
+
     public OperationException(final String message) {
         super(message, INTERNAL_SERVER_ERROR);
     }

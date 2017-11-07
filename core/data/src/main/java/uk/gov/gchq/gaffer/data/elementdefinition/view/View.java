@@ -301,10 +301,17 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
             return entity(group, new ViewElementDefinition());
         }
 
+        @Override
+        public CHILD_CLASS entity(final String group, final ViewElementDefinition entityDef) {
+            return super.entity(group, null != entityDef ? entityDef : new ViewElementDefinition());
+        }
+
         @JsonIgnore
         public CHILD_CLASS entities(final Collection<String> groups) {
-            for (final String group : groups) {
-                entity(group);
+            if (null != groups) {
+                for (final String group : groups) {
+                    entity(group);
+                }
             }
 
             return self();
@@ -314,16 +321,23 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
             return edge(group, new ViewElementDefinition());
         }
 
+        @Override
+        public CHILD_CLASS edge(final String group, final ViewElementDefinition edgeDef) {
+            return super.edge(group, null != edgeDef ? edgeDef : new ViewElementDefinition());
+        }
+
         public CHILD_CLASS edges(final Collection<String> groups) {
-            for (final String group : groups) {
-                edge(group);
+            if (null != groups) {
+                for (final String group : groups) {
+                    edge(group);
+                }
             }
 
             return self();
         }
 
         public CHILD_CLASS globalElements(final GlobalViewElementDefinition... globalElements) {
-            if (globalElements.length > 0) {
+            if (null != globalElements && globalElements.length > 0) {
                 if (null == getThisView().globalElements) {
                     getThisView().globalElements = new ArrayList<>();
                 }
@@ -333,7 +347,7 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         }
 
         public CHILD_CLASS globalEntities(final GlobalViewElementDefinition... globalEntities) {
-            if (globalEntities.length > 0) {
+            if (null != globalEntities && globalEntities.length > 0) {
                 if (null == getThisView().globalEntities) {
                     getThisView().globalEntities = new ArrayList<>();
                 }
@@ -343,7 +357,7 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         }
 
         public CHILD_CLASS globalEdges(final GlobalViewElementDefinition... globalEdges) {
-            if (globalEdges.length > 0) {
+            if (null != globalEdges && globalEdges.length > 0) {
                 if (null == getThisView().globalEdges) {
                     getThisView().globalEdges = new ArrayList<>();
                 }
@@ -370,57 +384,59 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         @Override
         @JsonIgnore
         public CHILD_CLASS merge(final View view) {
-            if (getThisView().getEntities().isEmpty()) {
-                getThisView().getEntities().putAll(view.getEntities());
-            } else {
-                for (final Map.Entry<String, ViewElementDefinition> entry : view.getEntities().entrySet()) {
-                    if (!getThisView().getEntities().containsKey(entry.getKey())) {
-                        entity(entry.getKey(), entry.getValue());
-                    } else {
-                        final ViewElementDefinition mergedElementDef = new ViewElementDefinition.Builder()
-                                .merge(getThisView().getEntities().get(entry.getKey()))
-                                .merge(entry.getValue())
-                                .build();
-                        getThisView().getEntities().put(entry.getKey(), mergedElementDef);
+            if (null != view) {
+                if (getThisView().getEntities().isEmpty()) {
+                    getThisView().getEntities().putAll(view.getEntities());
+                } else {
+                    for (final Map.Entry<String, ViewElementDefinition> entry : view.getEntities().entrySet()) {
+                        if (!getThisView().getEntities().containsKey(entry.getKey())) {
+                            entity(entry.getKey(), entry.getValue());
+                        } else {
+                            final ViewElementDefinition mergedElementDef = new ViewElementDefinition.Builder()
+                                    .merge(getThisView().getEntities().get(entry.getKey()))
+                                    .merge(entry.getValue())
+                                    .build();
+                            getThisView().getEntities().put(entry.getKey(), mergedElementDef);
+                        }
                     }
                 }
-            }
 
-            if (getThisView().getEdges().isEmpty()) {
-                getThisView().getEdges().putAll(view.getEdges());
-            } else {
-                for (final Map.Entry<String, ViewElementDefinition> entry : view.getEdges().entrySet()) {
-                    if (!getThisView().getEdges().containsKey(entry.getKey())) {
-                        edge(entry.getKey(), entry.getValue());
-                    } else {
-                        final ViewElementDefinition mergedElementDef = new ViewElementDefinition.Builder()
-                                .merge(getThisView().getEdges().get(entry.getKey()))
-                                .merge(entry.getValue())
-                                .build();
-                        getThisView().getEdges().put(entry.getKey(), mergedElementDef);
+                if (getThisView().getEdges().isEmpty()) {
+                    getThisView().getEdges().putAll(view.getEdges());
+                } else {
+                    for (final Map.Entry<String, ViewElementDefinition> entry : view.getEdges().entrySet()) {
+                        if (!getThisView().getEdges().containsKey(entry.getKey())) {
+                            edge(entry.getKey(), entry.getValue());
+                        } else {
+                            final ViewElementDefinition mergedElementDef = new ViewElementDefinition.Builder()
+                                    .merge(getThisView().getEdges().get(entry.getKey()))
+                                    .merge(entry.getValue())
+                                    .build();
+                            getThisView().getEdges().put(entry.getKey(), mergedElementDef);
+                        }
                     }
                 }
-            }
 
-            if (null != view.globalElements) {
-                if (null == getThisView().globalElements) {
-                    getThisView().globalElements = new ArrayList<>();
+                if (null != view.globalElements) {
+                    if (null == getThisView().globalElements) {
+                        getThisView().globalElements = new ArrayList<>();
+                    }
+                    getThisView().globalElements.addAll(view.globalElements);
                 }
-                getThisView().globalElements.addAll(view.globalElements);
-            }
 
-            if (null != view.globalEntities) {
-                if (null == getThisView().globalEntities) {
-                    getThisView().globalEntities = new ArrayList<>();
+                if (null != view.globalEntities) {
+                    if (null == getThisView().globalEntities) {
+                        getThisView().globalEntities = new ArrayList<>();
+                    }
+                    getThisView().globalEntities.addAll(view.globalEntities);
                 }
-                getThisView().globalEntities.addAll(view.globalEntities);
-            }
 
-            if (null != view.globalEdges) {
-                if (null == getThisView().globalEdges) {
-                    getThisView().globalEdges = new ArrayList<>();
+                if (null != view.globalEdges) {
+                    if (null == getThisView().globalEdges) {
+                        getThisView().globalEdges = new ArrayList<>();
+                    }
+                    getThisView().globalEdges.addAll(view.globalEdges);
                 }
-                getThisView().globalEdges.addAll(view.globalEdges);
             }
 
             return self();
