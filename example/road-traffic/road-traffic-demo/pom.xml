@@ -76,12 +76,6 @@
                                 <gaffer.properties.app.description>
                                     Example using road traffic data
                                 </gaffer.properties.app.description>
-                                <gaffer.properties.app.banner.description>
-                                    DEMO
-                                </gaffer.properties.app.banner.description>
-                                <gaffer.properties.app.banner.colour>
-                                    #1b75bb
-                                </gaffer.properties.app.banner.colour>
                                 <gaffer.rest-api.basePath>
                                     ${standalone-path}
                                 </gaffer.rest-api.basePath>
