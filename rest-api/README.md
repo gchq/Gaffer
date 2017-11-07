@@ -83,3 +83,12 @@ So, if you want to change the CSS for the rest api you can override the custom.c
 ```
 <module>/src/main/webapp/css/custom.css
 ```
+
+There are also various system properties you can use to configure to customise the Swagger UI.
+For example:
+```
+gaffer.properties.app.title=Road Traffic Example
+gaffer.properties.app.description=Example using road traffic data
+gaffer.properties.app.banner.description=DEMO
+gaffer.properties.app.banner.colour=#1b75bb
+```

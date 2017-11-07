@@ -77,10 +77,10 @@
                                     Example using road traffic data
                                 </gaffer.properties.app.description>
                                 <gaffer.properties.app.banner.description>
-                                    Prototype
+                                    DEMO
                                 </gaffer.properties.app.banner.description>
                                 <gaffer.properties.app.banner.colour>
-                                    red
+                                    #1b75bb
                                 </gaffer.properties.app.banner.colour>
                                 <gaffer.rest-api.basePath>
                                     ${standalone-path}

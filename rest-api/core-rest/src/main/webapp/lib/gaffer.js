@@ -177,11 +177,11 @@ function updateTitle(properties) {
 }
 
 function updateBanner(properties) {
-    updateElementWithId('banner', 'gaffer.properties.app.banner.colour', properties, function(value, id) {
-        $('#' + id).css({'background-color': value});
-    });
     updateElementWithId('banner', 'gaffer.properties.app.banner.description', properties, function (value, id) {
-     $('#' + id).text(value);
+        $('body').prepend("<div id='banner' class='banner'>" + value + "</div>")
+        updateElementWithId('banner', 'gaffer.properties.app.banner.colour', properties, function(value, id) {
+            $('#' + id).css({'background-color': value});
+        });
     });
 }
 
@@ -198,7 +198,10 @@ function updateElement(key, properties, onSuccess) {
 function updateElementWithId(id, key, properties, onSuccess) {
     if(key in properties) {
         if(onSuccess) {
-            onSuccess(properties[key], id);
+            var value = properties[key];
+            if(value != null && value !== '') {
+                onSuccess(value, id);
+            }
         }
     }
 }
