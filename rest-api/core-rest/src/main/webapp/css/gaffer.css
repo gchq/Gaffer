@@ -9,3 +9,16 @@ max-width: 95%;
 #operations_executeChunked_1 .submit {
     display: none !important;
 }
+
+.banner {
+    background-color: red;
+    color: #FFF;
+    width:100%;
+    text-align: center;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    word-wrap: break-word;
+    padding: 3px 10px;
+    font-weight: 700;
+}

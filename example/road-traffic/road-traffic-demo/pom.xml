@@ -3,7 +3,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>road-traffic</artifactId>
-        <version>1.0.3-SNAPSHOT</version>
+        <version>1.1.0-RC2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -68,9 +68,11 @@
                                 </webapp>
                             </webapps>
                             <systemProperties>
-                                <gaffer.properties>gaffer.properties.app.description,</gaffer.properties>
-                                <gaffer.properties.app.description>
+                                <gaffer.properties.app.title>
                                     Road Traffic Example
+                                </gaffer.properties.app.title>
+                                <gaffer.properties.app.description>
+                                    Example using road traffic data
                                 </gaffer.properties.app.description>
                                 <gaffer.rest-api.basePath>
                                     ${standalone-path}

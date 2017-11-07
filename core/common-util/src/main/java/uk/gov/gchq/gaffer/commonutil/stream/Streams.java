@@ -20,6 +20,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.StreamIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.StreamIterator;
 
 import java.util.Iterator;
+import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -43,6 +44,17 @@ public final class Streams {
 
         return StreamSupport.stream(iterable.spliterator(), false)
                 .onClose(() -> CloseableUtil.close(iterable));
+    }
+
+    /**
+     * Convert an array to a {@link java.util.stream.Stream}.
+     *
+     * @param array the input array
+     * @param <T>   the type of object stored in the array
+     * @return a stream containing the contents of the array
+     */
+    public static <T> Stream<T> toStream(final T[] array) {
+        return StreamSupport.stream(Spliterators.spliterator(array, 0), false);
     }
 
     /**
@@ -96,6 +108,17 @@ public final class Streams {
         final Iterable<T> iterable = () -> iterator;
         return StreamSupport.stream(iterable.spliterator(), true)
                 .onClose(() -> CloseableUtil.close(iterator));
+    }
+
+    /**
+     * Convert an array to a {@link java.util.stream.Stream}.
+     *
+     * @param array the input array
+     * @param <T>   the type of object stored in the array
+     * @return a stream containing the contents of the array
+     */
+    public static <T> Stream<T> toParallelStream(final T[] array) {
+        return StreamSupport.stream(Spliterators.spliterator(array, 0), true);
     }
 
     private Streams() {
