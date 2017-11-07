@@ -160,6 +160,7 @@ function init(onSwaggerComplete, onPropertiesLoad){
 function initFromProperties(onPropertiesLoad) {
     var onSuccess = function(properties) {
         updateTitle(properties);
+        updateDescription(properties);
         updateBanner(properties);
         if(onPropertiesLoad) {
             onPropertiesLoad(properties);
@@ -180,6 +181,12 @@ function updateBanner(properties) {
         $('#' + id).css({'background-color': value});
     });
     updateElementWithId('banner', 'gaffer.properties.app.banner.description', properties, function (value, id) {
+     $('#' + id).text(value);
+    });
+}
+
+function updateDescription(properties) {
+    updateElement('gaffer.properties.app.description', properties, function(value, id) {
         $('#' + id).text(value);
     });
 }
