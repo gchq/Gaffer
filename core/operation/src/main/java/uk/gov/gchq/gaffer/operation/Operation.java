@@ -85,6 +85,8 @@ public interface Operation extends Closeable {
      * Performs a shallow clone. Creates a new instance and copies the fields across.
      * It does not clone the fields.
      *
+     * If the operation contains nested operations, these must also be cloned.
+     *
      * @return shallow clone
      * @throws CloneFailedException if a Clone error occurs
      */

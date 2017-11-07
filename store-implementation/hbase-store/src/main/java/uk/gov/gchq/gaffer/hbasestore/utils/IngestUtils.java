@@ -45,7 +45,7 @@ public final class IngestUtils {
      * <p>
      *
      * @param fs      - The FileSystem in which to create the splits file
-     * @param dirPath - The Path to the directory
+     * @param dirPath - The path to the directory
      * @throws IOException for any IO issues interacting with the file system.
      */
     public static void setDirectoryPermsForHbase(final FileSystem fs, final Path dirPath) throws IOException {

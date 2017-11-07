@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Set;
 
-import static uk.gov.gchq.gaffer.user.StoreUser.*;
+import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedGetAllGraphsIDHandlerTest {
 
