@@ -58,7 +58,7 @@ public class AddStorePropertiesHandlerTest {
             store.execute(new Builder().storeProperties(props).id(TEST_PROPS_ID).build(), new Context(StoreUser.blankUser()));
             fail("Exception expected");
         } catch (final Exception e) {
-            assertEquals(e.getMessage(), String.format("Operation class %s is not supported by the %s.", AddStoreProperties.class.getName(), TestAddToGraphLibraryImpl.class.getSimpleName()));
+            assertEquals(String.format("Operation class %s is not supported by the %s.", AddStoreProperties.class.getName(), TestAddToGraphLibraryImpl.class.getSimpleName()), e.getMessage());
         }
     }
 
