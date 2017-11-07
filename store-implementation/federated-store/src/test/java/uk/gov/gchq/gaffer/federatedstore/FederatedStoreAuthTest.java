@@ -35,6 +35,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.authUser;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.blankUser;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
 
 public class FederatedStoreAuthTest {
@@ -87,7 +88,7 @@ public class FederatedStoreAuthTest {
         assertEquals(EXPECTED_GRAPH_ID, next.getGraphId());
         assertEquals(schema, next.getSchema());
 
-        graphs = federatedStore.getGraphs(testUser, null);
+        graphs = federatedStore.getGraphs(blankUser(), null);
 
         assertNotNull(graphs);
         assertTrue(graphs.isEmpty());
