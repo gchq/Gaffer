@@ -35,9 +35,9 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -57,7 +57,8 @@ import java.util.stream.Collectors;
  *              {@link uk.gov.gchq.gaffer.operation.Operation} in the chain.
  * @see uk.gov.gchq.gaffer.operation.OperationChain.Builder
  */
-public class OperationChain<OUT> implements Output<OUT> {
+public class OperationChain<OUT> implements Output<OUT>,
+        Operations<Operation> {
     private List<Operation> operations;
     private Map<String, String> options;
 
@@ -99,25 +100,31 @@ public class OperationChain<OUT> implements Output<OUT> {
     }
 
     public static OperationChain<?> wrap(final Operation operation) {
+        final OperationChain<?> opChain;
         if (operation instanceof OperationChain) {
-            return ((OperationChain) operation);
+            opChain = ((OperationChain<?>) operation);
+        } else {
+            opChain = new OperationChain<>(operation);
+            opChain.setOptions(operation.getOptions());
         }
-
-        return new OperationChain<>(operation);
+        return opChain;
     }
 
     public static <O> OperationChain<O> wrap(final Output<O> operation) {
+        final OperationChain<O> opChain;
         if (operation instanceof OperationChain) {
-            return ((OperationChain<O>) operation);
+            opChain = ((OperationChain<O>) operation);
+        } else {
+            opChain = new OperationChain<>(operation);
+            opChain.setOptions(operation.getOptions());
         }
-
-        return new OperationChain<>(operation);
+        return opChain;
     }
 
     @JsonIgnore
     @Override
     public TypeReference<OUT> getOutputTypeReference() {
-        if (null != operations && !operations.isEmpty()) {
+        if (!operations.isEmpty()) {
             final Operation lastOp = operations.get(operations.size() - 1);
             if (lastOp instanceof Output) {
                 return ((Output) lastOp).getOutputTypeReference();
@@ -127,13 +134,14 @@ public class OperationChain<OUT> implements Output<OUT> {
         return (TypeReference<OUT>) new TypeReferenceImpl.Void();
     }
 
+    @Override
     public List<Operation> getOperations() {
         return operations;
     }
 
     @JsonGetter("operations")
     Operation[] getOperationArray() {
-        return null != operations ? operations.toArray(new Operation[operations.size()]) : new Operation[0];
+        return operations.toArray(new Operation[operations.size()]);
     }
 
     @JsonSetter("operations")
@@ -146,15 +154,11 @@ public class OperationChain<OUT> implements Output<OUT> {
     }
 
     public OperationChain<OUT> shallowClone() throws CloneFailedException {
-        if (null == operations) {
-            return new OperationChain<>();
-        }
-
-        final List<Operation> clonedOps = operations.stream()
-                .map(Operation::shallowClone)
-                .collect(Collectors.toList());
-        final OperationChain<OUT> clone = new OperationChain<>(clonedOps);
+        final OperationChain<OUT> clone = new OperationChain<>();
         clone.setOptions(options);
+        for (final Operation operation : operations) {
+            clone.getOperations().add(operation.shallowClone());
+        }
         return clone;
     }
 
@@ -177,10 +181,8 @@ public class OperationChain<OUT> implements Output<OUT> {
 
     @Override
     public void close() throws IOException {
-        if (null != operations) {
-            for (final Operation operation : operations) {
-                CloseableUtil.close(operation);
-            }
+        for (final Operation operation : operations) {
+            CloseableUtil.close(operation);
         }
     }
 
@@ -192,6 +194,7 @@ public class OperationChain<OUT> implements Output<OUT> {
 
             isEqual = new EqualsBuilder()
                     .append(this.getOperations(), that.getOperations())
+                    .append(options, that.options)
                     .isEquals();
         }
         return isEqual;
@@ -201,6 +204,7 @@ public class OperationChain<OUT> implements Output<OUT> {
     public int hashCode() {
         return new HashCodeBuilder(17, 21)
                 .append(operations)
+                .append(options)
                 .toHashCode();
     }
 
@@ -238,65 +242,166 @@ public class OperationChain<OUT> implements Output<OUT> {
      */
     public static class Builder {
         public NoOutputBuilder first(final Operation op) {
-            return new NoOutputBuilder(op);
+            return new NoOutputBuilder(op, null);
         }
 
         public <NEXT_OUT> OutputBuilder<NEXT_OUT> first(final Output<NEXT_OUT> op) {
-            return new OutputBuilder<>(op);
+            return new OutputBuilder<>(op, null);
         }
     }
 
     public static final class NoOutputBuilder {
         private final List<Operation> ops;
+        private Map<String, String> options;
 
-        private NoOutputBuilder(final Operation op) {
-            this(new ArrayList<>());
+        private NoOutputBuilder(final Operation op, final Map<String, String> options) {
+            this(new ArrayList<>(), options);
             ops.add(op);
         }
 
-        private NoOutputBuilder(final List<Operation> ops) {
+        private NoOutputBuilder(final List<Operation> ops, final Map<String, String> options) {
             this.ops = ops;
+            this.options = options;
         }
 
         public NoOutputBuilder then(final Operation op) {
             ops.add(op);
-            return new NoOutputBuilder(ops);
+            return new NoOutputBuilder(ops, options);
         }
 
         public <NEXT_OUT> OutputBuilder<NEXT_OUT> then(final Output<NEXT_OUT> op) {
             ops.add(op);
-            return new OutputBuilder<>(ops);
+            return new OutputBuilder<>(ops, options);
+        }
+
+        public <NEXT_OUT> OutputBuilder<NEXT_OUT> thenTypeUnsafe(final Output op) {
+            ops.add(op);
+            return new OutputBuilder<>(ops, options);
+        }
+
+        public NoOutputBuilder option(final String name, final String value) {
+            if (null == options) {
+                options = new HashMap<>();
+            }
+            options.put(name, value);
+            return this;
+        }
+
+        public NoOutputBuilder options(final Map<String, String> options) {
+            if (null != options) {
+                if (null == this.options) {
+                    this.options = new HashMap<>(options);
+                } else {
+                    this.options.putAll(options);
+                }
+            }
+            return this;
         }
 
         public OperationChain<Void> build() {
-            return new OperationChain<>(ops);
+            final OperationChain<Void> opChain = new OperationChain<>(ops);
+            opChain.setOptions(options);
+            return opChain;
         }
     }
 
     public static final class OutputBuilder<OUT> {
         private final List<Operation> ops;
+        private Map<String, String> options;
 
-        private OutputBuilder(final Output<OUT> op) {
-            this(new ArrayList<>());
+        private OutputBuilder(final Output<OUT> op, final Map<String, String> options) {
+            this(new ArrayList<>(), options);
             ops.add(op);
         }
 
-        private OutputBuilder(final List<Operation> ops) {
+        private OutputBuilder(final List<Operation> ops, final Map<String, String> options) {
             this.ops = ops;
+            this.options = options;
         }
 
         public NoOutputBuilder then(final Input<? super OUT> op) {
             ops.add(op);
-            return new NoOutputBuilder(ops);
+            return new NoOutputBuilder(ops, options);
         }
 
         public <NEXT_OUT> OutputBuilder<NEXT_OUT> then(final InputOutput<? super OUT, NEXT_OUT> op) {
             ops.add(op);
-            return new OutputBuilder<>(ops);
+            return new OutputBuilder<>(ops, options);
+        }
+
+        /**
+         * <p>
+         * Adds the provided operation to the operation chain.
+         * </p>
+         * <p>
+         * NOTE - this is type unsafe and may cause your operation chain to fail
+         * </p>
+         *
+         * @param op the operation to add
+         * @return the builder to allow chaining builder methods
+         */
+        public NoOutputBuilder thenTypeUnsafe(final Input<?> op) {
+            ops.add(op);
+            return new NoOutputBuilder(ops, options);
+        }
+
+        /**
+         * <p>
+         * Adds the provided operation to the operation chain.
+         * </p>
+         * <p>
+         * NOTE - this is type unsafe and may cause your operation chain to fail
+         * </p>
+         *
+         * @param op         the operation to add
+         * @param <NEXT_OUT> the next output type
+         * @return the builder to allow chaining builder methods
+         */
+        public <NEXT_OUT> OutputBuilder<NEXT_OUT> thenTypeUnsafe(final InputOutput<?, NEXT_OUT> op) {
+            ops.add(op);
+            return new OutputBuilder<>(ops, options);
+        }
+
+        public OutputBuilder<OUT> option(final String name, final String value) {
+            if (null == options) {
+                options = new HashMap<>();
+            }
+            options.put(name, value);
+            return this;
+        }
+
+        public OutputBuilder<OUT> options(final Map<String, String> options) {
+            if (null != options) {
+                if (null == this.options) {
+                    this.options = new HashMap<>(options);
+                } else {
+                    this.options.putAll(options);
+                }
+            }
+            return this;
         }
 
         public OperationChain<OUT> build() {
-            return new OperationChain<>(ops);
+            final OperationChain<OUT> opChain = new OperationChain<>(ops);
+            opChain.setOptions(options);
+            return opChain;
+        }
+
+        /**
+         * <p>
+         * Builds the operation chain and returns it.
+         * </p>
+         * <p>
+         * NOTE - this is type unsafe and may cause your operation chain to fail
+         * </p>
+         *
+         * @param <CUSTOM_OUT> the output type for the operation chain
+         * @return the operation chain
+         */
+        public <CUSTOM_OUT> OperationChain<CUSTOM_OUT> buildTypeUnsafe() {
+            final OperationChain opChain = new OperationChain<>(ops);
+            opChain.setOptions(options);
+            return opChain;
         }
     }
 }

@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 
@@ -290,6 +291,30 @@ public class CollectionUtilTest {
 
         // When
         final boolean result = CollectionUtil.anyMissing(collection, values);
+
+        // Then
+        assertFalse(result);
+    }
+
+    @Test
+    public void shouldReturnTrueWhenDistinctCalledWithCollectionOfUniqueValues() {
+        // Given
+        final Collection collection = Lists.newArrayList(1,2,3,4,5);
+
+        // When
+        final boolean result = CollectionUtil.distinct(collection);
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    public void shouldReturnFalseWhenDistinctCalledWithCollectionOfNonUniqueValues() {
+        // Given
+        final Collection collection = Lists.newArrayList(1,2,3,1,2);
+
+        // When
+        final boolean result = CollectionUtil.distinct(collection);
 
         // Then
         assertFalse(result);

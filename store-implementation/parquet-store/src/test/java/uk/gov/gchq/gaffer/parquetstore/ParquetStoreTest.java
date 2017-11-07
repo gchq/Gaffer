@@ -35,8 +35,8 @@ public class ParquetStoreTest {
         expectedTraits.add(StoreTrait.INGEST_AGGREGATION);
         expectedTraits.add(StoreTrait.PRE_AGGREGATION_FILTERING);
         expectedTraits.add(StoreTrait.ORDERED);
+        expectedTraits.add(StoreTrait.STORE_VALIDATION);
         expectedTraits.add(StoreTrait.VISIBILITY);
         assertEquals(expectedTraits, store.getTraits());
     }
-
 }

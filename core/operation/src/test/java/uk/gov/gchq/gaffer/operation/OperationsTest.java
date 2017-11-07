@@ -13,8 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package uk.gov.gchq.gaffer.operation;
+
+import org.junit.Test;
+
+import uk.gov.gchq.gaffer.JSONSerialisationTest;
 
 /**
- * Exceptions relating to the Gaffer Store class.
+ * Provides a common interface for testing implementations of the {@link Operations} class.
+ * @param <T>   The implementation of {@link Operations} to be tested
  */
-package uk.gov.gchq.gaffer.store.exception;
+public abstract class OperationsTest<T extends Operation> extends JSONSerialisationTest<T> {
+
+    /**
+     * Should return a {@link java.util.Collection} of {@link Operation}s that the
+     * {@link Operations} T contains.
+     */
+    @Test
+    public abstract void shouldGetOperations();
+
+}

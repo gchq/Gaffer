@@ -20,24 +20,31 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.Graph.Builder;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
-import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Set;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedGraphStorage.GRAPH_IDS_NOT_VISIBLE;
@@ -57,8 +64,12 @@ public class FederatedGraphStorageTest {
     private User nullUser;
     private User testUser;
     private User authUser;
-    private FederatedAccess access;
     private User blankUser;
+    private Context nullUserContext;
+    private Context testUserContext;
+    private Context authUserContext;
+    private Context blankUserContext;
+    private FederatedAccess access;
     private SchemaEntityDefinition e1;
     private SchemaEntityDefinition e2;
 
@@ -94,19 +105,18 @@ public class FederatedGraphStorageTest {
         nullUser = null;
         testUser = testUser();
         authUser = authUser();
-        access = new FederatedAccess(Sets.newHashSet(AUTH_1), TEST_USER);
         blankUser = blankUser();
-    }
+        nullUserContext = new Context(nullUser);
+        testUserContext = new Context(testUser);
+        authUserContext = new Context(authUser);
+        blankUserContext = new Context(blankUser);
 
-    @Test
-    public void shouldStartWithNoTraits() throws Exception {
-        final Set<StoreTrait> traits = graphStorage.getTraits();
-        assertEquals(0, traits.size());
+        access = new FederatedAccess(Sets.newHashSet(AUTH_1), TEST_USER);
     }
 
     @Test
     public void shouldStartWithNoGraphs() throws Exception {
-        final Collection<Graph> graphs = graphStorage.getAll(nullUser);
+        final Collection<Graph> graphs = graphStorage.get(nullUser, null);
         assertEquals(0, graphs.size());
     }
 
@@ -222,12 +232,12 @@ public class FederatedGraphStorageTest {
     @Test
     public void shouldSchemaShouldChangeWhenAddingGraphB() throws Exception {
         graphStorage.put(a, access);
-        final Schema schemaA = graphStorage.getMergedSchema(testUser);
+        final Schema schemaA = graphStorage.getSchema((Map<String, String>) null, testUserContext);
         assertEquals(1, schemaA.getTypes().size());
         assertEquals(String.class, schemaA.getType("string").getClazz());
         assertEquals(e1, schemaA.getElement("e1"));
         graphStorage.put(b, access);
-        final Schema schemaAB = graphStorage.getMergedSchema(testUser);
+        final Schema schemaAB = graphStorage.getSchema((Map<String, String>) null, testUserContext);
         assertNotEquals(schemaA, schemaAB);
         assertEquals(2, schemaAB.getTypes().size());
         assertEquals(String.class, schemaAB.getType("string").getClazz());
@@ -241,7 +251,7 @@ public class FederatedGraphStorageTest {
     public void shouldGetSchemaForAddingUser() throws Exception {
         graphStorage.put(a, access);
         graphStorage.put(b, new FederatedAccess(Sets.newHashSet(X), X));
-        final Schema schema = graphStorage.getMergedSchema(testUser);
+        final Schema schema = graphStorage.getSchema((Map<String, String>) null, testUserContext);
         assertNotEquals("Revealing hidden schema", 2, schema.getTypes().size());
         assertEquals(1, schema.getTypes().size());
         assertEquals(String.class, schema.getType("string").getClazz());
@@ -252,7 +262,7 @@ public class FederatedGraphStorageTest {
     public void shouldGetSchemaForAuthUser() throws Exception {
         graphStorage.put(a, access);
         graphStorage.put(b, new FederatedAccess(Sets.newHashSet(X), X));
-        final Schema schema = graphStorage.getMergedSchema(authUser);
+        final Schema schema = graphStorage.getSchema((Map<String, String>) null, authUserContext);
         assertNotEquals("Revealing hidden schema", 2, schema.getTypes().size());
         assertEquals(1, schema.getTypes().size());
         assertEquals(String.class, schema.getType("string").getClazz());
@@ -263,35 +273,9 @@ public class FederatedGraphStorageTest {
     public void shouldNotGetSchemaForBlankUser() throws Exception {
         graphStorage.put(a, access);
         graphStorage.put(b, new FederatedAccess(Sets.newHashSet(X), X));
-        final Schema schema = graphStorage.getMergedSchema(blankUser);
+        final Schema schema = graphStorage.getSchema((Map<String, String>) null, blankUserContext);
         assertNotEquals("Revealing hidden schema", 2, schema.getTypes().size());
         assertEquals("Revealing hidden schema", 0, schema.getTypes().size());
-    }
-
-    @Test
-    public void shouldGetTraitsForAddingUser() throws Exception {
-        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
-        graphStorage.put(b, access);
-        final Set<StoreTrait> traits = graphStorage.getTraits(testUser);
-        assertNotEquals("Revealing hidden traits", 5, traits.size());
-        assertEquals(9, traits.size());
-    }
-
-    @Test
-    public void shouldGetTraitsForAuthUser() throws Exception {
-        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
-        graphStorage.put(b, access);
-        final Set<StoreTrait> traits = graphStorage.getTraits(authUser);
-        assertNotEquals("Revealing hidden traits", 5, traits.size());
-        assertEquals(9, traits.size());
-    }
-
-    @Test
-    public void shouldNotGetTraitsForBlankUser() throws Exception {
-        graphStorage.put(a, new FederatedAccess(Sets.newHashSet(X), X));
-        graphStorage.put(b, access);
-        final Set<StoreTrait> traits = graphStorage.getTraits(blankUser);
-        assertEquals("Revealing hidden traits", 0, traits.size());
     }
 
     @Test
@@ -313,5 +297,56 @@ public class FederatedGraphStorageTest {
         graphStorage.put(a, access);
         final boolean remove = graphStorage.remove(GRAPH_ID, blankUser);
         assertFalse(remove);
+    }
+
+    @Test
+    public void shouldGetGraphsInOrder() throws Exception {
+        // Given
+        graphStorage.put(Lists.newArrayList(a, b), access);
+        final List<String> configAB = Arrays.asList(a.getGraphId(), b.getGraphId());
+        final List<String> configBA = Arrays.asList(b.getGraphId(), a.getGraphId());
+
+        // When
+        final Collection<Graph> graphsAB = graphStorage.get(authUser, configAB);
+        final Collection<Graph> graphsBA = graphStorage.get(authUser, configBA);
+
+        // Then
+        // A B
+        final Iterator<Graph> itrAB = graphsAB.iterator();
+        assertSame(a, itrAB.next());
+        assertSame(b, itrAB.next());
+        assertFalse(itrAB.hasNext());
+        // B A
+        final Iterator<Graph> itrBA = graphsBA.iterator();
+        assertSame(b, itrBA.next());
+        assertSame(a, itrBA.next());
+        assertFalse(itrBA.hasNext());
+    }
+
+    @Test
+    public void shouldNotAddGraphWhenLibraryThrowsExceptionDuringAdd() throws Exception {
+        //given
+        GraphLibrary mock = Mockito.mock(GraphLibrary.class);
+        String testMockException = "testMockException";
+        String graphId = a.getGraphId();
+        Mockito.doThrow(new RuntimeException(testMockException))
+                .when(mock)
+                .add(graphId, a.getSchema(), a.getStoreProperties());
+        graphStorage.setGraphLibrary(mock);
+        try {
+            graphStorage.put(a, access);
+            fail("Exception expected");
+        } catch (final Exception e) {
+            assertTrue(e instanceof StorageException);
+            assertEquals(testMockException, e.getCause().getMessage());
+        }
+        try {
+            //when
+            graphStorage.get(testUser, Lists.newArrayList(graphId));
+            fail("Exception exptected");
+        } catch (final IllegalArgumentException e) {
+            //then
+            assertEquals(String.format(GRAPH_IDS_NOT_VISIBLE, Arrays.toString(new String[]{graphId})), e.getMessage());
+        }
     }
 }

@@ -59,6 +59,15 @@ public class ToEntitySeedsTest extends OperationTest<ToEntitySeeds> {
         assertEquals(input, clone.getInput().iterator().next());
     }
 
+    @Test
+    public void shouldGetOutputClass() {
+        // When
+        final Class<?> outputClass = getTestObject().getOutputClass();
+
+        // Then
+        assertEquals(Iterable.class, outputClass);
+    }
+
     @Override
     protected ToEntitySeeds getTestObject() {
         return new ToEntitySeeds();

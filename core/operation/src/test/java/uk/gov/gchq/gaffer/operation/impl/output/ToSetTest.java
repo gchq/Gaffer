@@ -21,6 +21,8 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
+import java.util.Set;
+
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
@@ -58,6 +60,15 @@ public class ToSetTest extends OperationTest<ToSet> {
         // Then
         assertNotSame(toSet, clone);
         assertEquals(Lists.newArrayList(input), clone.getInput());
+    }
+
+    @Test
+    public void shouldGetOutputClass() {
+        // When
+        final Class<?> outputClass = getTestObject().getOutputClass();
+
+        // Then
+        assertEquals(Set.class, outputClass);
     }
 
     @Override

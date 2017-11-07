@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>road-traffic</artifactId>
-        <version>1.0.2</version>
+        <version>1.0.3-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -68,6 +70,12 @@
                                 </webapp>
                             </webapps>
                             <systemProperties>
+                                <gaffer.properties.app.title>
+                                    Road Traffic Example
+                                </gaffer.properties.app.title>
+                                <gaffer.properties.app.description>
+                                    Example using road traffic data
+                                </gaffer.properties.app.description>
                                 <gaffer.rest-api.basePath>
                                     ${standalone-path}
                                 </gaffer.rest-api.basePath>

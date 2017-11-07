@@ -52,6 +52,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
+import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -87,6 +88,7 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.tostring.StringToStringSerialiser;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
@@ -496,6 +498,9 @@ public class StoreTest {
                 Min.class,
                 Sort.class,
 
+                // Algorithm
+                GetWalks.class,
+
                 // OperationChain
                 OperationChain.class,
                 OperationChainDAO.class,
@@ -508,6 +513,7 @@ public class StoreTest {
                 CountGroups.class,
                 Limit.class,
                 DiscardOutput.class,
+                GetSchema.class,
 
                 // Function
                 Filter.class,

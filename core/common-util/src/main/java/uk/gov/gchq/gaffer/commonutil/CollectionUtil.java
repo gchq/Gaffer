@@ -18,13 +18,23 @@ package uk.gov.gchq.gaffer.commonutil;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 public final class CollectionUtil {
 
     private CollectionUtil() {
         // Private constructor to prevent instantiation.
+    }
+
+    public static Iterable[] toIterableArray(final Collection<? extends Iterable> collection) {
+        if (null == collection) {
+            return null;
+        }
+
+        return collection.toArray(new Iterable[collection.size()]);
     }
 
     public static <T> TreeSet<T> treeSet(final T item) {
@@ -109,5 +119,25 @@ public final class CollectionUtil {
         }
 
         return result;
+    }
+
+    /**
+     * Determine whether all of the items in the given {@link Collection} are unique.
+     *
+     * @param collection the collection to check
+     * @param <T> the type of object contained in the collection
+     * @return {@code true} if all the items in the Collection are unique (as determined
+     * by {@link Object#equals(Object)}, otherwise {@code false}
+     */
+    public static <T> boolean distinct(final Collection<T> collection) {
+        final Set<T> set = new HashSet<>();
+
+        for (final T t : collection) {
+            if (!set.add(t)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

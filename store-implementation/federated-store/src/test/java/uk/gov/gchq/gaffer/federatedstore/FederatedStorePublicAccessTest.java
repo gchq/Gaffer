@@ -16,15 +16,19 @@
 
 package uk.gov.gchq.gaffer.federatedstore;
 
-import org.junit.Assert;
+import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
+import static org.junit.Assert.assertEquals;
 
 public class FederatedStorePublicAccessTest {
 
@@ -32,90 +36,104 @@ public class FederatedStorePublicAccessTest {
     public static final String GRAPH_1 = "graph1";
     public static final String PROP_1 = "prop1";
     public static final String SCHEMA_1 = "schema1";
+    public static final String TEST_FED_STORE_ID = "testFedStore";
+    private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private FederatedStore store;
     private FederatedStoreProperties fedProps;
     private HashMapGraphLibrary library;
-    private Context blankContext;
+    private Context blankUserContext;
+    private Context testUserContext;
 
     @Before
     public void setUp() throws Exception {
+        CacheServiceLoader.shutdown();
         fedProps = new FederatedStoreProperties();
-        fedProps.setGraphIds(GRAPH_1);
-        fedProps.setGraphPropId(GRAPH_1, PROP_1);
-        fedProps.setGraphSchemaId(GRAPH_1, SCHEMA_1);
+        fedProps.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
 
         store = new FederatedStore();
         library = new HashMapGraphLibrary();
         HashMapGraphLibrary.clear();
 
         MapStoreProperties mapStoreProperties = new MapStoreProperties();
-        mapStoreProperties.setId(PROP_1);
 
-        library.addProperties(mapStoreProperties);
-        library.addSchema(new Schema.Builder().id(SCHEMA_1).build());
+        library.addProperties(PROP_1, mapStoreProperties);
+        library.addSchema(SCHEMA_1, new Schema.Builder().build());
         store.setGraphLibrary(library);
-        blankContext = new Context(FederatedStoreUser.blankUser());
+        blankUserContext = new Context(FederatedStoreUser.blankUser());
+        testUserContext = new Context(FederatedStoreUser.testUser());
     }
 
     @Test
     public void shouldNotBePublicWhenAllGraphsDefaultedPrivateAndGraphIsDefaultedPrivate() throws Exception {
-        store.initialise("testFedStore", null, fedProps);
-        final Iterable<? extends String> execute = store.execute(new GetAllGraphIds(), blankContext);
-        Assert.assertFalse(execute.iterator().hasNext());
+        store.initialise(TEST_FED_STORE_ID, null, fedProps);
+        store.execute(new AddGraph.Builder()
+                .graphId(GRAPH_1)
+                .parentPropertiesId(PROP_1)
+                .parentSchemaIds(Lists.newArrayList(SCHEMA_1))
+                .build(), testUserContext);
+        getAllGraphsIdsHasNext(false);
     }
-
 
     @Test
     public void shouldBePublicWhenAllGraphsDefaultedPrivateAndGraphIsSetPublic() throws Exception {
-        fedProps.setTrueGraphIsPublicValue(GRAPH_1);
-        store.initialise("testFedStore", null, fedProps);
-        final Iterable<? extends String> execute = store.execute(new GetAllGraphIds(), blankContext);
-        Assert.assertTrue(execute.iterator().hasNext());
+        store.initialise(TEST_FED_STORE_ID, null, fedProps);
+        store.execute(getAddGraphOp(true), testUserContext);
+        getAllGraphsIdsHasNext(true);
     }
+
 
     @Test
     public void shouldNotBePublicWhenAllGraphsDefaultedPrivateAndGraphIsSetPrivate() throws Exception {
-        fedProps.setFalseGraphIsPublicValue(GRAPH_1);
-        store.initialise("testFedStore", null, fedProps);
-        final Iterable<? extends String> execute = store.execute(new GetAllGraphIds(), blankContext);
-        Assert.assertFalse(execute.iterator().hasNext());
+        store.initialise(TEST_FED_STORE_ID, null, fedProps);
+        store.execute(getAddGraphOp(false), testUserContext);
+        getAllGraphsIdsHasNext(false);
     }
 
     @Test
     public void shouldNotBePublicWhenAllGraphsSetPrivateAndGraphIsSetPublic() throws Exception {
         fedProps.setFalseGraphsCanHavePublicAccess();
-        fedProps.setTrueGraphIsPublicValue(GRAPH_1);
-        store.initialise("testFedStore", null, fedProps);
-        final Iterable<? extends String> execute = store.execute(new GetAllGraphIds(), blankContext);
-        Assert.assertFalse(execute.iterator().hasNext());
+        store.initialise(TEST_FED_STORE_ID, null, fedProps);
+        store.execute(getAddGraphOp(true), testUserContext);
+        getAllGraphsIdsHasNext(false);
     }
 
     @Test
     public void shouldNotBePublicWhenAllGraphsSetPrivateAndGraphIsSetPrivate() throws Exception {
         fedProps.setFalseGraphsCanHavePublicAccess();
-        fedProps.setFalseGraphIsPublicValue(GRAPH_1);
-        store.initialise("testFedStore", null, fedProps);
-        final Iterable<? extends String> execute = store.execute(new GetAllGraphIds(), blankContext);
-        Assert.assertFalse(execute.iterator().hasNext());
+        store.initialise(TEST_FED_STORE_ID, null, fedProps);
+        store.execute(getAddGraphOp(false), testUserContext);
+        getAllGraphsIdsHasNext(false);
     }
-
 
     @Test
     public void shouldNotBePublicWhenAllGraphsSetPublicAndGraphIsSetPrivate() throws Exception {
         fedProps.setTrueGraphsCanHavePublicAccess();
-        fedProps.setFalseGraphIsPublicValue(GRAPH_1);
-        store.initialise("testFedStore", null, fedProps);
-        final Iterable<? extends String> execute = store.execute(new GetAllGraphIds(), blankContext);
-        Assert.assertFalse(execute.iterator().hasNext());
+        store.initialise(TEST_FED_STORE_ID, null, fedProps);
+        store.execute(getAddGraphOp(false), testUserContext);
+        getAllGraphsIdsHasNext(false);
     }
 
     @Test
     public void shouldBePublicWhenAllGraphsSetPublicAndGraphIsSetPublic() throws Exception {
         fedProps.setTrueGraphsCanHavePublicAccess();
-        fedProps.setTrueGraphIsPublicValue(GRAPH_1);
-        store.initialise("testFedStore", null, fedProps);
-        final Iterable<? extends String> execute = store.execute(new GetAllGraphIds(), blankContext);
-        Assert.assertTrue(execute.iterator().hasNext());
+        store.initialise(TEST_FED_STORE_ID, null, fedProps);
+        store.execute(getAddGraphOp(true), testUserContext);
+        getAllGraphsIdsHasNext(true);
+    }
+
+
+    private AddGraph getAddGraphOp(final boolean isPublic) {
+        return new AddGraph.Builder()
+                .isPublic(isPublic)
+                .graphId(GRAPH_1)
+                .parentPropertiesId(PROP_1)
+                .parentSchemaIds(Lists.newArrayList(SCHEMA_1))
+                .build();
+    }
+
+    private void getAllGraphsIdsHasNext(final boolean expected) throws uk.gov.gchq.gaffer.operation.OperationException {
+        final Iterable<? extends String> execute = store.execute(new GetAllGraphIds(), blankUserContext);
+        assertEquals(expected, execute.iterator().hasNext());
     }
 
 }

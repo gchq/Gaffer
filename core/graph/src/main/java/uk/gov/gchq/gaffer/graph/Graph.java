@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.graph;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,7 @@ import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
@@ -90,8 +92,6 @@ public final class Graph {
      */
     private final Store store;
 
-    private Schema schema;
-
     private GraphConfig config;
 
     /**
@@ -102,15 +102,11 @@ public final class Graph {
      * @param config a {@link GraphConfig} used to store the configuration for
      *               a
      *               Graph.
-     * @param schema a {@link Schema} that defines the graph. Should be the
-     *               copy
-     *               of the schema that the store is initialised with.
      * @param store  a {@link Store} used to store the elements and handle
      *               operations.
      */
-    private Graph(final GraphConfig config, final Schema schema, final Store store) {
+    private Graph(final GraphConfig config, final Store store) {
         this.config = config;
-        this.schema = schema;
         this.store = store;
     }
 
@@ -197,9 +193,18 @@ public final class Graph {
             throw new IllegalArgumentException("operationChain is required");
         }
 
+        if (null == context) {
+            throw new IllegalArgumentException("A context containing a user is required");
+        }
+
+        if (null == context.getUser()) {
+            throw new IllegalArgumentException("The context does not contain a user");
+        }
+
         final OperationChain clonedOpChain = operationChain.shallowClone();
         O result = null;
         try {
+            updateOperationChainView(clonedOpChain);
             for (final GraphHook graphHook : config.getHooks()) {
                 graphHook.preExecute(clonedOpChain, context);
             }
@@ -223,10 +228,11 @@ public final class Graph {
         return result;
     }
 
-    private void updateOperationChainView(final OperationChain<?> operationChain) {
-        for (final Operation operation : operationChain.getOperations()) {
-
-            if (operation instanceof OperationView) {
+    private void updateOperationChainView(final Operations<?> operations) {
+        for (final Operation operation : operations.getOperations()) {
+            if (operation instanceof Operations) {
+                updateOperationChainView((Operations) operation);
+            } else if (operation instanceof OperationView) {
                 final OperationView operationView = (OperationView) operation;
                 final View opView;
                 if (null == operationView.getView()) {
@@ -280,10 +286,10 @@ public final class Graph {
     }
 
     /**
-     * @return the schema.
+     * @return the original schema.
      */
     public Schema getSchema() {
-        return schema;
+        return store.getOriginalSchema();
     }
 
     /**
@@ -338,6 +344,10 @@ public final class Graph {
         return store.getGraphLibrary();
     }
 
+    protected GraphConfig getConfig() {
+        return config;
+    }
+
     @FunctionalInterface
     private interface StoreExecuter<O> {
         O execute(final OperationChain<O> operation, final Context context) throws OperationException;
@@ -366,7 +376,7 @@ public final class Graph {
         private Store store;
         private StoreProperties properties;
         private Schema schema;
-        private String[] parentSchemaIds;
+        private List<String> parentSchemaIds;
         private String parentStorePropertiesId;
         private boolean addToLibrary = true;
 
@@ -488,7 +498,7 @@ public final class Graph {
         }
 
         public Builder storeProperties(final Properties properties) {
-            return storeProperties(StoreProperties.loadStoreProperties(properties));
+            return storeProperties(null != properties ? StoreProperties.loadStoreProperties(properties) : null);
         }
 
         public Builder storeProperties(final StoreProperties properties) {
@@ -500,65 +510,108 @@ public final class Graph {
         }
 
         public Builder storeProperties(final String propertiesPath) {
-            return storeProperties(StoreProperties.loadStoreProperties(propertiesPath));
+            return storeProperties(null != propertiesPath ? StoreProperties.loadStoreProperties(propertiesPath) : null);
         }
 
         public Builder storeProperties(final Path propertiesPath) {
-            return storeProperties(StoreProperties.loadStoreProperties(propertiesPath));
+            if (null == propertiesPath) {
+                properties = null;
+            } else {
+                storeProperties(StoreProperties.loadStoreProperties(propertiesPath));
+            }
+            return this;
         }
 
         public Builder storeProperties(final InputStream propertiesStream) {
-            return storeProperties(StoreProperties.loadStoreProperties(propertiesStream));
+            if (null == propertiesStream) {
+                properties = null;
+            } else {
+                storeProperties(StoreProperties.loadStoreProperties(propertiesStream));
+            }
+            return this;
         }
 
         public Builder storeProperties(final URI propertiesURI) {
-            try {
-                storeProperties(StreamUtil.openStream(propertiesURI));
-            } catch (final IOException e) {
-                throw new SchemaException("Unable to read storeProperties from URI: " + propertiesURI, e);
+            if (null != propertiesURI) {
+                try {
+                    storeProperties(StreamUtil.openStream(propertiesURI));
+                } catch (final IOException e) {
+                    throw new SchemaException("Unable to read storeProperties from URI: " + propertiesURI, e);
+                }
             }
 
             return this;
         }
 
         public Builder addStoreProperties(final Properties properties) {
-            return addStoreProperties(StoreProperties.loadStoreProperties(properties));
+            if (null != properties) {
+                addStoreProperties(StoreProperties.loadStoreProperties(properties));
+            }
+            return this;
         }
 
         public Builder addStoreProperties(final StoreProperties updateProperties) {
-            if (null == this.properties) {
-                storeProperties(updateProperties);
-            } else {
-                final Properties old = this.properties.getProperties();
-                old.putAll(updateProperties.getProperties());
+            if (null != updateProperties) {
+                if (null == this.properties) {
+                    storeProperties(updateProperties);
+                } else {
+                    this.properties.merge(updateProperties);
+                }
             }
             return this;
         }
 
         public Builder addStoreProperties(final String updatePropertiesPath) {
-            return addStoreProperties(StoreProperties.loadStoreProperties(updatePropertiesPath));
+            if (null != updatePropertiesPath) {
+                addStoreProperties(StoreProperties.loadStoreProperties(updatePropertiesPath));
+            }
+            return this;
         }
 
         public Builder addStoreProperties(final Path updatePropertiesPath) {
-            return addStoreProperties(StoreProperties.loadStoreProperties(updatePropertiesPath));
+            if (null != updatePropertiesPath) {
+                addStoreProperties(StoreProperties.loadStoreProperties(updatePropertiesPath));
+            }
+            return this;
         }
 
         public Builder addStoreProperties(final InputStream updatePropertiesStream) {
-            return addStoreProperties(StoreProperties.loadStoreProperties(updatePropertiesStream));
+            if (null != updatePropertiesStream) {
+                addStoreProperties(StoreProperties.loadStoreProperties(updatePropertiesStream));
+            }
+            return this;
         }
 
         public Builder addStoreProperties(final URI updatePropertiesURI) {
-            try {
-                addStoreProperties(StreamUtil.openStream(updatePropertiesURI));
-            } catch (final IOException e) {
-                throw new SchemaException("Unable to read storeProperties from URI: " + updatePropertiesURI, e);
+            if (null != updatePropertiesURI) {
+                try {
+                    addStoreProperties(StreamUtil.openStream(updatePropertiesURI));
+                } catch (final IOException e) {
+                    throw new SchemaException("Unable to read storeProperties from URI: " + updatePropertiesURI, e);
+                }
             }
+            return this;
+        }
 
+        public Builder addParentSchemaIds(final List<String> parentSchemaIds) {
+            if (null != parentSchemaIds) {
+                if (null == this.parentSchemaIds) {
+                    this.parentSchemaIds = new ArrayList<>(parentSchemaIds);
+                } else {
+                    this.parentSchemaIds.addAll(parentSchemaIds);
+                }
+            }
             return this;
         }
 
         public Builder addParentSchemaIds(final String... parentSchemaIds) {
-            this.parentSchemaIds = parentSchemaIds;
+            if (null != parentSchemaIds) {
+                if (null == this.parentSchemaIds) {
+                    this.parentSchemaIds = Lists.newArrayList(parentSchemaIds);
+                } else {
+                    Collections.addAll(this.parentSchemaIds, parentSchemaIds);
+                }
+            }
             return this;
         }
 
@@ -568,7 +621,6 @@ public final class Graph {
                     addSchema(schemaModule);
                 }
             }
-
             return this;
         }
 
@@ -584,7 +636,6 @@ public final class Graph {
                     }
                 }
             }
-
             return this;
         }
 
@@ -594,7 +645,6 @@ public final class Graph {
                     addSchema(schemaPath);
                 }
             }
-
             return this;
         }
 
@@ -604,71 +654,79 @@ public final class Graph {
                     addSchema(schemaBytes);
                 }
             }
-
             return this;
         }
 
         public Builder addSchema(final Schema schemaModule) {
-            if (null != schema) {
-                schema = new Schema.Builder()
-                        .merge(schema)
-                        .merge(schemaModule)
-                        .build();
-            } else {
-                schema = schemaModule;
+            if (null != schemaModule) {
+                if (null != schema) {
+                    schema = new Schema.Builder()
+                            .merge(schema)
+                            .merge(schemaModule)
+                            .build();
+                } else {
+                    schema = schemaModule;
+                }
             }
-
             return this;
         }
 
         public Builder addSchema(final InputStream schemaStream) {
-            try {
-                return addSchema(sun.misc.IOUtils.readFully(schemaStream, schemaStream.available(), true));
-            } catch (final IOException e) {
-                throw new SchemaException("Unable to read schema from input stream", e);
-            } finally {
-                CloseableUtil.close(schemaStream);
+            if (null != schemaStream) {
+                try {
+                    addSchema(sun.misc.IOUtils.readFully(schemaStream, schemaStream.available(), true));
+                } catch (final IOException e) {
+                    throw new SchemaException("Unable to read schema from input stream", e);
+                } finally {
+                    CloseableUtil.close(schemaStream);
+                }
             }
+            return this;
         }
 
         public Builder addSchema(final URI schemaURI) {
-            try {
-                addSchema(StreamUtil.openStream(schemaURI));
-            } catch (final IOException e) {
-                throw new SchemaException(UNABLE_TO_READ_SCHEMA_FROM_URI, e);
+            if (null != schemaURI) {
+                try {
+                    addSchema(StreamUtil.openStream(schemaURI));
+                } catch (final IOException e) {
+                    throw new SchemaException(UNABLE_TO_READ_SCHEMA_FROM_URI, e);
+                }
             }
-
             return this;
         }
 
         public Builder addSchemas(final URI... schemaURI) {
-            try {
-                addSchemas(StreamUtil.openStreams(schemaURI));
-            } catch (final IOException e) {
-                throw new SchemaException(UNABLE_TO_READ_SCHEMA_FROM_URI, e);
+            if (null != schemaURI) {
+                try {
+                    addSchemas(StreamUtil.openStreams(schemaURI));
+                } catch (final IOException e) {
+                    throw new SchemaException(UNABLE_TO_READ_SCHEMA_FROM_URI, e);
+                }
             }
-
             return this;
         }
 
         public Builder addSchema(final Path schemaPath) {
-            try {
-                if (Files.isDirectory(schemaPath)) {
-                    for (final Path path : Files.newDirectoryStream(schemaPath)) {
-                        addSchema(path);
+            if (null != schemaPath) {
+                try {
+                    if (Files.isDirectory(schemaPath)) {
+                        for (final Path path : Files.newDirectoryStream(schemaPath)) {
+                            addSchema(path);
+                        }
+                    } else {
+                        addSchema(Files.readAllBytes(schemaPath));
                     }
-                } else {
-                    addSchema(Files.readAllBytes(schemaPath));
+                } catch (final IOException e) {
+                    throw new SchemaException("Unable to read schema from path: " + schemaPath, e);
                 }
-            } catch (final IOException e) {
-                throw new SchemaException("Unable to read schema from path: " + schemaPath, e);
             }
-
             return this;
         }
 
         public Builder addSchema(final byte[] schemaBytes) {
-            schemaBytesList.add(schemaBytes);
+            if (null != schemaBytes) {
+                schemaBytesList.add(schemaBytes);
+            }
             return this;
         }
 
@@ -748,6 +806,8 @@ public final class Graph {
                 config.setGraphId(store.getGraphId());
             }
 
+            updateStoreProperties(config);
+
             updateSchema(config);
 
             if (null != config.getLibrary() && config.getLibrary().exists(config.getGraphId())) {
@@ -780,8 +840,9 @@ public final class Graph {
                 config.getLibrary().add(config.getGraphId(), schema, store.getProperties());
             }
 
+            store.setOriginalSchema(schema);
 
-            return new Graph(config, schema, store);
+            return new Graph(config, store);
         }
 
         private void updateGraphHooks(final GraphConfig config) {
@@ -804,15 +865,17 @@ public final class Graph {
 
             if (null != parentSchemaIds) {
                 for (final String parentSchemaId : parentSchemaIds) {
-                    final Schema parentSchema = config.getLibrary().getSchema(parentSchemaId);
-                    if (null != parentSchema) {
-                        if (null == mergedParentSchema) {
-                            mergedParentSchema = parentSchema;
-                        } else {
-                            mergedParentSchema = new Schema.Builder()
-                                    .merge(mergedParentSchema)
-                                    .merge(parentSchema)
-                                    .build();
+                    if (null != parentSchemaId) {
+                        final Schema parentSchema = config.getLibrary().getSchema(parentSchemaId);
+                        if (null != parentSchema) {
+                            if (null == mergedParentSchema) {
+                                mergedParentSchema = parentSchema;
+                            } else {
+                                mergedParentSchema = new Schema.Builder()
+                                        .merge(mergedParentSchema)
+                                        .merge(parentSchema)
+                                        .build();
+                            }
                         }
                     }
                 }
@@ -842,7 +905,7 @@ public final class Graph {
             }
         }
 
-        private void updateStore(final GraphConfig config) {
+        private void updateStoreProperties(final GraphConfig config) {
             StoreProperties mergedStoreProperties = null;
             if (null != parentStorePropertiesId) {
                 mergedStoreProperties = config.getLibrary().getProperties(parentStorePropertiesId);
@@ -852,15 +915,18 @@ public final class Graph {
                 if (null == mergedStoreProperties) {
                     mergedStoreProperties = properties;
                 } else {
-                    mergedStoreProperties.getProperties().putAll(properties.getProperties());
+                    mergedStoreProperties.merge(properties);
                 }
             }
+            properties = mergedStoreProperties;
+        }
 
+        private void updateStore(final GraphConfig config) {
             if (null == store) {
-                store = Store.createStore(config.getGraphId(), cloneSchema(schema), mergedStoreProperties);
+                store = Store.createStore(config.getGraphId(), cloneSchema(schema), properties);
             } else if ((null != config.getGraphId() && !config.getGraphId().equals(store.getGraphId()))
                     || (null != schema)
-                    || (null != mergedStoreProperties && !mergedStoreProperties.equals(store.getProperties()))) {
+                    || (null != properties && !properties.equals(store.getProperties()))) {
                 if (null == config.getGraphId()) {
                     config.setGraphId(store.getGraphId());
                 }
@@ -868,12 +934,12 @@ public final class Graph {
                     schema = store.getSchema();
                 }
 
-                if (null == mergedStoreProperties) {
-                    mergedStoreProperties = store.getProperties();
+                if (null == properties) {
+                    properties = store.getProperties();
                 }
 
                 try {
-                    store.initialise(config.getGraphId(), cloneSchema(schema), mergedStoreProperties);
+                    store.initialise(config.getGraphId(), cloneSchema(schema), properties);
                 } catch (final StoreException e) {
                     throw new IllegalArgumentException("Unable to initialise the store with the given graphId, schema and properties", e);
                 }

@@ -116,8 +116,9 @@ function initExampleOperations() {
                availableOperations.sort(function(a,b){return a.split('.').pop().localeCompare(b.split('.').pop())})
                if(availableOperationsSelect && availableOperationsSelect.size() > 0 && availableOperations) {
                   $.each(availableOperations,function(index, item) {
-                      if(item.indexOf("OperationChain") === -1) {
-                        availableOperationsSelect.append('<option value=' + item + '>' + item.split('.').pop() + '</option>');
+                      var opName = item.split('.').pop();
+                      if("OperationChain" !== opName && "OperationChainDAO" !== opName) {
+                        availableOperationsSelect.append('<option value=' + item + '>' + opName + '</option>');
                       }
                   });
                }
@@ -125,7 +126,7 @@ function initExampleOperations() {
      )
 }
 
-function init(onSwaggerComplete){
+function init(onSwaggerComplete, onPropertiesLoad){
       window.swaggerUi = new SwaggerUi({
         url: "latest/swagger.json",
         dom_id: "swagger-ui-container",
@@ -133,6 +134,7 @@ function init(onSwaggerComplete){
         onComplete: function(swaggerApi, swaggerUi){
           log("Loaded swagger");
               $('pre code').each(function(i,e){hljs.highlightBlock(e)});
+              initFromProperties(onPropertiesLoad);
               addExampleButtons();
               if(onSwaggerComplete) {
                   onSwaggerComplete();
@@ -153,4 +155,53 @@ function init(onSwaggerComplete){
       });
 
       window.swaggerUi.load();
+}
+
+function initFromProperties(onPropertiesLoad) {
+    var onSuccess = function(properties) {
+        updateTitle(properties);
+        updateDescription(properties);
+        updateBanner(properties);
+        if(onPropertiesLoad) {
+            onPropertiesLoad(properties);
+        }
+    }
+    $.get(getVersion() + '/properties', null, onSuccess);
+}
+
+function updateTitle(properties) {
+    updateElement('gaffer.properties.app.title', properties, function(value, id) {
+        $('#' + id).text(value);
+        document.title = value;
+    });
+}
+
+function updateBanner(properties) {
+    updateElementWithId('banner', 'gaffer.properties.app.banner.description', properties, function (value, id) {
+        $('body').prepend("<div id='banner' class='banner'>" + value + "</div>")
+        updateElementWithId('banner', 'gaffer.properties.app.banner.colour', properties, function(value, id) {
+            $('#' + id).css({'background-color': value});
+        });
+    });
+}
+
+function updateDescription(properties) {
+    updateElement('gaffer.properties.app.description', properties, function(value, id) {
+        $('#' + id).text(value);
+    });
+}
+
+function updateElement(key, properties, onSuccess) {
+    updateElementWithId(key.split('.').pop(), key, properties, onSuccess);
+}
+
+function updateElementWithId(id, key, properties, onSuccess) {
+    if(key in properties) {
+        if(onSuccess) {
+            var value = properties[key];
+            if(value != null && value !== '') {
+                onSuccess(value, id);
+            }
+        }
+    }
 }

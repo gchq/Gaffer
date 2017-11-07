@@ -33,7 +33,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
-import uk.gov.gchq.koryphe.impl.binaryoperator.And;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Max;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Or;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
@@ -46,7 +45,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;

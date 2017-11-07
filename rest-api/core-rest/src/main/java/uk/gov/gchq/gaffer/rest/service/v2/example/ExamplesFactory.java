@@ -17,12 +17,17 @@
 package uk.gov.gchq.gaffer.rest.service.v2.example;
 
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.compare.Max;
+import uk.gov.gchq.gaffer.operation.impl.compare.Min;
+import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.output.ToMap;
 
 /**
  * An {@code ExamplesFactory} creates example operations for use with Gaffer's
@@ -81,4 +86,39 @@ public interface ExamplesFactory {
      * @throws InstantiationException if the operation could not be created
      */
     Operation generateExample(final Class<? extends Operation> opClass) throws IllegalAccessException, InstantiationException;
+
+    /**
+     * Generates an example for the {@link Sort} operation.
+     *
+     * @return the example class
+     */
+    Sort sort();
+
+    /**
+     * Generates an example for the {@link Max} operation.
+     *
+     * @return the example class
+     */
+    Max max();
+
+    /**
+     * Generates an example for the {@link Min} operation.
+     *
+     * @return the example class
+     */
+    Min min();
+
+    /**
+     * Generates an example for the {@link ToMap} operation.
+     *
+     * @return the example class
+     */
+    ToMap toMap();
+
+    /**
+     * Generates an example for the {@link GetWalks} operation.
+     *
+     * @return the example class
+     */
+    GetWalks getWalks();
 }

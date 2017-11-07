@@ -22,6 +22,9 @@ import io.swagger.annotations.Info;
 import io.swagger.annotations.License;
 import io.swagger.annotations.SwaggerDefinition;
 
+import uk.gov.gchq.gaffer.rest.ServiceConstants;
+import uk.gov.gchq.gaffer.rest.SystemProperty;
+
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 /**
@@ -30,12 +33,12 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
  */
 @SwaggerDefinition(
         info = @Info(
-                description = "The Gaffer REST service.",
+                description = "",
                 version = "v2",
-                title = "Gaffer REST API",
+                title = "",
                 contact = @Contact(
-                        name = "Gaffer Developers",
-                        url = "https://github.com/gchq/Gaffer"
+                        name = SystemProperty.APP_CONTACT_DEFAULT,
+                        url = SystemProperty.APP_CONTACT_URL_DEFAULT
                 ),
                 license = @License(
                         name = "Apache 2.0",
@@ -45,7 +48,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
         consumes = {APPLICATION_JSON},
         produces = {APPLICATION_JSON},
         schemes = {SwaggerDefinition.Scheme.HTTP, SwaggerDefinition.Scheme.HTTPS},
-        externalDocs = @ExternalDocs(value = "Wiki", url = "https://github.com/gchq/Gaffer/wiki")
+        externalDocs = @ExternalDocs(value = "Documentation", url = ServiceConstants.GAFFER_DOCUMENTATION_URL)
 )
 public interface SwaggerDefinitionConfigV2 {
     // Empty marker interface

@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
+import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -29,7 +30,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPERATION_OPTIONS_GRAPH_IDS;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE;
+import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.getSkipFailedFederatedStoreExecute;
 
 /**
  * A abstract handler for Operations with output for FederatedStore
@@ -46,19 +47,14 @@ public abstract class FederatedOperationOutputHandler<OP extends Output<O>, O> i
         final Collection<Graph> graphs = ((FederatedStore) store).getGraphs(context.getUser(), operation.getOption(KEY_OPERATION_OPTIONS_GRAPH_IDS));
         final List<O> results = new ArrayList<>(graphs.size());
         for (final Graph graph : graphs) {
-            final OP updatedOp = FederatedStore.updateOperationForGraph(operation, graph);
+            final OP updatedOp = FederatedStoreUtil.updateOperationForGraph(operation, graph);
             if (null != updatedOp) {
                 O execute = null;
                 try {
                     execute = graph.execute(updatedOp, context.getUser());
                 } catch (final Exception e) {
-                    if (!Boolean.valueOf(updatedOp.getOption(KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE))) {
-                        final String additionalInfo = String.format("set the skip and continue flag: %s for operation: %s",
-                                KEY_SKIP_FAILED_FEDERATED_STORE_EXECUTE,
-                                operation.getClass().getSimpleName());
-
-                        throw new OperationException(String.format("Failed to execute %s on graph %s.%n%s",
-                                operation.getClass().getSimpleName(), graph.getGraphId(), additionalInfo), e);
+                    if (!Boolean.valueOf(getSkipFailedFederatedStoreExecute(updatedOp))) {
+                        throw new OperationException(FederatedStoreUtil.createOperationErrorMsg(operation, graph.getGraphId(), e), e);
                     }
                 }
                 if (null != execute) {
@@ -66,7 +62,11 @@ public abstract class FederatedOperationOutputHandler<OP extends Output<O>, O> i
                 }
             }
         }
-        return mergeResults(results, operation, context, store);
+        try {
+            return mergeResults(results, operation, context, store);
+        } catch (final Exception e) {
+            throw new OperationException(e);
+        }
     }
 
     protected abstract O mergeResults(final List<O> results, final OP operation, final Context context, final Store store);

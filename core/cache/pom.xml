@@ -3,7 +3,7 @@
     <parent>
         <artifactId>core</artifactId>
         <groupId>uk.gov.gchq.gaffer</groupId>
-        <version>1.0.2</version>
+        <version>1.0.3-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -13,6 +13,11 @@
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>exception</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>serialisation</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>

@@ -226,10 +226,11 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
         @JsonSetter("edges")
         public CHILD_CLASS edges(final Map<String, EDGE_DEF> edges) {
             elementDefs.getEdges().clear();
-            elementDefs.getEdges().putAll(edges);
+            if (null != edges) {
+                elementDefs.getEdges().putAll(edges);
+            }
             return self();
         }
-
 
         /**
          * Adds an entity definition for a given entity type.
@@ -239,6 +240,9 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
          * @return this Builder
          */
         public CHILD_CLASS entity(final String group, final ENTITY_DEF entityDef) {
+            if (null == entityDef) {
+                throw new IllegalArgumentException("Entity definition is required");
+            }
             elementDefs.getEntities().put(group, entityDef);
             return self();
         }
@@ -246,7 +250,9 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
         @JsonSetter("entities")
         public CHILD_CLASS entities(final Map<String, ENTITY_DEF> entities) {
             elementDefs.getEntities().clear();
-            elementDefs.getEntities().putAll(entities);
+            if (null != entities) {
+                elementDefs.getEntities().putAll(entities);
+            }
             return self();
         }
 
@@ -272,24 +278,26 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
         }
 
         public CHILD_CLASS json(final Class<? extends ELEMENT_DEFS> clazz, final Object[] jsonItems) throws SchemaException {
-            for (final Object jsonItem : jsonItems) {
-                try {
-                    if (jsonItem instanceof InputStream) {
-                        merge(JSONSerialiser.deserialise((InputStream) jsonItem, clazz));
-                    } else if (jsonItem instanceof Path) {
-                        final Path path = (Path) jsonItem;
-                        if (Files.isDirectory(path)) {
-                            for (final Path filePath : Files.newDirectoryStream(path)) {
-                                merge(JSONSerialiser.deserialise(Files.readAllBytes(filePath), clazz));
+            if (null != jsonItems) {
+                for (final Object jsonItem : jsonItems) {
+                    try {
+                        if (jsonItem instanceof InputStream) {
+                            merge(JSONSerialiser.deserialise((InputStream) jsonItem, clazz));
+                        } else if (jsonItem instanceof Path) {
+                            final Path path = (Path) jsonItem;
+                            if (Files.isDirectory(path)) {
+                                for (final Path filePath : Files.newDirectoryStream(path)) {
+                                    merge(JSONSerialiser.deserialise(Files.readAllBytes(filePath), clazz));
+                                }
+                            } else {
+                                merge(JSONSerialiser.deserialise(Files.readAllBytes(path), clazz));
                             }
                         } else {
-                            merge(JSONSerialiser.deserialise(Files.readAllBytes(path), clazz));
+                            merge(JSONSerialiser.deserialise((byte[]) jsonItem, clazz));
                         }
-                    } else {
-                        merge(JSONSerialiser.deserialise((byte[]) jsonItem, clazz));
+                    } catch (final IOException e) {
+                        throw new SchemaException("Failed to load element definitions from bytes", e);
                     }
-                } catch (final IOException e) {
-                    throw new SchemaException("Failed to load element definitions from bytes", e);
                 }
             }
 

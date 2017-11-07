@@ -19,7 +19,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>example</artifactId>
-        <version>1.0.2</version>
+        <version>1.0.3-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -127,6 +127,12 @@
                             <path>/${standalone-path}</path>
                             <port>${standalone-port}</port>
                             <systemProperties>
+                                <gaffer.properties.app.title>
+                                    Federated Gaffer Example
+                                </gaffer.properties.app.title>
+                                <gaffer.properties.app.description>
+                                    Example of a Gaffer Federated Store
+                                </gaffer.properties.app.description>
                                 <gaffer.rest-api.basePath>${standalone-path}
                                 </gaffer.rest-api.basePath>
                                 <gaffer.graph.config>
