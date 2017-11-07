@@ -27,7 +27,6 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
-import java.util.Map;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.iterableWithSize;

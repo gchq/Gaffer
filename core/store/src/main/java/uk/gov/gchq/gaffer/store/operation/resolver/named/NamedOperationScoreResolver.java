@@ -24,8 +24,9 @@ import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedOperationCach
 import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolver;
 
 /**
- * A <code>NamedOperationScoreResolver</code> will resolve the custom Operation Score for a provided {@link NamedOperation}
- * by searching for it within the {@link NamedOperationCache}.
+ * A <code>NamedOperationScoreResolver</code> will resolve the custom Operation
+ * Score for a provided {@link NamedOperation} by searching for it within the
+ * {@link NamedOperationCache}.
  */
 public class NamedOperationScoreResolver implements ScoreResolver<NamedOperation> {
     private final NamedOperationCache cache;
