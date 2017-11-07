@@ -26,11 +26,13 @@ import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.generator.MapGenerator;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
@@ -110,6 +112,8 @@ public class DefaultExamplesFactory implements ExamplesFactory {
             return min();
         } else if (operation instanceof ToMap) {
             return toMap();
+        } else if (operation instanceof GetWalks) {
+            return getWalks();
         } else {
 
             final List<Field> fields = Arrays.asList(opClass.getDeclaredFields());
@@ -407,51 +411,74 @@ public class DefaultExamplesFactory implements ExamplesFactory {
 
     @Override
     public Sort sort() {
-       final Sort sort = new Sort.Builder()
-                        .comparators(new ElementPropertyComparator.Builder()
-                                .groups(getAnEdgeGroup())
-                                .property(getAnEntityPropertyName())
-                                .reverse(true)
-                                .build())
-                        .resultLimit(20)
-                        .deduplicate(true)
-                        .build();
-
-        return sort;
+        return new Sort.Builder()
+                .comparators(new ElementPropertyComparator.Builder()
+                        .groups(getAnEdgeGroup())
+                        .property(getAnEntityPropertyName())
+                        .reverse(true)
+                        .build())
+                .resultLimit(20)
+                .deduplicate(true)
+                .build();
     }
 
     @Override
     public Max max() {
-        final Max max = new Max.Builder()
+        return new Max.Builder()
                 .comparators(new ElementPropertyComparator.Builder()
                         .groups(getAnEdgeGroup())
                         .property(getAnEdgePropertyName())
                         .build())
                 .build();
-        return max;
     }
 
     @Override
     public Min min() {
-        final Min min = new Min.Builder()
+        return new Min.Builder()
                 .comparators(new ElementPropertyComparator.Builder()
                         .groups(getAnEdgeGroup())
                         .property(getAnEdgePropertyName())
                         .build())
                 .build();
-        return min;
     }
 
     @Override
     public ToMap toMap() {
-        final ToMap toMap =  new ToMap.Builder()
+        return new ToMap.Builder()
                 .generator(new MapGenerator.Builder()
                         .group(getAnEdgeGroup())
                         .source("source")
                         .property(getAnEdgePropertyName(), "edge property " + getAnEdgePropertyName())
                         .build())
                 .build();
-        return toMap;
+    }
+
+    @Override
+    public GetWalks getWalks() {
+        final List<String> edges = new ArrayList<>(getSchema().getEdgeGroups());
+        if (edges.isEmpty()) {
+            return new GetWalks();
+        }
+
+        final EntityId entityId = getEntityId(1);
+        if (null == entityId.getVertex()) {
+            entityId.setVertex("vertex1");
+        }
+
+        return new GetWalks.Builder()
+                .input(entityId)
+                .operation(new GetElements.Builder()
+                        .view(new View.Builder()
+                                .edge(edges.get(0))
+                                .build())
+                        .build())
+                .operation(new GetElements.Builder()
+                        .view(new View.Builder()
+                                .edge(edges.size() > 1 ? edges.get(1) : edges.get(0))
+                                .build())
+                        .build())
+                .resultsLimit(10000)
+                .build();
     }
 
     private void populateOperation(final Output operation) {
