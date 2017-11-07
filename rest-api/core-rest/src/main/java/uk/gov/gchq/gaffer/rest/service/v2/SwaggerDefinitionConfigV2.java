@@ -23,7 +23,6 @@ import io.swagger.annotations.License;
 import io.swagger.annotations.SwaggerDefinition;
 
 import uk.gov.gchq.gaffer.rest.ServiceConstants;
-import uk.gov.gchq.gaffer.rest.SystemProperty;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
@@ -37,8 +36,8 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
                 version = "v2",
                 title = "",
                 contact = @Contact(
-                        name = SystemProperty.APP_CONTACT_DEFAULT,
-                        url = SystemProperty.APP_CONTACT_URL_DEFAULT
+                        name = "",
+                        url = ""
                 ),
                 license = @License(
                         name = "Apache 2.0",
@@ -48,7 +47,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
         consumes = {APPLICATION_JSON},
         produces = {APPLICATION_JSON},
         schemes = {SwaggerDefinition.Scheme.HTTP, SwaggerDefinition.Scheme.HTTPS},
-        externalDocs = @ExternalDocs(value = "Documentation", url = ServiceConstants.GAFFER_DOCUMENTATION_URL)
+        externalDocs = @ExternalDocs(value = "", url = ServiceConstants.GAFFER_DOCUMENTATION_URL)
 )
 public interface SwaggerDefinitionConfigV2 {
     // Empty marker interface
