@@ -33,7 +33,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
  */
 @SwaggerDefinition(
         info = @Info(
-                description = ServiceConstants.DESCRIPTION_DEFAULT,
+                description = "",
                 version = "v2",
                 title = "",
                 contact = @Contact(

@@ -160,6 +160,7 @@ function init(onSwaggerComplete, onPropertiesLoad){
 function initFromProperties(onPropertiesLoad) {
     var onSuccess = function(properties) {
         updateTitle(properties);
+        updateDescription(properties);
         if(onPropertiesLoad) {
             onPropertiesLoad(properties);
         }
@@ -171,6 +172,12 @@ function updateTitle(properties) {
     updateElement('gaffer.properties.app.title', properties, function(value, id) {
         $('#' + id).text(value);
         document.title = value;
+    });
+}
+
+function updateDescription(properties) {
+    updateElement('gaffer.properties.app.description', properties, function(value, id) {
+        $('#' + id).text(value);
     });
 }
 
