@@ -20,8 +20,8 @@ import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphDelegate;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -51,9 +51,14 @@ public class FederatedAddGraphHandler implements OperationHandler<AddGraph> {
 
         final Graph graph;
         try {
-            graph = GraphDelegate.createGraph(store, operation.getGraphId(),
-                    operation.getSchema(), operation.getStoreProperties(),
-                    operation.getParentSchemaIds(), operation.getParentPropertiesId());
+            graph = new GraphDelegate.Builder()
+                    .store(store)
+                    .graphId(operation.getGraphId())
+                    .schema(operation.getSchema())
+                    .storeProperties(operation.getStoreProperties())
+                    .parentSchemaIds(operation.getParentSchemaIds())
+                    .parentStorePropertiesId(operation.getParentPropertiesId())
+                    .build();
         } catch (final Exception e) {
             throw new OperationException(String.format(ERROR_BUILDING_GRAPH_GRAPH_ID_S, operation.getGraphId()), e);
         }

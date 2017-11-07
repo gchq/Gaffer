@@ -32,6 +32,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherGraph;
+import uk.gov.gchq.gaffer.operation.export.graph.GraphForExportDelegate;
 import uk.gov.gchq.gaffer.operation.export.graph.OtherGraphExporter;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.Context;
@@ -56,17 +57,15 @@ import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.CANNOT_EXPORT_TO_THE_SAME_GRAPH_S;
-import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.CANT_BOTH_BE_NULL;
-import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S;
-import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD;
-import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.PARENT_SCHEMA_IDS;
-import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.PARENT_STORE_PROPERTIES_ID;
-import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
-import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.SCHEMA_STRING;
-import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
-import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.STORE_PROPERTIES_STRING;
-import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.S_CANNOT_BE_USED_WITHOUT_A_GRAPH_LIBRARY;
+import static uk.gov.gchq.gaffer.graph.GraphDelegate.CANNOT_EXPORT_TO_THE_SAME_GRAPH_S;
+import static uk.gov.gchq.gaffer.graph.GraphDelegate.GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S;
+import static uk.gov.gchq.gaffer.graph.GraphDelegate.GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD;
+import static uk.gov.gchq.gaffer.graph.GraphDelegate.PARENT_STORE_PROPERTIES_ID;
+import static uk.gov.gchq.gaffer.graph.GraphDelegate.SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
+import static uk.gov.gchq.gaffer.graph.GraphDelegate.SCHEMA_STRING;
+import static uk.gov.gchq.gaffer.graph.GraphDelegate.STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
+import static uk.gov.gchq.gaffer.graph.GraphDelegate.STORE_PROPERTIES_STRING;
+import static uk.gov.gchq.gaffer.graph.GraphDelegate.S_CANNOT_BE_USED_WITHOUT_A_GRAPH_LIBRARY;
 
 public class ExportToOtherGraphHandlerTest {
 
@@ -115,7 +114,7 @@ public class ExportToOtherGraphHandlerTest {
             createGraph(export);
             fail(EXCEPTION_EXPECTED);
         } catch (final IllegalArgumentException e) {
-            assertEquals(String.format(CANNOT_EXPORT_TO_THE_SAME_GRAPH_S, GRAPH_ID), e.getMessage());
+            assertEquals(getErrorMessage(CANNOT_EXPORT_TO_THE_SAME_GRAPH_S, GRAPH_ID), e.getMessage());
         }
     }
 
@@ -172,7 +171,7 @@ public class ExportToOtherGraphHandlerTest {
     }
 
     @Test
-    public void shouldNotCreateNewGraphWithStoresStoreProperties() {
+    public void shouldCreateNewGraphWithStoresStoreProperties() {
         // Given
         given(store.getProperties()).willReturn(storeProperties);
         given(store.getGraphLibrary()).willReturn(null);
@@ -184,16 +183,17 @@ public class ExportToOtherGraphHandlerTest {
                 .schema(schema1)
                 .build();
 
-        try {
-            createGraph(export);
-            fail("Exception Expected");
-        } catch (final Exception e) {
-            assertEquals(getErrorMessage(CANT_BOTH_BE_NULL, STORE_PROPERTIES_STRING, PARENT_STORE_PROPERTIES_ID), e.getMessage());
-        }
+        // When
+        Graph graph = createGraph(export);
+
+        // Then
+        assertEquals(GRAPH_ID + 1, graph.getGraphId());
+        assertEquals(schema1, graph.getSchema());
+        assertEquals(store.getProperties(), graph.getStoreProperties());
     }
 
     @Test
-    public void shouldNotCreateNewGraphWithStoresSchema() {
+    public void shouldCreateNewGraphWithStoresSchema() {
         // Given
         given(store.getSchema()).willReturn(schema);
         given(store.getGraphLibrary()).willReturn(null);
@@ -206,13 +206,12 @@ public class ExportToOtherGraphHandlerTest {
                 .build();
 
         // When
-        try {
-            createGraph(export);
-            fail("Exception Expected");
-        } catch (final Exception e) {
-            //Then
-            assertEquals(getErrorMessage(CANT_BOTH_BE_NULL, SCHEMA_STRING, PARENT_SCHEMA_IDS), e.getMessage());
-        }
+        Graph graph = createGraph(export);
+
+        // Then
+        assertEquals(GRAPH_ID + 1, graph.getGraphId());
+        assertEquals(schema, graph.getSchema());
+        assertEquals(storeProperties1, graph.getStoreProperties());
     }
 
     @Test
@@ -350,7 +349,7 @@ public class ExportToOtherGraphHandlerTest {
             createGraph(export);
             fail(EXCEPTION_EXPECTED);
         } catch (final IllegalArgumentException e) {
-            assertEquals(String.format(CANNOT_EXPORT_TO_THE_SAME_GRAPH_S, "graphId"), e.getMessage());
+            assertEquals(getErrorMessage(CANNOT_EXPORT_TO_THE_SAME_GRAPH_S, "graphId"), e.getMessage());
         }
     }
 
@@ -369,9 +368,7 @@ public class ExportToOtherGraphHandlerTest {
             createGraph(export);
             fail(EXCEPTION_EXPECTED);
         } catch (final IllegalArgumentException e) {
-            assertEquals(getErrorMessage(CANT_BOTH_BE_NULL, SCHEMA_STRING, PARENT_SCHEMA_IDS)
-                    + "\n"
-                    + String.format(S_CANNOT_BE_USED_WITHOUT_A_GRAPH_LIBRARY, "parentStorePropertiesId"), e.getMessage());
+            assertEquals(getErrorMessage(S_CANNOT_BE_USED_WITHOUT_A_GRAPH_LIBRARY, "parentStorePropertiesId"), e.getMessage());
         }
     }
 
@@ -636,11 +633,18 @@ public class ExportToOtherGraphHandlerTest {
     }
 
     private Graph createGraph(final ExportToOtherGraph export) {
-        return ExportToOtherGraphHandler._getGraph(export, store);
+        return new GraphForExportDelegate.Builder()
+                .store(store)
+                .graphId(export.getGraphId())
+                .schema(export.getSchema())
+                .storeProperties(export.getStoreProperties())
+                .parentSchemaIds(export.getParentSchemaIds())
+                .parentStorePropertiesId(export.getParentStorePropertiesId())
+                .build();
     }
 
     private void validate(final ExportToOtherGraph export) {
-        GraphDelegate.validate(store, export.getGraphId(), export.getSchema(), export.getStoreProperties(),
+        new GraphForExportDelegate().validate(store, export.getGraphId(), export.getSchema(), export.getStoreProperties(),
                 export.getParentSchemaIds(), export.getParentStorePropertiesId());
     }
 }
