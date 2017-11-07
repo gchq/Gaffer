@@ -49,12 +49,15 @@ uk.gov.gchq.gaffer.data.elementdefinition
 uk.gov.gchq.gaffer.data.elementdefinition.exception
 uk.gov.gchq.gaffer.data.elementdefinition.view
 uk.gov.gchq.gaffer.data.generator
+uk.gov.gchq.gaffer.data.graph
 uk.gov.gchq.gaffer.exception
 uk.gov.gchq.gaffer.federated
 uk.gov.gchq.gaffer.federatedstore
+uk.gov.gchq.gaffer.federatedstore.exception
 uk.gov.gchq.gaffer.federatedstore.operation
 uk.gov.gchq.gaffer.federatedstore.operation.handler
 uk.gov.gchq.gaffer.federatedstore.operation.handler.impl
+uk.gov.gchq.gaffer.federatedstore.util
 uk.gov.gchq.gaffer.flink.operation.handler
 uk.gov.gchq.gaffer.graph
 uk.gov.gchq.gaffer.graph.hook
@@ -190,7 +193,6 @@ uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.java
 uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.scala
 uk.gov.gchq.gaffer.store
 uk.gov.gchq.gaffer.store.element
-uk.gov.gchq.gaffer.store.exception
 uk.gov.gchq.gaffer.store.library
 uk.gov.gchq.gaffer.store.operation
 uk.gov.gchq.gaffer.store.operation.declaration
@@ -204,6 +206,8 @@ uk.gov.gchq.gaffer.store.operation.handler.job
 uk.gov.gchq.gaffer.store.operation.handler.named
 uk.gov.gchq.gaffer.store.operation.handler.named.cache
 uk.gov.gchq.gaffer.store.operation.handler.output
+uk.gov.gchq.gaffer.store.operation.resolver
+uk.gov.gchq.gaffer.store.operation.resolver.named
 uk.gov.gchq.gaffer.store.operation.util
 uk.gov.gchq.gaffer.store.operation.validator.function
 uk.gov.gchq.gaffer.store.optimiser
