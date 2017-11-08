@@ -34,7 +34,7 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
+import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedRemoveGraphHandlerTest {
     private static final String FEDERATEDSTORE_GRAPH_ID = "federatedStore";

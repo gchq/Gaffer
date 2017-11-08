@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import uk.gov.gchq.gaffer.accumulostore.SingleUseAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
@@ -37,6 +38,8 @@ import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.mapstore.MapStore;
+import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -47,8 +50,10 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.Schema.Builder;
+import uk.gov.gchq.gaffer.user.StoreUser;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
@@ -65,12 +70,19 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.TEST_USER;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.blankUser;
 import static uk.gov.gchq.gaffer.federatedstore.operation.handler.FederatedOperationOutputHandler.NO_RESULTS_TO_MERGE_ERROR;
-import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S;
-import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
-import static uk.gov.gchq.gaffer.operation.export.graph.handler.GraphDelegate.STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
+import static uk.gov.gchq.gaffer.graph.GraphDelegate.GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S;
+import static uk.gov.gchq.gaffer.graph.GraphDelegate.SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
+import static uk.gov.gchq.gaffer.graph.GraphDelegate.STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S;
+import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
+import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
+import static uk.gov.gchq.gaffer.store.StoreTrait.values;
+import static uk.gov.gchq.gaffer.user.StoreUser.TEST_USER;
+import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
+import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedStoreTest {
     public static final String ID_SCHEMA_ENTITY = "basicEntitySchema";
@@ -88,10 +100,9 @@ public class FederatedStoreTest {
     private static final String PATH_BASIC_ENTITY_SCHEMA_JSON = "schema/basicEntitySchema.json";
     private static final String PATH_BASIC_EDGE_SCHEMA_JSON = "schema/basicEdgeSchema.json";
     private static final String EXCEPTION_NOT_THROWN = "exception not thrown";
-    private static final String USER_ID = "blankUser";
     public static final String UNUSUAL_KEY = "unusualKey";
     public static final String KEY_DOES_NOT_BELONG = UNUSUAL_KEY + " was added to " + ID_PROPS_MAP + " it should not be there";
-    private static final String ALL_USERS = FederatedStoreUser.ALL_USERS;
+    private static final String ALL_USERS = StoreUser.ALL_USERS;
     private static final HashSet<String> GRAPH_AUTHS = Sets.newHashSet(ALL_USERS);
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private static final String INVALID_CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.invalid";
@@ -251,8 +262,8 @@ public class FederatedStoreTest {
         addGraphWithPaths(MAP_ID_1, PATH_MAP_STORE_PROPERTIES, PATH_BASIC_ENTITY_SCHEMA_JSON);
 
         Set<StoreTrait> after = store.getTraits();
-        assertEquals(StoreTrait.values().length, before.size());
-        assertEquals(StoreTrait.values().length, after.size());
+        assertEquals(values().length, before.size());
+        assertEquals(values().length, after.size());
         assertEquals(before, after);
     }
 
@@ -323,6 +334,53 @@ public class FederatedStoreTest {
         // Then
         assertEquals(0, sizeBefore);
         assertEquals(2, sizeAfter);
+    }
+
+    @Test
+    public void shouldCombineTraitsToMin() throws Exception {
+        //Given
+        final GetTraits getTraits = new GetTraits.Builder()
+                .currentTraits(true)
+                .build();
+
+        //When
+        final Set<StoreTrait> before = store.getTraits(getTraits, userContext);
+        store.initialise(FEDERATED_STORE_ID, null, federatedProperties);
+
+        store.execute(new AddGraph.Builder()
+                .schema(new Schema())
+                .isPublic(true)
+                .graphId(ACC_ID_1)
+                .storeProperties(StoreProperties.loadStoreProperties("/properties/singleUseMockAccStore.properties"))
+                .build(), new Context(testUser()));
+
+        final Set<StoreTrait> afterAcc = store.getTraits(getTraits, userContext);
+
+        store.execute(new AddGraph.Builder()
+                .schema(new Schema())
+                .isPublic(true)
+                .graphId(MAP_ID_1)
+                .storeProperties(new MapStoreProperties())
+                .build(), new Context(testUser()));
+
+        final Set<StoreTrait> afterMap = store.getTraits(getTraits, userContext);
+
+        //Then
+        assertNotEquals(SingleUseAccumuloStore.TRAITS, MapStore.TRAITS);
+        assertEquals(StoreTrait.ALL_TRAITS, before);
+        assertEquals(Sets.newHashSet(
+                TRANSFORMATION,
+                PRE_AGGREGATION_FILTERING,
+                POST_AGGREGATION_FILTERING,
+                POST_TRANSFORMATION_FILTERING,
+                ORDERED
+        ), afterAcc);
+        assertEquals(Sets.newHashSet(
+                TRANSFORMATION,
+                PRE_AGGREGATION_FILTERING,
+                POST_AGGREGATION_FILTERING,
+                POST_TRANSFORMATION_FILTERING
+        ), afterMap);
     }
 
     @Test
@@ -733,7 +791,7 @@ public class FederatedStoreTest {
         final CloseableIterable<? extends Element> elements = fedGraph.execute(
                 new GetAllElements(),
                 new User.Builder()
-                        .userId(USER_ID + "Other")
+                        .userId(TEST_USER + "Other")
                         .opAuth("auth")
                         .build());
 
@@ -741,7 +799,7 @@ public class FederatedStoreTest {
             fedGraph.execute(
                     new GetAllElements(),
                     new User.Builder()
-                            .userId(USER_ID + "Other")
+                            .userId(TEST_USER + "Other")
                             .opAuths("x")
                             .build());
             fail("expected exception");
@@ -852,7 +910,7 @@ public class FederatedStoreTest {
                 .addSchema(StreamUtil.openStream(FederatedStoreTest.class, PATH_BASIC_EDGE_SCHEMA_JSON))
                 .build();
 
-        store.addGraphs(null, TEST_USER, true, graphToAdd);
+        store.addGraphs(null, StoreUser.TEST_USER, true, graphToAdd);
 
         //check the store and the cache
         assertEquals(1, store.getAllGraphIds(blankUser).size());
@@ -893,7 +951,7 @@ public class FederatedStoreTest {
 
         // When / Then
         try {
-            store.addGraphs(null, TEST_USER, false, graphToAdd);
+            store.addGraphs(null, StoreUser.TEST_USER, false, graphToAdd);
             fail(EXCEPTION_NOT_THROWN);
         } catch (final Exception e) {
             assertTrue(e.getMessage().contains("No cache has been set"));
@@ -926,7 +984,7 @@ public class FederatedStoreTest {
                 .build();
 
         // When
-        store.addGraphs(null, TEST_USER, true, graphToAdd);
+        store.addGraphs(null, StoreUser.TEST_USER, true, graphToAdd);
 
         // Then
         assertEquals(1, store.getGraphs(blankUser, ACC_ID_1).size());
@@ -962,7 +1020,7 @@ public class FederatedStoreTest {
         }
 
         // When
-        store.addGraphs(null, TEST_USER, false, graphsToAdd.toArray(new Graph[graphsToAdd.size()]));
+        store.addGraphs(null, StoreUser.TEST_USER, false, graphsToAdd.toArray(new Graph[graphsToAdd.size()]));
 
         // Then
         for (int i = 0; i < 10; i++) {

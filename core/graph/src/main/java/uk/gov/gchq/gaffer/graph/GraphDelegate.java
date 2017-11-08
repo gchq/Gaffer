@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.export.graph.handler;
+package uk.gov.gchq.gaffer.graph;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
-import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.operation.export.graph.handler.ExportToOtherGraphHandler;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
@@ -38,20 +37,21 @@ import java.util.List;
  *
  * @see ExportToOtherGraphHandler
  */
-public final class GraphDelegate {
+public class GraphDelegate implements GraphDelegateInterface {
 
+    public static final String SCHEMA_STRING = Schema.class.getSimpleName();
+    public static final String STORE_PROPERTIES_STRING = StoreProperties.class.getSimpleName();
     public static final String SCHEMA_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S = "Schema could not be found in the graphLibrary with id: %s";
     public static final String GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S = "GraphId %s cannot be created without defined/known %s";
-    public static final String STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S = "Store properties could not be found in the graphLibrary with id: %s";
+    public static final String STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S = "StoreProperties could not be found in the graphLibrary with id: %s";
     public static final String S_CANNOT_BE_USED_WITHOUT_A_GRAPH_LIBRARY = " %s cannot be used without a GraphLibrary";
     public static final String CANNOT_EXPORT_TO_THE_SAME_GRAPH_S = "Cannot export to the same Graph: %s";
     public static final String GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD = "Graph: %s already exists so you cannot use a different %s. Do not set the %s field";
+    public static final String PARENT_SCHEMA_IDS = "parentSchemaIds";
+    public static final String PARENT_STORE_PROPERTIES_ID = "parentStorePropertiesId";
+    public static final String CANT_BOTH_BE_NULL = "%s and %s can't both be null";
 
-    private GraphDelegate() {
-        // Private constructor to prevent instantiation.
-    }
-
-    public static Graph createGraph(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId) {
+    protected Graph createGraph(final Store store, final String graphId, final Schema schema, final StoreProperties storeProperties, final List<String> parentSchemaIds, final String parentStorePropertiesId) {
         final GraphLibrary graphLibrary = store.getGraphLibrary();
         final Pair<Schema, StoreProperties> existingGraphPair = null != graphLibrary ? graphLibrary.get(graphId) : null;
 
@@ -71,71 +71,33 @@ public final class GraphDelegate {
                 .build();
     }
 
-    private static StoreProperties resolveStoreProperties(final Store store, final StoreProperties properties, final String parentStorePropertiesId, final Pair<Schema, StoreProperties> existingGraphPair) {
-        StoreProperties resultProps = null;
+    protected StoreProperties resolveStoreProperties(final Store store, final StoreProperties properties, final String parentStorePropertiesId, final Pair<Schema, StoreProperties> existingGraphPair) {
+        StoreProperties resultProps;
         if (null != existingGraphPair) {
             // If there is an existing graph then ignore any user provided properties and just use the existing properties
             resultProps = existingGraphPair.getSecond();
         } else {
             final GraphLibrary graphLibrary = store.getGraphLibrary();
-            if (null != graphLibrary && null != parentStorePropertiesId) {
-                resultProps = graphLibrary.getProperties(parentStorePropertiesId);
-            }
-            if (null != properties) {
-                if (null == resultProps) {
-                    resultProps = properties;
-                } else {
-                    resultProps.merge(properties);
-                }
-            }
-            if (null == resultProps) {
-                // If no properties have been provided then default to using the store properties
-                resultProps = store.getProperties();
-            }
+            resultProps = (null == graphLibrary) ? properties : graphLibrary.resolveStoreProperties(properties, parentStorePropertiesId);
         }
         return resultProps;
     }
 
-    private static Schema resolveSchema(final Store store, final Schema schema, final List<String> parentSchemaIds, final Pair<Schema, StoreProperties> existingGraphPair) {
-        Schema resultSchema = null;
+    protected Schema resolveSchema(final Store store, final Schema schema, final List<String> parentSchemaIds, final Pair<Schema, StoreProperties> existingGraphPair) {
+        Schema resultSchema;
         if (null != existingGraphPair) {
             // If there is an existing graph then ignore any user provided schemas and just use the existing schema
             resultSchema = existingGraphPair.getFirst();
         } else {
             final GraphLibrary graphLibrary = store.getGraphLibrary();
-            if (null != graphLibrary && null != parentSchemaIds) {
-                if (1 == parentSchemaIds.size()) {
-                    resultSchema = graphLibrary.getSchema(parentSchemaIds.get(0));
-                } else {
-                    final Schema.Builder schemaBuilder = new Schema.Builder();
-                    for (final String id : parentSchemaIds) {
-                        schemaBuilder.merge(graphLibrary.getSchema(id));
-                    }
-                    resultSchema = schemaBuilder.build();
-                }
-            }
-            if (null != schema) {
-                if (null == resultSchema) {
-                    resultSchema = schema;
-                } else {
-                    // delete the old schema id as we are about to modify the schema
-                    resultSchema = new Schema.Builder()
-                            .merge(resultSchema)
-                            .merge(schema)
-                            .build();
-                }
-            }
-            if (null == resultSchema) {
-                // If no schemas have been provided then default to using the store schema
-                resultSchema = store.getSchema();
-            }
+            resultSchema = (null == graphLibrary) ? schema : graphLibrary.resolveSchema(schema, parentSchemaIds);
         }
         return resultSchema;
     }
 
-    public static void validate(final Store store, final String graphId,
-                                final Schema schema, final StoreProperties storeProperties,
-                                final List<String> parentSchemaIds, final String parentStorePropertiesId) {
+    public void validate(final Store store, final String graphId,
+                         final Schema schema, final StoreProperties storeProperties,
+                         final List<String> parentSchemaIds, final String parentStorePropertiesId) {
         final Pair<Schema, StoreProperties> existingGraphPair;
         if (null == store.getGraphLibrary()) {
             existingGraphPair = null;
@@ -146,27 +108,36 @@ public final class GraphDelegate {
         validate(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, existingGraphPair);
     }
 
-    public static void validate(final Store store, final String graphId,
-                                final Schema schema, final StoreProperties storeProperties,
-                                final List<String> parentSchemaIds, final String parentStorePropertiesId,
-                                final Pair<Schema, StoreProperties> existingGraphPair) {
+    protected void validate(final Store store, final String graphId,
+                            final Schema schema, final StoreProperties storeProperties,
+                            final List<String> parentSchemaIds, final String parentStorePropertiesId,
+                            final Pair<Schema, StoreProperties> existingGraphPair) {
+        ValidationResult result = validate(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId, existingGraphPair, new ValidationResult());
+        if (!result.isValid()) {
+            throw new IllegalArgumentException(result.getErrorString());
+        }
+    }
+
+    protected ValidationResult validate(final Store store, final String graphId,
+                                        final Schema schema, final StoreProperties storeProperties,
+                                        final List<String> parentSchemaIds, final String parentStorePropertiesId,
+                                        final Pair<Schema, StoreProperties> existingGraphPair, final ValidationResult result) {
         final GraphLibrary graphLibrary = store.getGraphLibrary();
 
-        final ValidationResult result = new ValidationResult();
-
-        if (graphId.equals(store.getGraphId())) {
-            result.addError(String.format(CANNOT_EXPORT_TO_THE_SAME_GRAPH_S, graphId));
-        }
         if (null == graphLibrary) {
             // No graph library so we cannot look up the graphId/schemaId/storePropertiesId
             if (null != parentSchemaIds) {
-                result.addError(String.format(S_CANNOT_BE_USED_WITHOUT_A_GRAPH_LIBRARY, "parentSchemaIds"));
+                result.addError(String.format(S_CANNOT_BE_USED_WITHOUT_A_GRAPH_LIBRARY, PARENT_SCHEMA_IDS));
+            } else if (null == schema) {
+                result.addError(String.format(CANT_BOTH_BE_NULL, SCHEMA_STRING, PARENT_SCHEMA_IDS));
             }
+
             if (null != parentStorePropertiesId) {
-                result.addError(String.format(S_CANNOT_BE_USED_WITHOUT_A_GRAPH_LIBRARY, "parentStorePropertiesId"));
+                result.addError(String.format(S_CANNOT_BE_USED_WITHOUT_A_GRAPH_LIBRARY, PARENT_STORE_PROPERTIES_ID));
+            } else if (null == storeProperties) {
+                result.addError(String.format(CANT_BOTH_BE_NULL, STORE_PROPERTIES_STRING, PARENT_STORE_PROPERTIES_ID));
             }
         } else if (null != existingGraphPair) {
-
             if (null != parentSchemaIds) {
                 Schema.Builder idFromLibrary = new Schema.Builder();
                 for (final String parentSchemaId : parentSchemaIds) {
@@ -177,23 +148,23 @@ public final class GraphDelegate {
                 }
                 Schema fromLibrary = existingGraphPair.getFirst();
                 if (!fromLibrary.toString().equals(idFromLibrary.build().toString())) {
-                    result.addError(String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, graphId, "Schema", "parentSchemaIds"));
+                    result.addError(String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, graphId, SCHEMA_STRING, PARENT_SCHEMA_IDS));
                 }
             }
 
             if (null != parentStorePropertiesId) {
                 StoreProperties fromLibrary = existingGraphPair.getSecond();
                 if (!fromLibrary.equals(graphLibrary.getProperties(parentStorePropertiesId))) {
-                    result.addError(String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, graphId, "StoreProperties", "parentStorePropertiesId"));
+                    result.addError(String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, graphId, STORE_PROPERTIES_STRING, PARENT_STORE_PROPERTIES_ID));
                 }
             }
 
             if (null != schema && !schema.toString().equals(existingGraphPair.getFirst().toString())) {
-                result.addError(String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, graphId, "Schema", "schema"));
+                result.addError(String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, graphId, SCHEMA_STRING, SCHEMA_STRING));
             }
 
             if (null != storeProperties && !existingGraphPair.getSecond().equals(storeProperties)) {
-                result.addError(String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, graphId, "StoreProperties", "storeProperties"));
+                result.addError(String.format(GRAPH_S_ALREADY_EXISTS_SO_YOU_CANNOT_USE_A_DIFFERENT_S_DO_NOT_SET_THE_S_FIELD, graphId, STORE_PROPERTIES_STRING, STORE_PROPERTIES_STRING));
             }
         } else {
             if (null != parentSchemaIds) {
@@ -203,7 +174,7 @@ public final class GraphDelegate {
                     }
                 }
             } else if (null == schema) {
-                result.addError(String.format(GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S, graphId, "Schema"));
+                result.addError(String.format(GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S, graphId, SCHEMA_STRING));
             }
 
             if (null != parentStorePropertiesId) {
@@ -211,12 +182,20 @@ public final class GraphDelegate {
                     result.addError(String.format(STORE_PROPERTIES_COULD_NOT_BE_FOUND_IN_THE_GRAPH_LIBRARY_WITH_ID_S, parentStorePropertiesId));
                 }
             } else if (null == storeProperties) {
-                result.addError(String.format(GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S, graphId, "StoreProperties"));
+                result.addError(String.format(GRAPH_ID_S_CANNOT_BE_CREATED_WITHOUT_DEFINED_KNOWN_S, graphId, STORE_PROPERTIES_STRING));
             }
         }
 
-        if (!result.isValid()) {
-            throw new IllegalArgumentException(result.getErrorString());
+        return result;
+    }
+
+    public static class Builder extends BaseBuilder<GraphDelegate, Builder> {
+        @Override
+        public Graph createGraph() {
+            return new GraphDelegate().createGraph(store, graphId, schema, storeProperties, parentSchemaIds, parentStorePropertiesId);
         }
     }
+
 }
+
+

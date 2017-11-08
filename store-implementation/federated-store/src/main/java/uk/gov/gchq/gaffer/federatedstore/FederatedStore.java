@@ -38,6 +38,7 @@ import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAdja
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllElementsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetAllGraphIDHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetElementsHandler;
+import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedGetTraitsHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedOperationChainHandler;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedRemoveGraphHandler;
 import uk.gov.gchq.gaffer.federatedstore.util.FederatedStoreUtil;
@@ -60,6 +61,7 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
@@ -255,6 +257,10 @@ public class FederatedStore extends Store {
         return StoreTrait.ALL_TRAITS;
     }
 
+    public Set<StoreTrait> getTraits(final GetTraits getTraits, final Context context) {
+        return graphStorage.getTraits(getTraits, context);
+    }
+
     /**
      * <p>
      * Gets a collection of graph objects within FederatedStore scope from the
@@ -311,6 +317,7 @@ public class FederatedStore extends Store {
         addOperationHandler(RemoveGraph.class, new FederatedRemoveGraphHandler());
 
         addOperationHandler(FederatedOperationChain.class, new FederatedOperationChainHandler());
+        addOperationHandler(GetTraits.class, new FederatedGetTraitsHandler());
     }
 
     @Override

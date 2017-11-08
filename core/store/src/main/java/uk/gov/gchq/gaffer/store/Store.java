@@ -76,15 +76,22 @@ import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
+import uk.gov.gchq.gaffer.store.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
+import uk.gov.gchq.gaffer.store.operation.GetTraits;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.OperationUtil;
+import uk.gov.gchq.gaffer.store.operation.add.AddSchema;
+import uk.gov.gchq.gaffer.store.operation.add.AddStoreProperties;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
 import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
+import uk.gov.gchq.gaffer.store.operation.handler.AddSchemaHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.AddStorePropertiesHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DiscardOutputHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetSchemaHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.GetTraitsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetWalksHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.LimitHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationChainHandler;
@@ -155,6 +162,7 @@ public abstract class Store {
     protected final List<OperationChainOptimiser> opChainOptimisers = new ArrayList<>();
     protected final OperationChainValidator opChainValidator;
     private final SchemaOptimiser schemaOptimiser;
+
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s
      * to be stored and how to aggregate the elements.
@@ -814,6 +822,14 @@ public abstract class Store {
         addOperationHandler(Filter.class, new FilterHandler());
         addOperationHandler(Transform.class, new TransformHandler());
         addOperationHandler(Aggregate.class, new AggregateHandler());
+
+        // GraphLibrary Adds
+        if (null != getGraphLibrary() && !(getGraphLibrary() instanceof NoGraphLibrary)) {
+            addOperationHandler(AddSchema.class, new AddSchemaHandler());
+            addOperationHandler(AddStoreProperties.class, new AddStorePropertiesHandler());
+        }
+
+        addOperationHandler(GetTraits.class, new GetTraitsHandler());
     }
 
     private void addConfiguredOperationHandlers() {

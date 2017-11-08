@@ -32,9 +32,9 @@ import java.util.Collection;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.authUser;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.blankUser;
-import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
+import static uk.gov.gchq.gaffer.user.StoreUser.authUser;
+import static uk.gov.gchq.gaffer.user.StoreUser.blankUser;
+import static uk.gov.gchq.gaffer.user.StoreUser.testUser;
 
 public class FederatedStoreAuthTest {
 

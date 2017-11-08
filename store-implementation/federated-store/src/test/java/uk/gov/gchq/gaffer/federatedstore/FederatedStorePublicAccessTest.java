@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.user.StoreUser;
 
 import static org.junit.Assert.assertEquals;
 
@@ -59,8 +60,8 @@ public class FederatedStorePublicAccessTest {
         library.addProperties(PROP_1, mapStoreProperties);
         library.addSchema(SCHEMA_1, new Schema.Builder().build());
         store.setGraphLibrary(library);
-        blankUserContext = new Context(FederatedStoreUser.blankUser());
-        testUserContext = new Context(FederatedStoreUser.testUser());
+        blankUserContext = new Context(StoreUser.blankUser());
+        testUserContext = new Context(StoreUser.testUser());
     }
 
     @Test
