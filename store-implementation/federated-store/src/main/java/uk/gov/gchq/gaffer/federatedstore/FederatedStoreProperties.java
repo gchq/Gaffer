@@ -70,6 +70,10 @@ public class FederatedStoreProperties extends StoreProperties {
     public void setCacheProperties(final String cacheServiceClassString) {
         set(CACHE_SERVICE_CLASS, cacheServiceClassString);
     }
+    
+public void setCacheProperties(final Class cacheServiceClass) {
+        set(CACHE_SERVICE_CLASS, cacheServiceClassString.getName());
+    }
 
     public String getCacheProperties() {
         return get(CACHE_SERVICE_CLASS, CACHE_SERVICE_CLASS_DEFAULT);
