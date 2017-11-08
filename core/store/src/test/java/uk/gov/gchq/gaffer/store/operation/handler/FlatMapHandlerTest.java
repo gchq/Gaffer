@@ -29,6 +29,7 @@ import uk.gov.gchq.koryphe.impl.function.NthItem;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -40,7 +41,7 @@ public class FlatMapHandlerTest {
     private FlatMapHandler<Integer, Integer> handler;
     private Context context;
     private Store store;
-    private Function<Iterable<Integer>, Integer> function;
+    private Function<Iterable<Integer>, Stream<Integer>> function;
     private Iterable<Iterable<Integer>> input;
     private FlatMap<Integer, Integer> operation;
 

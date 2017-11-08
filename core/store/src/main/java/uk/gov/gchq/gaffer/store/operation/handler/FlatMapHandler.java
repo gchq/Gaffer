@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler;
 
+import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.FlatMap;
 import uk.gov.gchq.gaffer.store.Context;
@@ -23,6 +24,9 @@ import uk.gov.gchq.gaffer.store.Store;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * A {@code FlatMap} is a handler for the {@link FlatMap} {@link uk.gov.gchq.gaffer.operation.Operation}
@@ -54,18 +58,12 @@ public class FlatMapHandler<I_ITEM, O_ITEM> implements OutputOperationHandler<Fl
             throw new OperationException("Input cannot be null");
         }
 
-        final Function<Iterable<I_ITEM>, O_ITEM> function = operation.getFunction();
+        final Function<Iterable<I_ITEM>, Stream<O_ITEM>> function = operation.getFunction();
 
         if (null == function) {
             throw new OperationException("Function cannot be null");
         }
 
-        final List<O_ITEM> results = new ArrayList<>();
-
-        for (final Iterable<I_ITEM> iterable : input) {
-            results.add(function.apply(iterable));
-        }
-
-        return results;
+        return Streams.toStream(input).flatMap(function).collect(toList());
     }
 }

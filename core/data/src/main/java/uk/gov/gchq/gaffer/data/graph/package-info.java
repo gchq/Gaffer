@@ -15,6 +15,6 @@
  */
 
 /**
- * Exceptions relating to the Gaffer Store class.
+ * Data objects used by Gaffer which are related to graph analysis concepts.
  */
-package uk.gov.gchq.gaffer.store.exception;
+package uk.gov.gchq.gaffer.data.graph;

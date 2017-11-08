@@ -16,11 +16,15 @@
 package uk.gov.gchq.gaffer.federatedstore.operation.handler;
 
 import com.google.common.collect.Lists;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStore;
 import uk.gov.gchq.gaffer.federatedstore.FederatedStoreProperties;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
@@ -34,12 +38,10 @@ import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
-import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -50,6 +52,8 @@ public class FederatedGetSchemaHandlerTest {
     private User user;
     private StoreProperties properties;
     private AccumuloProperties accProperties;
+    private static final String ACC_PROP_ID = "accProp";
+    private static final String EDGE_SCHEMA_ID = "edgeSchema";
 
     private final String TEST_FED_STORE = "testFedStore";
     private final HashMapGraphLibrary library = new HashMapGraphLibrary();
@@ -63,13 +67,17 @@ public class FederatedGetSchemaHandlerTest {
 
     @Before
     public void setup() throws StoreException {
+        HashMapGraphLibrary.clear();
+        CacheServiceLoader.shutdown();
+
         handler = new FederatedGetSchemaHandler();
         user = new User("testUser");
         context = new Context(user);
         properties = new FederatedStoreProperties();
+        properties.set(HashMapCacheService.STATIC_CACHE, String.valueOf(true));
+
         accProperties = new AccumuloProperties();
 
-        accProperties.setId("accProp");
         accProperties.setStoreClass(MockAccumuloStore.class);
         accProperties.setStorePropertiesClass(AccumuloProperties.class);
 
@@ -79,13 +87,18 @@ public class FederatedGetSchemaHandlerTest {
         library.clear();
     }
 
+    @After
+    public void after() {
+        HashMapGraphLibrary.clear();
+        CacheServiceLoader.shutdown();
+    }
+
     @Test
     public void shouldReturnSchema() throws OperationException {
-        library.addProperties(accProperties);
+        library.addProperties(ACC_PROP_ID, accProperties);
         fStore.setGraphLibrary(library);
 
         final Schema edgeSchema = new Schema.Builder()
-                .id("edgeSchema")
                 .edge("edge", new SchemaEdgeDefinition.Builder()
                         .source("string")
                         .destination("string")
@@ -95,14 +108,14 @@ public class FederatedGetSchemaHandlerTest {
                 .merge(STRING_SCHEMA)
                 .build();
 
-        library.addSchema(edgeSchema);
+        library.addSchema(EDGE_SCHEMA_ID, edgeSchema);
 
         fStore.execute(Operation.asOperationChain(
                 new AddGraph.Builder()
-                .graphId("schema")
-                .parentPropertiesId("accProp")
-                .parentSchemaIds(Lists.newArrayList("edgeSchema"))
-                .build()), context);
+                        .graphId("schema")
+                        .parentPropertiesId(ACC_PROP_ID)
+                        .parentSchemaIds(Lists.newArrayList(EDGE_SCHEMA_ID))
+                        .build()), context);
 
         final GetSchema operation = new GetSchema.Builder()
                 .compact(true)
@@ -113,12 +126,12 @@ public class FederatedGetSchemaHandlerTest {
 
         // Then
         assertNotNull(result);
-        assertArrayEquals(edgeSchema.toJson(true), result.toJson(true));
+        JsonAssert.assertEquals(edgeSchema.toJson(true), result.toJson(true));
     }
 
     @Test
     public void shouldThrowExceptionForANullOperation() throws OperationException {
-        library.addProperties(accProperties);
+        library.addProperties(ACC_PROP_ID, accProperties);
         fStore.setGraphLibrary(library);
 
         final GetSchema operation = null;

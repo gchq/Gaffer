@@ -20,7 +20,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.GroupCounts;
+import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.data.graph.Walk;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 
 /**
@@ -133,5 +135,17 @@ public final class TypeReferenceImpl {
     }
 
     public static class IterableObject extends TypeReference<Iterable<? extends java.lang.Object>> {
+    }
+
+    public static class IterableIterableEdge extends TypeReference<Iterable<Iterable<Edge>>> {
+    }
+
+    public static class IterableEdge extends TypeReference<Iterable<Edge>> {
+    }
+
+    public static class IterableListEdge extends TypeReference<Iterable<java.util.List<Edge>>> {
+    }
+
+    public static class IterableWalk extends TypeReference<Iterable<Walk>> {
     }
 }
