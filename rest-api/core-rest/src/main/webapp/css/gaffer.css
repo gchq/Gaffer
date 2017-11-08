@@ -13,7 +13,6 @@ max-width: 95%;
 .banner {
     background-color: red;
     color: #FFF;
-    width:100%;
     text-align: center;
     text-overflow: ellipsis;
     overflow: hidden;
