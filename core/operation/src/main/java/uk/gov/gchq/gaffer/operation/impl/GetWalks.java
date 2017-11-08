@@ -54,6 +54,7 @@ public class GetWalks implements
     private Iterable<? extends EntityId> input;
     private Map<String, String> options;
     private Integer resultsLimit = 1000000;
+    private boolean prune = false;
 
     @Override
     public Iterable<? extends EntityId> getInput() {
@@ -145,6 +146,14 @@ public class GetWalks implements
         this.resultsLimit = resultsLimit;
     }
 
+    public boolean isPrune() {
+        return prune;
+    }
+
+    public void setPrune(final boolean prune) {
+        this.prune = prune;
+    }
+
     public static final class Builder
             extends Operation.BaseBuilder<GetWalks, Builder>
             implements InputOutput.Builder<GetWalks, Iterable<? extends EntityId>, Iterable<Walk>, Builder>,
@@ -173,6 +182,11 @@ public class GetWalks implements
 
         public Builder resultsLimit(final Integer resultLimit) {
             _getOp().setResultsLimit(resultLimit);
+            return _self();
+        }
+
+        public Builder prune(final boolean prune) {
+            _getOp().setPrune(prune);
             return _self();
         }
     }

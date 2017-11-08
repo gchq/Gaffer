@@ -96,6 +96,35 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
     }
 
     @Test
+    public void shouldGetPathsWithPruning() throws Exception {
+        // Given
+        final User user = new User();
+
+        final EntitySeed seed = new EntitySeed("A");
+
+        final GetElements operation = new GetElements.Builder()
+                .directedType(DirectedType.DIRECTED)
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .properties(TestPropertyNames.COUNT)
+                                .build())
+                        .build()).inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
+                .build();
+
+        final GetWalks op = new GetWalks.Builder()
+                .input(seed)
+                .operations(operation, operation)
+                .prune(true)
+                .build();
+
+        // When
+        final Iterable<Walk> results = graph.execute(op, user);
+
+        // Then
+        assertThat(getPaths(results), is(equalTo("AED,ABC")));
+    }
+
+    @Test
     public void shouldGetPathsWithMultipleSeeds() throws Exception {
         // Given
         final User user = new User();
