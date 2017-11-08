@@ -143,7 +143,6 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
 
     protected void setUpPartitionerGenerateSplitsFile(final Job job, final AddElementsFromHdfs operation,
                                                       final AccumuloStore store) throws IOException {
-        //TODO specify that if a numReducers has been set a minReducers and a maxReducers cannot be.
         final String splitsFilePath = operation.getSplitsFilePath();
         LOGGER.info("Creating splits file in location {} from table {}", splitsFilePath, store.getTableName());
 
@@ -151,11 +150,7 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
         final int maxReducers = validateValue(operation.getMaxReduceTasks());
         final int minReducers = validateValue(operation.getMinReduceTasks());
 
-        if (minReducers != 0 && maxReducers != 0 && minReducers > maxReducers) {
-            // higher minReducers than maxReducers, can't happen
-            LOGGER.error("minReducers must be less than the maxReducers: min was {} " + "max was {}", minReducers, maxReducers);
-            throw new IllegalArgumentException("Minimum number of reducers must be less than the maximum number of reducers");
-        } else if (numReducers != 0) {
+        if (numReducers != 0) {
             // numReducers has been set so just use it.
             try {
                 IngestUtils.createSplitsFile(store.getConnection(), store.getTableName(),

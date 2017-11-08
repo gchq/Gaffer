@@ -93,6 +93,14 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
             LOGGER.warn("maxMapTasks field will be ignored");
         }
 
+        if (null != operation.getNumReduceTasks() && (null != operation.getMinMapTasks() || null != operation.getMaxReduceTasks())) {
+            throw new IllegalArgumentException("minReduceTasks and/or maxReduceTasks should not be set if numReduceTasks is");
+        }
+
+        if(null != operation.getMinReduceTasks() && null != operation.getMaxReduceTasks() && operation.getMinReduceTasks() > operation.getMaxReduceTasks()){
+            throw new IllegalArgumentException("Minimum number of reducers must be less than the maximum number of reducers");
+        }
+
         if (null == operation.getSplitsFilePath()) {
             if (null == operation.getWorkingPath()) {
                 throw new IllegalArgumentException("splitsFilePath is required");
