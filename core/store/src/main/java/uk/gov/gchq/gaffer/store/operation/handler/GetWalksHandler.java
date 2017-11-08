@@ -24,8 +24,11 @@ import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.data.graph.AdjacencyMap;
 import uk.gov.gchq.gaffer.data.graph.Walk;
+import uk.gov.gchq.gaffer.data.graph.adjacency.AdjacencyMap;
+import uk.gov.gchq.gaffer.data.graph.adjacency.AdjacencyMaps;
+import uk.gov.gchq.gaffer.data.graph.adjacency.PrunedAdjacencyMaps;
+import uk.gov.gchq.gaffer.data.graph.adjacency.SimpleAdjacencyMaps;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
@@ -45,22 +48,26 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * <p>
  * An operation handler for {@link GetWalks} operations.
- * </p>
- * <p>
- * Currently the handler only supports creating {@link Walk}s which contain
- * {@link Edge}s.
- * </p>
+ *
+ * Currently the handler only supports creating {@link Walk}s which contain {@link Edge}s.
+ *
+ * This operation handler can be modified by supplying an operationDeclarations.json
+ * file in order to limit the maximum number of hops permitted.
  */
 public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterable<Walk>> {
 
     private int hops;
 
     /**
-     * Can be set by modifying operationsDeclarations.json.
+     * Can be set by modifying operationDeclarations.json.
      */
     private Integer maxHops = null;
+
+    /**
+     * Can be set by modifying operationDeclarations.json.
+     */
+    private Boolean prune = Boolean.FALSE;
 
     @Override
     public Iterable<Walk> doOperation(final GetWalks getWalks, final Context context, final Store store) throws OperationException {
@@ -84,7 +91,7 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
             throw new OperationException("GetWalks operation contains " + hops + " hops. The maximum number of hops is: " + maxHops);
         }
 
-        final List<AdjacencyMap<Object, Edge>> adjacencyMaps = new ArrayList<>();
+        final AdjacencyMaps<Object, Edge> adjacencyMaps = prune ? new PrunedAdjacencyMaps<>() : new SimpleAdjacencyMaps<>();
 
         List<Edge> results = null;
 
@@ -114,6 +121,14 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
 
     public void setMaxHops(final Integer maxHops) {
         this.maxHops = maxHops;
+    }
+
+    public Boolean getPrune() {
+        return prune;
+    }
+
+    public void setPrune(final Boolean prune) {
+        this.prune = prune;
     }
 
     private List<Edge> executeGetElements(final GetElements getElements,
@@ -159,14 +174,14 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
         return Lists.newArrayList((Iterable<Edge>) store.execute(opChain, context));
     }
 
-    private List<Walk> walk(final Object curr, final Object prev, final List<AdjacencyMap<Object, Edge>> adjacencyMaps, final LinkedList<Set<Edge>> queue) {
+    private List<Walk> walk(final Object curr, final Object prev, final AdjacencyMaps<Object, Edge> adjacencyMaps, final LinkedList<Set<Edge>> queue) {
         final List<Walk> walks = new ArrayList<>();
 
-        if (null != prev && hops != queue.size()) { // if the walk is not at the maximum length
+        if (null != prev && hops != queue.size()) {
             queue.offer(adjacencyMaps.get(queue.size()).get(prev, curr));
         }
 
-        if (hops == queue.size()) { // if the walk is at the maximum length
+        if (hops == queue.size()) {
             final Walk.Builder builder = new Walk.Builder();
             for (final Set<Edge> edgeSet : queue) {
                 builder.edges(edgeSet);
