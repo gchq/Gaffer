@@ -97,7 +97,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
             throw new IllegalArgumentException("minReduceTasks and/or maxReduceTasks should not be set if numReduceTasks is");
         }
 
-        if(null != operation.getMinReduceTasks() && null != operation.getMaxReduceTasks() && operation.getMinReduceTasks() > operation.getMaxReduceTasks()){
+        if (null != operation.getMinReduceTasks() && null != operation.getMaxReduceTasks() && operation.getMinReduceTasks() > operation.getMaxReduceTasks()) {
             throw new IllegalArgumentException("Minimum number of reducers must be less than the maximum number of reducers");
         }
 
