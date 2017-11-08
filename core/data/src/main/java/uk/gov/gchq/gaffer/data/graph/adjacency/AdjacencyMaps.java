@@ -42,7 +42,6 @@ public interface AdjacencyMaps<T, U> extends Iterable<AdjacencyMap<T, U>> {
      * Retrieve the nth {@link AdjacencyMap}.
      *
      * @param n the index of the adjacency map to retrieve
-     *
      * @return the nth AdjacencyMap
      */
     default AdjacencyMap<T, U> get(final int n) {
@@ -64,7 +63,7 @@ public interface AdjacencyMaps<T, U> extends Iterable<AdjacencyMap<T, U>> {
 
     @Override
     default Iterator<AdjacencyMap<T, U>> iterator() {
-        return asImmutableList().iterator();
+        return asList().iterator();
     }
 
     /**
@@ -74,13 +73,4 @@ public interface AdjacencyMaps<T, U> extends Iterable<AdjacencyMap<T, U>> {
      * @return a {@link List} representation of the current AdjacencyMaps object
      */
     List<AdjacencyMap<T, U>> asList();
-
-    /**
-     * Get a representation of the current AdjacencyMaps object as an immutable
-     * {@link List}.
-     *
-     * @return a immutable {@link List} representation of the current
-     * AdjacencyMaps object
-     */
-    List<AdjacencyMap<T, U>> asImmutableList();
 }

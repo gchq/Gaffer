@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.data.graph.adjacency;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -32,17 +31,7 @@ public class SimpleAdjacencyMaps<T, U> implements AdjacencyMaps<T, U> {
     private final List<AdjacencyMap<T, U>> adjacencyMaps = new ArrayList<>();
 
     @Override
-    public void add(final AdjacencyMap<T, U> adjacencyMap) {
-        adjacencyMaps.add(adjacencyMap);
-    }
-
-    @Override
     public List<AdjacencyMap<T, U>> asList() {
         return adjacencyMaps;
-    }
-
-    @Override
-    public List<AdjacencyMap<T, U>> asImmutableList() {
-        return Collections.unmodifiableList(adjacencyMaps);
     }
 }

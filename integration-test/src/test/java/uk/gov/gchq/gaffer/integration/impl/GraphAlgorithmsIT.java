@@ -524,7 +524,7 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
 
     public void withPruning() throws OperationException {
         final StoreProperties storeProperties = getStoreProperties();
-        storeProperties.setOperationDeclarationPaths("src/test/resources/operationDeclarations.json");
+        storeProperties.setOperationDeclarationPaths("operationDeclarations.json");
         addStoreProperties(storeProperties);
 
         addDefaultElements();

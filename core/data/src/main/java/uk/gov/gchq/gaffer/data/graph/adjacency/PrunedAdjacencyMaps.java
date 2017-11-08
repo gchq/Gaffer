@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.data.graph.adjacency;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -40,28 +39,34 @@ public class PrunedAdjacencyMaps<T, U> implements AdjacencyMaps<T, U> {
 
     @Override
     public void add(final AdjacencyMap<T, U> adjacencyMap) {
-        if (!adjacencyMaps.isEmpty()) {
-            final AdjacencyMap<T, U> prev = adjacencyMaps.get(adjacencyMaps.size() - 1);
+        removeOrphans(adjacencyMaps, adjacencyMap);
+        adjacencyMaps.add(adjacencyMap);
+    }
+
+    private void removeOrphans(final List<AdjacencyMap<T, U>> maps, final AdjacencyMap<T, U> adjacencyMap) {
+        if (!maps.isEmpty()) {
+            final AdjacencyMap<T, U> prev = maps.get(maps.size() - 1);
 
             final Set<T> prevDestinations = prev.getAllDestinations();
 
+            final List<T> nodesToRemove = new ArrayList<>();
+
             for (final T dest : prevDestinations) {
                 if (!adjacencyMap.getAllSources().contains(dest)) {
-                    prev.removeAllWithDestination(dest);
+                    nodesToRemove.add(dest);
                 }
             }
-        }
 
-        adjacencyMaps.add(adjacencyMap);
+            for (final T dest : nodesToRemove) {
+                prev.removeAllWithDestination(dest);
+            }
+
+            removeOrphans(maps.subList(0, maps.size() - 1), prev);
+        }
     }
 
     @Override
     public List<AdjacencyMap<T, U>> asList() {
         return adjacencyMaps;
-    }
-
-    @Override
-    public List<AdjacencyMap<T, U>> asImmutableList() {
-        return Collections.unmodifiableList(adjacencyMaps);
     }
 }

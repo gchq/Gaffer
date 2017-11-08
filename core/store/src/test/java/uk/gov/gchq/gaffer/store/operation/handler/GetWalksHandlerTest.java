@@ -78,7 +78,7 @@ public class GetWalksHandlerTest {
     }
 
     @Test
-    public void shouldSerialiseDeserialise() throws SerialisationException {
+    public void shouldSerialiseDeserialise() throws SerialisationException, JsonProcessingException {
         // Given
         final GetWalksHandler obj = new GetWalksHandler();
         obj.setPrune(true);
