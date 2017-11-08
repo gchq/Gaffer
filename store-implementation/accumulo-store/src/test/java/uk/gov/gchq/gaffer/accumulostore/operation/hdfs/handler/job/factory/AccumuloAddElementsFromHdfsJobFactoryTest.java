@@ -93,7 +93,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
 
         // Then
         verify(job).setJarByClass(factory.getClass());
-        verify(job).setJobName("Ingest HDFS data: Generator=" + TextMapperGeneratorImpl.class.getName() + ", output=" + outputDir);
+        verify(job).setJobName(String.format(AccumuloAddElementsFromHdfsJobFactory.INGEST_HDFS_DATA_GENERATOR_S_OUTPUT_S, TextMapperGeneratorImpl.class.getName(), outputDir));
 
         verify(job).setMapperClass(AddElementsFromHdfsMapper.class);
         verify(job).setMapOutputKeyClass(Key.class);
@@ -209,7 +209,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         final SplitStore splitTable = new SplitStore.Builder()
                 .inputPath(splitsFile)
                 .build();
-        store.execute(splitTable,  store.createContext(new User()));
+        store.execute(splitTable, store.createContext(new User()));
         final AccumuloAddElementsFromHdfsJobFactory factory = new AccumuloAddElementsFromHdfsJobFactory();
         final Job job = Job.getInstance(localConf);
 
