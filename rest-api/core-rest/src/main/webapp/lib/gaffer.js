@@ -162,6 +162,7 @@ function initFromProperties(onPropertiesLoad) {
         updateTitle(properties);
         updateDescription(properties);
         updateBanner(properties);
+        updateDocUrl(properties);
         if(onPropertiesLoad) {
             onPropertiesLoad(properties);
         }
@@ -187,7 +188,13 @@ function updateBanner(properties) {
 
 function updateDescription(properties) {
     updateElement('gaffer.properties.app.description', properties, function(value, id) {
-        $('#' + id).text(value);
+        $('#' + id).html(value);
+    });
+}
+
+function updateDocUrl(properties) {
+    updateElementWithId('doc-url', 'gaffer.properties.app.doc.url', properties, function(value, id) {
+        $('#' + id).html("For more information see our <a href='" + value + "'>documentation</a>.");
     });
 }
 

@@ -91,4 +91,6 @@ gaffer.properties.app.title=Road Traffic Example
 gaffer.properties.app.description=Example using road traffic data
 gaffer.properties.app.banner.description=DEMO
 gaffer.properties.app.banner.colour=#1b75bb
+gaffer.properties.app.contact=Gaffer Developers
+gaffer.properties.app.contact.url=https://github.com/gchq/Gaffer
 ```

@@ -49,8 +49,6 @@ public abstract class SystemProperty {
     public static final String APP_DESCRIPTION = "gaffer.properties.app.description";
     public static final String APP_BANNER_COLOUR = "gaffer.properties.app.banner.colour";
     public static final String APP_BANNER_DESCRIPTION = "gaffer.properties.app.banner.description";
-    public static final String APP_CONTACT = "gaffer.properties.app.contact";
-    public static final String APP_CONTACT_URL = "gaffer.properties.app.contact.url";
     public static final String APP_DOCUMENTATION_URL = "gaffer.properties.app.doc.url";
 
     /**
@@ -90,8 +88,6 @@ public abstract class SystemProperty {
     public static final String REST_DEBUG_DEFAULT = DebugUtil.DEBUG_DEFAULT;
     public static final String APP_TITLE_DEFAULT = "Gaffer REST";
     public static final String APP_DESCRIPTION_DEFAULT = "The Gaffer REST service.";
-    public static final String APP_CONTACT_DEFAULT = "Gaffer Developers";
-    public static final String APP_CONTACT_URL_DEFAULT = "https://github.com/gchq/Gaffer";
     public static final String APP_DOCUMENTATION_URL_DEFAULT = "https://gchq.github.io/gaffer-doc/";
 
     private SystemProperty() {
