@@ -41,7 +41,7 @@ public class MapHandlerTest {
     private MapHandler<Integer, Integer> handler;
     private Context context;
     private Store store;
-    private Function<Iterable<Integer>, Stream<Integer>> function;
+    private Function<Iterable<Integer>, Integer> function;
     private Iterable<Integer> input;
 
     @Before
@@ -54,7 +54,7 @@ public class MapHandlerTest {
 
         given(context.getUser()).willReturn(new User());
         given(store.getProperties()).willReturn(new StoreProperties());
-        given(function.apply(input)).willReturn(Stream.of(5));
+        given(function.apply(input)).willReturn(5);
     }
 
     @Test

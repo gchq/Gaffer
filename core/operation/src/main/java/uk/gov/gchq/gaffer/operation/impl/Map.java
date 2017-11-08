@@ -37,7 +37,7 @@ public class Map<I_ITEM, O_ITEM> implements
 
     private Iterable<I_ITEM> input;
     private java.util.Map<String, String> options;
-    private Function<Iterable<I_ITEM>, Stream<O_ITEM>> function;
+    private Function<Iterable<I_ITEM>, O_ITEM> function;
 
     @Override
     public Map<I_ITEM, O_ITEM> shallowClone() throws CloneFailedException {
@@ -58,11 +58,11 @@ public class Map<I_ITEM, O_ITEM> implements
         this.options = options;
     }
 
-    public Function<Iterable<I_ITEM>, Stream<O_ITEM>> getFunction() {
+    public Function<Iterable<I_ITEM>, O_ITEM> getFunction() {
         return function;
     }
 
-    public void setFunction(final Function<Iterable<I_ITEM>, Stream<O_ITEM>> function) {
+    public void setFunction(final Function<Iterable<I_ITEM>, O_ITEM> function) {
         this.function = function;
     }
 
@@ -88,7 +88,7 @@ public class Map<I_ITEM, O_ITEM> implements
             super(new Map<>());
         }
 
-        public Builder<I_ITEM, O_ITEM> function(final Function<Iterable<I_ITEM>, Stream<O_ITEM>> func) {
+        public Builder<I_ITEM, O_ITEM> function(final Function<Iterable<I_ITEM>, O_ITEM> func) {
             _getOp().setFunction(func);
             return _self();
         }

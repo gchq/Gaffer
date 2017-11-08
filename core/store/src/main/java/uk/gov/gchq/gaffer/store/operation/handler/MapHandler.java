@@ -54,12 +54,12 @@ public class MapHandler<I_ITEM, O_ITEM> implements OutputOperationHandler<Map<I_
             throw new OperationException("Input cannot be null");
         }
 
-        final Function<Iterable<I_ITEM>, Stream<O_ITEM>> function = operation.getFunction();
+        final Function<Iterable<I_ITEM>, O_ITEM> function = operation.getFunction();
 
         if (null == function) {
             throw new OperationException("Function cannot be null");
         }
 
-        return function.apply(input).collect(Collectors.toList()).get(0);
+        return function.apply(input);
     }
 }

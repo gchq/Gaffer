@@ -58,12 +58,12 @@ public class FlatMapHandler<I_ITEM, O_ITEM> implements OutputOperationHandler<Fl
             throw new OperationException("Input cannot be null");
         }
 
-        final Function<Iterable<I_ITEM>, Stream<O_ITEM>> function = operation.getFunction();
+        final Function<Iterable<I_ITEM>, O_ITEM> function = operation.getFunction();
 
         if (null == function) {
             throw new OperationException("Function cannot be null");
         }
 
-        return Streams.toStream(input).flatMap(function).collect(toList());
+        return Streams.toStream(input).flatMap(function.andThen(Stream::of)).collect(toList());
     }
 }
