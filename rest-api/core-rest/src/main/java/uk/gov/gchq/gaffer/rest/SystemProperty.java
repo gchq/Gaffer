@@ -88,8 +88,6 @@ public abstract class SystemProperty {
     public static final String REST_DEBUG_DEFAULT = DebugUtil.DEBUG_DEFAULT;
     public static final String APP_TITLE_DEFAULT = "Gaffer REST";
     public static final String APP_DESCRIPTION_DEFAULT = "The Gaffer REST service.";
-    public static final String APP_CONTACT_DEFAULT = "Gaffer Developers";
-    public static final String APP_CONTACT_URL_DEFAULT = "https://github.com/gchq/Gaffer";
     public static final String APP_DOCUMENTATION_URL_DEFAULT = "https://gchq.github.io/gaffer-doc/";
 
     private SystemProperty() {

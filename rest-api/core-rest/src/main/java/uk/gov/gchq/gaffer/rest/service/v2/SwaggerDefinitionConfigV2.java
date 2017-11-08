@@ -16,11 +16,8 @@
 
 package uk.gov.gchq.gaffer.rest.service.v2;
 
-import io.swagger.annotations.ExternalDocs;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
-
-import uk.gov.gchq.gaffer.rest.ServiceConstants;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
@@ -35,8 +32,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
         ),
         consumes = {APPLICATION_JSON},
         produces = {APPLICATION_JSON},
-        schemes = {SwaggerDefinition.Scheme.HTTP, SwaggerDefinition.Scheme.HTTPS},
-        externalDocs = @ExternalDocs(value = "", url = ServiceConstants.GAFFER_DOCUMENTATION_URL)
+        schemes = {SwaggerDefinition.Scheme.HTTP, SwaggerDefinition.Scheme.HTTPS}
 )
 public interface SwaggerDefinitionConfigV2 {
     // Empty marker interface
