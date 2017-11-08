@@ -162,7 +162,7 @@ function initFromProperties(onPropertiesLoad) {
         updateTitle(properties);
         updateDescription(properties);
         updateBanner(properties);
-        updateContact(properties);
+        updateDocUrl(properties);
         if(onPropertiesLoad) {
             onPropertiesLoad(properties);
         }
@@ -188,16 +188,13 @@ function updateBanner(properties) {
 
 function updateDescription(properties) {
     updateElement('gaffer.properties.app.description', properties, function(value, id) {
-        $('#' + id).text(value);
+        $('#' + id).html(value);
     });
 }
 
-function updateContact(properties) {
-    updateElementWithId('contactName', 'gaffer.properties.app.contact', properties, function(value, id) {
-        $('#' + id).html("<br>Developed by: " + value);
-        updateElementWithId('contactUrl', 'gaffer.properties.app.contact.url', properties, function(value, id) {
-            $('#' + id).text("Contact URL: " + value);
-        });
+function updateDocUrl(properties) {
+    updateElementWithId('doc-url', 'gaffer.properties.app.doc.url', properties, function(value, id) {
+        $('#' + id).html("For more information see our <a href='" + value + "'>documentation</a>.");
     });
 }
 

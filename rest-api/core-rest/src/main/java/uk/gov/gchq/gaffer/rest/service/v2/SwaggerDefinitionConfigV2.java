@@ -16,10 +16,8 @@
 
 package uk.gov.gchq.gaffer.rest.service.v2;
 
-import io.swagger.annotations.Contact;
 import io.swagger.annotations.ExternalDocs;
 import io.swagger.annotations.Info;
-import io.swagger.annotations.License;
 import io.swagger.annotations.SwaggerDefinition;
 
 import uk.gov.gchq.gaffer.rest.ServiceConstants;
@@ -32,17 +30,8 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
  */
 @SwaggerDefinition(
         info = @Info(
-                description = "",
                 version = "v2",
-                title = "",
-                contact = @Contact(
-                        name = "",
-                        url = ""
-                ),
-                license = @License(
-                        name = "Apache 2.0",
-                        url = "http://www.apache.org/licenses/LICENSE-2.0"
-                )
+                title = ""
         ),
         consumes = {APPLICATION_JSON},
         produces = {APPLICATION_JSON},

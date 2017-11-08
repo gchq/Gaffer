@@ -49,8 +49,6 @@ public abstract class SystemProperty {
     public static final String APP_DESCRIPTION = "gaffer.properties.app.description";
     public static final String APP_BANNER_COLOUR = "gaffer.properties.app.banner.colour";
     public static final String APP_BANNER_DESCRIPTION = "gaffer.properties.app.banner.description";
-    public static final String APP_CONTACT = "gaffer.properties.app.contact";
-    public static final String APP_CONTACT_URL = "gaffer.properties.app.contact.url";
     public static final String APP_DOCUMENTATION_URL = "gaffer.properties.app.doc.url";
 
     /**

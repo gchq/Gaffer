@@ -33,10 +33,6 @@ import java.util.stream.Stream;
 
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_BANNER_COLOUR;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_BANNER_DESCRIPTION;
-import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_CONTACT;
-import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_CONTACT_DEFAULT;
-import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_CONTACT_URL;
-import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_CONTACT_URL_DEFAULT;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_DESCRIPTION;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_DESCRIPTION_DEFAULT;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_DOCUMENTATION_URL;
@@ -57,8 +53,6 @@ public class PropertiesServiceV2 implements IPropertiesServiceV2 {
         map.put(APP_DESCRIPTION, APP_DESCRIPTION_DEFAULT);
         map.put(APP_BANNER_DESCRIPTION, "");
         map.put(APP_BANNER_COLOUR, "");
-        map.put(APP_CONTACT, APP_CONTACT_DEFAULT);
-        map.put(APP_CONTACT_URL, APP_CONTACT_URL_DEFAULT);
         map.put(APP_DOCUMENTATION_URL, APP_DOCUMENTATION_URL_DEFAULT);
         return Collections.unmodifiableMap(map);
     }
