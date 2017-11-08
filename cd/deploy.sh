@@ -66,7 +66,7 @@ if [ "$RELEASE" == 'true' ] && [ "$TRAVIS_BRANCH" == 'master' ] && [ "$TRAVIS_PU
                 \"tag_name\": \"$artifactId-$RELEASE_VERSION\",
                 \"name\": \"$repoName $RELEASE_VERSION\",
                 \"body\": \"[$RELEASE_VERSION enhancements](https://github.com/gchq/$repoId/issues?q=milestone%3Av$RELEASE_VERSION+label%3Aenhancement)\n\n[$RELEASE_VERSION bugs fixed](https://github.com/gchq/$repoId/issues?q=milestone%3Av$RELEASE_VERSION+label%3Abug)\n\n[$RELEASE_VERSION migration notes](https://github.com/gchq/$repoId/issues?q=milestone%3Av$RELEASE_VERSION+label%3Amigration-required)\n\n[$RELEASE_VERSION all issues resolved](https://github.com/gchq/$repoId/issues?q=milestone%3Av$RELEASE_VERSION)\",
-                \"draft\": true
+                \"draft\": false
             }"
         echo $JSON_DATA
         curl -v --data "$JSON_DATA" https://api.github.com/repos/gchq/$repoId/releases?access_token=$GITHUB_TOKEN
