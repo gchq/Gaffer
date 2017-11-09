@@ -67,12 +67,20 @@ public final class TypeReferenceImpl {
             TypeReference<Iterable<?>> {
     }
 
+    public static <T> TypeReference<T> createExplicitT() {
+        return (TypeReference) new TypeReferenceImpl.Object();
+    }
+
     public static <T> TypeReference<Iterable<? extends T>> createIterableT() {
         return (TypeReference) new IterableObj();
     }
 
     public static <T> TypeReference<CloseableIterable<? extends T>> createCloseableIterableT() {
         return (TypeReference) new CloseableIterableObj();
+    }
+
+    public static <T> TypeReference<Iterable<T>> createIterableExplicitT() {
+        return (TypeReference) new IterableObj();
     }
 
     public static class IterableElement extends

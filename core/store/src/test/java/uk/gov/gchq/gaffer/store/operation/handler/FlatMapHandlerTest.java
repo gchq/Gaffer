@@ -70,7 +70,6 @@ public class FlatMapHandlerTest {
     private final Edge EDGE_CB = new Edge.Builder().group(TestGroups.EDGE).source("C").dest("B").directed(true).build();
     private final Edge EDGE_DA = new Edge.Builder().group(TestGroups.EDGE).source("D").dest("A").directed(true).build();
 
-    private final static Entity ENTITY_A = new Entity.Builder().group(TestGroups.ENTITY).vertex("A").build();
     private final static Entity ENTITY_B = new Entity.Builder().group(TestGroups.ENTITY).vertex("B").build();
     private final static Entity ENTITY_C = new Entity.Builder().group(TestGroups.ENTITY).vertex("C").build();
     private final static Entity ENTITY_D = new Entity.Builder().group(TestGroups.ENTITY).vertex("D").build();
@@ -243,13 +242,6 @@ public class FlatMapHandlerTest {
                         secondFlatMap,
                         toVertices,
                         toSet));
-
-//                new OperationChain.Builder()
-//                .first(firstFlatMap)
-//                .then(secondFlatMap)
-//                .then(new ToVertices())
-//                .then(new ToSet<>())
-//                .build();
 
         final OperationChainValidator opChainValidator = mock(OperationChainValidator.class);
         final List<OperationChainOptimiser> opChainOptimisers = Collections.emptyList();

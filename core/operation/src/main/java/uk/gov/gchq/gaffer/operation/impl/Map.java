@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
@@ -39,6 +40,10 @@ public class Map<I_ITEM, O_ITEM> implements
     private java.util.Map<String, String> options;
     private Function<Iterable<I_ITEM>, O_ITEM> function;
 
+    public Map() {
+        // empty
+    }
+
     @Override
     public Map<I_ITEM, O_ITEM> shallowClone() throws CloneFailedException {
         return new Map.Builder<I_ITEM, O_ITEM>()
@@ -58,6 +63,7 @@ public class Map<I_ITEM, O_ITEM> implements
         this.options = options;
     }
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     public Function<Iterable<I_ITEM>, O_ITEM> getFunction() {
         return function;
     }
@@ -78,7 +84,7 @@ public class Map<I_ITEM, O_ITEM> implements
 
     @Override
     public TypeReference<O_ITEM> getOutputTypeReference() {
-        return (TypeReference) new TypeReferenceImpl.IterableObj();
+        return TypeReferenceImpl.createExplicitT();
     }
 
     public static final class Builder<I_ITEM, O_ITEM> extends

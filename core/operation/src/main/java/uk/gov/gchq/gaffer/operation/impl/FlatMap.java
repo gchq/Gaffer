@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
@@ -39,6 +40,10 @@ public class FlatMap<I_ITEM, O_ITEM> implements
     private Iterable<Iterable<I_ITEM>> input;
     private Map<String, String> options;
     private Function<Iterable<I_ITEM>, O_ITEM> function;
+
+    public FlatMap() {
+        // Empty
+    }
 
     @Override
     public Iterable<Iterable<I_ITEM>> getInput() {
@@ -69,6 +74,7 @@ public class FlatMap<I_ITEM, O_ITEM> implements
         this.options = options;
     }
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     public Function<Iterable<I_ITEM>, O_ITEM> getFunction() {
         return function;
     }
@@ -79,7 +85,7 @@ public class FlatMap<I_ITEM, O_ITEM> implements
 
     @Override
     public TypeReference<Iterable<O_ITEM>> getOutputTypeReference() {
-        return (TypeReference) new TypeReferenceImpl.IterableObj();
+        return TypeReferenceImpl.createIterableExplicitT();
     }
 
     public static final class Builder<I_ITEM, O_ITEM> extends
