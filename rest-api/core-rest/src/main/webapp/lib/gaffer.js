@@ -136,15 +136,7 @@ function init(onSwaggerComplete, onPropertiesLoad){
               $('pre code').each(function(i,e){hljs.highlightBlock(e)});
               initFromProperties(onPropertiesLoad);
               addExampleButtons();
-              $.get(
-                    getVersion() + '/graph/operations/uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails',
-                    null,
-                    function(response) {
-                        if(200 != response.response_code) {
-                            document.getElementById("resource_job").setAttribute("hidden", true);
-                        }
-                    }
-              )
+              hideJobsIfRequired();
               if(onSwaggerComplete) {
                   onSwaggerComplete();
               }
@@ -177,6 +169,17 @@ function initFromProperties(onPropertiesLoad) {
     }
     $.get(getVersion() + '/properties', null, onSuccess);
 }
+
+function hideJobsIfRequired() {
+    $.get(
+        getVersion() + '/graph/operations/uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails',
+        null,
+        function(responseData, statusText) {
+            if(statusText !== "success") {
+                $("#resource_job").attr("hidden", true);
+            }
+        }
+    )}
 
 function updateTitle(properties) {
     updateElement('gaffer.properties.app.title', properties, function(value, id) {
