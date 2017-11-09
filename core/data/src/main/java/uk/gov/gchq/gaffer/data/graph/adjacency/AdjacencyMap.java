@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.data.graph;
+package uk.gov.gchq.gaffer.data.graph.adjacency;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Sets;
 
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -26,7 +27,7 @@ import java.util.Set;
  * a format which can easily be interrogated.
  *
  * @param <T> the type of object representing the vertices
- * @param <U> the type of object representing the edge
+ * @param <U> the type of object representing the edges
  */
 public class AdjacencyMap<T, U> {
 
@@ -90,7 +91,7 @@ public class AdjacencyMap<T, U> {
      * @return a {@link Set} of the destination vertices
      */
     public Set<T> getDestinations(final T source) {
-        return graph.row(source).keySet();
+        return Collections.unmodifiableSet(graph.row(source).keySet());
     }
 
     /**
@@ -102,7 +103,31 @@ public class AdjacencyMap<T, U> {
      * @return a {@link Set} of the source vertices
      */
     public Set<T> getSources(final T destination) {
-        return graph.column(destination).keySet();
+        return Collections.unmodifiableSet(graph.column(destination).keySet());
     }
 
+    /**
+     * Get a {@link Set} containing all of the source vertices in this AdjacencyMap.
+     *
+     * @return an immutable set containing the source vertices
+     */
+    public Set<T> getAllSources() {
+        return Collections.unmodifiableSet(graph.rowKeySet());
+    }
+
+    /**
+     * Get a {@link Set} containing all of the destination vertices in this AdjacencyMap.
+     *
+     * @return an immutable set containing the destination vertices
+     */
+    public Set<T> getAllDestinations() {
+        return Collections.unmodifiableSet(graph.columnKeySet());
+    }
+
+    public void removeAllWithDestination(final T destination) {
+        final Set<T> set = graph.column(destination).keySet();
+        for (final T t : set) {
+            graph.remove(t, destination);
+        }
+    }
 }
