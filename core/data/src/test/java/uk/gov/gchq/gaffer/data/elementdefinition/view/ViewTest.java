@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
+import com.google.common.collect.Sets;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
@@ -679,6 +680,130 @@ public class ViewTest {
 
         // Then
         assertFalse(result);
+    }
+
+    @Test
+    public void shouldAddGlobalPropertiesToGroup() {
+        // Given
+        final View view = new View.Builder()
+                .globalEntities(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .properties(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                        .build())
+                .entity(TestGroups.ENTITY)
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2),
+                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getProperties()));
+    }
+
+    @Test
+    public void shouldOverrideGlobalPropertiesWhenSpecificGroupPropertiesSet() {
+        // Given
+        final View view = new View.Builder()
+                .globalEntities(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .properties(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                        .build())
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .properties(TestPropertyNames.PROP_3)
+                        .build())
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_3),
+                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getProperties()));
+    }
+
+    @Test
+    public void shouldAddGlobalExcludePropertiesToGroup() {
+        // Given
+        final View view = new View.Builder()
+                .globalEntities(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .excludeProperties(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                        .build())
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder().build())
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2),
+                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getExcludeProperties()));
+    }
+
+    @Test
+    public void shouldOverrideGlobalExcludePropertiesWhenSpecificGroupExcludePropertiesSet() {
+        // Given
+        final View view = new View.Builder()
+                .globalEntities(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .excludeProperties(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                        .build())
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .excludeProperties(TestPropertyNames.PROP_3)
+                        .build())
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_3),
+                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getExcludeProperties()));
+    }
+
+    @Test
+    public void shouldExcludePropertyFromGroupIfGloballyExcluded() {
+        // Given
+        final View view = new View.Builder()
+                .globalEntities(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .excludeProperties(TestPropertyNames.PROP_2)
+                        .build())
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .properties(TestPropertyNames.PROP_2, TestPropertyNames.PROP_3)
+                        .build())
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_3),
+                view.getEntity(TestGroups.ENTITY).getProperties());
+    }
+
+    @Test
+    public void shouldAddGlobalFiltersToGroup() {
+        // Given
+        final ElementFilter filter = new ElementFilter.Builder()
+                .select(TestPropertyNames.PROP_1)
+                .execute(new Exists())
+                .build();
+
+        final View view = new View.Builder()
+                .globalEntities(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .preAggregationFilter(filter)
+                        .build())
+                .entity(TestGroups.ENTITY)
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertTrue(view.hasPreAggregationFilters());
     }
 
     private View createView() {
