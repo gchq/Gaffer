@@ -38,7 +38,7 @@ public abstract class SystemProperty {
     public static final String JSON_SERIALISER_CLASS = JSONSerialiser.JSON_SERIALISER_CLASS_KEY;
     public static final String JSON_SERIALISER_MODULES = JSONSerialiser.JSON_SERIALISER_MODULES;
     public static final String REST_DEBUG = DebugUtil.DEBUG;
-    public static final String APP_LOGO_URL = "gaffer.properties.app.logo.url";
+    public static final String APP_LOGO_PATH = "gaffer.properties.app.logo.path";
     /**
      * @deprecated create a GraphConfig json file and use GRAPH_CONFIG_PATH instead
      */
@@ -74,7 +74,7 @@ public abstract class SystemProperty {
     public static final String GRAPH_FACTORY_CLASS_DEFAULT = DefaultGraphFactory.class.getName();
     public static final String USER_FACTORY_CLASS_DEFAULT = UnknownUserFactory.class.getName();
     public static final String REST_DEBUG_DEFAULT = DebugUtil.DEBUG_DEFAULT;
-    public static final String APP_LOGO_URL_DEFAULT = "https://gchq.github.io/gaffer-doc/logos/logoWithText.png";
+    public static final String APP_LOGO_PATH_DEFAULT = "images/logo_small.png";
 
     private SystemProperty() {
         // Private constructor to prevent instantiation.

@@ -155,3 +155,8 @@ function init(onSwaggerComplete){
 
       window.swaggerUi.load();
 }
+
+// TODO - merge develop
+// add function to update #logo__img to the relevant property
+// possibly update favicon with automatic image resizing?
+// add to rest-api/README.md
