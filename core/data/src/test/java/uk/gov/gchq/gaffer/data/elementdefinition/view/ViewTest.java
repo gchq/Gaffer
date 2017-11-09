@@ -776,11 +776,11 @@ public class ViewTest {
                 .build();
 
         // When
-        view.expandGlobalDefinitions();
-
-        // Then
-        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_3),
-                view.getEntity(TestGroups.ENTITY).getProperties());
+        try {
+            view.expandGlobalDefinitions();
+        } catch (IllegalArgumentException e) {
+            assertEquals("You cannot set both properties and excludeProperties", e.getMessage());
+        }
     }
 
     @Test
