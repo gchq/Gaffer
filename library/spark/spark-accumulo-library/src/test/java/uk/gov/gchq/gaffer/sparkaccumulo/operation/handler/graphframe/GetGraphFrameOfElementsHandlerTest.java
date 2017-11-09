@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.spark.sql.SparkSession;
 import org.graphframes.GraphFrame;
+import org.hamcrest.core.StringContains;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -42,9 +43,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
+import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class GetGraphFrameOfElementsHandlerTest {
 
@@ -133,6 +139,202 @@ public class GetGraphFrameOfElementsHandlerTest {
         assertThat(edges, hasItems("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "B", "C"));
         assertThat(edges, hasItems("10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"));
         assertThat(edges, hasItem(TestGroups.EDGE));
+    }
+
+    @Test
+    public void checkGetCorrectElementsInGraphFrameWithVertexProperty() throws OperationException {
+
+        final List<Element> elements = getElements();
+
+        // Set the property on all entities
+        for (final Element element : elements) {
+            if (element instanceof Entity && ((Entity) element).getGroup().equals(TestGroups.ENTITY)) {
+                element.putProperty("vertex", "value");
+            }
+        }
+
+        final Graph graph = getGraph("/schema-GraphFrame/elementsWithVertexProperty.json", elements);
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
+
+        final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
+                .view(new View.Builder()
+                        .edges(Lists.newArrayList(TestGroups.EDGE, TestGroups.EDGE_2))
+                        .entities(Lists.newArrayList(TestGroups.ENTITY, TestGroups.ENTITY_2))
+                        .build())
+                .build();
+
+        try {
+            final GraphFrame graphFrame = graph.execute(gfOperation, new User());
+
+            fail("Validation in the GetDataFrameOfElementsHandler should result in an exception being thrown.");
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains("schema contains a property called vertex"));
+        }
+    }
+
+    @Test
+    public void checkGetCorrectElementsInGraphFrameWithNoEdges() throws OperationException {
+
+        final Graph graph = getGraph("/schema-GraphFrame/elements.json", getElements());
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
+
+        final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
+                .view(new View.Builder()
+                        .entities(Lists.newArrayList(TestGroups.ENTITY, TestGroups.ENTITY_2))
+                        .build())
+                .build();
+
+        try {
+            final GraphFrame graphFrame = graph.execute(gfOperation, new User());
+
+            fail("Expected exception when the View does not contain both edges and entities.");
+        } catch (final IllegalArgumentException ex) {
+            assertThat(ex, is(instanceOf(IllegalArgumentException.class)));
+            assertThat(ex.getMessage(), containsString("Cannot create a Graphframe unless the View contains both edges and entities."));
+        }
+
+//        final GraphFrame graphFrame = graph.execute(gfOperation, new User());
+//
+//        final Set<String> vertices = graphFrame.vertices()
+//                .javaRDD()
+//                .map(row -> Sets.newHashSet(Arrays.asList(row.mkString(",").split(","))))
+//                .collect()
+//                .stream()
+//                .flatMap(Set::stream)
+//                .collect(Collectors.toSet());
+//
+//        final Set<String> edges = graphFrame.edges()
+//                .javaRDD()
+//                .map(row -> Sets.newHashSet(Arrays.asList(row.mkString(",").split(","))))
+//                .collect()
+//                .stream()
+//                .flatMap(Set::stream)
+//                .collect(Collectors.toSet());
+//
+//        edges.remove("null");
+//        vertices.remove("null");
+//
+//        assertThat(vertices, hasSize(13));
+//        assertThat(vertices, hasItems("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "B", "C"));
+//        assertThat(vertices, hasItem(TestGroups.ENTITY));
+//
+//        assertThat(edges, hasSize(24));
+//        assertThat(edges, hasItems("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "B", "C"));
+//        assertThat(edges, hasItems("10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"));
+//        assertThat(edges, hasItem(TestGroups.EDGE));
+//    }
+    }
+
+    @Test
+    public void checkBehaviourInGraphFrameWithNoEntities() throws OperationException {
+
+        final Graph graph = getGraph("/schema-GraphFrame/elementsWithVertexProperty.json", getElements());
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
+
+        final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
+                .view(new View.Builder()
+                        .edges(Lists.newArrayList(TestGroups.EDGE, TestGroups.EDGE_2))
+                        .build())
+                .build();
+
+        try {
+            final GraphFrame graphFrame = graph.execute(gfOperation, new User());
+
+            fail("Expected exception when the View does not contain both edges and entities.");
+        } catch (final IllegalArgumentException ex) {
+            assertThat(ex, is(instanceOf(IllegalArgumentException.class)));
+            assertThat(ex.getMessage(), containsString("Cannot create a Graphframe unless the View contains both edges and entities."));
+        }
+
+//        final Set<String> vertices = graphFrame.vertices()
+//                .javaRDD()
+//                .map(row -> Sets.newHashSet(Arrays.asList(row.mkString(",").split(","))))
+//                .collect()
+//                .stream()
+//                .flatMap(Set::stream)
+//                .collect(Collectors.toSet());
+//
+//        final Set<String> edges = graphFrame.edges()
+//                .javaRDD()
+//                .map(row -> Sets.newHashSet(Arrays.asList(row.mkString(",").split(","))))
+//                .collect()
+//                .stream()
+//                .flatMap(Set::stream)
+//                .collect(Collectors.toSet());
+//
+//        edges.remove("null");
+//        vertices.remove("null");
+//
+//        assertThat(vertices, hasSize(13));
+//        assertThat(vertices, hasItems("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "B", "C"));
+//        assertThat(vertices, hasItem(TestGroups.ENTITY));
+//
+//        assertThat(edges, hasSize(24));
+//        assertThat(edges, hasItems("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "B", "C"));
+//        assertThat(edges, hasItems("10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"));
+//        assertThat(edges, hasItem(TestGroups.EDGE));
+    }
+
+    @Test
+    public void checkGetCorrectElementsInGraphFrameWithNoElements() throws OperationException {
+
+        final Graph graph = getGraph("/schema-GraphFrame/elementsWithVertexProperty.json", new ArrayList<>());
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
+
+        final GetGraphFrameOfElements gfOperation = new GetGraphFrameOfElements.Builder()
+                .view(new View.Builder()
+                        .edges(Lists.newArrayList(TestGroups.EDGE, TestGroups.EDGE_2))
+                        .build())
+                .build();
+
+        try {
+            final GraphFrame graphFrame = graph.execute(gfOperation, new User());
+
+            fail("Expected exception when the View does not contain both edges and entities.");
+        } catch (final IllegalArgumentException ex) {
+            assertThat(ex, is(instanceOf(IllegalArgumentException.class)));
+            assertThat(ex.getMessage(), containsString("Cannot create a Graphframe unless the View contains both edges and entities."));
+        }
+
+//        final GraphFrame graphFrame = graph.execute(gfOperation, new User());
+//
+//        final Set<String> vertices = graphFrame.vertices()
+//                .javaRDD()
+//                .map(row -> Sets.newHashSet(Arrays.asList(row.mkString(",").split(","))))
+//                .collect()
+//                .stream()
+//                .flatMap(Set::stream)
+//                .collect(Collectors.toSet());
+//
+//        final Set<String> edges = graphFrame.edges()
+//                .javaRDD()
+//                .map(row -> Sets.newHashSet(Arrays.asList(row.mkString(",").split(","))))
+//                .collect()
+//                .stream()
+//                .flatMap(Set::stream)
+//                .collect(Collectors.toSet());
+//
+//        edges.remove("null");
+//        vertices.remove("null");
+//
+//        assertThat(vertices, hasSize(13));
+//        assertThat(vertices, hasItems("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "B", "C"));
+//        assertThat(vertices, hasItem(TestGroups.ENTITY));
+//
+//        assertThat(edges, hasSize(24));
+//        assertThat(edges, hasItems("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "B", "C"));
+//        assertThat(edges, hasItems("10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"));
+//        assertThat(edges, hasItem(TestGroups.EDGE));
+    }
+
+    @Test
+    public void shouldGetCorrectElementsInGraphFrameWithMatchingVertexNamesInDifferentGroups() {
+
+    }
+
+    @Test
+    public void shouldGetCorrectElementsAAAA() {
+
     }
 
     private Graph getGraph(final String elementsSchema, final List<Element> elements) throws OperationException {
