@@ -161,15 +161,13 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
         } else {
             // no numReducers set so use min and max
             try {
-                if (maxReducers != 0) {
+                numReducers = 1 + IngestUtils.createSplitsFile(store.getConnection(), store.getTableName(),
+                        FileSystem.get(job.getConfiguration()), new Path(splitsFilePath));
+                if (maxReducers != 0 && maxReducers < numReducers) {
+                    // maxReducers set and is less than the max number of reducers we want
                     numReducers = maxReducers;
-                    // maxReducers set so use it
                     IngestUtils.createSplitsFile(store.getConnection(), store.getTableName(),
                             FileSystem.get(job.getConfiguration()), new Path(splitsFilePath), numReducers - 1);
-                } else {
-                    // no maxReducers
-                    numReducers = 1 + IngestUtils.createSplitsFile(store.getConnection(), store.getTableName(),
-                            FileSystem.get(job.getConfiguration()), new Path(splitsFilePath));
                 }
             } catch (final StoreException e) {
                 throw new RuntimeException(e.getMessage(), e);
