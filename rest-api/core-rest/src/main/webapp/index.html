@@ -52,7 +52,7 @@
         <a id="logo" href="https://github.com/gchq/Gaffer"><img
                 class="logo__img" alt="swagger" height="30" width="30"
                 src="images/logo_small.png"/><span id="title"
-                                                   class="logo__title">Gaffer REST</span></a>
+                                                   class="logo__title"></span></a>
 
         <form id='api_selector'>
             <div class='input'><input placeholder="http://example.com/api"
@@ -66,7 +66,11 @@
 </div>
 
 <div id="message-bar" class="swagger-ui-wrap" data-sw-translate>&nbsp;</div>
-<div id="description" class="swagger-ui-wrap">The Gaffer REST service.</div>
+<div class="swagger-ui-wrap">
+    <p id="description"></p>
+
+    <p id="doc-url"></p>
+</div>
 <div id="swagger-ui-container" class="swagger-ui-wrap"></div>
 </body>
 </html>
