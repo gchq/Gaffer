@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 /**
  * A {@code Map} is an {@link Operation} which applies a {@link Function} to map an

@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 /**
  * A {@code FlatMap} is an {@link Operation} which takes an {@link Iterable} of {@link Iterable}s,
