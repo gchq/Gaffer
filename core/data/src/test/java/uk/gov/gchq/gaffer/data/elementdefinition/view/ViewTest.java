@@ -702,6 +702,46 @@ public class ViewTest {
     }
 
     @Test
+    public void shouldIgnoreEmptyGlobalProperties() {
+        // Given
+        final View view = new View.Builder()
+                .globalEntities(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .properties()
+                        .build())
+                .entity(TestGroups.ENTITY)
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertEquals(Sets.newHashSet(),
+                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getProperties()));
+    }
+
+    @Test
+    public void shouldIgnoreEmptyGlobalPropertiesButIncludeGroupProperties() {
+        // Given
+        final View view = new View.Builder()
+                .globalEntities(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .properties()
+                        .build())
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder().
+                        properties(TestPropertyNames.PROP_1)
+                        .build())
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertEquals(Sets.newHashSet(TestPropertyNames.PROP_1),
+                Sets.newHashSet(view.getEntity(TestGroups.ENTITY).getProperties()));
+    }
+
+    @Test
     public void shouldOverrideGlobalPropertiesWhenSpecificGroupPropertiesSet() {
         // Given
         final View view = new View.Builder()
@@ -804,6 +844,45 @@ public class ViewTest {
 
         // Then
         assertTrue(view.hasPreAggregationFilters());
+        assertEquals(Exists.class.getSimpleName(),
+                view.getEntity(TestGroups.ENTITY).getPreAggregationFilter()
+                        .getComponents().get(0).getPredicate()
+                        .getClass().getSimpleName());
+    }
+
+    @Test
+    public void shouldOverrideGlobalFiltersWhenSpecificGroupFiltersSet() {
+        // TODO check this logic, should it override or just use parent?
+        // Given
+        final ElementFilter globalFilter = new ElementFilter.Builder()
+                .select(TestPropertyNames.PROP_1)
+                .execute(new Exists())
+                .build();
+
+        final ElementFilter groupFilter = new ElementFilter.Builder()
+                .select(TestPropertyNames.PROP_1)
+                .execute(new ExampleFilterFunction())
+                .build();
+
+        final View view = new View.Builder()
+                .globalEntities(new GlobalViewElementDefinition.Builder()
+                        .groups(TestGroups.ENTITY)
+                        .preAggregationFilter(globalFilter)
+                        .build())
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .preAggregationFilter(groupFilter)
+                        .build())
+                .build();
+
+        // When
+        view.expandGlobalDefinitions();
+
+        // Then
+        assertTrue(view.hasPreAggregationFilters());
+        assertEquals(ExampleFilterFunction.class.getSimpleName(),
+                view.getEntity(TestGroups.ENTITY).getPreAggregationFilter()
+                        .getComponents().get(0).getPredicate()
+                        .getClass().getSimpleName());
     }
 
     private View createView() {
