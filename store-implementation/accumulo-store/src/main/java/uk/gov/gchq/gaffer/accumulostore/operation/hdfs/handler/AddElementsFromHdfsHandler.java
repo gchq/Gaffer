@@ -97,8 +97,11 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
             throw new IllegalArgumentException("minReduceTasks and/or maxReduceTasks should not be set if numReduceTasks is");
         }
 
-        if (null != operation.getMinReduceTasks() && null != operation.getMaxReduceTasks() && operation.getMinReduceTasks() > operation.getMaxReduceTasks()) {
-            throw new IllegalArgumentException("Minimum number of reducers must be less than the maximum number of reducers");
+        if (null != operation.getMinReduceTasks() && null != operation.getMaxReduceTasks()) {
+            LOGGER.warn("Logic for the minimum may result in more reducers than the maximum set");
+            if (operation.getMinReduceTasks() > operation.getMaxReduceTasks()) {
+                throw new IllegalArgumentException("Minimum number of reducers must be less than the maximum number of reducers");
+            }
         }
 
         if (null == operation.getSplitsFilePath()) {
