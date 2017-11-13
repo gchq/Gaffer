@@ -803,7 +803,7 @@ public class ViewTest {
     }
 
     @Test
-    public void shouldExcludePropertyFromGroupIfGloballyExcluded() {
+    public void shouldThrowExceptionWhenExcludePropertiesAndPropertiesSet() {
         // Given
         final View view = new View.Builder()
                 .globalEntities(new GlobalViewElementDefinition.Builder()
@@ -852,7 +852,6 @@ public class ViewTest {
 
     @Test
     public void shouldOverrideGlobalFiltersWhenSpecificGroupFiltersSet() {
-        // TODO check this logic, should it override or just use parent?
         // Given
         final ElementFilter globalFilter = new ElementFilter.Builder()
                 .select(TestPropertyNames.PROP_1)
@@ -879,9 +878,13 @@ public class ViewTest {
 
         // Then
         assertTrue(view.hasPreAggregationFilters());
-        assertEquals(ExampleFilterFunction.class.getSimpleName(),
+        assertEquals(Exists.class.getSimpleName(),
                 view.getEntity(TestGroups.ENTITY).getPreAggregationFilter()
                         .getComponents().get(0).getPredicate()
+                        .getClass().getSimpleName());
+        assertEquals(ExampleFilterFunction.class.getSimpleName(),
+                view.getEntity(TestGroups.ENTITY).getPreAggregationFilter()
+                        .getComponents().get(1).getPredicate()
                         .getClass().getSimpleName());
     }
 
