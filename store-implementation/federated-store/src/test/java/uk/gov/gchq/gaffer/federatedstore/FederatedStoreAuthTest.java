@@ -27,13 +27,17 @@ import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.authUser;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.blankUser;
 import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreUser.testUser;
@@ -98,6 +102,20 @@ public class FederatedStoreAuthTest {
     public void shouldNotShowHiddenGraphsInError() throws Exception {
         federatedStore.initialise(FEDERATEDSTORE_GRAPH_ID, null, federatedStoreProperties);
 
+        final String unusualType = "unusualType";
+        final String groupEnt = "ent";
+        final String groupEdge = "edg";
+        schema = new Schema.Builder()
+                .type(unusualType, String.class)
+                .entity(groupEnt, new SchemaEntityDefinition.Builder()
+                        .vertex(unusualType)
+                        .build())
+                .edge(groupEdge, new SchemaEdgeDefinition.Builder()
+                        .source(unusualType)
+                        .destination(unusualType)
+                        .build())
+                .build();
+
         federatedAddGraphHandler.doOperation(
                 new AddGraph.Builder()
                         .graphId(EXPECTED_GRAPH_ID)
@@ -120,8 +138,13 @@ public class FederatedStoreAuthTest {
                             .build(),
                     new Context(testUser),
                     federatedStore);
+            fail("exception expected");
         } catch (final OperationException e) {
             assertEquals(String.format("Error adding graph %s to storage due to: User is attempting to overwrite a graph within FederatedStore. GraphId: %s", EXPECTED_GRAPH_ID, EXPECTED_GRAPH_ID), e.getCause().getMessage());
+            String message = "error message should not contain details about schema";
+            assertFalse(message, e.getMessage().contains(unusualType));
+            assertFalse(message, e.getMessage().contains(groupEdge));
+            assertFalse(message, e.getMessage().contains(groupEnt));
         }
 
         assertTrue(federatedStore.getGraphs(testUser(), null).isEmpty());

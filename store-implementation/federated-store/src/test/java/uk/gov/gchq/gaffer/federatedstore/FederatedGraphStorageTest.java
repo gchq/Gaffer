@@ -32,6 +32,7 @@ import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -77,6 +78,9 @@ public class FederatedGraphStorageTest {
     private FederatedAccess altAccess;
     private SchemaEntityDefinition e1;
     private SchemaEntityDefinition e2;
+    private static final String UNUSUAL_TYPE = "unusualType";
+    private static final String GROUP_ENT = "ent";
+    private static final String GROUP_EDGE = "edg";
 
     @Before
     public void setUp() throws Exception {
@@ -373,10 +377,24 @@ public class FederatedGraphStorageTest {
     public void checkSchemaNotLeakedWhenOverwritingExistingGraph() throws Exception {
         // Given
         graphStorage.setGraphLibrary(Mockito.mock(GraphLibrary.class));
+        final String unusualType = "unusualType";
+        final String groupEnt = "ent";
+        final String groupEdge = "edg";
+        Schema schemaNotToBeExposed = new Schema.Builder()
+                .type(unusualType, String.class)
+                .entity(groupEnt, new SchemaEntityDefinition.Builder()
+                        .vertex(unusualType)
+                        .build())
+                .edge(groupEdge, new SchemaEdgeDefinition.Builder()
+                        .source(unusualType)
+                        .destination(unusualType)
+                        .build())
+                .build();
+
         final Graph graph1 = new Graph.Builder()
                 .config(new GraphConfig.Builder().graphId(GRAPH_ID_A).build())
                 .storeProperties(accumuloProperties)
-                .addSchema(new Schema())
+                .addSchema(schemaNotToBeExposed)
                 .build();
         graphStorage.put(graph1, access);
 
@@ -395,16 +413,36 @@ public class FederatedGraphStorageTest {
             fail(EXCEPTION_EXPECTED);
         } catch (StorageException e) {
             assertEquals("Error adding graph " + GRAPH_ID_A + " to storage due to: " + String.format(FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE, GRAPH_ID_A), e.getMessage());
+            testNotLeakingContents(e, unusualType, groupEdge, groupEnt);
+        }
+    }
+
+    private void testNotLeakingContents(final StorageException e, final String... values) {
+        String message = "error message should not contain details about schema";
+        for (String value : values) {
+            assertFalse(message, e.getMessage().contains(value));
         }
     }
 
     @Test
     public void checkSchemaNotLeakedWhenAlreadyExistsUnderDifferentAccess() throws Exception {
         // Given
+        Schema schemaNotToBeExposed = new Schema.Builder()
+                .type(UNUSUAL_TYPE, String.class)
+                .entity(GROUP_ENT, new SchemaEntityDefinition.Builder()
+                        .vertex(UNUSUAL_TYPE)
+                        .build())
+                .edge(GROUP_EDGE, new SchemaEdgeDefinition.Builder()
+                        .source(UNUSUAL_TYPE)
+                        .destination(UNUSUAL_TYPE)
+                        .build())
+                .build();
+
+
         final Graph graph1 = new Graph.Builder()
                 .config(new GraphConfig.Builder().graphId(GRAPH_ID_A).build())
                 .storeProperties(accumuloProperties)
-                .addSchema(new Schema())
+                .addSchema(schemaNotToBeExposed)
                 .build();
         graphStorage.put(graph1, access);
 
@@ -413,22 +451,38 @@ public class FederatedGraphStorageTest {
             graphStorage.put(graph1, altAccess);
         } catch (StorageException e) {
             assertEquals("Error adding graph " + GRAPH_ID_A + " to storage due to: " + String.format(FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE, GRAPH_ID_A), e.getMessage());
+            testNotLeakingContents(e, UNUSUAL_TYPE, GROUP_EDGE, GROUP_ENT);
         }
     }
 
     @Test
     public void checkSchemaNotLeakedWhenAlreadyExistsUnderDifferentAccessWithOtherGraphs() throws Exception {
         // Given
+        final String unusualType = "unusualType";
+        final String groupEnt = "ent";
+        final String groupEdge = "edg";
+        Schema schemaNotToBeExposed = new Schema.Builder()
+                .type(unusualType, String.class)
+                .entity(groupEnt, new SchemaEntityDefinition.Builder()
+                        .vertex(unusualType)
+                        .build())
+                .edge(groupEdge, new SchemaEdgeDefinition.Builder()
+                        .source(unusualType)
+                        .destination(unusualType)
+                        .build())
+                .build();
+
         final Graph graph1 = new Graph.Builder()
                 .config(new GraphConfig.Builder().graphId(GRAPH_ID_A).build())
                 .storeProperties(accumuloProperties)
-                .addSchema(new Schema())
+                .addSchema(schemaNotToBeExposed)
                 .build();
         graphStorage.put(graph1, access);
 
         final Graph graph2 = new Graph.Builder()
                 .config(new GraphConfig.Builder().graphId(GRAPH_ID_B).build())
                 .addSchema(new Schema.Builder()
+                        .merge(schemaNotToBeExposed)
                         .entity("e2", e2)
                         .type("string2", String.class)
                         .build())
@@ -441,6 +495,7 @@ public class FederatedGraphStorageTest {
             graphStorage.put(graph2, access);
         } catch (StorageException e) {
             assertEquals("Error adding graph " + GRAPH_ID_B + " to storage due to: " + String.format(FederatedGraphStorage.USER_IS_ATTEMPTING_TO_OVERWRITE, GRAPH_ID_B), e.getMessage());
+            testNotLeakingContents(e, unusualType, groupEdge, groupEnt);
         }
     }
 }
