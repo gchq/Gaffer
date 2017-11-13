@@ -150,17 +150,13 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
         final int maxReducers = validateValue(operation.getMaxReduceTasks());
         final int minReducers = validateValue(operation.getMinReduceTasks());
 
-        if (numReducers != 0) {
-            // numReducers has been set so just use it.
-            try {
+        try {
+            if (numReducers != 0) {
+                // numReducers has been set so just use it.
                 IngestUtils.createSplitsFile(store.getConnection(), store.getTableName(),
                         FileSystem.get(job.getConfiguration()), new Path(splitsFilePath), numReducers - 1);
-            } catch (final StoreException e) {
-                throw new RuntimeException(e.getMessage(), e);
-            }
-        } else {
-            // no numReducers set so use min and max
-            try {
+            } else {
+                // no numReducers set so use min and max
                 numReducers = 1 + IngestUtils.createSplitsFile(store.getConnection(), store.getTableName(),
                         FileSystem.get(job.getConfiguration()), new Path(splitsFilePath));
                 if (maxReducers != 0 && maxReducers < numReducers) {
@@ -169,21 +165,21 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
                     IngestUtils.createSplitsFile(store.getConnection(), store.getTableName(),
                             FileSystem.get(job.getConfiguration()), new Path(splitsFilePath), numReducers - 1);
                 }
-            } catch (final StoreException e) {
-                throw new RuntimeException(e.getMessage(), e);
             }
+        } catch (final StoreException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
 
-            if ((minReducers != 0)
-                    && (numReducers < minReducers)) {
-                // minReducers specified and the number of reducers is less than minReducers, set the appropriate number of subbins
-                LOGGER.info("Number of reducers is {} which is less than the specified minimum number of {}", numReducers,
-                        minReducers);
-                int factor = (minReducers / numReducers) + 1;
-                LOGGER.info("Setting number of subbins on GafferKeyRangePartitioner to {}", factor);
-                GafferKeyRangePartitioner.setNumSubBins(job, factor);
-                numReducers = numReducers * factor;
-                LOGGER.info("Number of reducers is {}", numReducers);
-            }
+        if ((minReducers != 0)
+                && (numReducers < minReducers)) {
+            // minReducers specified and the number of reducers is less than minReducers, set the appropriate number of subbins
+            LOGGER.info("Number of reducers is {} which is less than the specified minimum number of {}", numReducers,
+                    minReducers);
+            int factor = (minReducers / numReducers) + 1;
+            LOGGER.info("Setting number of subbins on GafferKeyRangePartitioner to {}", factor);
+            GafferKeyRangePartitioner.setNumSubBins(job, factor);
+            numReducers = numReducers * factor;
+            LOGGER.info("Number of reducers is {}", numReducers);
         }
 
         job.setNumReduceTasks(numReducers);
