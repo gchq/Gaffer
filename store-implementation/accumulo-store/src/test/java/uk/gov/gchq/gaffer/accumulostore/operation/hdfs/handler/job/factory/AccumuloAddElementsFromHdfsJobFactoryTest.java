@@ -115,17 +115,17 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
 
     @Test
     public void shouldSetupAccumuloPartitionerWhenSetupJobAndPartitionerFlagIsTrue() throws IOException {
-        shouldSetupAccumuloPartitionerWhenSetupJobForGivenPartitioner(GafferKeyRangePartitioner.class);
+        setupAccumuloPartitionerWithGivenPartitioner(GafferKeyRangePartitioner.class);
     }
 
     @Test
     public void shouldSetupAccumuloPartitionerWhenSetupJobAndPartitionerIsNull() throws IOException {
-        shouldSetupAccumuloPartitionerWhenSetupJobForGivenPartitioner(null);
+        setupAccumuloPartitionerWithGivenPartitioner(null);
     }
 
     @Test
     public void shouldNotSetupAccumuloPartitionerWhenSetupJobAndPartitionerFlagIsFalse() throws IOException {
-        shouldSetupAccumuloPartitionerWhenSetupJobForGivenPartitioner(NoPartitioner.class);
+        setupAccumuloPartitionerWithGivenPartitioner(NoPartitioner.class);
     }
 
     @Test
@@ -317,7 +317,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         assertTrue(job.getNumReduceTasks() <= 2000);
     }
 
-    private void shouldSetupAccumuloPartitionerWhenSetupJobForGivenPartitioner(final Class<? extends Partitioner> partitioner) throws IOException {
+    private void setupAccumuloPartitionerWithGivenPartitioner(final Class<? extends Partitioner> partitioner) throws IOException {
         // Given
         final JobConf localConf = createLocalConf();
         final FileSystem fs = FileSystem.getLocal(localConf);
