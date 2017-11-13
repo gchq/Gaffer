@@ -64,7 +64,8 @@ public abstract class AbstractSampleElementsForSplitPointsHandler<T, S extends S
                 new LimitedCloseableIterable<>(cleanElements, 0, maxSampledElements, false);
 
         final Stream<T> recordStream = process(Streams.toStream(limitedElements), typedStore);
-        final Stream<T> sortedRecordStream = sort(recordStream, typedStore);
+        final Stream<T> distinctRecordStream = recordStream.distinct();
+        final Stream<T> sortedRecordStream = sort(distinctRecordStream, typedStore);
         final List<T> records = sortedRecordStream.collect(Collectors.toList());
 
         final List<T> splits;

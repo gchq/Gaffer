@@ -145,7 +145,6 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
         // Then - no exception
     }
 
-
     @Test
     public void shouldReturnEmptyCollectionIfNumSplitsIsLessThan1() throws OperationException {
         // Given
@@ -160,6 +159,26 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
 
         // Then
         assertTrue(splits.isEmpty());
+    }
+
+    @Test
+    public void shouldDeduplicateElements() throws OperationException {
+        // Given
+        final int numSplits = 3;
+        final List<Element> elements = Collections.nCopies(10, new Entity(TestGroups.ENTITY, "vertex"));
+
+        final AbstractSampleElementsForSplitPointsHandler<?, S> handler = createHandler();
+        final SampleElementsForSplitPoints operation = new SampleElementsForSplitPoints.Builder<>()
+                .input(elements)
+                .numSplits(numSplits)
+                .build();
+
+        // When
+        final List<?> splits = handler.doOperation(operation, new Context(), createStore());
+
+        // Then
+        assertEquals(1, splits.size());
+        verifySplits(Collections.singletonList(0), elements, splits, handler);
     }
 
     @Test
