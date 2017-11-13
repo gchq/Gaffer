@@ -49,6 +49,7 @@ import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsBetweenSets
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsInRangesHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsWithinSetHandler;
+import uk.gov.gchq.gaffer.accumulostore.operation.handler.SampleElementsForSplitPointsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.SummariseGroupOverRangesHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.AddElementsFromHdfsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.ImportAccumuloKeyValueFilesHandler;
@@ -71,6 +72,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.impl.SampleElementsForSplitPoints;
 import uk.gov.gchq.gaffer.operation.impl.SplitStore;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
@@ -334,6 +336,7 @@ public class AccumuloStore extends Store {
             addOperationHandler(GetElementsBetweenSets.class, new GetElementsBetweenSetsHandler());
             addOperationHandler(GetElementsWithinSet.class, new GetElementsWithinSetHandler());
             addOperationHandler(SplitStore.class, new SplitStoreHandler());
+            addOperationHandler(SampleElementsForSplitPoints.class, new SampleElementsForSplitPointsHandler());
             addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());
             addOperationHandler(ImportAccumuloKeyValueFiles.class, new ImportAccumuloKeyValueFilesHandler());
 
