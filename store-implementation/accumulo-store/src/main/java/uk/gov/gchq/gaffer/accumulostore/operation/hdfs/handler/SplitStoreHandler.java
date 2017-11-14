@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler;
 
-import uk.gov.gchq.gaffer.hdfs.operation.handler.HdfsSplitStoreFromFileHandler;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.SplitStore;
 import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
@@ -24,7 +23,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 /**
- * @deprecated use {@link HdfsSplitStoreFromFileHandler}.
+ * @deprecated use {@link uk.gov.gchq.gaffer.hdfs.operation.handler.HdfsSplitStoreFromFileHandler}.
  */
 @Deprecated
 public class SplitStoreHandler implements OperationHandler<SplitStore> {
