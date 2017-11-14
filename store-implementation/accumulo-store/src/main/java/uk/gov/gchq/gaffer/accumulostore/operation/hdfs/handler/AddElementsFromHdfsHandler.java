@@ -105,9 +105,11 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         }
 
         if (null == operation.getSplitsFilePath()) {
-            if (null == operation.getWorkingPath()) {
-                throw new IllegalArgumentException("splitsFilePath is required");
-            }
+            throw new IllegalArgumentException("splitsFilePath is required");
+        }
+
+        if (null == operation.getWorkingPath()) {
+            throw new IllegalArgumentException("workingPath is required");
         }
     }
 
