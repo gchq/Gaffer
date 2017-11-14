@@ -41,7 +41,7 @@ public class MapHandlerTest {
     private MapHandler<Integer, Integer> handler;
     private Context context;
     private Store store;
-    private Function<Iterable<Integer>, Integer> function;
+    private Function<Iterable<? extends Integer>, Integer> function;
     private Iterable<Integer> input;
 
     @Before

@@ -33,11 +33,11 @@ import java.util.function.Function;
  * @param <O_ITEM> The object type of the output object
  */
 public class Map<I_ITEM, O_ITEM> implements
-        InputOutput<Iterable<I_ITEM>, O_ITEM> {
+        InputOutput<Iterable<? extends I_ITEM>, O_ITEM> {
 
-    private Iterable<I_ITEM> input;
+    private Iterable<? extends I_ITEM> input;
     private java.util.Map<String, String> options;
-    private Function<Iterable<I_ITEM>, O_ITEM> function;
+    private Function<Iterable<? extends I_ITEM>, O_ITEM> function;
 
     public Map() {
         // empty
@@ -63,21 +63,21 @@ public class Map<I_ITEM, O_ITEM> implements
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public Function<Iterable<I_ITEM>, O_ITEM> getFunction() {
+    public Function<Iterable<? extends I_ITEM>, O_ITEM> getFunction() {
         return function;
     }
 
-    public void setFunction(final Function<Iterable<I_ITEM>, O_ITEM> function) {
+    public void setFunction(final Function<Iterable<? extends I_ITEM>, O_ITEM> function) {
         this.function = function;
     }
 
     @Override
-    public Iterable<I_ITEM> getInput() {
+    public Iterable<? extends I_ITEM> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<I_ITEM> input) {
+    public void setInput(final Iterable<? extends I_ITEM> input) {
         this.input = input;
     }
 
@@ -88,12 +88,12 @@ public class Map<I_ITEM, O_ITEM> implements
 
     public static final class Builder<I_ITEM, O_ITEM> extends
             Operation.BaseBuilder<Map<I_ITEM, O_ITEM>, Builder<I_ITEM, O_ITEM>> implements
-            InputOutput.Builder<Map<I_ITEM, O_ITEM>, Iterable<I_ITEM>, O_ITEM, Builder<I_ITEM, O_ITEM>> {
+            InputOutput.Builder<Map<I_ITEM, O_ITEM>, Iterable<? extends I_ITEM>, O_ITEM, Builder<I_ITEM, O_ITEM>> {
         public Builder() {
             super(new Map<>());
         }
 
-        public Builder<I_ITEM, O_ITEM> function(final Function<Iterable<I_ITEM>, O_ITEM> func) {
+        public Builder<I_ITEM, O_ITEM> function(final Function<Iterable<? extends I_ITEM>, O_ITEM> func) {
             _getOp().setFunction(func);
             return _self();
         }

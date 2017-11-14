@@ -59,8 +59,8 @@ public class FlatMapHandlerTest {
     private FlatMapHandler<Integer, Integer> handler;
     private Context context;
     private Store store;
-    private Function<Iterable<Integer>, Integer> function;
-    private Iterable<Iterable<Integer>> input;
+    private Function<Iterable<? extends Integer>, Integer> function;
+    private Iterable<? extends Iterable<? extends Integer>> input;
     private FlatMap<Integer, Integer> operation;
 
     private final Edge EDGE_AB = new Edge.Builder().group(TestGroups.EDGE).source("A").dest("B").directed(true).build();
@@ -155,11 +155,11 @@ public class FlatMapHandlerTest {
         // Given
         operation = new FlatMap.Builder<Integer, Integer>()
                 .input(input)
-                .function(new NthItem<>(1))
+                .function(new NthItem<Integer>(1))
                 .build();
 
         // When
-        final Iterable<Integer> result = handler.doOperation(operation, context, store);
+        final Iterable<? extends Integer> result = handler.doOperation(operation, context, store);
 
         // Then
         assertNotNull(result);
@@ -181,14 +181,14 @@ public class FlatMapHandlerTest {
                 Sets.newHashSet(EDGE_CB));
 
         // When
-        final Iterable<Set<Edge>> results = testHandler.doOperation(flatMap, context, store);
+        final Iterable<? extends Iterable<? extends Edge>> results = testHandler.doOperation(flatMap, context, store);
 
         // Then
         assertEquals(expectedResults, results);
 
         // Given 2
         final FlatMap<Edge, Edge> flatMap1 = new FlatMap.Builder<Edge, Edge>()
-                .input(expectedResults)
+                .input(results)
                 .function(new FirstItem<>())
                 .build();
 
@@ -197,7 +197,7 @@ public class FlatMapHandlerTest {
         final Iterable<Edge> expectedResults1 = Arrays.asList(EDGE_AB, EDGE_CB);
 
         // When 2
-        final Iterable<Edge> results1 = testHandler1.doOperation(flatMap1, context, store);
+        final Iterable<? extends Edge> results1 = testHandler1.doOperation(flatMap1, context, store);
 
         // Then 2
         assertEquals(expectedResults1, results1);
@@ -234,14 +234,14 @@ public class FlatMapHandlerTest {
                 .edgeVertices(ToVertices.EdgeVertices.SOURCE)
                 .build();
 
-        final ToSet toSet = new ToSet();
+        final ToSet<Object> toSet = new ToSet<>();
 
-        final OperationChain<Set<?>> opChain = new OperationChain<>(
-                Arrays.asList(
-                        firstFlatMap,
-                        secondFlatMap,
-                        toVertices,
-                        toSet));
+        final OperationChain<Set<?>> opChain = new OperationChain.Builder()
+                .first(firstFlatMap)
+                .then(secondFlatMap)
+                .then(toVertices)
+                .then(toSet)
+                .build();
 
         final OperationChainValidator opChainValidator = mock(OperationChainValidator.class);
         final List<OperationChainOptimiser> opChainOptimisers = Collections.emptyList();

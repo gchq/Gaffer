@@ -21,8 +21,6 @@ import uk.gov.gchq.gaffer.operation.impl.FlatMap;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -34,7 +32,7 @@ import static java.util.stream.Collectors.toList;
  * @param <I_ITEM> The object type of the nested iterables
  * @param <O_ITEM> The object type of the output iterable
  */
-public class FlatMapHandler<I_ITEM, O_ITEM> implements OutputOperationHandler<FlatMap<I_ITEM, O_ITEM>, Iterable<O_ITEM>> {
+public class FlatMapHandler<I_ITEM, O_ITEM> implements OutputOperationHandler<FlatMap<I_ITEM, O_ITEM>, Iterable<? extends O_ITEM>> {
 
     /**
      * Handles the {@link FlatMap} operation. For each iterable in the input iterable, the function
@@ -47,18 +45,18 @@ public class FlatMapHandler<I_ITEM, O_ITEM> implements OutputOperationHandler<Fl
      * @throws OperationException if execution of the operation fails
      */
     @Override
-    public Iterable<O_ITEM> doOperation(final FlatMap<I_ITEM, O_ITEM> operation, final Context context, final Store store) throws OperationException {
+    public Iterable<? extends O_ITEM> doOperation(final FlatMap<I_ITEM, O_ITEM> operation, final Context context, final Store store) throws OperationException {
         if (null == operation) {
             throw new OperationException("Operation cannot be null");
         }
 
-        final Iterable<Iterable<I_ITEM>> input = operation.getInput();
+        final Iterable<? extends Iterable<? extends I_ITEM>> input = operation.getInput();
 
         if (null == input) {
             throw new OperationException("Input cannot be null");
         }
 
-        final Function<Iterable<I_ITEM>, O_ITEM> function = operation.getFunction();
+        final Function<Iterable<? extends I_ITEM>, O_ITEM> function = operation.getFunction();
 
         if (null == function) {
             throw new OperationException("Function cannot be null");

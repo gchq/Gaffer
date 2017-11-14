@@ -35,22 +35,22 @@ import java.util.function.Function;
  * @param <O_ITEM> the object type of the output iterable
  */
 public class FlatMap<I_ITEM, O_ITEM> implements
-        InputOutput<Iterable<Iterable<I_ITEM>>, Iterable<O_ITEM>> {
-    private Iterable<Iterable<I_ITEM>> input;
+        InputOutput<Iterable<? extends Iterable<? extends I_ITEM>>, Iterable<? extends O_ITEM>> {
+    private Iterable<? extends Iterable<? extends I_ITEM>> input;
     private Map<String, String> options;
-    private Function<Iterable<I_ITEM>, O_ITEM> function;
+    private Function<Iterable<? extends I_ITEM>, O_ITEM> function;
 
     public FlatMap() {
         // Empty
     }
 
     @Override
-    public Iterable<Iterable<I_ITEM>> getInput() {
+    public Iterable<? extends Iterable<? extends I_ITEM>> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<Iterable<I_ITEM>> input) {
+    public void setInput(final Iterable<? extends Iterable<? extends I_ITEM>> input) {
         this.input = input;
     }
 
@@ -74,27 +74,27 @@ public class FlatMap<I_ITEM, O_ITEM> implements
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public Function<Iterable<I_ITEM>, O_ITEM> getFunction() {
+    public Function<Iterable<? extends I_ITEM>, O_ITEM> getFunction() {
         return function;
     }
 
-    public void setFunction(final Function<Iterable<I_ITEM>, O_ITEM> function) {
+    public void setFunction(final Function<Iterable<? extends I_ITEM>, O_ITEM> function) {
         this.function = function;
     }
 
     @Override
-    public TypeReference<Iterable<O_ITEM>> getOutputTypeReference() {
-        return TypeReferenceImpl.createIterableExplicitT();
+    public TypeReference<Iterable<? extends O_ITEM>> getOutputTypeReference() {
+        return TypeReferenceImpl.createIterableT();
     }
 
     public static final class Builder<I_ITEM, O_ITEM> extends
             Operation.BaseBuilder<FlatMap<I_ITEM, O_ITEM>, Builder<I_ITEM, O_ITEM>> implements
-            InputOutput.Builder<FlatMap<I_ITEM, O_ITEM>, Iterable<Iterable<I_ITEM>>, Iterable<O_ITEM>, Builder<I_ITEM, O_ITEM>> {
+            InputOutput.Builder<FlatMap<I_ITEM, O_ITEM>, Iterable<? extends Iterable<? extends I_ITEM>>, Iterable<? extends O_ITEM>, Builder<I_ITEM, O_ITEM>> {
         public Builder() {
             super(new FlatMap<>());
         }
 
-        public Builder<I_ITEM, O_ITEM> function(final Function<Iterable<I_ITEM>, O_ITEM> func) {
+        public Builder<I_ITEM, O_ITEM> function(final Function<Iterable<? extends I_ITEM>, O_ITEM> func) {
             _getOp().setFunction(func);
             return _self();
         }
