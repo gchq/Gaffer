@@ -151,10 +151,19 @@ where:
 To apply these split points to the table, run:
 
 ```java
-SplitStore splitTable = new SplitStore.Builder()
+SplitStoreFromFile splitStore = new SplitStoreFromFile.Builder()
         .inputPath(splitsFilePath)
         .build();
-graph.execute(splitTable, new User());
+graph.execute(splitStore, new User());
+```
+
+or from an Iterable:
+
+```java
+SplitStoreFromIterable splitStore = new SplitStoreFromIterable.Builder()
+        .input(splits) // Base64 encoded strings
+        .build();
+graph.execute(splitStore, new User());
 ```
 
 **Continuous load**

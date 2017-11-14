@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.GetExport;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
-import uk.gov.gchq.gaffer.operation.impl.SplitStore;
+import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
@@ -64,7 +64,7 @@ public class AdditionalOperationsTest extends JSONSerialisationTest<AdditionalOp
     public void shouldSerialiseAndDeserialise() throws IOException {
         // When
         final AdditionalOperations original = new AdditionalOperations();
-        original.setStart(Arrays.asList(new Limit(), new SplitStore()));
+        original.setStart(Arrays.asList(new Limit(), new SplitStoreFromFile()));
         original.setEnd(Arrays.asList(new GetElements(), new GetAllElements()));
 
         final Map<String, List<Operation>> after = new HashMap<>();

@@ -55,7 +55,7 @@ public class SampleElementsForSplitPointsHandler extends AbstractSampleElementsF
         int numberTabletServers;
         try {
             numberTabletServers = store.getTabletServers().size();
-            LOGGER.debug("Number of tablet servers is {}", numberTabletServers);
+            LOGGER.debug("Number of region servers is {}", numberTabletServers);
         } catch (final StoreException e) {
             LOGGER.error("Exception thrown getting number of tablet servers: {}", e.getMessage());
             throw new RuntimeException(e.getMessage(), e);

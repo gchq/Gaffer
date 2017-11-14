@@ -51,9 +51,10 @@ import java.util.Map;
  * </p>
  * <p>
  * Depending on the Store you run this operation against there may be a limit
- * to the number of elements you are allow to include in the sample.
+ * to the number of elements you are allowed to include in the sample.
  * </p>
  *
+ * @param <T> the type of splits
  * @see SampleElementsForSplitPoints.Builder
  */
 public class SampleElementsForSplitPoints<T> implements

@@ -15,30 +15,39 @@
  */
 package uk.gov.gchq.gaffer.operation.impl;
 
-import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
 
 import java.util.Map;
 
 /**
- * The {@code SplitStore} operation is for splitting a store
- * based on a sequence file of split points.
+ * The {@code SplitStoreFromIterable} operation is for splitting a store
+ * based on an iterable of split points.
  *
- * @see SplitStore.Builder
- * @deprecated use {@link SplitStoreFromFile} instead
+ * @param <T> the type of splits
+ * @see SplitStoreFromIterable.Builder
  */
-@Deprecated
-public class SplitStore implements Operation {
-    @Required
-    private String inputPath;
+public class SplitStoreFromIterable<T> implements Operation,
+        MultiInput<T> {
+    private Iterable<? extends T> input;
     private Map<String, String> options;
 
-    public String getInputPath() {
-        return inputPath;
+    @Override
+    public SplitStoreFromIterable<T> shallowClone() {
+        return new SplitStoreFromIterable.Builder<T>()
+                .input(input)
+                .options(options)
+                .build();
     }
 
-    public void setInputPath(final String inputPath) {
-        this.inputPath = inputPath;
+    @Override
+    public Iterable<? extends T> getInput() {
+        return input;
+    }
+
+    @Override
+    public void setInput(final Iterable<? extends T> input) {
+        this.input = input;
     }
 
     @Override
@@ -51,22 +60,11 @@ public class SplitStore implements Operation {
         this.options = options;
     }
 
-    @Override
-    public SplitStore shallowClone() {
-        return new SplitStore.Builder()
-                .inputPath(inputPath)
-                .options(options)
-                .build();
-    }
 
-    public static class Builder extends Operation.BaseBuilder<SplitStore, Builder> {
+    public static class Builder<T> extends Operation.BaseBuilder<SplitStoreFromIterable<T>, Builder<T>>
+            implements MultiInput.Builder<SplitStoreFromIterable<T>, T, Builder<T>> {
         public Builder() {
-            super(new SplitStore());
-        }
-
-        public Builder inputPath(final String inputPath) {
-            _getOp().setInputPath(inputPath);
-            return _self();
+            super(new SplitStoreFromIterable<>());
         }
     }
 }

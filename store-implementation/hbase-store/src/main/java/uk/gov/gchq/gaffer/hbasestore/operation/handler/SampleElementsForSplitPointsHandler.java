@@ -63,7 +63,7 @@ public class SampleElementsForSplitPointsHandler extends AbstractSampleElementsF
         int numberRegions;
         try {
             numberRegions = store.getConnection().getAdmin().getTableRegions(store.getTableName()).size();
-            LOGGER.debug("Number of tablet servers is {}", numberRegions);
+            LOGGER.debug("Number of regions is {}", numberRegions);
         } catch (final StoreException | IOException e) {
             LOGGER.error("Exception thrown getting number of regions: {}", e.getMessage());
             throw new RuntimeException(e.getMessage(), e);
