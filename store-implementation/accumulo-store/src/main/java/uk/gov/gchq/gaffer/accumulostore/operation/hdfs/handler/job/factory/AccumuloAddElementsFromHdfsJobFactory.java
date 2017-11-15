@@ -140,33 +140,31 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
         final String splitsFilePath = operation.getSplitsFilePath();
         LOGGER.info("Creating splits file in location {} from table {}", splitsFilePath, store.getTableName());
 
-        int numReducers = validateValue(operation.getNumReduceTasks());
-        final int maxReducers = validateValue(operation.getMaxReduceTasks());
-        final int minReducers = validateValue(operation.getMinReduceTasks());
+        final int minReducers;
+        final int maxReducers;
+        int numReducers;
+        if (validateValue(operation.getNumReduceTasks()) != 0) {
+            minReducers = validateValue(operation.getNumReduceTasks());
+            maxReducers = validateValue(operation.getNumReduceTasks());
+        } else {
+            minReducers = validateValue(operation.getMinReduceTasks());
+            maxReducers = validateValue(operation.getMaxReduceTasks());
+        }
 
         try {
-            if (numReducers != 0) {
-                // numReducers has been set so just use it.
-                IngestUtils.createSplitsFile(store.getConnection(), store.getTableName(),
-                        FileSystem.get(job.getConfiguration()), new Path(splitsFilePath), numReducers - 1);
-            } else {
-                // no numReducers set so use min and max
+            numReducers = 1 + IngestUtils.createSplitsFile(store.getConnection(), store.getTableName(),
+                    FileSystem.get(job.getConfiguration()), new Path(splitsFilePath));
+            if (maxReducers != 0 && maxReducers < numReducers) {
+                // maxReducers set and Accumulo given more reducers than we want
                 numReducers = 1 + IngestUtils.createSplitsFile(store.getConnection(), store.getTableName(),
-                        FileSystem.get(job.getConfiguration()), new Path(splitsFilePath));
-                if (maxReducers != 0 && maxReducers < numReducers) {
-                    // maxReducers set and is less than the max number of reducers we want
-                    numReducers = maxReducers;
-                    IngestUtils.createSplitsFile(store.getConnection(), store.getTableName(),
-                            FileSystem.get(job.getConfiguration()), new Path(splitsFilePath), numReducers - 1);
-                }
+                        FileSystem.get(job.getConfiguration()), new Path(splitsFilePath), maxReducers - 1);
             }
         } catch (final StoreException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
 
-        if ((minReducers != 0)
-                && (numReducers < minReducers)) {
-            // minReducers specified and the number of reducers is less than minReducers, set the appropriate number of subbins
+        if (minReducers != 0 && minReducers > numReducers) {
+            // minReducers set and Accumulo given less reducers than we want, set the appropriate number of subbins
             LOGGER.info("Number of reducers is {} which is less than the specified minimum number of {}", numReducers,
                     minReducers);
             int factor = (minReducers / numReducers) + 1;
@@ -174,6 +172,14 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
             GafferKeyRangePartitioner.setNumSubBins(job, factor);
             numReducers = numReducers * factor;
             LOGGER.info("Number of reducers is {}", numReducers);
+        }
+
+        if (numReducers > maxReducers) {
+            throw new IllegalArgumentException(minReducers + " - " + maxReducers + " is not a valid range, consider increasing the maximum reducers to at least " + numReducers);
+        }
+
+        if (numReducers < minReducers) {
+            throw new IllegalArgumentException(minReducers + " - " + maxReducers + " is not a valid range, consider decreasing the minimum reducers to at least " + numReducers);
         }
 
         job.setNumReduceTasks(numReducers);

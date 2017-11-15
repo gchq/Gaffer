@@ -93,7 +93,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
             LOGGER.warn("maxMapTasks field will be ignored");
         }
 
-        if (null != operation.getNumReduceTasks() && (null != operation.getMinMapTasks() || null != operation.getMaxReduceTasks())) {
+        if (null != operation.getNumReduceTasks() && (null != operation.getMinReduceTasks() || null != operation.getMaxReduceTasks())) {
             throw new IllegalArgumentException("minReduceTasks and/or maxReduceTasks should not be set if numReduceTasks is");
         }
 
