@@ -53,7 +53,7 @@ public interface IPropertiesServiceV2 {
 
     @GET
     @Path("/{propertyName}")
-    @Produces(TEXT_PLAIN)
+    @Produces({TEXT_PLAIN, APPLICATION_JSON})
     @ApiOperation(value = "Gets the property value for the specified property name.", response = String.class, produces = TEXT_PLAIN)
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
             @ApiResponse(code = 404, message = PROPERTY_NOT_FOUND),
