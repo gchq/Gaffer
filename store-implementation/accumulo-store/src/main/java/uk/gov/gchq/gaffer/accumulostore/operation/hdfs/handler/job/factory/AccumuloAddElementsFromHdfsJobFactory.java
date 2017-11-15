@@ -174,11 +174,11 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
             LOGGER.info("Number of reducers is {}", numReducers);
         }
 
-        if (numReducers > maxReducers) {
+        if (maxReducers != 0 && numReducers > maxReducers) {
             throw new IllegalArgumentException(minReducers + " - " + maxReducers + " is not a valid range, consider increasing the maximum reducers to at least " + numReducers);
         }
 
-        if (numReducers < minReducers) {
+        if (minReducers != 0 && numReducers < minReducers) {
             throw new IllegalArgumentException(minReducers + " - " + maxReducers + " is not a valid range, consider decreasing the minimum reducers to at least " + numReducers);
         }
 
