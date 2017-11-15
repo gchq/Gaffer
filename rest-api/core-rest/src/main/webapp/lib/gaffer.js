@@ -178,12 +178,14 @@ function updateTitle(properties) {
 }
 
 function updateBanner(properties) {
-    updateElementWithId('banner', 'gaffer.properties.app.banner.description', properties, function (value, id) {
-        $('body').prepend("<div id='banner' class='banner'>" + value + "</div>")
-        updateElementWithId('banner', 'gaffer.properties.app.banner.colour', properties, function(value, id) {
-            $('#' + id).css({'background-color': value});
+    if($('#banner').length == 0){
+        updateElementWithId('banner', 'gaffer.properties.app.banner.description', properties, function (value, id) {
+            $('body').prepend("<div id='banner' class='banner'>" + value + "</div>")
+            updateElementWithId('banner', 'gaffer.properties.app.banner.colour', properties, function(value, id) {
+                $('#' + id).css({'background-color': value});
+            });
         });
-    });
+    }
 }
 
 function updateDescription(properties) {
