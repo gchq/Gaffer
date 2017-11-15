@@ -61,7 +61,7 @@ public class RoadTrafficDataLoader {
         load(() -> {
             try {
                 return new FileReader(dataFile);
-            } catch (FileNotFoundException e) {
+            } catch (final FileNotFoundException e) {
                 throw new RuntimeException("Unable to load data from file: " + dataFile.getPath());
             }
         });
@@ -71,7 +71,7 @@ public class RoadTrafficDataLoader {
         final SuppliedIterable<CSVRecord> csvIterable = new SuppliedIterable<>(() -> {
             try {
                 return new CSVParser(readerSupplier.get(), CSVFormat.DEFAULT.withFirstRecordAsHeader());
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new RuntimeException("Unable to load csv data", e);
             }
         });
