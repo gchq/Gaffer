@@ -163,7 +163,7 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
             throw new RuntimeException(e.getMessage(), e);
         }
 
-        if (minReducers != 0 && minReducers > numReducers) {
+        if (minReducers != 0 && numReducers < minReducers) {
             // minReducers set and Accumulo given less reducers than we want, set the appropriate number of subbins
             LOGGER.info("Number of reducers is {} which is less than the specified minimum number of {}", numReducers,
                     minReducers);
@@ -176,10 +176,6 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
 
         if (maxReducers != 0 && numReducers > maxReducers) {
             throw new IllegalArgumentException(minReducers + " - " + maxReducers + " is not a valid range, consider increasing the maximum reducers to at least " + numReducers);
-        }
-
-        if (minReducers != 0 && numReducers < minReducers) {
-            throw new IllegalArgumentException(minReducers + " - " + maxReducers + " is not a valid range, consider decreasing the minimum reducers to at least " + numReducers);
         }
 
         job.setNumReduceTasks(numReducers);
