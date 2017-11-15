@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.operation.impl;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
@@ -25,27 +24,31 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 import java.util.function.Function;
 
-/**
- * A {@code Map} is an {@link Operation} which applies a {@link Function} to map an
- * input {@link Iterable} to an output object
- *
- * @param <I_ITEM> The object type of the input iterable
- * @param <O_ITEM> The object type of the output object
- */
-public class Map<I_ITEM, O_ITEM> implements
-        InputOutput<Iterable<? extends I_ITEM>, O_ITEM> {
+public class Map<I, O> implements InputOutput<I, O> {
 
-    private Iterable<? extends I_ITEM> input;
+    private I input;
     private java.util.Map<String, String> options;
-    private Function<Iterable<? extends I_ITEM>, O_ITEM> function;
+    private Function<I, O> function;
 
-    public Map() {
-        // empty
+
+    @Override
+    public I getInput() {
+        return input;
     }
 
     @Override
-    public Map<I_ITEM, O_ITEM> shallowClone() throws CloneFailedException {
-        return new Map.Builder<I_ITEM, O_ITEM>()
+    public void setInput(final I input) {
+        this.input = input;
+    }
+
+    @Override
+    public TypeReference<O> getOutputTypeReference() {
+        return TypeReferenceImpl.createExplicitT();
+    }
+
+    @Override
+    public Operation shallowClone() throws CloneFailedException {
+        return new Map.Builder<I, O>()
                 .input(input)
                 .options(options)
                 .function(function)
@@ -62,38 +65,20 @@ public class Map<I_ITEM, O_ITEM> implements
         this.options = options;
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public Function<Iterable<? extends I_ITEM>, O_ITEM> getFunction() {
+    public Function<I, O> getFunction() {
         return function;
     }
 
-    public void setFunction(final Function<Iterable<? extends I_ITEM>, O_ITEM> function) {
+    public void setFunction(final Function<I, O> function) {
         this.function = function;
     }
 
-    @Override
-    public Iterable<? extends I_ITEM> getInput() {
-        return input;
-    }
+    public static final class Builder<I, O> extends
+            Operation.BaseBuilder<Map<I, O>, Builder<I, O>> implements
+            InputOutput.Builder<Map<I, O>, I, O, Builder<I, O>> {
+        public Builder() { super(new Map<>()); }
 
-    @Override
-    public void setInput(final Iterable<? extends I_ITEM> input) {
-        this.input = input;
-    }
-
-    @Override
-    public TypeReference<O_ITEM> getOutputTypeReference() {
-        return TypeReferenceImpl.createExplicitT();
-    }
-
-    public static final class Builder<I_ITEM, O_ITEM> extends
-            Operation.BaseBuilder<Map<I_ITEM, O_ITEM>, Builder<I_ITEM, O_ITEM>> implements
-            InputOutput.Builder<Map<I_ITEM, O_ITEM>, Iterable<? extends I_ITEM>, O_ITEM, Builder<I_ITEM, O_ITEM>> {
-        public Builder() {
-            super(new Map<>());
-        }
-
-        public Builder<I_ITEM, O_ITEM> function(final Function<Iterable<? extends I_ITEM>, O_ITEM> func) {
+        public Builder<I, O> function(final Function<I, O> func) {
             _getOp().setFunction(func);
             return _self();
         }

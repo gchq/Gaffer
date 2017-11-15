@@ -25,10 +25,10 @@ import java.util.function.Function;
 /**
  * A {@code MapHandler} is a handler for the {@link Map} {@link uk.gov.gchq.gaffer.operation.Operation}
  *
- * @param <I_ITEM> The object type of the input iterable
- * @param <O_ITEM> The object type of the output object
+ * @param <I> The object type of the input object
+ * @param <O> The object type of the output object
  */
-public class MapHandler<I_ITEM, O_ITEM> implements OutputOperationHandler<Map<I_ITEM, O_ITEM>, O_ITEM> {
+public class MapHandler<I, O> implements OutputOperationHandler<Map<I, O>, O> {
 
     /**
      * Handles the {@link Map} operation. Applies the function contained within the Map operation
@@ -41,18 +41,18 @@ public class MapHandler<I_ITEM, O_ITEM> implements OutputOperationHandler<Map<I_
      * @throws OperationException if execution of the operation fails
      */
     @Override
-    public O_ITEM doOperation(final Map<I_ITEM, O_ITEM> operation, final Context context, final Store store) throws OperationException {
+    public O doOperation(final Map<I, O> operation, final Context context, final Store store) throws OperationException {
         if (null == operation) {
             throw new OperationException("Operation cannot be null");
         }
 
-        final Iterable<? extends I_ITEM> input = operation.getInput();
+        final I input = operation.getInput();
 
         if (null == input) {
             throw new OperationException("Input cannot be null");
         }
 
-        final Function<Iterable<? extends I_ITEM>, O_ITEM> function = operation.getFunction();
+        final Function<I, O> function = operation.getFunction();
 
         if (null == function) {
             throw new OperationException("Function cannot be null");

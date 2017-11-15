@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
@@ -121,8 +122,10 @@ public class FlatMapHandlerTest {
     @Test
     public void shouldHandleNullInput() {
         // Given
+        final Iterable<? extends Iterable<? extends Integer>> input = null;
+
         operation = new FlatMap.Builder<Integer, Integer>()
-                .input(null)
+                .input(input)
                 .function(function)
                 .build();
 
@@ -184,7 +187,7 @@ public class FlatMapHandlerTest {
         final Iterable<? extends Iterable<? extends Edge>> results = testHandler.doOperation(flatMap, context, store);
 
         // Then
-        assertEquals(expectedResults, results);
+        assertEquals(expectedResults, Lists.newArrayList(results));
 
         // Given 2
         final FlatMap<Edge, Edge> flatMap1 = new FlatMap.Builder<Edge, Edge>()
@@ -200,7 +203,7 @@ public class FlatMapHandlerTest {
         final Iterable<? extends Edge> results1 = testHandler1.doOperation(flatMap1, context, store);
 
         // Then 2
-        assertEquals(expectedResults1, results1);
+        assertEquals(expectedResults1, Lists.newArrayList(results1));
 
         // Given / When 3
         final Iterable<? extends Object> vertices = new ToVerticesHandler()

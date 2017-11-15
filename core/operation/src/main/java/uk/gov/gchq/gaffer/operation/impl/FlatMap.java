@@ -19,8 +19,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 import java.util.Map;
@@ -35,9 +37,11 @@ import java.util.function.Function;
  * @param <O_ITEM> the object type of the output iterable
  */
 public class FlatMap<I_ITEM, O_ITEM> implements
-        InputOutput<Iterable<? extends Iterable<? extends I_ITEM>>, Iterable<? extends O_ITEM>> {
+        InputOutput<Iterable<? extends Iterable<? extends I_ITEM>>, Iterable<? extends O_ITEM>>,
+        MultiInput<Iterable<? extends I_ITEM>> {
     private Iterable<? extends Iterable<? extends I_ITEM>> input;
     private Map<String, String> options;
+    @Required
     private Function<Iterable<? extends I_ITEM>, O_ITEM> function;
 
     public FlatMap() {
@@ -89,7 +93,8 @@ public class FlatMap<I_ITEM, O_ITEM> implements
 
     public static final class Builder<I_ITEM, O_ITEM> extends
             Operation.BaseBuilder<FlatMap<I_ITEM, O_ITEM>, Builder<I_ITEM, O_ITEM>> implements
-            InputOutput.Builder<FlatMap<I_ITEM, O_ITEM>, Iterable<? extends Iterable<? extends I_ITEM>>, Iterable<? extends O_ITEM>, Builder<I_ITEM, O_ITEM>> {
+            InputOutput.Builder<FlatMap<I_ITEM, O_ITEM>, Iterable<? extends Iterable<? extends I_ITEM>>, Iterable<? extends O_ITEM>, Builder<I_ITEM, O_ITEM>>,
+            MultiInput.Builder<FlatMap<I_ITEM, O_ITEM>, Iterable<? extends I_ITEM>, Builder<I_ITEM, O_ITEM>> {
         public Builder() {
             super(new FlatMap<>());
         }
