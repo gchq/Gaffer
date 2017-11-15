@@ -28,10 +28,18 @@ import java.util.List;
  */
 public class SimpleAdjacencyMaps<T, U> implements AdjacencyMaps<T, U> {
 
+    /**
+     * The backing list.
+     */
     private final List<AdjacencyMap<T, U>> adjacencyMaps = new ArrayList<>();
 
     @Override
     public List<AdjacencyMap<T, U>> asList() {
         return adjacencyMaps;
+    }
+
+    @Override
+    public String toString() {
+        return prettyPrint();
     }
 }

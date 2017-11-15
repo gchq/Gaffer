@@ -21,17 +21,21 @@ import com.google.common.collect.Sets;
 
 import java.util.Collections;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * An {@code AdjacencyMap} is used to store the contents of a graph in memory in
  * a format which can easily be interrogated.
  *
- * @param <T> the type of object representing the vertices
- * @param <U> the type of object representing the edges
+ * @param <V> the type of object representing the vertices
+ * @param <E> the type of object representing the edges
  */
-public class AdjacencyMap<T, U> {
+public class AdjacencyMap<V, E> {
 
-    private final HashBasedTable<T, T, Set<U>> graph = HashBasedTable.create();
+    /**
+     * Backing object used to store the AdjacencyMap representation.
+     */
+    private final HashBasedTable<V, V, Set<E>> graph = HashBasedTable.create();
 
     /**
      * Get the entries in the AdjacencyMap which match the provided source and
@@ -39,11 +43,10 @@ public class AdjacencyMap<T, U> {
      *
      * @param source      the source vertex
      * @param destination the destination vertex
-     *
      * @return the {@link Set} of edge objects relating to the specified
      * vertices
      */
-    public Set<U> get(final T source, final T destination) {
+    public Set<E> get(final V source, final V destination) {
         return graph.get(source, destination);
     }
 
@@ -54,10 +57,9 @@ public class AdjacencyMap<T, U> {
      * @param destination the destination vertex
      * @param set         the {@link Set} of edge objects to associate with the
      *                    specified pair of vertices.
-     *
      * @return the added edge objects
      */
-    public Set<U> put(final T source, final T destination, final Set<U> set) {
+    public Set<E> put(final V source, final V destination, final Set<E> set) {
         return graph.put(source, destination, set);
     }
 
@@ -67,14 +69,13 @@ public class AdjacencyMap<T, U> {
      * @param source      the source vertex
      * @param destination the destination vertex
      * @param edge        the edge to add
-     *
      * @return the {@link Set} containing the edge objects associated with the
      * source and destination vertices
      */
-    public Set<U> put(final T source, final T destination, final U edge) {
-        final Set<U> existing = graph.get(source, destination);
+    public Set<E> put(final V source, final V destination, final E edge) {
+        final Set<E> existing = graph.get(source, destination);
         if (null == existing) {
-            final Set<U> set = Sets.newHashSet(edge);
+            final Set<E> set = Sets.newHashSet(edge);
             return graph.put(source, destination, set);
         } else {
             existing.add(edge);
@@ -87,10 +88,9 @@ public class AdjacencyMap<T, U> {
      * that source.
      *
      * @param source the source vertex
-     *
      * @return a {@link Set} of the destination vertices
      */
-    public Set<T> getDestinations(final T source) {
+    public Set<V> getDestinations(final V source) {
         return Collections.unmodifiableSet(graph.row(source).keySet());
     }
 
@@ -99,10 +99,9 @@ public class AdjacencyMap<T, U> {
      * that destination.
      *
      * @param destination the destination vertex
-     *
      * @return a {@link Set} of the source vertices
      */
-    public Set<T> getSources(final T destination) {
+    public Set<V> getSources(final V destination) {
         return Collections.unmodifiableSet(graph.column(destination).keySet());
     }
 
@@ -111,7 +110,7 @@ public class AdjacencyMap<T, U> {
      *
      * @return an immutable set containing the source vertices
      */
-    public Set<T> getAllSources() {
+    public Set<V> getAllSources() {
         return Collections.unmodifiableSet(graph.rowKeySet());
     }
 
@@ -120,14 +119,31 @@ public class AdjacencyMap<T, U> {
      *
      * @return an immutable set containing the destination vertices
      */
-    public Set<T> getAllDestinations() {
+    public Set<V> getAllDestinations() {
         return Collections.unmodifiableSet(graph.columnKeySet());
     }
 
-    public void removeAllWithDestination(final T destination) {
-        final Set<T> set = graph.column(destination).keySet();
-        for (final T t : set) {
-            graph.remove(t, destination);
+    /**
+     * Given a vertex, remove all entries in the AdjacencyMap which have this vertex
+     * as a destination.
+     *
+     * @param destination the destination vertex
+     */
+    public void removeAllWithDestination(final V destination) {
+        final Set<V> set = graph.column(destination).keySet();
+        for (final V v : set) {
+            graph.remove(v, destination);
         }
+    }
+
+    public String toStringFull() {
+        return super.toString() + '[' + toString() + ']';
+    }
+
+    @Override
+    public String toString() {
+        return getAllSources().stream()
+                .map(s -> s.toString() + "->" + getDestinations(s))
+                .collect(Collectors.joining(", ", "{", "}"));
     }
 }

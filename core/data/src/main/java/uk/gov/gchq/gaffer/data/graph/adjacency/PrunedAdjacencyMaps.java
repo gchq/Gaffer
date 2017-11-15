@@ -35,6 +35,9 @@ import java.util.Set;
  */
 public class PrunedAdjacencyMaps<T, U> implements AdjacencyMaps<T, U> {
 
+    /**
+     * The backing list.
+     */
     private final List<AdjacencyMap<T, U>> adjacencyMaps = new ArrayList<>();
 
     @Override
@@ -43,24 +46,40 @@ public class PrunedAdjacencyMaps<T, U> implements AdjacencyMaps<T, U> {
         adjacencyMaps.add(adjacencyMap);
     }
 
-    private void removeOrphans(final List<AdjacencyMap<T, U>> maps, final AdjacencyMap<T, U> adjacencyMap) {
+    /**
+     * Remove orphaned edges from the AdjacencyMap.
+     *
+     * An orphaned edge is one which does not form part of a walk which reaches
+     * a destination vertex in the "topmost" adjacency map under consideration.
+     *
+     * This method will recursively process all maps in the provided adjacency map
+     * list.
+     *
+     * @param maps the list of adjacency maps being considered
+     * @param curr the "topmost" adjacency map under consideration
+     */
+    private void removeOrphans(final List<AdjacencyMap<T, U>> maps, final AdjacencyMap<T, U> curr) {
         if (!maps.isEmpty()) {
             final AdjacencyMap<T, U> prev = maps.get(maps.size() - 1);
 
             final Set<T> prevDestinations = prev.getAllDestinations();
 
-            final List<T> nodesToRemove = new ArrayList<>();
+            final List<T> verticesToRemove = new ArrayList<>();
 
+            // Build up the list of destination vertices in the previous map which
+            // do not connect to any source vertices in the current map
             for (final T dest : prevDestinations) {
-                if (!adjacencyMap.getAllSources().contains(dest)) {
-                    nodesToRemove.add(dest);
+                if (!curr.getAllSources().contains(dest)) {
+                    verticesToRemove.add(dest);
                 }
             }
 
-            for (final T dest : nodesToRemove) {
+            // Remove all orphaned vertices
+            for (final T dest : verticesToRemove) {
                 prev.removeAllWithDestination(dest);
             }
 
+            // Recursively call this method
             removeOrphans(maps.subList(0, maps.size() - 1), prev);
         }
     }
@@ -68,5 +87,10 @@ public class PrunedAdjacencyMaps<T, U> implements AdjacencyMaps<T, U> {
     @Override
     public List<AdjacencyMap<T, U>> asList() {
         return adjacencyMaps;
+    }
+
+    @Override
+    public String toString() {
+        return prettyPrint();
     }
 }

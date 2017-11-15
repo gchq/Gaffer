@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.data.graph.adjacency;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -59,6 +60,16 @@ public interface AdjacencyMaps<T, U> extends Iterable<AdjacencyMap<T, U>> {
      */
     default int size() {
         return asList().size();
+    }
+
+    /**
+     * Print the {@code AdjacencyMaps} object in an easily readable format.
+     *
+     * @return a prettily printed {@link String} representation of the AdjacencyMap
+     * object.
+     */
+    default String prettyPrint() {
+        return this.getClass().getName() + '@' + Integer.toHexString(this.hashCode()) + Arrays.toString(asList().toArray());
     }
 
     @Override
