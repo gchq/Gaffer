@@ -122,18 +122,23 @@ public class OperationServiceV2 implements IOperationServiceV2 {
                 LOGGER.info("Class: {} was found on the classpath, but is not supported by the current store.", className);
                 return Response.status(NOT_FOUND)
                         .entity(new Error.ErrorBuilder()
-                                .status(Status.NOT_FOUND)
-                                .statusCode(404)
-                                .simpleMessage("Class: " + className + " is not supported by the current store.")
-                                .detailMessage("Class: " + className + " was found on the classpath," +
+                                    .status(Status.NOT_FOUND)
+                                    .statusCode(404)
+                                    .simpleMessage("Class: " + className + " is not supported by the current store.")
+                                    .detailMessage("Class: " + className + " was found on the classpath," +
                                         "but is not supported by the current store.")
-                                .build())
+                                    .build())
                         .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                         .build();
             }
         } catch (final ClassNotFoundException e) {
             LOGGER.info("Class: {} was not found on the classpath.", className, e);
             return Response.status(NOT_FOUND)
+                    .entity(new Error.ErrorBuilder()
+                                .status(Status.NOT_FOUND)
+                                .statusCode(404)
+                                .simpleMessage("Class: " + className + " was not found on the classpath.")
+                                .build())
                     .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                     .build();
         }
