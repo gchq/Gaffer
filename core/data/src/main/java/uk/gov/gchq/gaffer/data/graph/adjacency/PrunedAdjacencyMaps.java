@@ -30,18 +30,18 @@ import java.util.Set;
  * source vertex in the new map are deemed to be orphaned paths, and are
  * removed.
  *
- * @param <T> the type of object representing the vertices
- * @param <U> the type of object representing the edges
+ * @param <V> the type of object representing the vertices
+ * @param <E> the type of object representing the edges
  */
-public class PrunedAdjacencyMaps<T, U> implements AdjacencyMaps<T, U> {
+public class PrunedAdjacencyMaps<V, E> implements AdjacencyMaps<V, E> {
 
     /**
      * The backing list.
      */
-    private final List<AdjacencyMap<T, U>> adjacencyMaps = new ArrayList<>();
+    private final List<AdjacencyMap<V, E>> adjacencyMaps = new ArrayList<>();
 
     @Override
-    public void add(final AdjacencyMap<T, U> adjacencyMap) {
+    public void add(final AdjacencyMap<V, E> adjacencyMap) {
         removeOrphans(adjacencyMaps, adjacencyMap);
         adjacencyMaps.add(adjacencyMap);
     }
@@ -58,24 +58,24 @@ public class PrunedAdjacencyMaps<T, U> implements AdjacencyMaps<T, U> {
      * @param maps the list of adjacency maps being considered
      * @param curr the "topmost" adjacency map under consideration
      */
-    private void removeOrphans(final List<AdjacencyMap<T, U>> maps, final AdjacencyMap<T, U> curr) {
+    private void removeOrphans(final List<AdjacencyMap<V, E>> maps, final AdjacencyMap<V, E> curr) {
         if (!maps.isEmpty()) {
-            final AdjacencyMap<T, U> prev = maps.get(maps.size() - 1);
+            final AdjacencyMap<V, E> prev = maps.get(maps.size() - 1);
 
-            final Set<T> prevDestinations = prev.getAllDestinations();
+            final Set<V> prevDestinations = prev.getAllDestinations();
 
-            final List<T> verticesToRemove = new ArrayList<>();
+            final List<V> verticesToRemove = new ArrayList<>();
 
             // Build up the list of destination vertices in the previous map which
             // do not connect to any source vertices in the current map
-            for (final T dest : prevDestinations) {
+            for (final V dest : prevDestinations) {
                 if (!curr.getAllSources().contains(dest)) {
                     verticesToRemove.add(dest);
                 }
             }
 
             // Remove all orphaned vertices
-            for (final T dest : verticesToRemove) {
+            for (final V dest : verticesToRemove) {
                 prev.removeAllWithDestination(dest);
             }
 
@@ -85,7 +85,7 @@ public class PrunedAdjacencyMaps<T, U> implements AdjacencyMaps<T, U> {
     }
 
     @Override
-    public List<AdjacencyMap<T, U>> asList() {
+    public List<AdjacencyMap<V, E>> asList() {
         return adjacencyMaps;
     }
 

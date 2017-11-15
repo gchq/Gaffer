@@ -25,17 +25,17 @@ import java.util.List;
  * objects and can be used to represent the changes in an AdjacencyMap over time
  * or to track the adjacency components of a graph over some other metric.
  *
- * @param <T> the type of object representing the vertices
- * @param <U> the type of object representing the edges
+ * @param <V> the type of object representing the vertices
+ * @param <E> the type of object representing the edges
  */
-public interface AdjacencyMaps<T, U> extends Iterable<AdjacencyMap<T, U>> {
+public interface AdjacencyMaps<V, E> extends Iterable<AdjacencyMap<V, E>> {
 
     /**
      * Add a new {@link AdjacencyMap}.
      *
      * @param adjacencyMap the AdjacencyMap to add
      */
-    default void add(final AdjacencyMap<T, U> adjacencyMap) {
+    default void add(final AdjacencyMap<V, E> adjacencyMap) {
         asList().add(adjacencyMap);
     }
 
@@ -45,7 +45,7 @@ public interface AdjacencyMaps<T, U> extends Iterable<AdjacencyMap<T, U>> {
      * @param n the index of the adjacency map to retrieve
      * @return the nth AdjacencyMap
      */
-    default AdjacencyMap<T, U> get(final int n) {
+    default AdjacencyMap<V, E> get(final int n) {
         return asList().get(n);
     }
 
@@ -73,7 +73,7 @@ public interface AdjacencyMaps<T, U> extends Iterable<AdjacencyMap<T, U>> {
     }
 
     @Override
-    default Iterator<AdjacencyMap<T, U>> iterator() {
+    default Iterator<AdjacencyMap<V, E>> iterator() {
         return asList().iterator();
     }
 
@@ -83,5 +83,5 @@ public interface AdjacencyMaps<T, U> extends Iterable<AdjacencyMap<T, U>> {
      *
      * @return a {@link List} representation of the current AdjacencyMaps object
      */
-    List<AdjacencyMap<T, U>> asList();
+    List<AdjacencyMap<V, E>> asList();
 }

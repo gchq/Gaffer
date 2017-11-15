@@ -23,18 +23,18 @@ import java.util.List;
  * A {@code SimpleAdjacencyMaps} object represents a collection of {@link
  * AdjacencyMap}s containing graph adjacency information.
  *
- * @param <T> the type of object representing the vertices
- * @param <U> the type of object representing the edges
+ * @param <V> the type of object representing the vertices
+ * @param <E> the type of object representing the edges
  */
-public class SimpleAdjacencyMaps<T, U> implements AdjacencyMaps<T, U> {
+public class SimpleAdjacencyMaps<V, E> implements AdjacencyMaps<V, E> {
 
     /**
      * The backing list.
      */
-    private final List<AdjacencyMap<T, U>> adjacencyMaps = new ArrayList<>();
+    private final List<AdjacencyMap<V, E>> adjacencyMaps = new ArrayList<>();
 
     @Override
-    public List<AdjacencyMap<T, U>> asList() {
+    public List<AdjacencyMap<V, E>> asList() {
         return adjacencyMaps;
     }
 
