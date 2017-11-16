@@ -119,6 +119,7 @@
                     <groupId>javax.servlet</groupId>
                     <artifactId>servlet-api</artifactId>
                 </exclusion>
+                <!-- The hdfs library includes org.apache.hadoop.hdfs.web.resources.UserProvider class that has a strong dependency on Jersey 1.x -->
                 <exclusion>
                     <groupId>org.apache.hadoop</groupId>
                     <artifactId>hadoop-hdfs</artifactId>
