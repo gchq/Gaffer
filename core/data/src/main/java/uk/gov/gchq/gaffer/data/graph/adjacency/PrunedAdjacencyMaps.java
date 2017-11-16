@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.data.graph.adjacency;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A {@code PrunedAdjacencyMaps} object represents a collection of {@link
@@ -61,11 +62,13 @@ public class PrunedAdjacencyMaps<V, E> implements AdjacencyMaps<V, E> {
         if (!maps.isEmpty()) {
             final AdjacencyMap<V, E> prev = maps.get(maps.size() - 1);
 
+            final Set<V> prevDestinations = prev.getAllDestinations();
+
             final List<V> verticesToRemove = new ArrayList<>();
 
             // Build up the list of destination vertices in the previous map which
             // do not connect to any source vertices in the current map
-            for (final V dest : prev.getAllDestinations()) {
+            for (final V dest : prevDestinations) {
                 if (!curr.containsSource(dest)) {
                     verticesToRemove.add(dest);
                 }

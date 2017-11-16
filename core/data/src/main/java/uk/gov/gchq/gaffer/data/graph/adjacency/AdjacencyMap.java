@@ -130,9 +130,9 @@ public class AdjacencyMap<V, E> {
      * @param destination the destination vertex
      */
     public void removeAllWithDestination(final V destination) {
-        graph.column(destination)
-                .keySet()
-                .forEach(v -> graph.remove(v, destination));
+        for (final V v : getAllDestinations()) {
+            graph.remove(v, destination);
+        }
     }
 
     /**
