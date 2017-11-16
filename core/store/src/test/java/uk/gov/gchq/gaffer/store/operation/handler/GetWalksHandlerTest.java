@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.store.operation.handler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;

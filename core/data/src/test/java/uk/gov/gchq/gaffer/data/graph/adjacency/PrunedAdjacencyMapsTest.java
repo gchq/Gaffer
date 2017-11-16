@@ -16,14 +16,10 @@
 
 package uk.gov.gchq.gaffer.data.graph.adjacency;
 
-import org.hamcrest.collection.IsCollectionWithSize;
-import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.IsCollectionWithSize.*;
-import static org.hamcrest.core.IsCollectionContaining.hasItem;
-import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 
 public class PrunedAdjacencyMapsTest {
 

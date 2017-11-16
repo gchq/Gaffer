@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.data.graph.adjacency;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * A {@code PrunedAdjacencyMaps} object represents a collection of {@link
