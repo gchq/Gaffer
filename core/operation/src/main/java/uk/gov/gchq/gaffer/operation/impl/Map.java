@@ -15,9 +15,11 @@
  */
 package uk.gov.gchq.gaffer.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
@@ -28,8 +30,12 @@ public class Map<I, O> implements InputOutput<I, O> {
 
     private I input;
     private java.util.Map<String, String> options;
+    @Required
     private Function<I, O> function;
 
+    public Map() {
+        // Empty
+    }
 
     @Override
     public I getInput() {
@@ -65,6 +71,7 @@ public class Map<I, O> implements InputOutput<I, O> {
         this.options = options;
     }
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     public Function<I, O> getFunction() {
         return function;
     }

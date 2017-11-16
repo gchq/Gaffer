@@ -18,9 +18,9 @@ package uk.gov.gchq.gaffer.commonutil.iterable;
 import java.util.Iterator;
 import java.util.function.Function;
 
-public class LazyFunctionIterator<I_ITEM, O_ITEM> {
+public class IterableUtil {
 
-    public Iterable<? extends O_ITEM> applyFunction(final Iterable<? extends I_ITEM> input, final Function<I_ITEM, O_ITEM> function) {
+    public static <I_ITEM, O_ITEM> Iterable<O_ITEM> applyFunction(final Iterable<I_ITEM> input, final Function<I_ITEM, O_ITEM> function) {
         return () -> new Iterator<O_ITEM>() {
             Iterator<? extends I_ITEM> iterator = input.iterator();
             @Override
@@ -34,5 +34,4 @@ public class LazyFunctionIterator<I_ITEM, O_ITEM> {
             }
         };
     }
-
 }

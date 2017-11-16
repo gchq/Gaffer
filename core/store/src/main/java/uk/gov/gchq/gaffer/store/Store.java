@@ -84,7 +84,6 @@ import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DiscardOutputHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.FlatMapHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetSchemaHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetWalksHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.LimitHandler;
@@ -812,7 +811,6 @@ public abstract class Store {
         addOperationHandler(DiscardOutput.class, new DiscardOutputHandler());
         addOperationHandler(GetSchema.class, new GetSchemaHandler());
         addOperationHandler(uk.gov.gchq.gaffer.operation.impl.Map.class, new MapHandler());
-        addOperationHandler(uk.gov.gchq.gaffer.operation.impl.FlatMap.class, new FlatMapHandler());
 
         // Function
         addOperationHandler(Filter.class, new FilterHandler());
