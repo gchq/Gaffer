@@ -130,10 +130,31 @@ public class AdjacencyMap<V, E> {
      * @param destination the destination vertex
      */
     public void removeAllWithDestination(final V destination) {
-        final Set<V> set = graph.column(destination).keySet();
-        for (final V v : set) {
-            graph.remove(v, destination);
-        }
+        graph.column(destination)
+                .keySet()
+                .forEach(v -> graph.remove(v, destination));
+    }
+
+    /**
+     * Determines whether this AdjacencyMap contains the specified source vertex.
+     *
+     * @param source the source vertex to query for
+     * @return {@code true} if the adjacency map contains the source, otherwise
+     * {@code false}
+     */
+    public boolean containsSource(final V source) {
+        return graph.rowKeySet().contains(source);
+    }
+
+    /**
+     * Determines whether this AdjacencyMap contains the specified destination vertex.
+     *
+     * @param destination the source vertex to query for
+     * @return {@code true} if the adjacency map contains the destination, otherwise
+     * {@code false}
+     */
+    public boolean containsDestination(final V destination) {
+        return graph.columnKeySet().contains(destination);
     }
 
     public String toStringFull() {
@@ -142,7 +163,7 @@ public class AdjacencyMap<V, E> {
 
     @Override
     public String toString() {
-        return getAllSources().stream()
+        return graph.rowKeySet().stream()
                 .map(s -> s.toString() + "->" + getDestinations(s))
                 .collect(Collectors.joining(", ", "{", "}"));
     }

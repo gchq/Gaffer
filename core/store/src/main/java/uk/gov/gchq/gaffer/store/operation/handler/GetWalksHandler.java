@@ -50,10 +50,34 @@ import java.util.stream.Collectors;
 /**
  * An operation handler for {@link GetWalks} operations.
  *
- * Currently the handler only supports creating {@link Walk}s which contain {@link Edge}s.
+ * The handler executes each {@link GetElements} operation in the parent GetWalks
+ * operation in turn and incrementally creates an in-memory representation of the
+ * resulting graph. Once all GetElements operations have been executed, a recursive
+ * depth-first search algorithm is used to construct all of the {@link Walk}s that
+ * exist in the temporary graph.
+ *
+ * The default handler has two settings which can be overridden by system administrators:
+ * <ul>
+ *     <li>maxHops - prevent users from executing GetWalks operations that contain
+ *     more than a set number of hops.</li>
+ *     <li>prune - toggle pruning for the in-memory graph representation. Enabling
+ *     pruning instructs the in-memory graph representation to discard any edges
+ *     from the previous GetElements operation which do not join up with any edges
+ *     in the current GetElements operation (orphaned edges). This reduces the memory
+ *     footprint of the in-memory graph representation, but requires some additional
+ *     processing while constructing the in-memory graph.</li>
+ * </ul>
+ *
+ * The maxHops setting is not set by default (i.e. there is no limit to the number
+ * of hops that a user can request). The prune flag is enabled by default (for applications
+ * where performance is paramount and any issues arising from excessive memory usage
+ * can be mitigated, this flag can be disabled).
  *
  * This operation handler can be modified by supplying an operationDeclarations.json
- * file in order to limit the maximum number of hops permitted.
+ * file in order to limit the maximum number of hops permitted or to enable/disable
+ * the pruning feature.
+ *
+ * Currently the handler only supports creating {@link Walk}s which contain {@link Edge}s.
  */
 public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterable<Walk>> {
 
@@ -67,7 +91,7 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
     /**
      * Can be set by modifying operationDeclarations.json.
      */
-    private Boolean prune = Boolean.FALSE;
+    private boolean prune = true;
 
     @Override
     public Iterable<Walk> doOperation(final GetWalks getWalks, final Context context, final Store store) throws OperationException {
