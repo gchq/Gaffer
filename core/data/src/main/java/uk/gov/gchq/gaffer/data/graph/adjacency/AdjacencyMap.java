@@ -130,7 +130,8 @@ public class AdjacencyMap<V, E> {
      * @param destination the destination vertex
      */
     public void removeAllWithDestination(final V destination) {
-        for (final V v : getAllDestinations()) {
+        final Set<V> set = Sets.newHashSet(getSources(destination));
+        for (final V v : set) {
             graph.remove(v, destination);
         }
     }
