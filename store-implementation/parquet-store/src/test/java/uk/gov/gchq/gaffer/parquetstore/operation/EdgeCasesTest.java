@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.parquetstore.operation;
 
+import com.google.common.collect.Iterables;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -171,6 +172,24 @@ public class EdgeCasesTest {
         results = graph.execute(new GetElements.Builder().input(entitySeeds).build(), USER);
         iter = results.iterator();
         assertFalse(iter.hasNext());
+    }
+
+    @Test
+    public void shouldReturnEmptyIteratorWithEmptyParquetStore() throws OperationException {
+        final Schema gafferSchema = TestUtils.gafferSchema("schemaUsingStringVertexType");
+        final ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
+        parquetStoreProperties.setAddElementsOutputFilesPerGroup(1);
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("indexOutOfRangeTest")
+                        .build())
+                .addSchemas(gafferSchema)
+                .storeProperties(parquetStoreProperties)
+                .build();
+
+        Iterable<? extends Element> results = graph.execute(new GetAllElements.Builder().build(), USER);
+
+        assertEquals(0, Iterables.size(results));
     }
 
     @Test
