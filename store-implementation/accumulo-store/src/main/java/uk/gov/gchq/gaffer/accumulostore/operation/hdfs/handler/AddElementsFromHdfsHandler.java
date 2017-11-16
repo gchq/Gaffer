@@ -49,25 +49,20 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
 
     @Override
     public Void doOperation(final AddElementsFromHdfs operation,
-            final Context context, final Store store)
+                            final Context context, final Store store)
             throws OperationException {
         doOperation(operation, context, (AccumuloStore) store);
         return null;
     }
 
     public void doOperation(final AddElementsFromHdfs operation,
-            final Context context, final AccumuloStore store)
+                            final Context context, final AccumuloStore store)
             throws OperationException {
         validateOperation(operation);
 
-        if (null == operation.getSplitsFilePath()) {
-            if (null == operation.getWorkingPath()) {
-                throw new IllegalArgumentException("splitsFilePath is required");
-            }
-            final String splitsFilePath = getPathWithSlashSuffix(operation.getWorkingPath()) + context.getJobId() + "/splits";
-            LOGGER.info("Using working directory for splits files: " + splitsFilePath);
-            operation.setSplitsFilePath(splitsFilePath);
-        }
+        final String splitsFilePath = getPathWithSlashSuffix(operation.getWorkingPath()) + context.getJobId() + "/splits";
+        LOGGER.info("Using working directory for splits files: " + splitsFilePath);
+        operation.setSplitsFilePath(splitsFilePath);
 
         try {
             checkHdfsDirectories(operation, store);
@@ -96,6 +91,25 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
 
         if (null != operation.getMaxMapTasks()) {
             LOGGER.warn("maxMapTasks field will be ignored");
+        }
+
+        if (null != operation.getNumReduceTasks() && (null != operation.getMinReduceTasks() || null != operation.getMaxReduceTasks())) {
+            throw new IllegalArgumentException("minReduceTasks and/or maxReduceTasks should not be set if numReduceTasks is");
+        }
+
+        if (null != operation.getMinReduceTasks() && null != operation.getMaxReduceTasks()) {
+            LOGGER.warn("Logic for the minimum may result in more reducers than the maximum set");
+            if (operation.getMinReduceTasks() > operation.getMaxReduceTasks()) {
+                throw new IllegalArgumentException("Minimum number of reducers must be less than the maximum number of reducers");
+            }
+        }
+
+        if (null == operation.getSplitsFilePath()) {
+            throw new IllegalArgumentException("splitsFilePath is required");
+        }
+
+        if (null == operation.getWorkingPath()) {
+            throw new IllegalArgumentException("workingPath is required");
         }
     }
 
