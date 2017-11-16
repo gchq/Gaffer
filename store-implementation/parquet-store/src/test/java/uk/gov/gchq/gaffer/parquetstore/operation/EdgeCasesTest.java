@@ -181,7 +181,7 @@ public class EdgeCasesTest {
         parquetStoreProperties.setAddElementsOutputFilesPerGroup(1);
         final Graph graph = new Graph.Builder()
                 .config(new GraphConfig.Builder()
-                        .graphId("indexOutOfRangeTest")
+                        .graphId("emptyStore")
                         .build())
                 .addSchemas(gafferSchema)
                 .storeProperties(parquetStoreProperties)
