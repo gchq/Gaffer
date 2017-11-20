@@ -55,5 +55,14 @@ to be run before and after an operation chain is executed.
 You can use hooks to do things like custom logging or special operation
 chain authorisation. To implement your own hook, just implement the `GraphHook`
 interface and register it with the graph when you build a `Graph` instance.
-GraphHooks should be json serialiseable and each hook should have a unit test 
+GraphHooks should be json serialisable and each hook should have a unit test 
 that extends GraphHookTest.
+
+## GraphConfig
+When a `Graph` is created you can supply it with a `GraphConfig`. This
+`GraphConfig` contains a full configuration for a `Graph`. This `GraphConfig`
+is used alongside a `Schema` and `StoreProperties` to create the `Graph`. This
+`GraphConfig` contains all configuration information, such as a graphId,
+`GraphLibrary`, a Graphs `View` and `GraphHooks`.  To create an instance of
+`GraphConfig` you can use the `GraphConfig.Builder` class, or create it using
+a json file.
