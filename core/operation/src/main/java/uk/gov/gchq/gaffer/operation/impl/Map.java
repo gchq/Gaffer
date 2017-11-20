@@ -29,8 +29,9 @@ import java.util.function.Function;
 /**
  * A {@code Map} is a Gaffer {@link Operation} which maps an input I to an output O
  * by applying a supplied {@link Function}.
- * @param <I>   the type of the input object
- * @param <O>   the type of the output object
+ *
+ * @param <I> the type of the input object
+ * @param <O> the type of the output object
  */
 public class Map<I, O> implements InputOutput<I, O> {
     private I input;
@@ -88,9 +89,11 @@ public class Map<I, O> implements InputOutput<I, O> {
     public static final class Builder<I, O> extends
             Operation.BaseBuilder<Map<I, O>, Builder<I, O>> implements
             InputOutput.Builder<Map<I, O>, I, O, Builder<I, O>> {
-        public Builder() { super(new Map<>()); }
+        public Builder() {
+            super(new Map<>());
+        }
 
-        public Builder<I, O> function(final Function<I, O> func) {
+        public Builder<I, O> function(final Function func) {
             _getOp().setFunction(func);
             return _self();
         }

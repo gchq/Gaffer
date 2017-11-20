@@ -314,14 +314,14 @@ public class MapHandlerTest {
     @Test
     public void shouldProcessWalksInOperationChain() throws OperationException {
         // Given
-        final Iterable<Iterable<Set<Edge>>> walks = Arrays.asList(walk, walk1);
+        final Iterable<Walk> walks = Arrays.asList(walk, walk1);
 
-        final Map<Iterable<Iterable<Set<Edge>>>, Iterable<Set<Edge>>> firstMap = new Map.Builder<Iterable<Iterable<Set<Edge>>>, Iterable<Set<Edge>>>()
+        final Map<Iterable<Walk>, Walk> firstMap = new Map.Builder<Iterable<Walk>, Walk>()
                 .input(walks)
                 .function(new IterableFunction<>(new FirstItem<>()))
                 .build();
 
-        final Map<Iterable<Iterable<Edge>>, Iterable<Edge>> secondMap = new Map.Builder<Iterable<Iterable<Edge>>, Iterable<Edge>>()
+        final Map<Walk, Set<Edge>> secondMap = new Map.Builder<Walk, Set<Edge>>()
                 .function(new IterableFunction<>(new FirstItem<>()))
                 .build();
 
@@ -333,7 +333,7 @@ public class MapHandlerTest {
 
         final OperationChain<Set<?>> opChain = new OperationChain.Builder()
                 .first(firstMap)
-                .thenTypeUnsafe(secondMap)
+                .then(secondMap)
                 .then(toVertices)
                 .then(toSet)
                 .build();

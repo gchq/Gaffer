@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.operation.impl.function;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.Map;
 import uk.gov.gchq.koryphe.impl.function.Identity;
-import uk.gov.gchq.koryphe.impl.function.IterableFunction;
 
 import java.util.Arrays;
 
@@ -44,13 +43,13 @@ public class MapTest extends OperationTest<Map> {
         // Given
         final Iterable<Integer> input = Arrays.asList(1, 2, 3);
 
-        final Map<Iterable<Integer>, Iterable<String>> map = new Map.Builder<Iterable<Integer>, Iterable<String>>()
+        final Map<Iterable<Integer>, String> map = new Map.Builder<Iterable<Integer>, String>()
                 .input(input)
-                .function(new IterableFunction<>(Object::toString))
+                .function(Object::toString)
                 .build();
 
         // When
-        final Map<Iterable<Integer>, Iterable<String>> clone = map.shallowClone();
+        final Map<Iterable<Integer>, String> clone = map.shallowClone();
 
         // Then
         assertNotSame(map, clone);
