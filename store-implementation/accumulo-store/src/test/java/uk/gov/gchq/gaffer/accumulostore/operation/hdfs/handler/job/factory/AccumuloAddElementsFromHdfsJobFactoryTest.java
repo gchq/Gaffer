@@ -336,7 +336,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
             writer.write(i + "\n");
         }
         writer.close();
-        final SplitStore splitTable = new SplitStore.Builder()
+        final SplitStoreFromFile splitTable = new SplitStoreFromFile.Builder()
                 .inputPath(splitsFile)
                 .build();
         store.execute(splitTable, store.createContext(new User()));
