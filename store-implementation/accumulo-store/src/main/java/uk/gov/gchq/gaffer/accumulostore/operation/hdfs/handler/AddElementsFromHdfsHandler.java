@@ -36,7 +36,7 @@ import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.tool.AddElementsFromHdfsTool;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.SplitStore;
+import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -171,7 +171,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
                             .splitsFilePath(operation.getSplitsFilePath())
                             .options(operation.getOptions())
                             .build())
-                    .then(new SplitStore.Builder()
+                    .then(new SplitStoreFromFile.Builder()
                             .inputPath(operation.getSplitsFilePath())
                             .options(operation.getOptions())
                             .build())
