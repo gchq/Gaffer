@@ -20,6 +20,8 @@ import com.google.common.collect.Iterables;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
 import org.junit.AfterClass;
 import org.junit.Test;
 
@@ -41,6 +43,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.testutils.DataGen;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.types.FreqMap;
@@ -190,6 +193,24 @@ public class EdgeCasesTest {
         Iterable<? extends Element> results = graph.execute(new GetAllElements.Builder().build(), USER);
 
         assertEquals(0, Iterables.size(results));
+    }
+
+    @Test
+    public void shouldReturnEmptyDataframeWithEmptyParquetStore() throws OperationException {
+        final Schema gafferSchema = TestUtils.gafferSchema("schemaUsingStringVertexType");
+        final ParquetStoreProperties parquetStoreProperties = getParquetStoreProperties();
+        parquetStoreProperties.setAddElementsOutputFilesPerGroup(1);
+        final Graph graph = new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("emptyStore2")
+                        .build())
+                .addSchemas(gafferSchema)
+                .storeProperties(parquetStoreProperties)
+                .build();
+
+        final Dataset<Row> data = graph.execute(new GetDataFrameOfElements.Builder().build(), USER);
+
+        assertEquals(0, data.count());
     }
 
     @Test
