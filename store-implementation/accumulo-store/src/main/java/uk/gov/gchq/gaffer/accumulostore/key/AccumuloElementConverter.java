@@ -137,6 +137,16 @@ public interface AccumuloElementConverter {
     byte[] serialiseVertex(final Object vertex);
 
     /**
+     * Creates a byte array representing the Element identifiers, this will be
+     * stored in the Accumulo row Key.
+     *
+     * @param element the element
+     * @return the byte array(s) representing the provided {@link Element}
+     * identifiers.
+     */
+    Pair<byte[], byte[]> getRowKeysFromElement(final Element element);
+
+    /**
      * Creates a byte array representing a set of
      * {@link uk.gov.gchq.gaffer.data.element.Properties} that are to be stored in the
      * column qualifier.

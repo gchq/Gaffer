@@ -36,11 +36,17 @@ import uk.gov.gchq.gaffer.hbasestore.operation.handler.AddElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetElementsHandler;
+import uk.gov.gchq.gaffer.hbasestore.operation.handler.SampleElementsForSplitPointsHandler;
+import uk.gov.gchq.gaffer.hbasestore.operation.handler.SplitStoreFromIterableHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.handler.AddElementsFromHdfsHandler;
 import uk.gov.gchq.gaffer.hbasestore.retriever.HBaseRetriever;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
+import uk.gov.gchq.gaffer.hdfs.operation.handler.HdfsSplitStoreFromFileHandler;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.impl.SampleElementsForSplitPoints;
+import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
+import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromIterable;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -239,10 +245,9 @@ public class HBaseStore extends Store {
 
     @Override
     protected void addAdditionalOperationHandlers() {
-        try {
-            addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
-        } catch (final NoClassDefFoundError e) {
-            LOGGER.warn("Unable to added handler for {} due to missing classes on the classpath", AddElementsFromHdfs.class.getSimpleName(), e);
-        }
+        addOperationHandler(SplitStoreFromIterable.class, new SplitStoreFromIterableHandler());
+        addOperationHandler(SplitStoreFromFile.class, new HdfsSplitStoreFromFileHandler());
+        addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
+        addOperationHandler(SampleElementsForSplitPoints.class, new SampleElementsForSplitPointsHandler());
     }
 }
