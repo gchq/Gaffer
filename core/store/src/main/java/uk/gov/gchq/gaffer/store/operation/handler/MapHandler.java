@@ -24,7 +24,6 @@ import java.util.function.Function;
 
 /**
  * A {@code MapHandler} is a handler for the {@link Map} {@link uk.gov.gchq.gaffer.operation.Operation}
- *
  * @param <I> The object type of the input object
  * @param <O> The object type of the output object
  */

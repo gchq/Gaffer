@@ -21,6 +21,7 @@ import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.IterableUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -38,8 +39,6 @@ import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
-import uk.gov.gchq.koryphe.impl.function.FirstItem;
-import uk.gov.gchq.koryphe.impl.function.NthItem;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -57,7 +56,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 
 public class MapHandlerTest {
-
     private Context context;
     private Store store;
     private Function<Integer, Integer> function;
@@ -369,16 +367,64 @@ public class MapHandlerTest {
         }
 
         @Override
-        public Iterable<O_ITEM> apply(final Iterable<I_ITEM> i_items) {
-            return IterableUtil.applyFunction(i_items, delegateFunction);
+        public Iterable<O_ITEM> apply(final Iterable<I_ITEM> items) {
+            return IterableUtil.applyFunction(items, delegateFunction);
         }
     }
 
     // To be removed after Koryphe 1.1.0
     private static class IterableConcat<I_ITEM> implements Function<Iterable<Iterable<I_ITEM>>, Iterable<I_ITEM>> {
         @Override
-        public Iterable<I_ITEM> apply(final Iterable<Iterable<I_ITEM>> i_items) {
-            return Iterables.concat(i_items);
+        public Iterable<I_ITEM> apply(final Iterable<Iterable<I_ITEM>> items) {
+            return Iterables.concat(items);
+        }
+    }
+
+    // To be removed after Koryphe 1.1.0
+    private static class FirstItem<T> implements Function<Iterable<T>, T> {
+        @Override
+        public T apply(final Iterable<T> input) {
+            if (null == input) {
+                throw new IllegalArgumentException("Input cannot be null");
+            }
+            try {
+                return Iterables.getFirst(input, null);
+            } finally {
+                CloseableUtil.close(input);
+            }
+        }
+    }
+
+    // To be removed after Koryphe 1.1.0
+    private static class NthItem<T> implements Function<Iterable<T>, T> {
+        public int getSelection() {
+            return selection;
+        }
+
+        public void setSelection(final int selection) {
+            this.selection = selection;
+        }
+
+        public NthItem() {
+            // Empty
+        }
+
+        public NthItem(final int selection) {
+            this.selection = selection;
+        }
+
+        private int selection;
+
+        @Override
+        public T apply(final Iterable<T> input) {
+            if (null == input) {
+                throw new IllegalArgumentException("Input cannot be null");
+            }
+            try {
+                return Iterables.get(input, selection);
+            } finally {
+                CloseableUtil.close(input);
+            }
         }
     }
 }

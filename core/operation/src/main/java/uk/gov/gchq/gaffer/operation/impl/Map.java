@@ -26,8 +26,13 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 import java.util.function.Function;
 
+/**
+ * A {@code Map} is a Gaffer {@link Operation} which maps an input I to an output O
+ * by applying a supplied {@link Function}.
+ * @param <I>   the type of the input object
+ * @param <O>   the type of the output object
+ */
 public class Map<I, O> implements InputOutput<I, O> {
-
     private I input;
     private java.util.Map<String, String> options;
     @Required
@@ -53,7 +58,7 @@ public class Map<I, O> implements InputOutput<I, O> {
     }
 
     @Override
-    public Operation shallowClone() throws CloneFailedException {
+    public Map<I, O> shallowClone() throws CloneFailedException {
         return new Map.Builder<I, O>()
                 .input(input)
                 .options(options)
