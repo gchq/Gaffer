@@ -39,10 +39,6 @@ public class Map<I, O> implements InputOutput<I, O> {
     @Required
     private Function<I, O> function;
 
-    public Map() {
-        // Empty
-    }
-
     @Override
     public I getInput() {
         return input;
