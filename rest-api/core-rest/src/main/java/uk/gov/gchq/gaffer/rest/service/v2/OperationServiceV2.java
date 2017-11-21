@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.Required;
+import uk.gov.gchq.gaffer.core.exception.Error;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -111,12 +112,33 @@ public class OperationServiceV2 implements IOperationServiceV2 {
     @Override
     public Response operationDetails(final String className) throws InstantiationException, IllegalAccessException {
         try {
-            return Response.ok(new OperationDetail(getOperationClass(className)))
-                    .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
-                    .build();
+            final Class<? extends Operation> operationClass = getOperationClass(className);
+
+            if (graphFactory.getGraph().getSupportedOperations().contains(operationClass)) {
+                return Response.ok(new OperationDetail(getOperationClass(className)))
+                        .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                        .build();
+            } else {
+                LOGGER.info("Class: {} was found on the classpath, but is not supported by the current store.", className);
+                return Response.status(NOT_FOUND)
+                        .entity(new Error.ErrorBuilder()
+                                    .status(Status.NOT_FOUND)
+                                    .statusCode(404)
+                                    .simpleMessage("Class: " + className + " is not supported by the current store.")
+                                    .detailMessage("Class: " + className + " was found on the classpath," +
+                                        "but is not supported by the current store.")
+                                    .build())
+                        .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
+                        .build();
+            }
         } catch (final ClassNotFoundException e) {
             LOGGER.info("Class: {} was not found on the classpath.", className, e);
             return Response.status(NOT_FOUND)
+                    .entity(new Error.ErrorBuilder()
+                                .status(Status.NOT_FOUND)
+                                .statusCode(404)
+                                .simpleMessage("Class: " + className + " was not found on the classpath.")
+                                .build())
                     .header(GAFFER_MEDIA_TYPE_HEADER, GAFFER_MEDIA_TYPE)
                     .build();
         }
