@@ -172,15 +172,11 @@ function initFromProperties(onPropertiesLoad) {
 }
 
 function hideJobsIfRequired() {
-    $.get(
-        getVersion() + '/graph/operations/uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails',
-        null,
-        function(responseData, statusText) {
-            if(statusText !== "success") {
-                $("#resource_job").attr("hidden", true);
-            }
-        }
-    )}
+    $.get(getVersion() + '/graph/operations/uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails')
+    .fail(function() {
+         $("#resource_job").attr("hidden", true);
+    })
+}
 
 function updateTitle(properties) {
     updateElement('gaffer.properties.app.title', properties, function(value, id) {
