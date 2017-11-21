@@ -447,6 +447,7 @@ public class StoreTest {
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
+        given(properties.getJobTrackerEnabled()).willReturn(true);
         store.initialise("graphId", schema, properties);
 
         // When
@@ -476,6 +477,93 @@ public class StoreTest {
                 GetJobDetails.class,
                 GetAllJobDetails.class,
                 GetJobResults.class,
+
+                // Output
+                ToArray.class,
+                ToEntitySeeds.class,
+                ToList.class,
+                ToMap.class,
+                ToCsv.class,
+                ToSet.class,
+                ToStream.class,
+                ToVertices.class,
+
+                // Named Operations
+                NamedOperation.class,
+                AddNamedOperation.class,
+                GetAllNamedOperations.class,
+                DeleteNamedOperation.class,
+
+                // ElementComparison
+                Max.class,
+                Min.class,
+                Sort.class,
+
+                // Algorithm
+                GetWalks.class,
+
+                // OperationChain
+                OperationChain.class,
+                OperationChainDAO.class,
+
+                // Other
+                GenerateElements.class,
+                GenerateObjects.class,
+                Validate.class,
+                Count.class,
+                CountGroups.class,
+                Limit.class,
+                DiscardOutput.class,
+                GetSchema.class,
+
+                // Function
+                Filter.class,
+                Transform.class,
+                Aggregate.class
+        );
+
+        expectedOperations.sort(Comparator.comparing(Class::getName));
+        supportedOperations.sort(Comparator.comparing(Class::getName));
+        assertEquals(expectedOperations, supportedOperations);
+    }
+
+    @Test
+    public void shouldReturnAllSupportedOperationsWhenJobTrackerIsDisabled() throws Exception {
+        // Given
+        final Properties cacheProperties = new Properties();
+        cacheProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
+        CacheServiceLoader.initialise(cacheProperties);
+
+        final Schema schema = createSchemaMock();
+        final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
+        given(properties.getJobTrackerEnabled()).willReturn(false);
+        store.initialise("graphId", schema, properties);
+
+        // When
+        final List<Class<? extends Operation>> supportedOperations = Lists.newArrayList(store.getSupportedOperations());
+
+        // Then
+        assertNotNull(supportedOperations);
+
+        final List<Class<? extends Operation>> expectedOperations = Lists.newArrayList(
+                AddElements.class,
+                GetElements.class,
+                GetAdjacentIds.class,
+                GetAllElements.class,
+
+                mock(AddElements.class).getClass(),
+                mock(GetElements.class).getClass(),
+                mock(GetAdjacentIds.class).getClass(),
+
+                // Export
+                ExportToSet.class,
+                GetSetExport.class,
+                GetExports.class,
+                ExportToGafferResultCache.class,
+                GetGafferResultCacheExport.class,
+
+                // Jobs are disabled
 
                 // Output
                 ToArray.class,
