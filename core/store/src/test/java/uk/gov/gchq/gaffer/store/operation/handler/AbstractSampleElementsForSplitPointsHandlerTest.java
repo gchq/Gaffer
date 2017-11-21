@@ -287,9 +287,10 @@ public abstract class AbstractSampleElementsForSplitPointsHandlerTest<S extends 
                 .build();
         final List<?> allElementsAsSplits = handler.doOperation(operatation, new Context(), createStore());
 
-        final List<Object> expectedSplits = indexes.stream()
-                .map(allElementsAsSplits::get)
-                .collect(Collectors.toList());
+        final List<Object> expectedSplits = new ArrayList<>(indexes.size());
+        for (final Integer index : indexes) {
+            expectedSplits.add(allElementsAsSplits.get(index));
+        }
 
         assertEquals(expectedSplits, splits);
     }
