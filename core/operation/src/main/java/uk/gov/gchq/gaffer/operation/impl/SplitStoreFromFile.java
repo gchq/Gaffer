@@ -21,14 +21,16 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import java.util.Map;
 
 /**
- * The {@code SplitStore} operation is for splitting a store
- * based on a sequence file of split points.
+ * The {@code SplitStoreFromFile} operation is for splitting a store
+ * based on a file of split points.
+ * The default handler assumes that each line in the files relates to a String split.
+ * The default handler will assume the file is available in the local file system,
+ * different stores may also attempt to load the file from other file systems like
+ * hdfs - this is the case for the Accumulo Store.
  *
- * @see SplitStore.Builder
- * @deprecated use {@link SplitStoreFromFile} instead
+ * @see SplitStoreFromFile.Builder
  */
-@Deprecated
-public class SplitStore implements Operation {
+public class SplitStoreFromFile implements Operation {
     @Required
     private String inputPath;
     private Map<String, String> options;
@@ -52,16 +54,16 @@ public class SplitStore implements Operation {
     }
 
     @Override
-    public SplitStore shallowClone() {
-        return new SplitStore.Builder()
+    public SplitStoreFromFile shallowClone() {
+        return new SplitStoreFromFile.Builder()
                 .inputPath(inputPath)
                 .options(options)
                 .build();
     }
 
-    public static class Builder extends Operation.BaseBuilder<SplitStore, Builder> {
+    public static class Builder extends BaseBuilder<SplitStoreFromFile, Builder> {
         public Builder() {
-            super(new SplitStore());
+            super(new SplitStoreFromFile());
         }
 
         public Builder inputPath(final String inputPath) {

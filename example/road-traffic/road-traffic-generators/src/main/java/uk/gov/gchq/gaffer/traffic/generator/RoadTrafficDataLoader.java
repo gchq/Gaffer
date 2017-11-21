@@ -20,6 +20,8 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
+import uk.gov.gchq.gaffer.commonutil.iterable.SuppliedIterable;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -31,10 +33,12 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 public class RoadTrafficDataLoader {
@@ -50,30 +54,40 @@ public class RoadTrafficDataLoader {
     }
 
     public void load(final String csvString) throws IOException, OperationException {
-        try (final StringReader reader = new StringReader(csvString)) {
-            load(reader);
-        }
+        load(() -> new StringReader(csvString));
     }
 
     public void load(final File dataFile) throws IOException, OperationException {
-        try (final FileReader reader = new FileReader(dataFile)) {
-            load(reader);
-        }
+        load(() -> {
+            try {
+                return new FileReader(dataFile);
+            } catch (final FileNotFoundException e) {
+                throw new RuntimeException("Unable to load data from file: " + dataFile.getPath());
+            }
+        });
     }
 
-    public void load(final Reader reader) throws OperationException, IOException {
-        try (final CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
+    public void load(final Supplier<Reader> readerSupplier) throws OperationException, IOException {
+        final SuppliedIterable<CSVRecord> csvIterable = new SuppliedIterable<>(() -> {
+            try {
+                return new CSVParser(readerSupplier.get(), CSVFormat.DEFAULT.withFirstRecordAsHeader());
+            } catch (final IOException e) {
+                throw new RuntimeException("Unable to load csv data", e);
+            }
+        });
+        try {
             final OperationChain<Void> populateChain = new OperationChain.Builder()
-                .first(new GenerateElements.Builder<CSVRecord>()
-                    .input(parser)
-                    .generator(new RoadTrafficCsvElementGenerator())
-                    .build())
-                .then(new AddElements.Builder()
-                    .skipInvalidElements(false)
-                    .build())
-                .build();
-
+                    .first(new GenerateElements.Builder<CSVRecord>()
+                            .input(csvIterable)
+                            .generator(new RoadTrafficCsvElementGenerator())
+                            .build())
+                    .then(new AddElements.Builder()
+                            .skipInvalidElements(false)
+                            .build())
+                    .build();
             this.graph.execute(populateChain, this.user);
+        } finally {
+            CloseableUtil.close(csvIterable);
         }
     }
 
@@ -93,10 +107,10 @@ public class RoadTrafficDataLoader {
         final StoreProperties storeProperties = StoreProperties.loadStoreProperties(storePropertiesFile);
 
         final Graph graph = new Graph.Builder()
-            .config(config)
-            .addSchemas(schema)
-            .storeProperties(storeProperties)
-            .build();
+                .config(config)
+                .addSchemas(schema)
+                .storeProperties(storeProperties)
+                .build();
 
         final User user = new User();
 
