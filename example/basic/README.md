@@ -23,12 +23,9 @@ Assuming you have Java 8, Maven and Git installed, you can build and run the lat
 git clone --depth 1 --branch master https://github.com/gchq/Gaffer.git
 cd Gaffer
 
-# This will download several maven dependencies such as tomcat.
-# Using -pl we tell maven only to build the demo module and just download the other Gaffer binaries from maven.
-# The -Pbasic-demo is a profile that will automatically startup a standalone instance of tomcat with the REST API and UI deployed.
-mvn install -Pquick -Pbasic-demo -pl :basic-rest
+# Run the start script. This will download several maven dependencies such as tomcat.
+# If you have a snapshot version and want to build all dependencies first then add -am as a script argument
+./example/basic/scripts/start.sh
 ```
-
-If you wish to build all of Gaffer first then just remove the "-pl example/basic/basic-rest" part.
 
 The rest api will be deployed to localhost:8080/rest.

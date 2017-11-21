@@ -26,6 +26,7 @@ import org.mockito.Mockito;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -34,9 +35,11 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.GetAllGraphIds;
+import uk.gov.gchq.gaffer.federatedstore.operation.RemoveGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -219,7 +222,8 @@ public class FederatedStoreTest {
             addGraphWithIds(MAP_ID_1, ID_PROPS_MAP, ID_SCHEMA_EDGE);
             fail(EXCEPTION_NOT_THROWN);
         } catch (final Exception e) {
-            assertContains(e.getCause(), "Graph: " + MAP_ID_1 + " already exists");
+            assertContains(e, "User is attempting to overwrite a graph");
+            assertContains(e, "GraphId: ", MAP_ID_1);
         }
 
         // When / Then
@@ -227,7 +231,8 @@ public class FederatedStoreTest {
             addGraphWithIds(MAP_ID_1, ID_PROPS_MAP_ALT, ID_SCHEMA_ENTITY);
             fail(EXCEPTION_NOT_THROWN);
         } catch (final Exception e) {
-            assertContains(e.getCause(), "Graph: " + MAP_ID_1 + " already exists");
+            assertContains(e, "User is attempting to overwrite a graph");
+            assertContains(e, "GraphId: ", MAP_ID_1);
         }
     }
 
@@ -694,6 +699,8 @@ public class FederatedStoreTest {
 
         addGraphWithIds(MAP_ID_1, ID_PROPS_MAP, ID_SCHEMA_ENTITY);
 
+        library.add(MAP_ID_1, getSchemaFromPath(PATH_BASIC_ENTITY_SCHEMA_JSON), getPropertiesFromPath(PATH_MAP_STORE_PROPERTIES));
+
         // When
         int before = 0;
         for (String ignore : fedGraph.execute(
@@ -973,6 +980,25 @@ public class FederatedStoreTest {
         for (int i = 0; i < 10; i++) {
             assertTrue(CacheServiceLoader.getService().getAllKeysFromCache(CACHE_SERVICE_NAME).contains(ACC_ID_1 + i));
         }
+    }
+
+    @Test
+    public void shouldAddAGraphRemoveAGraphAndBeAbleToReuseTheGraphId() throws Exception {
+        // Given
+        // When
+        addGraphWithPaths(MAP_ID_1, PATH_MAP_STORE_PROPERTIES, PATH_BASIC_ENTITY_SCHEMA_JSON);
+        store.execute(new RemoveGraph.Builder()
+                .graphId(MAP_ID_1)
+                .build(), userContext);
+        addGraphWithPaths(MAP_ID_1, PATH_MAP_STORE_PROPERTIES, PATH_BASIC_EDGE_SCHEMA_JSON);
+
+        // Then
+        final Collection<Graph> graphs = store.getGraphs(userContext.getUser(), MAP_ID_1);
+        assertEquals(1, graphs.size());
+        JsonAssert.assertEquals(
+                JSONSerialiser.serialise(Schema.fromJson(StreamUtil.openStream(getClass(), PATH_BASIC_EDGE_SCHEMA_JSON))),
+                JSONSerialiser.serialise(graphs.iterator().next().getSchema())
+        );
     }
 
     private boolean checkUnexpected(final Collection<Graph> unexpectedGraphs, final Collection<Graph> returnedGraphs) {
