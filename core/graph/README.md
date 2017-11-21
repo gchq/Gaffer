@@ -59,10 +59,103 @@ GraphHooks should be json serialisable and each hook should have a unit test
 that extends GraphHookTest.
 
 ## GraphConfig
-When a `Graph` is created you can supply it with a `GraphConfig`. This
-`GraphConfig` contains a full configuration for a `Graph`. This `GraphConfig`
-is used alongside a `Schema` and `StoreProperties` to create the `Graph`. This
-`GraphConfig` contains all configuration information, such as a graphId,
-`GraphLibrary`, a Graphs `View` and `GraphHooks`.  To create an instance of
-`GraphConfig` you can use the `GraphConfig.Builder` class, or create it using
-a json file.
+When a `Graph` is created you must supply it with a `GraphConfig`. This
+`GraphConfig` contains a full configuration for a `Graph`, and is used
+alongside a `Schema` and `StoreProperties` to create the `Graph`. 
+To create an instance of `GraphConfig` you can use the `GraphConfig.Builder`
+class, or create it using a json file.
+The `GraphConfig` class contains:
+ 
+ - `graphId` - The `graphId` is a String field that uniquely identifies a `Graph`. 
+   This is a required field. When backed by a Store like Accumulo, this `graphId`
+   is used as the name of the Accumulo table for the `Graph`.
+   
+ - `View` - The `View` defines the Elements to be returned when an Operation is run
+   on the `Graph`. For example if you want your `Graph` to only show data with a count
+   more than 10. you can define a `View` that has a global filter like this:
+   ```
+   "postAggregationFilterFunctions" : [ {
+         "predicate" : {
+           "class" : "uk.gov.gchq.koryphe.impl.predicate.IsLessThan",
+           "orEqualTo" : false,
+           "value" : "10"
+         },
+         "selection" : [ "ExamplePropertyName" ]
+       } ]
+   ```
+   This would be merged into to all queries so users only see this particular view of the data.
+   
+ - `GraphLibrary` - This contains information about the `Schema` and `StoreProperties` to be used.
+   For more Information please see <insert GraphLibrary link>.
+   
+ - `Description` - Simple String describing the `Graph`.
+ 
+ - `GraphHooks` - A list of `GraphHook` that will be triggered before and after operation chains on the `Graph`.
+ 
+ Here is a full Java example of a `GraphConfig`, and below a json config example:
+ 
+ ```
+  new GraphConfig.Builder()
+        .graphId("exampleGraphId")
+        .view(new View.Builder()
+                .edge("ExampleEdgeGroup", new ViewElementDefinition.Builder()
+                        .postAggregationFilter(new ElementFilter.Builder()
+                            .select("ExamplePropertyName")
+                            .execute(new IsLessThan("10"))
+                            .build())
+                        .build())
+                .build())
+        .library(new HashMapGraphLibrary())
+        .description("Example Graph")
+        .addHooks("path/to/hooks")
+      .build();
+ ```
+ 
+ ```
+ {
+   "graphId": "exampleGraphId",
+   "description": "Example Graph",
+   "library": {
+     "class": "uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary"
+   },
+   "view": {
+     "edges" : {
+       "ExampleEdgeGroup" : {
+         "postAggregationFilterFunctions" : [ {
+           "predicate" : {
+             "class" : "uk.gov.gchq.koryphe.impl.predicate.IsLessThan",
+             "orEqualTo" : false,
+             "value" : "10"
+           },
+           "selection" : [ "ExamplePropertyName" ]
+         } ]
+       }
+     },
+     "entities" : { }
+   },
+   "hooks": [
+     {
+       "class": "uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain",
+       "before": {
+         "uk.gov.gchq.gaffer.operation.impl.output.ToArray": [
+           {
+             "class": "uk.gov.gchq.gaffer.operation.impl.Limit",
+             "resultLimit": 1000,
+             "truncate": false
+           }
+         ]
+       },
+       "after": {
+         "uk.gov.gchq.gaffer.operation.impl.get.GetAllElements": [
+           {
+             "class": "uk.gov.gchq.gaffer.operation.impl.Limit",
+             "resultLimit": 1000,
+             "truncate": false
+           }
+         ]
+       }
+     }
+   ]
+ }
+ ```
+ 
