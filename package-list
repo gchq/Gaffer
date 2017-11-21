@@ -73,6 +73,7 @@ uk.gov.gchq.gaffer.hbasestore.retriever
 uk.gov.gchq.gaffer.hbasestore.serialisation
 uk.gov.gchq.gaffer.hbasestore.utils
 uk.gov.gchq.gaffer.hdfs.operation
+uk.gov.gchq.gaffer.hdfs.operation.handler
 uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory
 uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser
 uk.gov.gchq.gaffer.hdfs.operation.handler.job.tool
