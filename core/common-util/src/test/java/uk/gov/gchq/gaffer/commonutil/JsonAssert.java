@@ -47,6 +47,20 @@ public class JsonAssert {
     }
 
     public static void assertEquals(final byte[] expectedJson, final byte[] actualJson) {
-        assertEquals(expectedJson != null ? new String(expectedJson) : null, actualJson != null ? new String(actualJson) : null);
+        assertEquals(null != expectedJson ? new String(expectedJson) : null, null != actualJson ? new String(actualJson) : null);
+    }
+
+    public static void assertNotEqual(final String firstJson, final String secondJson) {
+        try {
+            final Map firstSchemaMap = null != firstJson ? OBJECT_MAPPER.readValue(firstJson, Map.class) : Collections.emptyMap();
+            final Map secondSchemaMap = null != secondJson ? OBJECT_MAPPER.readValue(secondJson, Map.class) : Collections.emptyMap();
+            Assert.assertNotEquals(firstSchemaMap, secondSchemaMap);
+        } catch (final IOException e) {
+            // ignore
+        }
+    }
+
+    public static void assertNotEqual(final byte[] firstJson, final byte[] secondJson) {
+        assertNotEqual(null != firstJson ? new String(firstJson) : null, null != secondJson ? new String(secondJson) : null);
     }
 }

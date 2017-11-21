@@ -18,24 +18,24 @@ package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 import java.util.List;
+import java.util.Map;
 
 /**
- * A <code>ToList</code> operation takes in an {@link java.lang.Iterable} of items
+ * A {@code ToList} operation takes in an {@link java.lang.Iterable} of items
  * and converts them to a {@link java.util.List}.
  *
  * @see uk.gov.gchq.gaffer.operation.impl.output.ToList.Builder
  */
 public class ToList<T> implements
-        Operation,
         InputOutput<Iterable<? extends T>, List<? extends T>>,
         MultiInput<T> {
     private Iterable<? extends T> input;
+    private Map<String, String> options;
 
     @Override
     public Iterable<? extends T> getInput() {
@@ -56,7 +56,18 @@ public class ToList<T> implements
     public ToList<T> shallowClone() {
         return new ToList.Builder<T>()
                 .input(input)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static final class Builder<T>

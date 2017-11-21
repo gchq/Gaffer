@@ -28,6 +28,7 @@ import static org.junit.Assert.assertNull;
 
 public abstract class ToBytesSerialisationTest<T> extends SerialisationTest<T, byte[]> {
 
+    @Override
     @Test
     public void shouldSerialiseNull() throws SerialisationException {
         // When
@@ -46,6 +47,6 @@ public abstract class ToBytesSerialisationTest<T> extends SerialisationTest<T, b
     @Override
     protected void serialiseFirst(final Pair<T, byte[]> pair) throws SerialisationException {
         byte[] serialise = serialiser.serialise(pair.getFirst());
-        assertArrayEquals(Arrays.toString(serialise),pair.getSecond(), serialise);
+        assertArrayEquals(Arrays.toString(serialise), pair.getSecond(), serialise);
     }
 }

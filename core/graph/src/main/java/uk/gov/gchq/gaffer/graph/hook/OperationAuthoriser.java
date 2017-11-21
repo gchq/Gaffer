@@ -24,8 +24,11 @@ import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.Operations;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,13 +37,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * An <code>OperationAuthoriser</code> is a {@link GraphHook} that checks a
+ * An {@code OperationAuthoriser} is a {@link GraphHook} that checks a
  * user is authorised to execute an operation chain. This class requires a map
  * of operation authorisations.
  */
 public class OperationAuthoriser implements GraphHook {
-    private Map<Class<?>, Set<String>> auths = new HashMap<>();
     private final Set<String> allAuths = new HashSet<>();
+    private final Map<Class<?>, Set<String>> auths = new HashMap<>();
 
     /**
      * Checks the {@link Operation}s in the provided {@link OperationChain}
@@ -48,21 +51,27 @@ public class OperationAuthoriser implements GraphHook {
      * This is done by checking the user's auths against the operation auths.
      * If an operation cannot be executed then an {@link IllegalAccessError} is thrown.
      *
-     * @param user    the user to authorise.
+     * @param context the user to authorise.
      * @param opChain the operation chain.
      */
     @Override
-    public void preExecute(final OperationChain<?> opChain, final User user) {
+    public void preExecute(final OperationChain<?> opChain, final Context context) {
         if (null != opChain) {
             for (final Operation operation : opChain.getOperations()) {
-                authorise(operation, user);
+                authorise(operation, context.getUser());
             }
+            authorise(opChain, context.getUser());
         }
     }
 
     @Override
-    public <T> T postExecute(final T result, final OperationChain<?> opChain, final User user) {
+    public <T> T postExecute(final T result, final OperationChain<?> opChain, final Context context) {
         // This method can be overridden to add additional authorisation checks on the results.
+        return result;
+    }
+
+    @Override
+    public <T> T onFailure(final T result, final OperationChain<?> opChain, final Context context, final Exception e) {
         return result;
     }
 
@@ -113,6 +122,11 @@ public class OperationAuthoriser implements GraphHook {
 
     protected void authorise(final Operation operation, final User user) {
         if (null != operation) {
+            if (operation instanceof Operations) {
+                final Collection<? extends Operation> operations = ((Operations<?>) operation).getOperations();
+                operations.forEach(op -> authorise(op, user));
+            }
+
             final Class<? extends Operation> opClass = operation.getClass();
             final Set<String> userOpAuths = user.getOpAuths();
             boolean authorised = true;

@@ -69,6 +69,7 @@ public class RawIntegerSerialiserTest extends ToBytesSerialisationTest<Integer> 
         return new RawIntegerSerialiser();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Pair<Integer, byte[]>[] getHistoricSerialisationPairs() {
         return new Pair[]{

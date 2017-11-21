@@ -27,7 +27,7 @@
     },
     "freqMap": {
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.binaryoperator.FreqMapAggregator"
+        "class": "uk.gov.gchq.gaffer.types.function.FreqMapAggregator"
       }
     },
     "simpleLongProperty": {
@@ -43,6 +43,12 @@
     "simpleDateProperty": {
       "aggregateFunction": {
         "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Max"
+      }
+    },
+    "visibility": {
+      "class": "java.lang.String",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat"
       }
     }
   }

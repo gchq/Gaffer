@@ -17,20 +17,19 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd;
 
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.spark.SparkConf;
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.SparkSession;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import scala.Tuple2;
 import scala.collection.mutable.ArrayBuffer;
 import scala.reflect.ClassTag;
 
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -39,15 +38,14 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.spark.SparkConstants;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.ClassTagConstants;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.SparkSessionProvider;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.scalardd.ImportKeyValuePairRDDToAccumulo;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.scala.ElementConverterFunction;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
@@ -57,10 +55,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class ImportKeyValuePairRDDToAccumuloHandlerTest {
-
-    private static final ClassTag<Element> ELEMENT_CLASS_TAG = scala.reflect.ClassTag$.MODULE$.apply(Element.class);
+    private static final ClassTag<Element> ELEMENT_CLASS_TAG = ClassTagConstants.ELEMENT_CLASS_TAG;
     private static final ClassTag<Tuple2<Key, Value>> TUPLE2_CLASS_TAG = scala.reflect.ClassTag$.MODULE$.apply(Tuple2.class);
     private static final ClassTag<AccumuloElementConverter> ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG = scala.reflect.ClassTag$.MODULE$.apply(AccumuloElementConverter.class);
+    @Rule
+    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     @Test
     public void checkImportRDDOfElements() throws OperationException, IOException {
@@ -102,25 +101,15 @@ public class ImportKeyValuePairRDDToAccumuloHandlerTest {
         }
         final User user = new User();
 
-        final SparkConf sparkConf = new SparkConf()
-                .setMaster("local")
-                .setAppName("tests")
-                .set(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
-                .set(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
-                .set(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true");
-        final SparkSession sparkSession = SparkSession.builder().config(sparkConf).getOrCreate();
+        final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
         // Create Hadoop configuration and serialise to a string
         final Configuration configuration = new Configuration();
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        configuration.write(new DataOutputStream(baos));
-        final String configurationString = new String(baos.toByteArray(), CommonConstants.UTF_8);
-        final String outputPath = this.getClass().getResource("/").getPath().toString() + "load" + Math.random();
-        final String failurePath = this.getClass().getResource("/").getPath().toString() + "failure" + Math.random();
-        final File file = new File(outputPath);
-        if (file.exists()) {
-            FileUtils.forceDelete(file);
-        }
+        final String configurationString = AbstractGetRDDHandler
+                .convertConfigurationToString(configuration);
+
+        final String outputPath = testFolder.getRoot().getAbsolutePath() + "/output";
+        final String failurePath = testFolder.getRoot().getAbsolutePath() + "/failure";
 
         final ElementConverterFunction func = new ElementConverterFunction(sparkSession.sparkContext().broadcast(new ByteEntityAccumuloElementConverter(graph1.getSchema()), ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG));
         final RDD<Tuple2<Key, Value>> elementRDD = sparkSession.sparkContext().parallelize(elements, 1, ELEMENT_CLASS_TAG).flatMap(func, TUPLE2_CLASS_TAG);
@@ -130,11 +119,9 @@ public class ImportKeyValuePairRDDToAccumuloHandlerTest {
                 .failurePath(failurePath)
                 .build();
         graph1.execute(addRdd, user);
-        FileUtils.forceDeleteOnExit(file);
 
         // Check all elements were added
         final GetRDDOfAllElements rddQuery = new GetRDDOfAllElements.Builder()
-                .sparkSession(sparkSession)
                 .option(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString)
                 .build();
 
@@ -146,6 +133,5 @@ public class ImportKeyValuePairRDDToAccumuloHandlerTest {
         final Element[] returnedElements = (Element[]) rdd.collect();
         Collections.addAll(results, returnedElements);
         assertEquals(elements.size(), results.size());
-        sparkSession.stop();
     }
 }

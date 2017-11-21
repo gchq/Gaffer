@@ -65,6 +65,10 @@ public class EntityIdExtractor implements OneToOneObjectGenerator<EntityId> {
             identifier = ((Edge) element).getSource();
         } else if (IdentifierType.DESTINATION == edgeIdentifierToExtract) {
             identifier = ((Edge) element).getDestination();
+        } else if (IdentifierType.MATCHED_VERTEX == edgeIdentifierToExtract) {
+            identifier = ((Edge) element).getMatchedVertexValue();
+        } else if (IdentifierType.ADJACENT_MATCHED_VERTEX == edgeIdentifierToExtract) {
+            identifier = ((Edge) element).getAdjacentMatchedVertexValue();
         } else {
             throw new IllegalArgumentException("Cannot get an EntityId from an Edge when IdentifierType is " + edgeIdentifierToExtract);
         }

@@ -41,7 +41,6 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.ElementValidator;
@@ -55,7 +54,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Element>> & GraphFilters & Options> implements CloseableIterable<Element> {
+public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Element>> & GraphFilters> implements CloseableIterable<Element> {
     private final ElementSerialisation serialisation;
     private final RowRangeFactory rowRangeFactory;
     private final ElementValidator validator;
@@ -114,12 +113,12 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
 
     @Override
     public void close() {
-        if (iterator != null) {
+        if (null != iterator) {
             iterator.close();
             iterator = null;
         }
 
-        if (idsIterator != null) {
+        if (null != idsIterator) {
             CloseableUtil.close(idsIterator);
             idsIterator = null;
         }
@@ -129,9 +128,9 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
         try {
             Element element = serialisation.getElement(cell, includeMatchedVertex);
             final ViewElementDefinition viewDef = operation.getView().getElement(element.getGroup());
-            if (viewDef != null) {
+            if (null != viewDef) {
                 final ElementTransformer transformer = viewDef.getTransformer();
-                if (transformer != null) {
+                if (null != transformer) {
                     element = transformer.apply(element);
                 }
             }

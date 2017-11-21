@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -40,7 +41,7 @@ import java.util.stream.Stream;
 import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
 
 /**
- * An <code>RBMBackedTimestampSet</code> is an implementation of {@link TimestampSet} that stores timestamps
+ * An {@code RBMBackedTimestampSet} is an implementation of {@link TimestampSet} that stores timestamps
  * truncated to a certain {@link TimeBucket}, e.g. if a {@link TimeBucket} of a minute is specified then a timestamp
  * of 12:34:56 on January 1st 2015 would be truncated to the previous minute, namely 12:34:00 on January 1st 2015.
  * Timebuckets of second, minute, hour, day, week, month and year are supported.
@@ -49,7 +50,7 @@ import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
  * </p>
  * <p>
  * NB: This class does not accept {@link Instant}s that are before the Unix epoch or after the {@link Instant}
- * which is <code>Integer.MAX_VALUE * 1000L</code> milliseconds after the epoch (approximately 3:14 on January 19th
+ * which is {@code Integer.MAX_VALUE * 1000L} milliseconds after the epoch (approximately 3:14 on January 19th
  * 2038). This is due to {@link RoaringBitmap} only accepting integers. As the smallest {@link TimeBucket} is
  * a second then the maximum supported {@link Instant} is the maximum integer multiplied by 1000L milliseconds after
  * the epoch.
@@ -57,12 +58,8 @@ import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
  */
 @JsonDeserialize(builder = RBMBackedTimestampSet.Builder.class)
 public class RBMBackedTimestampSet implements TimestampSet {
-    private static final long MILLISECONDS_IN_SECOND = 1000L;
-    private static final long MILLISECONDS_IN_MINUTE = 60 * MILLISECONDS_IN_SECOND;
-    private static final long MILLISECONDS_IN_HOUR = 60 * MILLISECONDS_IN_MINUTE;
-    private static final long MILLISECONDS_IN_DAY = 24 * MILLISECONDS_IN_HOUR;
     private static final Instant MIN_TIME = Instant.ofEpochMilli(0L);
-    private static final Instant MAX_TIME = Instant.ofEpochMilli(Integer.MAX_VALUE * MILLISECONDS_IN_SECOND);
+    private static final Instant MAX_TIME = Instant.ofEpochMilli(Integer.MAX_VALUE * CommonTimeUtil.MILLISECONDS_IN_SECOND);
     private static final Set<TimeBucket> VALID_TIMEBUCKETS = new HashSet<>(Arrays.asList(
             TimeBucket.SECOND,
             TimeBucket.MINUTE,
@@ -164,7 +161,7 @@ public class RBMBackedTimestampSet implements TimestampSet {
             return true;
         }
 
-        if (obj == null || getClass() != obj.getClass()) {
+        if (null == obj || getClass() != obj.getClass()) {
             return false;
         }
 
@@ -193,43 +190,51 @@ public class RBMBackedTimestampSet implements TimestampSet {
     }
 
     private int toInt(final long time) {
+        return toInt(timeBucket, time);
+    }
+
+    private static int toInt(final TimeBucket timeBucket, final long time) {
         final long timeTruncatedToBucket = CommonTimeUtil.timeToBucket(time, timeBucket);
         switch (timeBucket) {
             case SECOND:
-                return (int) (timeTruncatedToBucket / MILLISECONDS_IN_SECOND);
+                return (int) (timeTruncatedToBucket / CommonTimeUtil.MILLISECONDS_IN_SECOND);
             case MINUTE:
-                return (int) (timeTruncatedToBucket / MILLISECONDS_IN_MINUTE);
+                return (int) (timeTruncatedToBucket / CommonTimeUtil.MILLISECONDS_IN_MINUTE);
             case HOUR:
-                return (int) (timeTruncatedToBucket / MILLISECONDS_IN_HOUR);
+                return (int) (timeTruncatedToBucket / CommonTimeUtil.MILLISECONDS_IN_HOUR);
             case DAY:
-                return (int) (timeTruncatedToBucket / MILLISECONDS_IN_DAY);
+                return (int) (timeTruncatedToBucket / CommonTimeUtil.MILLISECONDS_IN_DAY);
             case WEEK:
-                return (int) (timeTruncatedToBucket / MILLISECONDS_IN_DAY);
+                return (int) (timeTruncatedToBucket / CommonTimeUtil.MILLISECONDS_IN_DAY);
             case MONTH:
-                return (int) (timeTruncatedToBucket / MILLISECONDS_IN_DAY);
+                return (int) (timeTruncatedToBucket / CommonTimeUtil.MILLISECONDS_IN_DAY);
             case YEAR:
-                return (int) (timeTruncatedToBucket / MILLISECONDS_IN_DAY);
+                return (int) (timeTruncatedToBucket / CommonTimeUtil.MILLISECONDS_IN_DAY);
             default:
                 throw new IllegalStateException("Unknown time bucket of " + timeBucket);
         }
     }
 
     private long fromInt(final int i) {
+        return fromInt(timeBucket, i);
+    }
+
+    static long fromInt(final TimeBucket timeBucket, final int i) {
         switch (timeBucket) {
             case SECOND:
-                return i * MILLISECONDS_IN_SECOND;
+                return i * CommonTimeUtil.MILLISECONDS_IN_SECOND;
             case MINUTE:
-                return i * MILLISECONDS_IN_MINUTE;
+                return i * CommonTimeUtil.MILLISECONDS_IN_MINUTE;
             case HOUR:
-                return i * MILLISECONDS_IN_HOUR;
+                return i * CommonTimeUtil.MILLISECONDS_IN_HOUR;
             case DAY:
-                return i * MILLISECONDS_IN_DAY;
+                return i * CommonTimeUtil.MILLISECONDS_IN_DAY;
             case WEEK:
-                return i * MILLISECONDS_IN_DAY;
+                return i * CommonTimeUtil.MILLISECONDS_IN_DAY;
             case MONTH:
-                return i * MILLISECONDS_IN_DAY;
+                return i * CommonTimeUtil.MILLISECONDS_IN_DAY;
             case YEAR:
-                return i * MILLISECONDS_IN_DAY;
+                return i * CommonTimeUtil.MILLISECONDS_IN_DAY;
             default:
                 throw new IllegalStateException("Unknown time bucket of " + timeBucket);
         }

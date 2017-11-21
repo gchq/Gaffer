@@ -21,7 +21,7 @@ import com.yahoo.sketches.quantiles.DoublesUnion;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
- * A <code>DoublesSketchAggregator</code> is a {@link java.util.function.BinaryOperator} that aggregates
+ * A {@code DoublesSketchAggregator} is a {@link java.util.function.BinaryOperator} that aggregates
  * {@link DoublesSketch}s using a {@link DoublesUnion}.
  */
 public class DoublesSketchAggregator extends KorypheBinaryOperator<DoublesSketch> {

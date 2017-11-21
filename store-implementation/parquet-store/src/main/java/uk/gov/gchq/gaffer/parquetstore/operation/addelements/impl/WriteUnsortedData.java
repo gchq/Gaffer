@@ -64,14 +64,19 @@ public class WriteUnsortedData {
         try {
             // Write elements
             _writeElements(elements);
+        } catch (final IOException | OperationException e) {
+            throw new OperationException("Exception writing elements to temporary directory: " + tempFilesDir, e);
+        } finally {
             // Close the writers
             for (final Map<Integer, ParquetWriter<Element>> splitToWriter : groupSplitToWriter.values()) {
                 for (final ParquetWriter<Element> writer : splitToWriter.values()) {
-                    writer.close();
+                    try {
+                        writer.close();
+                    } catch (final IOException ignored) {
+                        // ignored
+                    }
                 }
             }
-        } catch (final IOException | OperationException e) {
-            throw new OperationException("Exception writing elements to temporary directory: " + tempFilesDir, e);
         }
     }
 
@@ -92,7 +97,7 @@ public class WriteUnsortedData {
             } else {
                 writer = getWriter(splitToWriter, groupToSplitPoints.get(group), ((Edge) element).getSource(), group, ParquetStoreConstants.SOURCE);
             }
-            if (writer != null) {
+            if (null != writer) {
                 writer.write(element);
             } else {
                 LOGGER.warn("Skipped the adding of an Element with Group = {} as that group does not exist in the schema.", group);

@@ -28,6 +28,13 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 import java.util.Properties;
 
+/**
+ * A {@code AddElementsFromKafkaHandler} handles the {@link AddElementsFromKafka}
+ * operation.
+ *
+ * This uses Flink to stream the {@link uk.gov.gchq.gaffer.data.element.Element}
+ * objects from a Kafka queue into Gaffer.
+ */
 public class AddElementsFromKafkaHandler implements OperationHandler<AddElementsFromKafka> {
     private static final String FLINK_KAFKA_BOOTSTRAP_SERVERS = "bootstrap.servers";
     private static final String FLINK_KAFKA_GROUP_ID = "group.id";

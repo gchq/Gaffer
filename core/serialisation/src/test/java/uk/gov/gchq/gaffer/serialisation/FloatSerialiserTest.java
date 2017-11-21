@@ -67,6 +67,7 @@ public class FloatSerialiserTest extends ToBytesSerialisationTest<Float> {
         return new FloatSerialiser();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Pair<Float, byte[]>[] getHistoricSerialisationPairs() {
         return new Pair[]{

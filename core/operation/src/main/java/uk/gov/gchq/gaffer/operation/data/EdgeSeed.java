@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import java.util.Comparator;
 
 /**
- * An <code>EdgeSeed</code> contains source, destination and directed identifiers to identify an
+ * An {@code EdgeSeed} contains source, destination and directed identifiers to identify an
  * {@link uk.gov.gchq.gaffer.data.element.Edge}.
  * It is used as a mainly used as a seed for queries.
  */
@@ -60,17 +60,25 @@ public class EdgeSeed extends ElementSeed implements EdgeId {
         this(source, destination, directed ? DirectedType.DIRECTED : DirectedType.UNDIRECTED, matchedVertex);
     }
 
-    @JsonCreator
-    public EdgeSeed(@JsonProperty("source")  final Object source,
-                    @JsonProperty("destination") final Object destination,
-                    @JsonProperty("directedType") final DirectedType directed,
-                    @JsonProperty("matchedVertex") final MatchedVertex matchedVertex) {
+    public EdgeSeed(final Object source,
+                    final Object destination,
+                    final DirectedType directed,
+                    final MatchedVertex matchedVertex) {
         this.matchedVertex = matchedVertex;
         this.source = source;
         this.destination = destination;
         this.directed = directed;
         this.matchedVertex = matchedVertex;
         orderVertices();
+    }
+
+    @JsonCreator
+    public EdgeSeed(@JsonProperty("source")  final Object source,
+                    @JsonProperty("destination") final Object destination,
+                    @JsonProperty("directed") final Boolean directed,
+                    @JsonProperty("directedType") final DirectedType directedType,
+                    @JsonProperty("matchedVertex") final MatchedVertex matchedVertex) {
+        this(source, destination, getDirectedType(directed, directedType), matchedVertex);
     }
 
     @Override
@@ -158,5 +166,15 @@ public class EdgeSeed extends ElementSeed implements EdgeId {
                 .append("destination", destination)
                 .append("directed", directed)
                 .toString();
+    }
+
+    private static DirectedType getDirectedType(final Boolean directed, final DirectedType directedType) {
+        if (null != directed) {
+            if (null != directedType) {
+                throw new IllegalArgumentException("Use either 'directed' or 'directedType' - not both.");
+            }
+            return directed ? DirectedType.DIRECTED : DirectedType.UNDIRECTED;
+        }
+        return directedType;
     }
 }

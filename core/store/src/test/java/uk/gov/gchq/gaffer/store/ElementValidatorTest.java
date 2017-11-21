@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
+import uk.gov.gchq.koryphe.ValidationResult;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -82,6 +83,30 @@ public class ElementValidatorTest {
         assertTrue(isValid);
     }
 
+
+    @Test
+    public void shouldReturnValidValidationResultWhenSchemaValidateWithValidElement() {
+        // Given
+        final Schema schema = mock(Schema.class);
+        final String group = TestGroups.EDGE;
+        final Element elm = mock(Element.class);
+        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
+        final ElementFilter filter = mock(ElementFilter.class);
+        final boolean includeIsA = true;
+        final ElementValidator validator = new ElementValidator(schema, includeIsA);
+
+        given(elm.getGroup()).willReturn(group);
+        given(schema.getElement(group)).willReturn(elementDef);
+        given(elementDef.getValidator(includeIsA)).willReturn(filter);
+        given(filter.testWithValidationResult(elm)).willReturn(new ValidationResult());
+
+        // When
+        final ValidationResult result = validator.validateWithValidationResult(elm);
+
+        // Then
+        assertTrue(result.isValid());
+    }
+
     @Test
     public void shouldReturnFalseWhenSchemaValidateWithInvalidElement() {
         // Given
@@ -103,6 +128,30 @@ public class ElementValidatorTest {
 
         // Then
         assertFalse(isValid);
+    }
+
+    @Test
+    public void shouldReturnFailedValidationResultWhenSchemaValidateWithInvalidElement() {
+        // Given
+        final Schema schema = mock(Schema.class);
+        final String group = TestGroups.EDGE;
+        final Element elm = mock(Element.class);
+        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
+        final ElementFilter filter = mock(ElementFilter.class);
+        final boolean includeIsA = true;
+        final ElementValidator validator = new ElementValidator(schema, includeIsA);
+
+        given(elm.getGroup()).willReturn(group);
+        given(schema.getElement(group)).willReturn(elementDef);
+        given(elementDef.getValidator(includeIsA)).willReturn(filter);
+        given(filter.testWithValidationResult(elm)).willReturn(new ValidationResult("some error"));
+
+        // When
+        final ValidationResult result = validator.validateWithValidationResult(elm);
+
+        // Then
+        assertFalse(result.isValid());
+        assertTrue(result.getErrorString().contains("some error"));
     }
 
     @Test

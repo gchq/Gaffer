@@ -64,8 +64,7 @@ import static org.junit.Assume.assumeTrue;
  * prior to running the tests.
  */
 public abstract class AbstractStoreIT {
-    protected static final String USER_01 = "user01";
-    protected static final long AGE_OFF_TIME = 4L * 1000; // 4 seconds;
+    protected static final long AGE_OFF_TIME = 10L * 1000; // 10 seconds;
 
     // Identifier prefixes
     public static final String SOURCE = "1-Source";
@@ -363,6 +362,6 @@ public abstract class AbstractStoreIT {
     }
 
     protected User getUser() {
-        return new User(USER_01);
+        return new User();
     }
 }

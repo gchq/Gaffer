@@ -22,6 +22,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Utility methods for {@link String}s.
+ */
 public final class StringUtil {
 
     public static final char COMMA = ',';
@@ -29,10 +32,15 @@ public final class StringUtil {
     private static final char REPLACEMENT_CHAR = ';';
 
     private StringUtil() {
-        // private to prevent this class being instantiated.
-        // All methods are static and should be called directly.
+        // Private constructor to prevent instantiation.
     }
 
+    /**
+     * Create a string representation of a byte array.
+     *
+     * @param bytes the byte array to convert to a string representation
+     * @return the resulting string
+     */
     public static String toString(final byte[] bytes) {
         try {
             return new String(bytes, CommonConstants.UTF_8);
@@ -41,6 +49,12 @@ public final class StringUtil {
         }
     }
 
+    /**
+     * Create a byte array representation of a string.
+     *
+     * @param string the string to convert into a byte array representation
+     * @return the resulting byte array
+     */
     public static byte[] toBytes(final String string) {
         if (null == string) {
             return new byte[0];
@@ -63,10 +77,10 @@ public final class StringUtil {
         final StringBuilder escapedStr = new StringBuilder(str.length());
         for (int i = 0; i < str.length(); i++) {
             char c = str.charAt(i);
-            if (c == ESCAPE_CHAR) {
+            if (ESCAPE_CHAR == c) {
                 escapedStr.append(ESCAPE_CHAR);
                 escapedStr.append(REPLACEMENT_CHAR);
-            } else if (c == COMMA) {
+            } else if (COMMA == c) {
                 escapedStr.append(ESCAPE_CHAR);
                 escapedStr.append(ESCAPE_CHAR);
             } else {
@@ -78,7 +92,7 @@ public final class StringUtil {
 
     /**
      * Unescapes the provided byte array - this should only be called on byte
-     * arrays that have been through the <code>escape</code> method.
+     * arrays that have been through the {@code escape} method.
      *
      * @param escapedStr the escaped string
      * @return the unescaped string
@@ -89,16 +103,16 @@ public final class StringUtil {
         for (int i = 0; i < escapedStr.length(); i++) {
             char c = escapedStr.charAt(i);
             if (isEscaped) {
-                if (c == REPLACEMENT_CHAR) {
+                if (REPLACEMENT_CHAR == c) {
                     str.append(ESCAPE_CHAR);
-                } else if (c == ESCAPE_CHAR) {
+                } else if (ESCAPE_CHAR == c) {
                     str.append(COMMA);
                 } else {
                     str.append(c);
                 }
                 isEscaped = false;
             } else {
-                if (c == ESCAPE_CHAR) {
+                if (ESCAPE_CHAR == c) {
                     isEscaped = true;
                 } else {
                     str.append(c);
@@ -108,6 +122,12 @@ public final class StringUtil {
         return str.toString();
     }
 
+    /**
+     * Create a CSV entry containing a list of class names (in byte array representation).
+     *
+     * @param classes the classes to write as a CSV entry
+     * @return the CSV entry, as a byte array
+     */
     public static byte[] toCsv(final Class<?>... classes) {
         final String[] classNames = new String[classes.length];
         for (int i = 0; i < classes.length; i++) {
@@ -116,6 +136,19 @@ public final class StringUtil {
         return toBytes(StringUtils.join(classNames, ","));
     }
 
+    /**
+     * Convert a byte array containing a CSV entry of class names into a {@link Set}
+     * of {@link Class} objects.
+     *
+     * All the {@link Class} objects created are then cast to a subclass of the
+     * type {@code T}.
+     *
+     * @param bytes the CSV entry
+     * @param clazz the {@link Class} instance to cast to
+     * @param <T> the base type to cast all of the {@link Class} instances to a
+     *           subtype of
+     * @return a set of {@link Class} instances
+     */
     public static <T> Set<Class<? extends T>> csvToClasses(final byte[] bytes, final Class<? extends T> clazz) {
         final String[] classNames = toString(bytes).split(",");
         final Set<Class<? extends T>> classes = new HashSet<>(classNames.length);

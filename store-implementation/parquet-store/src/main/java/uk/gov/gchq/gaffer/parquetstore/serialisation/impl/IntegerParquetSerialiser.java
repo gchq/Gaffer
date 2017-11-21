@@ -41,7 +41,7 @@ public class IntegerParquetSerialiser implements ParquetSerialiser<Integer> {
         if (objects.length == 1) {
             if (objects[0] instanceof Integer) {
                 return (Integer) objects[0];
-            } else if (objects[0] == null) {
+            } else if (null == objects[0]) {
                 return null;
             }
         }

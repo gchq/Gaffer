@@ -23,8 +23,8 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
 /**
- * A <code>ReservoirStringsUnionSerialiser</code> serialises a {@link ReservoirItemsUnion} of {@link String}s using its
- * <code>toByteArray()</code> method.
+ * A {@code ReservoirStringsUnionSerialiser} serialises a {@link ReservoirItemsUnion} of {@link String}s using its
+ * {@code toByteArray()} method.
  */
 public class ReservoirStringsUnionSerialiser implements ToBytesSerialiser<ReservoirItemsUnion<String>> {
     private static final long serialVersionUID = 5669266109027616942L;

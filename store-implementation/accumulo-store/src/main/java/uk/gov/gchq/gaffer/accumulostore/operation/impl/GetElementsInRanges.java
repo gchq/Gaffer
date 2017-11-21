@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
@@ -38,11 +37,10 @@ import java.util.Map;
  * {@link uk.gov.gchq.gaffer.data.element.id.ElementId}s.
  */
 public class GetElementsInRanges
-        implements Operation,
+        implements
         InputOutput<Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, CloseableIterable<? extends Element>>,
         MultiInput<Pair<? extends ElementId, ? extends ElementId>>,
-        SeededGraphFilters,
-        Options {
+        SeededGraphFilters {
 
     private Iterable<? extends Pair<? extends ElementId, ? extends ElementId>> input;
     private IncludeIncomingOutgoingType inOutType;
@@ -119,8 +117,7 @@ public class GetElementsInRanges
     public static class Builder extends Operation.BaseBuilder<GetElementsInRanges, Builder>
             implements InputOutput.Builder<GetElementsInRanges, Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, CloseableIterable<? extends Element>, Builder>,
             MultiInput.Builder<GetElementsInRanges, Pair<? extends ElementId, ? extends ElementId>, Builder>,
-            SeededGraphFilters.Builder<GetElementsInRanges, Builder>,
-            Options.Builder<GetElementsInRanges, Builder> {
+            SeededGraphFilters.Builder<GetElementsInRanges, Builder> {
         public Builder() {
             super(new GetElementsInRanges());
         }

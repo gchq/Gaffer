@@ -19,6 +19,12 @@ package uk.gov.gchq.gaffer.commonutil.iterable;
 import java.io.Closeable;
 import java.util.Iterator;
 
+/**
+ * A {@code CloseableIterator} is an {@link java.util.Iterator} which must provide an implementation
+ * of the {@link java.io.Closeable#close()} method.
+ *
+ * @param <T> the type of items in the iterator.
+ */
 public interface CloseableIterator<T> extends Iterator<T>, Closeable {
     @Override
     void close();

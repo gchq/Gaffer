@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.accumulostore.inputformat;
 import org.apache.accumulo.core.client.mapreduce.InputFormatBase;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
-import org.apache.accumulo.core.util.format.DefaultFormatter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.InputSplit;
@@ -32,10 +31,12 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionE
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -90,30 +91,41 @@ public class ElementInputFormat extends InputFormatBase<Element, NullWritable> {
 
         @Override
         public boolean nextKeyValue() throws IOException, InterruptedException {
-            if (scannerIterator.hasNext()) {
+            currentV = NullWritable.get();
+            while (scannerIterator.hasNext()) {
                 ++numKeysRead;
                 final Entry<Key, Value> entry = scannerIterator.next();
                 try {
                     currentK = converter.getFullElement(entry.getKey(), entry.getValue(), false);
                     final ViewElementDefinition viewDef = view.getElement(currentK.getGroup());
-                    if (viewDef != null) {
+                    if (null != viewDef) {
                         final ElementTransformer transformer = viewDef.getTransformer();
-                        if (transformer != null) {
+                        if (null != transformer) {
                             transformer.apply(currentK);
                         }
                     }
-                    currentV = NullWritable.get();
+                    if (doPostFilter(currentK, view)) {
+                        ViewUtil.removeProperties(view, currentK);
+                        return true;
+                    }
                 } catch (final AccumuloElementConversionException e) {
                     throw new IOException("Exception converting the key-value to an Element:", e);
                 }
-                if (log.isTraceEnabled()) {
-                    log.trace("Processing key/value pair: " + DefaultFormatter.formatEntry(entry, true));
-                }
-                return true;
             }
             return false;
         }
     }
 
+    public static boolean doPostFilter(final Element element, final View view) {
+        final ViewElementDefinition viewDef = view.getElement(element.getGroup());
+        if (null != viewDef) {
+            return postFilter(element, viewDef.getPostTransformFilter());
+        }
+        return true;
+    }
+
+    public static boolean postFilter(final Element element, final ElementFilter postFilter) {
+        return null == postFilter || postFilter.test(element);
+    }
 
 }

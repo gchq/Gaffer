@@ -52,11 +52,11 @@ public class ElementConverterFunction extends AbstractFunction1<Element, Travers
             LOGGER.error(e.getMessage(), e);
         }
         final Key first = keys.getFirst();
-        if (first != null) {
+        if (null != first) {
             buf.$plus$eq(new Tuple2<>(first, value));
         }
         final Key second = keys.getSecond();
-        if (second != null) {
+        if (null != second) {
             buf.$plus$eq(new Tuple2<>(second, value));
         }
         return buf;

@@ -39,8 +39,8 @@ import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.ImportKeyValu
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.ImportRDDOfElementsHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.javardd.ImportKeyValueJavaPairRDDToAccumulo;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.scalardd.ImportKeyValuePairRDDToAccumulo;
-import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclaration;
-import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
+import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
+import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -92,7 +92,5 @@ public class SparkOperationDeclarationsTest {
         final OperationDeclaration od8 = deserialised.getOperations().get(8);
         assertEquals(ImportRDDOfElements.class, od8.getOperation());
         assertTrue(od8.getHandler() instanceof ImportRDDOfElementsHandler);
-
-
     }
 }

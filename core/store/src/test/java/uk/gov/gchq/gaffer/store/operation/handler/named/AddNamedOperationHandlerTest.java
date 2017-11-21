@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.ParameterDetail;
-import uk.gov.gchq.gaffer.named.operation.cache.CacheOperationFailedException;
+import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -44,6 +44,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
@@ -127,7 +128,7 @@ public class AddNamedOperationHandlerTest {
     @Test
     public void shouldAllowForOperationChainJSONWithParameter() {
         try {
-            String opChainJSON = "{ \"operations\": [ { \"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\" }, { \"class\":\"uk.gov.gchq.gaffer.operation.impl.Limit\", \"resultLimit\": \"${param1}\" } ] }";
+            final String opChainJSON = "{ \"operations\": [ { \"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\" }, { \"class\":\"uk.gov.gchq.gaffer.operation.impl.Limit\", \"resultLimit\": \"${param1}\" } ] }";
 
             addNamedOperation.setOperationChain(opChainJSON);
             addNamedOperation.setOperationName("namedop");
@@ -150,7 +151,7 @@ public class AddNamedOperationHandlerTest {
 
     @Test
     public void shouldNotAllowForOperationChainWithParameterNotInOperationString() throws OperationException {
-        String opChainJSON = "{ \"operations\": [ { \"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\" }, { \"class\":\"uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet\", \"key\": \"${param1}\" } ] }";
+        final String opChainJSON = "{ \"operations\": [ { \"class\":\"uk.gov.gchq.gaffer.operation.impl.get.GetAllElements\" }, { \"class\":\"uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet\", \"key\": \"${param1}\" } ] }";
 
         addNamedOperation.setOperationChain(opChainJSON);
         addNamedOperation.setOperationName("namedop");
@@ -202,6 +203,21 @@ public class AddNamedOperationHandlerTest {
 
         exception.expect(SerialisationException.class);
         JSONSerialiser.deserialise(opChainJSON.getBytes("UTF-8"), OperationChain.class);
+    }
+
+    @Test
+    public void shouldAddNamedOperationWithScoreCorrectly() throws OperationException, CacheOperationFailedException {
+        OperationChain opChain = new OperationChain.Builder().first(new AddElements()).build();
+        addNamedOperation.setOperationChain(opChain);
+        addNamedOperation.setScore(2);
+        addNamedOperation.setOperationName("testOp");
+
+        handler.doOperation(addNamedOperation, context, store);
+
+        final NamedOperationDetail result = mockCache.getNamedOperation("testOp", new User());
+
+        assert cacheContains("testOp");
+        assertEquals(addNamedOperation.getScore(), result.getScore());
     }
 
     private boolean cacheContains(final String opName) {

@@ -22,12 +22,11 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * <code>LazyProperties</code> wraps {@link Properties} and lazily loads property values when
+ * {@code LazyProperties} wraps {@link Properties} and lazily loads property values when
  * requested using a provided {@link uk.gov.gchq.gaffer.data.element.ElementValueLoader}.
  */
 public class LazyProperties extends Properties {
@@ -37,7 +36,7 @@ public class LazyProperties extends Properties {
     private final Properties properties;
 
     /**
-     * Constructs a {@link LazyProperties} by wrapping the provided {@link Properties}
+     * Constructs a  by wrapping the provided {@link Properties}
      * and using the {@link uk.gov.gchq.gaffer.data.element.ElementValueLoader} to lazily load the property values when requested.
      *
      * @param properties  the properties to wrap.
@@ -106,12 +105,7 @@ public class LazyProperties extends Properties {
     @Override
     public void keepOnly(final Collection<String> propertiesToKeep) {
         properties.keepOnly(propertiesToKeep);
-        Iterator<String> it = loadedProperties.iterator();
-        while (it.hasNext()) {
-            if (!propertiesToKeep.contains(it.next())) {
-                it.remove();
-            }
-        }
+        loadedProperties.removeIf(s -> !propertiesToKeep.contains(s));
     }
 
     @Override
@@ -161,7 +155,7 @@ public class LazyProperties extends Properties {
             return true;
         }
 
-        if (obj == null || getClass() != obj.getClass()) {
+        if (null == obj || getClass() != obj.getClass()) {
             return false;
         }
 

@@ -47,10 +47,12 @@ import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
+import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -62,6 +64,9 @@ import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResult
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
+import uk.gov.gchq.gaffer.operation.impl.function.Aggregate;
+import uk.gov.gchq.gaffer.operation.impl.function.Filter;
+import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
@@ -83,7 +88,10 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.tostring.StringToStringSerialiser;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
+import uk.gov.gchq.gaffer.store.operation.GetSchema;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
+import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclaration;
+import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
@@ -92,8 +100,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.export.set.GetSetExportHandler
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToSetHandler;
-import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclaration;
-import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -210,7 +216,6 @@ public class StoreTest {
     public void shouldThrowExceptionIfGraphIdIsNull() throws Exception {
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
-
         try {
             store.initialise(null, schema, properties);
             fail("Exception expected");
@@ -291,7 +296,7 @@ public class StoreTest {
         store.initialise("graphId", schema, properties);
 
         // When
-        store.execute(addElements, user);
+        store.execute(addElements, store.createContext(user));
 
         // Then
         verify(addElementsHandler).doOperation(addElements, context, store);
@@ -354,7 +359,7 @@ public class StoreTest {
 
         // When / Then
         try {
-            store.execute(opChain, user);
+            store.execute(opChain, context);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             verify(operationChainValidator).validate(opChain, user, store);
@@ -373,7 +378,7 @@ public class StoreTest {
         store.initialise("graphId", schema, properties);
 
         // When
-        store.execute(operation, user);
+        store.execute(operation, context);
 
         // Then
         assertEquals(1, store.getDoUnhandledOperationCalls().size());
@@ -426,7 +431,7 @@ public class StoreTest {
         store.initialise("graphId", schema, properties);
 
         // When
-        final CloseableIterable<? extends Element> result = store.execute(opChain, user);
+        final CloseableIterable<? extends Element> result = store.execute(opChain, context);
 
         // Then
         assertSame(getElementsResult, result);
@@ -442,6 +447,7 @@ public class StoreTest {
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
+        given(properties.getJobTrackerEnabled()).willReturn(true);
         store.initialise("graphId", schema, properties);
 
         // When
@@ -493,6 +499,13 @@ public class StoreTest {
                 Min.class,
                 Sort.class,
 
+                // Algorithm
+                GetWalks.class,
+
+                // OperationChain
+                OperationChain.class,
+                OperationChainDAO.class,
+
                 // Other
                 GenerateElements.class,
                 GenerateObjects.class,
@@ -500,8 +513,102 @@ public class StoreTest {
                 Count.class,
                 CountGroups.class,
                 Limit.class,
-                DiscardOutput.class
+                DiscardOutput.class,
+                GetSchema.class,
+
+                // Function
+                Filter.class,
+                Transform.class,
+                Aggregate.class
         );
+
+        expectedOperations.sort(Comparator.comparing(Class::getName));
+        supportedOperations.sort(Comparator.comparing(Class::getName));
+        assertEquals(expectedOperations, supportedOperations);
+    }
+
+    @Test
+    public void shouldReturnAllSupportedOperationsWhenJobTrackerIsDisabled() throws Exception {
+        // Given
+        final Properties cacheProperties = new Properties();
+        cacheProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, HashMapCacheService.class.getName());
+        CacheServiceLoader.initialise(cacheProperties);
+
+        final Schema schema = createSchemaMock();
+        final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
+        given(properties.getJobTrackerEnabled()).willReturn(false);
+        store.initialise("graphId", schema, properties);
+
+        // When
+        final List<Class<? extends Operation>> supportedOperations = Lists.newArrayList(store.getSupportedOperations());
+
+        // Then
+        assertNotNull(supportedOperations);
+
+        final List<Class<? extends Operation>> expectedOperations = Lists.newArrayList(
+                AddElements.class,
+                GetElements.class,
+                GetAdjacentIds.class,
+                GetAllElements.class,
+
+                mock(AddElements.class).getClass(),
+                mock(GetElements.class).getClass(),
+                mock(GetAdjacentIds.class).getClass(),
+
+                // Export
+                ExportToSet.class,
+                GetSetExport.class,
+                GetExports.class,
+                ExportToGafferResultCache.class,
+                GetGafferResultCacheExport.class,
+
+                // Jobs are disabled
+
+                // Output
+                ToArray.class,
+                ToEntitySeeds.class,
+                ToList.class,
+                ToMap.class,
+                ToCsv.class,
+                ToSet.class,
+                ToStream.class,
+                ToVertices.class,
+
+                // Named Operations
+                NamedOperation.class,
+                AddNamedOperation.class,
+                GetAllNamedOperations.class,
+                DeleteNamedOperation.class,
+
+                // ElementComparison
+                Max.class,
+                Min.class,
+                Sort.class,
+
+                // Algorithm
+                GetWalks.class,
+
+                // OperationChain
+                OperationChain.class,
+                OperationChainDAO.class,
+
+                // Other
+                GenerateElements.class,
+                GenerateObjects.class,
+                Validate.class,
+                Count.class,
+                CountGroups.class,
+                Limit.class,
+                DiscardOutput.class,
+                GetSchema.class,
+
+                // Function
+                Filter.class,
+                Transform.class,
+                Aggregate.class
+        );
+
         expectedOperations.sort(Comparator.comparing(Class::getName));
         supportedOperations.sort(Comparator.comparing(Class::getName));
         assertEquals(expectedOperations, supportedOperations);
@@ -572,7 +679,7 @@ public class StoreTest {
         store.initialise("graphId", schema, properties);
 
         // When
-        final JobDetail resultJobDetail = store.executeJob(opChain, user);
+        final JobDetail resultJobDetail = store.executeJob(opChain, store.createContext(user));
 
         // Then
         Thread.sleep(1000);
@@ -599,7 +706,7 @@ public class StoreTest {
         store.initialise("graphId", schema, properties);
 
         // When
-        final JobDetail resultJobDetail = store.executeJob(opChain, user);
+        final JobDetail resultJobDetail = store.executeJob(opChain, store.createContext(user));
 
         // Then
         Thread.sleep(1000);
@@ -783,7 +890,8 @@ public class StoreTest {
         }
 
         @Override
-        protected Context createContext(final User user) {
+        public Context createContext(final User user) {
+            super.createContext(user);
             return context;
         }
 
@@ -793,8 +901,8 @@ public class StoreTest {
         }
 
         @Override
-        protected JobTracker createJobTracker(final StoreProperties properties) {
-            if (properties.getJobTrackerEnabled()) {
+        protected JobTracker createJobTracker() {
+            if (getProperties().getJobTrackerEnabled()) {
                 return jobTracker;
             }
 

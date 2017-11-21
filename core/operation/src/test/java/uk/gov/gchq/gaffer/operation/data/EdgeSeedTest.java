@@ -38,6 +38,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -393,6 +394,81 @@ public class EdgeSeedTest extends JSONSerialisationTest<EdgeSeed> {
 
         // Then
         assertThat(edgeSeed1, equalTo(edgeSeed2));
+    }
+
+    @Test
+    public void shouldDeserialiseFromJsonUsingDirectedTrueField() {
+        // Given
+        final String json = "{\"class\": \"uk.gov.gchq.gaffer.operation.data.EdgeSeed\", \"directed\": true}";
+
+        // When
+        final EdgeSeed deserialisedEdgeSeed = fromJson(json.getBytes());
+
+        // Then
+        assertEquals(DirectedType.DIRECTED, deserialisedEdgeSeed.getDirectedType());
+    }
+
+    @Test
+    public void shouldDeserialiseFromJsonUsingDirectedFalseField() {
+        // Given
+        final String json = "{\"class\": \"uk.gov.gchq.gaffer.operation.data.EdgeSeed\", \"directed\": false}";
+
+        // When
+        final EdgeSeed deserialisedEdgeSeed = fromJson(json.getBytes());
+
+        // Then
+        assertEquals(DirectedType.UNDIRECTED, deserialisedEdgeSeed.getDirectedType());
+    }
+
+    @Test
+    public void shouldDeserialiseFromJsonWhenDirectedTypeIsDirected() {
+        // Given
+        final String json = "{\"class\": \"uk.gov.gchq.gaffer.operation.data.EdgeSeed\", \"directedType\": \"DIRECTED\"}";
+
+        // When
+        final EdgeSeed deserialisedEdgeSeed = fromJson(json.getBytes());
+
+        // Then
+        assertEquals(DirectedType.DIRECTED, deserialisedEdgeSeed.getDirectedType());
+    }
+
+    @Test
+    public void shouldDeserialiseFromJsonWhenDirectedTypeIsUndirected() {
+        // Given
+        final String json = "{\"class\": \"uk.gov.gchq.gaffer.operation.data.EdgeSeed\", \"directedType\": \"UNDIRECTED\"}";
+
+        // When
+        final EdgeSeed deserialisedEdgeSeed = fromJson(json.getBytes());
+
+        // Then
+        assertEquals(DirectedType.UNDIRECTED, deserialisedEdgeSeed.getDirectedType());
+    }
+
+    @Test
+    public void shouldDeserialiseFromJsonWhenDirectedTypeIsEither() {
+        // Given
+        final String json = "{\"class\": \"uk.gov.gchq.gaffer.operation.data.EdgeSeed\", \"directedType\": \"EITHER\"}";
+
+        // When
+        final EdgeSeed deserialisedEdgeSeed = fromJson(json.getBytes());
+
+        // Then
+        assertEquals(DirectedType.EITHER, deserialisedEdgeSeed.getDirectedType());
+    }
+
+
+    @Test
+    public void shouldThrowExceptionWhenDeserialiseFromJsonUsingDirectedAndDirectedType() {
+        // Given
+        final String json = "{\"class\": \"uk.gov.gchq.gaffer.operation.data.EdgeSeed\", \"directed\": true, \"directedType\": \"DIRECTED\"}";
+
+        // When / Then
+        try {
+            fromJson(json.getBytes());
+            fail("Exception expected");
+        } catch (final Exception e) {
+            assertTrue(e.getMessage().contains("not both"));
+        }
     }
 
     @Override

@@ -46,7 +46,7 @@ public class RoadTrafficDataLoaderITs {
 
     // Example lines taken from 2016 issue of GB Road Traffic Counts data set (raw count - major roads)
     private static final String csvHeaderV2 = "Region Name (GO),ONS LACode,ONS LA Name,CP,S Ref E,S Ref N,S Ref Latitude,S Ref Longitude,Road,A-Junction,A Ref E,A Ref N,B-Junction,B Ref E,B Ref N,RCat,iDir,Year,dCount,Hour,PC,2WMV,CAR,BUS,LGV,HGVR2,HGVR3,HGVR4,HGVA3,HGVA5,HGVA6,HGV,AMV";
-    private static final String csvLineV2 = "\"Wales\",W06000022,\"Newport\",501,328570,187000,51.577320306,-3.032184269,M4,\"28\",328380,185830,\"27\",328400,187800,TM,E,2000,2000-06-09,7,0,6,2491,33,539,164,25,22,30,91,59,391,3460";
+    private static final String csvLineV2 = "\"Wales\",W06000022,\"Newport\",501,328570,187000,51.577320306,-3.032184269,M4,\"28\",328380,185830,\"27\",328400,187800,TM,E,2000,2000-06-09 00:00:00,7,0,6,2491,33,539,164,25,22,30,91,59,391,3460";
 
     @Rule
     public final TestName testName = new TestName();
@@ -74,7 +74,7 @@ public class RoadTrafficDataLoaderITs {
 
         int entityCount = 0;
         int edgeCount = 0;
-        for (Element element : elements) {
+        for (final Element element : elements) {
             if (element instanceof Entity) {
                 entityCount++;
             } else if (element instanceof Edge) {
@@ -111,7 +111,7 @@ public class RoadTrafficDataLoaderITs {
 
         int entityCount = 0;
         int edgeCount = 0;
-        for (Element element : elements) {
+        for (final Element element : elements) {
             if (element instanceof Entity) {
                 entityCount++;
             } else if (element instanceof Edge) {

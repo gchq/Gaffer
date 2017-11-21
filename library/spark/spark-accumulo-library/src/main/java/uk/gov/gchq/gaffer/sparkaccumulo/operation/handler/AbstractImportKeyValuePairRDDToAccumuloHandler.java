@@ -23,7 +23,6 @@ import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.AccumuloKeyRangePartitioner;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -33,7 +32,7 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-public abstract class AbstractImportKeyValuePairRDDToAccumuloHandler<OP extends Operation & Options> implements OperationHandler<OP> {
+public abstract class AbstractImportKeyValuePairRDDToAccumuloHandler<OP extends Operation> implements OperationHandler<OP> {
 
     protected abstract void prepareKeyValues(final OP operation, final AccumuloKeyRangePartitioner partitioner) throws OperationException;
 
@@ -64,13 +63,13 @@ public abstract class AbstractImportKeyValuePairRDDToAccumuloHandler<OP extends 
                         .inputPath(outputPath)
                         .failurePath(failurePath)
                         .build();
-        store._execute(new OperationChain<>(importAccumuloKeyValueFiles), context);
+        store.execute(new OperationChain<>(importAccumuloKeyValueFiles), context);
     }
 
     protected Configuration getConfiguration(final OP operation) throws OperationException {
         final Configuration conf = new Configuration();
         final String serialisedConf = operation.getOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY);
-        if (serialisedConf != null) {
+        if (null != serialisedConf) {
             try {
                 final ByteArrayInputStream bais = new ByteArrayInputStream(serialisedConf.getBytes(CommonConstants.UTF_8));
                 conf.readFields(new DataInputStream(bais));

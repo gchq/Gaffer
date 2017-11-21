@@ -20,6 +20,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 
+/**
+ * The base interface for {@link Operation}s which export results.
+ */
 public interface Export {
     String DEFAULT_KEY = "ALL";
 

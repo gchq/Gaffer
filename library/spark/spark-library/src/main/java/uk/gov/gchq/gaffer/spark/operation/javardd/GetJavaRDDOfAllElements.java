@@ -17,39 +17,30 @@ package uk.gov.gchq.gaffer.spark.operation.javardd;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.sql.SparkSession;
 
-import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
 
 import java.util.Map;
 
+/**
+ * A {@code GetJavaRDDOfAllElements} operation retrieves all the {@link Element}s
+ * from the target store, and returns them inside a {@link JavaRDD}.
+ */
 public class GetJavaRDDOfAllElements implements
-        Operation,
         Output<JavaRDD<Element>>,
-        GraphFilters,
-        JavaRdd,
-        Options {
+        GraphFilters {
 
     private Map<String, String> options;
-    @Required
-    private JavaSparkContext sparkContext;
     private View view;
     private DirectedType directedType;
 
     public GetJavaRDDOfAllElements() {
-    }
-
-    public GetJavaRDDOfAllElements(final SparkSession sparkSession) {
-        setJavaSparkContext(JavaSparkContext.fromSparkContext(sparkSession.sparkContext()));
     }
 
     @Override
@@ -65,16 +56,6 @@ public class GetJavaRDDOfAllElements implements
     @Override
     public TypeReference<JavaRDD<Element>> getOutputTypeReference() {
         return new TypeReferenceSparkImpl.JavaRDDElement();
-    }
-
-    @Override
-    public JavaSparkContext getJavaSparkContext() {
-        return sparkContext;
-    }
-
-    @Override
-    public void setJavaSparkContext(final JavaSparkContext sparkContext) {
-        this.sparkContext = sparkContext;
     }
 
     @Override
@@ -101,7 +82,6 @@ public class GetJavaRDDOfAllElements implements
     public GetJavaRDDOfAllElements shallowClone() {
         return new GetJavaRDDOfAllElements.Builder()
                 .options(options)
-                .javaSparkContext(sparkContext)
                 .view(view)
                 .directedType(directedType)
                 .build();
@@ -110,8 +90,7 @@ public class GetJavaRDDOfAllElements implements
     public static class Builder extends BaseBuilder<GetJavaRDDOfAllElements, Builder>
             implements Output.Builder<GetJavaRDDOfAllElements, JavaRDD<Element>, Builder>,
             GraphFilters.Builder<GetJavaRDDOfAllElements, Builder>,
-            JavaRdd.Builder<GetJavaRDDOfAllElements, Builder>,
-            Options.Builder<GetJavaRDDOfAllElements, Builder> {
+            Operation.Builder<GetJavaRDDOfAllElements, Builder> {
         public Builder() {
             super(new GetJavaRDDOfAllElements());
         }

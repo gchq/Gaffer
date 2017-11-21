@@ -20,6 +20,12 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Comparator;
 
+/**
+ * A {@code ComparableOrToStringComparator} is a {@link Comparator} which compares
+ * two objects using their native {@link Comparator#compare(Object, Object)} method
+ * if it is available and falls back onto a comparison of their {@link Object#toString()}
+ * values.
+ */
 public class ComparableOrToStringComparator implements Comparator<Object>, Serializable {
     @Override
     public int compare(final Object vertex1, final Object vertex2) {

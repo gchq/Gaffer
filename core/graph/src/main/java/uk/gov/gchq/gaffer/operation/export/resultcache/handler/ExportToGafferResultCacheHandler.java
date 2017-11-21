@@ -24,6 +24,10 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.export.ExportToHandler;
 
+/**
+ * A {@code ExportToGafferResultCacheHandler} is an {@link uk.gov.gchq.gaffer.store.operation.handler.OperationHandler}
+ * used to export results to a Gaffer results cache.
+ */
 public class ExportToGafferResultCacheHandler extends ExportToHandler<ExportToGafferResultCache, GafferResultCacheExporter> {
     private String graphId = "gafferResultCache";
 
@@ -44,7 +48,7 @@ public class ExportToGafferResultCacheHandler extends ExportToHandler<ExportToGa
     @Override
     protected GafferResultCacheExporter createExporter(final ExportToGafferResultCache export, final Context context, final Store store) {
         return new GafferResultCacheExporter(
-                context.getUser(), context.getJobId(), createGraph(store),
+                context, context.getJobId(), createGraph(store),
                 visibility, export.getOpAuths());
     }
 

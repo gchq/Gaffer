@@ -19,12 +19,16 @@ package uk.gov.gchq.gaffer.graph.hook;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolver;
+import uk.gov.gchq.gaffer.store.operation.resolver.named.NamedOperationScoreResolver;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.HashMap;
@@ -56,7 +60,7 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
                 .build();
 
         // When
-        hook.preExecute(opChain, user);
+        hook.preExecute(opChain, new Context(user));
 
         // Then - no exceptions
     }
@@ -75,7 +79,7 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
                 .build();
 
         // When
-        hook.preExecute(opChain, user);
+        hook.preExecute(opChain, new Context(user));
 
         // Then - no exceptions
     }
@@ -98,7 +102,7 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
         // When/Then
 
         try {
-            hook.preExecute(opChain, user);
+            hook.preExecute(opChain, new Context(user));
             fail("Exception expected");
         } catch (final UnauthorisedException e) {
             assertNotNull(e.getMessage());
@@ -120,7 +124,7 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
                 .build();
 
         // When
-        hook.preExecute(opChain, user);
+        hook.preExecute(opChain, new Context(user));
 
         // Then - no exceptions
     }
@@ -140,7 +144,7 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
 
         // When/Then
         try {
-            hook.preExecute(opChain, user);
+            hook.preExecute(opChain, new Context(user));
             fail("Exception expected");
         } catch (final UnauthorisedException e) {
             assertNotNull(e.getMessage());
@@ -160,7 +164,7 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
 
         // When/Then
         try {
-            hook.preExecute(opChain, user);
+            hook.preExecute(opChain, new Context(user));
             fail("Exception expected");
         } catch (final UnauthorisedException e) {
             assertNotNull(e.getMessage());
@@ -180,23 +184,15 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
                 .build();
 
         // When
-        final Object returnedResult = hook.postExecute(result, opChain, user);
+        final Object returnedResult = hook.postExecute(result, opChain, new Context(user));
 
         // Then
         assertSame(result, returnedResult);
     }
 
     @Override
-    public void shouldJsonSerialiseAndDeserialise() {
-        // Given
-        final OperationChainLimiter hook = fromJson(OP_CHAIN_LIMITER_PATH);
-
-        // When
-        final byte[] json = toJson(hook);
-        final OperationChainLimiter deserialisedHook = fromJson(json);
-
-        // Then
-        assertNotNull(deserialisedHook);
+    protected OperationChainLimiter getTestObject() {
+        return fromJson(OP_CHAIN_LIMITER_PATH);
     }
 
     @Test
@@ -248,5 +244,20 @@ public class OperationChainLimiterTest extends GraphHookTest<OperationChainLimit
 
         // Then
         assertEquals(opScores, result);
+    }
+
+    @Test
+    public void shouldSetAndGetScoreResolvers() {
+        // Given
+        final OperationChainLimiter hook = new OperationChainLimiter();
+        final Map<Class<? extends Operation>, ScoreResolver> resolvers = new HashMap<>();
+        resolvers.put(NamedOperation.class, new NamedOperationScoreResolver());
+
+        // When
+        hook.setScoreResolvers(resolvers);
+        final Map<Class<? extends Operation>, ScoreResolver> result = hook.getScoreResolvers();
+
+        // Then
+        assertEquals(resolvers, result);
     }
 }

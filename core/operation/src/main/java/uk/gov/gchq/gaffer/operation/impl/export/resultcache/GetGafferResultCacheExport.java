@@ -25,12 +25,20 @@ import uk.gov.gchq.gaffer.operation.export.GetExport;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
+import java.util.Map;
+
+/**
+ * A {@code GetGafferResultCacheExport} operation is used to retrieve data which
+ * has previously been exported to a Gaffer results cache.
+ *
+ * @see ExportToGafferResultCache
+ */
 public class GetGafferResultCacheExport implements
-        Operation,
         GetExport,
         Output<CloseableIterable<?>> {
     private String jobId;
     private String key = Export.DEFAULT_KEY;
+    private Map<String, String> options;
 
     @Override
     public String getKey() {
@@ -62,7 +70,18 @@ public class GetGafferResultCacheExport implements
         return new GetGafferResultCacheExport.Builder()
                 .jobId(jobId)
                 .key(key)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static class Builder

@@ -18,23 +18,16 @@ package uk.gov.gchq.gaffer.hbasestore.coprocessor.processor;
 
 import uk.gov.gchq.gaffer.hbasestore.serialisation.LazyElementCell;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.function.Predicate;
 
 public abstract class FilterProcessor implements GafferScannerProcessor, Predicate<LazyElementCell> {
     @Override
     public List<LazyElementCell> process(final List<LazyElementCell> elementCells) {
-        final Iterator<LazyElementCell> itr = elementCells.iterator();
-        while (itr.hasNext()) {
-            final LazyElementCell elementCell = itr.next();
-            // If we filter out a deleted element when compacting then the deleted
-            // flag will not be persisted and the element will not get deleted.
-            // When querying, deleted cells will have already been filtered out.
-            if (!elementCell.isDeleted() && !test(elementCell)) {
-                itr.remove();
-            }
-        }
+        // If we filter out a deleted element when compacting then the deleted
+        // flag will not be persisted and the element will not get deleted.
+        // When querying, deleted cells will have already been filtered out.
+        elementCells.removeIf(elementCell -> !elementCell.isDeleted() && !test(elementCell));
 
         return elementCells;
     }

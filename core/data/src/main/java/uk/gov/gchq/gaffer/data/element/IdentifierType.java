@@ -20,11 +20,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The <code>IdentifierType</code> enum contains the identifier types used for {@link uk.gov.gchq.gaffer.data.element.Entity}s and
+ * The {@code IdentifierType} enum contains the identifier types used for {@link uk.gov.gchq.gaffer.data.element.Entity}s and
  * {@link uk.gov.gchq.gaffer.data.element.Edge}s.
  */
 public enum IdentifierType {
     // Entity identifier type
+    /**
+     * The vertex associated with an Entity.
+     */
     VERTEX,
 
     // Edge identifier types
@@ -41,7 +44,17 @@ public enum IdentifierType {
     /**
      * An Edge's directed flag
      */
-    DIRECTED;
+    DIRECTED,
+
+    /**
+     * An Edge's matched vertex (defaults to SOURCE).
+     */
+    MATCHED_VERTEX,
+
+    /**
+     * The vertex adjacent to Edge's matched vertex (defaults to DESTINATION).
+     */
+    ADJACENT_MATCHED_VERTEX;
 
     private static final Map<String, IdentifierType> VALUES = new HashMap<>(values().length);
 

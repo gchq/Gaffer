@@ -45,7 +45,8 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.proxystore.ProxyStore;
-import uk.gov.gchq.gaffer.rest.RestApiTestUtil;
+import uk.gov.gchq.gaffer.rest.RestApiTestClient;
+import uk.gov.gchq.gaffer.rest.service.v2.RestApiV2TestClient;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -60,6 +61,8 @@ import static org.junit.Assert.assertThat;
 
 public class ProxyStoreBasicIT {
     private Graph graph;
+
+    private static final RestApiTestClient client = new RestApiV2TestClient();
 
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
@@ -97,20 +100,19 @@ public class ProxyStoreBasicIT {
                     .build()
     };
 
-
     @BeforeClass
     public static void beforeClass() throws Exception {
-        RestApiTestUtil.startServer();
+        client.startServer();
     }
 
     @AfterClass
     public static void afterClass() {
-        RestApiTestUtil.stopServer();
+        client.stopServer();
     }
 
     @Before
     public void before() throws IOException {
-        RestApiTestUtil.reinitialiseGraph(testFolder, StreamUtil.SCHEMA, "map-store.properties");
+        client.reinitialiseGraph(testFolder, StreamUtil.SCHEMA, "map-store.properties");
 
         // setup ProxyStore
         graph = new Graph.Builder()
@@ -118,7 +120,7 @@ public class ProxyStoreBasicIT {
                         .graphId("graph1")
                         .host("localhost")
                         .port(8080)
-                        .contextRoot("rest/v1")
+                        .contextRoot("rest")
                         .build())
                 .build();
     }

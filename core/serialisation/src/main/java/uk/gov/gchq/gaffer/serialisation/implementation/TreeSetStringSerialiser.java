@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.TreeSet;
 
 /**
- * A <code>TreeSetStringSerialiser</code> is a serialiser for {@link TreeSet}s with
+ * A {@code TreeSetStringSerialiser} is a serialiser for {@link TreeSet}s with
  * {@link String} values.
  */
 public class TreeSetStringSerialiser extends ToBytesViaStringDeserialiser<TreeSet<String>> {

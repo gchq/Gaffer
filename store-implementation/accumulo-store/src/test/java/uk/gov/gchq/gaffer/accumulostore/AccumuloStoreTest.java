@@ -284,7 +284,7 @@ public class AccumuloStoreTest {
         final AddElements add = new AddElements.Builder()
                 .input(e)
                 .build();
-        store.execute(add, user);
+        store.execute(add, store.createContext(user));
 
         final EntityId entityId1 = new EntitySeed("1");
         final GetElements getBySeed = new GetElements.Builder()
@@ -293,7 +293,7 @@ public class AccumuloStoreTest {
                         .build())
                 .input(entityId1)
                 .build();
-        final CloseableIterable<? extends Element> results = store.execute(getBySeed, user);
+        final CloseableIterable<? extends Element> results = store.execute(getBySeed, store.createContext(user));
 
         assertEquals(1, Iterables.size(results));
         assertTrue(Iterables.contains(results, e));
@@ -304,7 +304,7 @@ public class AccumuloStoreTest {
                         .build())
                 .input(entityId1)
                 .build();
-        CloseableIterable<? extends Element> relatedResults = store.execute(getRelated, user);
+        CloseableIterable<? extends Element> relatedResults = store.execute(getRelated, store.createContext(user));
         assertEquals(1, Iterables.size(relatedResults));
         assertTrue(Iterables.contains(relatedResults, e));
 
@@ -323,7 +323,7 @@ public class AccumuloStoreTest {
                         .build())
                 .input(entityId1)
                 .build();
-        relatedResults = store.execute(getRelatedWithPostAggregationFilter, user);
+        relatedResults = store.execute(getRelatedWithPostAggregationFilter, store.createContext(user));
         assertEquals(0, Iterables.size(relatedResults));
     }
 
@@ -404,7 +404,7 @@ public class AccumuloStoreTest {
                         .build())
                 .type("string", new TypeDefinition.Builder()
                         .clazz(String.class)
-                        .serialiser(new StringSerialiser())
+                        .serialiser(new JavaSerialiser())
                         .aggregateFunction(new StringConcat())
                         .build())
                 .type("int", new TypeDefinition.Builder()
@@ -413,6 +413,7 @@ public class AccumuloStoreTest {
                         .aggregateFunction(new Sum())
                         .build())
                 .type("false", Boolean.class)
+                .vertexSerialiser(new JavaSerialiser())
                 .build();
 
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
@@ -426,3 +427,4 @@ public class AccumuloStoreTest {
         }
     }
 }
+

@@ -26,6 +26,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Used by the {@link AddOperationsToChain} operation to store details around which
+ * operations to add to the chain.
+ */
 public class AdditionalOperations {
     private List<byte[]> start;
     private List<byte[]> end;

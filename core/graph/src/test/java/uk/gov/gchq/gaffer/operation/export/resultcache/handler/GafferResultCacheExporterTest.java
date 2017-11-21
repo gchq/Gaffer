@@ -37,6 +37,7 @@ import uk.gov.gchq.gaffer.operation.export.resultcache.GafferResultCacheExporter
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -71,6 +72,7 @@ public class GafferResultCacheExporterTest {
     @Before
     public void before() {
         given(store.getSchema()).willReturn(new Schema());
+        given(store.getProperties()).willReturn(new StoreProperties());
         resultCache = new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("resultCacheGraph")
@@ -83,7 +85,7 @@ public class GafferResultCacheExporterTest {
     public void shouldAddResults() throws OperationException, SerialisationException {
         // Given
         final GafferResultCacheExporter exporter = new GafferResultCacheExporter(
-                user, jobId, resultCache, visibility, requiredOpAuths
+                context, jobId, resultCache, visibility, requiredOpAuths
         );
 
         // When
@@ -91,7 +93,7 @@ public class GafferResultCacheExporterTest {
 
         // Then
         final ArgumentCaptor<OperationChain> opChain = ArgumentCaptor.forClass(OperationChain.class);
-        verify(store).execute(opChain.capture(), Mockito.eq(user));
+        verify(store).execute(opChain.capture(), Mockito.any(Context.class));
         assertEquals(1, opChain.getValue().getOperations().size());
         final AddElements addElements = (AddElements) opChain.getValue().getOperations().get(0);
         final List<Element> elements = Lists.newArrayList(addElements.getInput());
@@ -111,14 +113,14 @@ public class GafferResultCacheExporterTest {
     public void shouldAddNotErrorWhenAddingANullResult() throws OperationException, SerialisationException {
         // Given
         final GafferResultCacheExporter exporter = new GafferResultCacheExporter(
-                user, jobId, resultCache, visibility, requiredOpAuths
+                context, jobId, resultCache, visibility, requiredOpAuths
         );
 
         // When
         exporter.add(key, null);
 
         // Then
-        verify(store, never()).execute(Mockito.any(OperationChain.class), Mockito.eq(user));
+        verify(store, never()).execute(Mockito.any(OperationChain.class), Mockito.any(Context.class));
     }
 
     @Test
@@ -127,10 +129,10 @@ public class GafferResultCacheExporterTest {
         final ArgumentCaptor<OperationChain> opChain = ArgumentCaptor.forClass(OperationChain.class);
         long timestamp = System.currentTimeMillis();
         final List<Element> cachedEdges = createCachedEdges(timestamp, serialisedResults);
-        given(store.execute(opChain.capture(), Mockito.eq(user))).willReturn(new WrappedCloseableIterable<>(cachedEdges));
+        given(store.execute(opChain.capture(), Mockito.any())).willReturn(new WrappedCloseableIterable<>(cachedEdges));
 
         final GafferResultCacheExporter exporter = new GafferResultCacheExporter(
-                user, jobId, resultCache, visibility, requiredOpAuths
+                context, jobId, resultCache, visibility, requiredOpAuths
         );
 
         // When
@@ -144,10 +146,10 @@ public class GafferResultCacheExporterTest {
     public void shouldGetEmptyResults() throws OperationException, SerialisationException {
         // Given
         final ArgumentCaptor<OperationChain> opChain = ArgumentCaptor.forClass(OperationChain.class);
-        given(store.execute(opChain.capture(), Mockito.eq(user))).willReturn(null);
+        given(store.execute(opChain.capture(), Mockito.any(Context.class))).willReturn(null);
 
         final GafferResultCacheExporter exporter = new GafferResultCacheExporter(
-                user, jobId, resultCache, visibility, requiredOpAuths
+                context, jobId, resultCache, visibility, requiredOpAuths
         );
 
         // When

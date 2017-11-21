@@ -33,7 +33,6 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
-import uk.gov.gchq.gaffer.user.User;
 
 import java.util.Set;
 
@@ -43,18 +42,13 @@ public class TestStore extends Store {
     public static Store mockStore = mock(TestStore.class);
 
     @Override
-    public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
-        return mockStore.executeJob(operationChain, user);
+    public JobDetail executeJob(final OperationChain<?> operationChain, final Context context) throws OperationException {
+        return mockStore.executeJob(operationChain, context);
     }
 
     @Override
-    public <O> O execute(final OperationChain<O> operationChain, final User user) throws OperationException {
-        return mockStore.execute(operationChain, user);
-    }
-
-    @Override
-    public <O> O _execute(final OperationChain<O> operationChain, final Context context) throws OperationException {
-        return mockStore._execute(operationChain, context);
+    public <O> O execute(final OperationChain<O> operationChain, final Context context) throws OperationException {
+        return mockStore.execute(operationChain, context);
     }
 
     @Override

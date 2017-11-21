@@ -24,7 +24,6 @@ import com.google.common.collect.Lists;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.ExportTo;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
@@ -33,10 +32,15 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
+/**
+ * A {@code ExportToOtherGraph} operation is used to export the results of carrying
+ * out a query on a Gaffer {@link uk.gov.gchq.gaffer.graph.Graph} to a different
+ * graph.
+ */
 public class ExportToOtherGraph implements
-        Operation,
         MultiInput<Element>,
         ExportTo<Iterable<? extends Element>> {
     @Required
@@ -49,6 +53,7 @@ public class ExportToOtherGraph implements
 
     private String parentStorePropertiesId;
     private StoreProperties storeProperties;
+    private Map<String, String> options;
 
     @Override
     public String getKey() {
@@ -135,6 +140,7 @@ public class ExportToOtherGraph implements
                 .schema(schema)
                 .parentStorePropertiesId(parentStorePropertiesId)
                 .storeProperties(storeProperties)
+                .options(options)
                 .build();
     }
 
@@ -143,8 +149,19 @@ public class ExportToOtherGraph implements
         return new TypeReferenceImpl.IterableElement();
     }
 
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
     public static final class Builder extends BaseBuilder<ExportToOtherGraph, Builder>
             implements ExportTo.Builder<ExportToOtherGraph, Iterable<? extends Element>, Builder> {
+
         public Builder() {
             super(new ExportToOtherGraph());
         }
@@ -177,6 +194,5 @@ public class ExportToOtherGraph implements
             _getOp().setSchema(schema);
             return _self();
         }
-
     }
 }

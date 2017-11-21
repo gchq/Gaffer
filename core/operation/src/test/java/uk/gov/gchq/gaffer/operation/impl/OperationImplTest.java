@@ -121,7 +121,7 @@ public class OperationImplTest extends OperationTest<OperationImpl> {
 
         // Then
         assertEquals(
-                Sets.newHashSet("requiredField2 is required"),
+                Sets.newHashSet("requiredField2 is required for: " + op.getClass().getSimpleName()),
                 validationResult.getErrors()
         );
     }

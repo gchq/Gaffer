@@ -21,16 +21,12 @@ import org.apache.spark.api.java.JavaPairRDD;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.io.Input;
 
 import java.util.Map;
 
 public class ImportKeyValueJavaPairRDDToAccumulo implements
-        Operation,
-        Input<JavaPairRDD<Key, Value>>,
-        Options {
-
+        Input<JavaPairRDD<Key, Value>> {
     @Required
     private String outputPath;
     @Required
@@ -85,8 +81,7 @@ public class ImportKeyValueJavaPairRDDToAccumulo implements
     }
 
     public static class Builder extends Operation.BaseBuilder<ImportKeyValueJavaPairRDDToAccumulo, Builder>
-            implements Input.Builder<ImportKeyValueJavaPairRDDToAccumulo, JavaPairRDD<Key, Value>, Builder>,
-            Options.Builder<ImportKeyValueJavaPairRDDToAccumulo, Builder> {
+            implements Input.Builder<ImportKeyValueJavaPairRDDToAccumulo, JavaPairRDD<Key, Value>, Builder> {
         public Builder() {
             super(new ImportKeyValueJavaPairRDDToAccumulo());
         }

@@ -22,6 +22,10 @@ import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * A {@code MapGenerator} is a generator which creates a representation of an {@link Element}
+ * using a {@link LinkedHashMap}.
+ */
 public class MapGenerator implements OneToOneObjectGenerator<Map<String, Object>> {
     public static final String GROUP = "GROUP";
     private LinkedHashMap<String, String> fields = new LinkedHashMap<>();

@@ -28,15 +28,12 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 
 /**
- * <p>
  * Java 8 {@link java.util.stream.Collector}s for Gaffer, based on the {@link java.util.stream.Collectors}
  * class.
- * </p>
- * <p>
+ *
  * Please note that using a {@link java.util.stream.Collector} to gather together
  * the items contained in a {@link java.util.stream.Stream} will result in those
  * items being loaded into memory.
- * </p>
  */
 public final class GafferCollectors {
 

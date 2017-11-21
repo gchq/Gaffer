@@ -70,7 +70,7 @@ public abstract class ToBytesViaStringDeserialiser<T> implements ToBytesSerialis
         } catch (final Exception e) {
             throw new SerialisationException("failed to convert object to string for serialisation.", e);
         }
-        if (str != null) {
+        if (null != str) {
             try {
                 return str.getBytes(getCharset());
             } catch (final UnsupportedEncodingException e) {

@@ -99,7 +99,7 @@ public class OneOrMoreTest {
         IntStream.rangeClosed(1, 200).forEach(expectedItems::add);
 
         // When
-        for (int i = 200; i > 0; i--) {
+        for (int i = 200; 0 < i; i--) {
             collection.add(i);
             collection.add(i);
         }
@@ -118,7 +118,7 @@ public class OneOrMoreTest {
         IntStream.rangeClosed(1, 200).forEach(expectedItems::add);
 
         // When
-        for (int i = 200; i > 0; i--) {
+        for (int i = 200; 0 < i; i--) {
             collection.add(i);
             collection.add(i);
         }

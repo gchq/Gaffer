@@ -27,7 +27,6 @@ import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
@@ -45,13 +44,11 @@ import java.util.Map;
  * {@link uk.gov.gchq.gaffer.data.element.id.EntityId}s in set A.
  */
 public class GetElementsBetweenSets implements
-        Operation,
         InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends Element>>,
         MultiInput<EntityId>,
         MultiInputB<EntityId>,
         SeededGraphFilters,
-        SeedMatching,
-        Options {
+        SeedMatching {
     private SeedMatchingType seedMatching;
     private View view;
     private IncludeIncomingOutgoingType inOutType;
@@ -176,8 +173,7 @@ public class GetElementsBetweenSets implements
             MultiInput.Builder<GetElementsBetweenSets, EntityId, Builder>,
             MultiInputB.Builder<GetElementsBetweenSets, EntityId, Builder>,
             SeededGraphFilters.Builder<GetElementsBetweenSets, Builder>,
-            SeedMatching.Builder<GetElementsBetweenSets, Builder>,
-            Options.Builder<GetElementsBetweenSets, Builder> {
+            SeedMatching.Builder<GetElementsBetweenSets, Builder> {
         public Builder() {
             super(new GetElementsBetweenSets());
         }

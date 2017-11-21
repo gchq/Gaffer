@@ -21,7 +21,7 @@ import com.yahoo.sketches.sampling.ReservoirLongsUnion;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
- * A <code>ReservoirLongsSketchAggregator</code> is a {@link java.util.function.BinaryOperator} that aggregates
+ * A {@code ReservoirLongsSketchAggregator} is a {@link java.util.function.BinaryOperator} that aggregates
  * {@link ReservoirLongsSketch}s using a {@link ReservoirLongsUnion}.
  */
 public class ReservoirLongsSketchAggregator extends KorypheBinaryOperator<ReservoirLongsSketch> {

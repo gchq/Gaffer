@@ -29,6 +29,10 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+/**
+ * A {@code GlobalViewElementDefinition} is an {@link ViewElementDefinition} containing
+ * a {@link Set} of group names.
+ */
 @JsonDeserialize(builder = GlobalViewElementDefinition.Builder.class)
 public class GlobalViewElementDefinition extends ViewElementDefinition {
     protected Set<String> groups;

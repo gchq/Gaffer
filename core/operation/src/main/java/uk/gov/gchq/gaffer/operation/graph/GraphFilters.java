@@ -18,8 +18,11 @@ package uk.gov.gchq.gaffer.operation.graph;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
-import uk.gov.gchq.gaffer.operation.Operation;
 
+/**
+ * A {@code GraphFilters} is an {@link uk.gov.gchq.gaffer.operation.Operation} which
+ * performs additional filtering on the {@link Edge}s returned.
+ */
 public interface GraphFilters extends OperationView {
     /**
      * @param edge the {@link Edge} to be validated.
@@ -45,7 +48,6 @@ public interface GraphFilters extends OperationView {
     void setDirectedType(final DirectedType directedType);
 
     interface Builder<OP extends GraphFilters, B extends Builder<OP, ?>> extends
-            Operation.Builder<OP, B>,
             OperationView.Builder<OP, B> {
 
         default B directedType(final DirectedType directedType) {

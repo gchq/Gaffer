@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -33,6 +34,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A {@code AddNamedOperation} is an {@link Operation} for creating a new {@link NamedOperation}
+ * and adding it to a Gaffer graph.
+ */
 public class AddNamedOperation implements Operation {
     private String operations = null;
     private String operationName;
@@ -41,6 +46,8 @@ public class AddNamedOperation implements Operation {
     private List<String> writeAccessRoles = new ArrayList<>();
     private boolean overwriteFlag = false;
     private Map<String, ParameterDetail> parameters;
+    private Map<String, String> options;
+    private Integer score;
 
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
 
@@ -77,7 +84,12 @@ public class AddNamedOperation implements Operation {
 
     public void setOperationChain(final OperationChain operationChain) {
         try {
-            this.operations = new String(JSONSerialiser.serialise(operationChain), Charset.forName(CHARSET_NAME));
+            if (operationChain instanceof OperationChainDAO) {
+                this.operations = new String(JSONSerialiser.serialise(operationChain), Charset.forName(CHARSET_NAME));
+            } else {
+                final OperationChainDAO dao = new OperationChainDAO(operationChain.getOperations());
+                this.operations = new String(JSONSerialiser.serialise(dao), Charset.forName(CHARSET_NAME));
+            }
         } catch (final SerialisationException se) {
             throw new IllegalArgumentException(se.getMessage());
         }
@@ -123,6 +135,7 @@ public class AddNamedOperation implements Operation {
         return parameters;
     }
 
+    @Override
     public AddNamedOperation shallowClone() {
         return new AddNamedOperation.Builder()
                 .operationChain(operations)
@@ -132,7 +145,27 @@ public class AddNamedOperation implements Operation {
                 .writeAccessRoles(writeAccessRoles.toArray(new String[writeAccessRoles.size()]))
                 .overwrite(overwriteFlag)
                 .parameters(parameters)
+                .options(options)
+                .score(score)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
+    public Integer getScore() {
+        return score;
+    }
+
+    public void setScore(final Integer score) {
+        this.score = score;
     }
 
     public static class Builder extends BaseBuilder<AddNamedOperation, Builder> {
@@ -182,6 +215,11 @@ public class AddNamedOperation implements Operation {
 
         public Builder overwrite() {
             return overwrite(true);
+        }
+
+        public Builder score(final Integer score) {
+            _getOp().setScore(score);
+            return _self();
         }
     }
 }

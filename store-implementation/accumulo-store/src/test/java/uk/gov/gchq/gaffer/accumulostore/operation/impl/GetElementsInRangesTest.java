@@ -89,6 +89,7 @@ public class GetElementsInRangesTest extends OperationTest<GetElementsInRanges> 
         assertEquals(view, clone.getView());
     }
 
+    @Override
     protected GetElementsInRanges getTestObject() {
         return new GetElementsInRanges();
     }

@@ -23,11 +23,12 @@ import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,8 +39,8 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
-    private static final OperationChain OPERATION_CHAIN = new OperationChain.Builder().first(new GetAdjacentIds.Builder().input(new EntitySeed("seed")).build()).build();
     public static final String USER = "User";
+    private static final OperationChain OPERATION_CHAIN = new OperationChain.Builder().first(new GetAdjacentIds.Builder().input(new EntitySeed("seed")).build()).build();
 
     @Test
     public void shouldJSONSerialiseAndDeserialise() throws SerialisationException, JsonProcessingException {
@@ -50,6 +51,7 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 .overwrite()
                 .readAccessRoles(USER)
                 .writeAccessRoles(USER)
+                .score(0)
                 .build();
 
         // When
@@ -62,8 +64,10 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 "  \"description\": \"Test Named Operation\",%n" +
                 "  \"readAccessRoles\": [\"User\"],%n" +
                 "  \"writeAccessRoles\": [\"User\"],%n" +
+                "  \"score\": 0,%n" +
                 "  \"overwriteFlag\": true,%n" +
-                "  \"operationChain\": {\"operations\": [{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\", \"input\": [{\"vertex\": \"seed\", \"class\": \"uk.gov.gchq.gaffer.operation.data.EntitySeed\"}]}]}" +
+                "  \"operationChain\": {" +
+                "  \"operations\": [{\"class\": \"uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds\", \"input\": [{\"vertex\": \"seed\", \"class\": \"uk.gov.gchq.gaffer.operation.data.EntitySeed\"}]}]}" +
                 "}"), json);
     }
 
@@ -80,15 +84,15 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 .build();
         String opChain = null;
         try {
-            opChain = new String(JSONSerialiser.serialise(OPERATION_CHAIN));
+            opChain = new String(JSONSerialiser.serialise(new OperationChainDAO<>(OPERATION_CHAIN.getOperations())));
         } catch (final SerialisationException e) {
             fail();
         }
         assertEquals(opChain, addNamedOperation.getOperationChainAsString());
         assertEquals("Test", addNamedOperation.getOperationName());
         assertEquals("Test Named Operation", addNamedOperation.getDescription());
-        assertEquals(Arrays.asList(USER), addNamedOperation.getReadAccessRoles());
-        assertEquals(Arrays.asList(USER), addNamedOperation.getWriteAccessRoles());
+        assertEquals(Collections.singletonList(USER), addNamedOperation.getReadAccessRoles());
+        assertEquals(Collections.singletonList(USER), addNamedOperation.getWriteAccessRoles());
     }
 
     @Override
@@ -105,10 +109,11 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
                 .readAccessRoles(USER)
                 .writeAccessRoles(USER)
                 .parameters(parameters)
+                .score(2)
                 .build();
         String opChain = null;
         try {
-            opChain = new String(JSONSerialiser.serialise(OPERATION_CHAIN));
+            opChain = new String(JSONSerialiser.serialise(new OperationChainDAO<>(OPERATION_CHAIN.getOperations())));
         } catch (final SerialisationException e) {
             fail();
         }
@@ -121,12 +126,14 @@ public class AddNamedOperationTest extends OperationTest<AddNamedOperation> {
         assertEquals(opChain, clone.getOperationChainAsString());
         assertEquals("Test", clone.getOperationName());
         assertEquals("Test Named Operation", clone.getDescription());
+        assertEquals(2, (int) clone.getScore());
         assertFalse(clone.isOverwriteFlag());
-        assertEquals(Arrays.asList(USER), clone.getReadAccessRoles());
-        assertEquals(Arrays.asList(USER), clone.getWriteAccessRoles());
+        assertEquals(Collections.singletonList(USER), clone.getReadAccessRoles());
+        assertEquals(Collections.singletonList(USER), clone.getWriteAccessRoles());
         assertEquals(parameters, clone.getParameters());
     }
 
+    @Override
     protected AddNamedOperation getTestObject() {
         return new AddNamedOperation.Builder()
                 .operationChain(OPERATION_CHAIN)

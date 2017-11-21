@@ -16,6 +16,10 @@
 
 package uk.gov.gchq.gaffer.operation.graph;
 
+/**
+ * A {@code SeededGraphFilters} operation is a {@link GraphFilters} operation with
+ * the addition of filtering for {@link IncludeIncomingOutgoingType}s.
+ */
 public interface SeededGraphFilters extends GraphFilters {
     /**
      * @return includeIncomingOutGoing a {@link IncludeIncomingOutgoingType}
@@ -34,7 +38,7 @@ public interface SeededGraphFilters extends GraphFilters {
     void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType inOutType);
 
     /**
-     * A <code>IncludeIncomingOutgoingType</code> defines the incoming/outgoing
+     * A {@code IncludeIncomingOutgoingType} defines the incoming/outgoing
      * direction of the {@link uk.gov.gchq.gaffer.data.element.Edge}s during
      * the operation.
      */

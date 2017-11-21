@@ -19,7 +19,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>core</artifactId>
-        <version>0.7.9-SNAPSHOT</version>
+        <version>1.1.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>type</artifactId>
@@ -32,14 +32,14 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.koryphe</groupId>
-            <artifactId>koryphe</artifactId>
+            <artifactId>core</artifactId>
             <version>${koryphe.version}</version>
         </dependency>
 
         <!-- Test dependencies -->
         <dependency>
             <groupId>uk.gov.gchq.koryphe</groupId>
-            <artifactId>koryphe</artifactId>
+            <artifactId>core</artifactId>
             <version>${koryphe.version}</version>
             <type>test-jar</type>
             <scope>test</scope>

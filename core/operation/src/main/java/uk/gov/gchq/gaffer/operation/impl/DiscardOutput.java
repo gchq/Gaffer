@@ -18,12 +18,18 @@ package uk.gov.gchq.gaffer.operation.impl;
 
 import org.apache.commons.lang3.exception.CloneFailedException;
 
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.Input;
 
+import java.util.Map;
+
+/**
+ * A {@code DiscardOutput} operation is used as a terminal operation to indicate
+ * that the results from the previous operation are not used again.
+ */
 public class DiscardOutput implements
-        Operation,
         Input<Object> {
+
+    private Map<String, String> options;
 
     @Override
     public Object getInput() {
@@ -37,7 +43,19 @@ public class DiscardOutput implements
 
     @Override
     public DiscardOutput shallowClone() throws CloneFailedException {
-        return new DiscardOutput();
+        return new DiscardOutput.Builder()
+                .options(options)
+                .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static final class Builder extends BaseBuilder<DiscardOutput, Builder>

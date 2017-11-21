@@ -21,6 +21,8 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
+import java.util.stream.Stream;
+
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
@@ -60,6 +62,16 @@ public class ToStreamTest extends OperationTest<ToStream> {
         assertEquals(Lists.newArrayList(input), clone.getInput());
     }
 
+    @Test
+    public void shouldGetOutputClass() {
+        // When
+        final Class<?> outputClass = getTestObject().getOutputClass();
+
+        // Then
+        assertEquals(Stream.class, outputClass);
+    }
+
+    @Override
     protected ToStream getTestObject() {
         return new ToStream();
     }

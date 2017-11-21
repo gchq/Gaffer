@@ -23,11 +23,17 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
+import java.util.Map;
+
+/**
+ * A {@code CountAllElementsDefaultView} operation counts all of the {@link Element}s
+ * present in a {@link uk.gov.gchq.gaffer.mapstore.MapStore}.
+ */
 public class CountAllElementsDefaultView implements
-        Operation,
         InputOutput<Iterable<? extends Element>, Long>,
         MultiInput<Element> {
     private Iterable<? extends Element> input;
+    private Map<String, String> options;
 
     @Override
     public Iterable<? extends Element> getInput() {
@@ -48,7 +54,18 @@ public class CountAllElementsDefaultView implements
     public CountAllElementsDefaultView shallowClone() {
         return new CountAllElementsDefaultView.Builder()
                 .input(input)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static final class Builder

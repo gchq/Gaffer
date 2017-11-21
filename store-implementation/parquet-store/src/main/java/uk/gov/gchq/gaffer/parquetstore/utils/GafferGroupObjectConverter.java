@@ -54,10 +54,10 @@ public class GafferGroupObjectConverter implements Serializable {
     /**
      * Constructor to set up the converter ready to convert between the Gaffer, Spark and Parquet types.
      *
-     * @param group                         The Gaffer Group name
-     * @param columnToSerialiserName        A mapping from Gaffer column to serialiser name
-     * @param serialiserNameToSerialiser    A mapping from serialiser name to serialiser object
-     * @param columnToPaths                 A mapping from Gaffer column to the Parquet columns derived from that Gaffer column
+     * @param group                      The Gaffer Group name
+     * @param columnToSerialiserName     A mapping from Gaffer column to serialiser name
+     * @param serialiserNameToSerialiser A mapping from serialiser name to serialiser object
+     * @param columnToPaths              A mapping from Gaffer column to the Parquet columns derived from that Gaffer column
      */
     public GafferGroupObjectConverter(final String group, final Map<String, String> columnToSerialiserName,
                                       final Map<String, Serialiser> serialiserNameToSerialiser,
@@ -74,17 +74,17 @@ public class GafferGroupObjectConverter implements Serializable {
     /**
      * Converts a Gaffer object from a single Gaffer column to the representative Parquet objects, using the relevant serialiser.
      *
-     * @param gafferColumn  The name of the Gaffer column
-     * @param gafferObject  The Gaffer object to be converted
+     * @param gafferColumn The name of the Gaffer column
+     * @param gafferObject The Gaffer object to be converted
      * @return an {@link Object[]} of the Parquet objects, one for each derived Parquet column
-     * @throws SerialisationException   If the serialiser throws a {@link SerialisationException} when serialising
+     * @throws SerialisationException If the serialiser throws a {@link SerialisationException} when serialising
      */
     public Object[] gafferObjectToParquetObjects(final String gafferColumn, final Object gafferObject) throws SerialisationException {
         final Serialiser serialiser = columnToSerialiser.get(gafferColumn);
-        if (gafferObject != null) {
+        if (null != gafferObject) {
             if (serialiser instanceof ParquetSerialiser) {
                 return (Object[]) serialiser.serialise(gafferObject);
-            } else if (serialiser != null) {
+            } else if (null != serialiser) {
                 return new Object[]{serialiser.serialise(gafferObject)};
             } else {
                 return new Object[]{gafferObject};
@@ -97,18 +97,18 @@ public class GafferGroupObjectConverter implements Serializable {
     /**
      * Generates the Gaffer object from the Parquet objects using the relevant serialiser's de-serialise method.
      *
-     * @param gafferColumn      The name of the Gaffer column
-     * @param parquetObjects    The {@link Object[]} of the Parquet objects, one for each Parquet column that
-     *                          was derived from this Gaffer column
+     * @param gafferColumn   The name of the Gaffer column
+     * @param parquetObjects The {@link Object[]} of the Parquet objects, one for each Parquet column that
+     *                       was derived from this Gaffer column
      * @return The Gaffer object
-     * @throws SerialisationException   If the serialiser throws a {@link SerialisationException} when de-serialising
+     * @throws SerialisationException If the serialiser throws a {@link SerialisationException} when de-serialising
      */
     public Object parquetObjectsToGafferObject(final String gafferColumn, final Object[] parquetObjects) throws SerialisationException {
         final Serialiser serialiser = columnToSerialiser.get(gafferColumn);
         if (serialiser instanceof ParquetSerialiser) {
             return ((ParquetSerialiser) serialiser).deserialise(parquetObjects);
         } else {
-            if (parquetObjects[0] == null) {
+            if (null == parquetObjects[0]) {
                 return null;
             } else if (parquetObjects[0] instanceof byte[]) {
                 return serialiser.deserialise(parquetObjects[0]);
@@ -119,7 +119,7 @@ public class GafferGroupObjectConverter implements Serializable {
     }
 
     /**
-     * Extracts an object corresponding to column <code>gafferColumn</code> from the provided {@link GenericRowWithSchema}.
+     * Extracts an object corresponding to column {@code gafferColumn} from the provided {@link GenericRowWithSchema}.
      *
      * @param gafferColumn the column to extract
      * @param row          the row to extract from
@@ -132,7 +132,7 @@ public class GafferGroupObjectConverter implements Serializable {
         final String[] paths = columnToPaths.get(gafferColumn);
         if (paths[0].contains(".")) {
             final Object nestedRow = row.getAs(gafferColumn);
-            if (nestedRow != null) {
+            if (null != nestedRow) {
                 if (nestedRow instanceof GenericRowWithSchema) {
                     getObjectsFromNestedRow(objectsList, (GenericRowWithSchema) nestedRow);
                 } else if (nestedRow instanceof WrappedArray) {
@@ -159,7 +159,7 @@ public class GafferGroupObjectConverter implements Serializable {
         }
         objectsList.toArray(objects);
         final Object gafferObject = parquetObjectsToGafferObject(gafferColumn, objects);
-        if (gafferObject == null) {
+        if (null == gafferObject) {
             LOGGER.debug("Failed to get the Gaffer Object from the Spark Row for the column: {}", gafferColumn);
         }
         return gafferObject;
@@ -177,7 +177,7 @@ public class GafferGroupObjectConverter implements Serializable {
     }
 
     /**
-     * Converts the provided <code>gafferObject</code> into objects as specified by the <code>sparkSchema</code>.
+     * Converts the provided {@code gafferObject} into objects as specified by the {@code sparkSchema}.
      *
      * @param column        the column that the gafferObject has come from
      * @param gafferObject  the gafferObject to be converted
@@ -190,7 +190,7 @@ public class GafferGroupObjectConverter implements Serializable {
                                           final ArrayList<Object> recordBuilder,
                                           final StructType sparkSchema) throws SerialisationException {
         final String[] paths = columnToPaths.get(column);
-        if (gafferObject != null) {
+        if (null != gafferObject) {
             final Iterator<Object> parquetObjects;
             parquetObjects = Arrays.asList(gafferObjectToParquetObjects(column, gafferObject)).iterator();
             final ArrayList<Object> records = new ArrayList<>();
@@ -265,7 +265,7 @@ public class GafferGroupObjectConverter implements Serializable {
                     isMap = true;
                 }
                 Object[] parquetColumnObjects = parquetColumnToObject.getOrDefault(paths[i], null);
-                if (parquetColumnObjects != null) {
+                if (null != parquetColumnObjects) {
                     if (path.endsWith("list.element")) {
                         final boolean expectsList = columnToSerialiser.get(column).canHandle(List.class);
                         if (expectsList) {
@@ -289,7 +289,7 @@ public class GafferGroupObjectConverter implements Serializable {
             final Object gafferObject;
             if (isMap) {
                 final Object[] keys = (Object[]) parquetObjectsForColumn[0];
-                if (keys != null) {
+                if (null != keys) {
                     final Object[] values = (Object[]) parquetObjectsForColumn[1];
                     final Map<Object, Object> map = new HashMap<>(keys.length);
                     for (int i = 0; i < keys.length; i++) {
@@ -302,7 +302,7 @@ public class GafferGroupObjectConverter implements Serializable {
             } else {
                 gafferObject = parquetObjectsToGafferObject(column, parquetObjectsForColumn);
             }
-            if (gafferObject != null) {
+            if (null != gafferObject) {
                 if (isEntity) {
                     if (ParquetStoreConstants.VERTEX.equals(column)) {
                         ((Entity) e).setVertex(gafferObject);

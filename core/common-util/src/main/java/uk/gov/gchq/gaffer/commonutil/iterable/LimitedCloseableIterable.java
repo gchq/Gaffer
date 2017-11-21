@@ -18,6 +18,12 @@ package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+/**
+ * A {@code LimitedCloseableIterable} is an {@link java.lang.Iterable} which is limited to
+ * a maximum size.
+ *
+ * @param <T> the type of items in the iterable.
+ */
 public class LimitedCloseableIterable<T> implements CloseableIterable<T> {
     private final CloseableIterable<T> iterable;
     private final int start;
@@ -38,7 +44,7 @@ public class LimitedCloseableIterable<T> implements CloseableIterable<T> {
 
     public LimitedCloseableIterable(final CloseableIterable<T> iterable, final int start, final Integer end, final Boolean truncate) {
         if (null != end && start > end) {
-            throw new IllegalArgumentException("start should be less than end");
+            throw new IllegalArgumentException("The start pointer must be less than the end pointer.");
         }
 
         if (null == iterable) {

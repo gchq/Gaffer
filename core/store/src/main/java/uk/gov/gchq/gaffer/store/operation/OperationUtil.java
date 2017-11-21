@@ -28,8 +28,12 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.Map;
 
+/**
+ * Utility methods for handling {@link Operation}s.s
+ */
 public final class OperationUtil {
     private OperationUtil() {
+        // Private constructor to prevent instantiation.
     }
 
     public static Class<?> getInputType(final Input input) {
@@ -50,7 +54,7 @@ public final class OperationUtil {
 
     public static ValidationResult isValid(final Class<?> output, final Class<?> input) {
         ValidationResult result = new ValidationResult();
-        if (input != null && null != output
+        if (null != input && null != output
                 && !UnknownGenericType.class.equals(output)
                 && !UnknownGenericType.class.equals(input)
                 && !input.isAssignableFrom(output)) {

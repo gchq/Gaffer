@@ -19,7 +19,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>basic</artifactId>
-        <version>0.7.9-SNAPSHOT</version>
+        <version>1.1.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -112,8 +112,14 @@
                             <path>/${standalone-path}</path>
                             <port>${standalone-port}</port>
                             <systemProperties>
+                                <gaffer.properties.app.title>
+                                    Basic Gaffer Example
+                                </gaffer.properties.app.title>
+                                <gaffer.properties.app.description>
+                                    Example using a very basic schema
+                                </gaffer.properties.app.description>
                                 <gaffer.rest-api.basePath>
-                                    ${standalone-path}/v1
+                                    ${standalone-path}
                                 </gaffer.rest-api.basePath>
                                 <gaffer.graph.config>
                                     ${project.build.outputDirectory}/graphConfig.json

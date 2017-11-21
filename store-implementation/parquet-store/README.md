@@ -67,7 +67,8 @@ The `ParquetStoreProperties` class contains all properties relating to the confi
 - `parquet.add_elements.row_group.size`: This parameter sets the maximum row group size in bytes before compression for the Parquet files, see [Parquet documentation](https://parquet.apache.org/documentation/latest/) for more information. By default this is set to 4MB;
 - `parquet.add_elements.page.size`: This just exposes the Parquet file format parameter controlling the maximum page and dictionary page size in bytes before compression, see [Parquet documentation](https://parquet.apache.org/documentation/latest/) for more information. By default this is set to 1MB;
 - `parquet.add_elements.output_files_per_group`: This is the number of files that the output data is split into per Gaffer group. By default this is set to 10.
-- `parquet.add_elements.aggregate`: This is a boolean flag of whether to aggregate the data on ingest
+- `parquet.add_elements.aggregate`: This is a boolean flag of whether to aggregate the data on ingest. By default this is true.
+- `parquet.add_elements.sort_by_splits`: This is a boolean flag of whether to sort the source and vertex sorted data on a per group, per split basis. By default this is false.
 
 A complete Gaffer properties file using a `ParquetStore` will look like:
 
@@ -82,13 +83,14 @@ parquet.add_elements.row_group.size=1073741824
 parquet.add_elements.page.size=4194304
 parquet.add_elements.output_files_per_group=2
 parquet.add_elements.aggregate=true
+parquet.add_elements.sort_by_splits=false
 ```
 
 Note that apart from the first two lines which are required by Gaffer so it knows which store to use, the rest of the lines are optional.
 
 ## Schema
 
-See [Getting Started](https://github.com/gchq/Gaffer/wiki/Getting-Started.md) for details of how to write a schema that tells Gaffer what data will be stored, and how to aggregate it. Once the schema has been created, a `Graph` object can be created using:
+See the [Getting Started](https://gchq.github.io/gaffer-doc/getting-started/dev-guide.html#schemas) for details of how to write a schema that tells Gaffer what data will be stored, and how to aggregate it. Once the schema has been created, a `Graph` object can be created using:
 
 ```
 Graph graph = new Graph.Builder()
@@ -99,7 +101,7 @@ Graph graph = new Graph.Builder()
       .storeProperties(storeProperties)
       .build();
 ```
-Note that the `ParquetStore` currently does not make use of the `visibilityProperty` or `timestampProperty`. Also to get the best performance you should allow Gaffer to detect the best serialiser or provide a serialiser class that implements `ParquetSerialisation`.
+Note that the `ParquetStore` currently does not make use of the `timestampProperty`. Also to get the best performance you should allow Gaffer to detect the best serialiser or provide a serialiser class that implements `ParquetSerialisation`.
 
 ## Inserting data
 
@@ -127,7 +129,7 @@ Inserting the data via the `ImportRDDOfElements` operation will generally be the
 
 ## Queries
 
-The `ParquetStore` currently supports most of the [standard Gaffer queries](https://github.com/gchq/Gaffer/wiki/Operation-examples) as well as the [standard Spark queries](https://github.com/GovernmentCommunicationsHeadquarters/Gaffer/wiki/Spark-operation-examples). 
+The `ParquetStore` currently supports most of the [standard Gaffer queries](https://gchq.github.io/gaffer-doc/getting-started/spark-operation-examples.html).
 
 The operations that are not currently supported are:
 - `GetAdjacentEntitySeeds`
@@ -136,7 +138,7 @@ The operations that are not currently supported are:
 - `GetRDDOfAllElements`
 - `GetRDDOfElements`
 
-The current limitations on the queries are based on the Gaffer View's that you can set, see [Getting started guide](https://github.com/gchq/Gaffer/wiki/Getting-Started#filtering).
+The current limitations on the queries are based on the Gaffer View's that you can set, see [Getting started guide](https://gchq.github.io/gaffer-doc/getting-started/user-guide.html#filtering).
 Currently those limitations are:
 - Query time aggregation is not supported;
 - Transformations are not supported;
@@ -451,7 +453,7 @@ The `AddElements` operation is a six stage process:
 1. Work out what the split points should be from the index or if this is the first time data is added to the graph then it will work it out from the input;
 2. Write the input data split by split points, group into Parquet files in the temporary files directory using the `ParquetElementWriter`;
 3. Using Spark, aggregate the data in each of the temporary files directories and the current store files on a per group, per split basis;
-4. Using Spark, sort the data in each of the temporary files directories by source or vertex on a per group, per split basis;
+4. Using Spark, sort the data in each of the temporary files directories by source or vertex on a per group basis, unless the sortBySplits property is set to true in which case it will only sort within each split;
 5. Using Spark, load in each of the Edge group's aggregated temporary files and sort them by destination to allow indexing by destination;
 6. Generate an `GraphIndex` containing the range of vertices in each file and load that into memory.
 

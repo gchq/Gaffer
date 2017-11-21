@@ -21,16 +21,12 @@ import org.apache.spark.rdd.RDD;
 import scala.Tuple2;
 
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.io.Input;
 
 import java.util.Map;
 
 public class ImportKeyValuePairRDDToAccumulo implements
-        Operation,
-        Input<RDD<Tuple2<Key, Value>>>,
-        Options {
-
+        Input<RDD<Tuple2<Key, Value>>> {
     private RDD<Tuple2<Key, Value>> input;
     private String outputPath;
     private String failurePath;
@@ -72,6 +68,7 @@ public class ImportKeyValuePairRDDToAccumulo implements
         this.options = options;
     }
 
+    @Override
     public ImportKeyValuePairRDDToAccumulo shallowClone() {
         return new ImportKeyValuePairRDDToAccumulo.Builder()
                 .input(input)
@@ -82,8 +79,7 @@ public class ImportKeyValuePairRDDToAccumulo implements
     }
 
     public static class Builder extends Operation.BaseBuilder<ImportKeyValuePairRDDToAccumulo, Builder>
-            implements Input.Builder<ImportKeyValuePairRDDToAccumulo, RDD<Tuple2<Key, Value>>, Builder>,
-            Options.Builder<ImportKeyValuePairRDDToAccumulo, Builder> {
+            implements Input.Builder<ImportKeyValuePairRDDToAccumulo, RDD<Tuple2<Key, Value>>, Builder> {
         public Builder() {
             super(new ImportKeyValuePairRDDToAccumulo());
         }

@@ -90,6 +90,16 @@ public class MaxTest extends OperationTest<Max> {
         assertEquals(comparator, clone.getComparators().iterator().next());
     }
 
+    @Test
+    public void shouldGetOutputClass() {
+        // When
+        final Class<?> outputClass = getTestObject().getOutputClass();
+
+        // Then
+        assertEquals(Element.class, outputClass);
+    }
+
+    @Override
     protected Max getTestObject() {
         return new Max();
     }

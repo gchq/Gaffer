@@ -37,6 +37,7 @@ public class LongsSketchSerialiserTest extends ViaCalculatedValueSerialiserTest<
         return new LongsSketchSerialiser();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Pair<LongsSketch, byte[]>[] getHistoricSerialisationPairs() {
         final LongsSketch sketch = getExampleOutput();

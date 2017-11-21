@@ -30,7 +30,6 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.hook.AddOperationsToChain;
 import uk.gov.gchq.gaffer.graph.hook.OperationAuthoriser;
 import uk.gov.gchq.gaffer.graph.hook.OperationChainLimiter;
-import uk.gov.gchq.gaffer.rest.GraphFactoryForTest;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 
 import java.io.File;

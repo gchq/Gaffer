@@ -22,6 +22,7 @@ import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -196,7 +197,7 @@ public final class AddUpdateTableIterator {
             System.exit(1);
         }
 
-        final StoreProperties storeProps = StoreProperties.loadStoreProperties(getAccumuloPropertiesPath(args));
+        final AccumuloProperties storeProps = AccumuloProperties.loadStoreProperties(getAccumuloPropertiesPath(args));
         if (null == storeProps) {
             throw new IllegalArgumentException("Store properties are required to create a store");
         }
@@ -205,7 +206,7 @@ public final class AddUpdateTableIterator {
 
         GraphLibrary library;
 
-        if (getFileGraphLibraryPathString(args) == null) {
+        if (null == getFileGraphLibraryPathString(args)) {
             library = new NoGraphLibrary();
         } else {
             library = new FileGraphLibrary(getFileGraphLibraryPathString(args));

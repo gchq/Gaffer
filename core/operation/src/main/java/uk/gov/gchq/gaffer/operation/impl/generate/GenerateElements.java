@@ -26,28 +26,29 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
+import java.util.Map;
 import java.util.function.Function;
 
 /**
- * An <code>GenerateElements</code> operation generates an {@link Iterable} of
+ * An {@code GenerateElements} operation generates an {@link Iterable} of
  * {@link uk.gov.gchq.gaffer.data.element.Element}s from an {@link Iterable} of objects.
  *
  * @param <OBJ> the type of objects in the input iterable.
  * @see uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements.Builder
  */
 public class GenerateElements<OBJ> implements
-        Operation,
         InputOutput<Iterable<? extends OBJ>, Iterable<? extends Element>>,
         MultiInput<OBJ> {
     @Required
     private Function<Iterable<? extends OBJ>, Iterable<? extends Element>> elementGenerator;
     private Iterable<? extends OBJ> input;
+    private Map<String, String> options;
 
     public GenerateElements() {
     }
 
     /**
-     * Constructs a <code>GenerateElements</code> operation with a {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to
+     * Constructs a {@code GenerateElements} operation with a {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to
      * convert objects into {@link uk.gov.gchq.gaffer.data.element.Element}s. This constructor takes in no input objects and could
      * by used in a operation chain where the objects are provided by the previous operation.
      *
@@ -97,7 +98,18 @@ public class GenerateElements<OBJ> implements
         return new GenerateElements.Builder<OBJ>()
                 .generator(elementGenerator)
                 .input(input)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static class Builder<OBJ> extends Operation.BaseBuilder<GenerateElements<OBJ>, Builder<OBJ>>

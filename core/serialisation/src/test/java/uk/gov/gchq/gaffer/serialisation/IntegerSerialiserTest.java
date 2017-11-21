@@ -67,6 +67,7 @@ public class IntegerSerialiserTest extends ToBytesSerialisationTest<Integer> {
         return new IntegerSerialiser();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Pair<Integer, byte[]>[] getHistoricSerialisationPairs() {
         return new Pair[]{

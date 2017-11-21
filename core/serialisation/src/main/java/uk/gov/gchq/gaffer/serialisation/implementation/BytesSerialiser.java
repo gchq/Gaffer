@@ -18,12 +18,15 @@ package uk.gov.gchq.gaffer.serialisation.implementation;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
+/**
+ * This class is used to serialise and deserialise byte arrays.
+ */
 public class BytesSerialiser implements ToBytesSerialiser<byte[]> {
     private static final long serialVersionUID = -7718650654168267452L;
 
     @Override
     public boolean canHandle(final Class clazz) {
-        return byte[].class.equals(clazz);
+        return byte[].class.equals(clazz) || Byte[].class.equals(clazz);
     }
 
     @Override

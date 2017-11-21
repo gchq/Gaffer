@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.graph;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +34,10 @@ import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -52,24 +55,31 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * <p>
- * The Graph separates the user from the {@link Store}. It holds an instance of the {@link Store} and
+ * The Graph separates the user from the {@link Store}. It holds an instance of
+ * the {@link Store} and
  * acts as a proxy for the store, delegating {@link Operation}s to the store.
  * </p>
  * <p>
- * The Graph provides users with a single point of entry for executing operations on a store.
- * This allows the underlying store to be swapped and the same operations can still be applied.
+ * The Graph provides users with a single point of entry for executing
+ * operations on a store.
+ * This allows the underlying store to be swapped and the same operations can
+ * still be applied.
  * </p>
  * <p>
- * Graphs also provides a view of the data with a instance of {@link View}. The view filters out unwanted information
- * and can transform {@link uk.gov.gchq.gaffer.data.element.Properties} into transient properties such as averages.
+ * Graphs also provides a view of the data with a instance of {@link View}. The
+ * view filters out unwanted information
+ * and can transform {@link uk.gov.gchq.gaffer.data.element.Properties} into
+ * transient properties such as averages.
  * </p>
  * <p>
- * When executing operations on a graph, an operation view would override the graph view.
+ * When executing operations on a graph, an operation view would override the
+ * graph view.
  * </p>
  *
  * @see uk.gov.gchq.gaffer.graph.Graph.Builder
@@ -82,41 +92,51 @@ public final class Graph {
      */
     private final Store store;
 
-    private Schema schema;
-
     private GraphConfig config;
 
     /**
-     * Constructs a <code>Graph</code> with the given {@link uk.gov.gchq.gaffer.store.Store} and
+     * Constructs a {@code Graph} with the given {@link uk.gov.gchq.gaffer.store.Store}
+     * and
      * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.
      *
-     * @param config a {@link GraphConfig} used to store the configuration for a Graph.
-     * @param schema a {@link Schema} that defines the graph. Should be the copy of the schema that the store is initialised with.
-     * @param store  a {@link Store} used to store the elements and handle operations.
+     * @param config a {@link GraphConfig} used to store the configuration for
+     *               a
+     *               Graph.
+     * @param store  a {@link Store} used to store the elements and handle
+     *               operations.
      */
-    private Graph(final GraphConfig config, final Schema schema, final Store store) {
+    private Graph(final GraphConfig config, final Store store) {
         this.config = config;
-        this.schema = schema;
         this.store = store;
     }
 
     /**
      * Performs the given operation on the store.
      * If the operation does not have a view then the graph view is used.
-     * NOTE the operation may be modified/optimised by the store.
      *
      * @param operation the operation to be executed.
      * @param user      the user executing the operation.
      * @throws OperationException if an operation fails
      */
     public void execute(final Operation operation, final User user) throws OperationException {
-        execute(new OperationChain<>(operation), user);
+        execute(OperationChain.wrap(operation), user);
+    }
+
+    /**
+     * Performs the given operation on the store.
+     * If the operation does not have a view then the graph view is used.
+     *
+     * @param operation the operation to be executed.
+     * @param context   the user context for the execution of the operation
+     * @throws OperationException if an operation fails
+     */
+    public void execute(final Operation operation, final Context context) throws OperationException {
+        execute(OperationChain.wrap(operation), context);
     }
 
     /**
      * Performs the given output operation on the store.
      * If the operation does not have a view then the graph view is used.
-     * NOTE the operation may be modified/optimised by the store.
      *
      * @param operation the output operation to be executed.
      * @param user      the user executing the operation.
@@ -125,86 +145,96 @@ public final class Graph {
      * @throws OperationException if an operation fails
      */
     public <O> O execute(final Output<O> operation, final User user) throws OperationException {
-        return execute(new OperationChain<>(operation), user);
+        return execute(operation, store.createContext(user));
     }
 
     /**
-     * Performs the given operation chain job on the store.
+     * Performs the given output operation on the store.
      * If the operation does not have a view then the graph view is used.
-     * NOTE the operationChain may be modified/optimised by the store.
      *
-     * @param operationChain the operation chain to be executed.
-     * @param user           the user executing the job.
-     * @return the job details
-     * @throws OperationException thrown if the job fails to run.
-     */
-    public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
-        final OperationChain<?> clonedOpChain = operationChain.shallowClone();
-        try {
-            for (final GraphHook graphHook : config.getHooks()) {
-                graphHook.preExecute(clonedOpChain, user);
-            }
-
-            updateOperationChainView(clonedOpChain);
-
-            JobDetail result = store.executeJob(clonedOpChain, user);
-
-            for (final GraphHook graphHook : config.getHooks()) {
-                result = graphHook.postExecute(result, clonedOpChain, user);
-            }
-
-            return result;
-
-        } catch (final Exception e) {
-            CloseableUtil.close(clonedOpChain);
-            throw e;
-        }
-    }
-
-    /**
-     * Performs the given operation chain on the store.
-     * If the operation does not have a view then the graph view is used.
-     * NOTE the operationChain may be modified/optimised by the store.
-     *
-     * @param operationChain the operation chain to be executed.
-     * @param user           the user executing the operation chain.
-     * @param <O>            the operation chain output type.
+     * @param operation the output operation to be executed.
+     * @param context   the user context for the execution of the operation
+     * @param <O>       the operation chain output type.
      * @return the operation result.
      * @throws OperationException if an operation fails
      */
-    public <O> O execute(final OperationChain<O> operationChain, final User user) throws OperationException {
+    public <O> O execute(final Output<O> operation, final Context context) throws OperationException {
+        return _execute(store::execute, OperationChain.wrap(operation), context);
+    }
+
+    /**
+     * Performs the given operation job on the store.
+     * If the operation does not have a view then the graph view is used.
+     *
+     * @param operation the operation to be executed.
+     * @param user      the user executing the job.
+     * @return the job details
+     * @throws OperationException thrown if the job fails to run.
+     */
+    public JobDetail executeJob(final Operation operation, final User user) throws OperationException {
+        return executeJob(operation, store.createContext(user));
+    }
+
+    /**
+     * Performs the given operation job on the store.
+     * If the operation does not have a view then the graph view is used.
+     *
+     * @param operation the operation to be executed.
+     * @param context   the user context for the execution of the operation
+     * @return the job details
+     * @throws OperationException thrown if the job fails to run.
+     */
+    public JobDetail executeJob(final Operation operation, final Context context) throws OperationException {
+        return _execute(store::executeJob, OperationChain.wrap(operation), context);
+    }
+
+    private <O> O _execute(final StoreExecuter<O> storeExecuter, final OperationChain operationChain, final Context context) throws OperationException {
         if (null == operationChain) {
             throw new IllegalArgumentException("operationChain is required");
         }
 
-        final OperationChain<O> clonedOpChain = operationChain.shallowClone();
-        O result = null;
-        try {
-            for (final GraphHook graphHook : config.getHooks()) {
-                graphHook.preExecute(clonedOpChain, user);
-            }
-
-            updateOperationChainView(clonedOpChain);
-
-            result = store.execute(clonedOpChain, user);
-
-            for (final GraphHook graphHook : config.getHooks()) {
-                result = graphHook.postExecute(result, clonedOpChain, user);
-            }
-        } catch (final Exception e) {
-            CloseableUtil.close(clonedOpChain);
-            CloseableUtil.close(result);
-
-            throw e;
+        if (null == context) {
+            throw new IllegalArgumentException("A context containing a user is required");
         }
 
+        if (null == context.getUser()) {
+            throw new IllegalArgumentException("The context does not contain a user");
+        }
+
+        context.setOriginalOpChain(operationChain);
+
+        final OperationChain clonedOpChain = operationChain.shallowClone();
+        O result = null;
+        try {
+            updateOperationChainView(clonedOpChain);
+            for (final GraphHook graphHook : config.getHooks()) {
+                graphHook.preExecute(clonedOpChain, context);
+            }
+            updateOperationChainView(clonedOpChain);
+            result = (O) storeExecuter.execute(clonedOpChain, context);
+            for (final GraphHook graphHook : config.getHooks()) {
+                result = graphHook.postExecute(result, clonedOpChain, context);
+            }
+        } catch (final Exception e) {
+            for (final GraphHook graphHook : config.getHooks()) {
+                try {
+                    result = graphHook.onFailure(result, clonedOpChain, context, e);
+                } catch (final Exception graphHookE) {
+                    LOGGER.warn("Error in graphHook " + graphHook.getClass().getSimpleName() + ": " + graphHookE.getMessage(), graphHookE);
+                }
+            }
+            CloseableUtil.close(clonedOpChain);
+            CloseableUtil.close(result);
+            throw e;
+        }
         return result;
     }
 
-    private <O> void updateOperationChainView(final OperationChain<O> operationChain) {
-        for (final Operation operation : operationChain.getOperations()) {
-
-            if (operation instanceof OperationView) {
+    private void updateOperationChainView(final Operations<?> operations) {
+        for (final Operation operation : operations.getOperations()) {
+            if (operation instanceof Operations) {
+                updateOperationChainView((Operations) operation);
+            } else if (operation instanceof OperationView) {
                 final OperationView operationView = (OperationView) operation;
                 final View opView;
                 if (null == operationView.getView()) {
@@ -258,10 +288,10 @@ public final class Graph {
     }
 
     /**
-     * @return the schema.
+     * @return the original schema.
      */
     public Schema getSchema() {
-        return schema;
+        return store.getOriginalSchema();
     }
 
     /**
@@ -280,9 +310,11 @@ public final class Graph {
     }
 
     /**
-     * Returns all the {@link StoreTrait}s for the contained {@link Store} implementation
+     * Returns all the {@link StoreTrait}s for the contained {@link Store}
+     * implementation
      *
-     * @return a {@link Set} of all of the {@link StoreTrait}s that the store has.
+     * @return a {@link Set} of all of the {@link StoreTrait}s that the store
+     * has.
      */
     public Set<StoreTrait> getStoreTraits() {
         return store.getTraits();
@@ -314,11 +346,22 @@ public final class Graph {
         return store.getGraphLibrary();
     }
 
+    protected GraphConfig getConfig() {
+        return config;
+    }
+
+    @FunctionalInterface
+    private interface StoreExecuter<O> {
+        O execute(final OperationChain<O> operation, final Context context) throws OperationException;
+    }
+
     /**
      * <p>
      * Builder for {@link Graph}.
      * </p>
-     * We recommend instantiating a Graph from a graphConfig.json file, a schema directory and a store.properties file.
+     * We recommend instantiating a Graph from a graphConfig.json file, a
+     * schema
+     * directory and a store.properties file.
      * For example:
      * <pre>
      * new Graph.Builder()
@@ -335,8 +378,9 @@ public final class Graph {
         private Store store;
         private StoreProperties properties;
         private Schema schema;
-        private String[] parentSchemaIds;
+        private List<String> parentSchemaIds;
         private String parentStorePropertiesId;
+        private boolean addToLibrary = true;
 
         /**
          * @param graphId the graph id to set
@@ -371,6 +415,11 @@ public final class Graph {
 
         public Builder config(final GraphConfig config) {
             configBuilder.merge(config);
+            return this;
+        }
+
+        public Builder addToLibrary(final boolean addToLibrary) {
+            this.addToLibrary = addToLibrary;
             return this;
         }
 
@@ -450,6 +499,10 @@ public final class Graph {
             return this;
         }
 
+        public Builder storeProperties(final Properties properties) {
+            return storeProperties(null != properties ? StoreProperties.loadStoreProperties(properties) : null);
+        }
+
         public Builder storeProperties(final StoreProperties properties) {
             this.properties = properties;
             if (null != properties) {
@@ -459,29 +512,108 @@ public final class Graph {
         }
 
         public Builder storeProperties(final String propertiesPath) {
-            return storeProperties(StoreProperties.loadStoreProperties(propertiesPath));
+            return storeProperties(null != propertiesPath ? StoreProperties.loadStoreProperties(propertiesPath) : null);
         }
 
         public Builder storeProperties(final Path propertiesPath) {
-            return storeProperties(StoreProperties.loadStoreProperties(propertiesPath));
+            if (null == propertiesPath) {
+                properties = null;
+            } else {
+                storeProperties(StoreProperties.loadStoreProperties(propertiesPath));
+            }
+            return this;
         }
 
         public Builder storeProperties(final InputStream propertiesStream) {
-            return storeProperties(StoreProperties.loadStoreProperties(propertiesStream));
+            if (null == propertiesStream) {
+                properties = null;
+            } else {
+                storeProperties(StoreProperties.loadStoreProperties(propertiesStream));
+            }
+            return this;
         }
 
         public Builder storeProperties(final URI propertiesURI) {
-            try {
-                storeProperties(StreamUtil.openStream(propertiesURI));
-            } catch (final IOException e) {
-                throw new SchemaException("Unable to read storeProperties from URI: " + propertiesURI, e);
+            if (null != propertiesURI) {
+                try {
+                    storeProperties(StreamUtil.openStream(propertiesURI));
+                } catch (final IOException e) {
+                    throw new SchemaException("Unable to read storeProperties from URI: " + propertiesURI, e);
+                }
             }
 
             return this;
         }
 
+        public Builder addStoreProperties(final Properties properties) {
+            if (null != properties) {
+                addStoreProperties(StoreProperties.loadStoreProperties(properties));
+            }
+            return this;
+        }
+
+        public Builder addStoreProperties(final StoreProperties updateProperties) {
+            if (null != updateProperties) {
+                if (null == this.properties) {
+                    storeProperties(updateProperties);
+                } else {
+                    this.properties.merge(updateProperties);
+                }
+            }
+            return this;
+        }
+
+        public Builder addStoreProperties(final String updatePropertiesPath) {
+            if (null != updatePropertiesPath) {
+                addStoreProperties(StoreProperties.loadStoreProperties(updatePropertiesPath));
+            }
+            return this;
+        }
+
+        public Builder addStoreProperties(final Path updatePropertiesPath) {
+            if (null != updatePropertiesPath) {
+                addStoreProperties(StoreProperties.loadStoreProperties(updatePropertiesPath));
+            }
+            return this;
+        }
+
+        public Builder addStoreProperties(final InputStream updatePropertiesStream) {
+            if (null != updatePropertiesStream) {
+                addStoreProperties(StoreProperties.loadStoreProperties(updatePropertiesStream));
+            }
+            return this;
+        }
+
+        public Builder addStoreProperties(final URI updatePropertiesURI) {
+            if (null != updatePropertiesURI) {
+                try {
+                    addStoreProperties(StreamUtil.openStream(updatePropertiesURI));
+                } catch (final IOException e) {
+                    throw new SchemaException("Unable to read storeProperties from URI: " + updatePropertiesURI, e);
+                }
+            }
+            return this;
+        }
+
+        public Builder addParentSchemaIds(final List<String> parentSchemaIds) {
+            if (null != parentSchemaIds) {
+                if (null == this.parentSchemaIds) {
+                    this.parentSchemaIds = new ArrayList<>(parentSchemaIds);
+                } else {
+                    this.parentSchemaIds.addAll(parentSchemaIds);
+                }
+            }
+            return this;
+        }
+
         public Builder addParentSchemaIds(final String... parentSchemaIds) {
-            this.parentSchemaIds = parentSchemaIds;
+            if (null != parentSchemaIds) {
+                if (null == this.parentSchemaIds) {
+                    this.parentSchemaIds = Lists.newArrayList(parentSchemaIds);
+                } else {
+                    Collections.addAll(this.parentSchemaIds, parentSchemaIds);
+                }
+            }
             return this;
         }
 
@@ -491,7 +623,6 @@ public final class Graph {
                     addSchema(schemaModule);
                 }
             }
-
             return this;
         }
 
@@ -507,7 +638,6 @@ public final class Graph {
                     }
                 }
             }
-
             return this;
         }
 
@@ -517,7 +647,6 @@ public final class Graph {
                     addSchema(schemaPath);
                 }
             }
-
             return this;
         }
 
@@ -527,71 +656,79 @@ public final class Graph {
                     addSchema(schemaBytes);
                 }
             }
-
             return this;
         }
 
         public Builder addSchema(final Schema schemaModule) {
-            if (null != schema) {
-                schema = new Schema.Builder()
-                        .merge(schema)
-                        .merge(schemaModule)
-                        .build();
-            } else {
-                schema = schemaModule;
+            if (null != schemaModule) {
+                if (null != schema) {
+                    schema = new Schema.Builder()
+                            .merge(schema)
+                            .merge(schemaModule)
+                            .build();
+                } else {
+                    schema = schemaModule;
+                }
             }
-
             return this;
         }
 
         public Builder addSchema(final InputStream schemaStream) {
-            try {
-                return addSchema(sun.misc.IOUtils.readFully(schemaStream, schemaStream.available(), true));
-            } catch (final IOException e) {
-                throw new SchemaException("Unable to read schema from input stream", e);
-            } finally {
-                CloseableUtil.close(schemaStream);
+            if (null != schemaStream) {
+                try {
+                    addSchema(sun.misc.IOUtils.readFully(schemaStream, schemaStream.available(), true));
+                } catch (final IOException e) {
+                    throw new SchemaException("Unable to read schema from input stream", e);
+                } finally {
+                    CloseableUtil.close(schemaStream);
+                }
             }
+            return this;
         }
 
         public Builder addSchema(final URI schemaURI) {
-            try {
-                addSchema(StreamUtil.openStream(schemaURI));
-            } catch (final IOException e) {
-                throw new SchemaException(UNABLE_TO_READ_SCHEMA_FROM_URI, e);
+            if (null != schemaURI) {
+                try {
+                    addSchema(StreamUtil.openStream(schemaURI));
+                } catch (final IOException e) {
+                    throw new SchemaException(UNABLE_TO_READ_SCHEMA_FROM_URI, e);
+                }
             }
-
             return this;
         }
 
         public Builder addSchemas(final URI... schemaURI) {
-            try {
-                addSchemas(StreamUtil.openStreams(schemaURI));
-            } catch (final IOException e) {
-                throw new SchemaException(UNABLE_TO_READ_SCHEMA_FROM_URI, e);
+            if (null != schemaURI) {
+                try {
+                    addSchemas(StreamUtil.openStreams(schemaURI));
+                } catch (final IOException e) {
+                    throw new SchemaException(UNABLE_TO_READ_SCHEMA_FROM_URI, e);
+                }
             }
-
             return this;
         }
 
         public Builder addSchema(final Path schemaPath) {
-            try {
-                if (Files.isDirectory(schemaPath)) {
-                    for (final Path path : Files.newDirectoryStream(schemaPath)) {
-                        addSchema(path);
+            if (null != schemaPath) {
+                try {
+                    if (Files.isDirectory(schemaPath)) {
+                        for (final Path path : Files.newDirectoryStream(schemaPath)) {
+                            addSchema(path);
+                        }
+                    } else {
+                        addSchema(Files.readAllBytes(schemaPath));
                     }
-                } else {
-                    addSchema(Files.readAllBytes(schemaPath));
+                } catch (final IOException e) {
+                    throw new SchemaException("Unable to read schema from path: " + schemaPath, e);
                 }
-            } catch (final IOException e) {
-                throw new SchemaException("Unable to read schema from path: " + schemaPath, e);
             }
-
             return this;
         }
 
         public Builder addSchema(final byte[] schemaBytes) {
-            schemaBytesList.add(schemaBytes);
+            if (null != schemaBytes) {
+                schemaBytesList.add(schemaBytes);
+            }
             return this;
         }
 
@@ -671,6 +808,10 @@ public final class Graph {
                 config.setGraphId(store.getGraphId());
             }
 
+            updateStoreProperties(config);
+
+            updateSchema(config);
+
             if (null != config.getLibrary() && config.getLibrary().exists(config.getGraphId())) {
                 //Set Props & Schema if null.
                 final Pair<Schema, StoreProperties> pair = config.getLibrary().get(config.getGraphId());
@@ -678,7 +819,6 @@ public final class Graph {
                 schema = (null == schema) ? pair.getFirst() : schema;
             }
 
-            updateSchema(config);
             updateStore(config);
 
             if (null != config.getGraphId()) {
@@ -696,8 +836,15 @@ public final class Graph {
             }
 
             updateGraphHooks(config);
-            config.getLibrary().add(config.getGraphId(), schema, store.getProperties());
-            return new Graph(config, schema, store);
+
+
+            if (addToLibrary) {
+                config.getLibrary().add(config.getGraphId(), schema, store.getProperties());
+            }
+
+            store.setOriginalSchema(schema);
+
+            return new Graph(config, store);
         }
 
         private void updateGraphHooks(final GraphConfig config) {
@@ -720,15 +867,17 @@ public final class Graph {
 
             if (null != parentSchemaIds) {
                 for (final String parentSchemaId : parentSchemaIds) {
-                    final Schema parentSchema = config.getLibrary().getSchema(parentSchemaId);
-                    if (null != parentSchema) {
-                        if (null == mergedParentSchema) {
-                            mergedParentSchema = parentSchema;
-                        } else {
-                            mergedParentSchema = new Schema.Builder()
-                                    .merge(mergedParentSchema)
-                                    .merge(parentSchema)
-                                    .build();
+                    if (null != parentSchemaId) {
+                        final Schema parentSchema = config.getLibrary().getSchema(parentSchemaId);
+                        if (null != parentSchema) {
+                            if (null == mergedParentSchema) {
+                                mergedParentSchema = parentSchema;
+                            } else {
+                                mergedParentSchema = new Schema.Builder()
+                                        .merge(mergedParentSchema)
+                                        .merge(parentSchema)
+                                        .build();
+                            }
                         }
                     }
                 }
@@ -758,7 +907,7 @@ public final class Graph {
             }
         }
 
-        private void updateStore(final GraphConfig config) {
+        private void updateStoreProperties(final GraphConfig config) {
             StoreProperties mergedStoreProperties = null;
             if (null != parentStorePropertiesId) {
                 mergedStoreProperties = config.getLibrary().getProperties(parentStorePropertiesId);
@@ -768,15 +917,18 @@ public final class Graph {
                 if (null == mergedStoreProperties) {
                     mergedStoreProperties = properties;
                 } else {
-                    mergedStoreProperties.getProperties().putAll(properties.getProperties());
+                    mergedStoreProperties.merge(properties);
                 }
             }
+            properties = mergedStoreProperties;
+        }
 
+        private void updateStore(final GraphConfig config) {
             if (null == store) {
-                store = Store.createStore(config.getGraphId(), cloneSchema(schema), mergedStoreProperties);
+                store = Store.createStore(config.getGraphId(), cloneSchema(schema), properties);
             } else if ((null != config.getGraphId() && !config.getGraphId().equals(store.getGraphId()))
                     || (null != schema)
-                    || (null != mergedStoreProperties && !mergedStoreProperties.equals(store.getProperties()))) {
+                    || (null != properties && !properties.equals(store.getProperties()))) {
                 if (null == config.getGraphId()) {
                     config.setGraphId(store.getGraphId());
                 }
@@ -784,12 +936,12 @@ public final class Graph {
                     schema = store.getSchema();
                 }
 
-                if (null == mergedStoreProperties) {
-                    mergedStoreProperties = store.getProperties();
+                if (null == properties) {
+                    properties = store.getProperties();
                 }
 
                 try {
-                    store.initialise(config.getGraphId(), cloneSchema(schema), mergedStoreProperties);
+                    store.initialise(config.getGraphId(), cloneSchema(schema), properties);
                 } catch (final StoreException e) {
                     throw new IllegalArgumentException("Unable to initialise the store with the given graphId, schema and properties", e);
                 }
@@ -814,5 +966,6 @@ public final class Graph {
         private Schema cloneSchema(final Schema schema) {
             return null != schema ? schema.clone() : null;
         }
+
     }
 }

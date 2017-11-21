@@ -16,8 +16,13 @@
 package uk.gov.gchq.gaffer.rest.factory;
 
 import uk.gov.gchq.gaffer.rest.SystemProperty;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 
+/**
+ * A {@code UserFactory} creates instances of {@link User}s for use when executing
+ * queries on a graph.
+ */
 public interface UserFactory {
 
     static UserFactory createUserFactory() {
@@ -26,12 +31,26 @@ public interface UserFactory {
 
         try {
             return Class.forName(userFactoryClass)
-                        .asSubclass(UserFactory.class)
-                        .newInstance();
+                    .asSubclass(UserFactory.class)
+                    .newInstance();
         } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new IllegalArgumentException("Unable to create user factory from class: " + userFactoryClass, e);
         }
     }
 
+    /**
+     * Create a new {@link User} object.
+     *
+     * @return a new user
+     */
     User createUser();
+
+    /**
+     * Create a new {@link Context} object.
+     *
+     * @return a new user
+     */
+    default Context createContext() {
+        return new Context(createUser());
+    }
 }

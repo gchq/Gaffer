@@ -21,6 +21,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
+import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.user.User;
 
 import static org.junit.Assert.assertSame;
@@ -41,12 +42,13 @@ public class Log4jLoggerTest extends JSONSerialisationTest<Log4jLogger> {
                 .build();
 
         // When
-        final Object returnedResult = hook.postExecute(result, opChain, user);
+        final Object returnedResult = hook.postExecute(result, opChain, new Context(new User()));
 
         // Then
         assertSame(result, returnedResult);
     }
 
+    @Override
     public Log4jLogger getTestObject() {
         return new Log4jLogger();
     }

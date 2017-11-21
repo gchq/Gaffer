@@ -31,7 +31,6 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
@@ -39,7 +38,7 @@ import java.util.Set;
 /**
  * This is used by the Spark reduceByKey method to aggregate two {@link GenericRowWithSchema}'s using the Gaffer aggregator's.
  */
-public class AggregateGafferRowsFunction implements Function2<Row, Row, Row>, Serializable {
+public class AggregateGafferRowsFunction implements Function2<Row, Row, Row> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AggregateGafferRowsFunction.class);
     private static final long serialVersionUID = -8353767193380574516L;
     private final Boolean isEntity;

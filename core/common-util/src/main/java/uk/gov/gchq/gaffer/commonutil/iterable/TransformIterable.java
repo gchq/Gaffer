@@ -22,7 +22,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * A <code>TransformIterable</code> allows {@link java.lang.Iterable}s to be lazily validated and transformed without
+ * A {@code TransformIterable} allows {@link java.lang.Iterable}s to be lazily validated and transformed without
  * loading the entire iterable into memory. The easiest way to use this class is to create an anonymous inner class.
  *
  * @param <I> The input iterable type.
@@ -35,7 +35,7 @@ public abstract class TransformIterable<I, O> implements CloseableIterable<O> {
     private final boolean autoClose;
 
     /**
-     * Constructs an <code>TransformIterable</code> with the given input {@link java.lang.Iterable} and no validation.
+     * Constructs an {@code TransformIterable} with the given input {@link java.lang.Iterable} and no validation.
      *
      * @param input the input {@link java.lang.Iterable}
      */
@@ -44,7 +44,7 @@ public abstract class TransformIterable<I, O> implements CloseableIterable<O> {
     }
 
     /**
-     * Constructs an <code>TransformIterable</code> with the given input {@link java.lang.Iterable} and
+     * Constructs an {@code TransformIterable} with the given input {@link java.lang.Iterable} and
      * {@link Validator}. Invalid items will throw an {@link java.lang.IllegalArgumentException} to be thrown.
      *
      * @param input     the input {@link java.lang.Iterable}
@@ -55,7 +55,7 @@ public abstract class TransformIterable<I, O> implements CloseableIterable<O> {
     }
 
     /**
-     * Constructs an <code>TransformIterable</code> with the given input {@link java.lang.Iterable},
+     * Constructs an {@code TransformIterable} with the given input {@link java.lang.Iterable},
      * {@link Validator} and a skipInvalid flag to determine whether invalid items should be skipped.
      *
      * @param input       the input {@link java.lang.Iterable}
@@ -67,7 +67,7 @@ public abstract class TransformIterable<I, O> implements CloseableIterable<O> {
     }
 
     /**
-     * Constructs an <code>TransformIterable</code> with the given parameters
+     * Constructs an {@code TransformIterable} with the given parameters
      *
      * @param input       the input {@link java.lang.Iterable}
      * @param validator   the {@link Validator}
@@ -175,6 +175,10 @@ public abstract class TransformIterable<I, O> implements CloseableIterable<O> {
 
     protected Iterable<? extends I> getInput() {
         return this.input;
+    }
+
+    protected Validator<I> getValidator() {
+        return validator;
     }
 
     private Class<? extends TransformIterable> getIterableClass() {

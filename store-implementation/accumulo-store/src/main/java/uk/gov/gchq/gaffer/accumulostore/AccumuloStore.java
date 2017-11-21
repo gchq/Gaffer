@@ -32,6 +32,7 @@ import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.ColumnVisibility;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.slf4j.Logger;
@@ -48,10 +49,12 @@ import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsBetweenSets
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsInRangesHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsWithinSetHandler;
+import uk.gov.gchq.gaffer.accumulostore.operation.handler.SampleElementsForSplitPointsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.SummariseGroupOverRangesHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.AddElementsFromHdfsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.ImportAccumuloKeyValueFilesHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.SampleDataForSplitPointsHandler;
+import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.SplitStoreFromIterableHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.SplitStoreHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
@@ -69,8 +72,13 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
+import uk.gov.gchq.gaffer.hdfs.operation.handler.HdfsSplitStoreFromFileHandler;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.impl.SampleElementsForSplitPoints;
 import uk.gov.gchq.gaffer.operation.impl.SplitStore;
+import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
+import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromIterable;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -89,6 +97,7 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
@@ -111,8 +120,8 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
  * <p>
  * The key detail of the Accumulo implementation is that any Edge inserted by a
  * user is inserted into the accumulo table twice, once with the source object
- * being put first in the key and once with the destination bring put first in
- * the key This is to enable an edge to be found in a Range scan when providing
+ * being put first in the key and once with the destination being put first in
+ * the key. This is to enable an edge to be found in a Range scan when providing
  * only one end of the edge.
  */
 public class AccumuloStore extends Store {
@@ -142,22 +151,24 @@ public class AccumuloStore extends Store {
     /**
      * Performs general initialisation without creating the table.
      *
-     * @param graphId    the graph ID
-     * @param schema     the gaffer Schema
-     * @param properties the accumulo store properties
-     * @throws StoreException the store could not be initialised.
+     * @param graphId    The graph ID.
+     * @param schema     The Gaffer Schema.
+     * @param properties The Accumulo store properties.
+     * @throws StoreException If the store could not be initialised.
      */
     public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
-        final String deprecatedTableName = ((AccumuloProperties) properties).getTable();
+        setProperties(properties);
+
+        final String deprecatedTableName = getProperties().getTable();
         if (null == graphId && null != deprecatedTableName) {
             // Deprecated
-            super.initialise(deprecatedTableName, schema, properties);
+            super.initialise(deprecatedTableName, schema, getProperties());
         } else if (null != deprecatedTableName && !deprecatedTableName.equals(graphId)) {
             throw new IllegalArgumentException(
                     "The table in store.properties should no longer be used. " +
                             "Please use a graphId instead or for now just set the graphId to be the same value as the store.properties table.");
         } else {
-            super.initialise(graphId, schema, properties);
+            super.initialise(graphId, schema, getProperties());
         }
         final String keyPackageClass = getProperties().getKeyPackageClass();
         try {
@@ -171,10 +182,10 @@ public class AccumuloStore extends Store {
     /**
      * Creates an Accumulo {@link org.apache.accumulo.core.client.Connector}
      * using the properties found in properties file associated with the
-     * AccumuloStore
+     * AccumuloStore.
      *
-     * @return A new {@link Connector}
-     * @throws StoreException if there is a failure to connect to accumulo.
+     * @return A new {@link Connector}.
+     * @throws StoreException If there is a failure to connect to accumulo.
      */
     public Connector getConnection() throws StoreException {
         if (null == connection) {
@@ -196,13 +207,14 @@ public class AccumuloStore extends Store {
      * @param conf         A {@link Configuration} to be updated.
      * @param graphFilters The operation {@link GraphFilters} to be applied.
      * @param user         The {@link User} to be used.
-     * @throws StoreException if there is a failure to connect to Accumulo or a problem setting the iterators.
+     * @throws StoreException If there is a failure to connect to Accumulo or a problem setting the iterators.
      */
     public void updateConfiguration(final Configuration conf, final GraphFilters graphFilters, final User user) throws StoreException {
         try {
             final View view = graphFilters.getView();
 
             // Table name
+            LOGGER.info("Updating configuration with table name of {}", getTableName());
             InputConfigurator.setInputTableName(AccumuloInputFormat.class,
                     conf,
                     getTableName());
@@ -218,19 +230,27 @@ public class AccumuloStore extends Store {
             InputConfigurator.setScanAuthorizations(AccumuloInputFormat.class,
                     conf,
                     authorisations);
+            LOGGER.info("Updating configuration with authorizations of {}", authorisations);
             // Zookeeper
             addZookeeperToConfiguration(conf);
             // Add keypackage, schema and view to conf
             conf.set(ElementInputFormat.KEY_PACKAGE, getProperties().getKeyPackageClass());
+            LOGGER.info("Updating configuration with key package of {}", getProperties().getKeyPackageClass());
             conf.set(ElementInputFormat.SCHEMA, new String(getSchema().toCompactJson(), CommonConstants.UTF_8));
+            LOGGER.debug("Updating configuration with Schema of {}", getSchema());
             conf.set(ElementInputFormat.VIEW, new String(view.toCompactJson(), CommonConstants.UTF_8));
+            LOGGER.debug("Updating configuration with View of {}", view);
 
             if (view.hasGroups()) {
                 // Add the columns to fetch
-                InputConfigurator.fetchColumns(AccumuloInputFormat.class, conf,
-                        Stream.concat(view.getEntityGroups().stream(), view.getEdgeGroups().stream())
-                                .map(g -> new org.apache.accumulo.core.util.Pair<>(new Text(g), (Text) null))
-                                .collect(Collectors.toSet()));
+                final Collection<org.apache.accumulo.core.util.Pair<Text, Text>> columnFamilyColumnQualifierPairs
+                        = Stream
+                        .concat(view.getEntityGroups().stream(), view.getEdgeGroups().stream())
+                        .map(g -> new org.apache.accumulo.core.util.Pair<>(new Text(g), (Text) null))
+                        .collect(Collectors.toSet());
+                InputConfigurator.fetchColumns(AccumuloInputFormat.class, conf, columnFamilyColumnQualifierPairs);
+                LOGGER.info("Updated configuration with column family/qualifiers of {}",
+                        StringUtils.join(columnFamilyColumnQualifierPairs, ','));
 
                 // Add iterators that depend on the view
                 final IteratorSetting elementPreFilter = getKeyPackage()
@@ -238,18 +258,21 @@ public class AccumuloStore extends Store {
                         .getElementPreAggregationFilterIteratorSetting(view, this);
                 if (null != elementPreFilter) {
                     InputConfigurator.addIterator(AccumuloInputFormat.class, conf, elementPreFilter);
+                    LOGGER.info("Added pre-aggregation filter iterator of {}", elementPreFilter);
                 }
                 final IteratorSetting elementPostFilter = getKeyPackage()
                         .getIteratorFactory()
                         .getElementPostAggregationFilterIteratorSetting(view, this);
                 if (null != elementPostFilter) {
                     InputConfigurator.addIterator(AccumuloInputFormat.class, conf, elementPostFilter);
+                    LOGGER.info("Added post-aggregation filter iterator of {}", elementPostFilter);
                 }
                 final IteratorSetting edgeEntityDirFilter = getKeyPackage()
                         .getIteratorFactory()
                         .getEdgeEntityDirectionFilterIteratorSetting(graphFilters);
                 if (null != edgeEntityDirFilter) {
                     InputConfigurator.addIterator(AccumuloInputFormat.class, conf, edgeEntityDirFilter);
+                    LOGGER.info("Added edge direction filter iterator of {}", edgeEntityDirFilter);
                 }
             }
         } catch (final AccumuloSecurityException | IteratorSettingException | UnsupportedEncodingException e) {
@@ -280,6 +303,7 @@ public class AccumuloStore extends Store {
     }
 
     protected void addUserToConfiguration(final Configuration conf) throws AccumuloSecurityException {
+        LOGGER.info("Updating configuration with user of {}", getProperties().getUser());
         InputConfigurator.setConnectorInfo(AccumuloInputFormat.class,
                 conf,
                 getProperties().getUser(),
@@ -294,6 +318,11 @@ public class AccumuloStore extends Store {
                         .withZkHosts(getProperties().getZookeepers()));
     }
 
+    /**
+     * Gets all {@link AccumuloProperties} related to the store.
+     *
+     * @return {@link AccumuloProperties}.
+     */
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be AccumuloProperties")
     @Override
     public AccumuloProperties getProperties() {
@@ -301,24 +330,28 @@ public class AccumuloStore extends Store {
     }
 
     @Override
-    protected void addAdditionalOperationHandlers() {
-        try {
-            addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
-            addOperationHandler(GetElementsBetweenSets.class, new GetElementsBetweenSetsHandler());
-            addOperationHandler(GetElementsWithinSet.class, new GetElementsWithinSetHandler());
-            addOperationHandler(SplitStore.class, new SplitStoreHandler());
-            addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());
-            addOperationHandler(ImportAccumuloKeyValueFiles.class, new ImportAccumuloKeyValueFilesHandler());
+    protected Class<AccumuloProperties> getPropertiesClass() {
+        return AccumuloProperties.class;
+    }
 
-            if (null == getSchema().getVertexSerialiser() || getSchema().getVertexSerialiser().preservesObjectOrdering()) {
-                addOperationHandler(SummariseGroupOverRanges.class, new SummariseGroupOverRangesHandler());
-                addOperationHandler(GetElementsInRanges.class, new GetElementsInRangesHandler());
-            } else {
-                LOGGER.warn("Accumulo range scan operations will not be available on this store as the vertex serialiser does not preserve object ordering. Vertex serialiser: {}",
-                        getSchema().getVertexSerialiser().getClass().getName());
-            }
-        } catch (final NoClassDefFoundError e) {
-            LOGGER.warn("Unable to added handler for {} due to missing classes on the classpath", AddElementsFromHdfs.class.getSimpleName(), e);
+    @Override
+    protected void addAdditionalOperationHandlers() {
+        addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
+        addOperationHandler(GetElementsBetweenSets.class, new GetElementsBetweenSetsHandler());
+        addOperationHandler(GetElementsWithinSet.class, new GetElementsWithinSetHandler());
+        addOperationHandler(SplitStoreFromFile.class, new HdfsSplitStoreFromFileHandler());
+        addOperationHandler(SplitStoreFromIterable.class, new SplitStoreFromIterableHandler());
+        addOperationHandler(SplitStore.class, new SplitStoreHandler());
+        addOperationHandler(SampleElementsForSplitPoints.class, new SampleElementsForSplitPointsHandler());
+        addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());
+        addOperationHandler(ImportAccumuloKeyValueFiles.class, new ImportAccumuloKeyValueFilesHandler());
+
+        if (null == getSchema().getVertexSerialiser() || getSchema().getVertexSerialiser().preservesObjectOrdering()) {
+            addOperationHandler(SummariseGroupOverRanges.class, new SummariseGroupOverRangesHandler());
+            addOperationHandler(GetElementsInRanges.class, new GetElementsInRangesHandler());
+        } else {
+            LOGGER.warn("Accumulo range scan operations will not be available on this store as the vertex serialiser does not preserve object ordering. Vertex serialiser: {}",
+                    getSchema().getVertexSerialiser().getClass().getName());
         }
     }
 
@@ -348,10 +381,10 @@ public class AccumuloStore extends Store {
     }
 
     /**
-     * Method to add {@link Element}s into Accumulo
+     * Method to add {@link Element}s into Accumulo.
      *
-     * @param elements the elements to be added
-     * @throws StoreException failure to insert the elements into a table
+     * @param elements The elements to be added.
+     * @throws StoreException If there is a failure to insert the elements into a table.
      */
     public void addElements(final Iterable<? extends Element> elements) throws StoreException {
         insertGraphElements(elements);
@@ -364,7 +397,7 @@ public class AccumuloStore extends Store {
         // BatchWriter.as
         // The BatchWriter takes care of batching them up, sending them without
         // too high a latency, etc.
-        if (elements != null) {
+        if (null != elements) {
             for (final Element element : elements) {
 
                 final Pair<Key, Key> keys;
@@ -393,7 +426,7 @@ public class AccumuloStore extends Store {
                 // If the GraphElement is a Vertex then there will only be 1 key,
                 // and the second will be null.
                 // If the GraphElement is an Edge then there will be 2 keys.
-                if (keys.getSecond() != null) {
+                if (null != keys.getSecond()) {
                     final Mutation m2 = new Mutation(keys.getSecond().getRow());
                     m2.put(keys.getSecond().getColumnFamily(), keys.getSecond().getColumnQualifier(),
                             new ColumnVisibility(keys.getSecond().getColumnVisibility()), keys.getSecond().getTimestamp(),
@@ -416,16 +449,30 @@ public class AccumuloStore extends Store {
     }
 
     /**
-     * Returns the {@link uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage} in use by
+     * Gets the {@link uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage} in use by
      * this AccumuloStore.
      *
-     * @return {@link uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage}
+     * @return {@link uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage}.
      */
     public AccumuloKeyPackage getKeyPackage() {
         return keyPackage;
     }
 
+    /**
+     * Gets the TabletServers.
+     *
+     * @return A list of Strings of TabletServers.
+     * @throws StoreException If failure.
+     */
     public List<String> getTabletServers() throws StoreException {
         return getConnection().instanceOperations().getTabletServers();
+    }
+
+    private void addHdfsOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {
+        try {
+            addOperationHandler(opClass, handler);
+        } catch (final NoClassDefFoundError e) {
+            LOGGER.warn("Unable to added handler for {} due to missing classes on the classpath", opClass.getSimpleName(), e);
+        }
     }
 }

@@ -17,18 +17,18 @@ package uk.gov.gchq.gaffer.operation.impl;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 
 import java.util.Map;
 
-
 /**
- * The <code>SplitStore</code> operation is for splitting a store
+ * The {@code SplitStore} operation is for splitting a store
  * based on a sequence file of split points.
  *
  * @see SplitStore.Builder
+ * @deprecated use {@link SplitStoreFromFile} instead
  */
-public class SplitStore implements Operation, Options {
+@Deprecated
+public class SplitStore implements Operation {
     @Required
     private String inputPath;
     private Map<String, String> options;
@@ -59,8 +59,7 @@ public class SplitStore implements Operation, Options {
                 .build();
     }
 
-    public static class Builder extends Operation.BaseBuilder<SplitStore, Builder>
-            implements Options.Builder<SplitStore, Builder> {
+    public static class Builder extends Operation.BaseBuilder<SplitStore, Builder> {
         public Builder() {
             super(new SplitStore());
         }

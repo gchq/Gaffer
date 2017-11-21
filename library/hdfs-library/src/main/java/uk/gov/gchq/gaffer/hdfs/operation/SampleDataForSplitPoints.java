@@ -23,7 +23,6 @@ import uk.gov.gchq.gaffer.commonutil.FieldUtil;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.tuple.n.Tuple3;
@@ -32,7 +31,7 @@ import java.util.Map;
 
 
 /**
- * The <code>SampleDataForSplitPoints</code> operation is for creating a splits file, either for use in a {@link uk.gov.gchq.gaffer.operation.impl.SplitStore} operation or an
+ * The {@code SampleDataForSplitPoints} operation is for creating a splits file, either for use in a {@link uk.gov.gchq.gaffer.operation.impl.SplitStore} operation or an
  * {@link uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs} operation.
  * This operation requires an input and output path as well as a path to a file to use as the resultingSplitsFile.
  * For each input file you must also provide a {@link uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator} class name
@@ -46,8 +45,7 @@ import java.util.Map;
  */
 public class SampleDataForSplitPoints implements
         Operation,
-        MapReduce,
-        Options {
+        MapReduce {
 
     @Required
     private String splitsFilePath;
@@ -99,10 +97,12 @@ public class SampleDataForSplitPoints implements
         this.validate = validate;
     }
 
+    @Override
     public String getSplitsFilePath() {
         return splitsFilePath;
     }
 
+    @Override
     public void setSplitsFilePath(final String splitsFilePath) {
         this.splitsFilePath = splitsFilePath;
     }
@@ -278,8 +278,7 @@ public class SampleDataForSplitPoints implements
 
 
     public static class Builder extends Operation.BaseBuilder<SampleDataForSplitPoints, Builder>
-            implements MapReduce.Builder<SampleDataForSplitPoints, Builder>,
-            Options.Builder<SampleDataForSplitPoints, Builder> {
+            implements MapReduce.Builder<SampleDataForSplitPoints, Builder> {
         public Builder() {
             super(new SampleDataForSplitPoints());
         }
@@ -289,6 +288,7 @@ public class SampleDataForSplitPoints implements
             return _self();
         }
 
+        @Override
         public Builder inputMapperPairs(final Map<String, String> inputMapperPairs) {
             _getOp().setInputMapperPairs(inputMapperPairs);
             return _self();

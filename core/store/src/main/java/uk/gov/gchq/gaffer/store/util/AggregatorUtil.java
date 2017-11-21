@@ -310,7 +310,7 @@ public final class AggregatorUtil {
 
     public static Set<String> getIngestGroupBy(final String group, final Schema schema) {
         final SchemaElementDefinition elDef = schema.getElement(group);
-        if (elDef == null) {
+        if (null == elDef) {
             throw new IllegalArgumentException("Received group " + group
                     + " which was not found in the schema");
         }
@@ -333,7 +333,7 @@ public final class AggregatorUtil {
         }
         if (null == groupBy) {
             final SchemaElementDefinition elDef = schema.getElement(group);
-            if (elDef == null) {
+            if (null == elDef) {
                 throw new IllegalArgumentException("Received group " + group
                         + " which was not found in the schema");
             }

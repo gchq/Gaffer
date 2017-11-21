@@ -18,14 +18,13 @@ package uk.gov.gchq.gaffer.operation.impl.add;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.Validatable;
 
 import java.util.Map;
 import java.util.function.Function;
 
 /**
- * An <code>AddElementsFromFile</code> operation takes a filename, converts each
+ * An {@code AddElementsFromFile} operation takes a filename, converts each
  * line of the file to a Gaffer {@link Element} using the provided
  * {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} then adds these
  * elements to the Graph.
@@ -34,8 +33,7 @@ import java.util.function.Function;
  */
 public class AddElementsFromFile implements
         Operation,
-        Validatable,
-        Options {
+        Validatable {
     /**
      * The fully qualified path of the file from which Flink should consume
      */
@@ -120,8 +118,7 @@ public class AddElementsFromFile implements
     }
 
     public static class Builder extends BaseBuilder<AddElementsFromFile, Builder>
-            implements Validatable.Builder<AddElementsFromFile, Builder>,
-            Options.Builder<AddElementsFromFile, Builder> {
+            implements Validatable.Builder<AddElementsFromFile, Builder> {
         public Builder() {
             super(new AddElementsFromFile());
         }

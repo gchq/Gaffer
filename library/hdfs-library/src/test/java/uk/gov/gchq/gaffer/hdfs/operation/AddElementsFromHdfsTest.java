@@ -122,7 +122,7 @@ public class AddElementsFromHdfsTest extends OperationTest<AddElementsFromHdfs> 
         inputMapperPairs.put("inputPath2", MapperGenerator.class.getName());
         final AddElementsFromHdfs addElements = new AddElementsFromHdfs.Builder()
                 .inputMapperPairs(inputMapperPairs)
-                .addinputMapperPair("inputPath3", MapperGenerator.class.getName())
+                .addInputMapperPair("inputPath3", MapperGenerator.class.getName())
                 .outputPath("output")
                 .failurePath("fail")
                 .mappers(10)

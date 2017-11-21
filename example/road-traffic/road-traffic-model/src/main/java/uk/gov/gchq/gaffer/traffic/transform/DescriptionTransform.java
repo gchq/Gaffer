@@ -18,6 +18,10 @@ package uk.gov.gchq.gaffer.traffic.transform;
 
 import uk.gov.gchq.koryphe.tuple.function.KorypheFunction3;
 
+/**
+ * Simple transformation function to write a {@link String} describing the number
+ * of vehicles passing between two junctions.
+ */
 public class DescriptionTransform extends KorypheFunction3<String, String, Long, String> {
     @Override
     public String apply(final String junctionA, final String junctionB, final Long count) {

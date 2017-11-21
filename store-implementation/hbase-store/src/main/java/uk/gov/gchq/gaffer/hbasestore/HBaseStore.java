@@ -36,12 +36,17 @@ import uk.gov.gchq.gaffer.hbasestore.operation.handler.AddElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetElementsHandler;
+import uk.gov.gchq.gaffer.hbasestore.operation.handler.SampleElementsForSplitPointsHandler;
+import uk.gov.gchq.gaffer.hbasestore.operation.handler.SplitStoreFromIterableHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.handler.AddElementsFromHdfsHandler;
 import uk.gov.gchq.gaffer.hbasestore.retriever.HBaseRetriever;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
-import uk.gov.gchq.gaffer.operation.Options;
+import uk.gov.gchq.gaffer.hdfs.operation.handler.HdfsSplitStoreFromFileHandler;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.impl.SampleElementsForSplitPoints;
+import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
+import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromIterable;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -117,16 +122,17 @@ public class HBaseStore extends Store {
      */
     public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties)
             throws StoreException {
-        final String deprecatedTableName = ((HBaseProperties) properties).getTableName();
+        setProperties(properties);
+        final String deprecatedTableName = getProperties().getTableName();
         if (null == graphId && null != deprecatedTableName) {
             // Deprecated
-            super.initialise(deprecatedTableName, schema, properties);
+            super.initialise(deprecatedTableName, schema, getProperties());
         } else if (null != deprecatedTableName && !deprecatedTableName.equals(graphId)) {
             throw new IllegalArgumentException(
                     "The table in store.properties should no longer be used. " +
                             "Please use a graphId instead or for now just set the graphId to be the same value as the store.properties table.");
         } else {
-            super.initialise(graphId, schema, properties);
+            super.initialise(graphId, schema, getProperties());
         }
     }
 
@@ -170,7 +176,7 @@ public class HBaseStore extends Store {
         }
     }
 
-    public <OP extends Output<CloseableIterable<? extends Element>> & GraphFilters & Options> HBaseRetriever<OP>
+    public <OP extends Output<CloseableIterable<? extends Element>> & GraphFilters> HBaseRetriever<OP>
     createRetriever(final OP operation,
                     final User user,
                     final Iterable<? extends ElementId> ids,
@@ -208,6 +214,11 @@ public class HBaseStore extends Store {
     }
 
     @Override
+    protected Class<HBaseProperties> getPropertiesClass() {
+        return HBaseProperties.class;
+    }
+
+    @Override
     protected Class<? extends ToBytesSerialiser> getRequiredParentSerialiserClass() {
         return ToBytesSerialiser.class;
     }
@@ -234,10 +245,9 @@ public class HBaseStore extends Store {
 
     @Override
     protected void addAdditionalOperationHandlers() {
-        try {
-            addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
-        } catch (final NoClassDefFoundError e) {
-            LOGGER.warn("Unable to added handler for {} due to missing classes on the classpath", AddElementsFromHdfs.class.getSimpleName(), e);
-        }
+        addOperationHandler(SplitStoreFromIterable.class, new SplitStoreFromIterableHandler());
+        addOperationHandler(SplitStoreFromFile.class, new HdfsSplitStoreFromFileHandler());
+        addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
+        addOperationHandler(SampleElementsForSplitPoints.class, new SampleElementsForSplitPointsHandler());
     }
 }

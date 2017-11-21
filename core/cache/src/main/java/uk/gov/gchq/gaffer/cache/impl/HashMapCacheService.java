@@ -22,13 +22,30 @@ import uk.gov.gchq.gaffer.cache.ICacheService;
 import java.util.HashMap;
 import java.util.Properties;
 
+/**
+ * Simple implementation of the {@link ICacheService} interface which uses a
+ * {@link HashMapCache} as the cache implementation.
+ */
 public class HashMapCacheService implements ICacheService {
+    public static final String STATIC_CACHE = "gaffer.cache.hashmap.static";
+    public static final String JAVA_SERIALISATION_CACHE = "gaffer.cache.hashmap.useJavaSerialisation";
+    private static final HashMap<String, HashMapCache> STATIC_CACHES = new HashMap<>();
+    private final HashMap<String, HashMapCache> nonStaticCaches = new HashMap<>();
+    private boolean useJavaSerialisation = false;
 
-    private HashMap<String, HashMapCache> caches = new HashMap<>();
+    private HashMap<String, HashMapCache> caches = nonStaticCaches;
 
     @Override
     public void initialise(final Properties properties) {
-        // do nothing
+        if (properties != null) {
+            useJavaSerialisation = Boolean.parseBoolean(properties.getProperty(JAVA_SERIALISATION_CACHE));
+        }
+
+        if (properties != null && Boolean.parseBoolean(properties.getProperty(STATIC_CACHE))) {
+            caches = STATIC_CACHES;
+        } else {
+            caches = nonStaticCaches;
+        }
     }
 
     @Override
@@ -38,12 +55,7 @@ public class HashMapCacheService implements ICacheService {
 
     @Override
     public <K, V> ICache<K, V> getCache(final String cacheName) {
-        HashMapCache<K, V> cache = caches.get(cacheName);
-
-        if (cache == null) {
-            cache = new HashMapCache<>();
-            caches.put(cacheName, cache);
-        }
+        HashMapCache<K, V> cache = caches.computeIfAbsent(cacheName, k -> new HashMapCache<>(useJavaSerialisation));
 
         return cache;
     }

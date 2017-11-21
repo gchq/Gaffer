@@ -23,11 +23,13 @@ import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.impl.ScoreOperationChain;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.resolver.DefaultScoreResolver;
+import uk.gov.gchq.gaffer.store.operation.resolver.ScoreResolver;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.ArrayList;
@@ -42,12 +44,13 @@ import java.util.Set;
  * Operation Handler for ScoreOperationChain
  */
 public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreOperationChain, Integer> {
-    private static final int DEFAULT_OPERATION_SCORE = 1;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ScoreOperationChainHandler.class);
 
     private final LinkedHashMap<Class<? extends Operation>, Integer> opScores = new LinkedHashMap<>();
     private final Map<String, Integer> authScores = new HashMap<>();
+    private final Map<Class<? extends Operation>, ScoreResolver> scoreResolvers = new HashMap<>();
+    private final ScoreResolver<Operation> defaultScoreResolver = new DefaultScoreResolver(Collections.unmodifiableMap(opScores));
 
     /**
      * Returns the OperationChainLimiter score for the OperationChain provided.
@@ -55,20 +58,40 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
      * @param operation the {@link uk.gov.gchq.gaffer.operation.Operation} to be executed
      * @param context   the operation chain context, containing the user who executed the operation
      * @param store     the {@link Store} the operation should be run on
-     * @return a Long containing the score
+     * @return an Integer containing the score
      * @throws OperationException thrown if the property keys have not been set
      */
     @Override
     public Integer doOperation(final ScoreOperationChain operation, final Context context, final Store store) throws OperationException {
-        return getChainScore(operation.getOperationChain(), context.getUser());
+
+        if (null != operation.getOperationChain()) {
+            return getChainScore(operation.getOperationChain(), context.getUser());
+        } else {
+            return 0;
+        }
     }
 
-    public int getChainScore(final OperationChain<?> opChain, final User user) {
+    public int getChainScore(final Operations<?> operations, final User user) {
         int chainScore = 0;
 
-        if (null != opChain) {
-            for (final Operation operation : opChain.getOperations()) {
-                chainScore += authorise(operation);
+        if (null != operations.getOperations()) {
+            for (final Operation operation : operations.getOperations()) {
+                if (operation instanceof Operations) {
+                    chainScore += getChainScore((Operations) operation, user);
+                } else {
+                    ScoreResolver resolver = scoreResolvers.get(operation.getClass());
+                    if (null == resolver) {
+                        resolver = defaultScoreResolver;
+                    }
+
+                    Integer opScore = resolver.getScore(operation, defaultScoreResolver);
+                    if (null == opScore) {
+                        opScore = defaultScoreResolver.getScore(operation, defaultScoreResolver);
+                    }
+
+                    chainScore += opScore;
+
+                }
             }
         }
         return chainScore;
@@ -79,6 +102,7 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
      * associated with those auths.
      * <p>
      * Defaults to 0.
+     * </p>
      *
      * @param opAuths a set of operation authorisations
      * @return maxUserScore the highest score associated with any of the supplied user auths
@@ -97,32 +121,16 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
         return maxUserScore;
     }
 
-    protected int authorise(final Operation operation) {
-        if (null != operation) {
-            final Class<? extends Operation> opClass = operation.getClass();
-            final List<Class<? extends Operation>> keys = new ArrayList<>(opScores.keySet());
-            for (int i = keys.size() - 1; i >= 0; i--) {
-                final Class<? extends Operation> key = keys.get(i);
-                if (key.isAssignableFrom(opClass)) {
-                    return opScores.get(key);
-                }
-            }
-            LOGGER.warn("The operation '{}' was not found in the config file provided the configured default value of {} will be used", operation.getClass().getName(), DEFAULT_OPERATION_SCORE);
-        } else {
-            LOGGER.warn("A Null operation was passed to the OperationChainLimiter graph hook");
-        }
-        return DEFAULT_OPERATION_SCORE;
-    }
-
     public Map<Class<? extends Operation>, Integer> getOpScores() {
         return Collections.unmodifiableMap(opScores);
     }
 
-    public void setOpScores(final LinkedHashMap<Class<? extends Operation>, Integer> opScores) {
+    public void setOpScores(final Map<Class<? extends Operation>, Integer> opScores) {
         this.opScores.clear();
         if (null != opScores) {
             this.opScores.putAll(opScores);
         }
+        validateOpScores();
     }
 
     @JsonGetter("opScores")
@@ -133,7 +141,7 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
     }
 
     @JsonSetter("opScores")
-    public void setOpScoresFromStrings(final LinkedHashMap<String, Integer> opScores) throws ClassNotFoundException {
+    public void setOpScoresFromStrings(final Map<String, Integer> opScores) throws ClassNotFoundException {
         this.opScores.clear();
         CollectionUtil.toMapWithClassKeys(opScores, this.opScores);
         validateOpScores();
@@ -148,7 +156,17 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
         if (null != authScores) {
             this.authScores.putAll(authScores);
         }
-        validateOpScores();
+    }
+
+    public Map<Class<? extends Operation>, ScoreResolver> getScoreResolvers() {
+        return Collections.unmodifiableMap(scoreResolvers);
+    }
+
+    public void setScoreResolvers(final Map<Class<? extends Operation>, ScoreResolver> resolvers) {
+        this.scoreResolvers.clear();
+        if (null != resolvers) {
+            this.scoreResolvers.putAll(resolvers);
+        }
     }
 
     public void validateOpScores() {
@@ -169,4 +187,5 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
             i++;
         }
     }
+
 }

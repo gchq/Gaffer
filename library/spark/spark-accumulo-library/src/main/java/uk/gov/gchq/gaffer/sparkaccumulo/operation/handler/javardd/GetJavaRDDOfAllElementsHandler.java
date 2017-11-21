@@ -15,23 +15,33 @@
  */
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.NullWritable;
-import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.api.java.function.Function;
-import scala.Tuple2;
+import org.apache.spark.rdd.RDD;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.inputformat.ElementInputFormat;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements;
+import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.GetRDDOfAllElementsHandler;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
+/**
+ * A handler for the {@link GetJavaRDDOfAllElements} operation. This simply uses the operation
+ * {@link GetRDDOfAllElements} to produce an {@link RDD} and then calls {@code toJavaRDD()} to obtain a
+ * {@link JavaRDD}.
+ * <p>
+ * <p>If the {@code gaffer.accumulo.spark.directrdd.use_rfile_reader} option is set to {@code true} then the
+ * RDD will be produced by directly reading the RFiles in the Accumulo table, rather than using
+ * {@link uk.gov.gchq.gaffer.accumulostore.inputformat.ElementInputFormat} to get data via the tablet servers. In order
+ * to read the RFiles directly, the user must have read access to the files. Also note that any data that has not been
+ * minor compacted will not be read. Reading the Rfiles directly can increase the performance.
+ * <p>
+ * <p>If the {@code gaffer.accumulo.spark.directrdd.use_rfile_reader} option is not set then the standard approach
+ * of obtaining data via the tablet servers is used.
+ */
 public class GetJavaRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetJavaRDDOfAllElements, JavaRDD<Element>> {
 
     @Override
@@ -44,23 +54,12 @@ public class GetJavaRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetJav
     private JavaRDD<Element> doOperation(final GetJavaRDDOfAllElements operation,
                                          final Context context,
                                          final AccumuloStore accumuloStore) throws OperationException {
-        final JavaSparkContext sparkContext = operation.getJavaSparkContext();
-        final Configuration conf = getConfiguration(operation);
-        addIterators(accumuloStore, conf, context.getUser(), operation);
-        final JavaPairRDD<Element, NullWritable> pairRDD = sparkContext.newAPIHadoopRDD(conf,
-                ElementInputFormat.class,
-                Element.class,
-                NullWritable.class);
-        return pairRDD.map(new FirstElement());
-    }
-
-    static class FirstElement implements Function<Tuple2<Element, NullWritable>, Element> {
-
-        private static final long serialVersionUID = -4695668644733530293L;
-
-        @Override
-        public Element call(final Tuple2<Element, NullWritable> tuple) throws Exception {
-            return tuple._1();
-        }
+        final GetRDDOfAllElements getRDDOfAllElements = new GetRDDOfAllElements.Builder()
+                .directedType(operation.getDirectedType())
+                .view(operation.getView())
+                .options(operation.getOptions())
+                .build();
+        final RDD<Element> scalaRDD = new GetRDDOfAllElementsHandler().doOperation(getRDDOfAllElements, context, accumuloStore);
+        return scalaRDD.toJavaRDD();
     }
 }

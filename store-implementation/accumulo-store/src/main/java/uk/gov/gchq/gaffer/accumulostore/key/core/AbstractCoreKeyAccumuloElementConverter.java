@@ -87,7 +87,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         // a self-edge) and
         // in that case we should return null second key
         final Key key1 = new Key(rowKeys.getFirst(), columnFamily, columnQualifier, columnVisibility, timeStamp);
-        final Key key2 = rowKeys.getSecond() != null
+        final Key key2 = null != rowKeys.getSecond()
                 ? new Key(rowKeys.getSecond(), columnFamily, columnQualifier, columnVisibility, timeStamp) : null;
         // Return pair of keys
         return new Pair<>(key1, key2);
@@ -170,6 +170,16 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     @Override
+    public Pair<byte[], byte[]> getRowKeysFromElement(final Element element) {
+        if (element instanceof Entity) {
+            final byte[] rowKey = getRowKeyFromEntity((Entity) element);
+            return new Pair<>(rowKey, null);
+        }
+
+        return getRowKeysFromEdge((Edge) element);
+    }
+
+    @Override
     public byte[] buildColumnFamily(final String group) {
         try {
             return group.getBytes(CommonConstants.UTF_8);
@@ -193,10 +203,10 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         final SchemaElementDefinition elementDefinition = getSchemaElementDefinition(group);
         if (null != schema.getVisibilityProperty()) {
             final TypeDefinition propertyDef = elementDefinition.getPropertyTypeDef(schema.getVisibilityProperty());
-            if (propertyDef != null) {
+            if (null != propertyDef) {
                 final Object property = properties.get(schema.getVisibilityProperty());
                 final ToBytesSerialiser serialiser = (ToBytesSerialiser) propertyDef.getSerialiser();
-                if (property != null) {
+                if (null != property) {
                     try {
                         rtn = serialiser.serialise(property);
                     } catch (final SerialisationException e) {
@@ -221,9 +231,9 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             if (null != propertyDef) {
                 final ToBytesSerialiser serialiser = (ToBytesSerialiser) propertyDef.getSerialiser();
                 try {
-                    if (columnVisibility == null || columnVisibility.length == 0) {
+                    if (null == columnVisibility || columnVisibility.length == 0) {
                         final Object value = serialiser.deserialiseEmpty();
-                        if (value != null) {
+                        if (null != value) {
                             properties.put(schema.getVisibilityProperty(), value);
                         }
                     } else {
@@ -261,14 +271,14 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     protected void serialiseSizeAndPropertyValue(final String propertyName, final SchemaElementDefinition elementDefinition, final Properties properties, final ByteArrayOutputStream stream) {
         try {
             final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
-            final ToBytesSerialiser serialiser = (typeDefinition == null) ? null : (ToBytesSerialiser) typeDefinition.getSerialiser();
+            final ToBytesSerialiser serialiser = (null == typeDefinition) ? null : (ToBytesSerialiser) typeDefinition.getSerialiser();
             byte[] bytes;
-            if (serialiser == null) {
+            if (null == serialiser) {
                 bytes = AccumuloStoreConstants.EMPTY_BYTES;
             } else {
                 Object value = properties.get(propertyName);
                 //serialiseNull could be different to AccumuloStoreConstants.EMPTY_BYTES
-                bytes = (value == null) ? serialiser.serialiseNull() : serialiser.serialise(value);
+                bytes = (null == value) ? serialiser.serialiseNull() : serialiser.serialise(value);
             }
             writeBytes(bytes, stream);
         } catch (final IOException e) {
@@ -279,7 +289,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     @Override
     public Properties getPropertiesFromColumnQualifier(final String group, final byte[] bytes) {
         final Properties properties = new Properties();
-        if (bytes != null && bytes.length != 0) {
+        if (null != bytes && bytes.length != 0) {
             int delimiterPosition = 0;
             final int arrayLength = bytes.length;
             final SchemaElementDefinition elementDefinition = getSchemaElementDefinition(group);
@@ -299,8 +309,8 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     private int addDeserialisedProperty(final byte[] bytes, final int carriage, final Properties properties, final SchemaElementDefinition elementDefinition, final String propertyName) throws SerialisationException {
         int rtn = carriage;
         final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
-        final ToBytesSerialiser serialiser = (typeDefinition != null) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
-        if (serialiser != null) {
+        final ToBytesSerialiser serialiser = (null != typeDefinition) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
+        if (null != serialiser) {
             final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(bytes[rtn]);
             final int currentPropLength = getCurrentPropLength(bytes, rtn);
             int from = rtn += numBytesForLength;
@@ -336,14 +346,14 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     protected boolean isColumnQualifierBytesValid(final byte[] bytes, final int numProps) {
-        return numProps != 0 && bytes != null && bytes.length != 0;
+        return numProps != 0 && null != bytes && bytes.length != 0;
     }
 
     @Override
     public long buildTimestamp(final Properties properties) {
         if (null != schema.getTimestampProperty()) {
             final Object property = properties.get(schema.getTimestampProperty());
-            if (property == null) {
+            if (null == property) {
                 return System.currentTimeMillis();
             } else {
                 return (Long) property;
@@ -505,7 +515,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     private boolean isNotEmpty(final Value value) {
-        return value != null && value.getSize() != 0;
+        return null != value && value.getSize() != 0;
     }
 
     private int getCurrentPropLength(final byte[] bytes, final int pos) {

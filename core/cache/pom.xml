@@ -3,11 +3,23 @@
     <parent>
         <artifactId>core</artifactId>
         <groupId>uk.gov.gchq.gaffer</groupId>
-        <version>0.7.9-SNAPSHOT</version>
+        <version>1.1.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>cache</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>exception</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>serialisation</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+    </dependencies>
 
 </project>

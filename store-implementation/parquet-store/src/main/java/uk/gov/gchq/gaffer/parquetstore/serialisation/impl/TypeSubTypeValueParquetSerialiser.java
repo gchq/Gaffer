@@ -36,7 +36,7 @@ public class TypeSubTypeValueParquetSerialiser implements ParquetSerialiser<Type
 
     @Override
     public Object[] serialise(final TypeSubTypeValue object) throws SerialisationException {
-        if (object != null) {
+        if (null != object) {
             return new Object[]{object.getType(), object.getSubType(), object.getValue()};
         }
         return new Object[]{null, null, null};
@@ -44,7 +44,7 @@ public class TypeSubTypeValueParquetSerialiser implements ParquetSerialiser<Type
 
     @Override
     public TypeSubTypeValue deserialise(final Object[] objects) throws SerialisationException {
-        if (objects[0] == null) {
+        if (null == objects[0]) {
             return null;
         } else if (objects.length == 3) {
             return new TypeSubTypeValue(objects[0].toString(), objects[1].toString(), objects[2].toString());

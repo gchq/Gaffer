@@ -20,11 +20,10 @@ import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
- * <code>Properties</code> simply extends {@link java.util.HashMap} with property names (String) as keys and property value (Object) as values.
+ * {@code Properties} simply extends {@link java.util.HashMap} with property names (String) as keys and property value (Object) as values.
  */
 public class Properties extends HashMap<String, Object> {
     private static final long serialVersionUID = -5412533432398907359L;
@@ -62,13 +61,7 @@ public class Properties extends HashMap<String, Object> {
      * @param propertiesToKeep a set of properties to keep
      */
     public void keepOnly(final Collection<String> propertiesToKeep) {
-        final Iterator<Map.Entry<String, Object>> it = entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<String, Object> entry = it.next();
-            if (!propertiesToKeep.contains(entry.getKey())) {
-                it.remove();
-            }
-        }
+        entrySet().removeIf(entry -> !propertiesToKeep.contains(entry.getKey()));
     }
 
     public void remove(final Collection<String> propertiesToRemove) {
@@ -82,10 +75,7 @@ public class Properties extends HashMap<String, Object> {
     @Override
     public String toString() {
         final ToStringBuilder sb = new ToStringBuilder(this);
-        super.entrySet().forEach(es -> {
-            final Object value = es.getValue();
-            sb.append(es.getKey(), String.format("<%s>%s", value.getClass().getCanonicalName(), value));
-        });
+        super.forEach((key, value) -> sb.append(key, String.format("<%s>%s", value.getClass().getCanonicalName(), value)));
         return sb.build();
     }
 }

@@ -62,6 +62,7 @@ public class DateSerialiserTest extends ToBytesSerialisationTest<Date> {
         return new DateSerialiser();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Pair<Date, byte[]>[] getHistoricSerialisationPairs() {
         return new Pair[]{

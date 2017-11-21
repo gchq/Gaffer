@@ -19,10 +19,10 @@ package uk.gov.gchq.gaffer.store.library;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.io.FileUtils;
 
+import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.exception.OverwritingException;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -32,6 +32,12 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.regex.Pattern;
 
+/**
+ * A {@code FileGraphLibrary} stores a {@link GraphLibrary} in a specified
+ * location as files.  It will store a graphId file with the relationships between
+ * the graphId, storePropertiesId and the schemaId.  It will also store the
+ * StoreProperties and Schema in two other files.  They will be named using the ids.
+ */
 public class FileGraphLibrary extends GraphLibrary {
     private static final Pattern PATH_ALLOWED_CHARACTERS = Pattern.compile("[a-zA-Z0-9_/\\\\\\-]*");
     private static final String DEFAULT_PATH = "graphLibrary";
@@ -73,7 +79,7 @@ public class FileGraphLibrary extends GraphLibrary {
             try {
                 List<String> lines = Files.readAllLines(getGraphsPath(graphId));
                 String[] split = lines.get(0).trim().split(",");
-                if ((split[0] == null || split[0].isEmpty()) || (split[1] == null || split[1].isEmpty())) {
+                if ((null == split[0] || split[0].isEmpty()) || (null == split[1] || split[1].isEmpty())) {
                     return null;
                 }
                 ids = new Pair<>(split[0], split[1]);
@@ -99,7 +105,7 @@ public class FileGraphLibrary extends GraphLibrary {
     @Override
     protected void _addSchema(final String schemaId,
                               final byte[] schema) throws OverwritingException {
-        if (schema != null) {
+        if (null != schema) {
             try {
                 FileUtils.writeByteArrayToFile(getSchemaPath(schemaId).toFile(), schema);
             } catch (final IOException e) {
@@ -113,7 +119,8 @@ public class FileGraphLibrary extends GraphLibrary {
     @Override
     protected void _addProperties(final String propertiesId,
                                   final StoreProperties properties) {
-        if (properties != null) {
+        if (null != properties) {
+            getPropertiesPath(propertiesId).toFile().getParentFile().mkdirs();
             try (FileOutputStream propertiesFileOutputStream = new FileOutputStream(getPropertiesPath(propertiesId).toFile())) {
                 properties.getProperties().store(propertiesFileOutputStream, null);
             } catch (final IOException e) {

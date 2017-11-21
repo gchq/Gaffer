@@ -19,6 +19,12 @@ package uk.gov.gchq.gaffer.commonutil.iterable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+/**
+ * An {@code RepeatItemIterator} is an {@link java.util.Iterator} which contains
+ * multiple copies of the same object.
+ *
+ * @param <T> the type of items in the iterator.
+ */
 public class RepeatItemIterator<T> implements Iterator<T> {
     private final long repeats;
     private final T item;

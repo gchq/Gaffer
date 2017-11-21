@@ -1,0 +1,6 @@
+{
+  "graphId": "federatedGraph",
+  "library": {
+    "class": "uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary"
+  }
+}

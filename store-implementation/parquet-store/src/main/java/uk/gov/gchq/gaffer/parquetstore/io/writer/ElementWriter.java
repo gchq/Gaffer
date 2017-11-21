@@ -96,7 +96,7 @@ public class ElementWriter {
     }
 
     private void writeObject(final Type type, final Object object, final int index) throws SerialisationException {
-        if (object != null) {
+        if (null != object) {
             final String fieldName = type.getName();
             if (type.isPrimitive()) {
                 recordConsumer.startField(fieldName, index);

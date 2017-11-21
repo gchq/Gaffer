@@ -36,7 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * This class is used to serialise and deserialise avro files
+ * An {@code AvroSerialiser} is used to serialise and deserialise Avro files.
  */
 public class AvroSerialiser implements ToBytesSerialiser<Object> {
 
@@ -101,7 +101,7 @@ public class AvroSerialiser implements ToBytesSerialiser<Object> {
     }
 
     private void close(final Closeable close) {
-        if (close != null) {
+        if (null != close) {
             try {
                 close.close();
             } catch (final IOException e) {

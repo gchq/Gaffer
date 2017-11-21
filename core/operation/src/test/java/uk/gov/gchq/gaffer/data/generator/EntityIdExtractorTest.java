@@ -84,6 +84,42 @@ public class EntityIdExtractorTest {
     }
 
     @Test
+    public void shouldGetMatchedVertexFromEdge() {
+        // Given
+        final EntityIdExtractor extractor = new EntityIdExtractor(IdentifierType.MATCHED_VERTEX);
+        final Edge edge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("1")
+                .dest("2")
+                .directed(false)
+                .build();
+
+        // When
+        final EntityId seed = extractor._apply(edge);
+
+        // Then
+        assertEquals("1", seed.getVertex());
+    }
+
+    @Test
+    public void shouldGetOppositeMatchedVertexFromEdge() {
+        // Given
+        final EntityIdExtractor extractor = new EntityIdExtractor(IdentifierType.ADJACENT_MATCHED_VERTEX);
+        final Edge edge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("1")
+                .dest("2")
+                .directed(false)
+                .build();
+
+        // When
+        final EntityId seed = extractor._apply(edge);
+
+        // Then
+        assertEquals("2", seed.getVertex());
+    }
+
+    @Test
     public void shouldThrowIllegalArgumentExceptionFromEdgeWhenIdTypeIsDirected() {
         // Given
         final EntityIdExtractor extractor = new EntityIdExtractor(IdentifierType.DIRECTED);

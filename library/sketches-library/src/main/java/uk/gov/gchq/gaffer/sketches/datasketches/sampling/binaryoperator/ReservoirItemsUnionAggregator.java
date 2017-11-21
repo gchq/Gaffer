@@ -20,7 +20,7 @@ import com.yahoo.sketches.sampling.ReservoirItemsUnion;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
- * A <code>ReservoirItemsUnionAggregator</code> is a {@link java.util.function.BinaryOperator} that aggregates
+ * A {@code ReservoirItemsUnionAggregator} is a {@link java.util.function.BinaryOperator} that aggregates
  * {@link ReservoirItemsUnion}s. It does this by extracting a {@link com.yahoo.sketches.sampling.ReservoirItemsSketch}
  * from each {@link ReservoirItemsUnion} and merges that using
  * {@link ReservoirItemsUnion#update(com.yahoo.sketches.sampling.ReservoirItemsSketch)}.

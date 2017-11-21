@@ -19,13 +19,15 @@ package uk.gov.gchq.gaffer.parquetstore.operation;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
@@ -34,7 +36,6 @@ import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.testutils.TestUtils;
-import uk.gov.gchq.gaffer.spark.SparkUser;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -48,11 +49,19 @@ import static org.junit.Assert.fail;
 
 public abstract class AbstractSparkOperationsTest {
 
-    abstract void checkGetDataFrameOfElements(Dataset<Row> data);
-
     static JavaSparkContext javaSparkContext = JavaSparkContext.fromSparkContext(TestUtils.spark.sparkContext());
-    static User USER = new SparkUser(new User(), TestUtils.spark);
+    static User USER = new User.Builder().dataAuth("A").build();
     Graph graph;
+
+    abstract void checkGetDataFrameOfElements(Dataset<Row> data, boolean withVisibilities);
+
+    abstract void genData(final boolean withVisibilities) throws OperationException, StoreException;
+
+    abstract Schema getSchema();
+
+    abstract JavaRDD<Element> getElements(final JavaSparkContext spark, final boolean withVisibilities);
+
+    abstract void setup() throws StoreException;
 
     static Graph getGraph(final Schema schema, final ParquetStoreProperties properties, final String graphID) throws StoreException {
         return new Graph.Builder()
@@ -64,8 +73,47 @@ public abstract class AbstractSparkOperationsTest {
                 .build();
     }
 
-    @AfterClass
-    public static void cleanUpData() throws IOException {
+    @Test
+    public void getDataFrameOfElementsTest() throws OperationException, StoreException {
+        genData(false);
+        setup();
+        final Dataset<Row> data = graph.execute(new GetDataFrameOfElements.Builder()
+                .build(), USER);
+        checkGetDataFrameOfElements(data, false);
+    }
+
+    @Test
+    public void getDataFrameOfElementsWithViewTest() throws OperationException, StoreException {
+        genData(false);
+        setup();
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY,
+                        new ViewElementDefinition.Builder().preAggregationFilter(
+                                new ElementFilter.Builder().select("double").execute(new IsEqual(0.2)).build()
+                        ).build())
+                .build();
+        try {
+            graph.execute(new GetDataFrameOfElements.Builder()
+                    .view(view).build(), USER);
+            fail();
+        } catch (final OperationException e) {
+            assertEquals("Views are not supported by this operation yet", e.getMessage());
+        } catch (final Exception e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void getDataFrameOfElementsWithVisibilitiesTest() throws OperationException, StoreException, IOException {
+        genData(true);
+        setup();
+        final Dataset<Row> data = graph.execute(new GetDataFrameOfElements.Builder()
+                .build(), USER);
+        checkGetDataFrameOfElements(data, true);
+    }
+
+    @After
+    public void cleanUpData() throws IOException {
         try (final FileSystem fs = FileSystem.get(new Configuration())) {
             final ParquetStoreProperties props = TestUtils.getParquetStoreProperties();
             deleteFolder(props.getDataDir(), fs);
@@ -80,34 +128,6 @@ public abstract class AbstractSparkOperationsTest {
                 dataDir = dataDir.getParent();
                 fs.delete(dataDir, true);
             }
-        }
-    }
-
-    @Test
-    public void getDataFrameOfElementsTest() throws OperationException {
-        final Dataset<Row> data = graph.execute(new GetDataFrameOfElements.Builder()
-                .sparkSession(TestUtils.spark)
-                .build(), USER);
-        checkGetDataFrameOfElements(data);
-    }
-
-    @Test
-    public void getDataFrameOfElementsWithViewTest() throws OperationException {
-        final View view = new View.Builder()
-                .entity(TestGroups.ENTITY,
-                        new ViewElementDefinition.Builder().preAggregationFilter(
-                                new ElementFilter.Builder().select("double").execute(new IsEqual(0.2)).build()
-                        ).build())
-                .build();
-        try {
-            graph.execute(new GetDataFrameOfElements.Builder()
-                    .sparkSession(TestUtils.spark)
-                    .view(view).build(), USER);
-            fail();
-        } catch (final OperationException e) {
-            assertEquals("Views are not supported by this operation yet", e.getMessage());
-        } catch (final Exception e) {
-            fail();
         }
     }
 }

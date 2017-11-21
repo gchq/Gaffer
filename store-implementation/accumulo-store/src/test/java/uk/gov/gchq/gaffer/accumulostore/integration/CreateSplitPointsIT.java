@@ -28,6 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -41,9 +42,8 @@ import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.TextMapperGenerator;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.impl.SplitStore;
+import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -85,7 +85,7 @@ public class CreateSplitPointsIT {
         store.initialise(
                 "graphId1",
                 Schema.fromJson(StreamUtil.schemas(getClass())),
-                StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()))
+                AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass()))
         );
 
         final Graph graph = new Graph.Builder()
@@ -96,7 +96,7 @@ public class CreateSplitPointsIT {
         graph.execute(new OperationChain.Builder()
                 .first(new SampleDataForSplitPoints.Builder()
                         .jobInitialiser(new TextJobInitialiser())
-                        .addinputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
+                        .addInputMapperPair(inputDir, TextMapperGeneratorImpl.class.getName())
                         .outputPath(outputDir)
                         .proportionToSample(1f)
                         .validate(true)
@@ -104,7 +104,7 @@ public class CreateSplitPointsIT {
                         .splitsFilePath(splitsFile)
                         .compressionCodec(null)
                         .build())
-                .then(new SplitStore.Builder()
+                .then(new SplitStoreFromFile.Builder()
                         .inputPath(splitsFile)
                         .build())
                 .build(), new User());

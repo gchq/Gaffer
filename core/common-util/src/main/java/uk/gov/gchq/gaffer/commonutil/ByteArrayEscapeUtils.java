@@ -44,9 +44,9 @@ public final class ByteArrayEscapeUtils {
      * @return the escaped byte array
      */
     public static byte[] escape(final byte[] bytes, final byte... appendAfterEscaping) {
-        final byte[] temp = new byte[(2 * bytes.length) + ((appendAfterEscaping == null) ? 0 : appendAfterEscaping.length)];
+        final byte[] temp = new byte[(2 * bytes.length) + ((null == appendAfterEscaping) ? 0 : appendAfterEscaping.length)];
         int currentPosition = escape(bytes, temp, 0);
-        if (appendAfterEscaping != null) {
+        if (null != appendAfterEscaping) {
             for (final byte b : appendAfterEscaping) {
                 temp[currentPosition++] = b;
             }
@@ -57,10 +57,10 @@ public final class ByteArrayEscapeUtils {
     private static int escape(final byte[] bytes, final byte[] temp, final int position) {
         int currentPosition = position;
         for (final byte b : bytes) {
-            if (b == ESCAPE_CHAR) {
+            if (ESCAPE_CHAR == b) {
                 temp[currentPosition++] = ESCAPE_CHAR;
                 temp[currentPosition++] = REPLACEMENT_CHAR;
-            } else if (b == DELIMITER) {
+            } else if (DELIMITER == b) {
                 temp[currentPosition++] = ESCAPE_CHAR;
                 temp[currentPosition++] = ESCAPE_CHAR;
             } else {
@@ -72,7 +72,7 @@ public final class ByteArrayEscapeUtils {
 
     /**
      * Unescapes the provided byte array - this should only be called on byte
-     * arrays that have been through the <code>escape</code> method.
+     * arrays that have been through the {@code escape} method.
      *
      * @param bytes the byte array to unescape
      * @return the unescaped byte array
@@ -83,7 +83,7 @@ public final class ByteArrayEscapeUtils {
 
     /**
      * Unescapes the provided byte array - this should only be called on byte
-     * arrays that have been through the <code>escape</code> method.
+     * arrays that have been through the {@code escape} method.
      *
      * @param allBytes The backing byte array which contains the subset to unEscape
      * @param start    The position to start the unEscape, inclusive.
@@ -97,7 +97,7 @@ public final class ByteArrayEscapeUtils {
 
     /**
      * Unescapes the provided byte array - this should only be called on byte
-     * arrays that have been through the <code>escape</code> method.
+     * arrays that have been through the {@code escape} method.
      *
      * @param allBytes The backing byte array which contains the subset to unEscape
      * @param start    The position to start the unEscape, inclusive.
@@ -110,7 +110,7 @@ public final class ByteArrayEscapeUtils {
 
     /**
      * Unescapes the provided byte array - this should only be called on byte
-     * arrays that have been through the <code>escape</code> method.
+     * arrays that have been through the {@code escape} method.
      *
      * @param allBytes The backing byte array which contains the subset to unEscape.
      * @param offset   The position to start the unEscape, inclusive
@@ -128,16 +128,16 @@ public final class ByteArrayEscapeUtils {
         for (int i = offset; i < allBytes.length && i < offset + length; i++) {
             byte b = allBytes[i];
             if (isEscaped) {
-                if (b == REPLACEMENT_CHAR) {
+                if (REPLACEMENT_CHAR == b) {
                     temp[currentPosition++] = ESCAPE_CHAR;
-                } else if (b == ESCAPE_CHAR) {
+                } else if (ESCAPE_CHAR == b) {
                     temp[currentPosition++] = DELIMITER;
                 } else {
                     temp[currentPosition++] = b;
                 }
                 isEscaped = false;
             } else {
-                if (b == ESCAPE_CHAR) {
+                if (ESCAPE_CHAR == b) {
                     isEscaped = true;
                 } else {
                     temp[currentPosition++] = b;

@@ -16,61 +16,34 @@
 
 package uk.gov.gchq.gaffer.rest.application;
 
-import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
 import org.glassfish.jersey.server.ResourceConfig;
 
 import uk.gov.gchq.gaffer.rest.FactoriesBinder;
-import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.rest.mapper.GafferCheckedExceptionMapper;
 import uk.gov.gchq.gaffer.rest.mapper.GafferRuntimeExceptionMapper;
 import uk.gov.gchq.gaffer.rest.mapper.GenericExceptionMapper;
 import uk.gov.gchq.gaffer.rest.mapper.ProcessingExceptionMapper;
 import uk.gov.gchq.gaffer.rest.mapper.WebApplicationExceptionMapper;
 import uk.gov.gchq.gaffer.rest.serialisation.RestJsonProvider;
-import uk.gov.gchq.gaffer.rest.service.ExamplesService;
-import uk.gov.gchq.gaffer.rest.service.GraphConfigurationService;
-import uk.gov.gchq.gaffer.rest.service.JobService;
-import uk.gov.gchq.gaffer.rest.service.OperationService;
-import uk.gov.gchq.gaffer.rest.service.StatusService;
 
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * An <code>ApplicationConfig</code> sets up the application resources.
+ * An {@code ApplicationConfig} sets up the application resources.
  */
-public class ApplicationConfig extends ResourceConfig {
+public abstract class ApplicationConfig extends ResourceConfig {
     protected final Set<Class<?>> resources = new HashSet<>();
 
     public ApplicationConfig() {
         addSystemResources();
-        addServices();
         addExceptionMappers();
+        addServices();
         setupBeanConfig();
         registerClasses(resources);
         register(new FactoriesBinder());
-    }
-
-    protected void setupBeanConfig() {
-        BeanConfig beanConfig = new BeanConfig();
-        String baseUrl = System.getProperty(SystemProperty.BASE_URL, SystemProperty.BASE_URL_DEFAULT);
-        if (!baseUrl.startsWith("/")) {
-            baseUrl = "/" + baseUrl;
-        }
-        beanConfig.setBasePath(baseUrl);
-        beanConfig.setVersion(System.getProperty(SystemProperty.VERSION, SystemProperty.CORE_VERSION));
-        beanConfig.setResourcePackage(System.getProperty(SystemProperty.SERVICES_PACKAGE_PREFIX, SystemProperty.SERVICES_PACKAGE_PREFIX_DEFAULT));
-        beanConfig.setScan(true);
-    }
-
-    protected void addServices() {
-        resources.add(StatusService.class);
-        resources.add(JobService.class);
-        resources.add(OperationService.class);
-        resources.add(GraphConfigurationService.class);
-        resources.add(ExamplesService.class);
     }
 
     protected void addSystemResources() {
@@ -86,5 +59,9 @@ public class ApplicationConfig extends ResourceConfig {
         resources.add(WebApplicationExceptionMapper.class);
         resources.add(GenericExceptionMapper.class);
     }
+
+    protected abstract void addServices();
+
+    protected abstract void setupBeanConfig();
 
 }

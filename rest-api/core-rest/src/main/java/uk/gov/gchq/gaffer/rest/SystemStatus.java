@@ -16,25 +16,99 @@
 
 package uk.gov.gchq.gaffer.rest;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import io.swagger.annotations.ApiModelProperty;
-
+/**
+ * POJO representing the Gaffer system status.
+ */
 public class SystemStatus {
-    @ApiModelProperty
-    private String description;
 
-    public SystemStatus() {
+    public static final SystemStatus UP = new SystemStatus(Status.UP);
+    public static final SystemStatus DOWN = new SystemStatus(Status.DOWN);
+    public static final SystemStatus UNKNOWN = new SystemStatus(Status.UNKNOWN);
+    public static final SystemStatus OUT_OF_SERVICE = new SystemStatus(Status.OUT_OF_SERVICE);
+
+    private final Status status;
+
+    @JsonCreator
+    public SystemStatus(@JsonProperty("status") final Status status) {
+        this.status = status;
     }
 
-    public SystemStatus(final String description) {
-        this.description = description;
+    public Status getStatus() {
+        return status;
     }
 
-    public String getDescription() {
-        return description;
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (null == obj || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final SystemStatus that = (SystemStatus) obj;
+
+        return new EqualsBuilder()
+                .append(status, that.status)
+                .isEquals();
     }
 
-    public void setDescription(final String description) {
-        this.description = description;
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("status", status)
+                .toString();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(status)
+                .toHashCode();
+    }
+
+    /**
+     * Enumerated type for the Gaffer system status.
+     *
+     * This enum is compliant with the Spring Boot Actuator.
+     */
+    public enum Status {
+
+        UP("UP", "The system is working normally."),
+        DOWN("DOWN", "The system is unavailable."),
+        UNKNOWN("UNKNOWN", "The system status is unknown."),
+        OUT_OF_SERVICE("OUT_OF_SERVICE", "The system is out of service.");
+
+        private String description;
+
+        private String code;
+
+        Status(final String code, final String description) {
+            this.code = code;
+            this.description = description;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        @Override
+        public String toString() {
+            return new ToStringBuilder(this)
+                    .append("description", description)
+                    .append("code", code)
+                    .toString();
+        }
     }
 }

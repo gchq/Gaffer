@@ -24,6 +24,8 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.export.GetExports;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 
+import java.util.Map;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 
@@ -87,6 +89,16 @@ public class GetExportsTest extends OperationTest<GetExports> {
         assertEquals(getSetExport, clone.getGetExports().iterator().next());
     }
 
+    @Test
+    public void shouldGetOutputClass() {
+        // When
+        final Class<?> outputClass = getTestObject().getOutputClass();
+
+        // Then
+        assertEquals(Map.class, outputClass);
+    }
+
+    @Override
     protected GetExports getTestObject() {
         return new GetExports();
     }

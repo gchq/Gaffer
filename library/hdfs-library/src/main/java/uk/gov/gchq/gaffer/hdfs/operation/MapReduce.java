@@ -27,7 +27,7 @@ import java.util.Map;
 
 
 /**
- * This <code>MapReduce</code> class should be implemented for any Operations that run map reduce jobs.
+ * This {@code MapReduce} class should be implemented for any Operations that run map reduce jobs.
  * {@link JobInitialiser}.
  * <p>
  * <b>NOTE</b> - currently this job has to be run as a hadoop job.
@@ -129,7 +129,7 @@ public interface MapReduce {
             return _self();
         }
 
-        default B addinputMapperPair(final String inputPath, final String mapperGeneratorClassName) {
+        default B addInputMapperPair(final String inputPath, final String mapperGeneratorClassName) {
             _getOp().addInputMapperPair(inputPath, mapperGeneratorClassName);
             return _self();
         }

@@ -22,8 +22,6 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.spark.SparkConf;
-import org.apache.spark.serializer.KryoSerializer;
-import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,8 +31,8 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.parquetstore.index.GraphIndex;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.AddElementsHandler;
-import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.ImportRDDOfElements.ImportJavaRDDOfElementsHandler;
-import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.ImportRDDOfElements.ImportRDDOfElementsHandler;
+import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.ImportJavaRDDOfElementsHandler;
+import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.ImportRDDOfElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetDataframeOfElementsHandler;
@@ -42,13 +40,9 @@ import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetElements
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.spark.SparkConstants;
-import uk.gov.gchq.gaffer.spark.SparkUser;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
-import uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator;
-import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.SerialisationFactory;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -59,7 +53,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
-import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.io.IOException;
@@ -67,10 +60,11 @@ import java.util.Collections;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import static uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants.SPARK_SESSION_NAME;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_VALIDATION;
+import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
 
 /**
  * An implementation of {@link Store} that uses Parquet files to store the {@link Element}s.
@@ -84,8 +78,10 @@ public class ParquetStore extends Store {
     private static final Set<StoreTrait> TRAITS =
             Collections.unmodifiableSet(Sets.newHashSet(
                     ORDERED,
+                    VISIBILITY,
                     INGEST_AGGREGATION,
-                    PRE_AGGREGATION_FILTERING
+                    PRE_AGGREGATION_FILTERING,
+                    STORE_VALIDATION
             ));
 
     private GraphIndex graphIndex;
@@ -112,6 +108,7 @@ public class ParquetStore extends Store {
         return schemaUtils;
     }
 
+    @Override
     public Set<StoreTrait> getTraits() {
         return TRAITS;
     }
@@ -147,25 +144,8 @@ public class ParquetStore extends Store {
     }
 
     @Override
-    protected Context createContext(final User user) {
-        final SparkUser sparkUser;
-        if (user instanceof SparkUser) {
-            sparkUser = (SparkUser) user;
-            final SparkConf conf = sparkUser.getSparkSession().sparkContext().getConf();
-            checkForOptimisedConfig(conf, SparkConstants.SERIALIZER, KryoSerializer.class);
-            checkForOptimisedConfig(conf, SparkConstants.KRYO_REGISTRATOR, Registrator.class);
-        } else {
-            LOGGER.info("Setting up the Spark session using as the master URL", getProperties().getSparkMaster());
-            final SparkSession spark = SparkSession.builder()
-                    .appName(SPARK_SESSION_NAME)
-                    .master(getProperties().getSparkMaster())
-                    .config(SparkConstants.DRIVER_ALLOW_MULTIPLE_CONTEXTS, "true")
-                    .config(SparkConstants.SERIALIZER, SparkConstants.DEFAULT_SERIALIZER)
-                    .config(SparkConstants.KRYO_REGISTRATOR, SparkConstants.DEFAULT_KRYO_REGISTRATOR)
-                    .getOrCreate();
-            sparkUser = new SparkUser(user, spark);
-        }
-        return super.createContext(sparkUser);
+    protected Class<ParquetStoreProperties> getPropertiesClass() {
+        return ParquetStoreProperties.class;
     }
 
     @Override
@@ -249,7 +229,7 @@ public class ParquetStore extends Store {
 
     private void checkForOptimisedConfig(final SparkConf conf, final String key, final Class<?> optimalClass) {
         final String value = conf.get(key, null);
-        if (value == null || !optimalClass.getName().equals(value)) {
+        if (null == value || !optimalClass.getName().equals(value)) {
             LOGGER.warn("For the best performance you should set the spark config '{}' = '{}'", key, optimalClass.getName());
         }
     }

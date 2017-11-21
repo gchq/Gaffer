@@ -83,6 +83,7 @@ public class CompactRawIntegerSerialiserTest extends ToBytesSerialisationTest<In
         return new CompactRawIntegerSerialiser();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Pair<Integer, byte[]>[] getHistoricSerialisationPairs() {
         return new Pair[]{

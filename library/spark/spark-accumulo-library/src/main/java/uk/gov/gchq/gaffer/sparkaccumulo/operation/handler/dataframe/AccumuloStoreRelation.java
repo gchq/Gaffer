@@ -19,7 +19,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
-import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.sources.BaseRelation;
 import org.apache.spark.sql.sources.Filter;
 import org.apache.spark.sql.sources.PrunedFilteredScan;
@@ -34,13 +33,14 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.ClassTagConstants;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.ConvertElementToRow;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.FiltersToOperationConverter;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStructTypeConverter;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
-import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.gaffer.store.Context;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -48,66 +48,66 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Allows Apache Spark to retrieve data from an {@link AccumuloStore} as a <code>DataFrame</code>. Spark's Java API
- * does not expose the <code>DataFrame</code> class, but it is just a type alias for a {@link
- * org.apache.spark.sql.Dataset} of {@link Row}s. The schema of the <code>DataFrame</code> is formed from the schemas
+ * Allows Apache Spark to retrieve data from an {@link AccumuloStore} as a {@code DataFrame}. Spark's Java API
+ * does not expose the {@code DataFrame} class, but it is just a type alias for a {@link
+ * org.apache.spark.sql.Dataset} of {@link Row}s. The schema of the {@code DataFrame} is formed from the schemas
  * of the groups specified in the view.
  * <p>
  * If two of the specified groups have properties with the same name, then the types of those properties must be
  * the same.
  * <p>
- * <code>AccumuloStoreRelation</code> implements the {@link TableScan} interface which allows all {@link Element}s to
- * of the specified groups to be returned to the <code>DataFrame</code>.
+ * {@code AccumuloStoreRelation} implements the {@link TableScan} interface which allows all {@link Element}s to
+ * of the specified groups to be returned to the {@code DataFrame}.
  * <p>
- * <code>AccumuloStoreRelation</code> implements the {@link PrunedScan} interface which allows all {@link Element}s
- * of the specified groups to be returned to the <code>DataFrame</code> but with only the specified columns returned.
+ * {@code AccumuloStoreRelation} implements the {@link PrunedScan} interface which allows all {@link Element}s
+ * of the specified groups to be returned to the {@code DataFrame} but with only the specified columns returned.
  * Currently, {@link AccumuloStore} does not allow projection of properties in the tablet server, so this projection
  * is performed within the Spark executors, rather than in Accumulo's tablet servers. Once {@link AccumuloStore}
  * supports this projection in the tablet servers, then this will become more efficient.
  * <p>
- * <code>AccumuloStoreRelation</code> implements the {@link PrunedFilteredScan} interface which allows only
+ * {@code AccumuloStoreRelation} implements the {@link PrunedFilteredScan} interface which allows only
  * {@link Element}s that match the the provided {@link Filter}s to be returned. The majority of these are implemented
  * by adding them to the {@link View}, which causes them to be applied on Accumulo's tablet server (i.e. before
  * the data is sent to a Spark executor). If a {@link Filter} is specified that specifies either the vertex in an
- * <code>Entity</code> or either the source or destination vertex in an <code>Edge</code> then this is applied by
- * using the appropriate range scan on Accumulo. Queries against this <code>DataFrame</code> that do this should be
+ * {@code Entity} or either the source or destination vertex in an {@code Edge} then this is applied by
+ * using the appropriate range scan on Accumulo. Queries against this {@code DataFrame} that do this should be
  * very quick.
  */
 public class AccumuloStoreRelation extends BaseRelation implements TableScan, PrunedScan, PrunedFilteredScan {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStoreRelation.class);
 
-    private final SparkSession sparkSession;
+    private final Context context;
     private final LinkedHashSet<String> groups;
     private final View view;
     private final AccumuloStore store;
-    private final User user;
     private final LinkedHashSet<String> usedProperties;
     private final Map<String, Boolean> propertyNeedsConversion;
     private final Map<String, Converter> converterByProperty;
     private StructType structType;
     private SchemaToStructTypeConverter schemaConverter;
+    private Map<String, String> options;
 
-    public AccumuloStoreRelation(final SparkSession sparkSession,
+    public AccumuloStoreRelation(final Context context,
                                  final List<Converter> converters,
                                  final View view,
                                  final AccumuloStore store,
-                                 final User user) {
-        this.sparkSession = sparkSession;
+                                 final Map<String, String> options) {
+        this.context = context;
         this.view = view;
         this.store = store;
-        this.user = user;
         this.schemaConverter = new SchemaToStructTypeConverter(store.getSchema(), view, converters);
         this.groups = this.schemaConverter.getGroups();
         this.structType = this.schemaConverter.getStructType();
         this.usedProperties = this.schemaConverter.getUsedProperties();
         this.propertyNeedsConversion = this.schemaConverter.getPropertyNeedsConversion();
         this.converterByProperty = this.schemaConverter.getConverterByProperty();
+        this.options = options;
     }
 
     @Override
     public SQLContext sqlContext() {
-        return sparkSession.sqlContext();
+        return SparkContextUtil.getSparkSession(context, store.getProperties()).sqlContext();
     }
 
     @Override
@@ -116,17 +116,18 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
     }
 
     /**
-     * Creates a <code>DataFrame</code> of all {@link Element}s from the specified groups.
+     * Creates a {@code DataFrame} of all {@link Element}s from the specified groups.
      *
-     * @return An {@link RDD} of {@link Row}s containing {@link Element}s whose group is in <code>groups</code>.
+     * @return An {@link RDD} of {@link Row}s containing {@link Element}s whose group is in {@code groups}.
      */
     @Override
     public RDD<Row> buildScan() {
         try {
             LOGGER.info("Building GetRDDOfAllElements with view set to groups {}", StringUtils.join(groups, ','));
-            final GetRDDOfAllElements operation = new GetRDDOfAllElements(sparkSession);
+            final GetRDDOfAllElements operation = new GetRDDOfAllElements();
             operation.setView(view);
-            final RDD<Element> rdd = store.execute(operation, user);
+            operation.setOptions(options);
+            final RDD<Element> rdd = store.execute(operation, context);
             return rdd.map(new ConvertElementToRow(usedProperties, propertyNeedsConversion, converterByProperty),
                     ClassTagConstants.ROW_CLASS_TAG);
         } catch (final OperationException e) {
@@ -136,7 +137,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
     }
 
     /**
-     * Creates a <code>DataFrame</code> of all {@link Element}s from the specified groups with columns that are not
+     * Creates a {@code DataFrame} of all {@link Element}s from the specified groups with columns that are not
      * required filtered out.
      * <p>
      * Currently this does not push the projection down to the store (i.e. it should be implemented in an iterator,
@@ -150,9 +151,10 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
         try {
             LOGGER.info("Building scan with required columns: {}", StringUtils.join(requiredColumns, ','));
             LOGGER.info("Building GetRDDOfAllElements with view set to groups {}", StringUtils.join(groups, ','));
-            final GetRDDOfAllElements operation = new GetRDDOfAllElements(sparkSession);
+            final GetRDDOfAllElements operation = new GetRDDOfAllElements();
             operation.setView(view);
-            final RDD<Element> rdd = store.execute(operation, user);
+            operation.setOptions(options);
+            final RDD<Element> rdd = store.execute(operation, context);
             return rdd.map(new ConvertElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)),
                             propertyNeedsConversion, converterByProperty),
                     ClassTagConstants.ROW_CLASS_TAG);
@@ -163,7 +165,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
     }
 
     /**
-     * Creates a <code>DataFrame</code> of all {@link Element}s from the specified groups with columns that are not
+     * Creates a {@code DataFrame} of all {@link Element}s from the specified groups with columns that are not
      * required filtered out and with (some of) the supplied {@link Filter}s applied.
      * <p>
      * Note that Spark also applies the provided {@link Filter}s - applying them here is an optimisation to reduce
@@ -182,15 +184,16 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
                 StringUtils.join(requiredColumns, ','),
                 filters.length,
                 StringUtils.join(filters, ','));
-        Output<RDD<Element>> operation = new FiltersToOperationConverter(sparkSession, view, store.getSchema(), filters)
+        Output<RDD<Element>> operation = new FiltersToOperationConverter(view, store.getSchema(), filters)
                 .getOperation();
-        if (operation == null) {
+        operation.setOptions(options);
+        if (null == operation) {
             // Null indicates that the filters resulted in no data (e.g. if group = X and group = Y, or if group = X
             // and there is no group X in the schema).
-            return sparkSession.sqlContext().emptyDataFrame().rdd();
+            return sqlContext().emptyDataFrame().rdd();
         }
         try {
-            final RDD<Element> rdd = store.execute(operation, user);
+            final RDD<Element> rdd = store.execute(operation, context);
             return rdd.map(new ConvertElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)),
                             propertyNeedsConversion, converterByProperty),
                     ClassTagConstants.ROW_CLASS_TAG);
@@ -199,5 +202,4 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
             return null;
         }
     }
-
 }

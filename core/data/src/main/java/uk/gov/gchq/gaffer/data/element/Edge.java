@@ -33,7 +33,7 @@ import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import java.util.Comparator;
 
 /**
- * An <code>Edge</code> in an {@link uk.gov.gchq.gaffer.data.element.Element} containing a source, destination and a directed flag.
+ * An {@code Edge} in an {@link uk.gov.gchq.gaffer.data.element.Element} containing a source, destination and a directed flag.
  * The source and destination vertices can be any type of {@link java.lang.Object}.
  * There is no requirement for these vertices to connect to an {@link uk.gov.gchq.gaffer.data.element.Entity} vertex -
  * for example you could have a 'graph' of just edges.
@@ -89,19 +89,44 @@ public class Edge extends Element implements EdgeId {
      * @param matchedVertex used at query time to mark which vertex was matched.
      * @param properties    the edge properties
      */
-    @JsonCreator
-    public Edge(@JsonProperty("group") final String group,
-                @JsonProperty("source")  final Object source,
-                @JsonProperty("destination") final Object destination,
-                @JsonProperty("directed") final boolean directed,
-                @JsonProperty("matchedVertex")  final MatchedVertex matchedVertex,
-                @JsonProperty("properties") final Properties properties) {
+    public Edge(final String group,
+                final Object source,
+                final Object destination,
+                final boolean directed,
+                final MatchedVertex matchedVertex,
+                final Properties properties) {
         super(group, properties);
         this.source = source;
         this.destination = destination;
         this.directed = directed;
         this.matchedVertex = matchedVertex;
         orderVertices();
+    }
+
+    /**
+     * Constructs an instance of Edge.
+     * <p>
+     * If the edge is undirected the the source and destination vertices may get
+     * swapped to ensure undirected edges are consistently constructed.
+     * </p>
+     *
+     * @param group         the Edge group
+     * @param source        the source vertex
+     * @param destination   the destination vertex
+     * @param directed      true if the edge is directed
+     * @param directedType  the direction of the edge
+     * @param matchedVertex used at query time to mark which vertex was matched.
+     * @param properties    the edge properties
+     */
+    @JsonCreator
+    Edge(@JsonProperty("group") final String group,
+         @JsonProperty("source") final Object source,
+         @JsonProperty("destination") final Object destination,
+         @JsonProperty("directed") final Boolean directed,
+         @JsonProperty("directedType") final DirectedType directedType,
+         @JsonProperty("matchedVertex") final MatchedVertex matchedVertex,
+         @JsonProperty("properties") final Properties properties) {
+        this(group, source, destination, getDirected(directed, directedType), matchedVertex, properties);
     }
 
     @Override
@@ -131,6 +156,7 @@ public class Edge extends Element implements EdgeId {
         return directed;
     }
 
+    @Override
     public MatchedVertex getMatchedVertex() {
         return matchedVertex;
     }
@@ -144,6 +170,10 @@ public class Edge extends Element implements EdgeId {
                 return getDestination();
             case DIRECTED:
                 return isDirected();
+            case MATCHED_VERTEX:
+                return getMatchedVertexValue();
+            case ADJACENT_MATCHED_VERTEX:
+                return getAdjacentMatchedVertexValue();
             default:
                 return null;
         }
@@ -160,9 +190,11 @@ public class Edge extends Element implements EdgeId {
     void putIdentifier(final IdentifierType identifierType, final Object value) {
         switch (identifierType) {
             case SOURCE:
+            case MATCHED_VERTEX:
                 source = value;
                 break;
             case DESTINATION:
+            case ADJACENT_MATCHED_VERTEX:
                 destination = value;
                 break;
             case DIRECTED:
@@ -184,6 +216,7 @@ public class Edge extends Element implements EdgeId {
      * @param destination  the destination vertex
      * @param directedType the edge directedType
      */
+    @Override
     public void setIdentifiers(final Object source, final Object destination, final DirectedType directedType) {
         setIdentifiers(source, destination, directedType.isDirected());
     }
@@ -328,6 +361,16 @@ public class Edge extends Element implements EdgeId {
                 .append("matchedVertex", getMatchedVertex())
                 .appendSuper(super.toString())
                 .build();
+    }
+
+    private static boolean getDirected(final Boolean directed, final DirectedType directedType) {
+        if (null != directed) {
+            if (null != directedType) {
+                throw new IllegalArgumentException("Use either 'directed' or 'directedType' - not both.");
+            }
+            return directed;
+        }
+        return DirectedType.isDirected(directedType);
     }
 
     public static class Builder {

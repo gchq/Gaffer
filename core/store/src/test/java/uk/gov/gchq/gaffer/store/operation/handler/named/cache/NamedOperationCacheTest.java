@@ -12,9 +12,10 @@ import org.junit.rules.ExpectedException;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
+import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
-import uk.gov.gchq.gaffer.named.operation.cache.CacheOperationFailedException;
+import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -91,7 +92,7 @@ public class NamedOperationCacheTest {
     @Test
     public void shouldThrowExceptionIfNamedOperationAlreadyExists() throws CacheOperationFailedException {
         cache.addNamedOperation(standard, false, standardUser);
-        exception.expect(CacheOperationFailedException.class);
+        exception.expect(OverwritingException.class);
         cache.addNamedOperation(alternative, false, advancedUser);
     }
 

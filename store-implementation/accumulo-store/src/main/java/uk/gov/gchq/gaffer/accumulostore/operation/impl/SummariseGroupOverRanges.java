@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
@@ -33,7 +32,7 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Map;
 
 /**
- * A <code>SummariseGroupOverRanges</code> operation will return an
+ * A {@code SummariseGroupOverRanges} operation will return an
  * {@link uk.gov.gchq.gaffer.data.element.Element} that represents the aggregated form of all data between the provided range for the provided group.
  * Note that one result per tablet on which data in the desired range resides will be returned, with large data sets and/or large ranges
  * more likely to produce multiple results and you will need to cache the results and aggregate them again to get a final answer.
@@ -41,11 +40,10 @@ import java.util.Map;
  * Standard filtering will still occur before the final aggregation of the vertices.
  */
 public class SummariseGroupOverRanges
-        implements Operation,
+        implements
         InputOutput<Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, CloseableIterable<? extends Element>>,
         MultiInput<Pair<? extends ElementId, ? extends ElementId>>,
-        SeededGraphFilters,
-        Options {
+        SeededGraphFilters {
 
     private Iterable<? extends Pair<? extends ElementId, ? extends ElementId>> input;
     private IncludeIncomingOutgoingType inOutType;
@@ -122,8 +120,7 @@ public class SummariseGroupOverRanges
     public static class Builder extends Operation.BaseBuilder<SummariseGroupOverRanges, Builder>
             implements InputOutput.Builder<SummariseGroupOverRanges, Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, CloseableIterable<? extends Element>, Builder>,
             MultiInput.Builder<SummariseGroupOverRanges, Pair<? extends ElementId, ? extends ElementId>, Builder>,
-            SeededGraphFilters.Builder<SummariseGroupOverRanges, Builder>,
-            Options.Builder<SummariseGroupOverRanges, Builder> {
+            SeededGraphFilters.Builder<SummariseGroupOverRanges, Builder> {
         public Builder() {
             super(new SummariseGroupOverRanges());
         }

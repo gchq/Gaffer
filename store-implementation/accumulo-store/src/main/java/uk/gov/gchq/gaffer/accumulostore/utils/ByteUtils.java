@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.accumulostore.utils;
 
+import java.util.Arrays;
+
 /**
  * Utility methods for bytes
  */
@@ -44,7 +46,7 @@ public final class ByteUtils {
      * @return true if the provided bytes are equal
      */
     public static boolean areKeyBytesEqual(final byte[] bytes1, final byte[] bytes2) {
-        if (bytes1 == bytes2) {
+        if (Arrays.equals(bytes1, bytes2)) {
             return true;
         }
 
@@ -99,8 +101,8 @@ public final class ByteUtils {
         int bLength = b.getLength();
         int aLength = a.getLength();
         if (aLength == bLength
-                && a.getBytes() != null
-                && b.getBytes() != null) {
+                && null != a.getBytes()
+                && null != b.getBytes()) {
             rtn = true;
             for (int ia = a.getOffSet() - 1 + aLength,
                  ib = b.getOffSet() - 1 + bLength;

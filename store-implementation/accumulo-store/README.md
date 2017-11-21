@@ -31,7 +31,6 @@ Accumulo Store
 12. [Trouble shooting](#trouble-shooting)
 13. [Implementation details](#implementation-details)
 14. [Tests](#tests)
-15. [Accumulo 1.8.0 Support](#accumulo-1.8.0-support)
 16. [Migration](#migration)
 
 
@@ -55,13 +54,13 @@ Gaffer's `AccumuloStore` is particularly well-suited to graphs where the propert
 Accumulo set up
 -----------------------------------------------
 
-Gaffer has been extensively tested with Accumulo version 1.7.2. It should work with any of the 1.7.* versions of Accumulo.
+Gaffer has been extensively tested with Accumulo version 1.8.1. It is recommended to use this version, although it should work with any of the 1.8.* versions of Accumulo as well.
 
-For the purposes of unit testing and very small-scale ephemeral examples, Gaffer offers a [MockAccumuloStore](accumulo-store/src/main/java/gaffer/accumulostore/MockAccumuloStore.java). This uses Accumulo's `MockInstance` to create an in-memory Accumulo store that runs within the same JVM as the client code. All data in this store will disappear when the JVM is shut down.
+For the purposes of unit testing and very small-scale ephemeral examples, Gaffer offers a [MockAccumuloStore](src/main/java/uk/gov/gchq/gaffer/accumulostore/MockAccumuloStore.java). This uses Accumulo's `MockInstance` to create an in-memory Accumulo store that runs within the same JVM as the client code. All data in this store will disappear when the JVM is shut down.
 
 Gaffer can also be used with a `MiniAccumuloCluster`. This is an Accumulo cluster that runs in one JVM. To set up a `MiniAccumuloCluster` with Gaffer support, see the [mini-accumulo-cluster](https://github.com/gchq/gaffer-tools/tree/master/mini-accumulo-cluster) project in the Gaffer tools repository.
 
-All real applications of Gaffer's `AccumuloStore` will use an Accumulo cluster running on a real Hadoop cluster consisting of multiple servers. Instructions on setting up an Accumulo cluster can be found in [Accumulo's User Manual](http://accumulo.apache.org/1.7/accumulo_user_manual).
+All real applications of Gaffer's `AccumuloStore` will use an Accumulo cluster running on a real Hadoop cluster consisting of multiple servers. Instructions on setting up an Accumulo cluster can be found in [Accumulo's User Manual](http://accumulo.apache.org/1.8/accumulo_user_manual).
 
 To use Gaffer's Accumulo store, it is necessary to add a jar file to the class path of all of Accumulo's tablet servers. This jar contains Gaffer code that runs inside Accumulo's tablet servers to provide functionality such as aggregation and filtering at ingest and query time. 
 
@@ -102,7 +101,7 @@ Other properties can be specified in this file. For details see [Advanced Proper
 Schema
 -----------------------------------------------
 
-See [Getting Started](Getting-Started.md) for details of how to write a schema that tells Gaffer what data will be stored, and how to aggregate it. Once the schema has been created, a `Graph` object can be created using:
+See [Getting Started](https://gchq.github.io/gaffer-doc/getting-started/dev-guide.html#schemas) for details of how to write a schema that tells Gaffer what data will be stored, and how to aggregate it. Once the schema has been created, a `Graph` object can be created using:
 
 ```java
 Graph graph = new Graph.Builder()
@@ -152,10 +151,19 @@ where:
 To apply these split points to the table, run:
 
 ```java
-SplitStore splitTable = new SplitStore.Builder()
+SplitStoreFromFile splitStore = new SplitStoreFromFile.Builder()
         .inputPath(splitsFilePath)
         .build();
-graph.execute(splitTable, new User());
+graph.execute(splitStore, new User());
+```
+
+or from an Iterable:
+
+```java
+SplitStoreFromIterable splitStore = new SplitStoreFromIterable.Builder()
+        .input(splits) // Base64 encoded strings
+        .build();
+graph.execute(splitStore, new User());
 ```
 
 **Continuous load**
@@ -214,7 +222,7 @@ By default the number of reducers used in the MapReduce job that converts data i
 Queries
 -----------------------------------------------
 
-The Accumulo store supports all the standard queries. See [Getting Started](Getting-Started) for more details.
+The Accumulo store supports all the standard queries. See the [Operation Examples](https://gchq.github.io/gaffer-doc/getting-started/operation-examples.html) for more details.
 
 Visibility
 -----------------------------------------------
@@ -223,7 +231,7 @@ Gaffer can take advantage of Accumulo's built-in fine-grained security to ensure
 
 If no "visibilityProperty" is specified then the column visibility is empty which means that anyone who has read access to the table can view it.
 
-See [the aggregation example](Getting-Started#example-8---aggregation) in the [Getting Started](Getting-Started) guide for an example of how properties can be aggregated over different visibilities at query time.
+See [the visibility example](https://gchq.github.io/gaffer-doc/getting-started/dev-guide.html#visibilities) in the [Dev Guide](https://gchq.github.io/gaffer-doc/getting-started/dev-guide.html) guide for an example of how properties can be aggregated over different visibilities at query time.
 
 Timestamp
 -----------------------------------------------
@@ -305,7 +313,7 @@ Check that you have the correct authorisations to see the data you inserted. Che
 Implementation details
 -----------------------------------------------
 
-This section contains brief details on the implementation of the `AccumuloStore`. The core of the functionality is implemented in the key-packages, the iterators and the retrievers. Each of these is described in some detail below. It is assumed that the reader has some familiarity with the design of Accumulo (see [Accumulo's User Manual](http://accumulo.apache.org/1.7/accumulo_user_manual)). The important features for Gaffer are:
+This section contains brief details on the implementation of the `AccumuloStore`. The core of the functionality is implemented in the key-packages, the iterators and the retrievers. Each of these is described in some detail below. It is assumed that the reader has some familiarity with the design of Accumulo (see [Accumulo's User Manual](http://accumulo.apache.org/1.8/accumulo_user_manual)). The important features for Gaffer are:
 
 - Accumulo stores data in key-value pairs. A key has multiple parts, namely a row ID, a column family, a column qualifier, a column visibility, and a timestamp. Each of these is simply a byte array, with the exception of the timestamp which is a long. A value is simply a byte array.
 - Data in Accumulo is stored ordered by key. Keys are stored sorted by increasing row ID, then column family, then column qualifier, then column visibility, then by decreasing timestamp.
@@ -521,6 +529,7 @@ Ensure that the Accumulo user specified by the `accumulo.user` property has the 
 | ----------------- | ----------- |
 | vis1              | [VisibilityIT](../../integration-test/src/test/java/uk/gov/gchq/gaffer/integration/impl/VisibilityIT.java) |
 | vis2              | [VisibilityIT](../../integration-test/src/test/java/uk/gov/gchq/gaffer/integration/impl/VisibilityIT.java) |
+| public            | [SchemaHidingIT](../../core/graph/src/test/java/uk/gov/gchq/gaffer/integration/graph/SchemaHidingIT.java) |
 | publicVisibility  | [AccumuloAggregationIT](src/test/java/uk/gov/gchq/gaffer/accumulostore/integration/AccumuloAggregationIT.java) |
 | privateVisibility | [AccumuloAggregationIT](src/test/java/uk/gov/gchq/gaffer/accumulostore/integration/AccumuloAggregationIT.java) |
 
@@ -528,14 +537,6 @@ Run the integration tests:
 
 ```
 mvn verify
-```
-
-## Accumulo 1.8.0 Support
-
-Gaffer can be compiled with support for Accumulo 1.8.0. Clear your Maven repository of any Gaffer artifacts and compile Gaffer with the Accumulo-1.8 profile:
-
-```
-mvn clean install -Paccumulo-1.8
 ```
 
 ## Migration

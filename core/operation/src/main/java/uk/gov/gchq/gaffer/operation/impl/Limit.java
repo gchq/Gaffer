@@ -24,8 +24,10 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
+import java.util.Map;
+
 /**
- * A <code>Limit</code> operation takes in an {@link Iterable} of items
+ * A {@code Limit} operation takes in an {@link Iterable} of items
  * and limits the iterable to a given number of items. It simply wraps the input
  * iterable in a {@link uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable} so
  * the data is not stored in memory.
@@ -33,13 +35,13 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  * @see Limit.Builder
  */
 public class Limit<T> implements
-        Operation,
         InputOutput<Iterable<? extends T>, Iterable<? extends T>>,
         MultiInput<T> {
     @Required
     protected Integer resultLimit;
     private Iterable<? extends T> input;
     private boolean truncate = true;
+    private Map<String, String> options;
 
     public Limit() {
     }
@@ -90,7 +92,18 @@ public class Limit<T> implements
                 .resultLimit(resultLimit)
                 .input(input)
                 .truncate(truncate)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static final class Builder<T>

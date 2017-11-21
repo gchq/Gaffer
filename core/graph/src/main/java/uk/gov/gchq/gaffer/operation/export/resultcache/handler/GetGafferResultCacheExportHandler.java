@@ -24,6 +24,10 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.export.GetExportHandler;
 
+/**
+ * Specific handler for handling {@link GetGafferResultCacheExport} operations using
+ * a {@link GafferResultCacheExporter} as the exporter class.
+ */
 public class GetGafferResultCacheExportHandler extends GetExportHandler<GetGafferResultCacheExport, GafferResultCacheExporter> {
     private String graphId = "gafferResultCache";
 
@@ -45,7 +49,7 @@ public class GetGafferResultCacheExportHandler extends GetExportHandler<GetGaffe
     protected GafferResultCacheExporter createExporter(final GetGafferResultCacheExport export, final Context context, final Store store) {
         final String jobId = null != export.getJobId() ? export.getJobId() : context.getJobId();
         return new GafferResultCacheExporter(
-                context.getUser(), jobId, createGraph(store),
+                context, jobId, createGraph(store),
                 visibility, null);
     }
 

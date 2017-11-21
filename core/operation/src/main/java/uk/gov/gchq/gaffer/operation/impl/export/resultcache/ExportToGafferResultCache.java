@@ -23,19 +23,20 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.ExportTo;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
- * An <code>ExportToGafferResultCache</code> Export operation exports results into
+ * An {@code ExportToGafferResultCache} Export operation exports results into
  * a cache. The cache is backed by a simple Gaffer graph that can be configured.
  * The results can be of any type - as long as they are json serialisable.
  */
 public class ExportToGafferResultCache<T> implements
-        Operation,
         ExportTo<T> {
     private String key;
     private Set<String> opAuths;
     private T input;
+    private Map<String, String> options;
 
     @Override
     public String getKey() {
@@ -71,12 +72,23 @@ public class ExportToGafferResultCache<T> implements
                 .key(key)
                 .opAuths(opAuths)
                 .input(input)
+                .options(options)
                 .build();
     }
 
     @Override
     public TypeReference<T> getOutputTypeReference() {
         return (TypeReference) new TypeReferenceImpl.Object();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static final class Builder<T> extends Operation.BaseBuilder<ExportToGafferResultCache<T>, Builder<T>>

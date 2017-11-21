@@ -21,6 +21,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.operation.Operation;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+
+/**
+ * {@code Output} operations are Gaffer operations which yield an output.
+ *
+ * @param <O> the type of output object
+ */
 public interface Output<O> extends Operation {
     default O castToOutputType(final Object result) {
         try {
@@ -33,6 +41,24 @@ public interface Output<O> extends Operation {
 
     @JsonIgnore
     TypeReference<O> getOutputTypeReference();
+
+    @JsonIgnore
+    default Class<?> getOutputClass() {
+        Class<?> outputClass = Object.class;
+
+        final TypeReference<O> outputType = getOutputTypeReference();
+        if (null != outputType) {
+            Type type = outputType.getType();
+            if (type instanceof ParameterizedType) {
+                type = ((ParameterizedType) type).getRawType();
+            }
+            if (type instanceof Class) {
+                outputClass = (Class) type;
+            }
+        }
+
+        return outputClass;
+    }
 
     interface Builder<OP extends Output<O>, O, B extends Builder<OP, O, ?>> extends Operation.Builder<OP, B> {
     }

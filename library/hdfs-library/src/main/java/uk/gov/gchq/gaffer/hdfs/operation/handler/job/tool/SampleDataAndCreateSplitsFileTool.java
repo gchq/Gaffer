@@ -21,10 +21,11 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.SequenceFile.Reader;
 import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.mapred.Task;
 import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.TaskCounter;
 import org.apache.hadoop.util.Tool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,11 +99,11 @@ public class SampleDataAndCreateSplitsFileTool extends Configured implements Too
             // versions of Hadoop.
             Counter counter;
             try {
-                counter = job.getCounters().findCounter(Task.Counter.REDUCE_OUTPUT_RECORDS);
+                counter = job.getCounters().findCounter(TaskCounter.REDUCE_OUTPUT_RECORDS);
                 LOGGER.info("Number of records output = {}", counter.getValue());
             } catch (final IOException e) {
-                LOGGER.error("Failed to get counter org.apache.hadoop.mapred.Task.Counter.REDUCE_OUTPUT_RECORDS from job: {}", e.getMessage());
-                throw new OperationException("Failed to get counter: " + Task.Counter.REDUCE_OUTPUT_RECORDS, e);
+                LOGGER.error("Failed to get counter org.apache.hadoop.mapred.TaskCounter.REDUCE_OUTPUT_RECORDS from job: {}", e.getMessage());
+                throw new OperationException("Failed to get counter: " + TaskCounter.REDUCE_OUTPUT_RECORDS, e);
             }
 
 
@@ -151,7 +152,7 @@ public class SampleDataAndCreateSplitsFileTool extends Configured implements Too
         final Writable value = jobFactory.createValue();
         long count = 0;
         int numberSplitPointsOutput = 0;
-        try (final SequenceFile.Reader reader = new SequenceFile.Reader(fs, resultsFile, fs.getConf());
+        try (final SequenceFile.Reader reader = new SequenceFile.Reader(fs.getConf(), Reader.file(resultsFile));
              final PrintStream splitsWriter = new PrintStream(
                      new BufferedOutputStream(fs.create(new Path(operation.getSplitsFilePath()), true)),
                      false, CommonConstants.UTF_8)

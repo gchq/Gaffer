@@ -22,7 +22,7 @@ import com.yahoo.sketches.quantiles.ItemsUnion;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
- * A <code>StringsSketchAggregator</code> is a {@link java.util.function.BinaryOperator} that aggregates
+ * A {@code StringsSketchAggregator} is a {@link java.util.function.BinaryOperator} that aggregates
  * {@link ItemsSketch}s of {@link String}s using an {@link ItemsUnion}.
  */
 public class StringsSketchAggregator extends KorypheBinaryOperator<ItemsSketch<String>> {

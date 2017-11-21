@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.scalardd.ImportKeyValuePairRDDToAccumulo;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.scala.ElementConverterFunction;
@@ -53,7 +54,7 @@ public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfE
         if (null == failurePath || failurePath.isEmpty()) {
             throw new OperationException("Option failurePath must be set for this option to be run against the accumulostore");
         }
-        final ElementConverterFunction func = new ElementConverterFunction(operation.getSparkSession().sparkContext().broadcast(store.getKeyPackage().getKeyConverter(), ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG));
+        final ElementConverterFunction func = new ElementConverterFunction(SparkContextUtil.getSparkSession(context, store.getProperties()).sparkContext().broadcast(store.getKeyPackage().getKeyConverter(), ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG));
         final RDD<Tuple2<Key, Value>> rdd = operation.getInput().flatMap(func, TUPLE2_CLASS_TAG);
         final ImportKeyValuePairRDDToAccumulo op =
                 new ImportKeyValuePairRDDToAccumulo.Builder()
@@ -61,7 +62,7 @@ public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfE
                         .failurePath(failurePath)
                         .outputPath(outputPath)
                         .build();
-        store._execute(new OperationChain<>(op), context);
+        store.execute(new OperationChain<>(op), context);
     }
 }
 

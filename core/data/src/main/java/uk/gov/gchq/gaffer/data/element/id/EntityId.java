@@ -21,10 +21,25 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.util.Objects;
 
+/**
+ * An {@code EntityId} is an interface describing the core methods that are required
+ * in order to identify an {@link uk.gov.gchq.gaffer.data.element.Entity}.
+ */
 public interface EntityId extends ElementId {
+
+    /**
+     * Get the vertex object.
+     *
+     * @return the vertex
+     */
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
     Object getVertex();
 
+    /**
+     * Set the vertex object.
+     *
+     * @param vertex the vertex object to set
+     */
     void setVertex(final Object vertex);
 
     @Override
@@ -37,9 +52,9 @@ public interface EntityId extends ElementId {
     }
 
     /**
-     * This {@link EntityId} is related to an
-     * {@link ElementId} if either the ElementId is equal to this EntityId or it is
-     * an EdgeId and it's source or destination matches this EntityId's vertex.
+     * This is related to an {@link ElementId} if either the ElementId is equal
+     * to this EntityId or it is an EdgeId and its source or destination matches
+     * this EntityId's vertex.
      *
      * @param that the {@link ElementId} to compare
      * @return An instance of {@link ElementId.Matches} to describe how the seeds are related.
@@ -58,16 +73,15 @@ public interface EntityId extends ElementId {
     }
 
     /**
-     * This {@link EntityId} is related to an
-     * {@link EdgeId} if either EdgeId's source or destination matches this
-     * EntityId's vertex.
+     * This  is related to an {@link EdgeId} if either the EdgeId's source or
+     * destination matches this EntityId's vertex.
      *
      * @param that the {@link EdgeId} to compare
      * @return An instance of {@link ElementId.Matches} to describe how the seeds are related.
      */
     default Matches isRelated(final EdgeId that) {
-        boolean matchesSource = (getVertex() == null) ? that.getSource() == null : getVertex().equals(that.getSource());
-        boolean matchesDestination = (getVertex() == null) ? that.getDestination() == null : getVertex().equals(that.getDestination());
+        boolean matchesSource = (null == getVertex()) ? null == that.getSource() : getVertex().equals(that.getSource());
+        boolean matchesDestination = (null == getVertex()) ? null == that.getDestination() : getVertex().equals(that.getDestination());
         if (matchesSource) {
             if (matchesDestination) {
                 return Matches.BOTH;

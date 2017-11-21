@@ -42,7 +42,7 @@ public class FreqMapParquetSerialiser implements ParquetSerialiser<FreqMap> {
 
     @Override
     public Object[] serialise(final FreqMap object) throws SerialisationException {
-        if (object != null) {
+        if (null != object) {
             return new Object[]{object};
         }
         return new Object[]{null};
@@ -53,7 +53,7 @@ public class FreqMapParquetSerialiser implements ParquetSerialiser<FreqMap> {
         if (objects.length == 1) {
             if (objects[0] instanceof Map) {
                 return new FreqMap((Map<String, Long>) objects[0]);
-            } else if (objects[0] == null) {
+            } else if (null == objects[0]) {
                 return null;
             }
         }

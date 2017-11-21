@@ -34,7 +34,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 /**
- * A <code>BoundedTimestampSetSerialiser</code> serialises a {@link BoundedTimestampSet} to an array of bytes.
+ * A {@code BoundedTimestampSetSerialiser} serialises a {@link BoundedTimestampSet} to an array of bytes.
  */
 public class BoundedTimestampSetSerialiser implements ToBytesSerialiser<BoundedTimestampSet> {
     private static final long serialVersionUID = 6242522763501581598L;

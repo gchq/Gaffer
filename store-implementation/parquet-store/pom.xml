@@ -20,7 +20,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>store-implementation</artifactId>
-        <version>0.7.9-SNAPSHOT</version>
+        <version>1.1.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>parquet-store</artifactId>
@@ -51,6 +51,20 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>graph</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>data</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>common-util</artifactId>
             <version>${project.parent.version}</version>
             <type>test-jar</type>
@@ -59,7 +73,7 @@
         <!-- Other dependencies -->
         <dependency>
             <groupId>uk.gov.gchq.koryphe</groupId>
-            <artifactId>koryphe</artifactId>
+            <artifactId>core</artifactId>
             <version>${koryphe.version}</version>
             <scope>compile</scope>
         </dependency>

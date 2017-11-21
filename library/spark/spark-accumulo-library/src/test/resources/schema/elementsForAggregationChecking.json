@@ -1,0 +1,14 @@
+{
+  "entities": {
+    "BasicEntity": {
+      "vertex": "vertex.string",
+      "properties": {
+        "columnQualifier": "colQualProperty",
+        "count": "simpleProperty"
+      },
+      "groupBy": [
+        "columnQualifier"
+      ]
+    }
+  }
+}

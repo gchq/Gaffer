@@ -64,7 +64,7 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
     @Override
     public void builderShouldCreatePopulatedOperation() {
         final SampleDataForSplitPoints sampleDataForSplitPoints = new SampleDataForSplitPoints.Builder()
-                .addinputMapperPair(INPUT_DIRECTORY, MapperGenerator.class.getName())
+                .addInputMapperPair(INPUT_DIRECTORY, MapperGenerator.class.getName())
                 .splitsFilePath("/test")
                 .proportionToSample(0.1f)
                 .mappers(5)
@@ -94,7 +94,7 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
     public void shouldShallowCloneOperation() {
         // Given
         final SampleDataForSplitPoints sampleDataForSplitPoints = new SampleDataForSplitPoints.Builder()
-                .addinputMapperPair(INPUT_DIRECTORY, MapperGenerator.class.getName())
+                .addInputMapperPair(INPUT_DIRECTORY, MapperGenerator.class.getName())
                 .splitsFilePath("/test")
                 .proportionToSample(0.1f)
                 .mappers(5)
@@ -119,7 +119,7 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
     public void shouldShallowCloneOperationWithMinAndMaxMappers() {
         // Given
         final SampleDataForSplitPoints sampleDataForSplitPoints = new SampleDataForSplitPoints.Builder()
-                .addinputMapperPair(INPUT_DIRECTORY, MapperGenerator.class.getName())
+                .addInputMapperPair(INPUT_DIRECTORY, MapperGenerator.class.getName())
                 .splitsFilePath("/test")
                 .proportionToSample(0.1f)
                 .maxMappers(10)
@@ -141,6 +141,7 @@ public class SampleDataForSplitPointsTest extends OperationTest<SampleDataForSpl
         assertEquals(new Integer(2), clone.getMinMapTasks());
     }
 
+    @Override
     protected SampleDataForSplitPoints getTestObject() {
         return new SampleDataForSplitPoints();
     }

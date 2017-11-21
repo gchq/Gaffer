@@ -24,6 +24,9 @@ import org.apache.spark.sql.Row;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 
+/**
+ * Spark-specific {@link TypeReference} implementations.
+ */
 public final class TypeReferenceSparkImpl {
     public static class DataSetRow extends TypeReference<Dataset<Row>> {
     }

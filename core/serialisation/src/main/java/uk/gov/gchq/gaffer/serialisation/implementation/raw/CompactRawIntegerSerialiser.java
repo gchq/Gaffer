@@ -25,8 +25,8 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
  * large integers may be serialised into 5 bytes. This is particularly well suited to serialising count properties in
  * power-law graphs where the majority of counts will be very small.
  * Note that {@link CompactRawLongSerialiser} does not use any more bytes than this serialiser if it is
- * serialising a long value that is less than or equal to <code>Integer.MAX_VALUE</code> and greater than or
- * equal to <code>Integer.MIN_VALUE</code>. This means that, in terms of serialised size, there is no benefit to
+ * serialising a long value that is less than or equal to {@code Integer.MAX_VALUE} and greater than or
+ * equal to {@code Integer.MIN_VALUE}. This means that, in terms of serialised size, there is no benefit to
  * using an integer instead of a long.
  */
 public class CompactRawIntegerSerialiser implements ToBytesSerialiser<Integer> {

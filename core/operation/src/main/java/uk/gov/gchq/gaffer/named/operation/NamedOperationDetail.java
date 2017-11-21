@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationChainDAO;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.Serializable;
@@ -35,6 +36,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Simple POJO containing the details associated with a {@link NamedOperation}.
+ */
 public class NamedOperationDetail implements Serializable {
     private static final long serialVersionUID = -8831783492657131469L;
     private static final String CHARSET_NAME = CommonConstants.UTF_8;
@@ -45,14 +49,16 @@ public class NamedOperationDetail implements Serializable {
     private List<String> readAccessRoles;
     private List<String> writeAccessRoles;
     private Map<String, ParameterDetail> parameters = Maps.newHashMap();
+    private Integer score;
 
     public NamedOperationDetail(final String operationName, final String description, final String userId,
                                 final String operations, final List<String> readers,
-                                final List<String> writers, final Map<String, ParameterDetail> parameters) {
-        if (operations == null) {
+                                final List<String> writers, final Map<String, ParameterDetail> parameters,
+                                final Integer score) {
+        if (null == operations) {
             throw new IllegalArgumentException("Operation Chain must not be empty");
         }
-        if (operationName == null || operationName.isEmpty()) {
+        if (null == operationName || operationName.isEmpty()) {
             throw new IllegalArgumentException("Operation Name must not be empty");
         }
 
@@ -64,6 +70,7 @@ public class NamedOperationDetail implements Serializable {
         this.readAccessRoles = readers;
         this.writeAccessRoles = writers;
         this.parameters = parameters;
+        this.score = score;
     }
 
     public String getOperationName() {
@@ -94,6 +101,10 @@ public class NamedOperationDetail implements Serializable {
         return parameters;
     }
 
+    public Integer getScore() {
+        return score;
+    }
+
     private String buildParamNameString(final String paramKey) {
         return "\"${" + paramKey + "}\"";
     }
@@ -109,7 +120,7 @@ public class NamedOperationDetail implements Serializable {
     public OperationChain getOperationChainWithDefaultParams() {
         String opStringWithDefaults = operations;
 
-        if (parameters != null) {
+        if (null != parameters) {
             for (final Map.Entry<String, ParameterDetail> parameterDetailPair : parameters.entrySet()) {
                 String paramKey = parameterDetailPair.getKey();
 
@@ -124,7 +135,7 @@ public class NamedOperationDetail implements Serializable {
 
         OperationChain opChain;
         try {
-            opChain = JSONSerialiser.deserialise(opStringWithDefaults.getBytes(CHARSET_NAME), OperationChain.class);
+            opChain = JSONSerialiser.deserialise(opStringWithDefaults.getBytes(CHARSET_NAME), OperationChainDAO.class);
         } catch (final Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
@@ -143,8 +154,8 @@ public class NamedOperationDetail implements Serializable {
         String opStringWithParams = operations;
 
         // First check all the parameters supplied are expected parameter names
-        if (parameters != null) {
-            if (executionParams != null) {
+        if (null != parameters) {
+            if (null != executionParams) {
                 Set<String> paramDetailKeys = parameters.keySet();
                 Set<String> paramKeys = executionParams.keySet();
 
@@ -156,7 +167,7 @@ public class NamedOperationDetail implements Serializable {
             for (final Map.Entry<String, ParameterDetail> parameterDetailPair : parameters.entrySet()) {
                 String paramKey = parameterDetailPair.getKey();
                 try {
-                    if (executionParams != null && executionParams.containsKey(paramKey)) {
+                    if (null != executionParams && executionParams.containsKey(paramKey)) {
                         Object paramObj = JSONSerialiser.deserialise(JSONSerialiser.serialise(executionParams.get(paramKey)), parameterDetailPair.getValue().getValueClass());
 
                         opStringWithParams = opStringWithParams.replace(buildParamNameString(paramKey),
@@ -176,7 +187,7 @@ public class NamedOperationDetail implements Serializable {
         OperationChain opChain;
 
         try {
-            opChain = JSONSerialiser.deserialise(opStringWithParams.getBytes(CHARSET_NAME), OperationChain.class);
+            opChain = JSONSerialiser.deserialise(opStringWithParams.getBytes(CHARSET_NAME), OperationChainDAO.class);
         } catch (final Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
@@ -190,7 +201,7 @@ public class NamedOperationDetail implements Serializable {
             return true;
         }
 
-        if (obj == null || getClass() != obj.getClass()) {
+        if (null == obj || getClass() != obj.getClass()) {
             return false;
         }
 
@@ -203,6 +214,7 @@ public class NamedOperationDetail implements Serializable {
                 .append(readAccessRoles, op.readAccessRoles)
                 .append(writeAccessRoles, op.writeAccessRoles)
                 .append(parameters, op.parameters)
+                .append(score, op.score)
                 .isEquals();
     }
 
@@ -215,6 +227,7 @@ public class NamedOperationDetail implements Serializable {
                 .append(readAccessRoles)
                 .append(writeAccessRoles)
                 .append(parameters)
+                .append(score)
                 .hashCode();
     }
 
@@ -227,6 +240,7 @@ public class NamedOperationDetail implements Serializable {
                 .append("readAccessRoles", readAccessRoles)
                 .append("writeAccessRoles", writeAccessRoles)
                 .append("parameters", parameters)
+                .append("score", score)
                 .toString();
     }
 
@@ -257,6 +271,7 @@ public class NamedOperationDetail implements Serializable {
         private List<String> readers;
         private List<String> writers;
         private Map<String, ParameterDetail> parameters;
+        private Integer score;
 
         public Builder creatorId(final String creatorId) {
             this.creatorId = creatorId;
@@ -305,8 +320,13 @@ public class NamedOperationDetail implements Serializable {
             return this;
         }
 
+        public Builder score(final Integer score) {
+            this.score = score;
+            return this;
+        }
+
         public NamedOperationDetail build() {
-            return new NamedOperationDetail(operationName, description, creatorId, opChain, readers, writers, parameters);
+            return new NamedOperationDetail(operationName, description, creatorId, opChain, readers, writers, parameters, score);
         }
     }
 }

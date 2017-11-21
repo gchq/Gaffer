@@ -25,6 +25,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+/**
+ * Custom serialisation logic for {@link RoaringBitmap} instances.
+ */
 public class RoaringBitmapJsonSerialiser extends JsonSerializer<RoaringBitmap> {
 
     @Override

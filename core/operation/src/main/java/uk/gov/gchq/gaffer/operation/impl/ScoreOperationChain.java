@@ -18,14 +18,20 @@ package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
+import java.util.Map;
 
-public class ScoreOperationChain implements Operation, Output<Integer> {
+/**
+ * A {@code ScoreOperationChain} operation determines a "score" for an {@link OperationChain},
+ * and is used to determine whether a particular user has the required permissions
+ * to execute a given {@link OperationChain}.
+ */
+public class ScoreOperationChain implements Output<Integer> {
     private OperationChain operationChain;
+    private Map<String, String> options;
 
     @Override
     public TypeReference<Integer> getOutputTypeReference() {
@@ -40,10 +46,22 @@ public class ScoreOperationChain implements Operation, Output<Integer> {
         this.operationChain = operationChain;
     }
 
+    @Override
     public ScoreOperationChain shallowClone() {
         return new ScoreOperationChain.Builder()
                 .operationChain(operationChain)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static class Builder extends BaseBuilder<ScoreOperationChain, Builder> implements

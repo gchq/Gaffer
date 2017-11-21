@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiserModules;
-import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
+import uk.gov.gchq.gaffer.store.operation.declaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.IOException;
@@ -44,7 +44,7 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
- * A <code>StoreProperties</code> contains specific configuration information for the store, such as database
+ * A {@code StoreProperties} contains specific configuration information for the store, such as database
  * connection strings. It wraps {@link Properties} and lazy loads the all properties from a file when first used.
  * <p>
  * All StoreProperties classes must be JSON serialisable.
@@ -54,7 +54,12 @@ import java.util.Set;
 public class StoreProperties implements Cloneable {
     public static final String STORE_CLASS = "gaffer.store.class";
     public static final String SCHEMA_CLASS = "gaffer.store.schema.class";
+    /**
+     * @deprecated the ID should not be used. The properties ID should be supplied to the graph library separately.
+     */
+    @Deprecated
     public static final String ID = "gaffer.store.id";
+
     public static final String STORE_PROPERTIES_CLASS = "gaffer.store.properties.class";
     public static final String OPERATION_DECLARATIONS = "gaffer.store.operation.declarations";
 
@@ -72,9 +77,16 @@ public class StoreProperties implements Cloneable {
 
     // Required for loading by reflection.
     public StoreProperties() {
+        updateStorePropertiesClass();
     }
 
+    /**
+     * @param id the StoreProperties id.
+     * @deprecated the id should not be used. The properties id should be supplied to the graph library separately.
+     */
+    @Deprecated
     public StoreProperties(final String id) {
+        this();
         if (null != id) {
             setId(id);
         }
@@ -88,10 +100,114 @@ public class StoreProperties implements Cloneable {
                 throw new RuntimeException(e);
             }
         }
+        updateStorePropertiesClass();
     }
+
+    protected StoreProperties(final Properties props, final Class<? extends Store> storeClass) {
+        this(props);
+        if (null == getStoreClass()) {
+            setStoreClass(storeClass);
+        }
+    }
+
 
     public StoreProperties(final Properties props) {
         setProperties(props);
+        updateStorePropertiesClass();
+    }
+
+
+    protected StoreProperties(final Class<? extends Store> storeClass) {
+        this();
+        if (null == getStoreClass()) {
+            setStoreClass(storeClass);
+        }
+    }
+
+    protected StoreProperties(final Path propFileLocation, final Class<? extends Store> storeClass) {
+        this(propFileLocation);
+        if (null == getStoreClass()) {
+            setStoreClass(storeClass);
+        }
+    }
+
+    public static <T extends StoreProperties> T loadStoreProperties(final String pathStr, final Class<T> requiredClass) {
+        final StoreProperties properties = loadStoreProperties(pathStr);
+        return (T) updateInstanceType(requiredClass, properties);
+    }
+
+    public static StoreProperties loadStoreProperties(final String pathStr) {
+        final StoreProperties storeProperties;
+        final Path path = Paths.get(pathStr);
+        try {
+            if (path.toFile().exists()) {
+                storeProperties = loadStoreProperties(Files.newInputStream(path));
+            } else {
+                storeProperties = loadStoreProperties(StreamUtil.openStream(StoreProperties.class, pathStr));
+            }
+        } catch (final IOException e) {
+            throw new RuntimeException("Failed to load store properties file : " + e.getMessage(), e);
+        }
+
+        return storeProperties;
+    }
+
+    public static <T extends StoreProperties> T loadStoreProperties(final Path storePropertiesPath, final Class<T> requiredClass) {
+        final StoreProperties properties = loadStoreProperties(storePropertiesPath);
+        return (T) updateInstanceType(requiredClass, properties);
+    }
+
+    public static StoreProperties loadStoreProperties(final Path storePropertiesPath) {
+        try {
+            return loadStoreProperties(null != storePropertiesPath ? Files.newInputStream(storePropertiesPath) : null);
+        } catch (final IOException e) {
+            throw new RuntimeException("Failed to load store properties file : " + e.getMessage(), e);
+        }
+    }
+
+    public static <T extends StoreProperties> T loadStoreProperties(final InputStream storePropertiesStream, final Class<T> requiredClass) {
+        final StoreProperties properties = loadStoreProperties(storePropertiesStream);
+        return (T) updateInstanceType(requiredClass, properties);
+    }
+
+    public static StoreProperties loadStoreProperties(final InputStream storePropertiesStream) {
+        if (null == storePropertiesStream) {
+            return new StoreProperties();
+        }
+        final Properties props = new Properties();
+        try {
+            props.load(storePropertiesStream);
+        } catch (final IOException e) {
+            throw new RuntimeException("Failed to load store properties file : " + e.getMessage(), e);
+        } finally {
+            try {
+                storePropertiesStream.close();
+            } catch (final IOException e) {
+                LOGGER.error("Failed to close store properties stream: {}", e.getMessage(), e);
+            }
+        }
+        return loadStoreProperties(props);
+    }
+
+    public static <T extends StoreProperties> T loadStoreProperties(final Properties props, final Class<T> requiredClass) {
+        final StoreProperties properties = loadStoreProperties(props);
+        return (T) updateInstanceType(requiredClass, properties);
+    }
+
+    public static StoreProperties loadStoreProperties(final Properties props) {
+        final String storePropertiesClass = props.getProperty(StoreProperties.STORE_PROPERTIES_CLASS);
+        final StoreProperties storeProperties;
+        if (null == storePropertiesClass) {
+            storeProperties = new StoreProperties();
+        } else {
+            try {
+                storeProperties = Class.forName(storePropertiesClass).asSubclass(StoreProperties.class).newInstance();
+            } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+                throw new RuntimeException("Failed to create store properties file : " + e.getMessage(), e);
+            }
+        }
+        storeProperties.setProperties(props);
+        return storeProperties;
     }
 
     /**
@@ -102,12 +218,18 @@ public class StoreProperties implements Cloneable {
         return props.getProperty(key);
     }
 
+    public boolean containsKey(final Object key) {
+        return props.containsKey(key);
+    }
+
     /**
      * Get a parameter from the schema file, or the default value.
      *
      * @param key          the property key
-     * @param defaultValue the default value to use if the property doesn't exist
-     * @return a property properties file with the given key or the default value if the property doesn't exist
+     * @param defaultValue the default value to use if the property doesn't
+     *                     exist
+     * @return a property properties file with the given key or the default
+     * value if the property doesn't exist
      */
     public String get(final String key, final String defaultValue) {
         return props.getProperty(key, defaultValue);
@@ -120,21 +242,52 @@ public class StoreProperties implements Cloneable {
      * @param value the value
      */
     public void set(final String key, final String value) {
-        props.setProperty(key, value);
+        if (null == value) {
+            props.remove(key);
+        } else {
+            props.setProperty(key, value);
+        }
     }
 
+    public void merge(final StoreProperties properties) {
+        if (null != properties) {
+            if (null != properties.getId()
+                    && null != getId()
+                    && !properties.getId().equals(getId())) {
+                final String newId = getId() + "_" + properties.getId();
+                properties.setId(newId);
+                setId(newId);
+            }
 
+            props.putAll(properties.getProperties());
+        }
+    }
+
+    /**
+     * @return properties ID
+     * @deprecated the ID should be supplied to the graph library separately
+     */
+    @Deprecated
     public String getId() {
         return get(ID);
     }
 
+    /**
+     * Set the ID for the StoreProperties
+     *
+     * @param id the value of the ID
+     * @deprecated the ID should be supplied to the graph library separately
+     */
+    @Deprecated
     public void setId(final String id) {
         set(ID, id);
     }
 
     /**
-     * Returns the operation definitions from the file specified in the properties.
-     * This is an optional feature, so if the property does not exist then this function
+     * Returns the operation definitions from the file specified in the
+     * properties.
+     * This is an optional feature, so if the property does not exist then this
+     * function
      * will return an empty object.
      *
      * @return The Operation Definitions to load dynamically
@@ -172,14 +325,9 @@ public class StoreProperties implements Cloneable {
         return Boolean.valueOf(get(JOB_TRACKER_ENABLED, "false"));
     }
 
-    public void setJobTrackerEnabled(final String jobTrackerEnabled) {
-        set(JOB_TRACKER_ENABLED, jobTrackerEnabled);
-    }
-
     public void setJobTrackerEnabled(final Boolean jobTrackerEnabled) {
         set(JOB_TRACKER_ENABLED, jobTrackerEnabled.toString());
     }
-
 
     public String getSchemaClassName() {
         return get(SCHEMA_CLASS, Schema.class.getName());
@@ -209,6 +357,10 @@ public class StoreProperties implements Cloneable {
         return get(STORE_PROPERTIES_CLASS, StoreProperties.class.getName());
     }
 
+    public void setStorePropertiesClassName(final String storePropertiesClassName) {
+        set(STORE_PROPERTIES_CLASS, storePropertiesClassName);
+    }
+
     public Class<? extends StoreProperties> getStorePropertiesClass() {
         final Class<? extends StoreProperties> clazz;
         try {
@@ -220,10 +372,6 @@ public class StoreProperties implements Cloneable {
         return clazz;
     }
 
-    public void setStorePropertiesClassName(final String storePropertiesClassName) {
-        set(STORE_PROPERTIES_CLASS, storePropertiesClassName);
-    }
-
     public void setStorePropertiesClass(final Class<? extends StoreProperties> storePropertiesClass) {
         set(STORE_PROPERTIES_CLASS, storePropertiesClass.getName());
     }
@@ -232,12 +380,12 @@ public class StoreProperties implements Cloneable {
         return get(OPERATION_DECLARATIONS);
     }
 
-    public Integer getJobExecutorThreadCount() {
-        return Integer.parseInt(get(EXECUTOR_SERVICE_THREAD_COUNT, EXECUTOR_SERVICE_THREAD_COUNT_DEFAULT));
-    }
-
     public void setOperationDeclarationPaths(final String paths) {
         set(OPERATION_DECLARATIONS, paths);
+    }
+
+    public Integer getJobExecutorThreadCount() {
+        return Integer.parseInt(get(EXECUTOR_SERVICE_THREAD_COUNT, EXECUTOR_SERVICE_THREAD_COUNT_DEFAULT));
     }
 
     public void addOperationDeclarationPaths(final String... newPaths) {
@@ -281,60 +429,16 @@ public class StoreProperties implements Cloneable {
         set(JSON_SERIALISER_MODULES, modules);
     }
 
+    public Properties getProperties() {
+        return props;
+    }
+
     public void setProperties(final Properties properties) {
         if (null == properties) {
             this.props = new Properties();
         } else {
             this.props = properties;
         }
-    }
-
-    public Properties getProperties() {
-        return props;
-    }
-
-    public static StoreProperties loadStoreProperties(final String pathStr) {
-        final StoreProperties storeProperties;
-        final Path path = Paths.get(pathStr);
-        try {
-            if (path.toFile().exists()) {
-                storeProperties = loadStoreProperties(Files.newInputStream(path));
-            } else {
-                storeProperties = loadStoreProperties(StreamUtil.openStream(StoreProperties.class, pathStr));
-            }
-        } catch (final IOException e) {
-            throw new RuntimeException("Failed to load store properties file : " + e.getMessage(), e);
-        }
-
-        return storeProperties;
-    }
-
-
-    public static StoreProperties loadStoreProperties(final Path storePropertiesPath) {
-        try {
-            return loadStoreProperties(null != storePropertiesPath ? Files.newInputStream(storePropertiesPath) : null);
-        } catch (final IOException e) {
-            throw new RuntimeException("Failed to load store properties file : " + e.getMessage(), e);
-        }
-    }
-
-    public static StoreProperties loadStoreProperties(final InputStream storePropertiesStream) {
-        if (null == storePropertiesStream) {
-            return new StoreProperties();
-        }
-        final Properties props = new Properties();
-        try {
-            props.load(storePropertiesStream);
-        } catch (final IOException e) {
-            throw new RuntimeException("Failed to load store properties file : " + e.getMessage(), e);
-        } finally {
-            try {
-                storePropertiesStream.close();
-            } catch (final IOException e) {
-                LOGGER.error("Failed to close store properties stream: {}", e.getMessage(), e);
-            }
-        }
-        return loadStoreProperties(props);
     }
 
     @SuppressWarnings("CloneDoesntCallSuperClone")
@@ -350,7 +454,7 @@ public class StoreProperties implements Cloneable {
             return true;
         }
 
-        if (obj == null || getClass() != obj.getClass()) {
+        if (null == obj || getClass() != obj.getClass()) {
             return false;
         }
 
@@ -367,19 +471,25 @@ public class StoreProperties implements Cloneable {
                 .toHashCode();
     }
 
-    public static StoreProperties loadStoreProperties(final Properties props) {
-        final String storePropertiesClass = props.getProperty(StoreProperties.STORE_PROPERTIES_CLASS);
-        final StoreProperties storeProperties;
-        if (null == storePropertiesClass) {
-            storeProperties = new StoreProperties();
-        } else {
-            try {
-                storeProperties = Class.forName(storePropertiesClass).asSubclass(StoreProperties.class).newInstance();
-            } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-                throw new RuntimeException("Failed to create store properties file : " + e.getMessage(), e);
-            }
+    public void updateStorePropertiesClass() {
+        updateStorePropertiesClass(getClass());
+    }
+
+    public void updateStorePropertiesClass(final Class<? extends StoreProperties> requiredClass) {
+        final Class<? extends StoreProperties> storePropertiesClass = getStorePropertiesClass();
+        if (null == storePropertiesClass || StoreProperties.class.equals(storePropertiesClass)) {
+            setStorePropertiesClass(requiredClass);
+        } else if (!requiredClass.isAssignableFrom(storePropertiesClass)) {
+            throw new IllegalArgumentException("The given properties is not of type " + requiredClass.getName() + " actual: " + storePropertiesClass.getName());
         }
-        storeProperties.setProperties(props);
-        return storeProperties;
+    }
+
+    private static <T extends StoreProperties> StoreProperties updateInstanceType(final Class<T> requiredClass, final StoreProperties properties) {
+        if (!requiredClass.isAssignableFrom(properties.getClass())) {
+            properties.updateStorePropertiesClass(requiredClass);
+            return StoreProperties.loadStoreProperties(properties.getProperties());
+        }
+
+        return properties;
     }
 }

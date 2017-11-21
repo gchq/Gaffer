@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
-import uk.gov.gchq.gaffer.hbasestore.MiniHBaseStore;
+import uk.gov.gchq.gaffer.hbasestore.SingleUseMiniHBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.mapper.AddElementsFromHdfsMapper;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
@@ -66,14 +66,14 @@ public class HBaseAddElementsFromHdfsJobFactoryTest {
         final HBaseAddElementsFromHdfsJobFactory factory = new HBaseAddElementsFromHdfsJobFactory();
         final Job job = mock(Job.class);
         final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
-                .addinputMapperPair(new Path(inputDir).toString(), TextMapperGeneratorImpl.class.getName())
+                .addInputMapperPair(new Path(inputDir).toString(), TextMapperGeneratorImpl.class.getName())
                 .outputPath(outputDir)
                 .failurePath(failureDir)
                 .jobInitialiser(new TextJobInitialiser())
                 .option(HBaseStoreConstants.OPERATION_HDFS_STAGING_PATH, stagingDir)
                 .build();
 
-        final HBaseStore store = new MiniHBaseStore();
+        final HBaseStore store = new SingleUseMiniHBaseStore();
         final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
         final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
         store.initialise("graphId", schema, properties);

@@ -27,6 +27,9 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import java.io.Serializable;
 
+/**
+ * Simple POJO providing parameter details for {@link NamedOperation}s.
+ */
 @JsonDeserialize(builder = ParameterDetail.Builder.class)
 public class ParameterDetail implements Serializable {
     private static final long serialVersionUID = -883113279877131469L;
@@ -35,15 +38,14 @@ public class ParameterDetail implements Serializable {
     private Class valueClass;
     private boolean required;
 
-
     public ParameterDetail(final String description, final Class clazz, final boolean required, final Object defaultValue) {
-        if (description == null) {
+        if (null == description) {
             throw new IllegalArgumentException("description must not be empty");
         }
-        if (clazz == null) {
+        if (null == clazz) {
             throw new IllegalArgumentException("class must not be empty");
         }
-        if (required && defaultValue != null) {
+        if (required && null != defaultValue) {
             throw new IllegalArgumentException("required is true but a default value has been provided");
         }
 
@@ -82,7 +84,7 @@ public class ParameterDetail implements Serializable {
             return true;
         }
 
-        if (obj == null || getClass() != obj.getClass()) {
+        if (null == obj || getClass() != obj.getClass()) {
             return false;
         }
 

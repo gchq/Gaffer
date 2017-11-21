@@ -29,9 +29,10 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 /**
- * A <code>Max</code> operation is intended as a terminal operation for
+ * A {@code Max} operation is intended as a terminal operation for
  * retrieving the "maximum" element from an {@link java.lang.Iterable} of Elements.
  * /**
  * The {@link uk.gov.gchq.gaffer.data.element.Element}s are compared using the provided
@@ -46,7 +47,6 @@ import java.util.List;
  * @see uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator
  */
 public class Max implements
-        Operation,
         InputOutput<Iterable<? extends Element>, Element>,
         MultiInput<Element>,
         ElementComparison {
@@ -55,6 +55,7 @@ public class Max implements
 
     @Required
     private List<Comparator<Element>> comparators;
+    private Map<String, String> options;
 
     @Override
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
@@ -86,7 +87,18 @@ public class Max implements
         return new Max.Builder()
                 .input(input)
                 .comparators(comparators)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static final class Builder

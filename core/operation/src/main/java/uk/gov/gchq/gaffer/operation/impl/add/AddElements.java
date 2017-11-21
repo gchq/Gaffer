@@ -23,14 +23,13 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.Validatable;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 
 import java.util.Map;
 
 /**
- * An <code>AddElements</code> operation is a {@link uk.gov.gchq.gaffer.operation.Validatable} operation for adding elements.
+ * An {@code AddElements} operation is a {@link uk.gov.gchq.gaffer.operation.Validatable} operation for adding elements.
  * This is a core operation that all stores should be able to handle.
  * This operation requires an {@link Iterable} of {@link uk.gov.gchq.gaffer.data.element.Element}s to be added. Handlers should
  * throw an {@link uk.gov.gchq.gaffer.operation.OperationException} if unsuccessful.
@@ -39,10 +38,8 @@ import java.util.Map;
  * @see uk.gov.gchq.gaffer.operation.impl.add.AddElements.Builder
  */
 public class AddElements implements
-        Operation,
         Validatable,
-        MultiInput<Element>,
-        Options {
+        MultiInput<Element> {
     private boolean validate = true;
     private boolean skipInvalidElements;
     private Iterable<? extends Element> elements;
@@ -110,7 +107,7 @@ public class AddElements implements
             return true;
         }
 
-        if (obj == null || getClass() != obj.getClass()) {
+        if (null == obj || getClass() != obj.getClass()) {
             return false;
         }
 
@@ -146,8 +143,7 @@ public class AddElements implements
 
     public static class Builder extends Operation.BaseBuilder<AddElements, Builder>
             implements Validatable.Builder<AddElements, Builder>,
-            MultiInput.Builder<AddElements, Element, Builder>,
-            Options.Builder<AddElements, Builder> {
+            MultiInput.Builder<AddElements, Element, Builder> {
         public Builder() {
             super(new AddElements());
         }

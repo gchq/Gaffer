@@ -21,7 +21,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.MapGenerator;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
@@ -29,20 +28,20 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Map;
 
 /**
- * A <code>ToMap</code> operation takes in an {@link java.lang.Iterable} of items
+ * A {@code ToMap} operation takes in an {@link java.lang.Iterable} of items
  * and uses a {@link uk.gov.gchq.gaffer.data.generator.MapGenerator} to convert
  * each item into a {@link java.util.Map} of key-value pairs.
  *
  * @see uk.gov.gchq.gaffer.operation.impl.output.ToMap.Builder
  */
 public class ToMap implements
-        Operation,
         InputOutput<Iterable<? extends Element>, Iterable<? extends Map<String, Object>>>,
         MultiInput<Element> {
 
     @Required
     private MapGenerator elementGenerator;
     private Iterable<? extends Element> input;
+    private Map<String, String> options;
 
     public ToMap() {
     }
@@ -80,7 +79,18 @@ public class ToMap implements
         return new ToMap.Builder()
                 .generator(elementGenerator)
                 .input(input)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static final class Builder extends BaseBuilder<ToMap, Builder>

@@ -25,6 +25,10 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.Operation;
 
+/**
+ * An {@code OperationView} operation contains a {@link View} and can carry out
+ * additional validation based on the view contents.
+ */
 public interface OperationView {
     /**
      * @return the {@link View} for the operation.
@@ -43,7 +47,7 @@ public interface OperationView {
      * @return true if the {@link Element} is valid. Otherwise false and a reason should be logged.
      * <p>
      * If the element class is known then validate(Entity) or validate(Edge) should be called instead to avoid
-     * unnecessary use of <code>instanceof</code>.
+     * unnecessary use of {@code instanceof}.
      * @see OperationView#validate(Entity)
      * @see OperationView#validate(Edge)
      */

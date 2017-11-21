@@ -16,37 +16,16 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
-import org.junit.Test;
-
+import uk.gov.gchq.gaffer.JSONSerialisationTest;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
-
-public abstract class GraphHookTest<T> {
+public abstract class GraphHookTest<T> extends JSONSerialisationTest<T>{
     private final Class<T> hookClass;
 
     protected GraphHookTest(final Class<T> hookClass) {
         this.hookClass = hookClass;
-    }
-
-    @Test
-    public abstract void shouldJsonSerialiseAndDeserialise();
-
-    protected byte[] toJson(final T hook) {
-        try {
-            return JSONSerialiser.serialise(hook, true);
-        } catch (final SerialisationException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    protected T fromJson(final byte[] jsonHook) {
-        try {
-            return JSONSerialiser.deserialise(jsonHook, hookClass);
-        } catch (final SerialisationException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     protected T fromJson(final String path) {

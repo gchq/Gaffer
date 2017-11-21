@@ -20,12 +20,11 @@ import org.apache.hadoop.mapreduce.Partitioner;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 
 import java.util.Map;
 
 /**
- * An <code>AddElementsFromHdfs</code> operation is for adding {@link uk.gov.gchq.gaffer.data.element.Element}s from HDFS.
+ * An {@code AddElementsFromHdfs} operation is for adding {@link uk.gov.gchq.gaffer.data.element.Element}s from HDFS.
  * This operation requires an input, output and failure path.
  * For each input file you must also provide a {@link uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator} class name
  * as part of a pair (input, mapperGeneratorClassName).
@@ -46,8 +45,7 @@ import java.util.Map;
  */
 public class AddElementsFromHdfs implements
         Operation,
-        MapReduce,
-        Options {
+        MapReduce {
     @Required
     private String failurePath;
 
@@ -76,7 +74,14 @@ public class AddElementsFromHdfs implements
     private Integer minMapTasks;
     private Integer maxMapTasks;
 
+    /**
+     * @deprecated the number of reduce tasks should not be set.  By default the number of reduce tasks should
+     * match the number of tablets.  Use minimum and maximum reduce tasks to specify boundaries for the number
+     * of reduce tasks.
+     */
+    @Deprecated
     private Integer numReduceTasks;
+
     private Integer minReduceTasks;
     private Integer maxReduceTasks;
 
@@ -263,8 +268,7 @@ public class AddElementsFromHdfs implements
     }
 
     public static final class Builder extends Operation.BaseBuilder<AddElementsFromHdfs, Builder>
-            implements MapReduce.Builder<AddElementsFromHdfs, Builder>,
-            Options.Builder<AddElementsFromHdfs, Builder> {
+            implements MapReduce.Builder<AddElementsFromHdfs, Builder> {
         public Builder() {
             super(new AddElementsFromHdfs());
         }
@@ -274,6 +278,7 @@ public class AddElementsFromHdfs implements
             return _self();
         }
 
+        @Override
         public Builder inputMapperPairs(final Map<String, String> inputMapperPairs) {
             _getOp().setInputMapperPairs(inputMapperPairs);
             return _self();

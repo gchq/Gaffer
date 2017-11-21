@@ -17,13 +17,16 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd;
 
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
+import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaPairRDD;
+import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.broadcast.Broadcast;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.spark.SparkContextUtil;
 import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.javardd.ImportKeyValueJavaPairRDDToAccumulo;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.java.ElementConverterFunction;
@@ -52,7 +55,8 @@ public class ImportJavaRDDOfElementsHandler implements OperationHandler<ImportJa
             throw new OperationException("Option failurePath must be set for this option to be run against the accumulostore");
         }
 
-        final Broadcast<AccumuloElementConverter> broadcast = operation.getJavaSparkContext().broadcast(store.getKeyPackage().getKeyConverter());
+        final SparkContext sparkContext = SparkContextUtil.getSparkSession(context, store.getProperties()).sparkContext();
+        final Broadcast<AccumuloElementConverter> broadcast = JavaSparkContext.fromSparkContext(sparkContext).broadcast(store.getKeyPackage().getKeyConverter());
         final ElementConverterFunction func = new ElementConverterFunction(broadcast);
         final JavaPairRDD<Key, Value> rdd = operation.getInput().flatMapToPair(func);
         final ImportKeyValueJavaPairRDDToAccumulo op =
@@ -61,7 +65,7 @@ public class ImportJavaRDDOfElementsHandler implements OperationHandler<ImportJa
                         .failurePath(failurePath)
                         .outputPath(outputPath)
                         .build();
-        store._execute(new OperationChain(op), context);
+        store.execute(new OperationChain(op), context);
     }
 }
 

@@ -38,7 +38,7 @@ public class PrimitiveConverter extends org.apache.parquet.io.api.PrimitiveConve
         this.parquetColumnToObject = parquetColumnToObject;
         this.expectedType = expectedType;
         this.column = String.join(".", columnPath);
-        if (originalType != null) {
+        if (null != originalType) {
             this.originalType = originalType.name();
         } else {
             this.originalType = null;
@@ -127,7 +127,7 @@ public class PrimitiveConverter extends org.apache.parquet.io.api.PrimitiveConve
     private <T extends Object> void addObject(final T object) {
         final Object[] currentArray = parquetColumnToObject.getOrDefault(column, null);
         final Object[] newArray;
-        if (currentArray == null) {
+        if (null == currentArray) {
             newArray = (T[]) Array.newInstance(object.getClass(), 1);
             newArray[0] = object;
         } else {

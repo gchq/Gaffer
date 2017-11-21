@@ -21,6 +21,13 @@ import uk.gov.gchq.gaffer.commonutil.stream.FlatMapStreamSupplier;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+/**
+ * A {@code StreamFlatMapIterable} is an {@link StreamIterable} which uses a {@link FlatMapStreamSupplier}
+ * to combine {@link Iterable}s.
+ *
+ * @param <I> the type of items in the input iterable
+ * @param <O> the type of items in the output stream
+ */
 public class StreamFlatMapIterable<I, O> extends StreamIterable<O> {
     public StreamFlatMapIterable(final Iterable<I> input, final Function<? super I, ? extends Stream<O>> function) {
         super(new FlatMapStreamSupplier<>(input, function));

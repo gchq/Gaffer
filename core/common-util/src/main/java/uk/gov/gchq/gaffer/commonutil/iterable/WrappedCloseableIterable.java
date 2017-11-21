@@ -22,6 +22,12 @@ import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import java.util.Collections;
 import java.util.Iterator;
 
+/**
+ * A {@code WrappedCloseableIterable} is an {@link CloseableIterable} which provides
+ * a wrapper around any non-closeable iterables.
+ *
+ * @param <T> the type of items in the iterable.
+ */
 public class WrappedCloseableIterable<T> implements CloseableIterable<T> {
     private final Iterable<T> iterable;
 

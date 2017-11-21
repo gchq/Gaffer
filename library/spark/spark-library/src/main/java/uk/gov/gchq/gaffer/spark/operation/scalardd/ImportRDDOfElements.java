@@ -16,36 +16,22 @@
 package uk.gov.gchq.gaffer.spark.operation.scalardd;
 
 import org.apache.spark.rdd.RDD;
-import org.apache.spark.sql.SparkSession;
 
-import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.io.Input;
 
 import java.util.Map;
 
+/**
+ * A {@code ImportRDDOfElements} takes a {@link RDD} containing {@link Element}s
+ * and adds them to a target Gaffer store.
+ */
 public class ImportRDDOfElements implements
-        Operation,
-        Input<RDD<Element>>,
-        Rdd,
-        Options {
+        Input<RDD<Element>> {
     public static final String HADOOP_CONFIGURATION_KEY = "Hadoop_Configuration_Key";
-    @Required
-    private SparkSession sparkSession;
     private RDD<Element> input;
     private Map<String, String> options;
-
-    @Override
-    public SparkSession getSparkSession() {
-        return sparkSession;
-    }
-
-    @Override
-    public void setSparkSession(final SparkSession sparkSession) {
-        this.sparkSession = sparkSession;
-    }
 
     @Override
     public RDD<Element> getInput() {
@@ -70,7 +56,6 @@ public class ImportRDDOfElements implements
     @Override
     public ImportRDDOfElements shallowClone() {
         return new ImportRDDOfElements.Builder()
-                .sparkSession(sparkSession)
                 .input(input)
                 .options(options)
                 .build();
@@ -78,8 +63,7 @@ public class ImportRDDOfElements implements
 
     public static class Builder extends Operation.BaseBuilder<ImportRDDOfElements, Builder>
             implements Input.Builder<ImportRDDOfElements, RDD<Element>, Builder>,
-            Rdd.Builder<ImportRDDOfElements, Builder>,
-            Options.Builder<ImportRDDOfElements, Builder> {
+            Operation.Builder<ImportRDDOfElements, Builder> {
         public Builder() {
             super(new ImportRDDOfElements());
         }

@@ -24,6 +24,10 @@ import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * Default implementation of the {@link GraphFactory} interface, used by HK2 to
+ * instantiate default {@link Graph} instances.
+ */
 public class DefaultGraphFactory implements GraphFactory {
     private static Graph graph;
 
@@ -136,10 +140,5 @@ public class DefaultGraphFactory implements GraphFactory {
         }
 
         return builder;
-    }
-
-    @Override
-    public Graph createGraph() {
-        return createGraphBuilder().build();
     }
 }

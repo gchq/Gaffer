@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-if [ "$RELEASE" != 'true' ]; then
+set -e
+
+if [ "$RELEASE" != 'true' ] && [ "$TRAVIS_PULL_REQUEST" != 'false' ]; then
     if [ "$MODULES" == '' ]; then
         echo "Running verify script: mvn -q verify -P travis,analyze -B"
         mvn -q verify -P travis,analyze -B

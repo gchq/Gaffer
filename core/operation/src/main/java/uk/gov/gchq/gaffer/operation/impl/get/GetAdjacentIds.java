@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
@@ -34,17 +33,15 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * A <code>GetAdjacentIds</code> operation will return the
+ * A {@code GetAdjacentIds} operation will return the
  * vertex at the opposite end of connected edges to a provided seed vertex.
  *
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds.Builder
  */
 public class GetAdjacentIds implements
-        Operation,
         InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends EntityId>>,
         MultiInput<EntityId>,
-        SeededGraphFilters,
-        Options {
+        SeededGraphFilters {
     private View view;
     private Iterable<? extends EntityId> input;
     private DirectedType directedType;
@@ -65,6 +62,9 @@ public class GetAdjacentIds implements
     @Override
     public void setView(final View view) {
         if (null != view && view.hasEntities()) {
+            if (view.hasEntityFilters()) {
+                throw new IllegalArgumentException("View should not have entities with filters.");
+            }
             this.view = new View.Builder()
                     .merge(view)
                     .entities(Collections.emptyMap())
@@ -133,8 +133,7 @@ public class GetAdjacentIds implements
     public static class Builder extends Operation.BaseBuilder<GetAdjacentIds, Builder>
             implements InputOutput.Builder<GetAdjacentIds, Iterable<? extends EntityId>, CloseableIterable<? extends EntityId>, Builder>,
             MultiInput.Builder<GetAdjacentIds, EntityId, Builder>,
-            SeededGraphFilters.Builder<GetAdjacentIds, Builder>,
-            Options.Builder<GetAdjacentIds, Builder> {
+            SeededGraphFilters.Builder<GetAdjacentIds, Builder> {
         public Builder() {
             super(new GetAdjacentIds());
         }

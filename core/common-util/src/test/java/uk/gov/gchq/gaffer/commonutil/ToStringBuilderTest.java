@@ -49,7 +49,7 @@ public class ToStringBuilderTest {
     }
 
     private void setDebugMode(final String value) {
-        if (value == null) {
+        if (null == value) {
             System.clearProperty(DebugUtil.DEBUG);
         } else {
             System.setProperty(DebugUtil.DEBUG, value);

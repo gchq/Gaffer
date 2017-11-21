@@ -26,28 +26,29 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
+import java.util.Map;
 import java.util.function.Function;
 
 /**
- * An <code>GenerateObjects</code> operation generates an {@link java.lang.Iterable} of objects from an
+ * An {@code GenerateObjects} operation generates an {@link java.lang.Iterable} of objects from an
  * {@link java.lang.Iterable} of {@link uk.gov.gchq.gaffer.data.element.Element}s.
  *
  * @param <OBJ> the type of objects in the output iterable.
  * @see uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects.Builder
  */
 public class GenerateObjects<OBJ> implements
-        Operation,
         InputOutput<Iterable<? extends Element>, Iterable<? extends OBJ>>,
         MultiInput<Element> {
     @Required
     private Function<Iterable<? extends Element>, Iterable<? extends OBJ>> elementGenerator;
     private Iterable<? extends Element> input;
+    private Map<String, String> options;
 
     public GenerateObjects() {
     }
 
     /**
-     * Constructs a <code>GenerateObjects</code> operation with an {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to
+     * Constructs a {@code GenerateObjects} operation with an {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to
      * convert {@link uk.gov.gchq.gaffer.data.element.Element}s into objects. This constructor takes in no input
      * {@link uk.gov.gchq.gaffer.data.element.Element}s and could by used in a operation chain where the elements are provided by
      * the previous operation.
@@ -104,7 +105,18 @@ public class GenerateObjects<OBJ> implements
         return new GenerateObjects.Builder<OBJ>()
                 .generator(elementGenerator)
                 .input(input)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static class Builder<OBJ> extends Operation.BaseBuilder<GenerateObjects<OBJ>, Builder<OBJ>>

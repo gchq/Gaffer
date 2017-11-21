@@ -16,27 +16,31 @@
 
 package uk.gov.gchq.gaffer.store.library;
 
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.exception.OverwritingException;
 
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A {@code HashMapGraphLibrary} stores a {@link GraphLibrary} within three HashMaps.
+ */
 public class HashMapGraphLibrary extends GraphLibrary {
     private static final Map<String, Pair<String, String>> GRAPHS = new HashMap<>();
     private static final Map<String, byte[]> SCHEMAS = new HashMap<>();
     private static final Map<String, StoreProperties> PROPERTIES = new HashMap<>();
 
-    @Override
-    public void initialise(final String path) {
-        // Do nothing
-    }
-
     public static void clear() {
         GRAPHS.clear();
         SCHEMAS.clear();
         PROPERTIES.clear();
+    }
+
+    @Override
+    public void initialise(final String path) {
+        // Do nothing
     }
 
     @Override
@@ -51,7 +55,7 @@ public class HashMapGraphLibrary extends GraphLibrary {
 
     @Override
     protected void _addProperties(final String propertiesId, final StoreProperties properties) {
-        PROPERTIES.put(propertiesId, properties);
+        PROPERTIES.put(propertiesId, properties.clone());
     }
 
     @Override
@@ -66,6 +70,14 @@ public class HashMapGraphLibrary extends GraphLibrary {
 
     @Override
     protected StoreProperties _getProperties(final String propertiesId) {
-        return PROPERTIES.get(propertiesId);
+        final StoreProperties storeProperties = PROPERTIES.get(propertiesId);
+        return (null == storeProperties) ? null : storeProperties.clone();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("graphs", GRAPHS)
+                .toString();
     }
 }

@@ -36,7 +36,7 @@ import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.tool.AddElementsFromHdfsTool;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.SplitStore;
+import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -60,13 +60,14 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
             throws OperationException {
         validateOperation(operation);
 
-        if (null == operation.getSplitsFilePath()) {
-            if (null == operation.getWorkingPath()) {
-                throw new IllegalArgumentException("splitsFilePath is required");
-            }
-            final String splitsFilePath = getPathWithSlashSuffix(operation.getWorkingPath()) + context.getJobId() + "/splits";
-            LOGGER.info("Using working directory for splits files: " + splitsFilePath);
-            operation.setSplitsFilePath(splitsFilePath);
+        final String splitsFilePath = getPathWithSlashSuffix(operation.getWorkingPath()) + context.getJobId() + "/splits";
+        LOGGER.info("Using working directory for splits files: " + splitsFilePath);
+        operation.setSplitsFilePath(splitsFilePath);
+
+        try {
+            checkHdfsDirectories(operation, store);
+        } catch (final IOException e) {
+            throw new OperationException("Operation failed due to filesystem error: " + e.getMessage());
         }
 
         if (!operation.isUseProvidedSplits() && needsSplitting(store)) {
@@ -90,6 +91,25 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
 
         if (null != operation.getMaxMapTasks()) {
             LOGGER.warn("maxMapTasks field will be ignored");
+        }
+
+        if (null != operation.getNumReduceTasks() && (null != operation.getMinReduceTasks() || null != operation.getMaxReduceTasks())) {
+            throw new IllegalArgumentException("minReduceTasks and/or maxReduceTasks should not be set if numReduceTasks is");
+        }
+
+        if (null != operation.getMinReduceTasks() && null != operation.getMaxReduceTasks()) {
+            LOGGER.warn("Logic for the minimum may result in more reducers than the maximum set");
+            if (operation.getMinReduceTasks() > operation.getMaxReduceTasks()) {
+                throw new IllegalArgumentException("Minimum number of reducers must be less than the maximum number of reducers");
+            }
+        }
+
+        if (null == operation.getSplitsFilePath()) {
+            throw new IllegalArgumentException("splitsFilePath is required");
+        }
+
+        if (null == operation.getWorkingPath()) {
+            throw new IllegalArgumentException("workingPath is required");
         }
     }
 
@@ -141,7 +161,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
 
         final String tmpSplitsOutputPath = tmpJobWorkingPath + "/sampleSplitsOutput";
         try {
-            store._execute(new OperationChain.Builder()
+            store.execute(new OperationChain.Builder()
                     .first(new SampleDataForSplitPoints.Builder()
                             .addInputMapperPairs(operation.getInputMapperPairs())
                             .jobInitialiser(operation.getJobInitialiser())
@@ -151,7 +171,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
                             .splitsFilePath(operation.getSplitsFilePath())
                             .options(operation.getOptions())
                             .build())
-                    .then(new SplitStore.Builder()
+                    .then(new SplitStoreFromFile.Builder()
                             .inputPath(operation.getSplitsFilePath())
                             .options(operation.getOptions())
                             .build())
@@ -183,7 +203,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         final int response;
         try {
             LOGGER.info("Running FetchElementsFromHdfsTool job");
-            response = ToolRunner.run(fetchTool, new String[0]);
+            response = ToolRunner.run(fetchTool.getConfig(), fetchTool, new String[0]);
             LOGGER.info("Finished running FetchElementsFromHdfsTool job");
         } catch (final Exception e) {
             LOGGER.error("Failed to fetch elements from HDFS: {}", e.getMessage());
@@ -213,6 +233,24 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         if (ImportElementsToAccumuloTool.SUCCESS_RESPONSE != response) {
             LOGGER.error("Failed to import elements into Accumulo. Response code was {}", response);
             throw new OperationException("Failed to import elements into Accumulo. Response code was: " + response);
+        }
+    }
+
+    private void checkHdfsDirectories(final AddElementsFromHdfs operation, final AccumuloStore store) throws IOException {
+        final AddElementsFromHdfsTool tool = new AddElementsFromHdfsTool(new AccumuloAddElementsFromHdfsJobFactory(), operation, store);
+
+        LOGGER.info("Checking that the correct HDFS directories exist");
+        final FileSystem fs = FileSystem.get(tool.getConfig());
+
+        final Path outputPath = new Path(operation.getOutputPath());
+        LOGGER.info("Ensuring output directory {} doesn't exist", outputPath);
+        if (fs.exists(outputPath)) {
+            if (fs.listFiles(outputPath, true).hasNext()) {
+                LOGGER.error("Output directory exists and is not empty: {}", outputPath);
+                throw new IllegalArgumentException("Output directory exists and is not empty: " + outputPath);
+            }
+            LOGGER.info("Output directory exists and is empty so deleting: {}", outputPath);
+            fs.delete(outputPath, true);
         }
     }
 }

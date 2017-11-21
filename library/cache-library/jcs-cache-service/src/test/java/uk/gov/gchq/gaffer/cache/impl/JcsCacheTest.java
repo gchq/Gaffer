@@ -8,6 +8,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
+import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -31,13 +32,13 @@ public class JcsCacheTest {
 
 
     @Test
-    public void shouldThrowAnExceptionIfEntryAlreadyExistsWhenUsingPutSafe(){
+    public void shouldThrowAnExceptionIfEntryAlreadyExistsWhenUsingPutSafe() {
         try {
             cache.put("test", 1);
             cache.putSafe("test", 1);
             fail();
-        } catch (final CacheOperationException e) {
-            assertEquals("Entry for key test already exists", e.getMessage());
+        } catch (final OverwritingException | CacheOperationException e) {
+            assertEquals("Cache entry already exists for key: test", e.getMessage());
         }
     }
 

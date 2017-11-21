@@ -41,7 +41,7 @@ public class LongParquetSerialiser implements ParquetSerialiser<Long> {
         if (objects.length == 1) {
             if (objects[0] instanceof Long) {
                 return (Long) objects[0];
-            } else if (objects[0] == null) {
+            } else if (null == objects[0]) {
                 return null;
             }
         }

@@ -17,6 +17,10 @@ package uk.gov.gchq.gaffer.core.exception;
 
 import static uk.gov.gchq.gaffer.core.exception.Status.INTERNAL_SERVER_ERROR;
 
+/**
+ * Subtype of {@link RuntimeException} with additional constructors to support the
+ * inclusion of a HTTP error message along with the other exception details.
+ */
 public class GafferRuntimeException extends RuntimeException {
 
     private Status status = INTERNAL_SERVER_ERROR;

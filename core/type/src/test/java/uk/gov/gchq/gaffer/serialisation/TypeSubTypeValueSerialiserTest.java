@@ -164,6 +164,7 @@ public class TypeSubTypeValueSerialiserTest extends ToBytesSerialisationTest<Typ
         return new TypeSubTypeValueSerialiser();
     }
 
+    @Override
     public Pair<TypeSubTypeValue, byte[]>[] getHistoricSerialisationPairs() {
         TypeSubTypeValue typeSubTypeValue = new TypeSubTypeValue();
         typeSubTypeValue.setType("testType");

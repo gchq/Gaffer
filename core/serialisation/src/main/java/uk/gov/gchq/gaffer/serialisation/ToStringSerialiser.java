@@ -15,11 +15,16 @@
  */
 package uk.gov.gchq.gaffer.serialisation;
 
+/**
+ * A class that implements this interface is responsible for serialising an
+ * object of class T to a {@link String}, and for deserialising it back again.
+ * It must also be able to deal with serialising null values.
+ */
 public interface ToStringSerialiser<INPUT> extends Serialiser<INPUT, String> {
     /**
      * Handle an incoming null value and generate an appropriate String representation.
      *
-     * @return String the serialised output
+     * @return the serialised output
      */
     @Override
     default String serialiseNull() {
@@ -30,7 +35,7 @@ public interface ToStringSerialiser<INPUT> extends Serialiser<INPUT, String> {
     /**
      * Handle an empty String and reconstruct an appropriate representation in Object form.
      *
-     * @return INPUT the deserialised object
+     * @return the deserialised object
      */
     @Override
     default INPUT deserialiseEmpty() {

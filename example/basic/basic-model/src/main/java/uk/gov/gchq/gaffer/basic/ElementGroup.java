@@ -16,6 +16,9 @@
 
 package uk.gov.gchq.gaffer.basic;
 
+/**
+ * Element group constants for the basic demonstration.
+ */
 public final class ElementGroup {
     // Entities
     public static final String BASIC_ENTITY = "BasicEntity";
@@ -24,5 +27,6 @@ public final class ElementGroup {
     public static final String BASIC_EDGE = "BasicEdge";
 
     private ElementGroup() {
+        // Private constructor to prevent instantiation
     }
 }

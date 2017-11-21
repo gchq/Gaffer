@@ -15,9 +15,8 @@
  */
 package uk.gov.gchq.gaffer.hdfs.operation.handler.job.tool;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.Tool;
 import org.slf4j.Logger;
@@ -28,7 +27,6 @@ import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AddElementsFromHdfs
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Store;
 
-import java.io.IOException;
 import java.util.List;
 
 public class AddElementsFromHdfsTool extends Configured implements Tool {
@@ -38,6 +36,7 @@ public class AddElementsFromHdfsTool extends Configured implements Tool {
     private final AddElementsFromHdfs operation;
     private final Store store;
     private final AddElementsFromHdfsJobFactory jobFactory;
+    private final Configuration config = new Configuration();
 
     public AddElementsFromHdfsTool(final AddElementsFromHdfsJobFactory jobFactory, final AddElementsFromHdfs operation, final Store store) {
         this.operation = operation;
@@ -47,7 +46,6 @@ public class AddElementsFromHdfsTool extends Configured implements Tool {
 
     @Override
     public int run(final String[] strings) throws Exception {
-        checkHdfsDirectories(operation);
         jobFactory.prepareStore(store);
         LOGGER.info("Adding elements from HDFS");
         final List<Job> jobs = jobFactory.createJobs(operation, store);
@@ -63,19 +61,7 @@ public class AddElementsFromHdfsTool extends Configured implements Tool {
         return SUCCESS_RESPONSE;
     }
 
-    private void checkHdfsDirectories(final AddElementsFromHdfs operation) throws IOException {
-        LOGGER.info("Checking that the correct HDFS directories exist");
-        final FileSystem fs = FileSystem.get(getConf());
-
-        final Path outputPath = new Path(operation.getOutputPath());
-        LOGGER.info("Ensuring output directory {} doesn't exist", outputPath);
-        if (fs.exists(outputPath)) {
-            if (fs.listFiles(outputPath, true).hasNext()) {
-                LOGGER.error("Output directory exists and is not empty: {}", outputPath);
-                throw new IllegalArgumentException("Output directory exists and is not empty: " + outputPath);
-            }
-            LOGGER.info("Output directory exists and is empty so deleting: {}", outputPath);
-            fs.delete(outputPath, true);
-        }
+    public Configuration getConfig() {
+        return config;
     }
 }

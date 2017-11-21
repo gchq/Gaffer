@@ -85,6 +85,20 @@ public class ParquetStorePropertiesTest {
     }
 
     @Test
+    public void aggregateTest() {
+        assertEquals(true, props.getAggregateOnIngest());
+        props.setAggregateOnIngest(false);
+        assertEquals(false, props.getAggregateOnIngest());
+    }
+
+    @Test
+    public void sortBySplitsTest() {
+        assertEquals(false, props.getSortBySplitsOnIngest());
+        props.setSortBySplitsOnIngest(true);
+        assertEquals(true, props.getSortBySplitsOnIngest());
+    }
+
+    @Test
     public void sparkMasterTest() {
         //might fail if Spark is properly installed
         assertEquals("local[*]", props.getSparkMaster());

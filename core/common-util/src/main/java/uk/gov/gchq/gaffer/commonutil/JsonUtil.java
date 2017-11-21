@@ -26,13 +26,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * Utility methods for various JSON representations in Gaffer.
+ */
 public final class JsonUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(JsonUtil.class);
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private JsonUtil() {
+        // Private constructor to prevent instantiation.
     }
 
+    /**
+     * Test to see whether two JSON {@link String} representations are equal.
+     *
+     * @param expectedJson the expected JSON string
+     * @param actualJson the actual JSON string
+     * @return true if both strings are equal, otherwise false
+     */
     public static boolean equals(final String expectedJson, final String actualJson) {
         try {
             final Map expectedSchemaMap = null != expectedJson ? OBJECT_MAPPER.readValue(expectedJson, Map.class) : Collections.emptyMap();
@@ -52,6 +63,13 @@ public final class JsonUtil {
         }
     }
 
+    /**
+     * Test to see whether two JSON byte array representations are equal.
+     *
+     * @param expectedJson the expected JSON byte array
+     * @param actualJson the actual JSON byte array
+     * @return true if both strings are equal, otherwise false
+     */
     public static boolean equals(final byte[] expectedJson, final byte[] actualJson) {
         try {
             final Map expectedSchemaMap = null != expectedJson ? OBJECT_MAPPER.readValue(expectedJson, Map.class) : Collections.emptyMap();

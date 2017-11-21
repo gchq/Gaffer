@@ -42,9 +42,10 @@ public class NamedOperationCacheIT {
                             .build())
                     .build())
             .overwrite()
+            .score(0)
             .build();
 
-    private User user = new User("user01");
+    private User user = new User();
     private Context context = new Context(user);
     private GetAllNamedOperationsHandler getAllNamedOperationsHandler = new GetAllNamedOperationsHandler();
     private AddNamedOperationHandler addNamedOperationHandler = new AddNamedOperationHandler();
@@ -97,6 +98,7 @@ public class NamedOperationCacheIT {
                 .readers(new ArrayList<>())
                 .writers(new ArrayList<>())
                 .description(add.getDescription())
+                .score(0)
                 .build();
 
         List<NamedOperationDetail> expected = Lists.newArrayList(expectedNamedOp);
@@ -140,6 +142,7 @@ public class NamedOperationCacheIT {
                 .description("a different operation")
                 .operationChain(add.getOperationChainAsString())
                 .overwrite()
+                .score(0)
                 .build();
 
         GetAllNamedOperations get = new GetAllNamedOperations();
@@ -156,6 +159,7 @@ public class NamedOperationCacheIT {
                 .creatorId(user.getUserId())
                 .readers(new ArrayList<>())
                 .writers(new ArrayList<>())
+                .score(0)
                 .build();
 
         ArrayList<NamedOperationDetail> expected = Lists.newArrayList(expectedNamedOp);

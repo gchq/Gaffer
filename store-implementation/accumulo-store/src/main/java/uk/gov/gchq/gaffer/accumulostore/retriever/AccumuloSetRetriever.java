@@ -40,7 +40,6 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
-import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -53,7 +52,7 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends Element>> & GraphFilters & Options>
+public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends Element>> & GraphFilters>
         extends AccumuloRetriever<OP, Element> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloSetRetriever.class);
     private boolean readEntriesIntoMemory;
@@ -235,7 +234,7 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
 
         @Override
         public void close() {
-            if (parentRetriever != null) {
+            if (null != parentRetriever) {
                 parentRetriever.close();
             }
         }
@@ -243,7 +242,7 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
         protected abstract boolean checkIfBothEndsInSet(final Object source, final Object destination);
 
         /**
-         * Returns <code>true</code> if either an
+         * Returns {@code true} if either an
          * {@link uk.gov.gchq.gaffer.data.element.Entity} or if an
          * {@link uk.gov.gchq.gaffer.data.element.Edge} then need both ends to be in the
          * set.
@@ -296,7 +295,7 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
                 while (_hasNext()) {
                     final Entry<Key, Value> entry = scannerIterator.next();
                     try {
-                        nextElm = elementConverter.getFullElement(entry.getKey(), entry.getValue(), false);
+                        nextElm = elementConverter.getFullElement(entry.getKey(), entry.getValue(), true);
                     } catch (final AccumuloElementConversionException e) {
                         LOGGER.error("Failed to create next element from key and value entry set", e);
                         continue;
@@ -336,7 +335,7 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
 
         @Override
         public void close() {
-            if (scanner != null) {
+            if (null != scanner) {
                 scanner.close();
             }
         }

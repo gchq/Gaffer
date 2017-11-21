@@ -26,8 +26,8 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Map;
 
 /**
- * Named operations enable encapsulation of an OperationChain into a new single <code>NamedOperation</code>.
- * The <code>NamedOperation</code> can be added to OperationChains and executed, just like any other Operation.
+ * Named operations enable encapsulation of an OperationChain into a new single {@code NamedOperation}.
+ * The {@code NamedOperation} can be added to OperationChains and executed, just like any other Operation.
  * When run it executes the encapsulated OperationChain.
  * There are various possible uses for NamedOperations, including:
  * <ul>
@@ -49,6 +49,7 @@ public class NamedOperation<I_ITEM, O> implements
     @Required
     private String operationName;
     private Map<String, Object> parameters;
+    private Map<String, String> options;
 
     @Override
     public Iterable<? extends I_ITEM> getInput() {
@@ -60,12 +61,12 @@ public class NamedOperation<I_ITEM, O> implements
         this.input = input;
     }
 
-    public void setParameters(final Map<String, Object> parameters) {
-        this.parameters = parameters;
-    }
-
     public Map<String, Object> getParameters() {
         return parameters;
+    }
+
+    public void setParameters(final Map<String, Object> parameters) {
+        this.parameters = parameters;
     }
 
     public String getOperationName() {
@@ -81,12 +82,24 @@ public class NamedOperation<I_ITEM, O> implements
         return (TypeReference) new TypeReferenceImpl.Object();
     }
 
+    @Override
     public NamedOperation shallowClone() {
         return new NamedOperation.Builder<I_ITEM, O>()
                 .input(input)
                 .name(operationName)
                 .parameters(parameters)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static class Builder<I_ITEM, O> extends BaseBuilder<NamedOperation<I_ITEM, O>, Builder<I_ITEM, O>>

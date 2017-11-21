@@ -12,7 +12,7 @@ licensed under the Apache 2 license, Copyright 2011-2015 The Apache Software Fou
 
 Gaffer contains code which is a modified version of code from Apache Hadoop:
 
-- uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawSerialisationUtils is based on methods from
+- CompactRawSerialisationUtils is based on methods from
 Hadoop's WritableUtil class (org.apache.hadoop.io.WritableUtils) which is licensed under the Apache 2 license,
 Copyright 2011-2015 The Apache Software Foundation.
 
@@ -21,7 +21,7 @@ and their licenses, below. For information on the dependencies of these dependen
 projects below.
 
 
-Koryphe (uk.gov.gchq.koryphe:koryphe:0.1.4):
+Koryphe (uk.gov.gchq.koryphe:koryphe:1.0.0):
 
 - Apache License, Version 2.0
 
@@ -31,7 +31,7 @@ Apache Hadoop (org.apache.hadoop:hadoop-common:2.6.3):
 - Apache License, Version 2.0
 
 
-Apache Accumulo (org.apache.accumulo:accumulo-core:1.7.2):
+Apache Accumulo (org.apache.accumulo:accumulo-core:1.8.1):
 
 - Apache License, Version 2.0
 
@@ -76,7 +76,7 @@ org.json4s:json4s-ast_2.10:3.2.11):
 - Apache License, Version 2.0
 
 
-Swagger (io.swagger:-jersey2-jaxrs:1.5.9):
+Swagger (io.swagger:-jersey2-jaxrs:1.5.15):
 
 - Apache License, Version 2.0
 

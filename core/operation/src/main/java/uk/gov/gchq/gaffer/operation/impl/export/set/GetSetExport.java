@@ -23,20 +23,22 @@ import uk.gov.gchq.gaffer.operation.export.GetExport;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
+import java.util.Map;
+
 /**
- * An <code>GetSetExport</code> GetExport operation gets exported Set results.
+ * An {@code GetSetExport} GetExport operation gets exported Set results.
  * The Set export is maintained per single Job or {@link uk.gov.gchq.gaffer.operation.OperationChain} only.
  * It cannot be used across multiple separate operation requests.
  * So ExportToSet and GetSetExport must be used inside a single operation chain.
  */
 public class GetSetExport implements
-        Operation,
         GetExport,
         Output<Iterable<?>> {
     private String jobId;
     private String key;
     private int start = 0;
     private Integer end = null;
+    private Map<String, String> options;
 
     public int getStart() {
         return start;
@@ -86,7 +88,18 @@ public class GetSetExport implements
                 .key(key)
                 .start(start)
                 .end(end)
+                .options(options)
                 .build();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
     public static class Builder

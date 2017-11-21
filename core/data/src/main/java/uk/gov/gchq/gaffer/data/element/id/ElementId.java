@@ -22,13 +22,13 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.io.Serializable;
 
+/**
+ * An {@code ElementId} is an interface describing the core methods that are required
+ * in order to identify an {@link uk.gov.gchq.gaffer.data.element.Element}.
+ */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
 public interface ElementId extends Serializable {
-    /**
-     * @param that the {@link ElementId} to compare
-     * @return An instance of {@link Matches} to describe how the seeds are related.
-     */
-    Matches isRelated(ElementId that);
+    Matches isRelated(final ElementId that);
 
     boolean isEqual(final ElementId that);
 
@@ -42,11 +42,30 @@ public interface ElementId extends Serializable {
         // ignore the className as it will be picked up by the JsonTypeInfo annotation.
     }
 
+    /**
+     * Enumerated type to denote which component of an {@link uk.gov.gchq.gaffer.data.element.Element}
+     * matches an input parameter.
+     */
     enum Matches {
+        /**
+         * Matches both the source and destination of an {@link uk.gov.gchq.gaffer.data.element.Edge}.
+         */
         BOTH,
+        /**
+         * Matches the vertex of an {@link uk.gov.gchq.gaffer.data.element.Entity}
+         */
         VERTEX,
+        /**
+         * Matches the source of an {@link uk.gov.gchq.gaffer.data.element.Edge}
+         */
         SOURCE,
+        /**
+         * Matches the destination of an {@link uk.gov.gchq.gaffer.data.element.Edge}
+         */
         DESTINATION,
+        /**
+         * Matches nothing.
+         */
         NONE;
 
         public boolean isIdentifier() {

@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToArray;
 import uk.gov.gchq.gaffer.operation.impl.output.ToList;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
-import uk.gov.gchq.gaffer.store.library.FileGraphLibrary;
+import uk.gov.gchq.gaffer.store.library.HashMapGraphLibrary;
 
 import java.io.IOException;
 import java.util.List;
@@ -47,7 +47,7 @@ public class GraphConfigTest {
 
         // Then
         assertEquals("graphId1", config.getGraphId());
-        assertEquals(FileGraphLibrary.class, config.getLibrary().getClass());
+        assertEquals(HashMapGraphLibrary.class, config.getLibrary().getClass());
         final List<GraphHook> graphHooks = config.getHooks();
         assertEquals(1, graphHooks.size());
         final AddOperationsToChain addOperationsToChain = (AddOperationsToChain) graphHooks.get(0);

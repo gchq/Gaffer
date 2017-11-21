@@ -24,8 +24,15 @@ import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import java.util.Collection;
 import java.util.Set;
 
+/**
+ * Implementation of the {@link ICache} interface, using a Hazelcast {@link IMap}
+ * as the cache data store.
+ *
+ * @param <K> The object type that acts as the key for the IMap
+ * @param <V> The value that is stored in the IMap
+ */
 public class HazelcastCache <K, V> implements ICache<K, V> {
-    private IMap<K, V> distributedMap;
+    private final IMap<K, V> distributedMap;
 
     public HazelcastCache(final IMap <K, V> distributedMap) {
         this.distributedMap = distributedMap;
@@ -42,15 +49,6 @@ public class HazelcastCache <K, V> implements ICache<K, V> {
             distributedMap.put(key, value);
         } catch (final Exception e) {
             throw new CacheOperationException(e);
-        }
-    }
-
-    @Override
-    public void putSafe(final K key, final V value) throws CacheOperationException {
-        if (get(key) == null) {
-            put(key, value);
-        } else {
-            throw new CacheOperationException("Entry for key " + key + " already exists");
         }
     }
 
