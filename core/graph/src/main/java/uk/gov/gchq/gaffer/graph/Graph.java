@@ -201,6 +201,8 @@ public final class Graph {
             throw new IllegalArgumentException("The context does not contain a user");
         }
 
+        context.setOriginalOpChain(operationChain);
+
         final OperationChain clonedOpChain = operationChain.shallowClone();
         O result = null;
         try {
