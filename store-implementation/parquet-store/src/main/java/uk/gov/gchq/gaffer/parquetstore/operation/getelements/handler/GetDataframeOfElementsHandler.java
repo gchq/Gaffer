@@ -77,7 +77,12 @@ public class GetDataframeOfElementsHandler implements OutputOperationHandler<Get
                                      final String visibility) throws OperationException {
         if (operation.getView().equals(store.getSchemaUtils().getEmptyView())) {
             LOGGER.debug("Retrieving elements as a dataframe");
-            final String rootDir = store.getDataDir() + "/" + store.getGraphIndex().getSnapshotTimestamp() + "/";
+            final String rootDir;
+            if (null != store.getGraphIndex()) {
+                rootDir = store.getDataDir() + "/" + store.getGraphIndex().getSnapshotTimestamp() + "/";
+            } else {
+                return spark.emptyDataFrame();
+            }
 
             final Dataset<Row> dataset;
             if (!visibility.isEmpty()) {
