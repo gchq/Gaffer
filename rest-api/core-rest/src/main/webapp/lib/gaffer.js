@@ -136,6 +136,7 @@ function init(onSwaggerComplete, onPropertiesLoad){
               $('pre code').each(function(i,e){hljs.highlightBlock(e)});
               initFromProperties(onPropertiesLoad);
               addExampleButtons();
+              hideJobsIfRequired();
               if(onSwaggerComplete) {
                   onSwaggerComplete();
               }
@@ -170,6 +171,13 @@ function initFromProperties(onPropertiesLoad) {
     $.get(getVersion() + '/properties', null, onSuccess);
 }
 
+function hideJobsIfRequired() {
+    $.get(getVersion() + '/graph/operations/uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails')
+    .fail(function() {
+         $("#resource_job").attr("hidden", true);
+    })
+}
+
 function updateTitle(properties) {
     updateElement('gaffer.properties.app.title', properties, function(value, id) {
         $('#' + id).text(value);
@@ -178,12 +186,14 @@ function updateTitle(properties) {
 }
 
 function updateBanner(properties) {
-    updateElementWithId('banner', 'gaffer.properties.app.banner.description', properties, function (value, id) {
-        $('body').prepend("<div id='banner' class='banner'>" + value + "</div>")
-        updateElementWithId('banner', 'gaffer.properties.app.banner.colour', properties, function(value, id) {
-            $('#' + id).css({'background-color': value});
+    if($('#banner').length == 0){
+        updateElementWithId('banner', 'gaffer.properties.app.banner.description', properties, function (value, id) {
+            $('body').prepend("<div id='banner' class='banner'>" + value + "</div>")
+            updateElementWithId('banner', 'gaffer.properties.app.banner.colour', properties, function(value, id) {
+                $('#' + id).css({'background-color': value});
+            });
         });
-    });
+    }
 }
 
 function updateDescription(properties) {

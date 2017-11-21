@@ -170,6 +170,16 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     @Override
+    public Pair<byte[], byte[]> getRowKeysFromElement(final Element element) {
+        if (element instanceof Entity) {
+            final byte[] rowKey = getRowKeyFromEntity((Entity) element);
+            return new Pair<>(rowKey, null);
+        }
+
+        return getRowKeysFromEdge((Edge) element);
+    }
+
+    @Override
     public byte[] buildColumnFamily(final String group) {
         try {
             return group.getBytes(CommonConstants.UTF_8);

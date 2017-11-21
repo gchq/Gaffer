@@ -103,6 +103,11 @@ public class FederatedGraphStorage {
                 if (null == access) {
                     throw new IllegalArgumentException(ACCESS_IS_NULL);
                 }
+
+                if (null != graphLibrary) {
+                    graphLibrary.checkExisting(graphId, graph.getSchema(), graph.getStoreProperties());
+                }
+
                 if (!exists(graph, access)) {
                     if (isCacheEnabled()) {
                         addToCache(graph, access);
@@ -114,15 +119,6 @@ public class FederatedGraphStorage {
                         storage.put(access, existingGraphs);
                     } else {
                         existingGraphs.add(graph);
-                    }
-
-                    if (null != graphLibrary) {
-                        try {
-                            graphLibrary.add(graphId, graph.getSchema(), graph.getStoreProperties());
-                        } catch (final Exception e) {
-                            remove(graphId, new User(access.getAddingUserId()));
-                            throw e;
-                        }
                     }
                 }
             } catch (final Exception e) {

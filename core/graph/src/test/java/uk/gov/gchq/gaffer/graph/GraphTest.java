@@ -399,6 +399,7 @@ public class GraphTest {
         final List<Operation> ops = captor1.getValue().getOperations();
         assertEquals(1, ops.size());
         assertSame(operation, ops.get(0));
+        verify(context).setOriginalOpChain(opChain);
     }
 
     @Test
@@ -445,6 +446,7 @@ public class GraphTest {
         final List<Operation> ops = captor1.getValue().getOperations();
         assertEquals(1, ops.size());
         assertSame(operation, ops.get(0));
+        verify(context).setOriginalOpChain(opChain);
     }
 
     @Test
@@ -498,6 +500,7 @@ public class GraphTest {
         assertEquals(1, ops.size());
         assertSame(operation, ops.get(0));
         assertSame(actualResult, result3);
+        verify(context).setOriginalOpChain(opChain);
     }
 
     @Test
@@ -545,6 +548,7 @@ public class GraphTest {
         inOrder.verify(hook1).postExecute(result1, clonedOpChain, context);
         inOrder.verify(hook2).postExecute(result2, clonedOpChain, context);
         assertSame(actualResult, result3);
+        verify(context).setOriginalOpChain(opChain);
     }
 
     @Test
@@ -592,6 +596,7 @@ public class GraphTest {
         inOrder.verify(hook1).postExecute(result1, clonedOpChain, context);
         inOrder.verify(hook2).postExecute(result2, clonedOpChain, context);
         assertSame(actualResult, result3);
+        verify(context).setOriginalOpChain(opChain);
     }
 
     @Test
@@ -634,7 +639,8 @@ public class GraphTest {
             graph.execute(opChain, user);
             fail("Exception expected");
         } catch (final RuntimeException runtimeE) {
-            final InOrder inOrder = inOrder(hook1, hook2);
+            final InOrder inOrder = inOrder(context, hook1, hook2);
+            inOrder.verify(context).setOriginalOpChain(opChain);
             inOrder.verify(hook2, never()).preExecute(any(), any());
             inOrder.verify(hook1, never()).postExecute(any(), any(), any());
             inOrder.verify(hook2, never()).postExecute(any(), any(), any());
@@ -690,7 +696,8 @@ public class GraphTest {
             graph.execute(opChain, user);
             fail("Exception expected");
         } catch (final RuntimeException runtimeE) {
-            final InOrder inOrder = inOrder(hook1, hook2);
+            final InOrder inOrder = inOrder(context, hook1, hook2);
+            inOrder.verify(context).setOriginalOpChain(opChain);
             inOrder.verify(hook1).postExecute(result1, captor.getValue(), context);
             inOrder.verify(hook2).postExecute(result2, captor.getValue(), context);
             inOrder.verify(hook1).onFailure(result2, captor.getValue(), context, e);
@@ -745,7 +752,8 @@ public class GraphTest {
             graph.execute(opChain, user);
             fail("Exception expected");
         } catch (final RuntimeException runtimeE) {
-            final InOrder inOrder = inOrder(hook1, hook2);
+            final InOrder inOrder = inOrder(context, hook1, hook2);
+            inOrder.verify(context).setOriginalOpChain(opChain);
             inOrder.verify(hook1, never()).postExecute(any(), any(), any());
             inOrder.verify(hook2, never()).postExecute(any(), any(), any());
             inOrder.verify(hook1).onFailure(null, captor.getValue(), context, e);
@@ -796,7 +804,8 @@ public class GraphTest {
             graph.executeJob(opChain, user);
             fail("Exception expected");
         } catch (final RuntimeException runtimeE) {
-            final InOrder inOrder = inOrder(hook1, hook2);
+            final InOrder inOrder = inOrder(context, hook1, hook2);
+            inOrder.verify(context).setOriginalOpChain(opChain);
             inOrder.verify(hook2, never()).preExecute(any(), any());
             inOrder.verify(hook1, never()).postExecute(any(), any(), any());
             inOrder.verify(hook2, never()).postExecute(any(), any(), any());
@@ -853,7 +862,8 @@ public class GraphTest {
             graph.executeJob(opChain, user);
             fail("Exception expected");
         } catch (final RuntimeException runtimeE) {
-            final InOrder inOrder = inOrder(hook1, hook2);
+            final InOrder inOrder = inOrder(context, hook1, hook2);
+            inOrder.verify(context).setOriginalOpChain(opChain);
             inOrder.verify(hook1).postExecute(result1, captor.getValue(), context);
             inOrder.verify(hook2).postExecute(result2, captor.getValue(), context);
             inOrder.verify(hook1).onFailure(result2, captor.getValue(), context, e);
@@ -907,7 +917,8 @@ public class GraphTest {
             graph.executeJob(opChain, user);
             fail("Exception expected");
         } catch (final RuntimeException runtimeE) {
-            final InOrder inOrder = inOrder(hook1, hook2);
+            final InOrder inOrder = inOrder(context, hook1, hook2);
+            inOrder.verify(context).setOriginalOpChain(opChain);
             inOrder.verify(hook1, never()).postExecute(any(), any(), any());
             inOrder.verify(hook2, never()).postExecute(any(), any(), any());
             inOrder.verify(hook1).onFailure(null, captor.getValue(), context, e);

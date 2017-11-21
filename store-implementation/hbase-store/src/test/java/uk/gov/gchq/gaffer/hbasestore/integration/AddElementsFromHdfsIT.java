@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.hbasestore.integration;
 
-import com.google.common.collect.Lists;
 import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -30,10 +29,13 @@ import org.junit.rules.TemporaryFolder;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
+import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
@@ -43,11 +45,14 @@ import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.TextMapperGenerator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -55,7 +60,7 @@ import static org.junit.Assert.fail;
 
 public class AddElementsFromHdfsIT {
     private static final String VERTEX_ID_PREFIX = "vertexId";
-    public static final int NUM_ENTITIES = 10;
+    public static final int NUM_ELEMENTS = 10;
     public static final int DUPLICATES = 4;
 
     @Rule
@@ -76,7 +81,24 @@ public class AddElementsFromHdfsIT {
 
     @Test
     public void shouldAddElementsFromHdfs() throws Exception {
-        addElementsFromHdfs();
+        addElementsFromHdfs(getSchema(), true);
+    }
+
+    @Test
+    public void shouldAddElementsFromHdfsWithNoAggregation() throws Exception {
+        final Schema defaultSchema = getSchema();
+        final SchemaEdgeDefinition defaultEdge1 = defaultSchema.getEdge(TestGroups.EDGE);
+        final Schema schema = new Schema.Builder()
+                .merge(defaultSchema)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .source(defaultEdge1.getSource())
+                        .destination(defaultEdge1.getDestination())
+                        .directed(defaultEdge1.getDirected())
+                        .properties(defaultEdge1.getPropertyMap())
+                        .aggregate(false)
+                        .build())
+                .build();
+        addElementsFromHdfs(schema, false);
     }
 
     @Test
@@ -88,17 +110,17 @@ public class AddElementsFromHdfsIT {
         }
 
         try {
-            addElementsFromHdfs();
+            addElementsFromHdfs(getSchema(), true);
             fail("Exception expected");
         } catch (final OperationException e) {
             assertEquals("Output directory file:" + outputDir + " already exists", e.getCause().getMessage());
         }
     }
 
-    private void addElementsFromHdfs() throws Exception {
+    private void addElementsFromHdfs(final Schema schema, final boolean fullyAggregated) throws Exception {
         // Given
         createInputFile();
-        final Graph graph = createGraph();
+        final Graph graph = createGraph(schema);
 
         // When
         graph.execute(new AddElementsFromHdfs.Builder()
@@ -111,13 +133,32 @@ public class AddElementsFromHdfsIT {
 
         // Then
         final CloseableIterable<? extends Element> elements = graph.execute(new GetAllElements(), new User());
-        final List<Element> elementList = Lists.newArrayList(elements);
-        assertEquals(NUM_ENTITIES, elementList.size());
-        for (int i = 0; i < NUM_ENTITIES; i++) {
-            assertEquals(TestGroups.ENTITY, elementList.get(i).getGroup());
-            assertEquals(VERTEX_ID_PREFIX + i, ((Entity) elementList.get(i)).getVertex());
-            assertEquals(DUPLICATES, elementList.get(i).getProperty("count"));
+        final List<Element> expectedElements = new ArrayList<>(NUM_ELEMENTS);
+        for (int i = 0; i < NUM_ELEMENTS; i++) {
+            expectedElements.add(new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex(VERTEX_ID_PREFIX + i)
+                    .property(TestPropertyNames.COUNT, DUPLICATES)
+                    .property(TestPropertyNames.VISIBILITY, "")
+                    .build());
+            final Edge edge = new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source(VERTEX_ID_PREFIX + i)
+                    .dest(VERTEX_ID_PREFIX + (i + 1))
+                    .directed(true)
+                    .property(TestPropertyNames.COUNT, DUPLICATES)
+                    .property(TestPropertyNames.VISIBILITY, "")
+                    .build();
+            if (fullyAggregated) {
+                expectedElements.add(edge);
+            } else {
+                edge.putProperty(TestPropertyNames.COUNT, 1);
+                for (int j = 0; j < DUPLICATES; j++) {
+                    expectedElements.add(edge);
+                }
+            }
         }
+        ElementUtil.assertElementEquals(expectedElements, elements);
     }
 
     private void createInputFile() throws IOException, StoreException {
@@ -128,8 +169,9 @@ public class AddElementsFromHdfsIT {
 
         try (final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fs.create(inputFilePath, true)))) {
             for (int duplicates = 0; duplicates < DUPLICATES; duplicates++) {
-                for (int i = 0; i < NUM_ENTITIES; i++) {
+                for (int i = 0; i < NUM_ELEMENTS; i++) {
                     writer.write(TestGroups.ENTITY + "," + VERTEX_ID_PREFIX + i + "\n");
+                    writer.write(TestGroups.EDGE + "," + VERTEX_ID_PREFIX + i + "," + VERTEX_ID_PREFIX + (i + 1) + "\n");
                 }
             }
         }
@@ -144,14 +186,18 @@ public class AddElementsFromHdfsIT {
         return conf;
     }
 
-    private Graph createGraph() throws StoreException {
+    private Graph createGraph(final Schema schema) throws StoreException {
         return new Graph.Builder()
                 .config(new GraphConfig.Builder()
                         .graphId("graph1")
                         .build())
                 .storeProperties(StreamUtil.storeProps(getClass()))
-                .addSchemas(StreamUtil.schemas(getClass()))
+                .addSchemas(schema)
                 .build();
+    }
+
+    private Schema getSchema() {
+        return Schema.fromJson(StreamUtil.schemas(getClass()));
     }
 
     public static final class TextMapperGeneratorImpl extends TextMapperGenerator {
@@ -164,10 +210,20 @@ public class AddElementsFromHdfsIT {
         @Override
         public Element _apply(final String domainObject) {
             final String[] parts = domainObject.split(",");
-            return new Entity.Builder()
+            if (2 == parts.length) {
+                return new Entity.Builder()
+                        .group(parts[0])
+                        .vertex(parts[1])
+                        .property(TestPropertyNames.COUNT, 1)
+                        .build();
+            }
+
+            return new Edge.Builder()
                     .group(parts[0])
-                    .vertex(parts[1])
-                    .property("count", 1)
+                    .source(parts[1])
+                    .dest(parts[2])
+                    .directed(true)
+                    .property(TestPropertyNames.COUNT, 1)
                     .build();
         }
     }

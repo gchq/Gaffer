@@ -19,9 +19,12 @@ package uk.gov.gchq.gaffer.rest.service.v2;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
+import uk.gov.gchq.gaffer.core.exception.Error;
+import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.rest.ServiceConstants;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
@@ -99,7 +102,15 @@ public class PropertiesServiceV2 implements IPropertiesServiceV2 {
             prop = null;
         }
 
-        final ResponseBuilder builder = null == prop ? Response.status(404) : Response.ok(prop);
+        final ResponseBuilder builder = null == prop ? Response.status(404)
+                .entity(new Error.ErrorBuilder()
+                        .status(Status.NOT_FOUND)
+                        .statusCode(404)
+                        .simpleMessage("Property: " + propertyName + " could not be found.")
+                        .build())
+                .type(MediaType.APPLICATION_JSON_TYPE)
+                : Response.ok(prop)
+                .type(MediaType.TEXT_PLAIN_TYPE);
         return builder.header(ServiceConstants.GAFFER_MEDIA_TYPE_HEADER, ServiceConstants.GAFFER_MEDIA_TYPE).build();
     }
 }

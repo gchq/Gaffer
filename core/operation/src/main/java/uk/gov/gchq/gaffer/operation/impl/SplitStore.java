@@ -25,7 +25,9 @@ import java.util.Map;
  * based on a sequence file of split points.
  *
  * @see SplitStore.Builder
+ * @deprecated use {@link SplitStoreFromFile} instead
  */
+@Deprecated
 public class SplitStore implements Operation {
     @Required
     private String inputPath;
