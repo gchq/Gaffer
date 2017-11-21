@@ -73,7 +73,7 @@ The `GraphConfig` class contains:
  - `View` - The `View` defines the Elements to be returned when an Operation is run
    on the `Graph`. For example if you want your `Graph` to only show data with a count
    more than 10. you can define a `View` that has a global filter like this:
-   ```
+   ${JSON_CODE}
    "postAggregationFilterFunctions" : [ {
          "predicate" : {
            "class" : "uk.gov.gchq.koryphe.impl.predicate.IsLessThan",
@@ -82,7 +82,7 @@ The `GraphConfig` class contains:
          },
          "selection" : [ "ExamplePropertyName" ]
        } ]
-   ```
+   ${END_CODE}
    This would be merged into to all queries so users only see this particular view of the data.
    
  - `GraphLibrary` - This contains information about the `Schema` and `StoreProperties` to be used.
@@ -94,7 +94,7 @@ The `GraphConfig` class contains:
  
  Here is a full Java example of a `GraphConfig`, and below a json config example:
  
- ```
+ ${START_JAVA_CODE}
   new GraphConfig.Builder()
         .graphId("exampleGraphId")
         .view(new View.Builder()
@@ -109,9 +109,8 @@ The `GraphConfig` class contains:
         .description("Example Graph")
         .addHooks("path/to/hooks")
       .build();
- ```
  
- ```
+ ${JSON_CODE}
  {
    "graphId": "exampleGraphId",
    "description": "Example Graph",
@@ -157,5 +156,5 @@ The `GraphConfig` class contains:
      }
    ]
  }
- ```
+ ${END_CODE}
  
