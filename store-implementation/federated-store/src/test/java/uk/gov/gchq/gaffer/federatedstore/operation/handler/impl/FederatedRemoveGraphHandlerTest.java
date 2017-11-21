@@ -68,7 +68,7 @@ public class FederatedRemoveGraphHandlerTest {
 
         new FederatedRemoveGraphHandler().doOperation(
                 new RemoveGraph.Builder()
-                        .setGraphId(EXPECTED_GRAPH_ID)
+                        .graphId(EXPECTED_GRAPH_ID)
                         .build(),
                 new Context(testUser),
                 store);

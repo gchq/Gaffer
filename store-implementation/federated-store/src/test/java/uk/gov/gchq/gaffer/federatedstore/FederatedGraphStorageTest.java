@@ -341,7 +341,7 @@ public class FederatedGraphStorageTest {
         String graphId = a.getGraphId();
         Mockito.doThrow(new RuntimeException(testMockException))
                 .when(mock)
-                .add(graphId, a.getSchema(), a.getStoreProperties());
+                .checkExisting(graphId, a.getSchema(), a.getStoreProperties());
         graphStorage.setGraphLibrary(mock);
         try {
             graphStorage.put(a, access);
