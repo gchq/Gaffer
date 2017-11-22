@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.data;
+package uk.gov.gchq.gaffer.data.graph;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 
@@ -27,8 +26,6 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
-import uk.gov.gchq.gaffer.data.graph.Walk;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import java.util.ArrayList;
