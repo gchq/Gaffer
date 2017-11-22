@@ -16,13 +16,13 @@
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
-import com.esotericsoftware.kryo.Serializer;
 
 import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.HyperLogLogPlusSerialiser;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.WrappedKryoSerializer;
 
 /**
- * A Kryo {@link Serializer} for a {@link HyperLogLogPlus}.
+ * A {@code HyperLogLogPlusKryoSerializer} is a {@link com.esotericsoftware.kryo.Kryo} {@link com.esotericsoftware.kryo.Serializer} for
+ * a {@link HyperLogLogPlus}
  */
 public class HyperLogLogPlusKryoSerializer extends WrappedKryoSerializer<HyperLogLogPlusSerialiser, HyperLogLogPlus> {
 

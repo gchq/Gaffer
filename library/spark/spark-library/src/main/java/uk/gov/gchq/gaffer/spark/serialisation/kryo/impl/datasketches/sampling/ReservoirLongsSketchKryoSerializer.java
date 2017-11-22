@@ -15,13 +15,18 @@
  */
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.sampling;
 
-import com.yahoo.sketches.sampling.ReservoirLongsUnion;
-import uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation.ReservoirLongsUnionSerialiser;
+import com.yahoo.sketches.sampling.ReservoirLongsSketch;
+
+import uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation.ReservoirLongsSketchSerialiser;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.WrappedKryoSerializer;
 
-public class ReservoirLongsUnionKryoSerialiser extends WrappedKryoSerializer<ReservoirLongsUnionSerialiser, ReservoirLongsUnion> {
+/**
+ * A {@code ReservoirLongsSketchKryoSerializer} is a {@link com.esotericsoftware.kryo.Kryo} {@link com.esotericsoftware.kryo.Serializer} for
+ * a {@link ReservoirLongsSketch}
+ */
+public class ReservoirLongsSketchKryoSerializer extends WrappedKryoSerializer<ReservoirLongsSketchSerialiser, ReservoirLongsSketch> {
 
-    public ReservoirLongsUnionKryoSerialiser() {
-        super(new ReservoirLongsUnionSerialiser());
+    public ReservoirLongsSketchKryoSerializer() {
+        super(new ReservoirLongsSketchSerialiser());
     }
 }

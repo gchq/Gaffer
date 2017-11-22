@@ -19,10 +19,19 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
+/**
+ * A {@code WrappedKryoSerializer} is a utility class for any {@link Kryo} {@link Serializer}
+ * that wraps around any implementation of a Gaffer {@link ToBytesSerialiser}.
+ * Implementations should simply use their constructor to call super with the wrapped {@link ToBytesSerialiser}
+ * as the parameter.
+ * @param <S>   the serialiser being wrapped
+ * @param <T>   the type for which the serialiser is to serialise
+ */
 public abstract class WrappedKryoSerializer<S extends ToBytesSerialiser<T>, T> extends Serializer<T> {
     protected S serialiser;
 
@@ -37,8 +46,8 @@ public abstract class WrappedKryoSerializer<S extends ToBytesSerialiser<T>, T> e
             serialised = serialiser.serialise(obj);
         } catch (final SerialisationException e) {
             throw new GafferRuntimeException("Exception serialising "
-                                                     + obj.getClass().getSimpleName()
-                                                     + " to a byte array", e);
+                    + obj.getClass().getSimpleName()
+                    + " to a byte array", e);
         }
         output.writeInt(serialised.length);
         output.writeBytes(serialised);
@@ -52,8 +61,8 @@ public abstract class WrappedKryoSerializer<S extends ToBytesSerialiser<T>, T> e
             return serialiser.deserialise(serialised);
         } catch (final SerialisationException e) {
             throw new GafferRuntimeException("Exception deserialising "
-                                                     + type.getSimpleName()
-                                                     + " to a byte array", e);
+                    + type.getSimpleName()
+                    + " to a byte array", e);
         }
     }
 }

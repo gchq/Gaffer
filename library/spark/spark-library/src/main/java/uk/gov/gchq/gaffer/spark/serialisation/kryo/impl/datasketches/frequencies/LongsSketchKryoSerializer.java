@@ -16,9 +16,14 @@
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.frequencies;
 
 import com.yahoo.sketches.frequencies.LongsSketch;
+
 import uk.gov.gchq.gaffer.sketches.datasketches.frequencies.serialisation.LongsSketchSerialiser;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.WrappedKryoSerializer;
 
+/**
+ * A {@code LongsSketchKryoSerializer} is a {@link com.esotericsoftware.kryo.Kryo} {@link com.esotericsoftware.kryo.Serializer} for
+ * a {@link LongsSketch}
+ */
 public class LongsSketchKryoSerializer extends WrappedKryoSerializer<LongsSketchSerialiser, LongsSketch> {
 
     public LongsSketchKryoSerializer() {

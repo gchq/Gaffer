@@ -13,15 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.theta;
+package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.sampling;
 
-import com.yahoo.sketches.theta.Union;
-import uk.gov.gchq.gaffer.sketches.datasketches.theta.serialisation.UnionSerialiser;
+import com.yahoo.sketches.sampling.ReservoirLongsUnion;
+
+import uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation.ReservoirLongsUnionSerialiser;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.WrappedKryoSerializer;
 
-public class UnionKryoSerializer extends WrappedKryoSerializer<UnionSerialiser, Union> {
+/**
+ * A {@code ReservoirLongsUnionKryoSerializer} is a {@link com.esotericsoftware.kryo.Kryo} {@link com.esotericsoftware.kryo.Serializer} for
+ * a {@link ReservoirLongsUnion}
+ */
+public class ReservoirLongsUnionKryoSerializer extends WrappedKryoSerializer<ReservoirLongsUnionSerialiser, ReservoirLongsUnion> {
 
-    public UnionKryoSerializer() {
-        super(new UnionSerialiser());
+    public ReservoirLongsUnionKryoSerializer() {
+        super(new ReservoirLongsUnionSerialiser());
     }
 }

@@ -16,9 +16,14 @@
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.quantiles;
 
 import com.yahoo.sketches.quantiles.ItemsUnion;
+
 import uk.gov.gchq.gaffer.sketches.datasketches.quantiles.serialisation.StringsUnionSerialiser;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.WrappedKryoSerializer;
 
+/**
+ * A {@code StringsUnionKryoSerializer} is a {@link com.esotericsoftware.kryo.Kryo} {@link com.esotericsoftware.kryo.Serializer} for
+ * an {@link ItemsUnion} of type {@link String}
+ */
 public class StringsUnionKryoSerializer extends WrappedKryoSerializer<StringsUnionSerialiser, ItemsUnion<String>> {
 
     public StringsUnionKryoSerializer() {

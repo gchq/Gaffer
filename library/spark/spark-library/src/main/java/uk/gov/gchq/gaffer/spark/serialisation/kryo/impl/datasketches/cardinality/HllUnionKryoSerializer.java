@@ -16,10 +16,15 @@
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.cardinality;
 
 import com.yahoo.sketches.hll.Union;
+
 import uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation.HllUnionSerialiser;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.WrappedKryoSerializer;
 
-public class HllUnionKryoSerializer extends WrappedKryoSerializer<HllUnionSerialiser, Union>{
+/**
+ * A {@code HllUnionKryoSerializer} is a {@link com.esotericsoftware.kryo.Kryo} {@link com.esotericsoftware.kryo.Serializer} for
+ * a {@link Union}
+ */
+public class HllUnionKryoSerializer extends WrappedKryoSerializer<HllUnionSerialiser, Union> {
     public HllUnionKryoSerializer() {
         super(new HllUnionSerialiser());
     }

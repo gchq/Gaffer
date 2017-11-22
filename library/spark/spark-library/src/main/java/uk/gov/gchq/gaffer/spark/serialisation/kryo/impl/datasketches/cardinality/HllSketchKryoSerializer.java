@@ -15,13 +15,14 @@
  */
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.cardinality;
 
-import com.esotericsoftware.kryo.Serializer;
 import com.yahoo.sketches.hll.HllSketch;
+
 import uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation.HllSketchSerialiser;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.WrappedKryoSerializer;
 
 /**
- * A Kryo {@link Serializer} for a {@link HllSketch}.
+ * A {@code HllSketchKryoSerializer} is a {@link com.esotericsoftware.kryo.Kryo} {@link com.esotericsoftware.kryo.Serializer} for
+ * a {@link HllSketch}
  */
 public class HllSketchKryoSerializer extends WrappedKryoSerializer<HllSketchSerialiser, HllSketch> {
 
