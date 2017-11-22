@@ -44,7 +44,7 @@ along with any required connection details. See [Stores](https://gchq.github.io/
 The schema is passed to the store to instruct the store how to store
 and process the data. See [Schemas](https://gchq.github.io/gaffer-doc/getting-started/dev-guide.html#schemas) for more information.
 
-## GraphConfig
+## Graph Configuration
 The graph configuration allows you to apply special customisations to the Graph instance.
 The only required field is the `graphId`.
 
