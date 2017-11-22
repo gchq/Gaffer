@@ -583,7 +583,7 @@ public class FederatedStoreTest {
         try {
             store.execute(new AddGraph.Builder()
                     .graphId(ACC_ID_2)
-                    .parentPropertiesId(ID_PROPS_ACC_ALT)
+                    .parentPropertiesId(ID_PROPS_ACC_1)
                     .isPublic(true)
                     .build(), userContext);
             fail(EXCEPTION_NOT_THROWN);
