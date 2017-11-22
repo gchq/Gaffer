@@ -604,6 +604,7 @@ public class StoreTest {
                 Limit.class,
                 DiscardOutput.class,
                 GetSchema.class,
+                Map.class,
 
                 // Function
                 Filter.class,
