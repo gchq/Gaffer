@@ -85,7 +85,7 @@ public final class ViewUtil {
         final LinkedHashMap<String, ViewElementDefinition> edges = new LinkedHashMap<>(view.getEdges());
 
         if (null != groups) {
-            for (String group : groups) {
+            for (final String group : groups) {
                 entities.remove(group);
                 edges.remove(group);
             }
