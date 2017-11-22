@@ -15,19 +15,26 @@
  */
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.sampling;
 
-import com.yahoo.sketches.sampling.ReservoirLongsUnion;
+import com.yahoo.sketches.sampling.ReservoirLongsSketch;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
-public class ReservoirLongsUnionSerializerTest extends KryoSerializerTest<ReservoirLongsUnion> {
+import static org.junit.Assert.assertArrayEquals;
+
+public class ReservoirLongsSketchKryoSerializerTest extends KryoSerializerTest<ReservoirLongsSketch> {
 
     @Override
-    public Class<ReservoirLongsUnion> getTestClass() {
-        return ReservoirLongsUnion.class;
+    protected void shouldCompareSerialisedAndDeserialisedObjects(final ReservoirLongsSketch obj, final ReservoirLongsSketch deserialised) {
+        assertArrayEquals(obj.getSamples(), deserialised.getSamples());
     }
 
     @Override
-    public ReservoirLongsUnion getTestObject() {
-        final ReservoirLongsUnion union = ReservoirLongsUnion.newInstance(20);
+    public Class<ReservoirLongsSketch> getTestClass() {
+        return ReservoirLongsSketch.class;
+    }
+
+    @Override
+    public ReservoirLongsSketch getTestObject() {
+        final ReservoirLongsSketch union = ReservoirLongsSketch.newInstance(20);
         union.update(1L);
         union.update(2L);
         union.update(3L);

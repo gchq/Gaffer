@@ -18,7 +18,14 @@ package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.sampling;
 import com.yahoo.sketches.sampling.ReservoirItemsUnion;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
+import static org.junit.Assert.assertArrayEquals;
+
 public class ReservoirStringsUnionKryoSerializerTest extends KryoSerializerTest<ReservoirItemsUnion> {
+
+    @Override
+    protected void shouldCompareSerialisedAndDeserialisedObjects(final ReservoirItemsUnion obj, final ReservoirItemsUnion deserialised) {
+        assertArrayEquals(obj.getResult().getSamples(), deserialised.getResult().getSamples());
+    }
 
     @Override
     public Class<ReservoirItemsUnion> getTestClass() {

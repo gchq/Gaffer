@@ -20,7 +20,6 @@ import uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation.HllUni
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.WrappedKryoSerializer;
 
 public class HllUnionKryoSerializer extends WrappedKryoSerializer<HllUnionSerialiser, Union>{
-
     public HllUnionKryoSerializer() {
         super(new HllUnionSerialiser());
     }

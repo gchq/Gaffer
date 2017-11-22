@@ -16,9 +16,13 @@
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.cardinality;
 
 import com.yahoo.sketches.hll.HllSketch;
+
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
+import static org.junit.Assert.assertEquals;
+
 public class HllSketchKryoSerializerTest extends KryoSerializerTest<HllSketch> {
+    private static final double DELTA = 0.0000001D;
 
     @Override
     public Class<HllSketch> getTestClass() {
@@ -32,5 +36,10 @@ public class HllSketchKryoSerializerTest extends KryoSerializerTest<HllSketch> {
         sketch.update("B");
         sketch.update("C");
         return sketch;
+    }
+
+    @Override
+    protected void shouldCompareSerialisedAndDeserialisedObjects(final HllSketch obj, final HllSketch deserialised) {
+        assertEquals(obj.getEstimate(), deserialised.getEstimate(), DELTA);
     }
 }

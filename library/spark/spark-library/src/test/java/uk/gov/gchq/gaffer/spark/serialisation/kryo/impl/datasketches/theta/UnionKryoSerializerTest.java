@@ -19,7 +19,15 @@ import com.yahoo.sketches.theta.SetOperation;
 import com.yahoo.sketches.theta.Union;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
+import static org.junit.Assert.assertEquals;
+
 public class UnionKryoSerializerTest extends KryoSerializerTest<Union> {
+    private static final double DELTA = 0.01D;
+
+    @Override
+    protected void shouldCompareSerialisedAndDeserialisedObjects(final Union obj, final Union deserialised) {
+        assertEquals(obj.getResult().getEstimate(), deserialised.getResult().getEstimate(), DELTA);
+    }
 
     @Override
     public Class<Union> getTestClass() {

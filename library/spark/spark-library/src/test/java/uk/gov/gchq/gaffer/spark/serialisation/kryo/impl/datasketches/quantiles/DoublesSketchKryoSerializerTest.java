@@ -19,7 +19,16 @@ import com.yahoo.sketches.quantiles.DoublesSketch;
 import com.yahoo.sketches.quantiles.UpdateDoublesSketch;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
+import static org.junit.Assert.assertEquals;
+
 public class DoublesSketchKryoSerializerTest extends KryoSerializerTest<DoublesSketch> {
+    private static final double DELTA = 0.01D;
+
+    @Override
+    protected void shouldCompareSerialisedAndDeserialisedObjects(final DoublesSketch obj, final DoublesSketch deserialised) {
+        final double fraction = 0.5D;
+        assertEquals(obj.getQuantile(fraction), deserialised.getQuantile(fraction), DELTA);
+    }
 
     @Override
     public Class<DoublesSketch> getTestClass() {

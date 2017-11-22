@@ -19,7 +19,15 @@ import com.google.common.collect.Ordering;
 import com.yahoo.sketches.quantiles.ItemsUnion;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
+import static org.junit.Assert.assertEquals;
+
 public class StringsUnionKryoSerializerTest extends KryoSerializerTest<ItemsUnion> {
+
+    @Override
+    protected void shouldCompareSerialisedAndDeserialisedObjects(final ItemsUnion obj, final ItemsUnion deserialised) {
+        final double fraction = 0.5D;
+        assertEquals(obj.getResult().getQuantile(fraction), deserialised.getResult().getQuantile(fraction));
+    }
 
     @Override
     public Class<ItemsUnion> getTestClass() {

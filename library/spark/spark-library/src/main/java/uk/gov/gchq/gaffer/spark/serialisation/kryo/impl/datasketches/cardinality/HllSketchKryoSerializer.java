@@ -28,5 +28,4 @@ public class HllSketchKryoSerializer extends WrappedKryoSerializer<HllSketchSeri
     public HllSketchKryoSerializer() {
         super(new HllSketchSerialiser());
     }
-
 }

@@ -67,17 +67,15 @@ public class Registrator implements KryoRegistrator {
     private List<Registration> setup() {
         List<Registration> registrations = new ArrayList<>();
         Registration compactDoublesReg = new Registration(CompactDoublesSketch.class, new DoublesSketchKryoSerializer(), 200);
-        compactDoublesReg.setInstantiator(new NewInstanceInstantiator(CompactDoublesSketch.class));
+        compactDoublesReg.setInstantiator(new NewInstanceInstantiator<>(CompactDoublesSketch.class));
         registrations.add(compactDoublesReg);
 
         Registration updateDoublesReg = new Registration(UpdateDoublesSketch.class, new DoublesSketchKryoSerializer(), 201);
-        updateDoublesReg.setInstantiator(new NewInstanceInstantiator(UpdateDoublesSketch.class));
+        updateDoublesReg.setInstantiator(new NewInstanceInstantiator<>(UpdateDoublesSketch.class));
         registrations.add(updateDoublesReg);
 
         return registrations;
     }
-
-
 
     @Override
     public void registerClasses(final Kryo kryo) {

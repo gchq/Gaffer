@@ -18,7 +18,16 @@ package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.quantiles;
 import com.yahoo.sketches.quantiles.DoublesUnion;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
+import static org.junit.Assert.assertEquals;
+
 public class DoublesUnionKryoSerializerTest extends KryoSerializerTest<DoublesUnion> {
+    private static final double DELTA = 0.01D;
+
+    @Override
+    protected void shouldCompareSerialisedAndDeserialisedObjects(final DoublesUnion obj, final DoublesUnion deserialised) {
+        final double fraction = 0.5D;
+        assertEquals(obj.getResult().getQuantile(fraction), deserialised.getResult().getQuantile(fraction), DELTA);
+    }
 
     @Override
     public Class<DoublesUnion> getTestClass() {

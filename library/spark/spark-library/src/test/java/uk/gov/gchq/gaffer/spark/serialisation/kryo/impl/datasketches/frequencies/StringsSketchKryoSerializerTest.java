@@ -18,7 +18,14 @@ package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.frequencie
 import com.yahoo.sketches.frequencies.ItemsSketch;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
+import static org.junit.Assert.assertEquals;
+
 public class StringsSketchKryoSerializerTest extends KryoSerializerTest<ItemsSketch> {
+
+    @Override
+    protected void shouldCompareSerialisedAndDeserialisedObjects(final ItemsSketch obj, final ItemsSketch deserialised) {
+        assertEquals(obj.getEstimate("1"), deserialised.getEstimate("1"));
+    }
 
     @Override
     public Class<ItemsSketch> getTestClass() {
