@@ -83,14 +83,8 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
 
     private int hops;
 
-    /**
-     * Can be set by modifying operationDeclarations.json.
-     */
     private Integer maxHops = null;
 
-    /**
-     * Can be set by modifying operationDeclarations.json.
-     */
     private boolean prune = true;
 
     @Override
