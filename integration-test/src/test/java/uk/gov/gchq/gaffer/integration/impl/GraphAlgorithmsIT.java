@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -46,9 +47,7 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -62,14 +61,41 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
     @Before
     public void setup() throws Exception {
         super.setup();
-        // Replace with AddElements operation
-
         addDefaultElements();
     }
 
     @Test
     public void shouldGetPaths() throws Exception {
         // Given
+        final User user = new User();
+
+        final EntitySeed seed = new EntitySeed("A");
+
+        final GetElements operation = new GetElements.Builder()
+                .directedType(DirectedType.DIRECTED)
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .properties(TestPropertyNames.COUNT)
+                                .build())
+                        .build()).inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
+                .build();
+
+        final GetWalks op = new GetWalks.Builder()
+                .input(seed)
+                .operations(operation, operation)
+                .build();
+
+        // When
+        final Iterable<Walk> results = graph.execute(op, user);
+
+        // Then
+        assertThat(getPaths(results), is(equalTo("AED,ABC")));
+    }
+
+    @Test
+    public void shouldGetPathsWithPruning() throws Exception {
+        // Given
+        withPruning();
         final User user = new User();
 
         final EntitySeed seed = new EntitySeed("A");
@@ -494,5 +520,13 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
         }
         sb.setLength(sb.length() - 1);
         return sb.toString();
+    }
+
+    public void withPruning() throws OperationException {
+        final StoreProperties storeProperties = getStoreProperties();
+        storeProperties.setOperationDeclarationPaths("getWalksWithPruningDeclaration.json");
+        addStoreProperties(storeProperties);
+
+        addDefaultElements();
     }
 }
