@@ -198,7 +198,7 @@ public class VisibilityIT extends AbstractStoreIT {
         final CloseableIterable<? extends Element> iterable = graph.execute(get, USER_DEFAULT);
 
         final List<Element> results = Lists.newArrayList(iterable);
-        
+
         // Check for all entities which should be visible
         assertThat("Results do not contain all expected entities.", results, hasSize(1));
 

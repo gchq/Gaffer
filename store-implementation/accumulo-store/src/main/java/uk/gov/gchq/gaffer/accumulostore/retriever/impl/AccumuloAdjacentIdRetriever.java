@@ -80,6 +80,10 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
     public CloseableIterator<EntityId> iterator() {
         CloseableUtil.close(iterator);
 
+        if (!operation.getView().hasEdges()) {
+            return new EmptyCloseableIterator<>();
+        }
+        
         final Iterator<? extends ElementId> idIterator = null != ids ? ids.iterator() : Iterators.emptyIterator();
         if (!idIterator.hasNext()) {
             return new EmptyCloseableIterator<>();
