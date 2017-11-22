@@ -38,10 +38,10 @@ import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
-import uk.gov.gchq.koryphe.util.IterableUtil;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -425,6 +425,28 @@ public class MapHandlerTest {
             } finally {
                 CloseableUtil.close(input);
             }
+        }
+    }
+
+    private static class IterableUtil {
+        private IterableUtil() {
+            // Empty
+        }
+
+        public static <I_ITEM, O_ITEM> Iterable<O_ITEM> applyFunction(final Iterable<I_ITEM> input, final Function<I_ITEM, O_ITEM> function) {
+            return () -> new Iterator<O_ITEM>() {
+                Iterator<? extends I_ITEM> iterator = input.iterator();
+
+                @Override
+                public boolean hasNext() {
+                    return iterator.hasNext();
+                }
+
+                @Override
+                public O_ITEM next() {
+                    return function.apply(iterator.next());
+                }
+            };
         }
     }
 }
