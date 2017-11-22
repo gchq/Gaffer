@@ -766,9 +766,11 @@ public abstract class Store {
         addOperationHandler(GetExports.class, new GetExportsHandler());
 
         // Jobs
-        addOperationHandler(GetJobDetails.class, new GetJobDetailsHandler());
-        addOperationHandler(GetAllJobDetails.class, new GetAllJobDetailsHandler());
-        addOperationHandler(GetJobResults.class, new GetJobResultsHandler());
+        if (null != getJobTracker()) {
+            addOperationHandler(GetJobDetails.class, new GetJobDetailsHandler());
+            addOperationHandler(GetAllJobDetails.class, new GetAllJobDetailsHandler());
+            addOperationHandler(GetJobResults.class, new GetJobResultsHandler());
+        }
 
         // Output
         addOperationHandler(ToArray.class, new ToArrayHandler<>());
