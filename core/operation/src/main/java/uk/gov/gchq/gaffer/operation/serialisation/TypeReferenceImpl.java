@@ -144,7 +144,7 @@ public final class TypeReferenceImpl {
 
     public static class IterableObject extends TypeReference<Iterable<? extends java.lang.Object>> {
     }
-  
+
     public static class ListString extends TypeReference<java.util.List<java.lang.String>> {
     }
 
