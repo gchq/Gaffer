@@ -16,12 +16,15 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.graph.Walk;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -29,6 +32,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertNotNull;
 
 public class GetWalksHandlerTest {
 
@@ -70,6 +74,20 @@ public class GetWalksHandlerTest {
 
         // Then
         assertThat(result, is(new EmptyClosableIterable<>()));
+    }
+
+    @Test
+    public void shouldSerialiseDeserialise() throws SerialisationException, JsonProcessingException {
+        // Given
+        final GetWalksHandler obj = new GetWalksHandler();
+        obj.setPrune(true);
+
+        // When
+        final byte[] json = JSONSerialiser.serialise(obj, true);
+        final GetWalksHandler deserialisedObj = JSONSerialiser.deserialise(json, GetWalksHandler.class);
+
+        // Then
+        assertNotNull(deserialisedObj);
     }
 
 }

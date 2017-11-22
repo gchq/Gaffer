@@ -13,14 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.rest.service.v1;
 
-import uk.gov.gchq.gaffer.rest.AbstractRestApiIT;
-
-public class AbstractRestApiV1IT extends AbstractRestApiIT<RestApiV1TestClient> {
-
-    @Override
-    protected RestApiV1TestClient getClient() {
-        return new RestApiV1TestClient();
-    }
-}
+/**
+ * Data objects used by Gaffer which are related to graph adjacency concepts.
+ */
+package uk.gov.gchq.gaffer.data.graph.adjacency;
