@@ -25,6 +25,8 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.Operation;
 
+import java.util.List;
+
 /**
  * An {@code OperationView} operation contains a {@link View} and can carry out
  * additional validation based on the view contents.
@@ -119,6 +121,22 @@ public interface OperationView {
         }
         final ViewElementDefinition elementDef = getView().getElement(element.getGroup());
         return null != elementDef && (null == elementDef.getPostTransformFilter() || elementDef.getPostTransformFilter().test(element));
+    }
+
+    /**
+     * Merges a list of {@link View}s, including the current if set, and sets the {@link OperationView} to the new merged {@link View}.
+     *
+     * @param views the list of views to merge
+     */
+    default void mergeAndSetView(final List<View> views) {
+        final View.Builder builder = new View.Builder();
+
+        if (null != getView()) {
+            builder.merge(getView());
+        }
+        views.forEach(view -> builder.merge(view));
+
+        setView(builder.build());
     }
 
     interface Builder<OP extends OperationView, B extends Builder<OP, ?>> extends Operation.Builder<OP, B> {
