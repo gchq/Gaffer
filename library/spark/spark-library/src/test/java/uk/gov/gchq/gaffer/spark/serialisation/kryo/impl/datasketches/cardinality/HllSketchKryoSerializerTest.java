@@ -13,27 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl;
+package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.cardinality;
+
+import com.yahoo.sketches.hll.HllSketch;
 
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
-import uk.gov.gchq.gaffer.types.TypeValue;
 
 import static org.junit.Assert.assertEquals;
 
-public class TypeValueKryoSerializerTest extends KryoSerializerTest<TypeValue> {
+public class HllSketchKryoSerializerTest extends KryoSerializerTest<HllSketch> {
+    private static final double DELTA = 0.0000001D;
 
     @Override
-    protected void shouldCompareSerialisedAndDeserialisedObjects(final TypeValue obj, final TypeValue deserialised) {
-        assertEquals(obj, deserialised);
+    public Class<HllSketch> getTestClass() {
+        return HllSketch.class;
     }
 
     @Override
-    protected Class<TypeValue> getTestClass() {
-        return TypeValue.class;
+    public HllSketch getTestObject() {
+        final HllSketch sketch = new HllSketch(15);
+        sketch.update("A");
+        sketch.update("B");
+        sketch.update("C");
+        return sketch;
     }
 
     @Override
-    protected TypeValue getTestObject() {
-        return new TypeValue("type", "value");
+    protected void shouldCompareSerialisedAndDeserialisedObjects(final HllSketch obj, final HllSketch deserialised) {
+        assertEquals(obj.getEstimate(), deserialised.getEstimate(), DELTA);
     }
 }
