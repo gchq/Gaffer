@@ -23,6 +23,9 @@ public final class ServiceConstants {
     // REST Headers
     public static final String GAFFER_MEDIA_TYPE_HEADER = "X-Gaffer-Media-Type";
     public static final String GAFFER_MEDIA_TYPE;
+    public static final String GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION = "The gaffer media type containing the REST API version.";
+    public static final String JOB_ID_HEADER = "job-id";
+    public static final String JOB_ID_HEADER_DESCRIPTION = "The job execution ID.";
 
     // REST status error messages
     public static final String OK = "OK";
