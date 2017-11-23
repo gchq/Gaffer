@@ -16,20 +16,16 @@
 
 package uk.gov.gchq.gaffer.named.view;
 
-import org.apache.commons.lang3.exception.CloneFailedException;
-
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.Operation;
 
 import java.util.Map;
 
-public class NamedView extends View implements Operation {
+public class NamedView extends View {
 
     @Required
     private String viewName;
     private Map<String, Object> parameters;
-    private Map<String, String> options;
 
     public void setViewName(String viewName) {
         this.viewName = viewName;
@@ -47,38 +43,44 @@ public class NamedView extends View implements Operation {
         return parameters;
     }
 
-    @Override
-    public Map<String, String> getOptions() {
-        return options;
+    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>> extends View.BaseBuilder<CHILD_CLASS> {
+        private final NamedView namedView;
+
+        public BaseBuilder() {
+            this.namedView = new NamedView();
+        }
+
+        public BaseBuilder(NamedView namedView) {
+            this.namedView = namedView;
+        }
+
+        public CHILD_CLASS name(final String viewName){
+            namedView.setViewName(viewName);
+            return self();
+        }
+
+        public CHILD_CLASS parameters(final Map<String, Object> parameters) {
+            namedView.setParameters(parameters);
+            return self();
+        }
+
+        @Override
+        public NamedView build() {
+            return self().build();
+        }
     }
 
-    @Override
-    public void setOptions(final Map<String, String> options) {
-        this.options = options;
-    }
-
-    @Override
-    public Operation shallowClone() throws CloneFailedException {
-        return new NamedView.Builder()
-                .name(viewName)
-                .parameters(parameters)
-                .options(options)
-                .build();
-    }
-
-    public static class Builder extends Operation.BaseBuilder<NamedView, Builder> {
+    public static final class Builder extends BaseBuilder<Builder> {
         public Builder() {
-            super(new NamedView());
         }
 
-        public Builder name(final String viewName) {
-            _getOp().setViewName(viewName);
-            return _self();
+        public Builder(NamedView namedView){
+            super(namedView);
         }
 
-        public Builder parameters(final Map<String, Object> parameters) {
-            _getOp().setParameters(parameters);
-            return _self();
+        @Override
+        protected Builder self() {
+            return this;
         }
     }
 }
