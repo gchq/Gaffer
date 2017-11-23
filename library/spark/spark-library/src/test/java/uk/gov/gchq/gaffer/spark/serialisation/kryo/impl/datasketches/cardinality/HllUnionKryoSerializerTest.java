@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,31 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl;
+package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.cardinality;
 
-import uk.gov.gchq.gaffer.data.element.Entity;
+import com.yahoo.sketches.hll.Union;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
 import static org.junit.Assert.assertEquals;
 
-public class EntityKryoSerializerTest extends KryoSerializerTest<Entity> {
+public class HllUnionKryoSerializerTest extends KryoSerializerTest<Union> {
+    private static final double DELTA = 0.0000001D;
 
     @Override
-    protected void shouldCompareSerialisedAndDeserialisedObjects(final Entity obj, final Entity deserialised) {
-        assertEquals(obj, deserialised);
+    protected void shouldCompareSerialisedAndDeserialisedObjects(final Union obj, final Union deserialised) {
+        assertEquals(obj.getEstimate(), deserialised.getEstimate(), DELTA);
     }
 
     @Override
-    protected Class<Entity> getTestClass() {
-        return Entity.class;
+    public Class<Union> getTestClass() {
+        return Union.class;
     }
 
     @Override
-    protected Entity getTestObject() {
-        return new Entity.Builder()
-                .group("group")
-                .vertex("abc")
-                .property("property1", 1)
-                .build();
+    public Union getTestObject() {
+        final Union union = new Union(15);
+        union.update("A");
+        union.update("B");
+        union.update("C");
+        return union;
     }
 }

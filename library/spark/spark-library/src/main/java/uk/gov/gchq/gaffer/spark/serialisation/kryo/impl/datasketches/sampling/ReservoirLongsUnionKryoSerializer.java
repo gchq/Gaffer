@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl;
+package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.sampling;
 
-import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
+import com.yahoo.sketches.sampling.ReservoirLongsUnion;
 
-import uk.gov.gchq.gaffer.sketches.clearspring.cardinality.serialisation.HyperLogLogPlusSerialiser;
+import uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation.ReservoirLongsUnionSerialiser;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.WrappedKryoSerializer;
 
 /**
- * A {@code HyperLogLogPlusKryoSerializer} is a {@link com.esotericsoftware.kryo.Kryo} {@link com.esotericsoftware.kryo.Serializer} for
- * a {@link HyperLogLogPlus}
+ * A {@code ReservoirLongsUnionKryoSerializer} is a {@link com.esotericsoftware.kryo.Kryo} {@link com.esotericsoftware.kryo.Serializer} for
+ * a {@link ReservoirLongsUnion}
  */
-public class HyperLogLogPlusKryoSerializer extends WrappedKryoSerializer<HyperLogLogPlusSerialiser, HyperLogLogPlus> {
+public class ReservoirLongsUnionKryoSerializer extends WrappedKryoSerializer<ReservoirLongsUnionSerialiser, ReservoirLongsUnion> {
 
-    public HyperLogLogPlusKryoSerializer() {
-        super(new HyperLogLogPlusSerialiser());
+    public ReservoirLongsUnionKryoSerializer() {
+        super(new ReservoirLongsUnionSerialiser());
     }
 }

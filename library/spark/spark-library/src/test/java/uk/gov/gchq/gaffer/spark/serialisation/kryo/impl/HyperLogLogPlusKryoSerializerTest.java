@@ -33,11 +33,6 @@ import static org.junit.Assert.assertEquals;
 
 public class HyperLogLogPlusKryoSerializerTest extends KryoSerializerTest<HyperLogLogPlus> {
 
-    private final Kryo kryo = new Kryo();
-
-    @Before
-    public void setup() { new Registrator().registerClasses(kryo); }
-
     @Override
     protected Class<HyperLogLogPlus> getTestClass() {
         return HyperLogLogPlus.class;
@@ -50,23 +45,8 @@ public class HyperLogLogPlusKryoSerializerTest extends KryoSerializerTest<HyperL
         return hyperLogLogPlus;
     }
 
-    @Test
     @Override
-    public void shouldSerialiseAndDeserialise() {
-        // Given
-        final HyperLogLogPlus obj = getTestObject();
-
-        // When
-        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        final Output output = new Output(byteArrayOutputStream);
-        kryo.writeObject(output, obj);
-        output.close();
-        final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
-        final Input input = new Input(byteArrayInputStream);
-        final HyperLogLogPlus read = kryo.readObject(input, getTestClass());
-        input.close();
-
-        // Then
-        assertEquals(obj.cardinality(), read.cardinality());
+    protected void shouldCompareSerialisedAndDeserialisedObjects(final HyperLogLogPlus obj, final HyperLogLogPlus deserialised) {
+        assertEquals(obj.cardinality(), deserialised.cardinality());
     }
 }

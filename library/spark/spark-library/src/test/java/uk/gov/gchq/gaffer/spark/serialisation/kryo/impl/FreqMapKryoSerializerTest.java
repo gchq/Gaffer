@@ -18,7 +18,14 @@ package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 import uk.gov.gchq.gaffer.types.FreqMap;
 
+import static org.junit.Assert.assertEquals;
+
 public class FreqMapKryoSerializerTest extends KryoSerializerTest<FreqMap> {
+
+    @Override
+    protected void shouldCompareSerialisedAndDeserialisedObjects(final FreqMap obj, final FreqMap deserialised) {
+        assertEquals(obj, deserialised);
+    }
 
     @Override
     protected Class<FreqMap> getTestClass() {
