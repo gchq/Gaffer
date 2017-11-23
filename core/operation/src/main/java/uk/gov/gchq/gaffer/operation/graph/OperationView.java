@@ -128,7 +128,7 @@ public interface OperationView {
      *
      * @param views the list of views to merge
      */
-    default void mergeAndSetView(final List<View> views) {
+    default void setViews(final List<View> views) {
         final View.Builder builder = new View.Builder();
 
         if (null != getView()) {
