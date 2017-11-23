@@ -21,14 +21,16 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
-import uk.gov.gchq.gaffer.operation.Validatable;
+import uk.gov.gchq.gaffer.flink.operation.handler.util.FlinkConstants;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromSocket;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.Collections;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
@@ -36,27 +38,39 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class GafferAdderTest {
+    private static final String MAX_QUEUE_SIZE_OPTION = "10";
+    private static final int MAX_QUEUE_SIZE_VALUE = Integer.parseInt(MAX_QUEUE_SIZE_OPTION);
+
     @Test
     public void shouldAddElementsToStore() throws Exception {
         // Given
-        final Validatable op = mock(Validatable.class);
+        final AddElementsFromSocket op = mock(AddElementsFromSocket.class);
         final Store store = mock(Store.class);
         given(store.getProperties()).willReturn(new StoreProperties());
         given(store.getSchema()).willReturn(new Schema());
         given(op.isValidate()).willReturn(true);
         given(op.isSkipInvalidElements()).willReturn(false);
+        given(op.getOption(FlinkConstants.MAX_QUEUE_SIZE)).willReturn(MAX_QUEUE_SIZE_OPTION);
+        final Element element = mock(Element.class);
 
         final GafferAdder adder = new GafferAdder(op, store);
 
         // When
-        adder.add(FlinkTest.EXPECTED_ELEMENTS);
+        adder.add(element);
 
         // Then
         final ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
         verify(store).runAsync(runnableCaptor.capture());
         runnableCaptor.getValue().run();
+
+        ArgumentCaptor<AddElements> opCaptor = ArgumentCaptor.forClass(AddElements.class);
+        verify(store).execute(
+                opCaptor.capture(),
+                Mockito.any()
+        );
+
         verify(store).execute(Mockito.eq(new AddElements.Builder()
-                .input(new GafferQueue<>(new ConcurrentLinkedQueue<>(FlinkTest.EXPECTED_ELEMENTS)))
+                .input(new GafferQueue<>(new ArrayBlockingQueue<>(MAX_QUEUE_SIZE_VALUE, false, Collections.singleton(element))))
                 .validate(true)
                 .skipInvalidElements(false)
                 .build()), Mockito.any());
@@ -65,23 +79,26 @@ public class GafferAdderTest {
     @Test
     public void shouldRestartAddElementsIfPauseInIngest() throws Exception {
         // Given
-        final Validatable op = mock(Validatable.class);
+        final AddElementsFromSocket op = mock(AddElementsFromSocket.class);
         final Store store = mock(Store.class);
         given(store.getProperties()).willReturn(new StoreProperties());
         given(store.getSchema()).willReturn(new Schema());
         given(op.isValidate()).willReturn(true);
         given(op.isSkipInvalidElements()).willReturn(false);
+        given(op.getOption(FlinkConstants.MAX_QUEUE_SIZE)).willReturn(MAX_QUEUE_SIZE_OPTION);
+        final Element element = mock(Element.class);
+        final Element element2 = mock(Element.class);
 
         final GafferAdder adder = new GafferAdder(op, store);
 
         // When
-        adder.add(FlinkTest.EXPECTED_ELEMENTS);
+        adder.add(element);
 
         // Then
         final ArgumentCaptor<Runnable> runnableCaptor1 = ArgumentCaptor.forClass(Runnable.class);
         verify(store).runAsync(runnableCaptor1.capture());
         runnableCaptor1.getValue().run();
-        final ConcurrentLinkedQueue<Element> expectedQueue = new ConcurrentLinkedQueue<>(FlinkTest.EXPECTED_ELEMENTS);
+        final BlockingQueue<Element> expectedQueue = new ArrayBlockingQueue<>(MAX_QUEUE_SIZE_VALUE, false, Collections.singleton(element));
         verify(store).execute(Mockito.eq(new AddElements.Builder()
                 .input(new GafferQueue<>(expectedQueue))
                 .validate(true)
@@ -90,14 +107,14 @@ public class GafferAdderTest {
         Mockito.reset(store);
 
         // When
-        adder.add(FlinkTest.EXPECTED_ELEMENTS_2);
+        adder.add(element2);
 
         // Then
         final ArgumentCaptor<Runnable> runnableCaptor2 = ArgumentCaptor.forClass(Runnable.class);
         verify(store).runAsync(runnableCaptor2.capture());
         runnableCaptor2.getValue().run();
         // As the queue has not been consumed the original elements will still be on the queue.
-        expectedQueue.addAll(FlinkTest.EXPECTED_ELEMENTS_2);
+        expectedQueue.put(element2);
         verify(store).execute(Mockito.eq(new AddElements.Builder()
                 .input(new GafferQueue<>(expectedQueue))
                 .validate(true)
@@ -109,18 +126,19 @@ public class GafferAdderTest {
     public void shouldAddElementsIfInvokeCalledMultipleTimes() throws Exception {
         // Given
         final int duplicates = 4;
-        final Validatable op = mock(Validatable.class);
+        final AddElementsFromSocket op = mock(AddElementsFromSocket.class);
         final Store store = mock(Store.class);
         given(store.getProperties()).willReturn(new StoreProperties());
         given(store.getSchema()).willReturn(new Schema());
         given(op.isValidate()).willReturn(true);
         given(op.isSkipInvalidElements()).willReturn(false);
-
+        given(op.getOption(FlinkConstants.MAX_QUEUE_SIZE)).willReturn(MAX_QUEUE_SIZE_OPTION);
+        final Element element = mock(Element.class);
         final GafferAdder adder = new GafferAdder(op, store);
 
         // When
         for (int i = 0; i < duplicates; i++) {
-            adder.add(FlinkTest.EXPECTED_ELEMENTS);
+            adder.add(element);
         }
 
         // Then
@@ -128,12 +146,12 @@ public class GafferAdderTest {
         verify(store).runAsync(runnableCaptor1.capture());
         assertEquals(1, runnableCaptor1.getAllValues().size());
         runnableCaptor1.getValue().run();
-        final ConcurrentLinkedQueue<Element> expectedQueue = new ConcurrentLinkedQueue<>();
+        final BlockingQueue<Element> expectedQueue = new ArrayBlockingQueue<>(MAX_QUEUE_SIZE_VALUE);
         for (int i = 0; i < duplicates; i++) {
-            expectedQueue.addAll(FlinkTest.EXPECTED_ELEMENTS);
+            expectedQueue.put(element);
         }
         verify(store).execute(Mockito.eq(new AddElements.Builder()
-                .input(new GafferQueue<>(new ConcurrentLinkedQueue<>(expectedQueue)))
+                .input(new GafferQueue<>(expectedQueue))
                 .validate(true)
                 .skipInvalidElements(false)
                 .build()), Mockito.any());

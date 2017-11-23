@@ -24,6 +24,7 @@ import javax.annotation.Nonnull;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -33,10 +34,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * @param <T> the type of object in the queue
  */
 public class GafferQueue<T> implements Iterable<T> {
-    private final ConcurrentLinkedQueue<T> queue;
+    private final BlockingQueue<T> queue;
     private boolean iteratorAvailable = true;
 
-    public GafferQueue(final ConcurrentLinkedQueue<T> queue) {
+    public GafferQueue(final BlockingQueue<T> queue) {
         this.queue = queue;
     }
 

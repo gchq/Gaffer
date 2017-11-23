@@ -16,7 +16,10 @@
 package uk.gov.gchq.gaffer.flink.operation.handler;
 
 import org.apache.flink.api.java.ExecutionEnvironment;
+import org.apache.flink.api.java.operators.FlatMapOperator;
 
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.flink.operation.handler.util.FlinkConstants;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromFile;
 import uk.gov.gchq.gaffer.store.Context;
@@ -24,11 +27,17 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 /**
+ * <p>
  * A {@code AddElementsFromFileHandler} handles the {@link AddElementsFromFile}
  * operation.
- *
+ * </p>
+ * <p>
  * This uses Flink to stream the {@link uk.gov.gchq.gaffer.data.element.Element}
  * objects from a file into Gaffer.
+ * </p>
+ * <p>
+ * Rebalancing can be skipped by setting the operation option: gaffer.flink.operation.handler.skip-rebalancing to true
+ * </p>
  */
 public class AddElementsFromFileHandler implements OperationHandler<AddElementsFromFile> {
     @Override
@@ -38,11 +47,15 @@ public class AddElementsFromFileHandler implements OperationHandler<AddElementsF
             env.setParallelism(op.getParallelism());
         }
 
-        env.readTextFile(op.getFilename())
-                .map(new GafferMapFunction(op.getElementGenerator()))
-                .returns(GafferMapFunction.RETURN_CLASS)
-                .rebalance()
-                .output(new GafferOutput(op, store));
+        final FlatMapOperator<String, Element> builder =
+                env.readTextFile(op.getFilename())
+                        .flatMap(new GafferMapFunction(op.getElementGenerator()));
+
+        if (Boolean.parseBoolean(op.getOption(FlinkConstants.SKIP_REBALANCING))) {
+            builder.output(new GafferOutput(op, store));
+        } else {
+            builder.rebalance().output(new GafferOutput(op, store));
+        }
 
         try {
             env.execute(op.getClass().getSimpleName() + "-" + op.getFilename());

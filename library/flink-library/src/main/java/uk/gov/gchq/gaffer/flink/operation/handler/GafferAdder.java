@@ -15,10 +15,11 @@
  */
 package uk.gov.gchq.gaffer.flink.operation.handler;
 
-import com.google.common.collect.Iterables;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.flink.operation.handler.util.FlinkConstants;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.Validatable;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -30,7 +31,8 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.io.Serializable;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * Helper class to add {@link Element}s to a Gaffer store.
@@ -38,21 +40,25 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 @SuppressFBWarnings(value = "SE_TRANSIENT_FIELD_NOT_RESTORED", justification = "There are null checks that will initialise the fields")
 public class GafferAdder implements Serializable {
     private static final long serialVersionUID = -3418606107861031989L;
+    public static final int MAX_QUEUE_SIZE_DEFAULT = 1000000;
 
     private final String graphId;
     private final byte[] schema;
     private final Properties properties;
     private final boolean validate;
-    private final boolean skipInvalid;
+    private final int maxQueueSize;
 
+    private final boolean skipInvalid;
     private transient Store store;
-    private transient ConcurrentLinkedQueue<Element> queue;
+    private transient BlockingQueue<Element> queue;
     private transient boolean restart;
 
-    public GafferAdder(final Validatable validatable, final Store store) {
+    public <OP extends Validatable & Operation> GafferAdder(final OP operation, final Store store) {
         this.store = store;
-        this.validate = validatable.isValidate();
-        this.skipInvalid = validatable.isSkipInvalidElements();
+        this.validate = operation.isValidate();
+        this.skipInvalid = operation.isSkipInvalidElements();
+        final String maxQueueSizeOption = operation.getOption(FlinkConstants.MAX_QUEUE_SIZE);
+        this.maxQueueSize = null != maxQueueSizeOption ? Integer.parseInt(maxQueueSizeOption) : MAX_QUEUE_SIZE_DEFAULT;
         graphId = store.getGraphId();
         schema = store.getSchema().toCompactJson();
         properties = store.getProperties().getProperties();
@@ -64,14 +70,18 @@ public class GafferAdder implements Serializable {
         }
     }
 
-    public void add(final Iterable<? extends Element> elements) {
+    public void add(final Element element) {
         if (null == queue) {
-            queue = new ConcurrentLinkedQueue<>();
+            queue = new ArrayBlockingQueue<>(maxQueueSize);
             restart = true;
         }
 
-        if (null != elements) {
-            Iterables.addAll(queue, elements);
+        if (null != element) {
+            try {
+                queue.put(element);
+            } catch (final InterruptedException e) {
+                throw new RuntimeException("Interrupted while waiting to add an element to the queue", e);
+            }
         }
 
         if (restart && !queue.isEmpty()) {
