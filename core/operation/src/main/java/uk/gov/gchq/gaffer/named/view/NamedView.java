@@ -14,17 +14,22 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.data.elementdefinition.view;
+package uk.gov.gchq.gaffer.named.view;
+
+import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.Operation;
 
 import java.util.Map;
 
-public class NamedView extends View {
+public class NamedView extends View implements Operation {
 
     @Required
     private String viewName;
     private Map<String, Object> parameters;
+    private Map<String, String> options;
 
     public void setViewName(String viewName) {
         this.viewName = viewName;
@@ -42,18 +47,37 @@ public class NamedView extends View {
         return parameters;
     }
 
-    public static class Builder {
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
+    @Override
+    public Operation shallowClone() throws CloneFailedException {
+        return new NamedView.Builder()
+                .name(viewName)
+                .parameters(parameters)
+                .options(options)
+                .build();
+    }
+
+    public static class Builder extends Operation.BaseBuilder<NamedView, Builder> {
         public Builder() {
-            super();
+            super(new NamedView());
         }
 
-        public Builder name(final String name) {
-            _getOp().setOperationName(name);
+        public Builder name(final String viewName) {
+            _getOp().setViewName(viewName);
             return _self();
         }
 
-        public Builder parameters(final Map<String, Object> params) {
-            _getOp().setParameters(params);
+        public Builder parameters(final Map<String, Object> parameters) {
+            _getOp().setParameters(parameters);
             return _self();
         }
     }
