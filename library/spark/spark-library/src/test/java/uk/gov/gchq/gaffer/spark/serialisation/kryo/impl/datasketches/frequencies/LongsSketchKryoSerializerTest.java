@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,31 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl;
+package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.frequencies;
 
-import uk.gov.gchq.gaffer.data.element.Entity;
+import com.yahoo.sketches.frequencies.LongsSketch;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
 
 import static org.junit.Assert.assertEquals;
 
-public class EntityKryoSerializerTest extends KryoSerializerTest<Entity> {
+public class LongsSketchKryoSerializerTest extends KryoSerializerTest<LongsSketch> {
 
     @Override
-    protected void shouldCompareSerialisedAndDeserialisedObjects(final Entity obj, final Entity deserialised) {
-        assertEquals(obj, deserialised);
+    protected void shouldCompareSerialisedAndDeserialisedObjects(final LongsSketch obj, final LongsSketch deserialised) {
+        assertEquals(obj.getEstimate(1L), deserialised.getEstimate(1L));
     }
 
     @Override
-    protected Class<Entity> getTestClass() {
-        return Entity.class;
+    public Class<LongsSketch> getTestClass() {
+        return LongsSketch.class;
     }
 
     @Override
-    protected Entity getTestObject() {
-        return new Entity.Builder()
-                .group("group")
-                .vertex("abc")
-                .property("property1", 1)
-                .build();
+    public LongsSketch getTestObject() {
+        final LongsSketch sketch = new LongsSketch(32);
+        sketch.update(1L);
+        sketch.update(2L);
+        sketch.update(3L);
+        return sketch;
     }
 }

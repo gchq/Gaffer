@@ -13,27 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl;
+package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.datasketches.frequencies;
 
+import com.yahoo.sketches.frequencies.ItemsSketch;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.KryoSerializerTest;
-import uk.gov.gchq.gaffer.types.TypeValue;
 
 import static org.junit.Assert.assertEquals;
 
-public class TypeValueKryoSerializerTest extends KryoSerializerTest<TypeValue> {
+public class StringsSketchKryoSerializerTest extends KryoSerializerTest<ItemsSketch> {
 
     @Override
-    protected void shouldCompareSerialisedAndDeserialisedObjects(final TypeValue obj, final TypeValue deserialised) {
-        assertEquals(obj, deserialised);
+    protected void shouldCompareSerialisedAndDeserialisedObjects(final ItemsSketch obj, final ItemsSketch deserialised) {
+        assertEquals(obj.getEstimate("1"), deserialised.getEstimate("1"));
     }
 
     @Override
-    protected Class<TypeValue> getTestClass() {
-        return TypeValue.class;
+    public Class<ItemsSketch> getTestClass() {
+        return ItemsSketch.class;
     }
 
     @Override
-    protected TypeValue getTestObject() {
-        return new TypeValue("type", "value");
+    public ItemsSketch<String> getTestObject() {
+        final ItemsSketch<String> sketch = new ItemsSketch<>(32);
+        sketch.update("1");
+        sketch.update("2");
+        sketch.update("3");
+        return sketch;
     }
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl;
+package uk.gov.gchq.gaffer.spark.serialisation.kryo;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
@@ -22,40 +22,47 @@ import com.esotericsoftware.kryo.io.Output;
 
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.FreqMapSerialiser;
-import uk.gov.gchq.gaffer.types.FreqMap;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
 /**
- * A {@code FreqMapKryoSerializer} is a {@link Kryo} {@link com.esotericsoftware.kryo.Serializer}
- * for a Gaffer {@link FreqMap}
+ * A {@code WrappedKryoSerializer} is a utility class for any {@link Kryo} {@link Serializer}
+ * that wraps around any implementation of a Gaffer {@link ToBytesSerialiser}.
+ * Implementations should simply use their constructor to call super with the wrapped {@link ToBytesSerialiser}
+ * as the parameter.
+ * @param <S>   the serialiser being wrapped
+ * @param <T>   the type for which the serialiser is to serialise
  */
-public class FreqMapKryoSerializer extends Serializer<FreqMap> {
-    private FreqMapSerialiser serialiser;
+public abstract class WrappedKryoSerializer<S extends ToBytesSerialiser<T>, T> extends Serializer<T> {
+    protected S serialiser;
 
-    public FreqMapKryoSerializer() {
-        this.serialiser = new FreqMapSerialiser();
+    public WrappedKryoSerializer(final S serialiser) {
+        this.serialiser = serialiser;
     }
 
     @Override
-    public void write(final Kryo kryo, final Output output, final FreqMap freqMap) {
+    public void write(final Kryo kryo, final Output output, final T obj) {
         final byte[] serialised;
         try {
-            serialised = serialiser.serialise(freqMap);
+            serialised = serialiser.serialise(obj);
         } catch (final SerialisationException e) {
-            throw new GafferRuntimeException("Exception serialising FreqMap to a byte array.", e);
+            throw new GafferRuntimeException("Exception serialising "
+                    + obj.getClass().getSimpleName()
+                    + " to a byte array", e);
         }
         output.writeInt(serialised.length);
         output.writeBytes(serialised);
     }
 
     @Override
-    public FreqMap read(final Kryo kryo, final Input input, final Class<FreqMap> aClass) {
+    public T read(final Kryo kryo, final Input input, final Class<T> type) {
         final int serialisedLength = input.readInt();
         final byte[] serialised = input.readBytes(serialisedLength);
         try {
             return serialiser.deserialise(serialised);
         } catch (final SerialisationException e) {
-            throw new GafferRuntimeException("Exception deserialising FreqMap from a byte array.", e);
+            throw new GafferRuntimeException("Exception deserialising "
+                    + type.getSimpleName()
+                    + " to a byte array", e);
         }
     }
 }
