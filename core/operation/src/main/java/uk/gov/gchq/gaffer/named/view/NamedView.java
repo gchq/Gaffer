@@ -44,29 +44,33 @@ public class NamedView extends View {
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>> extends View.BaseBuilder<CHILD_CLASS> {
-        private final NamedView namedView;
 
         public BaseBuilder() {
-            this.namedView = new NamedView();
+            this(new NamedView());
         }
 
         public BaseBuilder(NamedView namedView) {
-            this.namedView = namedView;
+            super(namedView);
         }
 
-        public CHILD_CLASS name(final String viewName){
-            namedView.setViewName(viewName);
+        public CHILD_CLASS name(final String viewName) {
+            getElementDefs().setViewName(viewName);
             return self();
         }
 
         public CHILD_CLASS parameters(final Map<String, Object> parameters) {
-            namedView.setParameters(parameters);
+            getElementDefs().setParameters(parameters);
             return self();
         }
 
         @Override
         public NamedView build() {
-            return self().build();
+            return (NamedView) super.build();
+        }
+
+        @Override
+        protected NamedView getElementDefs() {
+            return (NamedView) super.getElementDefs();
         }
     }
 
@@ -74,7 +78,7 @@ public class NamedView extends View {
         public Builder() {
         }
 
-        public Builder(NamedView namedView){
+        public Builder(NamedView namedView) {
             super(namedView);
         }
 
