@@ -5,8 +5,6 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 
 public class CsvToElement implements OneToOneElementGenerator<String> {
-    private static final long serialVersionUID = -1393365807895711784L;
-
     @Override
     public Element _apply(final String csv) {
         if (null == csv) {

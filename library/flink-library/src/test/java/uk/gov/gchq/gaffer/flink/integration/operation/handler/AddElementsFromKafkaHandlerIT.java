@@ -119,7 +119,6 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
                 // Create kafka producer and add some data
                 producer = new KafkaProducer<>(producerProps());
                 for (final String dataValue : DATA_VALUES) {
-                    System.out.println("sending: " + dataValue);
                     producer.send(new ProducerRecord<>(TOPIC, dataValue)).get();
                 }
             } catch (InterruptedException | ExecutionException e) {
@@ -128,15 +127,13 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
         }).start();
 
         // Then
-        Thread.sleep(40000);
-
-        verifyElements(graph);
-//        try {
-//            verifyElements(graph);
-//        } catch (final AssertionError e) {
-//            Thread.sleep(60000);
-//            verifyElements(graph);
-//        }
+        Thread.sleep(20000);
+        try {
+            verifyElements(graph);
+        } catch (final AssertionError e) {
+            Thread.sleep(60000);
+            verifyElements(graph);
+        }
     }
 
     private File createZookeeperTmpDir() throws IOException {

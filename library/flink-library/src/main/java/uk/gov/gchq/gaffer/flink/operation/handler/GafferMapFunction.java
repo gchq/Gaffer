@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.flink.operation.handler;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.flink.api.common.functions.FlatMapFunction;
-import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.util.Collector;
 
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -28,7 +27,7 @@ import java.util.Collections;
 import java.util.function.Function;
 
 /**
- * Implementation of {@link MapFunction} to allow CSV strings representing {@link Element}s
+ * Implementation of {@link FlatMapFunction} to allow CSV strings representing {@link Element}s
  * to be mapped to Element objects.
  */
 public class GafferMapFunction implements FlatMapFunction<String, Element> {
