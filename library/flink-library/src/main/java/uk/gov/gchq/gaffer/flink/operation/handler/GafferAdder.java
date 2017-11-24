@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.flink.operation.handler;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+import uk.gov.gchq.gaffer.commonutil.iterable.ConsumableBlockingQueue;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.flink.operation.handler.util.FlinkConstants;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -31,8 +32,6 @@ import uk.gov.gchq.gaffer.user.User;
 
 import java.io.Serializable;
 import java.util.Properties;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 /**
  * <p>
@@ -45,7 +44,7 @@ import java.util.concurrent.BlockingQueue;
  * the Gaffer Store is consuming them.
  * </p>
  * <p>
- * The queue is a {@link BlockingQueue} with a maximum size to prevent the queue
+ * The queue is a {@link java.util.concurrent.BlockingQueue} with a maximum size to prevent the queue
  * from getting to large and running out of memory. If the maximum size is reached
  * Flink will be blocked from adding elements to the queue. The maximum size of
  * the queue can be configured using the operation option:
@@ -68,12 +67,13 @@ public class GafferAdder implements Serializable {
     private final String graphId;
     private final byte[] schema;
     private final Properties properties;
+
     private final boolean validate;
+    private final boolean skipInvalid;
     private final int maxQueueSize;
 
-    private final boolean skipInvalid;
     private transient Store store;
-    private transient BlockingQueue<Element> queue;
+    private transient ConsumableBlockingQueue<Element> queue;
     private transient boolean restart;
 
     public <OP extends Validatable & Operation> GafferAdder(final OP operation, final Store store) {
@@ -94,17 +94,19 @@ public class GafferAdder implements Serializable {
     }
 
     public void add(final Element element) {
+        if (null == element) {
+            return;
+        }
+
         if (null == queue) {
-            queue = new ArrayBlockingQueue<>(maxQueueSize);
+            queue = new ConsumableBlockingQueue<>(maxQueueSize);
             restart = true;
         }
 
-        if (null != element) {
-            try {
-                queue.put(element);
-            } catch (final InterruptedException e) {
-                throw new RuntimeException("Interrupted while waiting to add an element to the queue", e);
-            }
+        try {
+            queue.put(element);
+        } catch (final InterruptedException e) {
+            throw new RuntimeException("Interrupted while waiting to add an element to the queue", e);
         }
 
         if (restart && !queue.isEmpty()) {
@@ -112,14 +114,14 @@ public class GafferAdder implements Serializable {
             store.runAsync(() -> {
                 try {
                     store.execute(new AddElements.Builder()
-                                    .input(new GafferQueue<>(queue))
+                                    .input(queue)
                                     .validate(validate)
                                     .skipInvalidElements(skipInvalid)
                                     .build(),
                             new Context(new User()));
                     restart = true;
                 } catch (final OperationException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException(e.getMessage(), e);
                 }
             });
         }

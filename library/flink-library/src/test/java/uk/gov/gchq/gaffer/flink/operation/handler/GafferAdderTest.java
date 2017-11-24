@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import uk.gov.gchq.gaffer.commonutil.iterable.ConsumableBlockingQueue;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.flink.operation.handler.util.FlinkConstants;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -27,10 +28,6 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromSocket;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-
-import java.util.Collections;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
@@ -69,8 +66,10 @@ public class GafferAdderTest {
                 Mockito.any()
         );
 
+        final ConsumableBlockingQueue<Element> expectedQueue = new ConsumableBlockingQueue<>(MAX_QUEUE_SIZE_VALUE);
+        expectedQueue.put(element);
         verify(store).execute(Mockito.eq(new AddElements.Builder()
-                .input(new GafferQueue<>(new ArrayBlockingQueue<>(MAX_QUEUE_SIZE_VALUE, false, Collections.singleton(element))))
+                .input(expectedQueue)
                 .validate(true)
                 .skipInvalidElements(false)
                 .build()), Mockito.any());
@@ -98,9 +97,10 @@ public class GafferAdderTest {
         final ArgumentCaptor<Runnable> runnableCaptor1 = ArgumentCaptor.forClass(Runnable.class);
         verify(store).runAsync(runnableCaptor1.capture());
         runnableCaptor1.getValue().run();
-        final BlockingQueue<Element> expectedQueue = new ArrayBlockingQueue<>(MAX_QUEUE_SIZE_VALUE, false, Collections.singleton(element));
+        final ConsumableBlockingQueue<Element> expectedQueue = new ConsumableBlockingQueue<>(MAX_QUEUE_SIZE_VALUE);
+        expectedQueue.put(element);
         verify(store).execute(Mockito.eq(new AddElements.Builder()
-                .input(new GafferQueue<>(expectedQueue))
+                .input(expectedQueue)
                 .validate(true)
                 .skipInvalidElements(false)
                 .build()), Mockito.any());
@@ -116,7 +116,7 @@ public class GafferAdderTest {
         // As the queue has not been consumed the original elements will still be on the queue.
         expectedQueue.put(element2);
         verify(store).execute(Mockito.eq(new AddElements.Builder()
-                .input(new GafferQueue<>(expectedQueue))
+                .input(expectedQueue)
                 .validate(true)
                 .skipInvalidElements(false)
                 .build()), Mockito.any());
@@ -146,12 +146,12 @@ public class GafferAdderTest {
         verify(store).runAsync(runnableCaptor1.capture());
         assertEquals(1, runnableCaptor1.getAllValues().size());
         runnableCaptor1.getValue().run();
-        final BlockingQueue<Element> expectedQueue = new ArrayBlockingQueue<>(MAX_QUEUE_SIZE_VALUE);
+        final ConsumableBlockingQueue<Element> expectedQueue = new ConsumableBlockingQueue<>(MAX_QUEUE_SIZE_VALUE);
         for (int i = 0; i < duplicates; i++) {
             expectedQueue.put(element);
         }
         verify(store).execute(Mockito.eq(new AddElements.Builder()
-                .input(new GafferQueue<>(expectedQueue))
+                .input(expectedQueue)
                 .validate(true)
                 .skipInvalidElements(false)
                 .build()), Mockito.any());
