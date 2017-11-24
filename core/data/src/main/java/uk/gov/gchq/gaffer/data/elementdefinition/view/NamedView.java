@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.named.view;
+package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class NamedView extends View {
@@ -26,6 +26,11 @@ public class NamedView extends View {
     @Required
     private String viewName;
     private Map<String, Object> parameters;
+
+    public NamedView() {
+        this.viewName = "";
+        this.parameters = new HashMap<>();
+    }
 
     public void setViewName(String viewName) {
         this.viewName = viewName;
