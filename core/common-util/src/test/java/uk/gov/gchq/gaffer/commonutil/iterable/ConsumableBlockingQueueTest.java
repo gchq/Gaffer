@@ -109,4 +109,16 @@ public class ConsumableBlockingQueueTest {
         // Then
         assertEquals(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9), items);
     }
+
+    @Test
+    public void shouldNotBlockWhenConsumingWhenQueueIsEmpty() {
+        // Given
+        final ConsumableBlockingQueue<Integer> queue = new ConsumableBlockingQueue<>(5);
+
+        // When
+        final Iterator<Integer> iterator = queue.iterator();
+
+        // Then
+        assertFalse(iterator.hasNext());
+    }
 }
