@@ -112,9 +112,9 @@ public class NamedViewCache {
 
     public NamedView getFromCache(final String name) throws CacheOperationFailedException {
         if (null != name) {
-            final NamedView op = CacheServiceLoader.getService().getFromCache(CACHE_NAME, name);
-            if (null != op) {
-                return op;
+            final NamedView namedViewFromCache = CacheServiceLoader.getService().getFromCache(CACHE_NAME, name);
+            if (null != namedViewFromCache) {
+                return namedViewFromCache;
             } else {
                 throw new CacheOperationFailedException("No named view with the name " + name + " exists in the cache");
             }

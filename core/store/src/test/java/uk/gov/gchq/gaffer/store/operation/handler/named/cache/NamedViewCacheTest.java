@@ -25,6 +25,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
@@ -41,7 +42,7 @@ public class NamedViewCacheTest {
     private static NamedViewCache cache;
     private static final String EXCEPTION_EXPECTED = "Exception expected";
     private NamedView standardNamedView = new NamedView.Builder().name("standardView").build();
-    private NamedView alternativeNamedView = new NamedView.Builder().name("alternativeView").build();
+    private NamedView alternativeNamedView = new NamedView.Builder().name("alternativeView").edge(TestGroups.EDGE).build();
 
     @BeforeClass
     public static void setUp() {
@@ -110,16 +111,14 @@ public class NamedViewCacheTest {
     }
 
     @Test
-    public void shouldBeAbleToReturnFullExtendedOperationChain() throws CacheOperationFailedException {
+    public void shouldBeAbleToReturnAllNamedViewsFromCache() throws CacheOperationFailedException {
         cache.addNamedView(standardNamedView, false);
         cache.addNamedView(alternativeNamedView, false);
 
         Set<NamedView> allViews = Sets.newHashSet(cache.getAllNamedViews());
+
         assertTrue(allViews.contains(standardNamedView));
         assertTrue(allViews.contains(alternativeNamedView));
-        for (NamedView namedView : allViews) {
-            System.out.println(namedView.toString());
-        }
         assertEquals(2, allViews.size());
     }
 }
