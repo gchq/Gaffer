@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -177,6 +178,15 @@ public class OperationChain<OUT> implements Output<OUT>,
         return new ToStringBuilder(this)
                 .append("operations", operations)
                 .build();
+    }
+
+    public String toOverviewString() {
+        final String opStrings = operations.stream()
+                .filter(o -> null != o)
+                .map(o -> o.getClass().getSimpleName())
+                .collect(Collectors.joining("->"));
+
+        return getClass().getSimpleName() + "[" + opStrings + "]";
     }
 
     @Override
