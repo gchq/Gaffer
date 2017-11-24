@@ -29,6 +29,8 @@ import java.util.concurrent.BlockingQueue;
 /**
  * Wrapper class around {@link BlockingQueue} to prevent consumers from
  * being able to iterate over the queue more than once.
+ * This also means the blocking queue will block on addition of elements, but won't
+ * block consumers.
  *
  * @param <T> the type of object in the queue
  */
