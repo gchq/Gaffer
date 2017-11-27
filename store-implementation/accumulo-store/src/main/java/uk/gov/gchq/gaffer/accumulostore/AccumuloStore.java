@@ -106,6 +106,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
+import static uk.gov.gchq.gaffer.store.StoreTrait.MATCHED_VERTEX;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
@@ -116,13 +117,16 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
 
 /**
+ * <p>
  * An Accumulo Implementation of the Gaffer Framework
+ * </p>
  * <p>
  * The key detail of the Accumulo implementation is that any Edge inserted by a
  * user is inserted into the accumulo table twice, once with the source object
  * being put first in the key and once with the destination being put first in
  * the key. This is to enable an edge to be found in a Range scan when providing
  * only one end of the edge.
+ * </p>
  */
 public class AccumuloStore extends Store {
     public static final Set<StoreTrait> TRAITS =
@@ -135,7 +139,8 @@ public class AccumuloStore extends Store {
                     POST_AGGREGATION_FILTERING,
                     POST_TRANSFORMATION_FILTERING,
                     TRANSFORMATION,
-                    STORE_VALIDATION
+                    STORE_VALIDATION,
+                    MATCHED_VERTEX
             ));
     public static final String FAILED_TO_CREATE_AN_ACCUMULO_FROM_ELEMENT_OF_TYPE_WHEN_TRYING_TO_INSERT_ELEMENTS = "Failed to create an accumulo {} from element of type {} when trying to insert elements";
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
