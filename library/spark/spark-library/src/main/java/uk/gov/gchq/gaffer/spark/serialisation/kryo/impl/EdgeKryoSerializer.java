@@ -25,7 +25,8 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Properties;
 
 /**
- * A Kryo {@link Serializer} for an {@link Edge}.
+ * An {@code EdgeKryoSerializer} is a {@link Kryo} {@link com.esotericsoftware.kryo.Serializer} for
+ * a Gaffer {@link Edge}
  */
 public class EdgeKryoSerializer extends Serializer<Edge> {
 

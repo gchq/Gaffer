@@ -19,11 +19,12 @@ package uk.gov.gchq.gaffer.federatedstore;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.federatedstore.operation.AddGraph;
 import uk.gov.gchq.gaffer.federatedstore.operation.handler.impl.FederatedAddGraphHandler;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -52,7 +53,7 @@ public class FederatedStoreAuthTest {
     private User authUser;
     private FederatedStore federatedStore;
     private FederatedStoreProperties federatedStoreProperties;
-    private MapStoreProperties graphStoreProperties;
+    private AccumuloProperties graphStoreProperties;
     private Schema schema;
 
     @Before
@@ -66,7 +67,8 @@ public class FederatedStoreAuthTest {
         federatedStoreProperties = new FederatedStoreProperties();
         federatedStoreProperties.setCacheProperties(CACHE_SERVICE_CLASS_STRING);
 
-        graphStoreProperties = new MapStoreProperties();
+        graphStoreProperties = new AccumuloProperties();
+        graphStoreProperties.setStoreClass(SingleUseMockAccumuloStore.class);
 
         schema = new Schema.Builder().build();
     }

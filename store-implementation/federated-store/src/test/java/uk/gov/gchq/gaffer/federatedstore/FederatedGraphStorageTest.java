@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.federatedstore.exception.StorageException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.Graph.Builder;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
-import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.library.GraphLibrary;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -85,12 +84,16 @@ public class FederatedGraphStorageTest {
     @Before
     public void setUp() throws Exception {
         graphStorage = new FederatedGraphStorage();
+        accumuloProperties = new AccumuloProperties();
+        accumuloProperties.setStoreClass(SingleUseMockAccumuloStore.class);
+
         e1 = new SchemaEntityDefinition.Builder()
                 .vertex("string")
                 .build();
+
         a = new Builder()
                 .config(new GraphConfig(GRAPH_ID_A))
-                .storeProperties(new MapStoreProperties())
+                .storeProperties(accumuloProperties)
                 .addSchema(new Schema.Builder()
                         .entity("e1", e1)
                         .type("string", String.class)
@@ -100,8 +103,6 @@ public class FederatedGraphStorageTest {
         e2 = new SchemaEntityDefinition.Builder()
                 .vertex("string2")
                 .build();
-        accumuloProperties = new AccumuloProperties();
-        accumuloProperties.setStoreClass(SingleUseMockAccumuloStore.class);
 
         b = new Builder()
                 .config(new GraphConfig(GRAPH_ID_B))
@@ -111,6 +112,7 @@ public class FederatedGraphStorageTest {
                         .type("string2", String.class)
                         .build())
                 .build();
+
         nullUser = null;
         testUser = testUser();
         authUser = authUser();
