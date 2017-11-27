@@ -117,11 +117,11 @@ public abstract class AbstractStoreIT {
     }
 
     public static StoreProperties getStoreProperties() {
-        return storeProperties;
+        return storeProperties.clone();
     }
 
     public static Schema getStoreSchema() {
-        return storeSchema;
+        return storeSchema.clone();
     }
 
     public static void setStoreSchema(final Schema storeSchema) {
@@ -163,18 +163,30 @@ public abstract class AbstractStoreIT {
         }
         assumeTrue("Skipping test. Justification: " + skippedTests.get(getClass()), !skippedTests.containsKey(getClass()));
 
-        graph = new Graph.Builder()
-                .config(new GraphConfig.Builder()
-                        .graphId("integrationTestGraph")
-                        .build())
-                .storeProperties(storeProperties)
-                .addSchema(createSchema())
-                .addSchema(storeSchema)
-                .build();
+        createGraph();
 
         for (final StoreTrait requiredTrait : requiredTraits) {
             assumeTrue("Skipping test as the store does not implement all required traits.", graph.hasTrait(requiredTrait));
         }
+    }
+
+    protected void createGraph() {
+        graph = getGraphBuilder()
+                .build();
+    }
+
+    protected Graph.Builder getGraphBuilder() {
+        return new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("integrationTestGraph")
+                        .build())
+                .storeProperties(getStoreProperties())
+                .addSchema(createSchema())
+                .addSchema(getStoreSchema());
+    }
+
+    protected void addStoreProperties(final StoreProperties storeProperties) {
+        graph = getGraphBuilder().addStoreProperties(storeProperties).build();
     }
 
     protected Schema createSchema() {

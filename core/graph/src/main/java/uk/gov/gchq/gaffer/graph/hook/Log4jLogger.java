@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.store.Context;
 
 /**
  * A {@code Log4jLogger} is a simple {@link GraphHook} that sends logs of the
- * operation chains executed by users on a graph to a {@link Logger}.
+ * original operation chains executed by users on a graph to a {@link Logger}.
  */
 public class Log4jLogger implements GraphHook {
     private static final Logger LOGGER = LoggerFactory.getLogger(Log4jLogger.class);
@@ -33,11 +33,11 @@ public class Log4jLogger implements GraphHook {
      * Logs the operation chain and the user id.
      *
      * @param opChain the operation chain being executed
-     * @param context    the Context executing the operation chain
+     * @param context the Context executing the operation chain
      */
     @Override
     public void preExecute(final OperationChain<?> opChain, final Context context) {
-        LOGGER.info("Running {} as {}", opChain, context.getUser().getUserId());
+        LOGGER.info("Running {} as {}", context.getOriginalOpChain(), context.getUser().getUserId());
     }
 
     @Override
@@ -48,7 +48,7 @@ public class Log4jLogger implements GraphHook {
 
     @Override
     public <T> T onFailure(final T result, final OperationChain<?> opChain, final Context context, final Exception e) {
-        LOGGER.warn("Failed to run {} as {}", opChain, context.getUser().getUserId());
+        LOGGER.warn("Failed to run {} as {}", context.getOriginalOpChain(), context.getUser().getUserId());
         return result;
     }
 }

@@ -3,7 +3,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>road-traffic</artifactId>
-        <version>1.0.3-SNAPSHOT</version>
+        <version>1.1.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -68,9 +68,20 @@
                                 </webapp>
                             </webapps>
                             <systemProperties>
-                                <gaffer.properties>gaffer.properties.app.description,</gaffer.properties>
-                                <gaffer.properties.app.description>
+                                <gaffer.properties.app.title>
                                     Road Traffic Example
+                                </gaffer.properties.app.title>
+                                <gaffer.properties.app.description>
+                                    Example using road traffic data.
+                                    The sample data used is taken from the
+                                    Department for Transport
+                                    &lt;a
+                                    href='http://data.dft.gov.uk/gb-traffic-matrix/Raw_count_data_major_roads.zip'
+                                    &gt;GB Road Traffic Counts&lt;/a&gt;,
+                                    which is licensed under the
+                                    &lt;a
+                                    href='http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3'
+                                    &gt;Open Government Licence&lt;/a&gt;.
                                 </gaffer.properties.app.description>
                                 <gaffer.rest-api.basePath>
                                     ${standalone-path}

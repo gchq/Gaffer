@@ -21,7 +21,7 @@
     <groupId>uk.gov.gchq.gaffer</groupId>
     <artifactId>gaffer2</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.3-SNAPSHOT</version>
+    <version>1.1.2-SNAPSHOT</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>A scalable Graph database framework</description>
@@ -262,10 +262,6 @@
                     </exclusion>
                     <exclusion>
                         <groupId>javax.servlet</groupId>
-                        <artifactId>javax.servlet-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.servlet</groupId>
                         <artifactId>servlet-api</artifactId>
                     </exclusion>
                     <exclusion>
@@ -273,8 +269,21 @@
                         <artifactId>jetty-util</artifactId>
                     </exclusion>
                     <exclusion>
+                        <groupId>org.mortbay.jetty</groupId>
+                        <artifactId>jetty</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.mortbay.jetty</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                    <exclusion>
                         <groupId>io.netty</groupId>
                         <artifactId>netty</artifactId>
+                    </exclusion>
+                    <!-- The hdfs library includes org.apache.hadoop.hdfs.web.resources.UserProvider class that has a strong dependency on Jersey 1.x -->
+                    <exclusion>
+                        <groupId>org.apache.hadoop</groupId>
+                        <artifactId>hadoop-hdfs</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -298,11 +307,11 @@
                     </exclusion>
                     <exclusion>
                         <groupId>com.sun.jersey</groupId>
-                        <artifactId>jersey-core</artifactId>
+                        <artifactId>jersey-client</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>javax.servlet</groupId>
-                        <artifactId>javax.servlet-api</artifactId>
+                        <groupId>com.sun.jersey</groupId>
+                        <artifactId>jersey-core</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>javax.servlet</groupId>
@@ -313,8 +322,21 @@
                         <artifactId>jetty-util</artifactId>
                     </exclusion>
                     <exclusion>
+                        <groupId>org.mortbay.jetty</groupId>
+                        <artifactId>jetty</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.mortbay.jetty</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                    <exclusion>
                         <groupId>io.netty</groupId>
                         <artifactId>netty</artifactId>
+                    </exclusion>
+                    <!-- The hdfs library includes org.apache.hadoop.hdfs.web.resources.UserProvider class that has a strong dependency on Jersey 1.x -->
+                    <exclusion>
+                        <groupId>org.apache.hadoop</groupId>
+                        <artifactId>hadoop-hdfs</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -347,10 +369,6 @@
                     </exclusion>
                     <exclusion>
                         <groupId>javax.servlet</groupId>
-                        <artifactId>javax.servlet-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.servlet</groupId>
                         <artifactId>servlet-api</artifactId>
                     </exclusion>
                     <exclusion>
@@ -358,8 +376,21 @@
                         <artifactId>jetty-util</artifactId>
                     </exclusion>
                     <exclusion>
+                        <groupId>org.mortbay.jetty</groupId>
+                        <artifactId>jetty</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.mortbay.jetty</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                    <exclusion>
                         <groupId>io.netty</groupId>
                         <artifactId>netty</artifactId>
+                    </exclusion>
+                    <!-- The hdfs library includes org.apache.hadoop.hdfs.web.resources.UserProvider class that has a strong dependency on Jersey 1.x -->
+                    <exclusion>
+                        <groupId>org.apache.hadoop</groupId>
+                        <artifactId>hadoop-hdfs</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -383,11 +414,11 @@
                     </exclusion>
                     <exclusion>
                         <groupId>com.sun.jersey</groupId>
-                        <artifactId>jersey-core</artifactId>
+                        <artifactId>jersey-client</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>javax.servlet</groupId>
-                        <artifactId>javax.servlet-api</artifactId>
+                        <groupId>com.sun.jersey</groupId>
+                        <artifactId>jersey-core</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>javax.servlet</groupId>
@@ -398,8 +429,21 @@
                         <artifactId>jetty-util</artifactId>
                     </exclusion>
                     <exclusion>
+                        <groupId>org.mortbay.jetty</groupId>
+                        <artifactId>jetty</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.mortbay.jetty</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                    <exclusion>
                         <groupId>io.netty</groupId>
                         <artifactId>netty</artifactId>
+                    </exclusion>
+                    <!-- The hdfs library includes org.apache.hadoop.hdfs.web.resources.UserProvider class that has a strong dependency on Jersey 1.x -->
+                    <exclusion>
+                        <groupId>org.apache.hadoop</groupId>
+                        <artifactId>hadoop-hdfs</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -423,11 +467,11 @@
                     </exclusion>
                     <exclusion>
                         <groupId>com.sun.jersey</groupId>
-                        <artifactId>jersey-core</artifactId>
+                        <artifactId>jersey-client</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>javax.servlet</groupId>
-                        <artifactId>javax.servlet-api</artifactId>
+                        <groupId>com.sun.jersey</groupId>
+                        <artifactId>jersey-core</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>javax.servlet</groupId>
@@ -438,12 +482,79 @@
                         <artifactId>jetty-util</artifactId>
                     </exclusion>
                     <exclusion>
+                        <groupId>org.mortbay.jetty</groupId>
+                        <artifactId>jetty</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.mortbay.jetty</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                    <exclusion>
                         <groupId>com.sun.jersey.contribs</groupId>
                         <artifactId>jersey-guice</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>io.netty</groupId>
                         <artifactId>netty</artifactId>
+                    </exclusion>
+                    <!-- The hdfs library includes org.apache.hadoop.hdfs.web.resources.UserProvider class that has a strong dependency on Jersey 1.x -->
+                    <exclusion>
+                        <groupId>org.apache.hadoop</groupId>
+                        <artifactId>hadoop-hdfs</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.avro</groupId>
+                <artifactId>avro-mapred</artifactId>
+                <version>${avro.version}</version>
+                <classifier>hadoop2</classifier>
+                <!-- exclude server-side parts that conflict with running in a webapp -->
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.sun.jersey</groupId>
+                        <artifactId>jersey-grizzly2</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.jersey</groupId>
+                        <artifactId>jersey-json</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.jersey</groupId>
+                        <artifactId>jersey-server</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.jersey</groupId>
+                        <artifactId>jersey-client</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.jersey</groupId>
+                        <artifactId>jersey-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.mortbay.jetty</groupId>
+                        <artifactId>jetty-util</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.mortbay.jetty</groupId>
+                        <artifactId>jetty</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.mortbay.jetty</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>io.netty</groupId>
+                        <artifactId>netty</artifactId>
+                    </exclusion>
+                    <!-- The hdfs library includes org.apache.hadoop.hdfs.web.resources.UserProvider class that has a strong dependency on Jersey 1.x -->
+                    <exclusion>
+                        <groupId>org.apache.hadoop</groupId>
+                        <artifactId>hadoop-hdfs</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -529,6 +640,7 @@
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-all</artifactId>
             <version>1.3</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>

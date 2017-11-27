@@ -29,6 +29,7 @@ public abstract class SystemProperty {
     public static final String GRAPH_CONFIG_PATH = "gaffer.graph.config";
     public static final String SCHEMA_PATHS = "gaffer.schemas";
     public static final String STORE_PROPERTIES_PATH = "gaffer.storeProperties";
+
     public static final String BASE_PATH = "gaffer.rest-api.basePath";
     public static final String REST_API_VERSION = "gaffer.rest-api.version";
     public static final String GRAPH_FACTORY_CLASS = "gaffer.graph.factory.class";
@@ -38,7 +39,18 @@ public abstract class SystemProperty {
     public static final String JSON_SERIALISER_CLASS = JSONSerialiser.JSON_SERIALISER_CLASS_KEY;
     public static final String JSON_SERIALISER_MODULES = JSONSerialiser.JSON_SERIALISER_MODULES;
     public static final String REST_DEBUG = DebugUtil.DEBUG;
-    public static final String APP_LOGO_PATH = "gaffer.properties.app.logo.path";
+
+    // Exposed Property Keys
+    /**
+     * A CSV of properties to expose via the properties endpoint.
+     */
+    public static final String EXPOSED_PROPERTIES = "gaffer.properties";
+    public static final String APP_TITLE = "gaffer.properties.app.title";
+    public static final String APP_DESCRIPTION = "gaffer.properties.app.description";
+    public static final String APP_BANNER_COLOUR = "gaffer.properties.app.banner.colour";
+    public static final String APP_BANNER_DESCRIPTION = "gaffer.properties.app.banner.description";
+    public static final String APP_DOCUMENTATION_URL = "gaffer.properties.app.doc.url";
+
     /**
      * @deprecated create a GraphConfig json file and use GRAPH_CONFIG_PATH instead
      */
@@ -74,7 +86,9 @@ public abstract class SystemProperty {
     public static final String GRAPH_FACTORY_CLASS_DEFAULT = DefaultGraphFactory.class.getName();
     public static final String USER_FACTORY_CLASS_DEFAULT = UnknownUserFactory.class.getName();
     public static final String REST_DEBUG_DEFAULT = DebugUtil.DEBUG_DEFAULT;
-    public static final String APP_LOGO_PATH_DEFAULT = "images/logo_small.png";
+    public static final String APP_TITLE_DEFAULT = "Gaffer REST";
+    public static final String APP_DESCRIPTION_DEFAULT = "The Gaffer REST service.";
+    public static final String APP_DOCUMENTATION_URL_DEFAULT = "https://gchq.github.io/gaffer-doc/";
 
     private SystemProperty() {
         // Private constructor to prevent instantiation.

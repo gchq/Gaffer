@@ -37,7 +37,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class FederatedStoreCacheTest {
-    private static final String PATH_MAP_STORE_PROPERTIES = "properties/singleUseMockMapStore.properties";
+    private static final String PATH_MAP_STORE_PROPERTIES = "properties/singleUseMockAccStore.properties";
     private static final String PATH_BASIC_EDGE_SCHEMA_JSON = "schema/basicEdgeSchema.json";
     private static final String CACHE_SERVICE_CLASS_STRING = "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService";
     private static final String MAP_ID_1 = "mockMapGraphId1";

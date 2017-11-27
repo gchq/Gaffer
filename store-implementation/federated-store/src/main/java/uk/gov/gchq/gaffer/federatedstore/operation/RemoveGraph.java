@@ -56,7 +56,7 @@ public class RemoveGraph implements FederatedOperation {
     @Override
     public RemoveGraph shallowClone() throws CloneFailedException {
         return new RemoveGraph.Builder()
-                .setGraphId(graphId)
+                .graphId(graphId)
                 .options(options)
                 .build();
     }
@@ -77,7 +77,18 @@ public class RemoveGraph implements FederatedOperation {
             super(new RemoveGraph());
         }
 
+        /**
+         * Use {@link Builder#graphId} instead.
+         *
+         * @param graphId the graphId to set.
+         * @return the builder
+         */
+        @Deprecated
         public Builder setGraphId(final String graphId) {
+            return graphId(graphId);
+        }
+
+        public Builder graphId(final String graphId) {
             _getOp().setGraphId(graphId);
             return _self();
         }

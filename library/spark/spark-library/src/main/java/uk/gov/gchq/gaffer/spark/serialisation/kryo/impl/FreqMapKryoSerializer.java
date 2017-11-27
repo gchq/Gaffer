@@ -26,7 +26,8 @@ import uk.gov.gchq.gaffer.serialisation.FreqMapSerialiser;
 import uk.gov.gchq.gaffer.types.FreqMap;
 
 /**
- * A Kryo {@link Serializer} for a {@link FreqMap}.
+ * A {@code FreqMapKryoSerializer} is a {@link Kryo} {@link com.esotericsoftware.kryo.Serializer}
+ * for a Gaffer {@link FreqMap}
  */
 public class FreqMapKryoSerializer extends Serializer<FreqMap> {
     private FreqMapSerialiser serialiser;

@@ -25,35 +25,48 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Abstract test class provided for convenience.
  * @param <T> the class for which the serialiser is written
  */
 public abstract class KryoSerializerTest<T> {
-    private final Kryo kryo = new Kryo();
+    private Kryo kryo;
 
     @Before
-    public void setup() { new Registrator().registerClasses(kryo);}
+    public void setup() {
+        kryo = new Kryo();
+        new Registrator().registerClasses(kryo);
+    }
 
     @Test
     public void shouldSerialiseAndDeserialise() {
         // Given
         final T obj = getTestObject();
+        final Class<T> testClass = getTestClass();
 
         // When
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        final Output output = new Output(byteArrayOutputStream);
-        kryo.writeObject(output, obj);
-        output.close();
+        try (Output output = new Output(byteArrayOutputStream)) {
+            kryo.writeObject(output, obj);
+        }
+
         final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
-        final Input input = new Input(byteArrayInputStream);
-        final T read = kryo.readObject(input, getTestClass());
-        input.close();
+        final T read;
+        try (Input input = new Input(byteArrayInputStream)) {
+            read = kryo.readObject(input, testClass);
+        }
 
         // Then
-        assertEquals(obj, read);
+        shouldCompareSerialisedAndDeserialisedObjects(obj, read);
     }
+
+    /**
+     * This method should compare a test object against a deserialised object of the same type,
+     * in a manner suitable for the object.
+     */
+    protected abstract void shouldCompareSerialisedAndDeserialisedObjects(final T obj, final T deserialised);
 
     /**
      * Due to type erasure, this is required for deserialisation.
