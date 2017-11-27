@@ -23,8 +23,9 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.graph.Walk;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Operations;
+import uk.gov.gchq.gaffer.operation.data.WalkDefinition;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
@@ -47,10 +48,9 @@ import java.util.Map;
  */
 public class GetWalks implements
         InputOutput<Iterable<? extends EntityId>, Iterable<Walk>>,
-        MultiInput<EntityId>,
-        Operations<GetElements> {
+        MultiInput<EntityId> {
 
-    private List<GetElements> operations;
+    private List<WalkDefinition> walkDefinitions;
     private Iterable<? extends EntityId> input;
     private Map<String, String> options;
     private Integer resultsLimit = 1000000;
@@ -65,26 +65,20 @@ public class GetWalks implements
         this.input = input;
     }
 
-    @Override
-    public List<GetElements> getOperations() {
-        return operations;
+    public List<WalkDefinition> getWalkDefinitions() {
+        return walkDefinitions;
     }
 
-    public void setOperations(final List<GetElements> operations) {
-        this.operations = operations;
+    public void setWalkDefinitions(final List<WalkDefinition> walkDefinitions) {
+        this.walkDefinitions = walkDefinitions;
     }
 
-    public void addOperation(final GetElements operation) {
-        if (null == this.operations) {
-            this.operations = new ArrayList<>();
+    public void addWalkDefinition(final WalkDefinition walkDefinition) {
+        if (null == this.walkDefinitions) {
+            this.walkDefinitions = new ArrayList<>();
         }
 
-        this.operations.add(operation);
-    }
-
-    @Override
-    public Class<GetElements> getOperationsClass() {
-        return GetElements.class;
+        this.walkDefinitions.add(walkDefinition);
     }
 
     @Override
@@ -92,9 +86,24 @@ public class GetWalks implements
         final ValidationResult result = InputOutput.super.validate();
 
         // Validate the View objects
-        if (null != operations) {
-            for (final ListIterator<GetElements> it = operations.listIterator(); it.hasNext();) {
-                final GetElements op = it.next();
+        if (null != walkDefinitions) {
+            for (final ListIterator<WalkDefinition> it = walkDefinitions.listIterator(); it.hasNext();) {
+                final WalkDefinition walkDefinition = it.next();
+                for (final Operation preOp : walkDefinition.getPreFilters().getOperations()) {
+                    if (!Input.class.isAssignableFrom(preOp.getClass())) {
+                        result.addError("The pre operation filter " + preOp.getClass().getCanonicalName() +
+                                " does not accept an input.");
+                    }
+                }
+
+                for (final Operation postOp : walkDefinition.getPostFilters().getOperations()) {
+                    if (!postOp.getClass().isAssignableFrom(Input.class)) {
+                        result.addError("The post operation filter " + postOp.getClass().getCanonicalName() +
+                                " does not accept an input.");
+                    }
+                }
+
+                final GetElements op = walkDefinition.getOperation();
 
                 // Validate that the input is set correctly
                 if (null != op.getInput()) {
@@ -120,10 +129,11 @@ public class GetWalks implements
         builder.input(input);
         builder.options(options);
 
-        for (final GetElements op : operations) {
-            builder.operation(op.shallowClone());
+        if (null != walkDefinitions) {
+            for (final WalkDefinition definition : walkDefinitions) {
+                builder.walkDefinition(definition.clone());
+            }
         }
-
         return builder.build();
     }
 
@@ -154,20 +164,20 @@ public class GetWalks implements
             super(new GetWalks());
         }
 
-        public Builder operations(final Iterable<GetElements> operations) {
-            if (null != operations) {
-                _getOp().setOperations(Lists.newArrayList(operations));
+        public Builder walkDefinitions(final Iterable<WalkDefinition> walkDefinitions) {
+            if (null != walkDefinitions) {
+                _getOp().setWalkDefinitions(Lists.newArrayList(walkDefinitions));
             }
             return _self();
         }
 
-        public Builder operations(final GetElements... operations) {
-            _getOp().setOperations(Arrays.asList(operations));
+        public Builder walkDefinitions(final WalkDefinition... walkDefinitions) {
+            _getOp().setWalkDefinitions(Arrays.asList(walkDefinitions));
             return _self();
         }
 
-        public Builder operation(final GetElements operation) {
-            _getOp().addOperation(operation);
+        public Builder walkDefinition(final WalkDefinition walkDefinition) {
+            _getOp().addWalkDefinition(walkDefinition);
             return _self();
         }
 

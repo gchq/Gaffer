@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
@@ -31,6 +32,7 @@ import uk.gov.gchq.gaffer.data.graph.Walk;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.data.WalkDefinition;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -46,6 +48,7 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
+import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -80,9 +83,13 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
                         .build()).inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
                 .build();
 
+        final WalkDefinition walkDefinition = new WalkDefinition.Builder()
+                .operation(operation)
+                .build();
+
         final GetWalks op = new GetWalks.Builder()
                 .input(seed)
-                .operations(operation, operation)
+                .walkDefinitions(walkDefinition, walkDefinition)
                 .build();
 
         // When
@@ -109,9 +116,13 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
                         .build()).inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
                 .build();
 
+        final WalkDefinition walkDefinition = new WalkDefinition.Builder()
+                .operation(operation)
+                .build();
+
         final GetWalks op = new GetWalks.Builder()
                 .input(seed)
-                .operations(operation, operation)
+                .walkDefinitions(walkDefinition, walkDefinition)
                 .build();
 
         // When
@@ -138,9 +149,13 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
                         .build()).inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
                 .build();
 
+        final WalkDefinition walkDefinition = new WalkDefinition.Builder()
+                .operation(operation)
+                .build();
+
         final GetWalks op = new GetWalks.Builder()
                 .input(seed1, seed2)
-                .operations(operation, operation)
+                .walkDefinitions(walkDefinition, walkDefinition)
                 .build();
 
         // When
@@ -169,9 +184,13 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
                         .build()).inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
                 .build();
 
+        final WalkDefinition walkDefinition = new WalkDefinition.Builder()
+                .operation(operation)
+                .build();
+
         final GetWalks op = new GetWalks.Builder()
                 .input(seed)
-                .operations(operation, operation)
+                .walkDefinitions(walkDefinition, walkDefinition)
                 .build();
 
         // When
@@ -201,9 +220,13 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
                         .build()).inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
                 .build();
 
+        final WalkDefinition walkDefinition = new WalkDefinition.Builder()
+                .operation(operation)
+                .build();
+
         final GetWalks op = new GetWalks.Builder()
                 .input(seed1, seed2)
-                .operations(operation, operation)
+                .walkDefinitions(walkDefinition, walkDefinition)
                 .build();
 
         // When
@@ -232,9 +255,13 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
                         .build()).inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
                 .build();
 
+        final WalkDefinition walkDefinition = new WalkDefinition.Builder()
+                .operation(operation)
+                .build();
+
         final GetWalks op = new GetWalks.Builder()
                 .input(seed)
-                .operations(operation, operation, operation)
+                .walkDefinitions(walkDefinition, walkDefinition, walkDefinition)
                 .build();
 
         // When
@@ -263,9 +290,13 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
                         .build()).inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
                 .build();
 
+        final WalkDefinition walkDefinition = new WalkDefinition.Builder()
+                .operation(operation)
+                .build();
+
         final GetWalks op = new GetWalks.Builder()
                 .input(seed)
-                .operations(operation, operation, operation, operation)
+                .walkDefinitions(walkDefinition, walkDefinition, walkDefinition, walkDefinition)
                 .build();
 
         // When
@@ -291,9 +322,13 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
                         .build()).inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
                 .build();
 
+        final WalkDefinition walkDefinition = new WalkDefinition.Builder()
+                .operation(operation)
+                .build();
+
         final GetWalks op = new GetWalks.Builder()
                 .input(seed)
-                .operations(operation, operation, operation, operation)
+                .walkDefinitions(walkDefinition, walkDefinition, walkDefinition, walkDefinition)
                 .build();
 
         // When
@@ -303,31 +338,127 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
         assertThat(getPaths(results), is(equalTo("AAAAA")));
     }
 
+    @Test
+    public void shouldGetPathsWithPreFiltering_1() throws Exception {
+        // Given
+        final User user = new User();
+
+        final EntitySeed seed = new EntitySeed("A");
+
+        final GetElements operation = new GetElements.Builder()
+                .directedType(DirectedType.DIRECTED)
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .properties(TestPropertyNames.COUNT)
+                                .build())
+                        .build())
+                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
+                .build();
+
+        final WalkDefinition walkDefinition = new WalkDefinition.Builder()
+                // only walk down entities which have a property set to an integer
+                //larger than 3.
+                .preFilter(new GetElements.Builder()
+                        .view(new View.Builder()
+                                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                                        .postAggregationFilter(new ElementFilter.Builder()
+                                                .select(TestPropertyNames.PROP_1)
+                                                .execute(new IsMoreThan(3))
+                                                .build())
+                                        .build())
+                                .build())
+                        .build())
+                .operation(operation)
+                .build();
+
+        final GetWalks op = new GetWalks.Builder()
+                .input(seed)
+                .walkDefinitions(walkDefinition, walkDefinition)
+                .build();
+
+        // When
+        final Iterable<Walk> results = graph.execute(op, user);
+
+        // Then
+        assertThat(getPaths(results), is(equalTo("AED")));
+    }
+
+    @Test
+    public void shouldGetPathsWithPreFiltering_2() throws Exception {
+        // Given
+        final User user = new User();
+
+        final EntitySeed seed = new EntitySeed("A");
+
+        final GetElements operation = new GetElements.Builder()
+                .directedType(DirectedType.DIRECTED)
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .properties(TestPropertyNames.COUNT)
+                                .build())
+                        .build())
+                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
+                .build();
+
+        final WalkDefinition walkDefinition = new WalkDefinition.Builder()
+                // only walk down entities which have a property set to an integer
+                // less than 3.
+                .preFilter(new GetElements.Builder()
+                        .view(new View.Builder()
+                                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                                        .postAggregationFilter(new ElementFilter.Builder()
+                                                .select(TestPropertyNames.PROP_1)
+                                                .execute(new IsLessThan(3))
+                                                .build())
+                                        .build())
+                                .build())
+                        .build())
+                .operation(operation)
+                .build();
+
+        final GetWalks op = new GetWalks.Builder()
+                .input(seed)
+                .walkDefinitions(walkDefinition, walkDefinition)
+                .build();
+
+        // When
+        final Iterable<Walk> results = graph.execute(op, user);
+
+        // Then
+        assertThat(getPaths(results), is(equalTo("ABC")));
+    }
+
     private Set<Entity> createEntitySet() {
         final Set<Entity> entities = new HashSet<>();
 
         final Entity firstEntity = new Entity(TestGroups.ENTITY, "A");
         firstEntity.putProperty(TestPropertyNames.STRING, "3");
+        firstEntity.putProperty(TestPropertyNames.PROP_1, 1);
         entities.add(firstEntity);
 
         final Entity secondEntity = new Entity(TestGroups.ENTITY, "B");
         secondEntity.putProperty(TestPropertyNames.STRING, "3");
+        secondEntity.putProperty(TestPropertyNames.PROP_1, 2);
         entities.add(secondEntity);
 
         final Entity thirdEntity = new Entity(TestGroups.ENTITY, "C");
         thirdEntity.putProperty(TestPropertyNames.STRING, "3");
+        thirdEntity.putProperty(TestPropertyNames.PROP_1, 3);
         entities.add(thirdEntity);
 
         final Entity fourthEntity = new Entity(TestGroups.ENTITY, "D");
         fourthEntity.putProperty(TestPropertyNames.STRING, "3");
+        fourthEntity.putProperty(TestPropertyNames.PROP_1, 4);
         entities.add(fourthEntity);
 
         final Entity fifthEntity = new Entity(TestGroups.ENTITY, "E");
         fifthEntity.putProperty(TestPropertyNames.STRING, "3");
+        fifthEntity.putProperty(TestPropertyNames.PROP_1, 5);
         entities.add(fifthEntity);
 
         final Entity sixthEntity = new Entity(TestGroups.ENTITY, "F");
         sixthEntity.putProperty(TestPropertyNames.STRING, "3");
+        sixthEntity.putProperty(TestPropertyNames.PROP_1, 6);
         entities.add(sixthEntity);
 
         return entities;
@@ -478,6 +609,7 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex(TestTypes.ID_STRING)
                         .property(TestPropertyNames.STRING, TestTypes.PROP_STRING)
+                        .property(TestPropertyNames.PROP_1, TestTypes.PROP_INTEGER)
                         .groupBy(TestPropertyNames.INT)
                         .build())
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()

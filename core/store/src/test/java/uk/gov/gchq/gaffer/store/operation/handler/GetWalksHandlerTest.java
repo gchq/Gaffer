@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.data.graph.Walk;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.data.WalkDefinition;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
@@ -39,13 +40,15 @@ public class GetWalksHandlerTest {
     @Test
     public void shouldHandleNullInput() throws Exception {
         // Given
-        final GetElements operations = new GetElements.Builder()
+        final GetElements getElements = new GetElements.Builder()
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE)
                         .build())
                 .build();
         final GetWalks operation = new GetWalks.Builder()
-                .operations(operations)
+                .walkDefinitions(new WalkDefinition.Builder()
+                        .operation(getElements)
+                        .build())
                 .build();
 
         final GetWalksHandler handler = new GetWalksHandler();
@@ -55,25 +58,6 @@ public class GetWalksHandlerTest {
 
         // Then
         assertThat(result, is(nullValue()));
-    }
-
-    @Test
-    public void shouldHandleNullOperations() throws Exception {
-        // Given
-        final EntitySeed input = new EntitySeed("A");
-        final Iterable<GetElements> operations = null;
-        final GetWalks operation = new GetWalks.Builder()
-                .input(input)
-                .operations(operations)
-                .build();
-
-        final GetWalksHandler handler = new GetWalksHandler();
-
-        // When
-        final Iterable<Walk> result = handler.doOperation(operation, null, null);
-
-        // Then
-        assertThat(result, is(new EmptyClosableIterable<>()));
     }
 
     @Test
