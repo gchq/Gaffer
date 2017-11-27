@@ -25,7 +25,7 @@ public final class FlinkConstants {
 
     /**
      * Operation option key for setting the maximum queue size for adding to
-     * a Gaffer store. If the queue size is exceeded flink will be blocked
+     * a Gaffer store. If the queue size is exceeded Flink will be blocked
      * from adding to the queue until the Gaffer Store has consumed the elements.
      */
     public static final String MAX_QUEUE_SIZE = "gaffer.flink.operation.handler.max-queue-size";

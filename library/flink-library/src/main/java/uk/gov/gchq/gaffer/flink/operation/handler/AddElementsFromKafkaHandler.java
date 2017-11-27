@@ -68,7 +68,7 @@ public class AddElementsFromKafkaHandler implements OperationHandler<AddElements
         try {
             env.execute(op.getClass().getSimpleName() + "-" + op.getGroupId() + "-" + op.getTopic());
         } catch (final Exception e) {
-            throw new OperationException("Failed to add elements from kafka topic: " + op.getTopic(), e);
+            throw new OperationException("Failed to add elements from Kafka topic: " + op.getTopic(), e);
         }
 
         return null;

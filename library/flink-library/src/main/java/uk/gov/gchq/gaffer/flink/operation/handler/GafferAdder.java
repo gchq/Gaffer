@@ -38,20 +38,20 @@ import java.util.Properties;
  * Helper class to add {@link Element}s to a Gaffer store.
  * </p>
  * <p>
- * The flink sink is given a single element at a time. Adding a single element
+ * The Flink sink is given a single element at a time. Adding a single element
  * at a time to Gaffer would be really inefficient so we add these individual
  * elements to a blocking queue that we simultaneously add elements to whilst
  * the Gaffer Store is consuming them.
  * </p>
  * <p>
  * The queue is a {@link java.util.concurrent.BlockingQueue} with a maximum size to prevent the queue
- * from getting to large and running out of memory. If the maximum size is reached
+ * from getting too large and running out of memory. If the maximum size is reached
  * Flink will be blocked from adding elements to the queue. The maximum size of
  * the queue can be configured using the operation option:
  * gaffer.flink.operation.handler.max-queue-size.
  * By default the maximum size is 1,000,000.
  * The blocking queue is only blocked on addition, it does not cause the Gaffer
- * Store to block if the queue is empty. In the case where a kafka queue has
+ * Store to block if the queue is empty. In the case where a Kafka queue has
  * just a single Gaffer element the Store can immediately add this rather than
  * blocking and waiting for a batch to fill up. A side affect of this is that
  * AddElements operation may complete if no elements are added to the queue for
