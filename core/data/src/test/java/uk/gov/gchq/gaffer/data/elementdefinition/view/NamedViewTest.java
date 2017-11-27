@@ -43,7 +43,7 @@ public class NamedViewTest {
         NamedView namedView = new NamedView();
 
         //Then
-        assertTrue(namedView.getViewName().isEmpty());
+        assertTrue(namedView.getName().isEmpty());
         assertTrue(namedView.getParameters().isEmpty());
         assertTrue(namedView.getEdges().isEmpty());
         assertTrue(namedView.getEntities().isEmpty());
@@ -97,7 +97,7 @@ public class NamedViewTest {
         assertEquals(1, namedView.getEntities().size());
         assertSame(entityDef1, namedView.getEntity(TestGroups.ENTITY));
 
-        assertEquals(TEST_VIEW_NAME, namedView.getViewName());
+        assertEquals(TEST_VIEW_NAME, namedView.getName());
         assertEquals(testParameters, namedView.getParameters());
     }
 
@@ -131,7 +131,7 @@ public class NamedViewTest {
                 "          } ]" +
                 "        }" +
                 "      }," +
-                "      \"viewName\": \"testViewName\"," +
+                "      \"name\": \"testViewName\"," +
                 "      \"parameters\" : { }" +
                 "    }"), new String(json));
     }
@@ -153,7 +153,13 @@ public class NamedViewTest {
         byte[] json = namedView.toJson(true);
         final NamedView deserialisedView = new NamedView.Builder().json(json).build();
 
-        assertEquals(TEST_VIEW_NAME, deserialisedView.getViewName());
+        assertEquals(TEST_VIEW_NAME, deserialisedView.getName());
+        assertEquals(testParameters, namedView.getParameters());
+        assertEquals(1, namedView.getEdges().size());
+        assertSame(edgeDef1, namedView.getEdge(TestGroups.EDGE));
+
+        assertEquals(1, namedView.getEntities().size());
+        assertSame(entityDef1, namedView.getEntity(TestGroups.ENTITY));
     }
 
     @Test

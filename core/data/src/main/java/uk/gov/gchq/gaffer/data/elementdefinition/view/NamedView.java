@@ -16,28 +16,36 @@
 
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
-import uk.gov.gchq.gaffer.commonutil.Required;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
+import uk.gov.gchq.gaffer.commonutil.Required;
+import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+
+import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
+@JsonDeserialize(builder = NamedView.Builder.class)
 public class NamedView extends View {
 
     @Required
-    private String viewName;
+    private String name;
     private Map<String, Object> parameters;
 
     public NamedView() {
-        this.viewName = "";
+        this.name = "";
         this.parameters = new HashMap<>();
     }
 
-    public void setViewName(String viewName) {
-        this.viewName = viewName;
+    public void setName(String viewName) {
+        this.name = viewName;
     }
 
-    public String getViewName() {
-        return this.viewName;
+    public String getName() {
+        return this.name;
     }
 
     public void setParameters(final Map<String, Object> parameters) {
@@ -58,13 +66,39 @@ public class NamedView extends View {
             super(namedView);
         }
 
-        public CHILD_CLASS name(final String viewName) {
-            getElementDefs().setViewName(viewName);
+        public CHILD_CLASS name(final String name) {
+            getElementDefs().setName(name);
             return self();
         }
 
         public CHILD_CLASS parameters(final Map<String, Object> parameters) {
             getElementDefs().setParameters(parameters);
+            return self();
+        }
+
+        @Override
+        @JsonIgnore
+        public CHILD_CLASS json(final InputStream... inputStreams) throws SchemaException {
+            return json(NamedView.class, inputStreams);
+        }
+
+        @Override
+        @JsonIgnore
+        public CHILD_CLASS json(final Path... filePaths) throws SchemaException {
+            return json(NamedView.class, filePaths);
+        }
+
+        @Override
+        @JsonIgnore
+        public CHILD_CLASS json(final byte[]... jsonBytes) throws SchemaException {
+            return json(NamedView.class, jsonBytes);
+        }
+
+
+        //@Override
+        public CHILD_CLASS merge(NamedView view) {
+            super.merge(view);
+            self().name(getElementDefs().getName());
             return self();
         }
 
@@ -79,6 +113,7 @@ public class NamedView extends View {
         }
     }
 
+    @JsonPOJOBuilder(buildMethodName = "build", withPrefix = "")
     public static final class Builder extends BaseBuilder<Builder> {
         public Builder() {
         }
