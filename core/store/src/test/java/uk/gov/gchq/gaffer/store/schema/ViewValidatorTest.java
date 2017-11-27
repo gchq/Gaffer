@@ -113,7 +113,7 @@ public class ViewValidatorTest {
 
 
     @Test
-    public void shouldValidateAndReturnFalseWhenEntityFilterSelectionMissingProperty() {
+    public void shouldValidateAndReturnTrueWhenEntityFilterSelectionUnknownProperty() {
         // Given
         final ViewValidator validator = new ViewValidator();
         final View view = new View.Builder()
@@ -134,11 +134,11 @@ public class ViewValidatorTest {
         final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
-        assertFalse(result.isValid());
+        assertTrue(result.isValid());
     }
 
     @Test
-    public void shouldValidateAndReturnFalseWhenEntityTransformerSelectionMissingProperty() {
+    public void shouldValidateAndReturnTrueWhenEntityTransformerSelectionUnknownProperty() {
         // Given
         final ViewValidator validator = new ViewValidator();
         final View view = new View.Builder()
@@ -162,11 +162,11 @@ public class ViewValidatorTest {
         final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
-        assertFalse(result.isValid());
+        assertTrue(result.isValid());
     }
 
     @Test
-    public void shouldValidateAndReturnFalseWhenEntityTransformerProjectsToMissingProperty() {
+    public void shouldValidateAndReturnTrueWhenEntityTransformerProjectsToUnknownProperty() {
         // Given
         final ViewValidator validator = new ViewValidator();
         final View view = new View.Builder()
@@ -191,7 +191,7 @@ public class ViewValidatorTest {
         final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
-        assertFalse(result.isValid());
+        assertTrue(result.isValid());
     }
 
     @Test
@@ -314,7 +314,7 @@ public class ViewValidatorTest {
     }
 
     @Test
-    public void shouldValidateAndReturnFalseWhenEdgeFilterSelectionMissingProperty() {
+    public void shouldValidateAndReturnTrueWhenEdgeFilterSelectionUnknownProperty() {
         // Given
         final ViewValidator validator = new ViewValidator();
         final View view = new View.Builder()
@@ -335,11 +335,11 @@ public class ViewValidatorTest {
         final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
-        assertFalse(result.isValid());
+        assertTrue(result.isValid());
     }
 
     @Test
-    public void shouldValidateAndReturnFalseWhenEdgeTransformerSelectionMissingProperty() {
+    public void shouldValidateAndReturnTrueWhenEdgeTransformerSelectionUnknownProperty() {
         // Given
         final ViewValidator validator = new ViewValidator();
         final View view = new View.Builder()
@@ -362,11 +362,11 @@ public class ViewValidatorTest {
         final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
-        assertFalse(result.isValid());
+        assertTrue(result.isValid());
     }
 
     @Test
-    public void shouldValidateAndReturnFalseWhenEdgeTransformerProjectsToMissingProperty() {
+    public void shouldValidateAndReturnTrueWhenEdgeTransformerProjectsToUnknownProperty() {
         // Given
         final ViewValidator validator = new ViewValidator();
         final View view = new View.Builder()
@@ -391,7 +391,7 @@ public class ViewValidatorTest {
         final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
-        assertFalse(result.isValid());
+        assertTrue(result.isValid());
     }
 
     @Test
@@ -645,7 +645,7 @@ public class ViewValidatorTest {
     }
 
     @Test
-    public void shouldValidateAndReturnFalseWhenPostTransformerSelectionDoesNotExist() {
+    public void shouldValidateAndReturnTrueWhenPostTransformerSelectionIsUnknown() {
         // Given
         final ViewValidator validator = new ViewValidator();
         final View view = new View.Builder()
@@ -674,7 +674,7 @@ public class ViewValidatorTest {
         final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
-        assertFalse(result.isValid());
+        assertTrue(result.isValid());
     }
 
     @Test
@@ -876,7 +876,7 @@ public class ViewValidatorTest {
     }
 
     @Test
-    public void shouldValidateAndReturnFalseWhenAggregatorSelectionMissingProperty() {
+    public void shouldValidateAndReturnTrueWhenAggregatorSelectionUnknownProperty() {
         // Given
         final ViewValidator validator = new ViewValidator();
         final View view = new View.Builder()
@@ -896,7 +896,7 @@ public class ViewValidatorTest {
         final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
-        assertFalse(result.isValid());
+        assertTrue(result.isValid());
     }
 
 

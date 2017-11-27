@@ -15,17 +15,16 @@
  */
 package uk.gov.gchq.gaffer.store.operation.validator.function;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
-import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.signature.Signature;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,19 +40,16 @@ public class TransformValidator extends FunctionValidator<Transform> {
         final Map<String, ?> entities = null != operation.getEntities() ? operation.getEntities() : new HashMap<>();
         final Map<String, ?> edges = null != operation.getEdges() ? operation.getEdges() : new HashMap<>();
 
-        final Map<String, SchemaEntityDefinition> schemaEntities = schema.getEntities();
-        final Map<String, SchemaEdgeDefinition> schemaEdges = schema.getEdges();
-
         for (final Map.Entry<String, ?> entry : edges.entrySet()) {
             result.add(validateEdge(entry, schema));
             result.add(validateElementTransformer((ElementTransformer) entry.getValue()));
-            result.add(validateTransformPropertyClasses(schemaEdges, (ElementTransformer) entry.getValue()));
+            result.add(validateTransformPropertyClasses(schema.getEdge(entry.getKey()), (ElementTransformer) entry.getValue()));
         }
 
         for (final Map.Entry<String, ?> entry : entities.entrySet()) {
             result.add(validateEntity(entry, schema));
             result.add(validateElementTransformer((ElementTransformer) entry.getValue()));
-            result.add(validateTransformPropertyClasses(schemaEntities, (ElementTransformer) entry.getValue()));
+            result.add(validateTransformPropertyClasses(schema.getEntity(entry.getKey()), (ElementTransformer) entry.getValue()));
         }
 
         return result;
@@ -73,31 +69,32 @@ public class TransformValidator extends FunctionValidator<Transform> {
 
     /**
      * Validates that the functions to be executed are assignable to the corresponding properties
-     * @param elements      Map of element group to SchemaElementDefinition
-     * @param transformer   The ElementFilter to be validated against
-     * @return              ValidationResult of the validation
+     *
+     * @param elementDef  The SchemaElementDefinition to validate against.
+     * @param transformer The ElementFilter to be validated against
+     * @return ValidationResult of the validation
      */
-    private ValidationResult validateTransformPropertyClasses(final Map<String, ? extends SchemaElementDefinition> elements, final ElementTransformer transformer) {
+    private ValidationResult validateTransformPropertyClasses(final SchemaElementDefinition elementDef, final ElementTransformer transformer) {
         final ValidationResult result = new ValidationResult();
 
-        final List<TupleAdaptedFunction<String, ?, ?>> components = transformer.getComponents();
-        for (final TupleAdaptedFunction<String, ?, ?> component : components) {
-            final String[] selection = component.getSelection();
-            final String[] projection = component.getProjection();
-
-            for (final SchemaElementDefinition elementDef : elements.values()) {
-                final Class[] selectionClasses = Arrays.stream(selection).map(elementDef::getPropertyClass).toArray(Class[]::new);
-                final Class[] projectionClasses = Arrays.stream(projection).map(elementDef::getPropertyClass).toArray(Class[]::new);
+        if(null != elementDef) {
+            final List<TupleAdaptedFunction<String, ?, ?>> components = transformer.getComponents();
+            for (final TupleAdaptedFunction<String, ?, ?> component : components) {
                 final Map<String, String> properties = elementDef.getPropertyMap();
                 if (!properties.isEmpty()) {
                     if (null == component.getFunction()) {
                         result.addError(transformer.getClass().getSimpleName());
                     } else {
-                        final Signature inputSig = Signature.getInputSignature(component.getFunction());
-                        result.add(inputSig.assignable(selectionClasses));
-
-                        final Signature outputSig = Signature.getOutputSignature(component.getFunction());
-                        result.add(outputSig.assignable(projectionClasses));
+                        final Class[] selectionClasses = getTypeClasses(component.getSelection(), elementDef);
+                        if (!ArrayUtils.contains(selectionClasses, null)) {
+                            final Signature inputSig = Signature.getInputSignature(component.getFunction());
+                            result.add(inputSig.assignable(selectionClasses));
+                        }
+                        final Class[] projectionClasses = getTypeClasses(component.getProjection(), elementDef);
+                        if (!ArrayUtils.contains(projectionClasses, null)) {
+                            final Signature outputSig = Signature.getOutputSignature(component.getFunction());
+                            result.add(outputSig.assignable(projectionClasses));
+                        }
                     }
                 }
             }

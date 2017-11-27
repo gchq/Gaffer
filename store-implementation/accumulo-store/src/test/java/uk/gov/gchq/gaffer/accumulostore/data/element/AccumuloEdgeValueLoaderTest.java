@@ -60,7 +60,7 @@ public class AccumuloEdgeValueLoaderTest {
         loader.loadIdentifiers(edge);
 
         // Then
-        verify(edge).setIdentifiers("source", "dest", true);
+        verify(edge).setIdentifiers("source", "dest", true, EdgeId.MatchedVertex.SOURCE);
         verify(converter, never()).getPropertiesFromColumnQualifier(Mockito.eq(group), Mockito.any(byte[].class));
         verify(converter, never()).getPropertiesFromColumnVisibility(Mockito.eq(group), Mockito.any(byte[].class));
         verify(converter, never()).getPropertiesFromTimestamp(Mockito.eq(group), Mockito.anyLong());
