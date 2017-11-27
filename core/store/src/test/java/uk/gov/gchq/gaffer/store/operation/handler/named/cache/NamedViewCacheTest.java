@@ -28,8 +28,8 @@ import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
-import uk.gov.gchq.gaffer.named.view.NamedView;
 
 import java.util.Properties;
 import java.util.Set;
