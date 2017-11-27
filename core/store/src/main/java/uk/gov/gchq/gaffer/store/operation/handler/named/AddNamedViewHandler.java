@@ -39,10 +39,12 @@ public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
 
     @Override
     public Object doOperation(final AddNamedView operation, final Context context, final Store store) throws OperationException {
+        validate(operation);
+
         final NamedView namedView = new NamedView.Builder()
-                .name(operation.getViewName())
+                .name(operation.getNamedView().getViewName())
                 .merge(operation.getNamedView())
-                .parameters(operation.getParameters())
+                        //.parameters(operation.getParameters())
                 .build();
 
         try {
@@ -51,5 +53,11 @@ public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
             throw new OperationException(e.getMessage(), e);
         }
         return null;
+    }
+
+    private void validate(final AddNamedView op) {
+        if (null == op.getNamedView().getViewName()) {
+            throw new IllegalArgumentException("NamedView name must be set");
+        }
     }
 }
