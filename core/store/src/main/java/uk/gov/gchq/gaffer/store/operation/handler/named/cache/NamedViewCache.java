@@ -16,27 +16,23 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named.cache;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
-import uk.gov.gchq.gaffer.named.view.NamedView;
 
 import java.util.HashSet;
 import java.util.Set;
 
 /**
  * /**
- * Wrapper around the {@link uk.gov.gchq.gaffer.cache.CacheServiceLoader} to provide an interface for handling
- * the {@link uk.gov.gchq.gaffer.named.view.NamedView}s for a Gaffer graph.
+ * Wrapper around the {@link CacheServiceLoader} to provide an interface for handling
+ * the {@link NamedView}s for a Gaffer graph.
  */
 public class NamedViewCache {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NamedViewCache.class);
     private static final String CACHE_NAME = "NamedView";
 
     public void addNamedView(final NamedView namedView, final boolean overwrite) throws CacheOperationFailedException {
