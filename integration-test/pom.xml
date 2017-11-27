@@ -40,6 +40,13 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>data</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.apache.accumulo</groupId>
             <artifactId>accumulo-core</artifactId>
             <version>${accumulo.version}</version>
