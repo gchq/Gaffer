@@ -77,7 +77,7 @@ public class TransformValidator extends FunctionValidator<Transform> {
     private ValidationResult validateTransformPropertyClasses(final SchemaElementDefinition elementDef, final ElementTransformer transformer) {
         final ValidationResult result = new ValidationResult();
 
-        if(null != elementDef) {
+        if (null != elementDef) {
             final List<TupleAdaptedFunction<String, ?, ?>> components = transformer.getComponents();
             for (final TupleAdaptedFunction<String, ?, ?> component : components) {
                 final Map<String, String> properties = elementDef.getPropertyMap();
