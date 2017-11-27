@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain.Builder;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
@@ -405,5 +406,34 @@ public class OperationChainTest extends OperationsTest<OperationChain> {
 
         // Then
         assertEquals(ops, getOps);
+    }
+
+    @Test
+    public void shouldConvertToOverviewString() {
+        // Given
+        final OperationChain opChain = new OperationChain.Builder()
+                .first(new GetAdjacentIds.Builder()
+                        .input(new EntitySeed("vertex1"))
+                        .build())
+                .then(new Limit<>(1))
+                .build();
+
+        // When
+        final String overview = opChain.toOverviewString();
+
+        // Then
+        assertEquals("OperationChain[GetAdjacentIds->Limit]", overview);
+    }
+
+    @Test
+    public void shouldConvertToOverviewStringWithNoOperations() {
+        // Given
+        final OperationChain opChain = new OperationChain();
+
+        // When
+        final String overview = opChain.toOverviewString();
+
+        // Then
+        assertEquals("OperationChain[]", overview);
     }
 }
