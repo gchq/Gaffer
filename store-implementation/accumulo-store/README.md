@@ -310,6 +310,12 @@ If all the above fails, try inserting a small amount of data using `AddElements`
 
 Check that you have the correct authorisations to see the data you inserted. Check with the administrator of your Accumulo cluster.
 
+**Spark operations are slow**
+
+Try using a batch scanner to read the data from the tablet server. To enable this for the `GetRDDOfAllElements` or `GetJavaRDDOfAllElements` operation, set the `gaffer.accumulo.spark.rdd.use_batch_scanner` option to true. `GetRDDOfElements` and `GetJavaRDDOfElements` use a batch scanner by default.
+
+If you still don't see a significant improvement, try increasing the value of the `table.scan.max.memory` setting in Accumulo for your table.
+
 Implementation details
 -----------------------------------------------
 
