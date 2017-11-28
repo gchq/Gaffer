@@ -83,6 +83,18 @@
                                     href='http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3'
                                     &gt;Open Government Licence&lt;/a&gt;.
                                 </gaffer.properties.app.description>
+                                <gaffer.properties.app.logo.link>
+                                    https://github.com/gchq/Gaffer
+                                </gaffer.properties.app.logo.link>
+                                <gaffer.properties.app.logo.src>
+                                    images/iconCircle.png
+                                </gaffer.properties.app.logo.src>
+                                <gaffer.properties.app.logo.favicon.small>
+                                    images/favicon-16x16.png
+                                </gaffer.properties.app.logo.favicon.small>
+                                <gaffer.properties.app.logo.favicon.large>
+                                    images/favicon-32x32.png
+                                </gaffer.properties.app.logo.favicon.large>
                                 <gaffer.rest-api.basePath>
                                     ${standalone-path}
                                 </gaffer.rest-api.basePath>

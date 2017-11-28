@@ -50,6 +50,10 @@ public abstract class SystemProperty {
     public static final String APP_BANNER_COLOUR = "gaffer.properties.app.banner.colour";
     public static final String APP_BANNER_DESCRIPTION = "gaffer.properties.app.banner.description";
     public static final String APP_DOCUMENTATION_URL = "gaffer.properties.app.doc.url";
+    public static final String LOGO_LINK = "gaffer.properties.app.logo.link";
+    public static final String LOGO_IMAGE_URL = "gaffer.properties.app.logo.src";
+    public static final String FAVICON_SMALL_URL = "gaffer.properties.app.logo.favicon.small";
+    public static final String FAVICON_LARGE_URL = "gaffer.properties.app.logo.favicon.large";
 
     /**
      * @deprecated create a GraphConfig json file and use GRAPH_CONFIG_PATH instead
@@ -89,6 +93,8 @@ public abstract class SystemProperty {
     public static final String APP_TITLE_DEFAULT = "Gaffer REST";
     public static final String APP_DESCRIPTION_DEFAULT = "The Gaffer REST service.";
     public static final String APP_DOCUMENTATION_URL_DEFAULT = "https://gchq.github.io/gaffer-doc/";
+    public static final String LOGO_LINK_DEFAULT = "https://github.com/gchq/Gaffer";
+    public static final String LOGO_IMAGE_URL_DEFAULT = "images/iconCircle.png";
 
     private SystemProperty() {
         // Private constructor to prevent instantiation.

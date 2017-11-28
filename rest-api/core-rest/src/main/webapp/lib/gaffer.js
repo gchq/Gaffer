@@ -164,6 +164,9 @@ function initFromProperties(onPropertiesLoad) {
         updateDescription(properties);
         updateBanner(properties);
         updateDocUrl(properties);
+        updateLogoLink(properties);
+        updateLogo(properties);
+        updateFavicon(properties);
         if(onPropertiesLoad) {
             onPropertiesLoad(properties);
         }
@@ -205,6 +208,27 @@ function updateDescription(properties) {
 function updateDocUrl(properties) {
     updateElementWithId('doc-url', 'gaffer.properties.app.doc.url', properties, function(value, id) {
         $('#' + id).html("For more information see our <a href='" + value + "'>documentation</a>.");
+    });
+}
+
+function updateLogoLink(properties) {
+    updateElementWithId('logo', 'gaffer.properties.app.logo.link', properties, function(value, id) {
+        $('#' + id).attr("href", value);
+    });
+}
+
+function updateLogo(properties) {
+    updateElementWithId('logo', 'gaffer.properties.app.logo.src', properties, function(value, id) {
+        $('#' + id).prepend("<img class='logo__img' alt='swagger' height='30' width='30' src='" + value + "'/>");
+    });
+}
+
+function updateFavicon(properties) {
+    updateElement('gaffer.properties.app.logo.favicon.small', properties, function(value, id) {
+    $('body').prepend("<link rel='icon' type='image/png' href='" + value + "' sizes='16x16'/>");
+    });
+    updateElement('gaffer.properties.app.logo.favicon.large', properties, function(value, id) {
+    $('body').prepend("<link rel='icon' type='image/png' href='" + value + "' sizes='32x32'/>");
     });
 }
 
