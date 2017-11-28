@@ -94,11 +94,24 @@ public class NamedView extends View {
             return json(NamedView.class, jsonBytes);
         }
 
-
-        //@Override
-        public CHILD_CLASS merge(NamedView view) {
-            super.merge(view);
-            self().name(getElementDefs().getName());
+        @Override
+        public CHILD_CLASS merge(View view) {
+            if (null != view) {
+                if (view instanceof NamedView) {
+                    NamedView namedViewInstance = (NamedView) view;
+                    if (null != getElementDefs().getName() && !getElementDefs().getName().isEmpty()) {
+                        self().name(namedViewInstance.getName() + "_" + getElementDefs().getName());
+                    } else {
+                        self().name(namedViewInstance.getName());
+                    }
+                    if (null != getElementDefs().getParameters() && !getElementDefs().getParameters().isEmpty()) {
+                        getElementDefs().getParameters().putAll(namedViewInstance.getParameters());
+                    } else {
+                        self().parameters(namedViewInstance.getParameters());
+                    }
+                }
+                super.merge(view);
+            }
             return self();
         }
 
