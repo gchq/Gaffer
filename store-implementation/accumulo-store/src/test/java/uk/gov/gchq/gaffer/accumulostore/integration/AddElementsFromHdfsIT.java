@@ -36,6 +36,7 @@ import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -108,6 +109,7 @@ public class AddElementsFromHdfsIT {
                         .destination(defaultEdge1.getDestination())
                         .directed(defaultEdge1.getDirected())
                         .properties(defaultEdge1.getPropertyMap())
+                        .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP)
                         .aggregate(false)
                         .build())
                 .build();
@@ -239,6 +241,7 @@ public class AddElementsFromHdfsIT {
                     .group(TestGroups.ENTITY)
                     .vertex(VERTEX_ID_PREFIX + i)
                     .property(TestPropertyNames.COUNT, 2)
+                    .property(TestPropertyNames.TIMESTAMP, 1L)
                     .build());
             expectedElements.add(new Edge.Builder()
                     .group(TestGroups.EDGE)
@@ -246,6 +249,7 @@ public class AddElementsFromHdfsIT {
                     .dest(VERTEX_ID_PREFIX + (i + 1))
                     .directed(true)
                     .property(TestPropertyNames.COUNT, 2)
+                    .property(TestPropertyNames.TIMESTAMP, 1L)
                     .build());
         }
         ElementUtil.assertElementEquals(expectedElements, elements);
@@ -297,6 +301,7 @@ public class AddElementsFromHdfsIT {
                     .group(TestGroups.ENTITY)
                     .vertex(VERTEX_ID_PREFIX + i)
                     .property(TestPropertyNames.COUNT, 2)
+                    .property(TestPropertyNames.TIMESTAMP, 1L)
                     .build());
             final Edge edge = new Edge.Builder()
                     .group(TestGroups.EDGE)
@@ -304,6 +309,7 @@ public class AddElementsFromHdfsIT {
                     .dest(VERTEX_ID_PREFIX + (i + 1))
                     .directed(true)
                     .property(TestPropertyNames.COUNT, 2)
+                    .property(TestPropertyNames.TIMESTAMP, 1L)
                     .build();
             if (fullyAggregated) {
                 expectedElements.add(edge);
@@ -349,7 +355,7 @@ public class AddElementsFromHdfsIT {
     }
 
     private Schema getSchema() {
-        return Schema.fromJson(StreamUtil.schemas(getClass()));
+        return Schema.fromJson(StreamUtil.openStreams(getClass(), "schema-add-elements-from-hdfs"));
     }
 
     private AccumuloStore createStore(final Class<? extends AccumuloKeyPackage> keyPackageClass, final Schema schema) throws Exception {
@@ -378,6 +384,7 @@ public class AddElementsFromHdfsIT {
                         .group(parts[0])
                         .vertex(parts[1])
                         .property(TestPropertyNames.COUNT, 1)
+                        .property(TestPropertyNames.TIMESTAMP, 1L)
                         .build();
             }
 
@@ -387,6 +394,7 @@ public class AddElementsFromHdfsIT {
                     .dest(parts[2])
                     .directed(true)
                     .property(TestPropertyNames.COUNT, 1)
+                    .property(TestPropertyNames.TIMESTAMP, 1L)
                     .build();
         }
     }
