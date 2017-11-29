@@ -42,7 +42,7 @@ along with any required connection details. See [Stores](https://gchq.github.io/
 
 ## Schema
 The schema is passed to the store to instruct the store how to store
-and process the data. See [Schemas](https://gchq.github.io/gaffer-doc/getting-started/dev-guide.html#schemas) for more information.
+and process the data. See [Schemas](https://gchq.github.io/gaffer-doc/getting-started/developer-guide/schemas.html) for more information.
 
 ## Graph Configuration
 The graph configuration allows you to apply special customisations to the Graph instance.

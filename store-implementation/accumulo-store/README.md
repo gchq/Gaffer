@@ -101,7 +101,7 @@ Other properties can be specified in this file. For details see [Advanced Proper
 Schema
 -----------------------------------------------
 
-See [Getting Started](https://gchq.github.io/gaffer-doc/getting-started/dev-guide.html#schemas) for details of how to write a schema that tells Gaffer what data will be stored, and how to aggregate it. Once the schema has been created, a `Graph` object can be created using:
+See [Getting Started](https://gchq.github.io/gaffer-doc/getting-started/developer-guide/schemas.html) for details of how to write a schema that tells Gaffer what data will be stored, and how to aggregate it. Once the schema has been created, a `Graph` object can be created using:
 
 ```java
 Graph graph = new Graph.Builder()
@@ -222,7 +222,7 @@ By default the number of reducers used in the MapReduce job that converts data i
 Queries
 -----------------------------------------------
 
-The Accumulo store supports all the standard queries. See the [Operation Examples](https://gchq.github.io/gaffer-doc/getting-started/operation-examples.html) for more details.
+The Accumulo store supports all the standard queries. See [Operations](https://gchq.github.io/gaffer-doc/getting-started/operations/contents.html) for more details.
 
 Visibility
 -----------------------------------------------
@@ -231,7 +231,7 @@ Gaffer can take advantage of Accumulo's built-in fine-grained security to ensure
 
 If no "visibilityProperty" is specified then the column visibility is empty which means that anyone who has read access to the table can view it.
 
-See [the visibility example](https://gchq.github.io/gaffer-doc/getting-started/dev-guide.html#visibilities) in the [Dev Guide](https://gchq.github.io/gaffer-doc/getting-started/dev-guide.html) guide for an example of how properties can be aggregated over different visibilities at query time.
+See [the visibility walkthrough](https://gchq.github.io/gaffer-doc/getting-started/developer-guide/visibilities.html) in the [Dev Guide](https://gchq.github.io/gaffer-doc/getting-started/developer-guide/contents.html) guide for an example of how properties can be aggregated over different visibilities at query time.
 
 Timestamp
 -----------------------------------------------
