@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -221,27 +222,34 @@ public class NamedViewTest {
     }
 
     @Test
-    public void mergeception() {
-        // Given / When
+    public void shouldMultipleMergeNamedViewsCorrectly() {
+        // Given
+        List<String> entityGroups = new ArrayList<>();
+        List<String> edgeGroups = new ArrayList<>();
+
+        for (int i = 0; i < 4; i++) {
+            entityGroups.add(TestGroups.ENTITY + i);
+            edgeGroups.add(TestGroups.EDGE + i);
+        }
+
         testParameters.put(TEST_PARAM_KEY, TEST_PARAM_VALUE);
 
+        // When
         NamedView namedView1 = new NamedView.Builder()
-                .edge(TestGroups.EDGE, edgeDef1)
+                .edges(edgeGroups)
                 .name(TEST_VIEW_NAME + 1)
                 .parameters(testParameters)
                 .merge(new NamedView())
                 .build();
 
         NamedView namedView2 = new NamedView.Builder()
-                .entity(TestGroups.ENTITY, entityDef2)
+                .entities(entityGroups)
                 .name(TEST_VIEW_NAME + 2)
                 .parameters(testParameters)
                 .merge(namedView1)
                 .build();
 
         NamedView namedView3 = new NamedView.Builder()
-                .edge(TestGroups.EDGE, edgeDef2)
-                .entity(TestGroups.ENTITY, entityDef1)
                 .name(TEST_VIEW_NAME + 3)
                 .parameters(testParameters)
                 .merge(namedView2)
@@ -250,6 +258,46 @@ public class NamedViewTest {
         // Then
         assertEquals(TEST_VIEW_NAME + 3, namedView3.getName());
         assertEquals(2, namedView3.getMergedNamedViewNames().size());
+        assertEquals(Arrays.asList(TEST_VIEW_NAME + 2, TEST_VIEW_NAME + 1), namedView3.getMergedNamedViewNames());
         assertEquals(testParameters, namedView3.getParameters());
+        assertTrue(namedView3.getEntityGroups().containsAll(entityGroups));
+        assertEquals(entityGroups.size(), namedView3.getEntityGroups().size());
+        assertTrue(namedView3.getEdgeGroups().containsAll(edgeGroups));
+        assertEquals(edgeGroups.size(), namedView3.getEdgeGroups().size());
+    }
+
+    @Test
+    public void shouldMergeViewToNamedViewsCorrectly() {
+        // Given
+        List<String> entityGroups = new ArrayList<>();
+        List<String> edgeGroups = new ArrayList<>();
+
+        for (int i = 0; i < 4; i++) {
+            entityGroups.add(TestGroups.ENTITY + i);
+            edgeGroups.add(TestGroups.EDGE + i);
+        }
+
+        testParameters.put(TEST_PARAM_KEY, TEST_PARAM_VALUE);
+
+        // When
+        View view = new View.Builder()
+                .entities(entityGroups)
+                .build();
+
+        NamedView namedView = new NamedView.Builder()
+                .name(TEST_VIEW_NAME + 3)
+                .edges(edgeGroups)
+                .parameters(testParameters)
+                .merge(view)
+                .build();
+
+        // Then
+        assertEquals(TEST_VIEW_NAME + 3, namedView.getName());
+        assertEquals(0, namedView.getMergedNamedViewNames().size());
+        assertEquals(testParameters, namedView.getParameters());
+        assertTrue(namedView.getEntityGroups().containsAll(entityGroups));
+        assertEquals(entityGroups.size(), namedView.getEntityGroups().size());
+        assertTrue(namedView.getEdgeGroups().containsAll(edgeGroups));
+        assertEquals(edgeGroups.size(), namedView.getEdgeGroups().size());
     }
 }
