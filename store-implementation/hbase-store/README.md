@@ -98,7 +98,7 @@ hbase.hdfs.jars.path=[path to jar folder]/hbase-store-[version]-deploy.jar
 Schema
 -----------------------------------------------
 
-See [Getting started](https://gchq.github.io/gaffer-doc/getting-started/dev-guide.html#schemas) for details of how to write a schema that tells Gaffer what data will be stored, and how to aggregate it. Once the schema has been created, a `Graph` object can be created using:
+See [Getting started](https://gchq.github.io/gaffer-doc/getting-started/developer-guide/schemas.html) for details of how to write a schema that tells Gaffer what data will be stored, and how to aggregate it. Once the schema has been created, a `Graph` object can be created using:
 
 ```java
 Graph graph = new Graph.Builder()
@@ -180,7 +180,7 @@ Gaffer can take advantage of HBase's built-in fine-grained security to ensure th
 
 If no "visibilityProperty" is specified then the column visibility is empty which means that anyone who has read access to the table can view it.
 
-See [the aggregation example](https://gchq.github.io/gaffer-doc/getting-started/user-guide.html#aggregation) in the [user guide](https://gchq.github.io/gaffer-doc/getting-started/user-guide.html) for an example of how properties can be aggregated over different visibilities at query time.
+See [the aggregation example](https://gchq.github.io/gaffer-doc/getting-started/user-guide/aggregation.html) in the [user guide](https://gchq.github.io/gaffer-doc/getting-started/user-guide/contents.html) for an example of how properties can be aggregated over different visibilities at query time.
 
 Timestamp
 -----------------------------------------------

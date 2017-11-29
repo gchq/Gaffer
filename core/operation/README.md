@@ -155,7 +155,7 @@ You need to provide a View to override the groupBy fields for all the element gr
 #### My queries are returning duplicate results - why and how can I deduplicate them?
 For example, if you have a Graph containing the Edge A-B and you do a GetElements with a large number of seeds, with the first seed A and the last seed B, then you will get the Edge A-B back twice. This is because Gaffer stores lazily return the results for your query to avoid loading all the results into memory so it will not realise the A-B has been queried for twice.
 
-You can deduplicate your results in memory using the [ToSet](https://gchq.github.io/gaffer-doc/getting-started/operation-examples.html#toset-example) operation. But, be careful to only use this when you have a small number of results. It might be worth also using the [Limit](https://gchq.github.io/gaffer-doc/getting-started/operation-examples.html#limit-example) operation prior to ToSet to ensure you don't run out of memory.
+You can deduplicate your results in memory using the [ToSet](https://gchq.github.io/gaffer-doc/getting-started/operations/toset.html) operation. But, be careful to only use this when you have a small number of results. It might be worth also using the [Limit](https://gchq.github.io/gaffer-doc/getting-started/operation-examples.html#limit-example) operation prior to ToSet to ensure you don't run out of memory.
 
 e.g: 
 
@@ -315,7 +315,7 @@ points for your AddElementsFromHdfs operation.
 
 #### I want to filter the results of my query based on the destination of the result Edges
 OK, there are several ways of doing this and you will need to chose the most appropriate
-way for your needs. Also worth reading [GetElements example](https://gchq.github.io/gaffer-doc/getting-started/operation-examples.html#getelements-example).
+way for your needs. Also worth reading [GetElements example](https://gchq.github.io/gaffer-doc/getting-started/operations/getelements.html).
 
 If you are querying with just a single EntitySeed with a vertex value of X and require
 the destination to be Y then you should change your query to use an EdgeSeed 
@@ -326,7 +326,7 @@ EdgeSeed as described above.
  
 If you require your destination to match a provided regex than you will need to use
 the regex filter: uk.gov.gchq.koryphe.impl.predicate.Regex or uk.gov.gchq.koryphe.impl.predicate.MultiRegex.
-See the [Predicate examples](https://gchq.github.io/gaffer-doc/getting-started/predicate-examples.html).
+See the [Predicate examples](https://gchq.github.io/gaffer-doc/getting-started/predicates/contents.html).
 The predicate can then be used in you Operation View to filter out elements that
 don't match the regex. 
 
