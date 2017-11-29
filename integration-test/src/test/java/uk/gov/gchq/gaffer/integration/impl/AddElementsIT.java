@@ -19,10 +19,21 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.commonutil.TestTypes;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.util.ElementUtil;
+import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+
+import java.util.Arrays;
 
 import static org.junit.Assert.assertTrue;
 
@@ -96,5 +107,51 @@ public class AddElementsIT extends AbstractStoreIT {
         graph.execute(addElements, getUser());
 
         // Then - no exceptions
+    }
+
+    @Test
+    public void shouldAddElementsWithSameTimestampWithoutAggregation() throws OperationException {
+        // Given
+        final Graph graphWithNoAggregation = createGraphWithNoAggregation();
+        final Entity entity = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex("1")
+                .property(TestPropertyNames.TIMESTAMP, 1L)
+                .build();
+
+        final AddElements addElements = new AddElements.Builder()
+                .input(entity, entity)
+                .build();
+
+        // When
+        graphWithNoAggregation.execute(addElements, getUser());
+
+        // Then
+        final CloseableIterable<? extends Element> allElements = graphWithNoAggregation.execute(new GetAllElements(), getUser());
+        ElementUtil.assertElementEquals(Arrays.asList(entity, entity), allElements);
+    }
+
+    private Graph createGraphWithNoAggregation() {
+        return new Graph.Builder()
+                .config(new GraphConfig.Builder()
+                        .graphId("integrationTestGraphWithNoAggregation")
+                        .build())
+                .storeProperties(getStoreProperties())
+                .addSchema(createSchemaNoVisibility())
+                .addSchema(getStoreSchema())
+                .build();
+    }
+
+    private Schema createSchemaNoVisibility() {
+        return new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex(TestTypes.ID_STRING)
+                        .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP)
+                        .aggregate(false)
+                        .build())
+                .type(TestTypes.ID_STRING, String.class)
+                .type(TestTypes.TIMESTAMP, Long.class)
+                .timestampProperty(TestTypes.TIMESTAMP)
+                .build();
     }
 }
