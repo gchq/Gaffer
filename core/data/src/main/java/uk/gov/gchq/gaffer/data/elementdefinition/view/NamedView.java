@@ -44,7 +44,7 @@ public class NamedView extends View {
         this.parameters = new HashMap<>();
     }
 
-    public void setName(String viewName) {
+    public void setName(final String viewName) {
         this.name = viewName;
     }
 
@@ -76,7 +76,7 @@ public class NamedView extends View {
             this(new NamedView());
         }
 
-        public BaseBuilder(NamedView namedView) {
+        public BaseBuilder(final NamedView namedView) {
             super(namedView);
         }
 
@@ -109,7 +109,7 @@ public class NamedView extends View {
         }
 
         @Override
-        public CHILD_CLASS merge(View view) {
+        public CHILD_CLASS merge(final View view) {
             if (null != view) {
                 if (view instanceof NamedView) {
                     NamedView namedViewInstance = (NamedView) view;
@@ -154,7 +154,7 @@ public class NamedView extends View {
         public Builder() {
         }
 
-        public Builder(NamedView namedView) {
+        public Builder(final NamedView namedView) {
             super(namedView);
         }
 
