@@ -24,8 +24,6 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.Table;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -71,6 +69,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
+import static uk.gov.gchq.gaffer.store.StoreTrait.MATCHED_VERTEX;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
@@ -81,13 +80,16 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
 
 /**
+ * <p>
  * An HBase implementation of a Gaffer {@link Store}
+ * </p>
  * <p>
  * The key detail of the HBase implementation is that any Edge inserted by a
  * user is inserted into the hbase table twice, once with the source object
  * being put first in the rowId and once with the destination bring put first in
  * the rowId. This is to enable an edge to be found in a Range scan when providing
  * only one end of the edge.
+ * </p>
  */
 public class HBaseStore extends Store {
     public static final Set<StoreTrait> TRAITS =
@@ -100,9 +102,9 @@ public class HBaseStore extends Store {
                     TRANSFORMATION,
                     INGEST_AGGREGATION,
                     QUERY_AGGREGATION,
-                    STORE_VALIDATION
+                    STORE_VALIDATION,
+                    MATCHED_VERTEX
             ));
-    private static final Logger LOGGER = LoggerFactory.getLogger(HBaseStore.class);
     private Connection connection;
 
     @Override

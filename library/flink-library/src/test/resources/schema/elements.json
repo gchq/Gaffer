@@ -1,0 +1,12 @@
+{
+  "edges": {
+    "edge": {
+      "source": "string",
+      "destination": "string",
+      "directed": "true",
+      "properties": {
+        "count": "int"
+      }
+    }
+  }
+}

@@ -81,7 +81,7 @@ public abstract class AbstractElementFilter extends Filter {
         if (schema.isEntity(group)) {
             element = new LazyEntity(new Entity(group), new AccumuloEntityValueLoader(group, key, value, elementConverter, schema));
         } else {
-            element = new LazyEdge(new Edge(group, null, null, false), new AccumuloEdgeValueLoader(group, key, value, elementConverter, schema, false));
+            element = new LazyEdge(new Edge(group, null, null, false), new AccumuloEdgeValueLoader(group, key, value, elementConverter, schema, true));
         }
         return elementPredicate.test(element);
     }
