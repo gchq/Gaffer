@@ -36,8 +36,8 @@ public class NamedViewCache {
     private static final String CACHE_NAME = "NamedView";
 
     public void addNamedView(final NamedView namedView, final boolean overwrite) throws CacheOperationFailedException {
-        if (null != namedView.getViewName()) {
-            namedView.getViewName();
+        if (null != namedView.getName()) {
+            namedView.getName();
         } else {
             throw new IllegalArgumentException("NamedView name cannot be null");
         }
@@ -97,9 +97,9 @@ public class NamedViewCache {
     public void addToCache(final NamedView operation, final boolean overwrite) throws CacheOperationFailedException {
         try {
             if (overwrite) {
-                CacheServiceLoader.getService().putInCache(CACHE_NAME, operation.getViewName(), operation);
+                CacheServiceLoader.getService().putInCache(CACHE_NAME, operation.getName(), operation);
             } else {
-                CacheServiceLoader.getService().putSafeInCache(CACHE_NAME, operation.getViewName(), operation);
+                CacheServiceLoader.getService().putSafeInCache(CACHE_NAME, operation.getName(), operation);
             }
         } catch (final CacheOperationException e) {
             throw new CacheOperationFailedException(e);
