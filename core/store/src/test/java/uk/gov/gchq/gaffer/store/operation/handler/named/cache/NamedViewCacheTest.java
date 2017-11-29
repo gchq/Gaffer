@@ -60,7 +60,7 @@ public class NamedViewCacheTest {
     @Test
     public void shouldAddNamedView() throws CacheOperationFailedException {
         cache.addNamedView(standardNamedView, false);
-        NamedView namedViewFromCache = cache.getNamedView(standardNamedView.getViewName());
+        NamedView namedViewFromCache = cache.getNamedView(standardNamedView.getName());
 
         assertEquals(standardNamedView, namedViewFromCache);
     }
@@ -72,7 +72,7 @@ public class NamedViewCacheTest {
             cache.addNamedView(standardNamedView, false);
             fail(EXCEPTION_EXPECTED);
         } catch (OverwritingException e) {
-            assertTrue(e.getMessage().equals("Cache entry already exists for key: " + standardNamedView.getViewName()));
+            assertTrue(e.getMessage().equals("Cache entry already exists for key: " + standardNamedView.getName()));
         }
     }
 
@@ -80,16 +80,6 @@ public class NamedViewCacheTest {
     public void shouldThrowExceptionWhenDeletingIfKeyIsNull() throws CacheOperationFailedException {
         try {
             cache.deleteNamedView(null);
-        } catch (IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("NamedView name cannot be null"));
-        }
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenAddingIfKeyIsNull() throws CacheOperationFailedException {
-        NamedView nullNameNamedView = new NamedView.Builder().name(null).build();
-        try {
-            cache.addNamedView(nullNameNamedView, false);
         } catch (IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("NamedView name cannot be null"));
         }
