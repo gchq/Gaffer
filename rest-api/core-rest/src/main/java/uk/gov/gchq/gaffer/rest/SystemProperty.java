@@ -94,7 +94,7 @@ public abstract class SystemProperty {
     public static final String APP_DESCRIPTION_DEFAULT = "The Gaffer REST service.";
     public static final String APP_DOCUMENTATION_URL_DEFAULT = "https://gchq.github.io/gaffer-doc/";
     public static final String LOGO_LINK_DEFAULT = "https://github.com/gchq/Gaffer";
-    public static final String LOGO_IMAGE_URL_DEFAULT = "images/iconCircle.png";
+    public static final String LOGO_IMAGE_URL_DEFAULT = "images/logo.png";
 
     private SystemProperty() {
         // Private constructor to prevent instantiation.

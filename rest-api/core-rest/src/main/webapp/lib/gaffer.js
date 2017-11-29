@@ -109,7 +109,7 @@ function log() {
 function initExampleOperations() {
     var availableOperationsSelect = $('.example-operations-select');
     $.get(
-          getVersion() + '/graph/operations',
+        'latest/graph/operations',
           null,
           function(availableOperations){
                // Sort operations based on name of operation (not including the package name)
@@ -189,7 +189,7 @@ function updateTitle(properties) {
 }
 
 function updateBanner(properties) {
-    if($('#banner').length == 0){
+    if($('#banner').length == 0) {
         updateElementWithId('banner', 'gaffer.properties.app.banner.description', properties, function (value, id) {
             $('body').prepend("<div id='banner' class='banner'>" + value + "</div>")
             updateElementWithId('banner', 'gaffer.properties.app.banner.colour', properties, function(value, id) {
@@ -218,18 +218,24 @@ function updateLogoLink(properties) {
 }
 
 function updateLogo(properties) {
-    updateElementWithId('logo', 'gaffer.properties.app.logo.src', properties, function(value, id) {
-        $('#' + id).prepend("<img class='logo__img' alt='swagger' height='30' width='30' src='" + value + "'/>");
-    });
+    if(!$('#logo img').hasClass('logo__img')) {
+        updateElementWithId('logo', 'gaffer.properties.app.logo.src', properties, function(value, id) {
+            $('#' + id).prepend("<img class='logo__img' alt='swagger' height='30' width='30' src='" + value + "'/>");
+        });
+    }
 }
 
 function updateFavicon(properties) {
-    updateElement('gaffer.properties.app.logo.favicon.small', properties, function(value, id) {
-    $('body').prepend("<link rel='icon' type='image/png' href='" + value + "' sizes='16x16'/>");
-    });
-    updateElement('gaffer.properties.app.logo.favicon.large', properties, function(value, id) {
-    $('body').prepend("<link rel='icon' type='image/png' href='" + value + "' sizes='32x32'/>");
-    });
+    if(!$('head').children().hasClass('favicon-16')) {
+        updateElement('gaffer.properties.app.logo.favicon.small', properties, function(value, id) {
+                $('head').prepend("<link class='favicon-16' rel='icon' type='image/png' href='" + value + "' sizes='16x16'/>");
+        });
+    }
+    if(!$('head').children().hasClass('favicon-32')) {
+        updateElement('gaffer.properties.app.logo.favicon.large', properties, function(value, id) {
+                $('head').prepend("<link class='favicon-32' rel='icon' type='image/png' href='" + value + "' sizes='32x32'/>");
+        });
+    }
 }
 
 function updateElement(key, properties, onSuccess) {
