@@ -19,10 +19,13 @@ package uk.gov.gchq.gaffer.data.elementdefinition.view;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
+import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -299,5 +302,12 @@ public class NamedViewTest {
         assertEquals(entityGroups.size(), namedView.getEntityGroups().size());
         assertTrue(namedView.getEdgeGroups().containsAll(edgeGroups));
         assertEquals(edgeGroups.size(), namedView.getEdgeGroups().size());
+    }
+
+    @Test
+    public void shouldDefaultDeserialiseToView() throws SerialisationException {
+        final byte[] emptyJson = StringUtil.toBytes("{}");
+        View view = JSONSerialiser.deserialise(emptyJson, View.class);
+        assertEquals(View.class, view.getClass());
     }
 }
