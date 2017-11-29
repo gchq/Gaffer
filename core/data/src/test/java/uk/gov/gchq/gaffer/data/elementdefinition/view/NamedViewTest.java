@@ -196,8 +196,8 @@ public class NamedViewTest {
 
         // Then
         assertEquals(TEST_VIEW_NAME + 2, namedView2.getName());
-        assertEquals(1, namedView2.getViewsContainedInThisView().size());
-        assertTrue(namedView2.getViewsContainedInThisView().contains(TEST_VIEW_NAME));
+        assertEquals(1, namedView2.getMergedNamedViewNames().size());
+        assertTrue(namedView2.getMergedNamedViewNames().contains(TEST_VIEW_NAME));
         assertEquals(testParameters, namedView2.getParameters());
     }
 
@@ -216,7 +216,7 @@ public class NamedViewTest {
 
         // Then
         assertEquals(TEST_VIEW_NAME, namedView.getName());
-        assertEquals(0, namedView.getViewsContainedInThisView().size());
+        assertEquals(0, namedView.getMergedNamedViewNames().size());
         assertEquals(testParameters, namedView.getParameters());
     }
 
@@ -249,7 +249,7 @@ public class NamedViewTest {
 
         // Then
         assertEquals(TEST_VIEW_NAME + 3, namedView3.getName());
-        assertEquals(2, namedView3.getViewsContainedInThisView().size());
+        assertEquals(2, namedView3.getMergedNamedViewNames().size());
         assertEquals(testParameters, namedView3.getParameters());
     }
 }
