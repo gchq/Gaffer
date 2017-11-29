@@ -42,7 +42,7 @@ public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
         validate(operation);
 
         final NamedView namedView = new NamedView.Builder()
-                .name(operation.getNamedView().getViewName())
+                .name(operation.getNamedView().getName())
                 .merge(operation.getNamedView())
                         //.parameters(operation.getParameters())
                 .build();
@@ -56,7 +56,7 @@ public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
     }
 
     private void validate(final AddNamedView op) {
-        if (null == op.getNamedView().getViewName()) {
+        if (null == op.getNamedView().getName()) {
             throw new IllegalArgumentException("NamedView name must be set");
         }
     }

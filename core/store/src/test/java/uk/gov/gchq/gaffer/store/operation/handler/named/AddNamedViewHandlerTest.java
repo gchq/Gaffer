@@ -80,7 +80,7 @@ public class AddNamedViewHandlerTest {
 
     @Test
     public void shouldNotAddNamedViewWithNoName() throws OperationException {
-        namedView.setViewName(null);
+        namedView.setName(null);
 
         try {
             handler.doOperation(addNamedView, context, store);
@@ -93,7 +93,7 @@ public class AddNamedViewHandlerTest {
     private boolean cacheContains(final String namedViewName) throws CacheOperationFailedException {
         Iterable<NamedView> namedViews = namedViewCache.getAllNamedViews();
         for (final NamedView namedView : namedViews) {
-            if (namedView.getViewName().equals(namedViewName)) {
+            if (namedView.getName().equals(namedViewName)) {
                 return true;
             }
         }
