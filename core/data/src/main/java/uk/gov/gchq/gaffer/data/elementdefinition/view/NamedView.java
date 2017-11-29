@@ -25,7 +25,9 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @JsonDeserialize(builder = NamedView.Builder.class)
@@ -33,6 +35,8 @@ public class NamedView extends View {
 
     @Required
     private String name;
+    @JsonIgnore
+    private List<String> viewsContainedInThisView = new ArrayList<>();
     private Map<String, Object> parameters;
 
     public NamedView() {
@@ -46,6 +50,16 @@ public class NamedView extends View {
 
     public String getName() {
         return this.name;
+    }
+
+    @JsonIgnore
+    public void setViewsContainedInThisView(final List<String> viewsContainedInThisView) {
+        this.viewsContainedInThisView = viewsContainedInThisView;
+    }
+
+    @JsonIgnore
+    public List<String> getViewsContainedInThisView() {
+        return viewsContainedInThisView;
     }
 
     public void setParameters(final Map<String, Object> parameters) {
@@ -99,12 +113,18 @@ public class NamedView extends View {
             if (null != view) {
                 if (view instanceof NamedView) {
                     NamedView namedViewInstance = (NamedView) view;
-                    if (null != getElementDefs().getName() && !getElementDefs().getName().isEmpty()) {
-                        self().name(namedViewInstance.getName() + "_" + getElementDefs().getName());
-                    } else {
-                        self().name(namedViewInstance.getName());
+                    if (null != namedViewInstance.getName() && !namedViewInstance.getName().isEmpty()) {
+                        if (null == self().getElementDefs().getName() || self().getElementDefs().getName().isEmpty()) {
+                            self().name(namedViewInstance.getName());
+                        }
+                        self().getElementDefs().getViewsContainedInThisView().add(namedViewInstance.getName());
                     }
-                    if (null != getElementDefs().getParameters() && !getElementDefs().getParameters().isEmpty()) {
+                    if (null != namedViewInstance.getViewsContainedInThisView() || !namedViewInstance.getViewsContainedInThisView().isEmpty()) {
+                        self().getElementDefs().getViewsContainedInThisView().addAll(namedViewInstance.getViewsContainedInThisView());
+                    } else {
+                        self().getElementDefs().setViewsContainedInThisView(namedViewInstance.getViewsContainedInThisView());
+                    }
+                    if (null != getElementDefs().getParameters()) {
                         getElementDefs().getParameters().putAll(namedViewInstance.getParameters());
                     } else {
                         self().parameters(namedViewInstance.getParameters());
@@ -117,6 +137,9 @@ public class NamedView extends View {
 
         @Override
         public NamedView build() {
+            if (self().getElementDefs().getName() == null || self().getElementDefs().getName().isEmpty()) {
+                throw new IllegalArgumentException("Name must be set");
+            }
             return (NamedView) super.build();
         }
 
