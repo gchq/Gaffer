@@ -46,16 +46,15 @@ import static java.util.stream.Collectors.toSet;
 import static uk.gov.gchq.gaffer.commonutil.CollectionUtil.distinct;
 
 /**
- * A {@code Walk} describes a graph traversal which begins at a vertex and comprises
- * of:
- * <ul><li>a sequence of {@link Edge} objects, where the source of one edge must
- * follow on from the destination of the previous</li>
- * <li>an optional sequence of {@link Entity} objects which are associated to each
- * of the vertices visited on the Walk. Vertices with no associated entities are
+ * A {@code Walk} describes a graph traversal which begins at a vertex and
+ * comprises of: <ul><li>a sequence of {@link Edge} objects, where the source of
+ * one edge must follow on from the destination of the previous</li> <li>an
+ * optional sequence of {@link Entity} objects which are associated to each of
+ * the vertices visited on the Walk. Vertices with no associated entities are
  * still represented, but only as empty collections.</li></ul>
- *
+ * <p>
  * For example, a Walk through a simple graph could look like:
- *
+ * <p>
  * <pre>
  * {@code
  * A --> B --> C
@@ -87,7 +86,7 @@ public class Walk implements Iterable<Set<Edge>> {
     /**
      * Constructor used by Jackson.
      *
-     * @param edges the edges to add to the walk
+     * @param edges    the edges to add to the walk
      * @param entities the entities to add to the walk
      */
     @JsonCreator
@@ -102,6 +101,7 @@ public class Walk implements Iterable<Set<Edge>> {
      * walk.
      *
      * @param vertex the vertex of interest
+     *
      * @return a {@link Set} of all of the entities associated with the vertex
      */
     @JsonIgnore
@@ -118,6 +118,7 @@ public class Walk implements Iterable<Set<Edge>> {
      *
      * @param n the distance from the start of the walk (in terms of the number
      *          of edges that would have to be traversed)
+     *
      * @return the entities at the specified distance
      */
     @JsonIgnore
@@ -141,7 +142,7 @@ public class Walk implements Iterable<Set<Edge>> {
 
     /**
      * Get an ordered {@link List} of the vertices on the walk.
-     *
+     * <p>
      * This will include any repeated vertices.
      *
      * @return a list of the vertices on the walk
@@ -169,8 +170,8 @@ public class Walk implements Iterable<Set<Edge>> {
     /**
      * A walk is also a trail if it contains no repeated edges.
      *
-     * @return {@code true} if the walk does not contain any repeated edges, otherwise
-     * {@code false}
+     * @return {@code true} if the walk does not contain any repeated edges,
+     * otherwise {@code false}
      */
     @JsonIgnore
     public boolean isTrail() {
@@ -331,6 +332,10 @@ public class Walk implements Iterable<Set<Edge>> {
         public Builder entities(final Iterable<Entity> entities) {
             if (Iterables.isEmpty(entities)) {
                 return this;
+            }
+
+            if (Iterables.size(entities) == 1) {
+                return entity(entities.iterator().next());
             }
 
             if (distinct(Streams.toStream(entities).map(EntityId::getVertex).collect(toList()))) {

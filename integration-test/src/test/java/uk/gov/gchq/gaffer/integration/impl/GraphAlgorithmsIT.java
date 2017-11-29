@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.integration.impl;
 
+import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -51,11 +52,14 @@ import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.hamcrest.core.Is.is;
 
 public class GraphAlgorithmsIT extends AbstractStoreIT {
@@ -130,6 +134,53 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
 
         // Then
         assertThat(getPaths(results), is(equalTo("AED,ABC")));
+    }
+
+    @Test
+    public void shouldGetPathsWithEntities() throws Exception {
+        // Given
+        final User user = new User();
+
+        final EntitySeed seed = new EntitySeed("A");
+
+        final GetElements getEntities = new GetElements.Builder()
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                                .build())
+                        .build())
+                .build();
+
+        final GetElements getEdges = new GetElements.Builder()
+                .directedType(DirectedType.DIRECTED)
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .build())
+                        .build()).inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
+                .build();
+
+        final WalkDefinition walkDefinition1 = new WalkDefinition.Builder()
+                .operation(getEntities)
+                .build();
+
+        final WalkDefinition walkDefinition2 = new WalkDefinition.Builder()
+                .operation(getEdges)
+                .build();
+
+        final GetWalks op = new GetWalks.Builder()
+                .input(seed)
+                // entities, edges, entities, edges, entities
+                .walkDefinitions(walkDefinition1, walkDefinition2, walkDefinition1, walkDefinition2, walkDefinition1)
+                .build();
+
+        // When
+        final List<Walk> results = Lists.newArrayList(graph.execute(op, user));
+
+        // Then
+        assertThat(getPaths(results), is(equalTo("AED,ABC")));
+        results.forEach(r -> r.getEntities().forEach(l -> {
+            System.out.println(l);
+            assertThat(l, is(not(empty())));
+        }));
     }
 
     @Test

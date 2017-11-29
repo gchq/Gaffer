@@ -42,6 +42,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsCollectionContaining.hasItems;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.fail;
 
@@ -385,6 +386,119 @@ public class WalkTest {
         // Then
         assertThat(walk.getEntitiesAtDistance(2), hasSize(1));
         assertThat(walk.getEntitiesAtDistance(2), contains(ENTITY_D));
+    }
+
+    @Test
+    public void shouldGetVertexSet() {
+        // Given
+        // [A]     ->    [E]     ->    [D]
+        //  \             \             \
+        //   (BasicEntity) (BasicEntity) (BasicEntity)
+
+        // When
+        final Walk walk = new Walk.Builder()
+                .entity(ENTITY_A)
+                .edge(EDGE_AE)
+                .entities(ENTITY_E, ENTITY_E)
+                .edge(EDGE_ED)
+                .entity(ENTITY_D)
+                .build();
+
+        // Then
+        assertThat(walk.getVertexSet(), hasItems("A", "E", "D"));
+    }
+
+    @Test
+    public void shouldGetLength() {
+        // Given
+        // [A]     ->    [E]     ->    [D]
+        //  \             \             \
+        //   (BasicEntity) (BasicEntity) (BasicEntity)
+
+        // When
+        final Walk walk = new Walk.Builder()
+                .entity(ENTITY_A)
+                .edge(EDGE_AE)
+                .entities(ENTITY_E, ENTITY_E)
+                .edge(EDGE_ED)
+                .entity(ENTITY_D)
+                .build();
+
+        // Then
+        assertThat(walk.length(), is(2));
+    }
+
+    @Test
+    public void shouldGetTrail() {
+        // Given
+        // [A]     ->    [E]     ->    [D]
+        //  \             \             \
+        //   (BasicEntity) (BasicEntity) (BasicEntity)
+
+        // When
+        final Walk walk = new Walk.Builder()
+                .entity(ENTITY_A)
+                .edge(EDGE_AE)
+                .entities(ENTITY_E, ENTITY_E)
+                .edge(EDGE_ED)
+                .entity(ENTITY_D)
+                .build();
+
+        // Then
+        assertThat(walk.isTrail(), is(true));
+    }
+
+    @Test
+    public void shouldGetNotTrail() {
+        // Given
+        // [A] -> [B] -> [C] -> [B] -> [C]
+
+        // When
+        final Walk walk = new Walk.Builder()
+                .edge(EDGE_AB)
+                .edge(EDGE_BC)
+                .edge(EDGE_CB)
+                .edge(EDGE_BC)
+                .build();
+
+        // Then
+        assertThat(walk.isTrail(), is(false));
+    }
+
+    @Test
+    public void shouldGetPath() {
+        // Given
+        // [A]     ->    [E]     ->    [D]
+        //  \             \             \
+        //   (BasicEntity) (BasicEntity) (BasicEntity)
+
+        // When
+        final Walk walk = new Walk.Builder()
+                .entity(ENTITY_A)
+                .edge(EDGE_AE)
+                .entities(ENTITY_E, ENTITY_E)
+                .edge(EDGE_ED)
+                .entity(ENTITY_D)
+                .build();
+
+        // Then
+        assertThat(walk.isPath(), is(true));
+    }
+
+    @Test
+    public void shouldGetNotPath() {
+        // Given
+        // [A] -> [B] -> [C] -> [B]
+
+        // When
+        final Walk walk = new Walk.Builder()
+                .edge(EDGE_AB)
+                .edge(EDGE_BC)
+                .edge(EDGE_CB)
+                .build();
+
+        // Then
+        assertThat(walk.isPath(), is(false));
     }
 
     private List<EdgeId> getEdges() {

@@ -14,28 +14,28 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.data.graph.adjacency;
+package uk.gov.gchq.gaffer.data.graph.entity;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A {@code SimpleAdjacencyMaps} object represents a collection of {@link
- * AdjacencyMap}s containing graph adjacency information.
+ * A {@code SimpleEntityMaps} object represents a collection of {@link
+ * EntityMaps}s containing graph entity information.
  *
  * @param <V> the type of object representing the vertices
- * @param <ED> the type of object representing the edges
+ * @param <EN> the type of object representing the entities
  */
-public class SimpleAdjacencyMaps<V, ED> implements AdjacencyMaps<V, ED> {
+public class SimpleEntityMaps<V, EN> implements EntityMaps<V, EN> {
 
     /**
      * The backing list.
      */
-    private final List<AdjacencyMap<V, ED>> adjacencyMaps = new ArrayList<>();
+    private final List<EntityMap<V, EN>> entityMaps = new ArrayList<>();
 
     @Override
-    public List<AdjacencyMap<V, ED>> asList() {
-        return adjacencyMaps;
+    public List<EntityMap<V, EN>> asList() {
+        return entityMaps;
     }
 
     @Override

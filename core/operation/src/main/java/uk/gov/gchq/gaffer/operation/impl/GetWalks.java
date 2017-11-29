@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.graph.Walk;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.data.WalkDefinition;
@@ -108,6 +109,18 @@ public class GetWalks implements
                 // Validate that the input is set correctly
                 if (null != op.getInput()) {
                     result.addError("The input for all the nested operations must be null.");
+                }
+
+                final View view = op.getView();
+
+                if (null != view) {
+                    if (view.hasEntities() && view.hasEdges()) {
+                        result.addError("The view must not contain both edge and entity definitions.");
+                    } else if (!view.hasEntities() && !view.hasEdges()) {
+                        result.addError("The view must contain either edge or entity definitions.");
+                    }
+                } else {
+                    result.addError("The view must not be null.");
                 }
             }
         } else {

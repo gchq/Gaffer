@@ -16,17 +16,43 @@
 
 package uk.gov.gchq.gaffer.data.graph.adjacency;
 
+import com.google.common.collect.Sets;
 import org.junit.Test;
 
 import java.util.Collections;
 import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItems;
-import static org.junit.Assert.assertNull;
 
 public class AdjacencyMapTest {
+
+    @Test
+    public void shouldGetEdges() {
+        // Given
+        final AdjacencyMap<Object, Object> adjacencyMap = getAdjacencyMap();
+
+        // When
+        final Set<Object> results = adjacencyMap.getEdges(1, 2);
+
+        // Then
+        assertThat(results, hasItems(1));
+    }
+
+    @Test
+    public void shouldGetEmptyEdgeSet() {
+        // Given
+        final AdjacencyMap<Object, Object> adjacencyMap = getAdjacencyMap();
+
+        // When
+        final Set<Object> results = adjacencyMap.getEdges(1, 6);
+
+        // Then
+        assertThat(results, is(empty()));
+    }
 
     @Test
     public void shouldGetDestinations() {
@@ -82,34 +108,102 @@ public class AdjacencyMapTest {
         final AdjacencyMap<Object, Object> adjacencyMap = getAdjacencyMap();
 
         // When
-        final Set<Object> results = adjacencyMap.get(1, 2);
+        final Set<Object> results = adjacencyMap.getEdges(1, 2);
 
         // Then
         assertThat(results, equalTo(Collections.singleton(1)));
     }
 
     @Test
-    public void shouldReturnNullWhenEntryDoesNotExist() {
+    public void shouldPutMultipleEdges() {
+        // Given
+        final AdjacencyMap<Object, Object> adjacencyMap = new AdjacencyMap<>();
+
+        adjacencyMap.putEdge(1, 2, 1);
+        adjacencyMap.putEdges(1, 2, Sets.newHashSet(2, 3));
+
+        // When
+        final Set<Object> results = adjacencyMap.getEdges(1, 2);
+
+        // Then
+        assertThat(results, hasItems(1, 2, 3));
+    }
+
+    @Test
+    public void shouldPutEdgeWhenExisting() {
+        // Given
+        final AdjacencyMap<Object, Object> adjacencyMap = new AdjacencyMap<>();
+
+        adjacencyMap.putEdge(1, 2, 1);
+        adjacencyMap.putEdge(1, 2, 2);
+        adjacencyMap.putEdge(1, 2, 3);
+
+        // When
+        final Set<Object> results = adjacencyMap.getEdges(1, 2);
+
+        // Then
+        assertThat(results, hasItems(1, 2, 3));
+    }
+
+    @Test
+    public void shouldContainDestination() {
         // Given
         final AdjacencyMap<Object, Object> adjacencyMap = getAdjacencyMap();
 
         // When
-        final Set<Object> results = adjacencyMap.get(1, 3);
+        final boolean result = adjacencyMap.containsDestination(2);
 
         // Then
-        assertNull(results);
+        assertThat(result, is(true));
+    }
+
+    @Test
+    public void shouldNotContainDestination() {
+        // Given
+        final AdjacencyMap<Object, Object> adjacencyMap = getAdjacencyMap();
+
+        // When
+        final boolean result = adjacencyMap.containsDestination(7);
+
+        // Then
+        assertThat(result, is(false));
+    }
+
+    @Test
+    public void shouldContainSource() {
+        // Given
+        final AdjacencyMap<Object, Object> adjacencyMap = getAdjacencyMap();
+
+        // When
+        final boolean result = adjacencyMap.containsSource(2);
+
+        // Then
+        assertThat(result, is(true));
+    }
+
+    @Test
+    public void shouldNotContainSource() {
+        // Given
+        final AdjacencyMap<Object, Object> adjacencyMap = getAdjacencyMap();
+
+        // When
+        final boolean result = adjacencyMap.containsSource(7);
+
+        // Then
+        assertThat(result, is(false));
     }
 
     private AdjacencyMap<Object, Object> getAdjacencyMap() {
         final AdjacencyMap<Object, Object> adjacencyMap = new AdjacencyMap<>();
-        adjacencyMap.put(1, 2, 1);
-        adjacencyMap.put(2, 3, 1);
-        adjacencyMap.put(6, 3, 1);
-        adjacencyMap.put(5, 6, 1);
-        adjacencyMap.put(5, 4, 1);
-        adjacencyMap.put(4, 1, 1);
-        adjacencyMap.put(1, 5, 1);
-        adjacencyMap.put(1, 1, 1);
+
+        adjacencyMap.putEdge(1, 2, 1);
+        adjacencyMap.putEdge(2, 3, 1);
+        adjacencyMap.putEdge(6, 3, 1);
+        adjacencyMap.putEdge(5, 6, 1);
+        adjacencyMap.putEdge(5, 4, 1);
+        adjacencyMap.putEdge(4, 1, 1);
+        adjacencyMap.putEdge(1, 5, 1);
+        adjacencyMap.putEdge(1, 1, 1);
 
         return adjacencyMap;
     }

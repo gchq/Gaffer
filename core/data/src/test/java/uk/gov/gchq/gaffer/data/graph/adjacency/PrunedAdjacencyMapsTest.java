@@ -29,12 +29,12 @@ public class PrunedAdjacencyMapsTest {
         final AdjacencyMaps<Object, Object> adjacencyMaps = new PrunedAdjacencyMaps<>();
 
         final AdjacencyMap<Object, Object> first = new AdjacencyMap<>();
-        first.put(1, 2, 1);
-        first.put(1, 3, 1);
+        first.putEdge(1, 2, 1);
+        first.putEdge(1, 3, 1);
 
         final AdjacencyMap<Object, Object> second = new AdjacencyMap<>();
-        second.put(2, 3, 1);
-        second.put(2, 4, 1);
+        second.putEdge(2, 3, 1);
+        second.putEdge(2, 4, 1);
 
         // There are no edges which follow on from the edge 1->3 in the first
         // adjacency map.
@@ -44,8 +44,8 @@ public class PrunedAdjacencyMapsTest {
         adjacencyMaps.add(second);
 
         // Then
-        final AdjacencyMap<Object,Object> firstPruned = adjacencyMaps.get(0);
-        final AdjacencyMap<Object,Object> secondPruned = adjacencyMaps.get(1);
+        final AdjacencyMap<Object, Object> firstPruned = adjacencyMaps.get(0);
+        final AdjacencyMap<Object, Object> secondPruned = adjacencyMaps.get(1);
 
         assertThat(firstPruned.getDestinations(1), hasSize(1));
         assertThat(secondPruned.getDestinations(2), hasSize(2));
@@ -57,20 +57,20 @@ public class PrunedAdjacencyMapsTest {
         final AdjacencyMaps<Object, Object> adjacencyMaps = new PrunedAdjacencyMaps<>();
 
         final AdjacencyMap<Object, Object> first = new AdjacencyMap<>();
-        first.put(1, 2, 1);
-        first.put(1, 3, 1);
+        first.putEdge(1, 2, 1);
+        first.putEdge(1, 3, 1);
 
         final AdjacencyMap<Object, Object> second = new AdjacencyMap<>();
-        second.put(2, 4, 1);
-        second.put(2, 5, 1);
-        second.put(3, 6, 1);
-        second.put(3, 7, 1);
+        second.putEdge(2, 4, 1);
+        second.putEdge(2, 5, 1);
+        second.putEdge(3, 6, 1);
+        second.putEdge(3, 7, 1);
 
         final AdjacencyMap<Object, Object> third = new AdjacencyMap<>();
-        third.put(4, 8, 1);
-        third.put(4, 9, 1);
-        third.put(5, 10, 1);
-        third.put(5, 11, 1);
+        third.putEdge(4, 8, 1);
+        third.putEdge(4, 9, 1);
+        third.putEdge(5, 10, 1);
+        third.putEdge(5, 11, 1);
 
         // There are no edges which follow on from the edges 3->6 or 3->7 in the
         // second adjacency map. This should result in all edges which stem from
@@ -82,9 +82,9 @@ public class PrunedAdjacencyMapsTest {
         adjacencyMaps.add(third);
 
         // Then
-        final AdjacencyMap<Object,Object> firstPruned = adjacencyMaps.get(0);
-        final AdjacencyMap<Object,Object> secondPruned = adjacencyMaps.get(1);
-        final AdjacencyMap<Object,Object> thirdPruned = adjacencyMaps.get(2);
+        final AdjacencyMap<Object, Object> firstPruned = adjacencyMaps.get(0);
+        final AdjacencyMap<Object, Object> secondPruned = adjacencyMaps.get(1);
+        final AdjacencyMap<Object, Object> thirdPruned = adjacencyMaps.get(2);
 
         assertThat(firstPruned.getDestinations(1), hasSize(1));
         assertThat(secondPruned.getDestinations(2), hasSize(2));

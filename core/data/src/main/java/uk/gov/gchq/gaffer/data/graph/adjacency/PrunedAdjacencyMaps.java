@@ -30,37 +30,37 @@ import java.util.Set;
  * source vertex in the new map are deemed to be orphaned paths, and are
  * removed.
  *
- * @param <V> the type of object representing the vertices
- * @param <E> the type of object representing the edges
+ * @param <V>  the type of object representing the vertices
+ * @param <ED> the type of object representing the edges
  */
-public class PrunedAdjacencyMaps<V, E> implements AdjacencyMaps<V, E> {
+public class PrunedAdjacencyMaps<V, ED> implements AdjacencyMaps<V, ED> {
 
     /**
      * The backing list.
      */
-    private final List<AdjacencyMap<V, E>> adjacencyMaps = new ArrayList<>();
+    private final List<AdjacencyMap<V,  ED>> adjacencyMaps = new ArrayList<>();
 
     @Override
-    public void add(final AdjacencyMap<V, E> adjacencyMap) {
+    public void add(final AdjacencyMap<V, ED> adjacencyMap) {
         removeOrphans(adjacencyMaps, adjacencyMap);
         adjacencyMaps.add(adjacencyMap);
     }
 
     /**
      * Remove orphaned edges from the AdjacencyMap.
-     *
+     * <p>
      * An orphaned edge is one which does not form part of a walk which reaches
      * a destination vertex in the "topmost" adjacency map under consideration.
-     *
-     * This method will recursively process all maps in the provided adjacency map
-     * list.
+     * <p>
+     * This method will recursively process all maps in the provided adjacency
+     * map list.
      *
      * @param maps the list of adjacency maps being considered
      * @param curr the "topmost" adjacency map under consideration
      */
-    private void removeOrphans(final List<AdjacencyMap<V, E>> maps, final AdjacencyMap<V, E> curr) {
+    private void removeOrphans(final List<AdjacencyMap<V, ED>> maps, final AdjacencyMap<V, ED> curr) {
         if (!maps.isEmpty()) {
-            final AdjacencyMap<V, E> prev = maps.get(maps.size() - 1);
+            final AdjacencyMap<V, ED> prev = maps.get(maps.size() - 1);
 
             final Set<V> prevDestinations = prev.getAllDestinations();
 
@@ -85,12 +85,7 @@ public class PrunedAdjacencyMaps<V, E> implements AdjacencyMaps<V, E> {
     }
 
     @Override
-    public List<AdjacencyMap<V, E>> asList() {
+    public List<AdjacencyMap<V, ED>> asList() {
         return adjacencyMaps;
-    }
-
-    @Override
-    public String toString() {
-        return prettyPrint();
     }
 }
