@@ -110,6 +110,7 @@ public abstract class AbstractStoreIT {
     @Rule
     public TestName name = new TestName();
     private static Map<? extends Class<? extends AbstractStoreIT>, String> skippedTests;
+    private static Map<? extends Class<? extends AbstractStoreIT>, Map<String, String>> skipTestMethods;
 
 
     public static void setStoreProperties(final StoreProperties storeProperties) {
@@ -134,6 +135,10 @@ public abstract class AbstractStoreIT {
 
     public static void setSingleTestMethod(final String singleTestMethod) {
         AbstractStoreIT.singleTestMethod = singleTestMethod;
+    }
+
+    public static void setSkipTestMethods(final Map<? extends Class<? extends AbstractStoreIT>, Map<String, String>> skipTestMethods) {
+        AbstractStoreIT.skipTestMethods = skipTestMethods;
     }
 
     /**
@@ -162,6 +167,11 @@ public abstract class AbstractStoreIT {
             }
         }
         assumeTrue("Skipping test. Justification: " + skippedTests.get(getClass()), !skippedTests.containsKey(getClass()));
+
+        final Map<String, String> skippedMethods = skipTestMethods.get(getClass());
+        if (null != skippedMethods) {
+            assumeTrue("Skipping test. Justification: " + skippedMethods.get(originalMethodName), !skippedMethods.containsKey(originalMethodName));
+        }
 
         createGraph();
 
