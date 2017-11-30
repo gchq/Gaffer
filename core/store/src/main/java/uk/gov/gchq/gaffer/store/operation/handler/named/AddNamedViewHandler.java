@@ -44,7 +44,7 @@ public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
         final NamedView namedView = new NamedView.Builder()
                 .name(operation.getNamedView().getName())
                 .merge(operation.getNamedView())
-                        //.parameters(operation.getParameters())
+                .parameters(operation.getParameters())
                 .build();
 
         try {

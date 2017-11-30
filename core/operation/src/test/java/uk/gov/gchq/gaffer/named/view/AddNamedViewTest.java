@@ -33,11 +33,12 @@ import static org.mockito.Mockito.mock;
 
 public class AddNamedViewTest extends OperationTest<AddNamedView> {
     private static final String TEST_NAMED_VIEW_NAME = "testNamedViewName";
+    private static final String testDescription = "testDescription";
     private static final NamedView NAMED_VIEW = new NamedView.Builder()
             .name(TEST_NAMED_VIEW_NAME)
             .edge(TestGroups.EDGE)
             .build();
-    Map<String, ParameterDetail> parameters = new HashMap<>();
+    Map<String, Object> parameters = new HashMap<>();
 
     @Override
     public void builderShouldCreatePopulatedOperation() {
@@ -46,11 +47,15 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
 
         AddNamedView addNamedView = new AddNamedView.Builder()
                 .namedView(NAMED_VIEW)
+                .description(testDescription)
+                .parameters(parameters)
                 .overwrite(true)
                 .build();
 
         assertEquals(NAMED_VIEW, addNamedView.getNamedView());
         assertTrue(addNamedView.isOverwriteFlag());
+        assertEquals(parameters, addNamedView.getParameters());
+        assertEquals(testDescription, addNamedView.getDescription());
     }
 
     @Override
@@ -60,6 +65,8 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
 
         AddNamedView addNamedView = new AddNamedView.Builder()
                 .namedView(NAMED_VIEW)
+                .description(testDescription)
+                .parameters(parameters)
                 .overwrite(false)
                 .build();
 
@@ -70,6 +77,8 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
         assertNotSame(addNamedView, clone);
         JsonAssert.assertEquals(addNamedView.getNamedView().toJson(false), clone.getNamedView().toJson(false));
         assertFalse(clone.isOverwriteFlag());
+        assertEquals(parameters, addNamedView.getParameters());
+        assertEquals(testDescription, addNamedView.getDescription());
     }
 
     @Override
