@@ -24,7 +24,10 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.function.Transform;
 import uk.gov.gchq.gaffer.store.Context;
@@ -37,6 +40,7 @@ import uk.gov.gchq.koryphe.impl.function.Divide;
 import uk.gov.gchq.koryphe.impl.function.Identity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -441,5 +445,75 @@ public class TransformHandlerTest {
         } catch (final OperationException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    @Test
+    public void shouldSelectMatchedVertexForTransform() throws OperationException {
+        // Given
+        given(store.getSchema()).willReturn(schema);
+
+        final Edge edge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("srcVal")
+                .dest("destVal")
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .build();
+
+        final Transform transform = new Transform.Builder()
+                .input(edge)
+                .edge(TestGroups.EDGE, new ElementTransformer.Builder()
+                        .select(IdentifierType.MATCHED_VERTEX.name())
+                        .execute(new Identity())
+                        .project(TestPropertyNames.PROP_3)
+                        .build())
+                .build();
+
+        // When
+        final Iterable<? extends Element> results = handler.doOperation(transform, context, store);
+
+        // Then
+        final Edge expectedEdge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("srcVal")
+                .dest("destVal")
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .property(TestPropertyNames.PROP_3, "srcVal")
+                .build();
+        ElementUtil.assertElementEquals(Collections.singletonList(expectedEdge), results);
+    }
+
+    @Test
+    public void shouldSelectAdjacentMatchedVertexForTransform() throws OperationException {
+        // Given
+        given(store.getSchema()).willReturn(schema);
+
+        final Edge edge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("srcVal")
+                .dest("destVal")
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .build();
+
+        final Transform transform = new Transform.Builder()
+                .input(edge)
+                .edge(TestGroups.EDGE, new ElementTransformer.Builder()
+                        .select(IdentifierType.ADJACENT_MATCHED_VERTEX.name())
+                        .execute(new Identity())
+                        .project(TestPropertyNames.PROP_3)
+                        .build())
+                .build();
+
+        // When
+        final Iterable<? extends Element> results = handler.doOperation(transform, context, store);
+
+        // Then
+        final Edge expectedEdge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("srcVal")
+                .dest("destVal")
+                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                .property(TestPropertyNames.PROP_3, "destVal")
+                .build();
+        ElementUtil.assertElementEquals(Collections.singletonList(expectedEdge), results);
     }
 }
