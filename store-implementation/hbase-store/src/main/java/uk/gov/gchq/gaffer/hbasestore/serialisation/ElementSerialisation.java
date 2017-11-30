@@ -19,7 +19,10 @@ package uk.gov.gchq.gaffer.hbasestore.serialisation;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
+import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.Tag;
 import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.mapreduce.CellCreator;
 import org.apache.hadoop.hbase.security.visibility.CellVisibility;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -47,6 +50,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 public class ElementSerialisation {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementSerialisation.class);
@@ -159,6 +163,13 @@ public class ElementSerialisation {
             return getEntity(cell);
         }
         return getEdge(cell, includeMatchedVertex);
+    }
+
+    public Properties getProperties(final String group, final Cell cell) throws SerialisationException {
+        Properties properties = getPropertiesFromColumnQualifier(group, CellUtil.cloneQualifier(cell));
+        properties.putAll(getPropertiesFromValue(group, CellUtil.cloneValue(cell)));
+        properties.putAll(getPropertiesFromTimestamp(group, cell.getTimestamp()));
+        return properties;
     }
 
     public byte[] getColumnVisibility(final Element element) throws SerialisationException {
@@ -455,6 +466,46 @@ public class ElementSerialisation {
         rowKey2[rowKey2.length - 2] = ByteArrayEscapeUtils.DELIMITER;
         rowKey2[rowKey2.length - 1] = directionFlag2;
         return new Pair<>(rowKey1, rowKey2);
+    }
+
+    public Pair<Cell, Cell> getCells(final Element element, final CellCreator kvCreator) throws SerialisationException {
+        final Pair<byte[], byte[]> row = getRowKeys(element);
+        final byte[] cq = getColumnQualifier(element);
+        return getCells(element, row, cq, kvCreator);
+    }
+
+    public Pair<Cell, Cell> getCells(final Element element, final Pair<byte[], byte[]> row, final byte[] cq, final CellCreator kvCreator) throws SerialisationException {
+        final long ts = getTimestamp(element.getProperties());
+        final byte[] value = getValue(element);
+        final String visibilityStr = Bytes.toString(getColumnVisibility(element));
+        byte[] tags = null;
+        if (!visibilityStr.isEmpty()) {
+            try {
+                final List<Tag> tagList = kvCreator.getVisibilityExpressionResolver().createVisibilityExpTags(visibilityStr);
+                if (!tagList.isEmpty()) {
+                    int size = 0;
+                    for (final Tag t : tagList) {
+                        size += t.getTagLength();
+                    }
+                    tags = new byte[size];
+                    int pos = 0;
+                    for (final Tag t : tagList) {
+                        pos = Bytes.putBytes(tags, pos, t.getValue(), 0, t.getTagLength());
+                    }
+                }
+            } catch (IOException e) {
+                throw new RuntimeException("Unable to create visibility tags", e);
+            }
+        }
+
+        final Cell cell = CellUtil.createCell(row.getFirst(), HBaseStoreConstants.getColFam(), cq, ts, KeyValue.Type.Maximum, value, tags);
+
+        final Pair<Cell, Cell> puts = new Pair<>(cell);
+        if (null != row.getSecond()) {
+            puts.setSecond(CellUtil.createCell(row.getSecond(), HBaseStoreConstants.getColFam(), cq, ts, KeyValue.Type.Maximum, value, tags));
+        }
+
+        return puts;
     }
 
     public Pair<Put, Put> getPuts(final Element element) throws SerialisationException {

@@ -4,10 +4,8 @@ import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.KeyValue;
-import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.HFileOutputFormat2;
-import org.apache.hadoop.hbase.mapreduce.HBaseKeyValueReducer2;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.server.jobtracker.JTConfig;
@@ -25,6 +23,7 @@ import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.SingleUseMiniHBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.mapper.AddElementsFromHdfsMapper;
+import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.reducer.HBaseKeyValueReducer;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser;
@@ -89,9 +88,9 @@ public class HBaseAddElementsFromHdfsJobFactoryTest {
 
         verify(job).setMapperClass(AddElementsFromHdfsMapper.class);
         verify(job).setMapOutputKeyClass(ImmutableBytesWritable.class);
-        verify(job).setMapOutputValueClass(Put.class);
+        verify(job).setMapOutputValueClass(KeyValue.class);
 
-        verify(job).setReducerClass(HBaseKeyValueReducer2.class);
+        verify(job).setReducerClass(HBaseKeyValueReducer.class);
         verify(job).setOutputKeyClass(ImmutableBytesWritable.class);
         verify(job).setOutputValueClass(KeyValue.class);
         verify(job).setOutputFormatClass(HFileOutputFormat2.class);

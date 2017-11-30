@@ -76,7 +76,8 @@ public class ElementUtil {
             assertThat("\nMissing entities:\n" + missingEntities.toString()
                             + "\nUnexpected entities:\n" + incorrectEntities.toString()
                             + "\nMissing edges:\n" + missingEdges.toString()
-                            + "\nUnexpected edges:\n" + incorrectEdges.toString(),
+                            + "\nUnexpected edges:\n" + incorrectEdges.toString()
+                            + "\n",
                     expectedCache, containsInAnyOrder(resultCache.toArray()));
         }
     }
