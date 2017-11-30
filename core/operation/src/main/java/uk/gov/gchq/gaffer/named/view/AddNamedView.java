@@ -25,8 +25,6 @@ import java.util.Map;
 
 public class AddNamedView implements Operation {
     private NamedView namedView = null;
-    private String description;
-    private Map<String, Object> parameters;
     private boolean overwriteFlag = false;
     private Map<String, String> options;
 
@@ -36,22 +34,6 @@ public class AddNamedView implements Operation {
 
     public NamedView getNamedView() {
         return namedView;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(final String description) {
-        this.description = description;
-    }
-
-    public void setParameters(final Map<String, Object> parameters) {
-        this.parameters = parameters;
-    }
-
-    public Map<String, Object> getParameters() {
-        return parameters;
     }
 
     public void setOverwriteFlag(final boolean overwriteFlag) {
@@ -76,8 +58,6 @@ public class AddNamedView implements Operation {
     public AddNamedView shallowClone() throws CloneFailedException {
         return new AddNamedView.Builder()
                 .namedView(namedView)
-                .description(description)
-                .parameters(parameters)
                 .overwrite(overwriteFlag)
                 .options(options)
                 .build();
@@ -90,16 +70,6 @@ public class AddNamedView implements Operation {
 
         public Builder namedView(final NamedView namedView) {
             _getOp().setNamedView(namedView);
-            return _self();
-        }
-
-        public Builder description(final String description) {
-            _getOp().setDescription(description);
-            return _self();
-        }
-
-        public Builder parameters(final Map<String, Object> parameters) {
-            _getOp().setParameters(parameters);
             return _self();
         }
 
