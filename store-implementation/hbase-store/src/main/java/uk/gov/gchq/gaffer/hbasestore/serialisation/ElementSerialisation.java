@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
+import uk.gov.gchq.gaffer.commonutil.LongUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.EdgeDirection;
@@ -336,12 +337,12 @@ public class ElementSerialisation {
         if (null != schema.getTimestampProperty()) {
             final Object property = properties.get(schema.getTimestampProperty());
             if (null == property) {
-                return System.currentTimeMillis();
+                return LongUtil.getTimeBasedRandom();
             } else {
                 return (Long) property;
             }
         }
-        return System.currentTimeMillis();
+        return LongUtil.getTimeBasedRandom();
     }
 
     /**

@@ -20,7 +20,7 @@ import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.HFileOutputFormat2;
-import org.apache.hadoop.hbase.mapreduce.PutSortReducer;
+import org.apache.hadoop.hbase.mapreduce.HBaseKeyValueReducer2;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
@@ -94,7 +94,7 @@ public class HBaseAddElementsFromHdfsJobFactory implements AddElementsFromHdfsJo
     }
 
     protected void setupReducer(final Job job) {
-        job.setReducerClass(PutSortReducer.class);
+        job.setReducerClass(HBaseKeyValueReducer2.class);
     }
 
     protected void setupOutput(final Job job, final AddElementsFromHdfs operation, final HBaseStore store) throws IOException {

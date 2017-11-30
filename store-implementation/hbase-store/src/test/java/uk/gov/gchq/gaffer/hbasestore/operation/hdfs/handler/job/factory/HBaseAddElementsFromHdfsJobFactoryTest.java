@@ -7,7 +7,7 @@ import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.HFileOutputFormat2;
-import org.apache.hadoop.hbase.mapreduce.PutSortReducer;
+import org.apache.hadoop.hbase.mapreduce.HBaseKeyValueReducer2;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.server.jobtracker.JTConfig;
@@ -91,7 +91,7 @@ public class HBaseAddElementsFromHdfsJobFactoryTest {
         verify(job).setMapOutputKeyClass(ImmutableBytesWritable.class);
         verify(job).setMapOutputValueClass(Put.class);
 
-        verify(job).setReducerClass(PutSortReducer.class);
+        verify(job).setReducerClass(HBaseKeyValueReducer2.class);
         verify(job).setOutputKeyClass(ImmutableBytesWritable.class);
         verify(job).setOutputValueClass(KeyValue.class);
         verify(job).setOutputFormatClass(HFileOutputFormat2.class);

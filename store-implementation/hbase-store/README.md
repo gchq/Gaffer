@@ -110,6 +110,8 @@ Graph graph = new Graph.Builder()
       .build();
 ```
 
+### Important note
+If you choose to set the timestampProperty please read the [timestamp](#timestamp) information below.
 
 Inserting data
 -----------------------------------------------
@@ -185,7 +187,20 @@ See [the aggregation example](https://gchq.github.io/gaffer-doc/getting-started/
 Timestamp
 -----------------------------------------------
 
-HBase keys have a timestamp field. The user can specify which property is used for this by setting "timestampProperty" in the schema to the name of the property. If this is not specified then the time when the conversion to an HBase Cell happens is used.
+HBase keys have a timestamp field. The user can specify which property is used for this by setting "timestampProperty" in the schema, however we strongly recommend you do not use it with this store.
+
+### Important note
+This only applies to groups with disabled aggregation.
+
+For elements with the same Key (group, vertex/source/destination/drection, groupBy), with aggregation disabled, the timestamp value must be unique.
+If it is not unique then elements will be deduplicated and deleted, even if some properties are different.
+
+If you choose to set the timestampProperty in the schema and populate the timestamps yourself then you must ensure the timestamps are unique.
+If you don't set the timestamp values then HBase will attempt to create a unique timestamp value.
+There is a very very small chance that it will fail to create a completely unique value and data could be lost.
+The auto generated timestamp is made up partly of the current system time and party with a random number.
+So if you ingest lots of similar elements at exactly the same time (within the same millisecond) the chance of a non-unique value is higher.
+
 
 Validation and age-off of data
 -----------------------------------------------

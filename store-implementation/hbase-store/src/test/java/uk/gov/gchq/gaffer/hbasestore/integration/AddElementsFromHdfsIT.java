@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -95,6 +96,7 @@ public class AddElementsFromHdfsIT {
                         .destination(defaultEdge1.getDestination())
                         .directed(defaultEdge1.getDirected())
                         .properties(defaultEdge1.getPropertyMap())
+                        .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP)
                         .aggregate(false)
                         .build())
                 .build();
@@ -140,6 +142,7 @@ public class AddElementsFromHdfsIT {
                     .vertex(VERTEX_ID_PREFIX + i)
                     .property(TestPropertyNames.COUNT, DUPLICATES)
                     .property(TestPropertyNames.VISIBILITY, "")
+                    .property(TestPropertyNames.TIMESTAMP, 1L)
                     .build());
             final Edge edge = new Edge.Builder()
                     .group(TestGroups.EDGE)
@@ -148,6 +151,7 @@ public class AddElementsFromHdfsIT {
                     .directed(true)
                     .property(TestPropertyNames.COUNT, DUPLICATES)
                     .property(TestPropertyNames.VISIBILITY, "")
+                    .property(TestPropertyNames.TIMESTAMP, 1L)
                     .build();
             if (fullyAggregated) {
                 expectedElements.add(edge);
@@ -197,7 +201,7 @@ public class AddElementsFromHdfsIT {
     }
 
     private Schema getSchema() {
-        return Schema.fromJson(StreamUtil.schemas(getClass()));
+        return Schema.fromJson(StreamUtil.openStreams(getClass(), "schema-add-elements-from-hdfs"));
     }
 
     public static final class TextMapperGeneratorImpl extends TextMapperGenerator {
@@ -215,6 +219,7 @@ public class AddElementsFromHdfsIT {
                         .group(parts[0])
                         .vertex(parts[1])
                         .property(TestPropertyNames.COUNT, 1)
+                        .property(TestPropertyNames.TIMESTAMP, 1L)
                         .build();
             }
 
@@ -224,6 +229,7 @@ public class AddElementsFromHdfsIT {
                     .dest(parts[2])
                     .directed(true)
                     .property(TestPropertyNames.COUNT, 1)
+                    .property(TestPropertyNames.TIMESTAMP, 1L)
                     .build();
         }
     }
