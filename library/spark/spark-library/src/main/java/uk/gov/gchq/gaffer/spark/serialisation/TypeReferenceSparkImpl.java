@@ -43,4 +43,7 @@ public final class TypeReferenceSparkImpl {
     private TypeReferenceSparkImpl() {
         // Private constructor to prevent instantiation.
     }
+
+    public static class IterableRowT extends TypeReference<Iterable<? extends Row>> {
+    }
 }
