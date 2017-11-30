@@ -27,12 +27,15 @@ import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
+import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+import uk.gov.gchq.koryphe.impl.binaryoperator.Max;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 
 import java.util.Arrays;
@@ -128,9 +131,15 @@ public class AddElementsIT extends AbstractStoreIT {
                 .property(TestPropertyNames.COUNT, 2L)
                 .property(TestPropertyNames.TIMESTAMP, 1L)
                 .build();
+        final Entity entity3 = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex("1")
+                .property(TestPropertyNames.COUNT, 3L)
+                .property(TestPropertyNames.TIMESTAMP, 2L)
+                .build();
 
         final AddElements addElements = new AddElements.Builder()
-                .input(entity, entity)
+                .input(entity, entity2, entity3)
                 .build();
 
         // When
@@ -138,32 +147,47 @@ public class AddElementsIT extends AbstractStoreIT {
 
         // Then
         final CloseableIterable<? extends Element> allElements = graphWithNoAggregation.execute(new GetAllElements(), getUser());
-        ElementUtil.assertElementEquals(Arrays.asList(entity, entity2), allElements);
+        ElementUtil.assertElementEquals(Arrays.asList(entity, entity2, entity3), allElements);
     }
 
+    @TraitRequirement(StoreTrait.INGEST_AGGREGATION)
     @Test
     public void shouldAddElementsWithSameTimestampWithAggregation() throws OperationException {
         // Given
-        final Graph graphWithNoAggregation = createGraphWithAggregation();
-        final Entity entity = new Entity.Builder()
+        final Graph graphWithAggregation = createGraphWithAggregation();
+        final Entity entity1 = new Entity.Builder()
                 .group(TestGroups.ENTITY)
                 .vertex("1")
+                .property(TestPropertyNames.COUNT, 1L)
                 .property(TestPropertyNames.TIMESTAMP, 1L)
+                .build();
+        final Entity entity2 = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex("1")
+                .property(TestPropertyNames.COUNT, 2L)
+                .property(TestPropertyNames.TIMESTAMP, 1L)
+                .build();
+        final Entity entity3 = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex("1")
+                .property(TestPropertyNames.COUNT, 3L)
+                .property(TestPropertyNames.TIMESTAMP, 2L)
                 .build();
 
         final AddElements addElements = new AddElements.Builder()
-                .input(entity, entity)
+                .input(entity1, entity2, entity3)
                 .build();
 
         // When
-        graphWithNoAggregation.execute(addElements, getUser());
+        graphWithAggregation.execute(addElements, getUser());
 
         // Then
-        final CloseableIterable<? extends Element> allElements = graphWithNoAggregation.execute(new GetAllElements(), getUser());
+        final CloseableIterable<? extends Element> allElements = graphWithAggregation.execute(new GetAllElements(), getUser());
         ElementUtil.assertElementEquals(Collections.singletonList(
                         new Entity.Builder()
                                 .group(TestGroups.ENTITY)
                                 .vertex("1")
+                                .property(TestPropertyNames.COUNT, 6L)
                                 .property(TestPropertyNames.TIMESTAMP, 2L)
                                 .build()),
                 allElements);
@@ -172,7 +196,7 @@ public class AddElementsIT extends AbstractStoreIT {
     private Graph createGraphWithAggregation() {
         return new Graph.Builder()
                 .config(new GraphConfig.Builder()
-                        .graphId("integrationTestGraphWithNoAggregation")
+                        .graphId("integrationTestGraphWithAggregation")
                         .build())
                 .storeProperties(getStoreProperties())
                 .addSchema(createSchemaWithAggregation())
@@ -195,14 +219,18 @@ public class AddElementsIT extends AbstractStoreIT {
         return new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex(TestTypes.ID_STRING)
+                        .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
                         .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP)
                         .aggregate(true)
                         .build())
                 .type(TestTypes.ID_STRING, String.class)
+                .type(TestTypes.PROP_COUNT, new TypeDefinition.Builder()
+                        .clazz(Long.class)
+                        .aggregateFunction(new Sum())
+                        .build())
                 .type(TestTypes.TIMESTAMP, new TypeDefinition.Builder()
                         .clazz(Long.class)
-                                // Summing the timestamps is a strange thing to do but it allows the aggregated value to be tested easily.
-                        .aggregateFunction(new Sum())
+                        .aggregateFunction(new Max())
                         .build())
                 .timestampProperty(TestTypes.TIMESTAMP)
                 .build();

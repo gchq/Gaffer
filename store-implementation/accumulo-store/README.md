@@ -238,6 +238,8 @@ Timestamp
 
 Accumulo keys have a timestamp field. The user can specify which property is used for this by setting "timestampProperty" in the schema to the name of the property. If this is not specified then the time when the conversion to a key-value happens is used.
 
+If you choose to set timestampProperty, the property will be aggregated with 'Max' - you cannot override this.
+
 Validation and age-off of data
 -----------------------------------------------
 

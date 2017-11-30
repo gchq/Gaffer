@@ -187,8 +187,7 @@ See [the aggregation example](https://gchq.github.io/gaffer-doc/getting-started/
 Timestamp
 -----------------------------------------------
 
-HBase keys have a timestamp field. The user can specify which property is used for this by setting "timestampProperty" in the schema to the name of the property.
-If this is not specified then a random value based on the time and a random number will be used when the conversion to an HBase Cell happens.
+HBase keys have a timestamp field. The user can specify which property is used for this by setting "timestampProperty" in the schema, however we strongly recommend you do not use it with this store.
 
 ### Important note
 This only applies to groups with disabled aggregation.
