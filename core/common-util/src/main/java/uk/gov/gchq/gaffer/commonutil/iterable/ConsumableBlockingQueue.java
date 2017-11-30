@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.flink.operation.handler;
+package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -24,42 +24,36 @@ import javax.annotation.Nonnull;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ArrayBlockingQueue;
 
 /**
- * Wrapper class around {@link ConcurrentLinkedQueue} to prevent consumers from
- * being able to iterate over the queue more than once.
+ * Extension to {@link ArrayBlockingQueue} to allow consumers to iterate over
+ * the queue, consuming the data, without being blocked.
  *
  * @param <T> the type of object in the queue
  */
-public class GafferQueue<T> implements Iterable<T> {
-    private final ConcurrentLinkedQueue<T> queue;
-    private boolean iteratorAvailable = true;
+public class ConsumableBlockingQueue<T> extends ArrayBlockingQueue<T> {
+    private static final long serialVersionUID = 4048319404021495269L;
 
-    public GafferQueue(final ConcurrentLinkedQueue<T> queue) {
-        this.queue = queue;
+    public ConsumableBlockingQueue(final int maxSize) {
+        super(maxSize);
     }
 
     @Override
     @Nonnull
     public Iterator<T> iterator() {
-        if (!iteratorAvailable) {
-            throw new IllegalArgumentException("This iterable can only be iterated over once.");
-        }
-
-        iteratorAvailable = false;
         return new Iterator<T>() {
             @Override
             public boolean hasNext() {
-                return !queue.isEmpty();
+                return !isEmpty();
             }
 
             @Override
             public T next() {
                 if (!hasNext()) {
-                    throw new NoSuchElementException("No more elements");
+                    throw new NoSuchElementException("No more items");
                 }
-                return queue.poll();
+                return poll();
             }
         };
     }
@@ -81,11 +75,10 @@ public class GafferQueue<T> implements Iterable<T> {
             return false;
         }
 
-        final GafferQueue gafferQueue = (GafferQueue) obj;
+        final ConsumableBlockingQueue queue = (ConsumableBlockingQueue) obj;
 
         return new EqualsBuilder()
-                .append(queue.toArray(), gafferQueue.queue.toArray())
-                .append(iteratorAvailable, gafferQueue.iteratorAvailable)
+                .append(toArray(), queue.toArray())
                 .isEquals();
     }
 
@@ -96,8 +89,7 @@ public class GafferQueue<T> implements Iterable<T> {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(13, 47)
-                .append(queue.toArray())
-                .append(iteratorAvailable)
+                .append(toArray())
                 .toHashCode();
     }
 
@@ -108,8 +100,7 @@ public class GafferQueue<T> implements Iterable<T> {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("queue", queue.toArray())
-                .append("iteratorAvailable", iteratorAvailable)
+                .append("items", toArray())
                 .toString();
     }
 }

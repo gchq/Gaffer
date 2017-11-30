@@ -30,8 +30,8 @@
 #
 #   This sample file contains example settings and an explanations of which of the Accumulo deployment scenarios the settings are applicable to.
 #   For further details on properties gaffer store properties files see:
-#   https://github.com/gchq/Gaffer/wiki/Accumulo-Store-User-Guide#properties-file
-#   https://github.com/gchq/Gaffer/wiki/Accumulo-Store-User-Guide#advanced-properties
+#   https://gchq.github.io/gaffer-doc/stores/accumulo-store.html#properties-file
+#   https://gchq.github.io/gaffer-doc/stores/accumulo-store.html#advanced-properties
 
 ################################################################################
 # generic store property - gaffer.store.class
