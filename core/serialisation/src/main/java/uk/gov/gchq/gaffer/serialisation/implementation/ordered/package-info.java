@@ -15,6 +15,6 @@
  */
 
 /**
- * Serialisation implemenations which maintain the ordering of bytes.
+ * Serialisation implementations which maintain the ordering of bytes.
  */
 package uk.gov.gchq.gaffer.serialisation.implementation.ordered;
