@@ -47,12 +47,10 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
         AddNamedView addNamedView = new AddNamedView.Builder()
                 .namedView(NAMED_VIEW)
                 .overwrite(true)
-                .parameters(parameters)
                 .build();
 
         assertEquals(NAMED_VIEW, addNamedView.getNamedView());
         assertTrue(addNamedView.isOverwriteFlag());
-        assertEquals(parameters, addNamedView.getParameters());
     }
 
     @Override
@@ -63,7 +61,6 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
         AddNamedView addNamedView = new AddNamedView.Builder()
                 .namedView(NAMED_VIEW)
                 .overwrite(false)
-                .parameters(parameters)
                 .build();
 
         // When
@@ -73,7 +70,6 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
         assertNotSame(addNamedView, clone);
         JsonAssert.assertEquals(addNamedView.getNamedView().toJson(false), clone.getNamedView().toJson(false));
         assertFalse(clone.isOverwriteFlag());
-        assertEquals(parameters, clone.getParameters());
     }
 
     @Override

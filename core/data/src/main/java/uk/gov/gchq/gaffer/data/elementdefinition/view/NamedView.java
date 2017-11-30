@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
-import uk.gov.gchq.gaffer.named.operation.ParameterDetail;
 
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -38,7 +37,7 @@ public class NamedView extends View {
     private String name;
     @JsonIgnore
     private List<String> mergedNamedViewNames = new ArrayList<>();
-    private Map<String, ParameterDetail> parameters;
+    private Map<String, Object> parameters;
 
     public NamedView() {
         this.name = "";
@@ -63,11 +62,11 @@ public class NamedView extends View {
         return mergedNamedViewNames;
     }
 
-    public void setParameters(final Map<String, ParameterDetail> parameters) {
+    public void setParameters(final Map<String, Object> parameters) {
         this.parameters = parameters;
     }
 
-    public Map<String, ParameterDetail> getParameters() {
+    public Map<String, Object> getParameters() {
         return parameters;
     }
 
@@ -86,7 +85,7 @@ public class NamedView extends View {
             return self();
         }
 
-        public CHILD_CLASS parameters(final Map<String, ParameterDetail> parameters) {
+        public CHILD_CLASS parameters(final Map<String, Object> parameters) {
             getElementDefs().setParameters(parameters);
             return self();
         }

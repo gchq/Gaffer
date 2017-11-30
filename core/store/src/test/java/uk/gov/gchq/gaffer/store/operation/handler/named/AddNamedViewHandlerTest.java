@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
@@ -32,6 +33,10 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 import uk.gov.gchq.gaffer.user.User;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
@@ -40,6 +45,7 @@ public class AddNamedViewHandlerTest {
     private final AddNamedViewHandler handler = new AddNamedViewHandler(namedViewCache);
     private final String testNamedViewName = "testNamedViewName";
     private final String testUserId = "testUser";
+    private final Map<String, Object> testParameters = new HashMap<>();
 
     private Context context = new Context(new User.Builder()
             .userId(testUserId)
@@ -47,18 +53,25 @@ public class AddNamedViewHandlerTest {
 
     private Store store = mock(Store.class);
 
-    private NamedView namedView = new NamedView.Builder()
-            .name(testNamedViewName)
-            .edge(TestGroups.EDGE)
-            .build();
+    NamedView namedView;
 
-    private AddNamedView addNamedView = new AddNamedView.Builder()
-            .namedView(namedView)
-            .overwrite(false)
-            .build();
+    AddNamedView addNamedView;
 
     @Before
     public void before() {
+        testParameters.put("testParam", "testKey");
+
+        namedView = new NamedView.Builder()
+                .name(testNamedViewName)
+                .edge(TestGroups.EDGE)
+                .parameters(testParameters)
+                .build();
+
+        addNamedView = new AddNamedView.Builder()
+                .namedView(namedView)
+                .overwrite(false)
+                .build();
+
         StoreProperties properties = new StoreProperties();
         properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
         CacheServiceLoader.initialise(properties.getProperties());
@@ -76,6 +89,10 @@ public class AddNamedViewHandlerTest {
         final NamedView result = namedViewCache.getNamedView(testNamedViewName);
 
         cacheContains(testNamedViewName);
+        assertEquals(addNamedView.getNamedView().getName(), result.getName());
+        assertEquals(addNamedView.getNamedView().getParameters(), result.getParameters());
+        JsonAssert.assertEquals(addNamedView.getNamedView().toCompactJson(), result.toCompactJson());
+
     }
 
     @Test
