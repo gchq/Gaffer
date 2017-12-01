@@ -63,7 +63,13 @@ public class NamedView extends View {
     }
 
     public void setParameters(final Map<String, Object> parameters) {
-        this.parameters = parameters;
+        if (parameters != null) {
+            if (null != this.parameters) {
+                this.parameters.putAll(parameters);
+            } else {
+                this.parameters = parameters;
+            }
+        }
     }
 
     public Map<String, Object> getParameters() {
