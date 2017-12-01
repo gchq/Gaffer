@@ -14,26 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.accumulostore.integration;
+package uk.gov.gchq.gaffer.hdfs.integration.operation.handler;
 
-import com.google.common.collect.Sets;
+import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapreduce.server.jobtracker.JTConfig;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
-import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage;
-import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
-import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
@@ -47,40 +40,46 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.TextMapperGenerator;
-import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.binaryoperator.Max;
+import uk.gov.gchq.koryphe.impl.binaryoperator.StringDeduplicateConcat;
+import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
+import uk.gov.gchq.koryphe.impl.predicate.IsTrue;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class AddElementsFromHdfsIT {
+public abstract class AddElementsFromHdfsIT {
     private static final String VERTEX_ID_PREFIX = "vertexId";
-    private static final int NUM_ELEMENTS = 1000;
-    private static final List<String> TABLET_SERVERS = Arrays.asList("1", "2", "3", "4");
+    public static final int NUM_ELEMENTS = 100;
+    public static final int DUPLICATES = 4;
 
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
-    private String inputDir;
-    private String outputDir;
-    private String failureDir;
-    private String splitsDir;
-    private String splitsFile;
-    private String workingDir;
+    protected String inputDir;
+    protected String outputDir;
+    protected String failureDir;
+    protected String splitsDir;
+    protected String splitsFile;
+    protected String workingDir;
+    protected String stagingDir;
+
+    protected abstract Graph createGraph(final Schema schema) throws Exception;
 
     @Before
     public void setup() {
@@ -90,12 +89,12 @@ public class AddElementsFromHdfsIT {
         splitsDir = testFolder.getRoot().getAbsolutePath() + "/splitsDir";
         splitsFile = splitsDir + "/splits";
         workingDir = testFolder.getRoot().getAbsolutePath() + "/workingDir";
+        stagingDir = testFolder.getRoot().getAbsolutePath() + "/stagingDir";
     }
 
     @Test
     public void shouldAddElementsFromHdfs() throws Exception {
-        addElementsFromHdfs(ByteEntityKeyPackage.class);
-        addElementsFromHdfs(ClassicKeyPackage.class);
+        addElementsFromHdfs(getSchema(), true);
     }
 
     @Test
@@ -109,12 +108,10 @@ public class AddElementsFromHdfsIT {
                         .destination(defaultEdge1.getDestination())
                         .directed(defaultEdge1.getDirected())
                         .properties(defaultEdge1.getPropertyMap())
-                        .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP)
                         .aggregate(false)
                         .build())
                 .build();
-        addElementsFromHdfs(createStore(ByteEntityKeyPackage.class, schema), TABLET_SERVERS.size() - 1, false);
-        addElementsFromHdfs(createStore(ClassicKeyPackage.class, schema), TABLET_SERVERS.size() - 1, false);
+        addElementsFromHdfs(schema, false);
     }
 
     @Test
@@ -122,8 +119,7 @@ public class AddElementsFromHdfsIT {
         final FileSystem fs = FileSystem.getLocal(createLocalConf());
         fs.mkdirs(new Path(outputDir));
 
-        addElementsFromHdfs(ByteEntityKeyPackage.class);
-        addElementsFromHdfs(ClassicKeyPackage.class);
+        addElementsFromHdfs(getSchema(), true);
     }
 
     @Test
@@ -131,8 +127,7 @@ public class AddElementsFromHdfsIT {
         final FileSystem fs = FileSystem.getLocal(createLocalConf());
         fs.mkdirs(new Path(failureDir));
 
-        addElementsFromHdfs(ByteEntityKeyPackage.class);
-        addElementsFromHdfs(ClassicKeyPackage.class);
+        addElementsFromHdfs(getSchema(), true);
     }
 
     @Test
@@ -144,17 +139,10 @@ public class AddElementsFromHdfsIT {
         }
 
         try {
-            addElementsFromHdfs(ByteEntityKeyPackage.class);
+            addElementsFromHdfs();
             fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Output directory exists and is not empty: " + outputDir, e.getMessage());
-        }
-
-        try {
-            addElementsFromHdfs(ClassicKeyPackage.class);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Output directory exists and is not empty: " + outputDir, e.getMessage());
+        } catch (final Exception e) {
+            assertTrue(e.getMessage(), e.getMessage().contains("Output directory exists and is not empty: " + outputDir));
         }
     }
 
@@ -165,43 +153,7 @@ public class AddElementsFromHdfsIT {
             fs.delete(new Path(outputDir));
         }
 
-        try {
-            addElementsFromHdfs(ByteEntityKeyPackage.class);
-        } catch (final Exception e) {
-            fail("Error occured: " + e.getMessage());
-        }
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenAddElementsFromHdfsWhenFailureDirectoryContainsFiles() throws Exception {
-        final FileSystem fs = FileSystem.getLocal(createLocalConf());
-        fs.mkdirs(new Path(failureDir));
-        try (final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fs.create(new Path(failureDir + "/someFile.txt"), true)))) {
-            writer.write("Some content");
-        }
-
-        try {
-            addElementsFromHdfs(ByteEntityKeyPackage.class);
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertEquals("Failure directory is not empty: " + failureDir, e.getCause().getMessage());
-        }
-
-        //Previous job will output data successfully to the output dir but not load it.
-        fs.delete(new Path(outputDir), true);
-
-        try {
-            addElementsFromHdfs(ClassicKeyPackage.class);
-            fail("Exception expected");
-        } catch (final OperationException e) {
-            assertEquals("Failure directory is not empty: " + failureDir, e.getCause().getMessage());
-        }
-    }
-
-    @Test
-    public void shouldNotSampleAndSplitBeforeAddingElements() throws Exception {
-        shouldNotSampleAndSplitBeforeAddingElements(ByteEntityKeyPackage.class);
-        shouldNotSampleAndSplitBeforeAddingElements(ClassicKeyPackage.class);
+        addElementsFromHdfs();
     }
 
     @Test
@@ -217,81 +169,64 @@ public class AddElementsFromHdfsIT {
         createInputFile(inputDir2, NUM_ELEMENTS, 2 * NUM_ELEMENTS);
         createInputFile(inputDir3, 2 * NUM_ELEMENTS, 3 * NUM_ELEMENTS);
 
-        final Graph graph = new Graph.Builder()
-                .store(createStore(ClassicKeyPackage.class))
-                .build();
+        final Graph graph = createGraph(getSchema());
 
         // When
-        graph.execute(new AddElementsFromHdfs.Builder()
-                .inputMapperPairs(inputMappers)
-                .addInputMapperPair(new Path(inputDir3).toString(), TextMapperGeneratorImpl.class.getName())
-                .outputPath(outputDir)
-                .failurePath(failureDir)
-                .jobInitialiser(new TextJobInitialiser())
-                .useProvidedSplits(false)
-                .splitsFilePath(splitsFile)
-                .workingPath(workingDir)
-                .build(), new User());
+        graph.execute(createOperation(inputDir3, inputMappers).build(), new User());
 
         // Then
         final CloseableIterable<? extends Element> elements = graph.execute(new GetAllElements(), new User());
         final List<Element> expectedElements = new ArrayList<>(NUM_ELEMENTS);
         for (int i = 0; i < 3 * NUM_ELEMENTS; i++) {
-            expectedElements.add(new Entity.Builder()
+            final Entity entity = new Entity.Builder()
                     .group(TestGroups.ENTITY)
                     .vertex(VERTEX_ID_PREFIX + i)
-                    .property(TestPropertyNames.COUNT, 3)
+                    .property(TestPropertyNames.COUNT, 2 * DUPLICATES)
+                    .property(TestPropertyNames.VISIBILITY, "")
                     .property(TestPropertyNames.TIMESTAMP, 2L)
-                    .build());
-            expectedElements.add(new Edge.Builder()
+                    .build();
+            final Edge edge = new Edge.Builder()
                     .group(TestGroups.EDGE)
                     .source(VERTEX_ID_PREFIX + i)
                     .dest(VERTEX_ID_PREFIX + (i + 1))
                     .directed(true)
-                    .property(TestPropertyNames.COUNT, 3)
+                    .property(TestPropertyNames.COUNT, 2 * DUPLICATES)
+                    .property(TestPropertyNames.VISIBILITY, "")
                     .property(TestPropertyNames.TIMESTAMP, 2L)
-                    .build());
+                    .build();
+            expectedElements.add(entity);
+            expectedElements.add(edge);
         }
         ElementUtil.assertElementEquals(expectedElements, elements);
     }
 
-    private void shouldNotSampleAndSplitBeforeAddingElements(final Class<? extends AccumuloKeyPackage> keyPackage) throws Exception {
-        final AccumuloStore store = createStore(keyPackage);
-
-        // Add some splits so that the sample and split operations do not get invoked.
-        final SortedSet<Text> splits = Sets.newTreeSet(Arrays.asList(new Text("1"), new Text("2")));
-        store.getConnection().tableOperations().addSplits(store.getTableName(), splits);
-        assertEquals(splits.size(), store.getConnection().tableOperations().listSplits(store.getTableName()).size());
-
-        addElementsFromHdfs(store, splits.size());
-    }
-
-    private void addElementsFromHdfs(final Class<? extends AccumuloKeyPackage> keyPackageClass)
-            throws Exception {
-        addElementsFromHdfs(createStore(keyPackageClass), TABLET_SERVERS.size() - 1);
-    }
-
-    private void addElementsFromHdfs(final AccumuloStore store, final int expectedSplits) throws Exception {
-        addElementsFromHdfs(store, expectedSplits, true);
-    }
-
-    private void addElementsFromHdfs(final AccumuloStore store, final int expectedSplits, final boolean fullyAggregated) throws Exception {
-        // Given
-        createInputFile(inputDir, 0, NUM_ELEMENTS);
-        final Graph graph = new Graph.Builder()
-                .store(store)
-                .build();
-
-        // When
-        graph.execute(new AddElementsFromHdfs.Builder()
-                .addInputMapperPair(new Path(inputDir).toString(), TextMapperGeneratorImpl.class.getName())
+    protected AddElementsFromHdfs.Builder createOperation(final String inputDirParam, final Map<String, String> inputMappers) {
+        return new AddElementsFromHdfs.Builder()
+                .inputMapperPairs(inputMappers)
+                .addInputMapperPair(new Path(inputDirParam).toString(), TextMapperGeneratorImpl.class.getName())
                 .outputPath(outputDir)
                 .failurePath(failureDir)
                 .jobInitialiser(new TextJobInitialiser())
                 .useProvidedSplits(false)
                 .splitsFilePath(splitsFile)
-                .workingPath(workingDir)
-                .build(), new User());
+                .workingPath(workingDir);
+    }
+
+    private AddElementsFromHdfs.Builder createOperation() {
+        return createOperation(inputDir, null);
+    }
+
+    protected void addElementsFromHdfs() throws Exception {
+        addElementsFromHdfs(getSchema(), true);
+    }
+
+    protected void addElementsFromHdfs(final Schema schema, final boolean fullyAggregated) throws Exception {
+        // Given
+        createInputFile(inputDir, 0, NUM_ELEMENTS);
+        final Graph graph = createGraph(schema);
+
+        // When
+        graph.execute(createOperation().build(), new User());
 
         // Then
         final CloseableIterable<? extends Element> elements = graph.execute(new GetAllElements(), new User());
@@ -300,7 +235,8 @@ public class AddElementsFromHdfsIT {
             final Entity entity = new Entity.Builder()
                     .group(TestGroups.ENTITY)
                     .vertex(VERTEX_ID_PREFIX + i)
-                    .property(TestPropertyNames.COUNT, 3)
+                    .property(TestPropertyNames.COUNT, 2 * DUPLICATES)
+                    .property(TestPropertyNames.VISIBILITY, "")
                     .property(TestPropertyNames.TIMESTAMP, 2L)
                     .build();
             final Edge edge = new Edge.Builder()
@@ -308,7 +244,8 @@ public class AddElementsFromHdfsIT {
                     .source(VERTEX_ID_PREFIX + i)
                     .dest(VERTEX_ID_PREFIX + (i + 1))
                     .directed(true)
-                    .property(TestPropertyNames.COUNT, 3)
+                    .property(TestPropertyNames.COUNT, 2 * DUPLICATES)
+                    .property(TestPropertyNames.VISIBILITY, "")
                     .property(TestPropertyNames.TIMESTAMP, 2L)
                     .build();
             if (fullyAggregated) {
@@ -321,22 +258,25 @@ public class AddElementsFromHdfsIT {
                 // Edges were not aggregated
                 edge.putProperty(TestPropertyNames.COUNT, 1);
                 edge.putProperty(TestPropertyNames.TIMESTAMP, 1L);
-                expectedElements.add(edge);
-                expectedElements.add(edge);
+                for (int j = 0; j < DUPLICATES; j++) {
+                    expectedElements.add(edge);
+                }
 
                 final Edge edge2 = new Edge.Builder()
                         .group(edge.getGroup())
                         .source(edge.getSource())
                         .dest(edge.getDestination())
                         .directed(edge.isDirected())
+                        .property(TestPropertyNames.VISIBILITY, "")
                         .property(TestPropertyNames.COUNT, 1)
                         .property(TestPropertyNames.TIMESTAMP, 2L)
                         .build();
-                expectedElements.add(edge2);
+                for (int j = 0; j < DUPLICATES; j++) {
+                    expectedElements.add(edge2);
+                }
             }
         }
         ElementUtil.assertElementEquals(expectedElements, elements);
-        assertEquals(expectedSplits, store.getConnection().tableOperations().listSplits(store.getTableName()).size());
     }
 
     private void createInputFile(final String inputDir, final int start, final int end) throws IOException, StoreException {
@@ -346,47 +286,62 @@ public class AddElementsFromHdfsIT {
         fs.mkdirs(inputPath);
 
         try (final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fs.create(inputFilePath, true)))) {
-            for (int i = start; i < end; i++) {
-                writer.write(TestGroups.ENTITY + "," + VERTEX_ID_PREFIX + i + ",1\n");
-                writer.write(TestGroups.EDGE + "," + VERTEX_ID_PREFIX + i + "," + VERTEX_ID_PREFIX + (i + 1) + ",1\n");
-
-                // Add deduplicates
-                writer.write(TestGroups.ENTITY + "," + VERTEX_ID_PREFIX + i + ",1\n");
-                writer.write(TestGroups.EDGE + "," + VERTEX_ID_PREFIX + i + "," + VERTEX_ID_PREFIX + (i + 1) + ",1\n");
-
-                // Add data with different timestamp
-                writer.write(TestGroups.ENTITY + "," + VERTEX_ID_PREFIX + i + ",2\n");
-                writer.write(TestGroups.EDGE + "," + VERTEX_ID_PREFIX + i + "," + VERTEX_ID_PREFIX + (i + 1) + ",2\n");
+            // Add backwards to ensure the store is capable of ordering the elements if required
+            for (int i = (end - 1); i >= start; i--) {
+                for (int duplicates = 0; duplicates < DUPLICATES; duplicates++) {
+                    writer.write(TestGroups.ENTITY + "," + VERTEX_ID_PREFIX + i + ",1\n");
+                    writer.write(TestGroups.ENTITY + "," + VERTEX_ID_PREFIX + i + ",2\n");
+                    writer.write(TestGroups.EDGE + "," + VERTEX_ID_PREFIX + i + "," + VERTEX_ID_PREFIX + (i + 1) + ",1\n");
+                    writer.write(TestGroups.EDGE + "," + VERTEX_ID_PREFIX + i + "," + VERTEX_ID_PREFIX + (i + 1) + ",2\n");
+                }
             }
         }
     }
 
-    private JobConf createLocalConf() {
+    protected JobConf createLocalConf() {
         // Set up local conf
         final JobConf conf = new JobConf();
-        conf.set("fs.defaultFS", "file:///");
-        conf.set("mapreduce.jobtracker.address", "local");
+        conf.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, CommonConfigurationKeysPublic.FS_DEFAULT_NAME_DEFAULT);
+        conf.set(JTConfig.JT_IPC_ADDRESS, JTConfig.LOCAL_FRAMEWORK_NAME);
 
         return conf;
     }
 
-    private AccumuloStore createStore(final Class<? extends AccumuloKeyPackage> keyPackageClass) throws Exception {
-        return createStore(keyPackageClass, getSchema());
-    }
-
     private Schema getSchema() {
-        return Schema.fromJson(StreamUtil.openStreams(getClass(), "schema-add-elements-from-hdfs"));
-    }
-
-    private AccumuloStore createStore(final Class<? extends AccumuloKeyPackage> keyPackageClass, final Schema schema) throws Exception {
-        final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
-        properties.setKeyPackageClass(keyPackageClass.getName());
-        properties.setInstance("instance_" + keyPackageClass.getName());
-
-        final AccumuloStore store = new SingleUseMockAccumuloStoreWithTabletServers();
-        store.initialise(keyPackageClass.getSimpleName() + "Graph", schema, properties);
-        assertEquals(0, store.getConnection().tableOperations().listSplits(store.getTableName()).size());
-        return store;
+        return new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex(TestTypes.ID_STRING)
+                        .property(TestPropertyNames.VISIBILITY, TestTypes.VISIBILITY)
+                        .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
+                        .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP)
+                        .build())
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .source(TestTypes.ID_STRING)
+                        .destination(TestTypes.ID_STRING)
+                        .directed(TestTypes.DIRECTED_TRUE)
+                        .property(TestPropertyNames.VISIBILITY, TestTypes.VISIBILITY)
+                        .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
+                        .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP)
+                        .build())
+                .type(TestTypes.ID_STRING, String.class)
+                .type(TestTypes.DIRECTED_TRUE, new TypeDefinition.Builder()
+                        .clazz(Boolean.class)
+                        .validateFunctions(new IsTrue())
+                        .build())
+                .type(TestTypes.VISIBILITY, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .aggregateFunction(new StringDeduplicateConcat())
+                        .build())
+                .type(TestTypes.PROP_COUNT, new TypeDefinition.Builder()
+                        .clazz(Integer.class)
+                        .aggregateFunction(new Sum())
+                        .build())
+                .type(TestTypes.TIMESTAMP, new TypeDefinition.Builder()
+                        .clazz(Long.class)
+                        .aggregateFunction(new Max())
+                        .build())
+                .visibilityProperty(TestPropertyNames.VISIBILITY)
+                .build();
     }
 
     public static final class TextMapperGeneratorImpl extends TextMapperGenerator {
@@ -404,6 +359,7 @@ public class AddElementsFromHdfsIT {
                         .group(parts[0])
                         .vertex(parts[1])
                         .property(TestPropertyNames.COUNT, 1)
+                        .property(TestPropertyNames.VISIBILITY, "")
                         .property(TestPropertyNames.TIMESTAMP, Long.parseLong(parts[2]))
                         .build();
             }
@@ -414,15 +370,9 @@ public class AddElementsFromHdfsIT {
                     .dest(parts[2])
                     .directed(true)
                     .property(TestPropertyNames.COUNT, 1)
+                    .property(TestPropertyNames.VISIBILITY, "")
                     .property(TestPropertyNames.TIMESTAMP, Long.parseLong(parts[3]))
                     .build();
-        }
-    }
-
-    private static final class SingleUseMockAccumuloStoreWithTabletServers extends SingleUseMockAccumuloStore {
-        @Override
-        public List<String> getTabletServers() throws StoreException {
-            return TABLET_SERVERS;
         }
     }
 }

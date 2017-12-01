@@ -44,9 +44,9 @@ public class AddElementsFromHdfsMapper<KEY_IN, VALUE_IN>
     @Override
     protected void map(final Element element, final Context context) throws IOException, InterruptedException {
         final Pair<Cell, Cell> cells = serialisation.getCells(element, kvCreator);
-        context.write(new ImmutableBytesWritable(cells.getFirst().getRow()), (KeyValue) cells.getFirst());
+        context.write(new ImmutableBytesWritable(((KeyValue) cells.getFirst()).getKey()), (KeyValue) cells.getFirst());
         if (null != cells.getSecond()) {
-            context.write(new ImmutableBytesWritable(cells.getSecond().getRow()), (KeyValue) cells.getSecond());
+            context.write(new ImmutableBytesWritable(((KeyValue) cells.getSecond()).getKey()), (KeyValue) cells.getSecond());
         }
 
         context.getCounter("Bulk import", element.getClass().getSimpleName() + " count").increment(1L);

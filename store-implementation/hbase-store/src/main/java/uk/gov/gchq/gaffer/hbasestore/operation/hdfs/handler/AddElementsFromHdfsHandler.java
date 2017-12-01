@@ -35,6 +35,8 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
+import java.io.IOException;
+
 public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsFromHdfs> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsFromHdfsHandler.class);
 
@@ -48,6 +50,13 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
 
     public void doOperation(final AddElementsFromHdfs operation, final HBaseStore store) throws OperationException {
         validateOperation(operation);
+
+        try {
+            checkHdfsDirectories(operation, store);
+        } catch (final IOException e) {
+            throw new OperationException("Operation failed due to filesystem error: " + e.getMessage());
+        }
+
         fetchElements(operation, store);
         final String skipImport = operation.getOption(HBaseStoreConstants.ADD_ELEMENTS_FROM_HDFS_SKIP_IMPORT);
         if (null == skipImport || !"TRUE".equalsIgnoreCase(skipImport)) {
@@ -117,6 +126,24 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         } catch (final Exception e) {
             LOGGER.error("Failed to import elements into HBase: {}", e.getMessage());
             throw new OperationException("Failed to import elements into HBase", e);
+        }
+    }
+
+    private void checkHdfsDirectories(final AddElementsFromHdfs operation, final HBaseStore store) throws IOException {
+        final AddElementsFromHdfsTool tool = new AddElementsFromHdfsTool(new HBaseAddElementsFromHdfsJobFactory(), operation, store);
+
+        LOGGER.info("Checking that the correct HDFS directories exist");
+        final FileSystem fs = FileSystem.get(tool.getConfig());
+
+        final Path outputPath = new Path(operation.getOutputPath());
+        LOGGER.info("Ensuring output directory {} doesn't exist", outputPath);
+        if (fs.exists(outputPath)) {
+            if (fs.listFiles(outputPath, true).hasNext()) {
+                LOGGER.error("Output directory exists and is not empty: {}", outputPath);
+                throw new IllegalArgumentException("Output directory exists and is not empty: " + outputPath);
+            }
+            LOGGER.info("Output directory exists and is empty so deleting: {}", outputPath);
+            fs.delete(outputPath, true);
         }
     }
 }

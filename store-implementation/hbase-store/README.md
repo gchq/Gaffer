@@ -192,7 +192,7 @@ HBase keys have a timestamp field. The user can specify which property is used f
 ### Important note
 This only applies to groups with disabled aggregation.
 
-For elements with the same Key (group, vertex/source/destination/drection, groupBy), with aggregation disabled, the timestamp value must be unique.
+For elements with the same Key (group, vertex/source/destination/direction, groupBy), with aggregation disabled, the timestamp value must be unique.
 If it is not unique then elements will be deduplicated and deleted, even if some properties are different.
 
 If you choose to set the timestampProperty in the schema and populate the timestamps yourself then you must ensure the timestamps are unique.
