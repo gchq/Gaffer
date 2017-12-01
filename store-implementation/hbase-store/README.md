@@ -188,6 +188,9 @@ Timestamp
 -----------------------------------------------
 
 HBase keys have a timestamp field. The user can specify which property is used for this by setting "timestampProperty" in the schema, however we strongly recommend you do not use it with this store.
+If the timestamp is not set then it will be populated automatically:
+- if aggregation is enabled then this field will be set to a constant default value of 1.
+- if aggregation is disabled then this field will be set to a time based random value.
 
 ### Important note
 This only applies to groups with disabled aggregation.

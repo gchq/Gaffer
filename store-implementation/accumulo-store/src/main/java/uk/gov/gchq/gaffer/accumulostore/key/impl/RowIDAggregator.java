@@ -179,7 +179,7 @@ public class RowIDAggregator extends WrappingIterator implements OptionDescriber
             topKey = new Key(workKey.getRowData().getBackingArray(), group.getBytes(CommonConstants.UTF_8),
                     elementConverter.buildColumnQualifier(group, topProperties),
                     elementConverter.buildColumnVisibility(group, topProperties),
-                    elementConverter.buildTimestamp(topProperties));
+                    elementConverter.buildTimestamp(group, topProperties));
         } catch (final AccumuloElementConversionException e) {
             throw new RuntimeException(e);
         }
