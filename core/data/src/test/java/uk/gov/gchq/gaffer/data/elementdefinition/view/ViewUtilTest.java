@@ -261,6 +261,7 @@ public class ViewUtilTest {
 
         // Then
         JsonAssert.assertEquals(String.format("{%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.data.elementdefinition.view.View\", " +
                 "  \"edges\" : {%n" +
                 "    \"BasicEdge\" : {%n" +
                 "      \"transientProperties\" : {%n" +
@@ -384,6 +385,7 @@ public class ViewUtilTest {
         view.expandGlobalDefinitions();
 
         JsonAssert.assertEquals(String.format("{%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.data.elementdefinition.view.View\", " +
                 "  \"edges\" : {%n" +
                 "    \"BasicEdge2\" : {%n" +
                 "      \"groupBy\" : [ ],%n" +
