@@ -1,0 +1,32 @@
+{
+  "entities": {
+    "BasicEntity": {
+      "vertex": "string",
+      "properties": {
+        "fullname" : "string"
+      }
+    },
+    "BasicEntity2": {
+      "vertex": "string",
+      "properties": {
+      }
+    }
+  },
+  "edges": {
+    "BasicEdge": {
+      "source": "string",
+      "destination": "string",
+      "directed": "directed.either",
+      "properties": {
+        "type": "string"
+      }
+    },
+    "BasicEdge2": {
+      "source": "string",
+      "destination": "string",
+      "directed": "directed.either",
+      "properties": {
+      }
+    }
+  }
+}

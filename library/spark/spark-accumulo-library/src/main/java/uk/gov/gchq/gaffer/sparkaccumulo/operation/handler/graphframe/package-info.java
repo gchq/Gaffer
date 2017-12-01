@@ -15,6 +15,6 @@
  */
 
 /**
- * Serialisation implementations which maintain the ordering of bytes.
+ * Operation handlers for obtaining GraphFrames from Accumulo using Spark.
  */
-package uk.gov.gchq.gaffer.serialisation.implementation.ordered;
+package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.graphframe;

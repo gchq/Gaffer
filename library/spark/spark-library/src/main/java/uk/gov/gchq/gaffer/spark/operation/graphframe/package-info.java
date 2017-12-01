@@ -15,6 +15,6 @@
  */
 
 /**
- * Serialisation implementations which maintain the ordering of bytes.
+ * Operation classes for creating and consuming Graphframes using Spark in Gaffer.
  */
-package uk.gov.gchq.gaffer.serialisation.implementation.ordered;
+package uk.gov.gchq.gaffer.spark.operation.graphframe;
