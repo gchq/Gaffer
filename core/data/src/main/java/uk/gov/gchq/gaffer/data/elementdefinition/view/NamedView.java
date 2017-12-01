@@ -36,11 +36,12 @@ public class NamedView extends View {
     @Required
     private String name;
     @JsonIgnore
-    private List<String> mergedNamedViewNames = new ArrayList<>();
+    private List<String> mergedNamedViewNames;
     private Map<String, Object> parameters;
 
     public NamedView() {
         this.name = "";
+        this.mergedNamedViewNames = new ArrayList<>();
         this.parameters = new HashMap<>();
     }
 
@@ -54,7 +55,13 @@ public class NamedView extends View {
 
     @JsonIgnore
     public void setMergedNamedViewNames(final List<String> mergedNamedViewNames) {
-        this.mergedNamedViewNames = mergedNamedViewNames;
+        if (mergedNamedViewNames != null) {
+            if (this.mergedNamedViewNames != null) {
+                this.mergedNamedViewNames.addAll(mergedNamedViewNames);
+            } else {
+                this.mergedNamedViewNames = mergedNamedViewNames;
+            }
+        }
     }
 
     @JsonIgnore
@@ -122,17 +129,14 @@ public class NamedView extends View {
                     if (null != namedViewInstance.getName() && !namedViewInstance.getName().isEmpty()) {
                         if (null == self().getElementDefs().getName() || self().getElementDefs().getName().isEmpty()) {
                             self().name(namedViewInstance.getName());
+                        } else {
+                            self().getElementDefs().getMergedNamedViewNames().add(namedViewInstance.getName());
                         }
-                        self().getElementDefs().getMergedNamedViewNames().add(namedViewInstance.getName());
                     }
-                    if (null != namedViewInstance.getMergedNamedViewNames() || !namedViewInstance.getMergedNamedViewNames().isEmpty()) {
-                        self().getElementDefs().getMergedNamedViewNames().addAll(namedViewInstance.getMergedNamedViewNames());
-                    } else {
+                    if (null != namedViewInstance.getMergedNamedViewNames() && !namedViewInstance.getMergedNamedViewNames().isEmpty()) {
                         self().getElementDefs().setMergedNamedViewNames(namedViewInstance.getMergedNamedViewNames());
                     }
-                    if (null != getElementDefs().getParameters()) {
-                        getElementDefs().getParameters().putAll(namedViewInstance.getParameters());
-                    } else {
+                    if (null != namedViewInstance.getParameters() && !namedViewInstance.getParameters().isEmpty()) {
                         self().parameters(namedViewInstance.getParameters());
                     }
                 }
