@@ -200,10 +200,8 @@ If it is not unique then elements will be deduplicated and deleted, even if some
 
 If you choose to set the timestampProperty in the schema and populate the timestamps yourself then you must ensure the timestamps are unique.
 If you don't set the timestamp values then HBase will attempt to create a unique timestamp value.
-There is a very very small chance that it will fail to create a completely unique value and data could be lost.
-The auto generated timestamp is made up partly of the current system time and party with a random number.
-So if you ingest lots of similar elements at exactly the same time (within the same millisecond) the chance of a non-unique value is higher.
-
+This value is created from a combination of the current time and a randomly generated number.
+The chances of this not being unique are negligible.
 
 Validation and age-off of data
 -----------------------------------------------

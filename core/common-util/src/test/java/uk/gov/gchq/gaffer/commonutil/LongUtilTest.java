@@ -16,34 +16,33 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
-import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
 import org.junit.Test;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class LongUtilTest {
     @Test
-    public void shouldGetRandomNumber() {
-        // Given
-        final long longValue = Longs.fromBytes((byte) 1, (byte) 2, (byte) 3, (byte) 4, (byte) 5, (byte) 6, (byte) 7, (byte) 8);
-        final int intValue = Ints.fromBytes((byte) -1, (byte) -2, (byte) -3, (byte) -4);
-
+    public void shouldGetTimeBasedRandomNumber() {
         // When
-        final long random = LongUtil.getRandom(longValue, intValue);
+        final long random = LongUtil.getTimeBasedRandom();
 
         // Then
-        assertArrayEquals(new byte[]{(byte) 5, (byte) 6, (byte) 7, (byte) 8, (byte) -1, (byte) -2, (byte) -3, (byte) -4}, Longs.toByteArray(random));
+        // As we don't know the exact current time so just check the first couple of bytes
+        final byte[] randomBytes = Longs.toByteArray(random);
+        final byte[] currentTimeBytes = Longs.toByteArray(System.currentTimeMillis());
+        assertEquals(currentTimeBytes[4], randomBytes[0]);
+        assertEquals(currentTimeBytes[5], randomBytes[1]);
     }
 
     @Test
     public void shouldGetDifferentTimeBasedRandoms() {
         // Given
-        final int n = 100;
+        final int n = 1000;
 
         // When
         final Set<Long> timestamps = new HashSet<>(n);
@@ -53,5 +52,6 @@ public class LongUtilTest {
 
         // Then
         assertEquals(n, timestamps.size());
+        timestamps.forEach(t -> assertTrue("random number was negative " + t, t >= 0L));
     }
 }
