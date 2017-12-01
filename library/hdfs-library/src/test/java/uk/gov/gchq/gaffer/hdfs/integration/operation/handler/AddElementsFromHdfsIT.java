@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
+import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -56,6 +57,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -175,14 +177,19 @@ public abstract class AddElementsFromHdfsIT {
         graph.execute(createOperation(inputDir3, inputMappers).build(), new User());
 
         // Then
-        final CloseableIterable<? extends Element> elements = graph.execute(new GetAllElements(), new User());
+        final CloseableIterable<? extends Element> elements = graph.execute(
+                new GetAllElements(),
+                new User.Builder()
+                        .dataAuth("public")
+                        .dataAuth("private")
+                        .build());
         final List<Element> expectedElements = new ArrayList<>(NUM_ELEMENTS);
         for (int i = 0; i < 3 * NUM_ELEMENTS; i++) {
             final Entity entity = new Entity.Builder()
                     .group(TestGroups.ENTITY)
                     .vertex(VERTEX_ID_PREFIX + i)
                     .property(TestPropertyNames.COUNT, 2 * DUPLICATES)
-                    .property(TestPropertyNames.VISIBILITY, "")
+                    .property(TestPropertyNames.VISIBILITY, "private")
                     .property(TestPropertyNames.TIMESTAMP, 2L)
                     .build();
             final Edge edge = new Edge.Builder()
@@ -191,7 +198,7 @@ public abstract class AddElementsFromHdfsIT {
                     .dest(VERTEX_ID_PREFIX + (i + 1))
                     .directed(true)
                     .property(TestPropertyNames.COUNT, 2 * DUPLICATES)
-                    .property(TestPropertyNames.VISIBILITY, "")
+                    .property(TestPropertyNames.VISIBILITY, "public")
                     .property(TestPropertyNames.TIMESTAMP, 2L)
                     .build();
             expectedElements.add(entity);
@@ -229,14 +236,41 @@ public abstract class AddElementsFromHdfsIT {
         graph.execute(createOperation().build(), new User());
 
         // Then
-        final CloseableIterable<? extends Element> elements = graph.execute(new GetAllElements(), new User());
-        final List<Element> expectedElements = new ArrayList<>(NUM_ELEMENTS);
+        final CloseableIterable<? extends Element> allElements =
+                graph.execute(
+                        new GetAllElements(),
+                        new User.Builder()
+                                .dataAuth("public")
+                                .dataAuth("private")
+                                .build()
+                );
+
+        final CloseableIterable<? extends Element> publicElements =
+                graph.execute(
+                        new GetAllElements(),
+                        new User.Builder()
+                                .dataAuth("public")
+                                .build()
+                );
+
+        final CloseableIterable<? extends Element> privateElements =
+                graph.execute(
+                        new GetAllElements(),
+                        new User.Builder()
+                                .dataAuth("private")
+                                .build()
+                );
+
+        final CloseableIterable<? extends Element> noElements = graph.execute(new GetAllElements(), new User());
+
+        final List<Element> expectedEdges = new ArrayList<>();
+        final List<Element> expectedEntities = new ArrayList<>();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
             final Entity entity = new Entity.Builder()
                     .group(TestGroups.ENTITY)
                     .vertex(VERTEX_ID_PREFIX + i)
                     .property(TestPropertyNames.COUNT, 2 * DUPLICATES)
-                    .property(TestPropertyNames.VISIBILITY, "")
+                    .property(TestPropertyNames.VISIBILITY, "private")
                     .property(TestPropertyNames.TIMESTAMP, 2L)
                     .build();
             final Edge edge = new Edge.Builder()
@@ -245,21 +279,21 @@ public abstract class AddElementsFromHdfsIT {
                     .dest(VERTEX_ID_PREFIX + (i + 1))
                     .directed(true)
                     .property(TestPropertyNames.COUNT, 2 * DUPLICATES)
-                    .property(TestPropertyNames.VISIBILITY, "")
+                    .property(TestPropertyNames.VISIBILITY, "public")
                     .property(TestPropertyNames.TIMESTAMP, 2L)
                     .build();
             if (fullyAggregated) {
-                expectedElements.add(entity);
-                expectedElements.add(edge);
+                expectedEntities.add(entity);
+                expectedEdges.add(edge);
             } else {
                 // Entities were aggregated
-                expectedElements.add(entity);
+                expectedEntities.add(entity);
 
                 // Edges were not aggregated
                 edge.putProperty(TestPropertyNames.COUNT, 1);
                 edge.putProperty(TestPropertyNames.TIMESTAMP, 1L);
                 for (int j = 0; j < DUPLICATES; j++) {
-                    expectedElements.add(edge);
+                    expectedEdges.add(edge);
                 }
 
                 final Edge edge2 = new Edge.Builder()
@@ -267,16 +301,20 @@ public abstract class AddElementsFromHdfsIT {
                         .source(edge.getSource())
                         .dest(edge.getDestination())
                         .directed(edge.isDirected())
-                        .property(TestPropertyNames.VISIBILITY, "")
+                        .property(TestPropertyNames.VISIBILITY, "public")
                         .property(TestPropertyNames.COUNT, 1)
                         .property(TestPropertyNames.TIMESTAMP, 2L)
                         .build();
                 for (int j = 0; j < DUPLICATES; j++) {
-                    expectedElements.add(edge2);
+                    expectedEdges.add(edge2);
                 }
             }
         }
-        ElementUtil.assertElementEquals(expectedElements, elements);
+
+        ElementUtil.assertElementEquals(new ChainedIterable<>(expectedEntities, expectedEdges), allElements);
+        ElementUtil.assertElementEquals(expectedEdges, publicElements);
+        ElementUtil.assertElementEquals(expectedEntities, privateElements);
+        ElementUtil.assertElementEquals(Collections.emptyList(), noElements);
     }
 
     private void createInputFile(final String inputDir, final int start, final int end) throws IOException, StoreException {
@@ -359,7 +397,7 @@ public abstract class AddElementsFromHdfsIT {
                         .group(parts[0])
                         .vertex(parts[1])
                         .property(TestPropertyNames.COUNT, 1)
-                        .property(TestPropertyNames.VISIBILITY, "")
+                        .property(TestPropertyNames.VISIBILITY, "private")
                         .property(TestPropertyNames.TIMESTAMP, Long.parseLong(parts[2]))
                         .build();
             }
@@ -370,7 +408,7 @@ public abstract class AddElementsFromHdfsIT {
                     .dest(parts[2])
                     .directed(true)
                     .property(TestPropertyNames.COUNT, 1)
-                    .property(TestPropertyNames.VISIBILITY, "")
+                    .property(TestPropertyNames.VISIBILITY, "public")
                     .property(TestPropertyNames.TIMESTAMP, Long.parseLong(parts[3]))
                     .build();
         }

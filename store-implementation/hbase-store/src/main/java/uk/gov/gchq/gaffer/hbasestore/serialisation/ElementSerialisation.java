@@ -50,7 +50,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 
 public class ElementSerialisation {
     public static final long DEFAULT_AGGREGATED_TIMESTAMP = 1L;
@@ -487,31 +486,19 @@ public class ElementSerialisation {
         byte[] tags = null;
         if (!visibilityStr.isEmpty()) {
             try {
-                final List<Tag> tagList = kvCreator.getVisibilityExpressionResolver().createVisibilityExpTags(visibilityStr);
-                if (!tagList.isEmpty()) {
-                    int size = 0;
-                    for (final Tag t : tagList) {
-                        size += t.getTagLength();
-                    }
-                    tags = new byte[size];
-                    int pos = 0;
-                    for (final Tag t : tagList) {
-                        pos = Bytes.putBytes(tags, pos, t.getValue(), 0, t.getTagLength());
-                    }
-                }
-            } catch (IOException e) {
+                tags = Tag.fromList(kvCreator.getVisibilityExpressionResolver().createVisibilityExpTags(visibilityStr));
+            } catch (final IOException e) {
                 throw new RuntimeException("Unable to create visibility tags", e);
             }
         }
 
         final Cell cell = CellUtil.createCell(row.getFirst(), HBaseStoreConstants.getColFam(), cq, ts, KeyValue.Type.Maximum, value, tags);
-
-        final Pair<Cell, Cell> puts = new Pair<>(cell);
+        final Pair<Cell, Cell> cells = new Pair<>(cell);
         if (null != row.getSecond()) {
-            puts.setSecond(CellUtil.createCell(row.getSecond(), HBaseStoreConstants.getColFam(), cq, ts, KeyValue.Type.Maximum, value, tags));
+            cells.setSecond(CellUtil.createCell(row.getSecond(), HBaseStoreConstants.getColFam(), cq, ts, KeyValue.Type.Maximum, value, tags));
         }
 
-        return puts;
+        return cells;
     }
 
     public Pair<Put, Put> getPuts(final Element element) throws SerialisationException {

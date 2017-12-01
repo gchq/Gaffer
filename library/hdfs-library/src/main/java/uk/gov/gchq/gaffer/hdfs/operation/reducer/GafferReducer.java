@@ -98,7 +98,7 @@ public abstract class GafferReducer<KEY, VALUE> extends Reducer<KEY, VALUE, KEY,
                     context.write(key, iter.next());
                 }
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             if (null == group) {
                 group = "UNKNOWN";
             }

@@ -89,7 +89,7 @@ public class HBaseAddElementsFromHdfsJobFactory implements AddElementsFromHdfsJo
         private static final int LENGTH_BYTES = 4;
 
         @Override
-        public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
+        public int compare(final byte[] b1, final int s1, final int l1, final byte[] b2, final int s2, final int l2) {
             return KeyValue.COMPARATOR.compare(b1, s1 + LENGTH_BYTES, l1 - LENGTH_BYTES, b2, s2 + LENGTH_BYTES, l2 - LENGTH_BYTES);
         }
 
