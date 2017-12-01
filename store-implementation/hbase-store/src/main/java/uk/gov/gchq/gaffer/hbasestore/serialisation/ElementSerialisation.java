@@ -49,6 +49,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 public class ElementSerialisation {
+    public static final long DEFAULT_AGGREGATED_TIMESTAMP = 1L;
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementSerialisation.class);
 
     private final Schema schema;
@@ -330,19 +331,24 @@ public class ElementSerialisation {
     }
 
     public long getTimestamp(final Element element) throws SerialisationException {
-        return getTimestamp(element.getProperties());
+        return getTimestamp(element.getGroup(), element.getProperties());
     }
 
-    public long getTimestamp(final Properties properties) throws SerialisationException {
+    public long getTimestamp(final String group, final Properties properties) throws SerialisationException {
+        Long timestamp = null;
         if (null != schema.getTimestampProperty()) {
-            final Object property = properties.get(schema.getTimestampProperty());
-            if (null == property) {
-                return LongUtil.getTimeBasedRandom();
+            timestamp = (Long) properties.get(schema.getTimestampProperty());
+        }
+
+        if (null == timestamp) {
+            if (schema.getElement(group).isAggregate()) {
+                timestamp = DEFAULT_AGGREGATED_TIMESTAMP;
             } else {
-                return (Long) property;
+                timestamp = LongUtil.getTimeBasedRandom();
             }
         }
-        return LongUtil.getTimeBasedRandom();
+
+        return timestamp;
     }
 
     /**
@@ -464,7 +470,7 @@ public class ElementSerialisation {
     }
 
     public Pair<Put, Put> getPuts(final Element element, final Pair<byte[], byte[]> row, final byte[] cq) throws SerialisationException {
-        final long ts = getTimestamp(element.getProperties());
+        final long ts = getTimestamp(element);
         final byte[] value = getValue(element);
         final String visibilityStr = Bytes.toString(getColumnVisibility(element));
         final CellVisibility cellVisibility = visibilityStr.isEmpty() ? null : new CellVisibility(visibilityStr);

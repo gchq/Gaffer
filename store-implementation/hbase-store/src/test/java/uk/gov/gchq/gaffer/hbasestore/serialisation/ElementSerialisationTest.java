@@ -345,23 +345,51 @@ public class ElementSerialisationTest {
                 .build());
 
         final long propertyTimestamp = 10L;
-        final Properties properties = new Properties() {
-            {
-                put(HBasePropertyNames.COLUMN_QUALIFIER, 1);
-                put(HBasePropertyNames.PROP_1, 2);
-                put(HBasePropertyNames.TIMESTAMP, propertyTimestamp);
-            }
-        };
+        final Properties properties = new Properties();
+        properties.put(HBasePropertyNames.COLUMN_QUALIFIER, 1);
+        properties.put(HBasePropertyNames.PROP_1, 2);
+        properties.put(HBasePropertyNames.TIMESTAMP, propertyTimestamp);
 
         // When
-        final long timestamp = serialisation.getTimestamp(properties);
+        final long timestamp = serialisation.getTimestamp(TestGroups.EDGE, properties);
 
         // Then
         assertEquals(propertyTimestamp, timestamp);
     }
 
     @Test
-    public void shouldBuildRandomTimeBasedTimestampWhenPropertyIsNull() throws Exception {
+    public void shouldBuildRandomTimeBasedTimestampWhenPropertyIsNullNonAggregatedGroup() throws Exception {
+        // Given
+        // add extra timestamp property to schema
+        final Schema schema = new Schema.Builder().json(StreamUtil.schemas(getClass())).build();
+        serialisation = new ElementSerialisation(new Schema.Builder(schema)
+                .type("timestamp", Long.class)
+                .edge(TestGroups.EDGE_3, new SchemaEdgeDefinition.Builder()
+                        .property(HBasePropertyNames.TIMESTAMP, "timestamp")
+                        .aggregate(false)
+                        .build())
+                .timestampProperty(HBasePropertyNames.TIMESTAMP)
+                .build());
+
+        final Long propertyTimestamp = null;
+        final Properties properties = new Properties();
+        properties.put(HBasePropertyNames.COLUMN_QUALIFIER, 1);
+        properties.put(HBasePropertyNames.PROP_1, 2);
+        properties.put(HBasePropertyNames.TIMESTAMP, propertyTimestamp);
+
+        // When
+        final int n = 100;
+        final Set<Long> timestamps = new HashSet<>(n);
+        for (int i = 0; i < n; i++) {
+            timestamps.add(serialisation.getTimestamp(TestGroups.EDGE_3, properties));
+        }
+
+        // Then
+        assertEquals(n, timestamps.size());
+    }
+
+    @Test
+    public void shouldReturnDefaultTimestampWhenPropertyIsNullAggregatedGroup() throws Exception {
         // Given
         // add extra timestamp property to schema
         final Schema schema = new Schema.Builder().json(StreamUtil.schemas(getClass())).build();
@@ -383,15 +411,15 @@ public class ElementSerialisationTest {
         final int n = 100;
         final Set<Long> timestamps = new HashSet<>(n);
         for (int i = 0; i < n; i++) {
-            timestamps.add(serialisation.getTimestamp(properties));
+            timestamps.add(serialisation.getTimestamp(TestGroups.EDGE, properties));
         }
 
         // Then
-        assertEquals(n, timestamps.size());
+        assertEquals(ElementSerialisation.DEFAULT_AGGREGATED_TIMESTAMP, timestamps.size());
     }
 
     @Test
-    public void shouldBuildRandomTimeBasedTimestamp() throws Exception {
+    public void shouldBuildRandomTimeBasedTimestampForNonAggregatedGroups() throws Exception {
         // Given
         final Properties properties = new Properties();
         properties.put(HBasePropertyNames.COLUMN_QUALIFIER, 1);
@@ -401,11 +429,25 @@ public class ElementSerialisationTest {
         final int n = 100;
         final Set<Long> timestamps = new HashSet<>(n);
         for (int i = 0; i < n; i++) {
-            timestamps.add(serialisation.getTimestamp(properties));
+            timestamps.add(serialisation.getTimestamp(TestGroups.EDGE_3, properties));
         }
 
         // Then
         assertEquals(n, timestamps.size());
+    }
+
+    @Test
+    public void shouldReturnDefaultTimestampForAggregatedGroups() throws Exception {
+        // Given
+        final Properties properties = new Properties();
+        properties.put(HBasePropertyNames.COLUMN_QUALIFIER, 1);
+        properties.put(HBasePropertyNames.PROP_1, 2);
+
+        // When
+        final long timestamp = serialisation.getTimestamp(TestGroups.EDGE, properties);
+
+        // Then
+        assertEquals(ElementSerialisation.DEFAULT_AGGREGATED_TIMESTAMP, timestamp);
     }
 
     @Test

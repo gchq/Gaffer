@@ -188,11 +188,14 @@ Timestamp
 -----------------------------------------------
 
 HBase keys have a timestamp field. The user can specify which property is used for this by setting "timestampProperty" in the schema, however we strongly recommend you do not use it with this store.
+If the timestamp is not set then it will be populated automatically:
+- if aggregation is enabled then this field will be set to a constant default value of 1.
+- if aggregation is disabled then this field will be set to a time based random value.
 
 ### Important note
 This only applies to groups with disabled aggregation.
 
-For elements with the same Key (group, vertex/source/destination/drection, groupBy), with aggregation disabled, the timestamp value must be unique.
+For elements with the same Key (group, vertex/source/destination/direction, groupBy), with aggregation disabled, the timestamp value must be unique.
 If it is not unique then elements will be deduplicated and deleted, even if some properties are different.
 
 If you choose to set the timestampProperty in the schema and populate the timestamps yourself then you must ensure the timestamps are unique.
