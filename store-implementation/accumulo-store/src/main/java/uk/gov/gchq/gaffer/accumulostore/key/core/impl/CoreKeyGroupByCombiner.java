@@ -56,9 +56,10 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
+ * <p>
  * A copy of Accumulo {@link org.apache.accumulo.core.iterators.Combiner} but
  * combining values with identical rowKey and column family.
- * <p/>
+ * </p>
  * Users extending this class must specify a reduce() method.
  */
 public abstract class CoreKeyGroupByCombiner extends WrappingIterator

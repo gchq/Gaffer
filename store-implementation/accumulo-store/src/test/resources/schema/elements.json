@@ -70,8 +70,7 @@
         "property2": "simpleProperty",
         "property3": "simpleProperty",
         "property4": "simpleProperty",
-        "count": "simpleProperty",
-        "visibility": "visibility"
+        "count": "simpleProperty"
       },
       "aggregate": false
     }
