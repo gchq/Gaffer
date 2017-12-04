@@ -88,7 +88,7 @@ public class AddNamedViewHandlerTest {
 
         final NamedView result = namedViewCache.getNamedView(testNamedViewName);
 
-        cacheContains(testNamedViewName);
+        assertTrue(cacheContains(testNamedViewName));
         assertEquals(addNamedView.getNamedView().getName(), result.getName());
         assertEquals(addNamedView.getNamedView().getParameters(), result.getParameters());
         JsonAssert.assertEquals(addNamedView.getNamedView().toCompactJson(), result.toCompactJson());
