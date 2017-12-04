@@ -37,7 +37,7 @@ public class AccumuloKeyValueReducerTest {
     }
 
     @Test
-    public void shouldGetGroupFromColumnFamily() throws IOException, InterruptedException {
+    public void shouldGetGroupFromElementConverter() throws IOException, InterruptedException {
         // Given
         MockAccumuloElementConverter.mock = mock(AccumuloElementConverter.class);
         final Key key = mock(Key.class);
