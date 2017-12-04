@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.data.graph.adjacency;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -27,6 +28,7 @@ import java.util.Iterator;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.hamcrest.core.Is.is;
 
 @RunWith(Parameterized.class)
 public class AdjacencyMapsTest {
@@ -41,16 +43,22 @@ public class AdjacencyMapsTest {
         });
     }
 
+    @Before
+    public void before() {
+        if (null != adjacencyMaps) {
+            adjacencyMaps.asList().clear();
+
+            adjacencyMaps.add(getAdjacencyMap(3));
+            adjacencyMaps.add(getAdjacencyMap(4));
+        }
+    }
+
     public AdjacencyMapsTest(final AdjacencyMaps<Object, Object> adjacencyMaps) {
         this.adjacencyMaps = adjacencyMaps;
     }
 
     @Test
     public void shouldIterate() {
-        // When
-        adjacencyMaps.add(getAdjacencyMap(3));
-        adjacencyMaps.add(getAdjacencyMap(4));
-
         // Then
         final Iterator<AdjacencyMap<Object, Object>> it = adjacencyMaps.iterator();
 
@@ -61,12 +69,30 @@ public class AdjacencyMapsTest {
         assertThat(second.getAllDestinations(), hasSize(4));
     }
 
+    @Test
+    public void shouldGetSize() {
+        // Then
+        assertThat(adjacencyMaps.size(), is(2));
+    }
+
+    @Test
+    public void shouldGetNotEmpty() {
+        // Then
+        assertThat(adjacencyMaps.empty(), is(false));
+    }
+
+    @Test
+    public void shouldGetEmpty() {
+        // Then
+        assertThat(adjacencyMaps.empty(), is(false));
+    }
+
     private AdjacencyMap<Object, Object> getAdjacencyMap(final int size) {
 
         final AdjacencyMap<Object, Object> adjacencyMap = new AdjacencyMap<>();
 
         for (int i = 0; i < size; i++) {
-            adjacencyMap.put(i, i + 1, i);
+            adjacencyMap.putEdge(i, i + 1, i);
         }
 
         return adjacencyMap;
