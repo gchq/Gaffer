@@ -24,8 +24,8 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 /**
  * {@link TypeReference} objects for named views.
  */
-public final class NamedViewTypeReference {
-    private NamedViewTypeReference() {
+public final class TypeReferenceImpl {
+    private TypeReferenceImpl() {
         // Private constructor to prevent instantiation.
     }
 
