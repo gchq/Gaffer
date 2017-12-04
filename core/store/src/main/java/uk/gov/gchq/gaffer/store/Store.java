@@ -35,6 +35,8 @@ import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.DeleteNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.view.AddNamedView;
+import uk.gov.gchq.gaffer.named.view.GetAllNamedViews;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChainDAO;
@@ -107,8 +109,10 @@ import uk.gov.gchq.gaffer.store.operation.handler.job.GetAllJobDetailsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetJobDetailsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetJobResultsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedOperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.AddNamedViewHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.DeleteNamedOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.GetAllNamedOperationsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.named.GetAllNamedViewsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.NamedOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToArrayHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToCsvHandler;
@@ -783,12 +787,16 @@ public abstract class Store {
         addOperationHandler(ToStream.class, new ToStreamHandler<>());
         addOperationHandler(ToVertices.class, new ToVerticesHandler());
 
-        // Named operation
         if (null != CacheServiceLoader.getService()) {
+            // Named operation
             addOperationHandler(NamedOperation.class, new NamedOperationHandler());
             addOperationHandler(AddNamedOperation.class, new AddNamedOperationHandler());
             addOperationHandler(GetAllNamedOperations.class, new GetAllNamedOperationsHandler());
             addOperationHandler(DeleteNamedOperation.class, new DeleteNamedOperationHandler());
+
+            // Named view
+            addOperationHandler(AddNamedView.class, new AddNamedViewHandler());
+            addOperationHandler(GetAllNamedViews.class, new GetAllNamedViewsHandler());
         }
 
         // ElementComparison

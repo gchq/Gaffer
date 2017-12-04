@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 
 /**
- * {@link TypeReference} objects for named operations.
+ * {@link TypeReference} objects for named views.
  */
 public final class NamedViewTypeReference {
     private NamedViewTypeReference() {
