@@ -16,7 +16,8 @@
 package uk.gov.gchq.gaffer.flink.operation.handler;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.util.Collector;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;
@@ -26,13 +27,11 @@ import java.util.Collections;
 import java.util.function.Function;
 
 /**
- * Implementation of {@link MapFunction} to allow CSV strings representing {@link Element}s
+ * Implementation of {@link FlatMapFunction} to allow CSV strings representing {@link Element}s
  * to be mapped to Element objects.
  */
-public class GafferMapFunction implements MapFunction<String, Iterable<? extends Element>> {
+public class GafferMapFunction implements FlatMapFunction<String, Element> {
     private static final long serialVersionUID = -2338397824952911347L;
-    public static final Class<Iterable<? extends Element>> RETURN_CLASS = (Class) Iterable.class;
-
     private Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> generatorClassName;
 
     @SuppressFBWarnings(value = "SE_BAD_FIELD", justification = "The constructor forces this to be serializable")
@@ -49,19 +48,17 @@ public class GafferMapFunction implements MapFunction<String, Iterable<? extends
     }
 
     @Override
-    public Iterable<? extends Element> map(final String csv) throws Exception {
+    public void flatMap(final String csv, final Collector<Element> out) throws Exception {
         if (null == elementGenerator) {
             elementGenerator = generatorClassName.newInstance();
         }
 
         if (elementGenerator instanceof OneToOneElementGenerator) {
-            return Collections.singleton(((OneToOneElementGenerator) elementGenerator)._apply(csv));
+            out.collect(((OneToOneElementGenerator<String>) elementGenerator)._apply(csv));
+        } else if (elementGenerator instanceof OneToManyElementGenerator) {
+            ((OneToManyElementGenerator<String>) elementGenerator)._apply(csv).forEach(out::collect);
+        } else {
+            (elementGenerator).apply(Collections.singleton(csv)).forEach(out::collect);
         }
-
-        if (elementGenerator instanceof OneToManyElementGenerator) {
-            return ((OneToManyElementGenerator) elementGenerator)._apply(csv);
-        }
-
-        return elementGenerator.apply(Collections.singleton(csv));
     }
 }

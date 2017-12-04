@@ -106,28 +106,28 @@ public class AddElementsFromKafkaHandlerIT extends FlinkTest {
         // When
         new Thread(() -> {
             try {
+                Thread.sleep(10000);
                 graph.execute(op, new User());
-            } catch (final OperationException e) {
+            } catch (final OperationException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }).start();
 
-        Thread.sleep(30000);
-
         new Thread(() -> {
-            // Create kafka producer and add some data
-            producer = new KafkaProducer<>(producerProps());
-            for (final String dataValue : DATA_VALUES) {
-                try {
+            try {
+                Thread.sleep(20000);
+                // Create kafka producer and add some data
+                producer = new KafkaProducer<>(producerProps());
+                for (final String dataValue : DATA_VALUES) {
                     producer.send(new ProducerRecord<>(TOPIC, dataValue)).get();
-                } catch (InterruptedException | ExecutionException e) {
-                    throw new RuntimeException(e);
                 }
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
             }
         }).start();
 
         // Then
-        Thread.sleep(10000);
+        Thread.sleep(20000);
         try {
             verifyElements(graph);
         } catch (final AssertionError e) {

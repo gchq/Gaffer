@@ -28,7 +28,7 @@ import java.util.function.Function;
  * converts each record into a Gaffer {@link Element} using the provided
  * {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} then adds these
  * elements to the Graph. This operation uses Flink so you can either run it
- * in local mode or configure flink on your cluster to distribute the job.
+ * in local mode or configure Flink on your cluster to distribute the job.
  * This operation is a blocking operation and will only stop when the socket is
  * closed or you manually terminate the job.
  *

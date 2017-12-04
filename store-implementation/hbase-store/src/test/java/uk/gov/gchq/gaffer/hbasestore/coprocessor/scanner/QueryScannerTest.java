@@ -259,7 +259,7 @@ public class QueryScannerTest {
     public void shouldDelegateMethodsToInternalScanner() throws IOException {
         final RegionScanner scanner = mock(RegionScanner.class);
         final Scan scan = mock(Scan.class);
-        final QueryScanner queryScanner = new QueryScanner(scanner, scan, SCHEMA, serialisation, false);
+        final QueryScanner queryScanner = new QueryScanner(scanner, scan, SCHEMA, serialisation);
 
         assertSame(scanner, queryScanner.getScanner());
 

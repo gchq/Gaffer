@@ -380,7 +380,7 @@ public class AccumuloStoreTest {
     public void testStoreTraits(final AccumuloStore store) {
         final Collection<StoreTrait> traits = store.getTraits();
         assertNotNull(traits);
-        assertTrue("Collection size should be 8", traits.size() == 9);
+        assertTrue("Collection size should be 10", traits.size() == 10);
         assertTrue("Collection should contain INGEST_AGGREGATION trait", traits.contains(INGEST_AGGREGATION));
         assertTrue("Collection should contain QUERY_AGGREGATION trait", traits.contains(QUERY_AGGREGATION));
         assertTrue("Collection should contain PRE_AGGREGATION_FILTERING trait", traits.contains(PRE_AGGREGATION_FILTERING));
@@ -423,7 +423,7 @@ public class AccumuloStoreTest {
             store.validateSchemas();
             fail("Exception expected");
         } catch (final SchemaException e) {
-            assert(e.getMessage().contains("serialisers to be consistent."));
+            assert (e.getMessage().contains("serialisers to be consistent."));
         }
     }
 }
