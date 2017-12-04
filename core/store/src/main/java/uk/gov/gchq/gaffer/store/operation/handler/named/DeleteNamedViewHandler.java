@@ -1,4 +1,4 @@
-package uk.gov.gchq.gaffer.store.operation.handler.named;/*
+/*
  * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +14,8 @@ package uk.gov.gchq.gaffer.store.operation.handler.named;/*
  * limitations under the License.
  */
 
+package uk.gov.gchq.gaffer.store.operation.handler.named;
+
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.view.DeleteNamedView;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -22,6 +24,9 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 
+/**
+ * Operation Handler for DeleteNamedView.
+ */
 public class DeleteNamedViewHandler implements OperationHandler<DeleteNamedView> {
     private final NamedViewCache cache;
 
@@ -33,10 +38,21 @@ public class DeleteNamedViewHandler implements OperationHandler<DeleteNamedView>
         this.cache = cache;
     }
 
+    /**
+     * Deletes a NamedView from the cache specified in the Properties file.
+     * The user needs only to provide the name of the NamedView they
+     * want to delete.
+     *
+     * @param namedViewOp the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView} to be executed
+     * @param context     the operation chain context, containing the user who executed the operation
+     * @param store       the {@link Store} the operation should be run on
+     * @return null (as output of this operation is void)
+     * @throws OperationException thrown if the delete from cache fails
+     */
     @Override
-    public Void doOperation(final DeleteNamedView operation, final Context context, final Store store) throws OperationException {
+    public Void doOperation(final DeleteNamedView namedViewOp, final Context context, final Store store) throws OperationException {
         try {
-            cache.deleteNamedView(operation.getViewName());
+            cache.deleteNamedView(namedViewOp.getViewName());
         } catch (final CacheOperationFailedException e) {
             throw new OperationException(e.getMessage(), e);
         }

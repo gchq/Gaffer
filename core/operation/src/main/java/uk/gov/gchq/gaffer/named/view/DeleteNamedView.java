@@ -23,6 +23,10 @@ import uk.gov.gchq.gaffer.operation.Operation;
 
 import java.util.Map;
 
+/**
+ * A {@code DeleteNamedView} is an {@link Operation} for removing an existing
+ * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView} from a Gaffer graph.
+ */
 public class DeleteNamedView implements Operation {
 
     @Required
