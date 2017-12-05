@@ -184,40 +184,7 @@ Note that here `elements` could be a never-ending stream of `Element`s and the a
 To ingest data via bulk import, a MapReduce job is used to convert your data into files of Accumulo key-value pairs that are pre-sorted to match the distribution of data in Accumulo. Once these files are created, Accumulo moves them from their current location in HDFS to the correct directory within Accumulo's data directory. The data in them is then available for query immediately.
 
 Gaffer provides code to make this as simple as possible. The `AddElementsFromHdfs` operation is used to bulk import data.
-
-
-Create the `AddElementsFromHdfs`operation using:
-
-```java
-AddElementsFromHdfs addElementsFromHdfs = new AddElementsFromHdfs.Builder()
-        .inputPaths(inputDirs)
-        .outputPath(outputDir)
-        .failurePath(failureDir)
-        .mapperGenerator(myMapperGeneratorClass)
-        .jobInitialiser(jobInitialiser)
-        .build();
-```
-
-where:
-
-- `inputDirs` is a `List` of strings specifying the directory in HDFS containing your data;
-- `outputDir` is a string specifying the directory in HDFS where output from the MapReduce job will temporarily be stored (this directory does not need to exist);
-- `failureDir` is a string specifying the directory in HDFS which Accumulo will use to store files that were not successfully imported;
-- `myMapperGeneratorClass` is a `Class` that extends the `MapperGenerator` interface. This is used to generate a `Mapper` class that is used to convert your data into `Element`s. Gaffer contains two built-in generators: `TextMapperGenerator` and `AvroMapperGenerator`. The former requires your data to be stored in text files in HDFS; the latter requires your data to be stored in Avro files;
-- `jobInitialiser` is an instance of the `JobInitialiser` interface that is used to initialise the MapReduce job. If your data is in text files then you can use the built-in `TextJobInitialiser`. An `AvroJobInitialiser` is also provided.
-
-The operation can then be executed as normal using:
-
-```java
-graph.execute(addElementsFromHdfs, new User());
-```
-
-However, note that the Java jar file that contains this code must be executed using the `hadoop` command to ensure that the Hadoop configuration is available.
-
-By default the number of reducers used in the MapReduce job that converts data into the correct form is the same as the number of tablets. There are at least two scenarios where this is not ideal. First, if a large amount of data is being added into a table with a small number of tablets, then the number of reducers will be too small (i.e. each reducer will have a very large amount of work to do). Second, if a small amount of data is being added into a table with a large number of tablets, then the number of reducers will be too great, and there will be a large amount of unnecessary task creation. There are two options on the `AddElementsFromHdfs` operation that can be used to set the minimum and maximum number of reducers that are used in the MapReduce job:
-
-- `AccumuloStoreConstants.OPERATION_BULK_IMPORT_MIN_REDUCERS` specifies the minimum number of reducers to use.
-- `AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS` specifies the maximum number of reducers to use.
+See [AddElementsFromHdfs](https://gchq.github.io/gaffer-doc/getting-started/operations/addelementsfromhdfs.html).
 
 Queries
 -----------------------------------------------
@@ -237,9 +204,9 @@ Timestamp
 -----------------------------------------------
 
 Accumulo keys have a timestamp field. The user can specify which property is used for this by setting "timestampProperty" in the schema to the name of the property.
-If the timestamp is not set then it will be populated automatically:
-- if aggregation is enabled then this field will be set to a constant default value of 1.
-- if aggregation is disabled then this field will be set to the current time.
+If the timestamp is not set then it will be populated automatically to 1. 
+Setting the timestamp yourself is an advanced feature and is not recommended
+as it can cause significant issues if it is not populated correctly.
 
 If you choose to set timestampProperty, the property will be aggregated with 'Max' - you cannot override this.
 
