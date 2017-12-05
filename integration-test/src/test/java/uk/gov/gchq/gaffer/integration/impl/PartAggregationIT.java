@@ -20,6 +20,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
@@ -44,6 +45,7 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
 public class PartAggregationIT extends AbstractStoreIT {
     @Test
@@ -70,6 +72,7 @@ public class PartAggregationIT extends AbstractStoreIT {
                     .vertex(e.getVertex())
                     .build();
             clone.copyProperties(e.getProperties());
+            clone.putProperty(TestPropertyNames.COUNT, 2L);
             expectedElements.add(clone);
         });
         getEntities().values().forEach(e -> {
@@ -78,7 +81,8 @@ public class PartAggregationIT extends AbstractStoreIT {
                     .vertex(e.getVertex())
                     .build();
             clone.copyProperties(e.getProperties());
-            clone.putProperty(TestPropertyNames.STRING, "a different string");
+            clone.putProperty(TestPropertyNames.SET, CollectionUtil.treeSet("a different string"));
+            clone.putProperty(TestPropertyNames.COUNT, 2L);
             expectedElements.add(clone);
         });
         getEdges().values().forEach(e -> {
@@ -99,7 +103,8 @@ public class PartAggregationIT extends AbstractStoreIT {
         });
         expectedElements.forEach(e -> {
             if (TestGroups.ENTITY.equals(e.getGroup())) {
-                e.putProperty(TestPropertyNames.STRING, "3|3");
+                e.putProperty(TestPropertyNames.SET, CollectionUtil.treeSet("3"));
+                e.putProperty(TestPropertyNames.COUNT, 2L);
             } else if (TestGroups.EDGE.equals(e.getGroup())) {
                 e.putProperty(TestPropertyNames.COUNT, 2L);
             } else if (TestGroups.EDGE_2.equals(e.getGroup())) {
@@ -162,7 +167,10 @@ public class PartAggregationIT extends AbstractStoreIT {
                     .vertex(e.getVertex())
                     .build();
             clone.copyProperties(e.getProperties());
-            clone.putProperty(TestPropertyNames.STRING, e.getProperty(TestPropertyNames.STRING) + ",a different string");
+            clone.putProperty(TestPropertyNames.COUNT, 4L);
+            final TreeSet<String> treeSet = new TreeSet<>(((TreeSet) e.getProperty(TestPropertyNames.SET)));
+            treeSet.add("a different string");
+            clone.putProperty(TestPropertyNames.SET, treeSet);
             expectedElements.add(clone);
         });
         getEdges().values().forEach(e -> {
@@ -183,7 +191,8 @@ public class PartAggregationIT extends AbstractStoreIT {
         });
         expectedElements.forEach(e -> {
             if (TestGroups.ENTITY.equals(e.getGroup())) {
-                e.putProperty(TestPropertyNames.STRING, "3,3");
+                e.putProperty(TestPropertyNames.SET, CollectionUtil.treeSet("3"));
+                e.putProperty(TestPropertyNames.COUNT, 2L);
             } else if (TestGroups.EDGE.equals(e.getGroup())) {
                 e.putProperty(TestPropertyNames.COUNT, 2L);
             } else if (TestGroups.EDGE_2.equals(e.getGroup())) {
@@ -231,7 +240,8 @@ public class PartAggregationIT extends AbstractStoreIT {
                 .entity(TestGroups.ENTITY_3,
                         new SchemaEntityDefinition.Builder()
                                 .vertex(TestTypes.ID_STRING)
-                                .property(TestPropertyNames.STRING, TestTypes.PROP_STRING)
+                                .property(TestPropertyNames.SET, TestTypes.PROP_SET_STRING)
+                                .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
                                 .property("NonAggregatedProperty", "NonAggregatedString")
                                 .property("NonAggregatedProperty", "AggregatedString")
                                 .aggregate(false)
@@ -251,8 +261,9 @@ public class PartAggregationIT extends AbstractStoreIT {
                 .entity(TestGroups.ENTITY_4,
                         new SchemaEntityDefinition.Builder()
                                 .vertex(TestTypes.ID_STRING)
-                                .property(TestPropertyNames.STRING, TestTypes.PROP_STRING)
-                                .groupBy(TestPropertyNames.STRING)
+                                .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
+                                .property(TestPropertyNames.SET, TestTypes.PROP_SET_STRING)
+                                .groupBy(TestPropertyNames.SET)
                                 .build())
                 .edge(TestGroups.EDGE_4,
                         new SchemaEdgeDefinition.Builder()
@@ -348,7 +359,7 @@ public class PartAggregationIT extends AbstractStoreIT {
                     .vertex(e.getVertex())
                     .build();
             entity.copyProperties(e.getProperties());
-            entity.putProperty(TestPropertyNames.STRING, "a different string");
+            entity.putProperty(TestPropertyNames.SET, CollectionUtil.treeSet("a different string"));
             return entity;
         };
         entities.addAll(Lists.transform(
