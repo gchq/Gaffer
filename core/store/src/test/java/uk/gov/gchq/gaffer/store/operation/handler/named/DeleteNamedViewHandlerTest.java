@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,21 +46,22 @@ public class DeleteNamedViewHandlerTest {
     private final AddNamedViewHandler addNamedViewHandler = new AddNamedViewHandler(namedViewCache);
     private final DeleteNamedViewHandler deleteNamedViewHandler = new DeleteNamedViewHandler(namedViewCache);
     private final String testNamedViewName = "testNamedViewName";
+    private final String invalidNamedViewName = "invalidNamedViewName";
     private final String testUserId = "testUser";
     private final Map<String, Object> testParameters = new HashMap<>();
-
-    private Context context = new Context(new User.Builder()
+    private final StoreProperties properties = new StoreProperties();
+    private final Context context = new Context(new User.Builder()
             .userId(testUserId)
             .build());
-
-    private Store store = mock(Store.class);
-
-    NamedView namedView;
-
-    AddNamedView addNamedView;
+    private final Store store = mock(Store.class);
+    private NamedView namedView;
+    private AddNamedView addNamedView;
 
     @Before
     public void before() throws OperationException {
+        properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
+        CacheServiceLoader.initialise(properties.getProperties());
+
         testParameters.put("testParam", "testKey");
 
         namedView = new NamedView.Builder()
@@ -73,11 +75,12 @@ public class DeleteNamedViewHandlerTest {
                 .overwrite(false)
                 .build();
 
-        StoreProperties properties = new StoreProperties();
-        properties.set("gaffer.cache.service.class", "uk.gov.gchq.gaffer.cache.impl.HashMapCacheService");
-        CacheServiceLoader.initialise(properties.getProperties());
-
         addNamedViewHandler.doOperation(addNamedView, context, store);
+    }
+
+    @After
+    public void clearCache() throws CacheOperationFailedException {
+        namedViewCache.clearCache();
     }
 
     @AfterClass
@@ -86,15 +89,31 @@ public class DeleteNamedViewHandlerTest {
     }
 
     @Test
-    public void shouldAddNamedViewCorrectly() throws OperationException, CacheOperationFailedException {
-
+    public void shouldDeleteNamedViewCorrectly() throws OperationException, CacheOperationFailedException {
         assertTrue(cacheContains(testNamedViewName));
+        // Given
 
         final DeleteNamedView deleteNamedView = new DeleteNamedView.Builder().name(testNamedViewName).build();
 
+        // When
         deleteNamedViewHandler.doOperation(deleteNamedView, context, store);
 
+        // Then
         assertFalse(cacheContains(testNamedViewName));
+    }
+
+    @Test
+    public void shouldNotThrowExceptionWhenNoNamedViewToDelete() throws CacheOperationFailedException, OperationException {
+        assertTrue(cacheContains(testNamedViewName));
+
+        // Given
+        final DeleteNamedView deleteInvalidNamedView = new DeleteNamedView.Builder().name(invalidNamedViewName).build();
+
+        // When
+        deleteNamedViewHandler.doOperation(deleteInvalidNamedView, context, store);
+
+        // Then
+        assertTrue(cacheContains(testNamedViewName));
     }
 
     private boolean cacheContains(final String namedViewName) throws CacheOperationFailedException {
