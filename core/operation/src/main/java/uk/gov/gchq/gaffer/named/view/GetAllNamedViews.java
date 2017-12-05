@@ -21,7 +21,7 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
-import uk.gov.gchq.gaffer.named.view.serialisation.NamedViewTypeReference;
+import uk.gov.gchq.gaffer.named.view.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.operation.io.Output;
 
 import java.util.Map;
@@ -31,7 +31,7 @@ public class GetAllNamedViews implements Output<CloseableIterable<NamedView>> {
 
     @Override
     public TypeReference<CloseableIterable<NamedView>> getOutputTypeReference() {
-        return new NamedViewTypeReference.IterableNamedView();
+        return new TypeReferenceImpl.IterableNamedView();
     }
 
     @Override
