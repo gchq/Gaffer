@@ -342,7 +342,7 @@ public class VisibilityIT extends AbstractStoreIT {
                         .build())
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex(TestTypes.ID_STRING)
-                        .property(TestPropertyNames.STRING, TestTypes.PROP_STRING)
+                        .property(TestPropertyNames.SET, TestTypes.PROP_SET_STRING)
                         .property(TestTypes.VISIBILITY, TestTypes.VISIBILITY)
                         .groupBy(TestPropertyNames.INT)
                         .build())
