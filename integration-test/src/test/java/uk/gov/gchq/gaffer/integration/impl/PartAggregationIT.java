@@ -27,8 +27,8 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.GlobalViewElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
@@ -99,7 +99,7 @@ public class PartAggregationIT extends AbstractStoreIT {
         });
         expectedElements.forEach(e -> {
             if (TestGroups.ENTITY.equals(e.getGroup())) {
-                e.putProperty(TestPropertyNames.STRING, "3,3");
+                e.putProperty(TestPropertyNames.STRING, "3|3");
             } else if (TestGroups.EDGE.equals(e.getGroup())) {
                 e.putProperty(TestPropertyNames.COUNT, 2L);
             } else if (TestGroups.EDGE_2.equals(e.getGroup())) {
@@ -127,7 +127,22 @@ public class PartAggregationIT extends AbstractStoreIT {
         final CloseableIterable<? extends Element> elements = graph.execute(
                 new GetAllElements.Builder()
                         .view(new View.Builder()
-                                .globalElements(new GlobalViewElementDefinition.Builder()
+                                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                        .groupBy()
+                                        .build())
+                                .edge(TestGroups.EDGE_3, new ViewElementDefinition.Builder()
+                                        .groupBy()
+                                        .build())
+                                .edge(TestGroups.EDGE_4, new ViewElementDefinition.Builder()
+                                        .groupBy()
+                                        .build())
+                                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                                        .groupBy()
+                                        .build())
+                                .entity(TestGroups.ENTITY_3, new ViewElementDefinition.Builder()
+                                        .groupBy()
+                                        .build())
+                                .entity(TestGroups.ENTITY_4, new ViewElementDefinition.Builder()
                                         .groupBy()
                                         .build())
                                 .build())
