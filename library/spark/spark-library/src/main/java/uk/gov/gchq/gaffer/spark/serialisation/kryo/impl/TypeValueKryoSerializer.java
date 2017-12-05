@@ -23,7 +23,8 @@ import com.esotericsoftware.kryo.io.Output;
 import uk.gov.gchq.gaffer.types.TypeValue;
 
 /**
- * A Kryo {@link Serializer} for a {@link TypeValue}.
+ * A {@code TypeValueKryoSerializer} is a {@link Kryo} {@link com.esotericsoftware.kryo.Serializer} for
+ * a {@link TypeValue}
  */
 public class TypeValueKryoSerializer extends Serializer<TypeValue> {
 

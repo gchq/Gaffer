@@ -43,6 +43,6 @@ public class AccumuloEdgeValueLoader extends AccumuloElementValueLoader {
     @Override
     public void loadIdentifiers(final Element edge) {
         final EdgeId edgeId = (EdgeId) elementConverter.getElementId(key, includeMatchedVertex);
-        ((Edge) edge).setIdentifiers(edgeId.getSource(), edgeId.getDestination(), edgeId.isDirected());
+        ((Edge) edge).setIdentifiers(edgeId.getSource(), edgeId.getDestination(), edgeId.isDirected(), edgeId.getMatchedVertex());
     }
 }

@@ -30,20 +30,26 @@ import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.Properties;
+import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
+import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.predicate.IsIn;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -148,8 +154,102 @@ public class GetElementsIT extends AbstractStoreIT {
         }
     }
 
+    @TraitRequirement(StoreTrait.MATCHED_VERTEX)
     @Test
-     public void shouldGetElementsWithProvidedProperties() throws Exception {
+    public void shouldGetElementsWithMatchedVertex() throws Exception {
+        // Given
+        final User user = new User();
+
+        final GetElements op = new GetElements.Builder()
+                .input(new EntitySeed(SOURCE_DIR_1), new EntitySeed(DEST_DIR_2), new EntitySeed(SOURCE_DIR_3))
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE)
+                        .build())
+                .build();
+
+        // When
+        final CloseableIterable<? extends Element> results = graph.execute(op, user);
+
+        // Then
+        ElementUtil.assertElementEquals(Arrays.asList(
+                        new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source(SOURCE_DIR_1)
+                                .dest(DEST_DIR_1)
+                                .directed(true)
+                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                                .property(TestPropertyNames.INT, 1)
+                                .property(TestPropertyNames.COUNT, 1L)
+                                .build(),
+                        new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source(SOURCE_DIR_2)
+                                .dest(DEST_DIR_2)
+                                .directed(true)
+                                .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
+                                .property(TestPropertyNames.INT, 1)
+                                .property(TestPropertyNames.COUNT, 1L)
+                                .build(),
+                        new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source(SOURCE_DIR_3)
+                                .dest(DEST_DIR_3)
+                                .directed(true)
+                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                                .property(TestPropertyNames.INT, 1)
+                                .property(TestPropertyNames.COUNT, 1L)
+                                .build()
+                ),
+                results);
+    }
+
+    @TraitRequirement(StoreTrait.MATCHED_VERTEX)
+    @Test
+    public void shouldGetElementsWithMatchedVertexFilter() throws Exception {
+        // Given
+        final User user = new User();
+
+        final GetElements op = new GetElements.Builder()
+                .input(new EntitySeed(SOURCE_DIR_1), new EntitySeed(DEST_DIR_2), new EntitySeed(SOURCE_DIR_3))
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
+                                        .select(IdentifierType.ADJACENT_MATCHED_VERTEX.name())
+                                        .execute(new IsIn(DEST_DIR_1, DEST_DIR_2, DEST_DIR_3))
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        final CloseableIterable<? extends Element> results = graph.execute(op, user);
+
+        // Then
+        ElementUtil.assertElementEquals(Arrays.asList(
+                        new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source(SOURCE_DIR_1)
+                                .dest(DEST_DIR_1)
+                                .directed(true)
+                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                                .property(TestPropertyNames.INT, 1)
+                                .property(TestPropertyNames.COUNT, 1L)
+                                .build(),
+                        new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source(SOURCE_DIR_3)
+                                .dest(DEST_DIR_3)
+                                .directed(true)
+                                .matchedVertex(EdgeId.MatchedVertex.SOURCE)
+                                .property(TestPropertyNames.INT, 1)
+                                .property(TestPropertyNames.COUNT, 1L)
+                                .build()
+                ),
+                results);
+    }
+
+    @Test
+    public void shouldGetElementsWithProvidedProperties() throws Exception {
         // Given
         final User user = new User();
 

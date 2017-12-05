@@ -42,6 +42,12 @@ import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_DOCUMENTATION_URL;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_DOCUMENTATION_URL_DEFAULT;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_TITLE;
 import static uk.gov.gchq.gaffer.rest.SystemProperty.APP_TITLE_DEFAULT;
+import static uk.gov.gchq.gaffer.rest.SystemProperty.FAVICON_LARGE_URL;
+import static uk.gov.gchq.gaffer.rest.SystemProperty.FAVICON_SMALL_URL;
+import static uk.gov.gchq.gaffer.rest.SystemProperty.LOGO_IMAGE_URL;
+import static uk.gov.gchq.gaffer.rest.SystemProperty.LOGO_IMAGE_URL_DEFAULT;
+import static uk.gov.gchq.gaffer.rest.SystemProperty.LOGO_LINK;
+import static uk.gov.gchq.gaffer.rest.SystemProperty.LOGO_LINK_DEFAULT;
 
 /**
  * An implementation of {@link IPropertiesServiceV2} that gets the configured system properties
@@ -57,6 +63,10 @@ public class PropertiesServiceV2 implements IPropertiesServiceV2 {
         map.put(APP_BANNER_DESCRIPTION, "");
         map.put(APP_BANNER_COLOUR, "");
         map.put(APP_DOCUMENTATION_URL, APP_DOCUMENTATION_URL_DEFAULT);
+        map.put(LOGO_LINK, LOGO_LINK_DEFAULT);
+        map.put(LOGO_IMAGE_URL, LOGO_IMAGE_URL_DEFAULT);
+        map.put(FAVICON_SMALL_URL, LOGO_IMAGE_URL_DEFAULT);
+        map.put(FAVICON_LARGE_URL, LOGO_IMAGE_URL_DEFAULT);
         return Collections.unmodifiableMap(map);
     }
 
