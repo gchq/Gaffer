@@ -32,6 +32,7 @@ import java.util.List;
  * additional validation based on the view contents.
  */
 public interface OperationView {
+
     /**
      * @return the {@link View} for the operation.
      * @see View
@@ -129,6 +130,10 @@ public interface OperationView {
      * @param views the list of views to merge
      */
     default void setViews(final List<View> views) {
+        if (null == views) {
+            throw new IllegalArgumentException("Supplied View list cannot be null");
+        }
+
         final View.Builder builder = new View.Builder();
 
         if (null != getView()) {
