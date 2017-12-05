@@ -429,7 +429,7 @@ public class GetElementsIT extends AbstractStoreIT {
         final CloseableIterable<? extends Element> results = graph.execute(op, user);
 
         // Then
-        ElementUtil.assertElementEquals(expectedElements, results);
+        ElementUtil.assertElementEquals(expectedElements, results, true);
     }
 
     private static Collection<Element> getElements(final Collection<ElementId> seeds, final Boolean direction) {
