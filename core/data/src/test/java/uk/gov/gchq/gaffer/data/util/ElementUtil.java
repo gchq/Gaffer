@@ -25,12 +25,15 @@ import uk.gov.gchq.gaffer.data.element.comparison.ElementComparator;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class ElementUtil {
     public static void assertElementEquals(final Iterable<? extends Element> expected, final Iterable<? extends Element> result) {
+        assertElementEquals(expected, result, false);
+    }
+
+    public static void assertElementEquals(final Iterable<? extends Element> expected, final Iterable<? extends Element> result, final boolean ignoreDuplicates) {
         final List<Element> expectedCache = Lists.newArrayList(expected);
         final List<Element> resultCache = Lists.newArrayList(result);
         try {
@@ -38,11 +41,16 @@ public class ElementUtil {
         } catch (final AssertionError err) {
             final List<Element> expectedList = Lists.newArrayList(expectedCache);
             final List<Element> resultList = Lists.newArrayList(resultCache);
-            for (final Element element : resultCache) {
-                expectedList.remove(element);
-            }
-            for (final Element element : expectedCache) {
-                resultList.remove(element);
+            if (ignoreDuplicates) {
+                expectedList.removeAll(resultCache);
+                resultList.removeAll(expectedCache);
+            } else {
+                for (final Element element : resultCache) {
+                    expectedList.remove(element);
+                }
+                for (final Element element : expectedCache) {
+                    resultList.remove(element);
+                }
             }
 
             final ElementComparator elementComparator = (element1, element2) -> {
@@ -73,11 +81,12 @@ public class ElementUtil {
                 }
             }
 
-            assertThat("\nMissing entities:\n" + missingEntities.toString()
+            assertTrue("\nMissing entities:\n" + missingEntities.toString()
                             + "\nUnexpected entities:\n" + incorrectEntities.toString()
                             + "\nMissing edges:\n" + missingEdges.toString()
                             + "\nUnexpected edges:\n" + incorrectEdges.toString(),
-                    expectedCache, containsInAnyOrder(resultCache.toArray()));
+                    missingEntities.isEmpty() && incorrectEntities.isEmpty()
+                            && missingEdges.isEmpty() && incorrectEdges.isEmpty());
         }
     }
 }
