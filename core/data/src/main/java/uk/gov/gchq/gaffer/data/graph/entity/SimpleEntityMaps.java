@@ -26,15 +26,15 @@ import java.util.List;
  * @param <V> the type of object representing the vertices
  * @param <EN> the type of object representing the entities
  */
-public class SimpleEntityMaps<V, EN> implements EntityMaps<V, EN> {
+public class SimpleEntityMaps implements EntityMaps {
 
     /**
      * The backing list.
      */
-    private final List<EntityMap<V, EN>> entityMaps = new ArrayList<>();
+    private final List<EntityMap> entityMaps = new ArrayList<>();
 
     @Override
-    public List<EntityMap<V, EN>> asList() {
+    public List<EntityMap> asList() {
         return entityMaps;
     }
 

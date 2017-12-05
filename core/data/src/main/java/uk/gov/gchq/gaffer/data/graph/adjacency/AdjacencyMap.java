@@ -19,6 +19,8 @@ package uk.gov.gchq.gaffer.data.graph.adjacency;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Sets;
 
+import uk.gov.gchq.gaffer.data.element.Edge;
+
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,16 +30,13 @@ import static java.util.stream.Collectors.toSet;
 /**
  * An {@code AdjacencyMap} is used to store the contents of a graph in memory in
  * a format which can easily be interrogated.
- *
- * @param <V>  the type of object representing the vertices
- * @param <ED> the type of object representing the edges
  */
-public class AdjacencyMap<V, ED> {
+public class AdjacencyMap {
 
     /**
      * Backing object used to store the AdjacencyMap representation.
      */
-    private final HashBasedTable<V, V, Set<ED>> edgeGraph = HashBasedTable.create();
+    private final HashBasedTable<Object, Object, Set<Edge>> edgeGraph = HashBasedTable.create();
 
     /**
      * Get the entries in the AdjacencyMap which match the provided source and
@@ -49,8 +48,8 @@ public class AdjacencyMap<V, ED> {
      * @return the {@link Set} of edge objects relating to the specified
      * vertices
      */
-    public Set<ED> getEdges(final V source, final V destination) {
-        final Set<ED> results = edgeGraph.get(source, destination);
+    public Set<Edge> getEdges(final Object source, final Object destination) {
+        final Set<Edge> results = edgeGraph.get(source, destination);
         return null != results ? results : Collections.emptySet();
     }
 
@@ -64,7 +63,7 @@ public class AdjacencyMap<V, ED> {
      *
      * @return the added edge objects
      */
-    public Set<ED> putEdges(final V source, final V destination, final Set<ED> set) {
+    public Set<Edge> putEdges(final Object source, final Object destination, final Set<Edge> set) {
         return set.stream()
                 .flatMap(v -> putEdge(source, destination, v).stream())
                 .collect(toSet());
@@ -80,10 +79,10 @@ public class AdjacencyMap<V, ED> {
      * @return the {@link Set} containing the edge objects associated with the
      * source and destination vertices
      */
-    public Set<ED> putEdge(final V source, final V destination, final ED edge) {
-        final Set<ED> existing = edgeGraph.get(source, destination);
+    public Set<Edge> putEdge(final Object source, final Object destination, final Edge edge) {
+        final Set<Edge> existing = edgeGraph.get(source, destination);
         if (null == existing) {
-            final Set<ED> set = Sets.newHashSet(edge);
+            final Set<Edge> set = Sets.newHashSet(edge);
             return edgeGraph.put(source, destination, set);
         } else {
             existing.add(edge);
@@ -99,7 +98,7 @@ public class AdjacencyMap<V, ED> {
      *
      * @return a {@link Set} of the destination vertices
      */
-    public Set<V> getDestinations(final V source) {
+    public Set<Object> getDestinations(final Object source) {
         return Collections.unmodifiableSet(edgeGraph.row(source).keySet());
     }
 
@@ -111,7 +110,7 @@ public class AdjacencyMap<V, ED> {
      *
      * @return a {@link Set} of the source vertices
      */
-    public Set<V> getSources(final V destination) {
+    public Set<Object> getSources(final Object destination) {
         return Collections.unmodifiableSet(edgeGraph.column(destination).keySet());
     }
 
@@ -121,7 +120,7 @@ public class AdjacencyMap<V, ED> {
      *
      * @return an immutable set containing the source vertices
      */
-    public Set<V> getAllSources() {
+    public Set<Object> getAllSources() {
         return Collections.unmodifiableSet(edgeGraph.rowKeySet());
     }
 
@@ -131,7 +130,7 @@ public class AdjacencyMap<V, ED> {
      *
      * @return an immutable set containing the destination vertices
      */
-    public Set<V> getAllDestinations() {
+    public Set<Object> getAllDestinations() {
         return Collections.unmodifiableSet(edgeGraph.columnKeySet());
     }
 
@@ -141,9 +140,9 @@ public class AdjacencyMap<V, ED> {
      *
      * @param destination the destination vertex
      */
-    public void removeAllWithDestination(final V destination) {
-        final Set<V> set = Sets.newHashSet(getSources(destination));
-        for (final V v : set) {
+    public void removeAllWithDestination(final Object destination) {
+        final Set<Object> set = Sets.newHashSet(getSources(destination));
+        for (final Object v : set) {
             edgeGraph.remove(v, destination);
         }
     }
@@ -157,7 +156,7 @@ public class AdjacencyMap<V, ED> {
      * @return {@code true} if the adjacency map contains the source, otherwise
      * {@code false}
      */
-    public boolean containsSource(final V source) {
+    public boolean containsSource(final Object source) {
         return edgeGraph.rowKeySet().contains(source);
     }
 
@@ -170,7 +169,7 @@ public class AdjacencyMap<V, ED> {
      * @return {@code true} if the adjacency map contains the destination,
      * otherwise {@code false}
      */
-    public boolean containsDestination(final V destination) {
+    public boolean containsDestination(final Object destination) {
         return edgeGraph.columnKeySet().contains(destination);
     }
 

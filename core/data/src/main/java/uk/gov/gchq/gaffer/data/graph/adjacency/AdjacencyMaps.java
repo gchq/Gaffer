@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.data.graph.adjacency;
 
+import uk.gov.gchq.gaffer.data.element.Edge;
+
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -24,18 +26,15 @@ import java.util.List;
  * An {@code AdjacencyMaps} object contains a number of {@link AdjacencyMap}
  * objects and can be used to represent the changes in an AdjacencyMap over time
  * or to track the adjacency components of a graph over some other metric.
- *
- * @param <V>  the type of object representing the vertices
- * @param <ED> the type of object representing the edges
  */
-public interface AdjacencyMaps<V, ED> extends Iterable<AdjacencyMap<V, ED>> {
+public interface AdjacencyMaps extends Iterable<AdjacencyMap> {
 
     /**
      * Add a new {@link AdjacencyMap}.
      *
      * @param adjacencyMap the AdjacencyMap to add
      */
-    default void add(final AdjacencyMap<V, ED> adjacencyMap) {
+    default void add(final AdjacencyMap adjacencyMap) {
         asList().add(adjacencyMap);
     }
 
@@ -46,7 +45,7 @@ public interface AdjacencyMaps<V, ED> extends Iterable<AdjacencyMap<V, ED>> {
      *
      * @return the nth AdjacencyMap
      */
-    default AdjacencyMap<V, ED> get(final int n) {
+    default AdjacencyMap get(final int n) {
         return asList().get(n);
     }
 
@@ -83,7 +82,7 @@ public interface AdjacencyMaps<V, ED> extends Iterable<AdjacencyMap<V, ED>> {
     }
 
     @Override
-    default Iterator<AdjacencyMap<V, ED>> iterator() {
+    default Iterator<AdjacencyMap> iterator() {
         return asList().iterator();
     }
 
@@ -93,5 +92,5 @@ public interface AdjacencyMaps<V, ED> extends Iterable<AdjacencyMap<V, ED>> {
      *
      * @return a {@link List} representation of the current AdjacencyMaps object
      */
-    List<AdjacencyMap<V, ED>> asList();
+    List<AdjacencyMap> asList();
 }

@@ -22,6 +22,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import uk.gov.gchq.gaffer.data.element.Edge;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -33,13 +35,17 @@ import static org.hamcrest.core.Is.is;
 @RunWith(Parameterized.class)
 public class AdjacencyMapsTest {
 
-    private final AdjacencyMaps<Object, Object> adjacencyMaps;
+    private final AdjacencyMaps adjacencyMaps;
+
+    public AdjacencyMapsTest(final AdjacencyMaps adjacencyMaps) {
+        this.adjacencyMaps = adjacencyMaps;
+    }
 
     @Parameters
     public static Collection<Object[]> instancesToTest() {
         return Arrays.asList(new Object[][]{
-                {new SimpleAdjacencyMaps<>()},
-                {new PrunedAdjacencyMaps<>()}
+                {new SimpleAdjacencyMaps()},
+                {new PrunedAdjacencyMaps()}
         });
     }
 
@@ -53,17 +59,13 @@ public class AdjacencyMapsTest {
         }
     }
 
-    public AdjacencyMapsTest(final AdjacencyMaps<Object, Object> adjacencyMaps) {
-        this.adjacencyMaps = adjacencyMaps;
-    }
-
     @Test
     public void shouldIterate() {
         // Then
-        final Iterator<AdjacencyMap<Object, Object>> it = adjacencyMaps.iterator();
+        final Iterator<AdjacencyMap> it = adjacencyMaps.iterator();
 
-        final AdjacencyMap<Object, Object> first = it.next();
-        final AdjacencyMap<Object, Object> second = it.next();
+        final AdjacencyMap first = it.next();
+        final AdjacencyMap second = it.next();
 
         assertThat(first.getAllDestinations(), hasSize(3));
         assertThat(second.getAllDestinations(), hasSize(4));
@@ -87,12 +89,12 @@ public class AdjacencyMapsTest {
         assertThat(adjacencyMaps.empty(), is(false));
     }
 
-    private AdjacencyMap<Object, Object> getAdjacencyMap(final int size) {
+    private AdjacencyMap getAdjacencyMap(final int size) {
 
-        final AdjacencyMap<Object, Object> adjacencyMap = new AdjacencyMap<>();
+        final AdjacencyMap adjacencyMap = new AdjacencyMap();
 
         for (int i = 0; i < size; i++) {
-            adjacencyMap.putEdge(i, i + 1, i);
+            adjacencyMap.putEdge(i, i + 1, new Edge(Integer.toString(i), Integer.toString(i), Integer.toString(i + 1), true));
         }
 
         return adjacencyMap;

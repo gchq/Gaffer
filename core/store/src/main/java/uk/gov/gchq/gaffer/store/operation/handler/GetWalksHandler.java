@@ -116,8 +116,8 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
             throw new OperationException("GetWalks operation contains " + hops + " hops. The maximum number of hops is: " + maxHops);
         }
 
-        final AdjacencyMaps<Object, Edge> adjacencyMaps = prune ? new PrunedAdjacencyMaps<>() : new SimpleAdjacencyMaps<>();
-        final EntityMaps<Object, Entity> entityMaps = new SimpleEntityMaps<>();
+        final AdjacencyMaps adjacencyMaps = prune ? new PrunedAdjacencyMaps() : new SimpleAdjacencyMaps();
+        final EntityMaps entityMaps = new SimpleEntityMaps();
 
         List<Element> results = null;
 
@@ -125,8 +125,8 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
         for (final WalkDefinition walkDefinition : getWalks.getWalkDefinitions()) {
             results = executeWalkDefinition(walkDefinition, getWalks, context, store, results);
 
-            final AdjacencyMap<Object, Edge> adjacencyMap = new AdjacencyMap<>();
-            final EntityMap<Object, Entity> entityMap = new EntityMap<>();
+            final AdjacencyMap adjacencyMap = new AdjacencyMap();
+            final EntityMap entityMap = new EntityMap();
 
             boolean edges = false;
             boolean entities = false;
@@ -146,7 +146,7 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
 
             if (edges) {
                 if (entityMaps.empty() || (entityMaps.size() == adjacencyMaps.size())) {
-                    entityMaps.add(new EntityMap<>());
+                    entityMaps.add(new EntityMap());
                 }
 
                 adjacencyMaps.add(adjacencyMap);
@@ -160,10 +160,10 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
         // Must add an empty entity map at the end if one has not been explicitly
         // requested by the user.
         if (entityMaps.size() == adjacencyMaps.size()) {
-            entityMaps.add(new EntityMap<>());
+            entityMaps.add(new EntityMap());
         }
 
-        final GraphWindow<Object, Entity, Edge> graphWindow = new GraphWindow(adjacencyMaps, entityMaps);
+        final GraphWindow graphWindow = new GraphWindow(adjacencyMaps, entityMaps);
 
         // Track/recombine the edge objects and convert to return type
         return Streams.toStream(getWalks.getInput())
@@ -235,7 +235,7 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
         return Lists.newArrayList((Iterable<Edge>) store.execute(opChainBuilder.build(), context));
     }
 
-    private List<Walk> walk(final Object curr, final Object prev, final GraphWindow<Object, Entity, Edge> graphWindow, final LinkedList<Set<Edge>> edgeQueue, final LinkedList<Set<Entity>> entityQueue) {
+    private List<Walk> walk(final Object curr, final Object prev, final GraphWindow graphWindow, final LinkedList<Set<Edge>> edgeQueue, final LinkedList<Set<Entity>> entityQueue) {
         final List<Walk> walks = new ArrayList<>();
 
         if (null != prev && hops != edgeQueue.size()) {

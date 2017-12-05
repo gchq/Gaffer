@@ -25,15 +25,11 @@ import uk.gov.gchq.gaffer.data.graph.entity.EntityMaps;
  * A GraphWindow can be used to create a graph representation which tracks changes to
  * a graph, for example temporal changes or different views on a parent graph seen
  * during a Walk.
- *
- * @param <V> the type used to represent vertices
- * @param <EN> the type used to represent entities
- * @param <ED> the type used to represent edges
  */
-public class GraphWindow<V, EN, ED> {
+public class GraphWindow {
 
-    private final AdjacencyMaps<V, ED> adjacencyMaps;
-    private final EntityMaps<V, EN> entityMaps;
+    private final AdjacencyMaps adjacencyMaps;
+    private final EntityMaps entityMaps;
 
     /**
      * Default constructor.
@@ -41,7 +37,7 @@ public class GraphWindow<V, EN, ED> {
      * @param adjacencyMaps the adjacency maps to set
      * @param entityMaps the entity maps to set
      */
-    public GraphWindow(final AdjacencyMaps<V, ED> adjacencyMaps, final EntityMaps<V, EN> entityMaps) {
+    public GraphWindow(final AdjacencyMaps adjacencyMaps, final EntityMaps entityMaps) {
         this.adjacencyMaps = adjacencyMaps;
         this.entityMaps = entityMaps;
     }
@@ -51,7 +47,7 @@ public class GraphWindow<V, EN, ED> {
      *
      * @return the adjacency maps
      */
-    public AdjacencyMaps<V, ED> getAdjacencyMaps() {
+    public AdjacencyMaps getAdjacencyMaps() {
         return adjacencyMaps;
     }
 
@@ -60,7 +56,7 @@ public class GraphWindow<V, EN, ED> {
      *
      * @return the entity maps
      */
-    public EntityMaps<V, EN> getEntityMaps() {
+    public EntityMaps getEntityMaps() {
         return entityMaps;
     }
 }

@@ -30,7 +30,10 @@ import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.graph.Walk;
+import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.graph.GraphConfig;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
+import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.data.WalkDefinition;
@@ -39,6 +42,7 @@ import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -389,6 +393,7 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
         assertThat(getPaths(results), is(equalTo("AAAAA")));
     }
 
+    @TraitRequirement(StoreTrait.POST_AGGREGATION_FILTERING)
     @Test
     public void shouldGetPathsWithPreFiltering_1() throws Exception {
         // Given
@@ -434,6 +439,7 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
         assertThat(getPaths(results), is(equalTo("AED")));
     }
 
+    @TraitRequirement(StoreTrait.POST_AGGREGATION_FILTERING)
     @Test
     public void shouldGetPathsWithPreFiltering_2() throws Exception {
         // Given
@@ -477,6 +483,34 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
 
         // Then
         assertThat(getPaths(results), is(equalTo("ABC")));
+    }
+
+    @Test
+    public void shouldGetPathsWithModifiedViews() throws OperationException {
+        // Given
+        final User user = new User();
+
+        final EntitySeed seed = new EntitySeed("A");
+
+        final GetElements operation = new GetElements.Builder()
+                .directedType(DirectedType.DIRECTED)
+                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
+                .build();
+
+        final WalkDefinition walkDefinition = new WalkDefinition.Builder()
+                .operation(operation)
+                .build();
+
+        final GetWalks op = new GetWalks.Builder()
+                .input(seed)
+                .walkDefinitions(walkDefinition, walkDefinition)
+                .build();
+
+        // When
+        final Iterable<Walk> results = graph.execute(op, user);
+
+        // Then
+        assertThat(getPaths(results), is(equalTo("AAA,AAE,AAB,AED,AEF,ABC")));
     }
 
     private Set<Entity> createEntitySet() {

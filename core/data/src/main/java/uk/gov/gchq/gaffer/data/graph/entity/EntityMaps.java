@@ -28,14 +28,14 @@ import java.util.List;
  * @param <V>  the type of object representing the vertices
  * @param <EN> the type of object representing the entities
  */
-public interface EntityMaps<V, EN> extends Iterable<EntityMap<V, EN>> {
+public interface EntityMaps extends Iterable<EntityMap> {
 
     /**
      * Add a new {@link EntityMap}.
      *
      * @param entityMap the entityMap to add
      */
-    default void add(final EntityMap<V, EN> entityMap) {
+    default void add(final EntityMap entityMap) {
         asList().add(entityMap);
     }
 
@@ -46,7 +46,7 @@ public interface EntityMaps<V, EN> extends Iterable<EntityMap<V, EN>> {
      *
      * @return the nth entityMap
      */
-    default EntityMap<V, EN> get(final int n) {
+    default EntityMap get(final int n) {
         return asList().get(n);
     }
 
@@ -87,10 +87,10 @@ public interface EntityMaps<V, EN> extends Iterable<EntityMap<V, EN>> {
      *
      * @return a {@link List} representation of the current entityMaps object
      */
-    List<EntityMap<V, EN>> asList();
+    List<EntityMap> asList();
 
     @Override
-    default Iterator<EntityMap<V, EN>> iterator() {
+    default Iterator<EntityMap> iterator() {
         return asList().iterator();
     }
 }

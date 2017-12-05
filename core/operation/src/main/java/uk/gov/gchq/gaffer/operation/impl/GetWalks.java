@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.graph.Walk;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Operations;
 import uk.gov.gchq.gaffer.operation.data.WalkDefinition;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.io.Input;
@@ -34,9 +35,12 @@ import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * A {@code GetWalks} class is used to retrieve all of the walks in a graph
@@ -49,7 +53,8 @@ import java.util.Map;
  */
 public class GetWalks implements
         InputOutput<Iterable<? extends EntityId>, Iterable<Walk>>,
-        MultiInput<EntityId> {
+        MultiInput<EntityId>,
+        Operations<Operation> {
 
     private List<WalkDefinition> walkDefinitions;
     private Iterable<? extends EntityId> input;
@@ -114,11 +119,9 @@ public class GetWalks implements
                 final View view = op.getView();
 
                 if (null != view) {
-                    if (view.hasEntities() && view.hasEdges()) {
-                        result.addError("The view must not contain both edge and entity definitions.");
-                    } else if (!view.hasEntities() && !view.hasEdges()) {
-                        result.addError("The view must contain either edge or entity definitions.");
-                    }
+                     if (!view.hasEntities() && !view.hasEdges()) {
+                         result.addError("The view must contain either edge or entity definitions.");
+                     }
                 } else {
                     result.addError("The view must not be null.");
                 }
@@ -166,6 +169,18 @@ public class GetWalks implements
 
     public void setResultsLimit(final Integer resultsLimit) {
         this.resultsLimit = resultsLimit;
+    }
+
+    // TODO: Refactor?
+    @Override
+    public Collection<Operation> getOperations() {
+        return walkDefinitions.stream().flatMap(wd -> {
+         final List<Operation> operations = new ArrayList<>();
+            operations.addAll(wd.getPreFilters().getOperations());
+            operations.add(wd.getOperation());
+            operations.addAll(wd.getPostFilters().getOperations());
+            return operations.stream();
+        }).collect(toList());
     }
 
     public static final class Builder

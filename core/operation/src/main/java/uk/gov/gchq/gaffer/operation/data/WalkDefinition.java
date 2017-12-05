@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.operation.data;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -32,6 +33,7 @@ import java.util.List;
 /**
  * A {@code WalkDefinition} describes how to carry out a single step in a {@link uk.gov.gchq.gaffer.data.graph.Walk}.
  */
+@JsonPropertyOrder({"preFilters", "operation", "postFilters"})
 public class WalkDefinition implements Cloneable {
 
     private final OperationChain<? extends Iterable<ElementId>> preFilters;
@@ -55,8 +57,8 @@ public class WalkDefinition implements Cloneable {
     public WalkDefinition(@JsonProperty("preFilters") final OperationChain<? extends Iterable<ElementId>> preFilters,
                           @JsonProperty("postFilters") final OperationChain<? extends Iterable<ElementId>> postFilters,
                           @JsonProperty("operation") final GetElements operation) {
-        this.preFilters = preFilters;
-        this.postFilters = postFilters;
+        this.preFilters = (null != preFilters) ? preFilters: new OperationChain<>();
+        this.postFilters =  (null != postFilters) ? postFilters: new OperationChain<>();;
         this.operation = operation;
     }
 

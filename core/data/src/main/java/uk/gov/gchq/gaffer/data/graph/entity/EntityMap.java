@@ -19,6 +19,8 @@ package uk.gov.gchq.gaffer.data.graph.entity;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 
+import uk.gov.gchq.gaffer.data.element.Entity;
+
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,16 +28,13 @@ import java.util.stream.Collectors;
 /**
  * An {@code EntityMap} is used to store the contents of a graph in memory in a
  * format which can easily be interrogated.
- *
- * @param <V>  the type of object representing the vertices
- * @param <EN> the type of object representing the entities
  */
-public class EntityMap<V, EN> {
+public class EntityMap {
 
     /**
      * Backing object used to store the EntityMap representation.
      */
-    private final SetMultimap<V, EN> entityMap = HashMultimap.create();
+    private final SetMultimap<Object, Entity> entityMap = HashMultimap.create();
 
     /**
      * Add an entity to this EntityMap instance.
@@ -46,7 +45,7 @@ public class EntityMap<V, EN> {
      * @return {@code true} if the entity was successfully added, otherwise
      * {@code false}
      */
-    public boolean putEntity(final V vertex, final EN entity) {
+    public boolean putEntity(final Object vertex, final Entity entity) {
         return entityMap.put(vertex, entity);
     }
 
@@ -59,7 +58,7 @@ public class EntityMap<V, EN> {
      * @return {@code true} if the entity was successfully added, otherwise
      * {@code false}
      */
-    public boolean putEntities(final V vertex, final Set<EN> entities) {
+    public boolean putEntities(final Object vertex, final Set<Entity> entities) {
         return entityMap.putAll(vertex, entities);
     }
 
@@ -70,7 +69,7 @@ public class EntityMap<V, EN> {
      *
      * @return the {@link Set} of edge objects relating to the specified vertex
      */
-    public Set<EN> get(final V vertex) {
+    public Set<Entity> get(final Object vertex) {
         return entityMap.get(vertex);
     }
 
@@ -79,7 +78,7 @@ public class EntityMap<V, EN> {
      *
      * @return a {@link Set} containing all of the vertices
      */
-    public Set<V> getVertices() {
+    public Set<Object> getVertices() {
         return Collections.unmodifiableSet(entityMap.keySet());
     }
 
@@ -90,7 +89,7 @@ public class EntityMap<V, EN> {
      * @return {@code true} if the vertex is present in the entity mpa, otherwise
      * {@code false}
      */
-    public boolean containsVertex(final V vertex) {
+    public boolean containsVertex(final Object vertex) {
         return entityMap.containsKey(vertex);
     }
 

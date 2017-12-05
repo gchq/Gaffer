@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.mapstore.integration;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
+import uk.gov.gchq.gaffer.integration.impl.GraphAlgorithmsIT;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 
 public class MapStoreITs extends AbstractStoreITs {
@@ -25,5 +26,6 @@ public class MapStoreITs extends AbstractStoreITs {
 
     public MapStoreITs() {
         super(STORE_PROPERTIES);
+        skipTest(GraphAlgorithmsIT.class, "shouldGetPathsWithPreFiltering_1 & shouldGetPathsWithPreFiltering_2");
     }
 }

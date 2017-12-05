@@ -16,25 +16,24 @@
 
 package uk.gov.gchq.gaffer.data.graph.adjacency;
 
+import uk.gov.gchq.gaffer.data.element.Edge;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * A {@code SimpleAdjacencyMaps} object represents a collection of {@link
  * AdjacencyMap}s containing graph adjacency information.
- *
- * @param <V> the type of object representing the vertices
- * @param <ED> the type of object representing the edges
  */
-public class SimpleAdjacencyMaps<V, ED> implements AdjacencyMaps<V, ED> {
+public class SimpleAdjacencyMaps implements AdjacencyMaps {
 
     /**
      * The backing list.
      */
-    private final List<AdjacencyMap<V, ED>> adjacencyMaps = new ArrayList<>();
+    private final List<AdjacencyMap> adjacencyMaps = new ArrayList<>();
 
     @Override
-    public List<AdjacencyMap<V, ED>> asList() {
+    public List<AdjacencyMap> asList() {
         return adjacencyMaps;
     }
 

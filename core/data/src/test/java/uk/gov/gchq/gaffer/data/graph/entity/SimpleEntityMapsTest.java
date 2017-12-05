@@ -17,16 +17,13 @@
 package uk.gov.gchq.gaffer.data.graph.entity;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 
-import java.util.Arrays;
-import java.util.Collection;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.data.element.Entity;
+
 import java.util.Iterator;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -39,13 +36,13 @@ public class SimpleEntityMapsTest {
     @Test
     public void shouldIterate() {
         // When
-        final EntityMaps<Object, Object> entityMaps = getEntityMaps();
+        final EntityMaps entityMaps = getEntityMaps();
 
         // Then
-        final Iterator<EntityMap<Object, Object>> it = entityMaps.iterator();
+        final Iterator<EntityMap> it = entityMaps.iterator();
 
-        final EntityMap<Object, Object> first = it.next();
-        final EntityMap<Object, Object> second = it.next();
+        final EntityMap first = it.next();
+        final EntityMap second = it.next();
 
         assertThat(first.getVertices(), hasSize(3));
         assertThat(second.getVertices(), hasSize(4));
@@ -54,7 +51,7 @@ public class SimpleEntityMapsTest {
     @Test
     public void shouldGetSize() {
         // When
-        final EntityMaps<Object, Object> entityMaps = getEntityMaps();
+        final EntityMaps entityMaps = getEntityMaps();
 
         // Then
         assertThat(entityMaps.size(), is(equalTo(2)));
@@ -63,24 +60,24 @@ public class SimpleEntityMapsTest {
     @Test
     public void shouldGetNth() {
         // When
-        final EntityMaps<Object, Object> entityMaps = getEntityMaps();
+        final EntityMaps entityMaps = getEntityMaps();
 
         // Then
-        assertThat(entityMaps.get(0).get(0), hasItem(0));
-        assertThat(entityMaps.get(0).get(1), hasItem(1));
-        assertThat(entityMaps.get(0).get(2), hasItem(2));
+        assertThat(entityMaps.get(0).get(0), hasItem(makeEntity(0)));
+        assertThat(entityMaps.get(0).get(1), hasItem(makeEntity(1)));
+        assertThat(entityMaps.get(0).get(2), hasItem(makeEntity(2)));
 
-        assertThat(entityMaps.get(1).get(0), hasItem(0));
-        assertThat(entityMaps.get(1).get(1), hasItem(1));
-        assertThat(entityMaps.get(1).get(2), hasItem(2));
-        assertThat(entityMaps.get(1).get(3), hasItem(3));
+        assertThat(entityMaps.get(1).get(0), hasItem(makeEntity(0)));
+        assertThat(entityMaps.get(1).get(1), hasItem(makeEntity(1)));
+        assertThat(entityMaps.get(1).get(2), hasItem(makeEntity(2)));
+        assertThat(entityMaps.get(1).get(3), hasItem(makeEntity(3)));
     }
 
     @Test
     public void shouldCheckEmpty() {
         // When
-        final EntityMaps<Object, Object> first = new SimpleEntityMaps<>();
-        final EntityMaps<Object, Object> second = new SimpleEntityMaps<>();
+        final EntityMaps first = new SimpleEntityMaps();
+        final EntityMaps second = new SimpleEntityMaps();
 
         second.add(getEntityMap(3));
 
@@ -89,23 +86,31 @@ public class SimpleEntityMapsTest {
         assertFalse(second.empty());
     }
 
-    private EntityMap<Object, Object> getEntityMap(final int size) {
+    private EntityMap getEntityMap(final int size) {
 
-        final EntityMap<Object, Object> entityMap = new EntityMap<>();
+        final EntityMap entityMap = new EntityMap();
 
         for (int i = 0; i < size; i++) {
-            entityMap.putEntity(i, i);
+            entityMap.putEntity(i, makeEntity(i));
         }
 
         return entityMap;
     }
 
-    private EntityMaps<Object, Object> getEntityMaps() {
-        final EntityMaps<Object, Object> entityMaps = new SimpleEntityMaps<>();
+    private EntityMaps getEntityMaps() {
+        final EntityMaps entityMaps = new SimpleEntityMaps();
 
         entityMaps.add(getEntityMap(3));
         entityMaps.add(getEntityMap(4));
 
         return entityMaps;
+    }
+
+    private Entity makeEntity(final Object vertex) {
+        return makeEntity(TestGroups.ENTITY, vertex);
+    }
+
+    private Entity makeEntity(final String group, final Object vertex) {
+        return new Entity.Builder().group(group).vertex(vertex).build();
     }
 }
