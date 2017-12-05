@@ -19,6 +19,7 @@ import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -100,7 +101,8 @@ public class AggregationIT extends AbstractStoreIT {
         assertEquals(2, results.size());
 
         final Entity expectedEntity = new Entity(TestGroups.ENTITY, AGGREGATED_SOURCE);
-        expectedEntity.putProperty(TestPropertyNames.STRING, "3,3,3");
+        expectedEntity.putProperty(TestPropertyNames.SET, CollectionUtil.treeSet("3"));
+        expectedEntity.putProperty(TestPropertyNames.COUNT, 3L);
 
         final Edge expectedEdge = new Edge.Builder()
                 .group(TestGroups.EDGE)
@@ -111,10 +113,7 @@ public class AggregationIT extends AbstractStoreIT {
         expectedEdge.putProperty(TestPropertyNames.INT, 1);
         expectedEdge.putProperty(TestPropertyNames.COUNT, 2L);
 
-        ElementUtil.assertElementEquals(
-                Arrays.asList(expectedEdge, expectedEntity),
-                results
-        );
+        ElementUtil.assertElementEquals(Arrays.asList(expectedEdge, expectedEntity), results);
     }
 
     @Test

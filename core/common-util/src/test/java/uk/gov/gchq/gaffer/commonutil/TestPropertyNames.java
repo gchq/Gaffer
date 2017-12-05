@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.commonutil;
 public class TestPropertyNames {
     public static final String INT = "intProperty";
     public static final String STRING = "stringProperty";
+    public static final String SET = "setProperty";
     public static final String DATE = "dateProperty";
     public static final String TIMESTAMP = "timestamp";
     public static final String COUNT = "count";

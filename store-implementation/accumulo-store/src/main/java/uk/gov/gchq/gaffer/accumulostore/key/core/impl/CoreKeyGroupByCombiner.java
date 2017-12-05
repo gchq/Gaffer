@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.key.core.impl;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.accumulo.core.data.ByteSequence;
 import org.apache.accumulo.core.data.Key;
@@ -26,6 +28,8 @@ import org.apache.accumulo.core.iterators.IteratorUtil;
 import org.apache.accumulo.core.iterators.OptionDescriber;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.apache.accumulo.core.iterators.WrappingIterator;
+import org.apache.accumulo.core.iterators.conf.ColumnSet;
+import org.apache.commons.lang3.StringUtils;
 
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
@@ -60,6 +64,7 @@ import java.util.Set;
  */
 public abstract class CoreKeyGroupByCombiner extends WrappingIterator
         implements OptionDescriber {
+    private static final String COLUMNS_OPTION = "columns";
     @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", justification = "schema is initialised in validateOptions method, which is always called first")
     protected Schema schema;
 
@@ -71,6 +76,7 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
 
     private Key topKey;
     private Value topValue;
+    private ColumnSet aggregatedGroups;
 
     /**
      * A Java Iterator that iterates over the properties for a given row Key
@@ -252,6 +258,10 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
                 return;
             }
 
+            if (null != aggregatedGroups && !aggregatedGroups.contains(workKey)) {
+                return;
+            }
+
             final byte[] columnFamily = workKey.getColumnFamilyData().getBackingArray();
             final String group;
             try {
@@ -259,6 +269,7 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
             } catch (final AccumuloElementConversionException e) {
                 throw new RuntimeException(e);
             }
+
 
             final ViewElementDefinition elementDef = view.getElement(group);
             Set<String> groupBy = elementDef.getGroupBy();
@@ -364,6 +375,11 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new AggregationException("Failed to load element converter from class name provided : "
                     + options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS), e);
+        }
+
+        final String encodedColumns = options.get(COLUMNS_OPTION);
+        if (StringUtils.isNotEmpty(encodedColumns)) {
+            aggregatedGroups = new ColumnSet(Lists.newArrayList(Splitter.on(",").split(encodedColumns)));
         }
     }
 
