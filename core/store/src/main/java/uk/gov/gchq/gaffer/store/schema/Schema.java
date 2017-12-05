@@ -23,8 +23,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.GroupUtil;
@@ -40,6 +38,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -68,7 +67,6 @@ import java.util.Set;
  */
 @JsonDeserialize(builder = Schema.Builder.class)
 public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdgeDefinition> implements Cloneable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ElementDefinitions.class);
     private final TypeDefinition unknownType = new TypeDefinition();
 
     /**
@@ -91,7 +89,13 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
     private String visibilityProperty;
 
+    /**
+     * @deprecated use a store property specific to your chosen store instead.
+     */
+    @Deprecated
     private String timestampProperty;
+
+    private Map<String, String> conf;
 
     public Schema() {
         this(new LinkedHashMap<>());
@@ -274,8 +278,28 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         return visibilityProperty;
     }
 
+    /**
+     * @return the timestamp property
+     * @deprecated use a store property specific to your chosen store instead.
+     */
+    @Deprecated
     public String getTimestampProperty() {
         return timestampProperty;
+    }
+
+    public Map<String, String> getConf() {
+        return conf;
+    }
+
+    public String getConf(final String key) {
+        return null != conf ? conf.get(key) : null;
+    }
+
+    public void addConf(final String key, final String value) {
+        if (null == conf) {
+            conf = new HashMap<>();
+        }
+        conf.put(key, value);
     }
 
     @Override
@@ -375,8 +399,24 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             return self();
         }
 
+        /**
+         * @param timestampProperty the timestamp property
+         * @return the builder
+         * @deprecated use a store property specific to your chosen store instead.
+         */
+        @Deprecated
         public CHILD_CLASS timestampProperty(final String timestampProperty) {
             getThisSchema().timestampProperty = timestampProperty;
+            return self();
+        }
+
+        public CHILD_CLASS conf(final Map<String, String> conf) {
+            getThisSchema().conf = conf;
+            return self();
+        }
+
+        public CHILD_CLASS conf(final String key, final String value) {
+            getThisSchema().addConf(key, value);
             return self();
         }
 
@@ -463,6 +503,12 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                             typeDef.merge(newTypeDef);
                         }
                     }
+                }
+
+                if (null == getThisSchema().conf) {
+                    getThisSchema().conf = schema.conf;
+                } else if (null != schema.conf) {
+                    getThisSchema().conf.putAll(schema.conf);
                 }
             }
 

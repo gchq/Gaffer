@@ -50,9 +50,11 @@ import java.util.Iterator;
 @SuppressWarnings("unchecked")
 public abstract class AbstractCoreKeyAccumuloElementConverter implements AccumuloElementConverter {
     protected final Schema schema;
+    private final String timestampProperty;
 
     public AbstractCoreKeyAccumuloElementConverter(final Schema schema) {
         this.schema = schema;
+        this.timestampProperty = null != schema ? schema.getConf(AccumuloStoreConstants.TIMESTAMP_PROPERTY) : null;
     }
 
     @Override
@@ -351,8 +353,8 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
 
     @Override
     public long buildTimestamp(final Properties properties) {
-        if (null != schema.getTimestampProperty()) {
-            final Object property = properties.get(schema.getTimestampProperty());
+        if (null != timestampProperty) {
+            final Object property = properties.get(timestampProperty);
             if (null == property) {
                 return System.currentTimeMillis();
             } else {
@@ -377,8 +379,8 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
 
         final Properties properties = new Properties();
         // If the element group requires a timestamp property then add it.
-        if (null != schema.getTimestampProperty() && elementDefinition.containsProperty(schema.getTimestampProperty())) {
-            properties.put(schema.getTimestampProperty(), timestamp);
+        if (null != timestampProperty && elementDefinition.containsProperty(timestampProperty)) {
+            properties.put(timestampProperty, timestamp);
         }
         return properties;
     }
@@ -494,7 +496,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     protected boolean isStoredInValue(final String propertyName, final SchemaElementDefinition elementDef) {
         return !elementDef.getGroupBy().contains(propertyName)
                 && !propertyName.equals(schema.getVisibilityProperty())
-                && !propertyName.equals(schema.getTimestampProperty());
+                && !propertyName.equals(timestampProperty);
     }
 
     private void writeBytes(final byte[] bytes, final ByteArrayOutputStream out)

@@ -38,6 +38,7 @@ import uk.gov.gchq.gaffer.hbasestore.operation.handler.SampleElementsForSplitPoi
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.SplitStoreFromIterableHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.handler.AddElementsFromHdfsHandler;
 import uk.gov.gchq.gaffer.hbasestore.retriever.HBaseRetriever;
+import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.HdfsSplitStoreFromFileHandler;
@@ -135,6 +136,11 @@ public class HBaseStore extends Store {
                             "Please use a graphId instead or for now just set the graphId to be the same value as the store.properties table.");
         } else {
             super.initialise(graphId, schema, getProperties());
+        }
+
+        if (null != getSchema().getTimestampProperty()
+                && null == getSchema().getConf(HBaseStoreConstants.TIMESTAMP_PROPERTY)) {
+            getSchema().addConf(HBaseStoreConstants.TIMESTAMP_PROPERTY, getSchema().getTimestampProperty());
         }
     }
 

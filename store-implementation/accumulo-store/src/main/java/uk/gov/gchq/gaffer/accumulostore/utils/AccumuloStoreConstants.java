@@ -33,6 +33,12 @@ public final class AccumuloStoreConstants {
     // iterators
     public static final String ACCUMULO_ELEMENT_CONVERTER_CLASS = "accumulostore.key.element_converter";
 
+    /**
+     * Schema configuration property to set the timestamp property used in a schema that should be assigned to the timestamp column in Accumulo.
+     * This is an advanced feature - if you use it then make sure you really understand it.
+     */
+    public static final String TIMESTAMP_PROPERTY = "gaffer.store.accumulo.timestamp.property";
+
     // Iterator options
     public static final String VIEW = "View";
     public static final String SCHEMA = "Schema";
