@@ -33,6 +33,11 @@ public final class AccumuloStoreConstants {
     // iterators
     public static final String ACCUMULO_ELEMENT_CONVERTER_CLASS = "accumulostore.key.element_converter";
 
+    /**
+     * The default timestamp value to use if it has not been populated.
+     */
+    public static final long DEFAULT_TIMESTAMP = 1L;
+
     // Iterator options
     public static final String VIEW = "View";
     public static final String SCHEMA = "Schema";

@@ -52,7 +52,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 public class ElementSerialisation {
-    public static final long DEFAULT_AGGREGATED_TIMESTAMP = 1L;
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementSerialisation.class);
 
     private final Schema schema;
@@ -341,21 +340,17 @@ public class ElementSerialisation {
     }
 
     public long getTimestamp(final Element element) throws SerialisationException {
-        return getTimestamp(element.getGroup(), element.getProperties());
+        return getTimestamp(element.getProperties());
     }
 
-    public long getTimestamp(final String group, final Properties properties) throws SerialisationException {
+    public long getTimestamp(final Properties properties) throws SerialisationException {
         Long timestamp = null;
         if (null != schema.getTimestampProperty()) {
             timestamp = (Long) properties.get(schema.getTimestampProperty());
         }
 
         if (null == timestamp) {
-            if (schema.getElement(group).isAggregate()) {
-                timestamp = DEFAULT_AGGREGATED_TIMESTAMP;
-            } else {
-                timestamp = LongUtil.getTimeBasedRandom();
-            }
+            timestamp = LongUtil.getTimeBasedRandom();
         }
 
         return timestamp;
