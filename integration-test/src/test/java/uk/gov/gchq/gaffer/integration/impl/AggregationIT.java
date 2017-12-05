@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
-import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,6 +29,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -44,11 +44,11 @@ import uk.gov.gchq.koryphe.impl.predicate.IsIn;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 import static uk.gov.gchq.gaffer.commonutil.TestGroups.ENTITY_2;
 
 public class AggregationIT extends AbstractStoreIT {
@@ -111,9 +111,10 @@ public class AggregationIT extends AbstractStoreIT {
         expectedEdge.putProperty(TestPropertyNames.INT, 1);
         expectedEdge.putProperty(TestPropertyNames.COUNT, 2L);
 
-        assertThat(results, IsCollectionContaining.hasItems(
-                expectedEdge,
-                expectedEntity));
+        ElementUtil.assertElementEquals(
+                Arrays.asList(expectedEdge, expectedEntity),
+                results
+        );
     }
 
     @Test
@@ -177,7 +178,10 @@ public class AggregationIT extends AbstractStoreIT {
                 .property(TestPropertyNames.TIMESTAMP, timestamp)
                 .build();
 
-        assertThat(results, IsCollectionContaining.hasItems(expectedEntity2));
+        ElementUtil.assertElementEquals(
+                Collections.singletonList(expectedEntity2),
+                results
+        );
     }
 
     @Test
@@ -197,14 +201,16 @@ public class AggregationIT extends AbstractStoreIT {
         // Then
         assertNotNull(results);
         assertEquals(2, results.size());
-        assertThat(results, IsCollectionContaining.hasItems(
-                getEdge(NON_AGGREGATED_SOURCE, NON_AGGREGATED_DEST, false),
-                new Edge.Builder().group(TestGroups.EDGE)
-                        .source(NON_AGGREGATED_SOURCE)
-                        .dest(NON_AGGREGATED_DEST)
-                        .directed(true)
-                        .build()
-        ));
+        ElementUtil.assertElementEquals(
+                Arrays.asList(
+                        getEdge(NON_AGGREGATED_SOURCE, NON_AGGREGATED_DEST, false),
+                        new Edge.Builder().group(TestGroups.EDGE)
+                                .source(NON_AGGREGATED_SOURCE)
+                                .dest(NON_AGGREGATED_DEST)
+                                .directed(true)
+                                .build()),
+                results
+        );
     }
 
     @TraitRequirement({StoreTrait.PRE_AGGREGATION_FILTERING, StoreTrait.QUERY_AGGREGATION})

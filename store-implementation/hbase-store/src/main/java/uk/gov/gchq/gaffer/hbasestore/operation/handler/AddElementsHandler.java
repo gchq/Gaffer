@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.hbasestore.operation.handler;
 
+import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Table;
 
@@ -131,6 +132,9 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
     private void executePuts(final Table table, final List<Put> puts) throws IOException {
         if (!puts.isEmpty()) {
             table.put(puts);
+            if (table instanceof HTable) {
+                ((HTable) table).flushCommits();
+            }
         }
     }
 }

@@ -20,7 +20,6 @@ import org.apache.accumulo.core.data.Value;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
@@ -47,8 +46,6 @@ import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.types.function.FreqMapAggregator;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -406,36 +403,6 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
     }
 
     @Test
-    public void shouldReturnDefaultTimestampWhenPropertyIsNullAggregatedGroup() throws Exception {
-        // Given
-        // add extra timestamp property to schema
-        final Schema schema = new Schema.Builder().json(StreamUtil.schemas(getClass())).build();
-        converter = createConverter(new Schema.Builder(schema)
-                .type("timestamp", Long.class)
-                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .property(AccumuloPropertyNames.TIMESTAMP, "timestamp")
-                        .build())
-                .timestampProperty(AccumuloPropertyNames.TIMESTAMP)
-                .build());
-
-        final Long propertyTimestamp = null;
-        final Properties properties = new Properties();
-        properties.put(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
-        properties.put(AccumuloPropertyNames.PROP_1, 2);
-        properties.put(AccumuloPropertyNames.TIMESTAMP, propertyTimestamp);
-
-        // When
-        final int n = 100;
-        final Set<Long> timestamps = new HashSet<>(n);
-        for (int i = 0; i < n; i++) {
-            timestamps.add(converter.buildTimestamp(TestGroups.EDGE, properties));
-        }
-
-        // Then
-        assertEquals(AbstractCoreKeyAccumuloElementConverter.DEFAULT_AGGREGATED_TIMESTAMP, timestamps.size());
-    }
-
-    @Test
     public void shouldBuildCurrentTimeTimestampForNonAggregatedGroups() throws Exception {
         // Given
         final Properties properties = new Properties();
@@ -447,20 +414,6 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
 
         // Then
         assertTrue(System.currentTimeMillis() - timestamp < 10000L);
-    }
-
-    @Test
-    public void shouldReturnDefaultTimestampForAggregatedGroups() throws Exception {
-        // Given
-        final Properties properties = new Properties();
-        properties.put(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
-        properties.put(AccumuloPropertyNames.PROP_1, 2);
-
-        // When
-        final long timestamp = converter.buildTimestamp(TestGroups.EDGE, properties);
-
-        // Then
-        assertEquals(AbstractCoreKeyAccumuloElementConverter.DEFAULT_AGGREGATED_TIMESTAMP, timestamp);
     }
 
     @Test
@@ -544,10 +497,10 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
         // Given 
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                                .vertex("string")
-                                .property(TestPropertyNames.PROP_1, "map")
-                                .property(TestPropertyNames.PROP_2, "map")
-                                .build()
+                        .vertex("string")
+                        .property(TestPropertyNames.PROP_1, "map")
+                        .property(TestPropertyNames.PROP_2, "map")
+                        .build()
                 )
                 .type("string", String.class)
                 .type("map", new TypeDefinition.Builder()
