@@ -34,5 +34,6 @@ public class HBaseStoreITs extends AbstractStoreITs {
             // ignore any errors that occur when dropping test tables
         }
         skipTestMethod(AddElementsIT.class, "shouldAddElementsWithSameTimestampWithoutAggregation", "There is a known issue around defining custom timestamps that are the same");
+        skipTestMethod(AddElementsIT.class, "shouldAddElementsWithSameTimestampWithAggregation", "There is a known issue around defining custom timestamps that are the same");
     }
 }
