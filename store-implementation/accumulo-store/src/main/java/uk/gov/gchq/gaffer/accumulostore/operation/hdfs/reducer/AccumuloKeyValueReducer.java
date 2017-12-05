@@ -92,13 +92,7 @@ public class AccumuloKeyValueReducer extends Reducer<Key, Value, Key, Value> {
 
     private void reduceMultiValue(final Key key, final Iterator<Value> iter, final Value firstValue, final Context context)
             throws IOException, InterruptedException {
-        final String group;
-        try {
-            group = new String(key.getColumnFamilyData().getBackingArray(), CommonConstants.UTF_8);
-        } catch (final UnsupportedEncodingException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-
+        final String group = elementConverter.getGroupFromColumnFamily(key.getColumnFamilyData().getBackingArray());
         final SchemaElementDefinition elementDef = schema.getElement(group);
         if (elementDef.isAggregate()) {
             Properties state;
