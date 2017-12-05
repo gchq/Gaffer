@@ -47,6 +47,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 
+import static uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants.DEFAULT_TIMESTAMP;
+
 @SuppressWarnings("unchecked")
 public abstract class AbstractCoreKeyAccumuloElementConverter implements AccumuloElementConverter {
     protected final Schema schema;
@@ -357,7 +359,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         }
 
         if (null == timestamp) {
-            timestamp = System.currentTimeMillis();
+            timestamp = DEFAULT_TIMESTAMP;
         }
 
         return timestamp;

@@ -330,10 +330,10 @@ public class ElementSerialisation {
     }
 
     public long getTimestamp(final Element element) throws SerialisationException {
-        return getTimestamp(element.getGroup(), element.getProperties());
+        return getTimestamp(element.getProperties());
     }
 
-    public long getTimestamp(final String group, final Properties properties) throws SerialisationException {
+    public long getTimestamp(final Properties properties) throws SerialisationException {
         Long timestamp = null;
         if (null != schema.getTimestampProperty()) {
             timestamp = (Long) properties.get(schema.getTimestampProperty());
