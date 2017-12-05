@@ -54,7 +54,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
 
     public AbstractCoreKeyAccumuloElementConverter(final Schema schema) {
         this.schema = schema;
-        this.timestampProperty = null != schema ? schema.getConf(AccumuloStoreConstants.TIMESTAMP_PROPERTY) : null;
+        this.timestampProperty = null != schema ? schema.getConfig(AccumuloStoreConstants.TIMESTAMP_PROPERTY) : null;
     }
 
     @Override

@@ -182,8 +182,8 @@ public class AccumuloStore extends Store {
         }
 
         if (null != getSchema().getTimestampProperty()
-                && null == getSchema().getConf(AccumuloStoreConstants.TIMESTAMP_PROPERTY)) {
-            getSchema().addConf(AccumuloStoreConstants.TIMESTAMP_PROPERTY, getSchema().getTimestampProperty());
+                && null == getSchema().getConfig(AccumuloStoreConstants.TIMESTAMP_PROPERTY)) {
+            getSchema().addConfig(AccumuloStoreConstants.TIMESTAMP_PROPERTY, getSchema().getTimestampProperty());
         }
 
         final String keyPackageClass = getProperties().getKeyPackageClass();
@@ -218,7 +218,7 @@ public class AccumuloStore extends Store {
     @Override
     protected void validateSchema(final ValidationResult validationResult, final Serialiser serialiser) {
         super.validateSchema(validationResult, serialiser);
-        final String timestampProperty = getSchema().getConf(AccumuloStoreConstants.TIMESTAMP_PROPERTY);
+        final String timestampProperty = getSchema().getConfig(AccumuloStoreConstants.TIMESTAMP_PROPERTY);
         if (null != timestampProperty) {
             final Iterable<SchemaElementDefinition> defs = new ChainedIterable<>(getSchema().getEntities().values(), getSchema().getEdges().values());
             for (final SchemaElementDefinition def : defs) {

@@ -95,7 +95,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     @Deprecated
     private String timestampProperty;
 
-    private Map<String, String> conf;
+    private Map<String, String> config;
 
     public Schema() {
         this(new LinkedHashMap<>());
@@ -287,19 +287,19 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         return timestampProperty;
     }
 
-    public Map<String, String> getConf() {
-        return conf;
+    public Map<String, String> getConfig() {
+        return config;
     }
 
-    public String getConf(final String key) {
-        return null != conf ? conf.get(key) : null;
+    public String getConfig(final String key) {
+        return null != config ? config.get(key) : null;
     }
 
-    public void addConf(final String key, final String value) {
-        if (null == conf) {
-            conf = new HashMap<>();
+    public void addConfig(final String key, final String value) {
+        if (null == config) {
+            config = new HashMap<>();
         }
-        conf.put(key, value);
+        config.put(key, value);
     }
 
     @Override
@@ -410,13 +410,13 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             return self();
         }
 
-        public CHILD_CLASS conf(final Map<String, String> conf) {
-            getThisSchema().conf = conf;
+        public CHILD_CLASS config(final Map<String, String> config) {
+            getThisSchema().config = config;
             return self();
         }
 
-        public CHILD_CLASS conf(final String key, final String value) {
-            getThisSchema().addConf(key, value);
+        public CHILD_CLASS config(final String key, final String value) {
+            getThisSchema().addConfig(key, value);
             return self();
         }
 
@@ -505,10 +505,10 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                     }
                 }
 
-                if (null == getThisSchema().conf) {
-                    getThisSchema().conf = schema.conf;
-                } else if (null != schema.conf) {
-                    getThisSchema().conf.putAll(schema.conf);
+                if (null == getThisSchema().config) {
+                    getThisSchema().config = schema.config;
+                } else if (null != schema.config) {
+                    getThisSchema().config.putAll(schema.config);
                 }
             }
 

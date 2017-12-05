@@ -139,8 +139,8 @@ public class HBaseStore extends Store {
         }
 
         if (null != getSchema().getTimestampProperty()
-                && null == getSchema().getConf(HBaseStoreConstants.TIMESTAMP_PROPERTY)) {
-            getSchema().addConf(HBaseStoreConstants.TIMESTAMP_PROPERTY, getSchema().getTimestampProperty());
+                && null == getSchema().getConfig(HBaseStoreConstants.TIMESTAMP_PROPERTY)) {
+            getSchema().addConfig(HBaseStoreConstants.TIMESTAMP_PROPERTY, getSchema().getTimestampProperty());
         }
     }
 

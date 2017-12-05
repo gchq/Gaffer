@@ -55,7 +55,7 @@ public class ElementSerialisation {
 
     public ElementSerialisation(final Schema schema) {
         this.schema = schema;
-        this.timestampProperty = null != schema ? schema.getConf(HBaseStoreConstants.TIMESTAMP_PROPERTY) : null;
+        this.timestampProperty = null != schema ? schema.getConfig(HBaseStoreConstants.TIMESTAMP_PROPERTY) : null;
     }
 
     public byte[] getValue(final Element element) throws SerialisationException {

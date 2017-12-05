@@ -48,7 +48,7 @@ public abstract class AccumuloElementValueLoader implements ElementValueLoader {
         this.value = value;
         this.elementConverter = elementConverter;
         this.schema = schema;
-        this.timestampProperty = schema.getConf(AccumuloStoreConstants.TIMESTAMP_PROPERTY);
+        this.timestampProperty = schema.getConfig(AccumuloStoreConstants.TIMESTAMP_PROPERTY);
     }
 
     @Override
