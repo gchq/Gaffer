@@ -475,7 +475,7 @@ public class ElementSerialisation {
     }
 
     public Pair<Cell, Cell> getCells(final Element element, final Pair<byte[], byte[]> row, final byte[] cq, final CellCreator kvCreator) throws SerialisationException {
-        final long ts = getTimestamp(element.getGroup(), element.getProperties());
+        final long ts = getTimestamp(element.getProperties());
         final byte[] value = getValue(element);
         final String visibilityStr = Bytes.toString(getColumnVisibility(element));
         byte[] tags = null;
