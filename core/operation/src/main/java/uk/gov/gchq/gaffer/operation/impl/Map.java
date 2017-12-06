@@ -30,7 +30,7 @@ import java.util.function.Function;
 
 /**
  * A {@code Map} is a Gaffer {@link Operation} which maps an input I to an output O
- * by applying a supplied {@link Function}.
+ * by applying a supplied {@link Function} or {@link List} of {@link Function}s.
  *
  * @param <I> the type of the input object
  * @param <O> the type of the output object
@@ -70,6 +70,8 @@ public class Map<I, O> implements InputOutput<I, O> {
         for (final Function func : functions) {
             clone.getFunctions().add(func);
         }
+        clone.setInput(input);
+        clone.setOptions(options);
         return clone;
     }
 

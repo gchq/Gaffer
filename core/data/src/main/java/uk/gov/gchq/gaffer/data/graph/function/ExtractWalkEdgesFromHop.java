@@ -21,8 +21,16 @@ import uk.gov.gchq.gaffer.data.graph.Walk;
 import java.util.Set;
 import java.util.function.Function;
 
+/**
+ * An {@code ExtractWalkEdgesFromHop} is a utility {@link Function} for extracting the {@link Set} of
+ * Gaffer {@link Edge}s from a provided {@link Walk} object, at a given hop.
+ */
 public class ExtractWalkEdgesFromHop implements Function<Walk, Set<Edge>> {
     private int hop;
+
+    public ExtractWalkEdgesFromHop() {
+        // empty
+    }
 
     public ExtractWalkEdgesFromHop(final int hop) {
         this.hop = hop;

@@ -19,8 +19,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 
-// To be removed after Koryphe 1.1.0
-public class IterableUtil {
+// TODO To be removed after Koryphe 1.1.0
+public final class IterableUtil {
     private IterableUtil() {
         // Empty
     }
@@ -41,7 +41,7 @@ public class IterableUtil {
         };
     }
 
-    public static <I_ITEM, O_ITEM> Iterable<O_ITEM> applyFunction(final Iterable<I_ITEM> input, final List<Function> functions) {
+    public static <I_ITEM, O_ITEM> Iterable<O_ITEM> applyFunctions(final Iterable<I_ITEM> input, final List<Function> functions) {
         return () -> new Iterator<O_ITEM>() {
             Iterator<? extends I_ITEM> iterator = input.iterator();
 
@@ -62,7 +62,7 @@ public class IterableUtil {
                     }
                     return (O_ITEM) item;
                 } catch (final ClassCastException c) {
-                    throw new IllegalArgumentException("", c);
+                    throw new IllegalArgumentException("The input/output types of the functions were incompatible", c);
                 }
             }
         };

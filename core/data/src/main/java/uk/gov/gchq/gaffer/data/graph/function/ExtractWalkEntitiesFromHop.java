@@ -21,8 +21,16 @@ import uk.gov.gchq.gaffer.data.graph.Walk;
 import java.util.Set;
 import java.util.function.Function;
 
+/**
+ * An {@code ExtractWalkEntitiesFromHop} is a utility {@link Function} for extracting the {@link Set} of
+ * Gaffer {@link Entity}s from a provided {@link Walk} object, for a given hop.
+ */
 public class ExtractWalkEntitiesFromHop implements Function<Walk, Set<Entity>> {
     private int hop;
+
+    public ExtractWalkEntitiesFromHop() {
+        // empty
+    }
 
     public ExtractWalkEntitiesFromHop(final int hop) {
         this.hop = hop;

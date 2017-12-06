@@ -15,21 +15,29 @@
  */
 package uk.gov.gchq.gaffer.data.graph.function;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-// To be removed after Koryphe 1.1.0
+// TODO To be removed after Koryphe 1.1.0
 public class IterableFunction<I_ITEM, O_ITEM> implements Function<Iterable<I_ITEM>, Iterable<O_ITEM>> {
     private List<Function> functions;
 
     public IterableFunction() {
     }
 
+    public IterableFunction(final Function function) {
+        functions = new ArrayList<>();
+        functions.add(function);
+    }
+
     public IterableFunction(final List<Function> functions) {
         this.functions = functions;
     }
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     public List<Function> getFunctions() {
         return functions;
     }
@@ -40,7 +48,7 @@ public class IterableFunction<I_ITEM, O_ITEM> implements Function<Iterable<I_ITE
 
     @Override
     public Iterable<O_ITEM> apply(final Iterable<I_ITEM> items) {
-        return IterableUtil.applyFunction(items, functions);
+        return IterableUtil.applyFunctions(items, functions);
     }
 
 
