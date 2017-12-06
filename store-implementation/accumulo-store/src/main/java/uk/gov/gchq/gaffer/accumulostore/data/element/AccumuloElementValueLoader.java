@@ -19,6 +19,7 @@ import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
+import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.data.element.ElementValueLoader;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -33,6 +34,7 @@ public abstract class AccumuloElementValueLoader implements ElementValueLoader {
     private final Schema schema;
     private final String group;
     private final Value value;
+    private final String timestampProperty;
 
     private SchemaElementDefinition eDef;
 
@@ -46,6 +48,7 @@ public abstract class AccumuloElementValueLoader implements ElementValueLoader {
         this.value = value;
         this.elementConverter = elementConverter;
         this.schema = schema;
+        this.timestampProperty = schema.getConfig(AccumuloStoreConstants.TIMESTAMP_PROPERTY);
     }
 
     @Override
@@ -62,7 +65,7 @@ public abstract class AccumuloElementValueLoader implements ElementValueLoader {
             props = elementConverter.getPropertiesFromColumnQualifier(group, key.getColumnQualifierData().getBackingArray());
         } else if (name.equals(schema.getVisibilityProperty())) {
             props = elementConverter.getPropertiesFromColumnVisibility(group, key.getColumnVisibilityData().getBackingArray());
-        } else if (name.equals(schema.getTimestampProperty())) {
+        } else if (name.equals(timestampProperty)) {
             props = elementConverter.getPropertiesFromTimestamp(group, key.getTimestamp());
         } else {
             props = elementConverter.getPropertiesFromValue(group, value);
