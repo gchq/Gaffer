@@ -20,6 +20,7 @@ import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -30,6 +31,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -100,7 +102,8 @@ public class AggregationIT extends AbstractStoreIT {
         assertEquals(2, results.size());
 
         final Entity expectedEntity = new Entity(TestGroups.ENTITY, AGGREGATED_SOURCE);
-        expectedEntity.putProperty(TestPropertyNames.STRING, "3,3,3");
+        expectedEntity.putProperty(TestPropertyNames.SET, CollectionUtil.treeSet("3"));
+        expectedEntity.putProperty(TestPropertyNames.COUNT, 3L);
 
         final Edge expectedEdge = new Edge.Builder()
                 .group(TestGroups.EDGE)
@@ -111,9 +114,7 @@ public class AggregationIT extends AbstractStoreIT {
         expectedEdge.putProperty(TestPropertyNames.INT, 1);
         expectedEdge.putProperty(TestPropertyNames.COUNT, 2L);
 
-        assertThat(results, IsCollectionContaining.hasItems(
-                expectedEdge,
-                expectedEntity));
+        ElementUtil.assertElementEquals(Arrays.asList(expectedEdge, expectedEntity), results);
     }
 
     @Test
