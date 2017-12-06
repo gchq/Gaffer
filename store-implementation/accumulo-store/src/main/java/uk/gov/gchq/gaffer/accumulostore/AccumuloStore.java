@@ -181,11 +181,6 @@ public class AccumuloStore extends Store {
             super.initialise(graphId, schema, getProperties());
         }
 
-        if (null != getSchema().getTimestampProperty()
-                && null == getSchema().getConfig(AccumuloStoreConstants.TIMESTAMP_PROPERTY)) {
-            getSchema().addConfig(AccumuloStoreConstants.TIMESTAMP_PROPERTY, getSchema().getTimestampProperty());
-        }
-
         final String keyPackageClass = getProperties().getKeyPackageClass();
         try {
             this.keyPackage = Class.forName(keyPackageClass).asSubclass(AccumuloKeyPackage.class).newInstance();
@@ -226,7 +221,7 @@ public class AccumuloStore extends Store {
                 if (null != typeDef && null != typeDef.getAggregateFunction() && !(typeDef.getAggregateFunction() instanceof Max)) {
                     validationResult.addError("The aggregator for the " + timestampProperty + " property must be set to: "
                             + Max.class.getName()
-                            + " this cannot be overridden for this Accumulo Store");
+                            + " this cannot be overridden for this Accumulo Store, as you have told Accumulo to store this property in the timestamp column.");
                 }
             }
         }

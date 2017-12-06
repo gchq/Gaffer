@@ -557,7 +557,6 @@ public class ViewValidatorTest {
                         .directed("true")
                         .property(TestPropertyNames.PROP_2, "string|Value")
                         .build())
-                .timestampProperty(TestPropertyNames.PROP_1)
                 .build();
 
         // When
@@ -601,7 +600,6 @@ public class ViewValidatorTest {
                         .property(TestPropertyNames.PROP_2, "string|Value")
                         .groupBy(TestPropertyNames.PROP_1)
                         .build())
-                .timestampProperty(TestPropertyNames.PROP_1)
                 .build();
 
         // When

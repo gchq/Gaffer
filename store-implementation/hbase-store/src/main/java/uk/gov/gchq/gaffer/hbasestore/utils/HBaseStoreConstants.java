@@ -32,7 +32,8 @@ public final class HBaseStoreConstants {
      * Schema configuration property to set the timestamp property used in a schema that should be assigned to the timestamp column in Accumulo.
      * This is an advanced feature - if you use it then make sure you really understand it.
      */
-    public static final String TIMESTAMP_PROPERTY = "gaffer.store.accumulo.timestamp.property";
+    // The value must match the key used in Schema class: "timestampProperty"
+    public static final String TIMESTAMP_PROPERTY = "timestampProperty";
 
     // Coprocessor options
     public static final String VIEW = "View";

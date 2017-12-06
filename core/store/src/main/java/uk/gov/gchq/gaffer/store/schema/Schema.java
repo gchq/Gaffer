@@ -402,7 +402,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         /**
          * @param timestampProperty the timestamp property
          * @return the builder
-         * @deprecated use a store property specific to your chosen store instead.
+         * @deprecated This is an advanced feature - if you use it then make sure you really understand it. To continue using it you should add a Schema config setting with key "timestampProperty".
          */
         @Deprecated
         public CHILD_CLASS timestampProperty(final String timestampProperty) {
@@ -546,6 +546,9 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
             getThisSchema().types = Collections.unmodifiableMap(getThisSchema().types);
 
+            if (null != getThisSchema().timestampProperty) {
+                getThisSchema().addConfig("timestampProperty", getThisSchema().timestampProperty);
+            }
             return super.build();
         }
 

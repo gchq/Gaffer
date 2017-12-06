@@ -359,7 +359,7 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .property(AccumuloPropertyNames.TIMESTAMP, "timestamp")
                         .build())
-                .timestampProperty(AccumuloPropertyNames.TIMESTAMP)
+                .config(AccumuloStoreConstants.TIMESTAMP_PROPERTY, TestPropertyNames.TIMESTAMP)
                 .build());
 
         final long propertyTimestamp = 10L;
@@ -390,7 +390,7 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .property(AccumuloPropertyNames.TIMESTAMP, "timestamp")
                         .build())
-                .timestampProperty(AccumuloPropertyNames.TIMESTAMP)
+                .config(AccumuloStoreConstants.TIMESTAMP_PROPERTY, TestPropertyNames.TIMESTAMP)
                 .build());
 
         final Long propertyTimestamp = null;
@@ -438,7 +438,7 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .property(AccumuloPropertyNames.TIMESTAMP, "timestamp")
                         .build())
-                .timestampProperty(AccumuloPropertyNames.TIMESTAMP)
+                .config(AccumuloStoreConstants.TIMESTAMP_PROPERTY, TestPropertyNames.TIMESTAMP)
                 .build());
 
         final long timestamp = System.currentTimeMillis();
@@ -460,7 +460,7 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
                 .json(StreamUtil.schemas(getClass()))
                 .build();
         converter = createConverter(new Schema.Builder(schema)
-                .timestampProperty(AccumuloPropertyNames.TIMESTAMP)
+                .config(AccumuloStoreConstants.TIMESTAMP_PROPERTY, TestPropertyNames.TIMESTAMP)
                 .build());
 
         final long timestamp = System.currentTimeMillis();

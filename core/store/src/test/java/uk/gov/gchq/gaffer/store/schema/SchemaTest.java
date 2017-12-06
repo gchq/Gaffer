@@ -398,7 +398,8 @@ public class SchemaTest {
                 "  \"visibilityProperty\" : \"visibility\",%n" +
                 "  \"timestampProperty\" : \"timestamp\",%n" +
                 "  \"config\" : {\n" +
-                "    \"key\" : \"value\"\n" +
+                "    \"key\" : \"value\",\n" +
+                "    \"timestampProperty\" : \"timestamp\"\n" +
                 "  }" +
                 "}"), new String(schema.toJson(true)));
     }
@@ -464,9 +465,9 @@ public class SchemaTest {
 
         assertEquals(TestPropertyNames.VISIBILITY, deserialisedSchema.getVisibilityProperty());
         assertEquals(TestPropertyNames.TIMESTAMP, deserialisedSchema.getTimestampProperty());
+        assertEquals(2, deserialisedSchema.getConfig().size());
         assertEquals("value", deserialisedSchema.getConfig("key"));
-
-
+        assertEquals(TestPropertyNames.TIMESTAMP, deserialisedSchema.getConfig("timestampProperty"));
     }
 
     @Test
