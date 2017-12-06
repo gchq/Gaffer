@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.integration.generators;
 
+import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -35,7 +36,7 @@ public class BasicEntityGenerator implements OneToOneElementGenerator<EntityDoma
     public Element _apply(final EntityDomainObject domainObject) {
         final Entity entity = new Entity(TestGroups.ENTITY, domainObject.getName());
         entity.putProperty(TestPropertyNames.INT, domainObject.getIntProperty());
-        entity.putProperty(TestPropertyNames.STRING, domainObject.getStringproperty());
+        entity.putProperty(TestPropertyNames.SET, CollectionUtil.treeSet(domainObject.getStringproperty()));
         return entity;
     }
 }
