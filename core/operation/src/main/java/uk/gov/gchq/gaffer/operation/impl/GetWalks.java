@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
-import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -39,7 +38,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -140,7 +138,7 @@ public class GetWalks implements
     }
 
     @Override
-    public GetWalks shallowClone() throws CloneFailedException {
+    public GetWalks shallowClone() {
         final GetWalks.Builder builder = new GetWalks.Builder();
 
         builder.input(input);

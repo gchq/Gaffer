@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.data.graph.adjacency;
 
-import uk.gov.gchq.gaffer.data.element.Edge;
-
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;

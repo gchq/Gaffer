@@ -35,11 +35,11 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
-import java.util.Stack;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
@@ -108,7 +108,7 @@ public class Walk implements Iterable<Set<Edge>> {
     public Set<Entity> getEntitiesForVertex(final Object vertex) {
         return entities.stream()
                 .filter(e -> e.getKey().equals(vertex))
-                .map(e -> e.getValue())
+                .map(Entry::getValue)
                 .flatMap(Set::stream)
                 .collect(toSet());
     }
@@ -137,7 +137,7 @@ public class Walk implements Iterable<Set<Edge>> {
 
     @JsonIgnore
     public List<Set<Entity>> getEntities() {
-        return entities.stream().map(entry -> entry.getValue()).collect(toList());
+        return entities.stream().map(Entry::getValue).collect(toList());
     }
 
     /**
@@ -149,7 +149,7 @@ public class Walk implements Iterable<Set<Edge>> {
      */
     @JsonIgnore
     public List<Object> getVerticesOrdered() {
-        return entities.stream().map(entry -> entry.getKey()).collect(toList());
+        return entities.stream().map(Entry::getKey).collect(toList());
     }
 
     /**
@@ -159,7 +159,7 @@ public class Walk implements Iterable<Set<Edge>> {
      */
     @JsonIgnore
     public Set<Object> getVertexSet() {
-        return entities.stream().map(entry -> entry.getKey()).collect(toSet());
+        return entities.stream().map(Entry::getKey).collect(toSet());
     }
 
     @JsonIgnore
@@ -231,16 +231,16 @@ public class Walk implements Iterable<Set<Edge>> {
 
     public static final class Builder {
 
-        private final Stack<Set<Edge>> edges;
-        private final Stack<Entry<Object, Set<Entity>>> entities;
+        private final LinkedList<Set<Edge>> edges;
+        private final LinkedList<Entry<Object, Set<Entity>>> entities;
 
         public Builder() {
-            this.edges = new Stack<>();
-            this.entities = new Stack<>();
+            this.edges = new LinkedList<>();
+            this.entities = new LinkedList<>();
         }
 
         public Builder edge(final Edge edge) {
-            if (entities.empty()) {
+            if (entities.isEmpty()) {
                 entities.add(new AbstractMap.SimpleEntry<Object, Set<Entity>>(edge.getMatchedVertexValue(), Sets.newHashSet()));
             } else {
                 verifyEdge(entities.peek().getKey(), edge);
@@ -265,8 +265,8 @@ public class Walk implements Iterable<Set<Edge>> {
         public Builder edges(final Iterable<Edge> edges) {
             final List<Edge> edgeList = Streams.toStream(edges).collect(toList());
 
-            if (!distinct(edgeList.stream().map(e -> e.getMatchedVertexValue()).collect(toList()))
-                    && !distinct(edgeList.stream().map(e -> e.getAdjacentMatchedVertexValue()).collect(toList()))) {
+            if (!distinct(edgeList.stream().map(Edge::getMatchedVertexValue).collect(toList()))
+                    && !distinct(edgeList.stream().map(Edge::getAdjacentMatchedVertexValue).collect(toList()))) {
                 edgeSet(Sets.newHashSet(edges));
             } else {
                 edgeList(edgeList);
@@ -284,7 +284,7 @@ public class Walk implements Iterable<Set<Edge>> {
                     .orElseThrow(IllegalAccessError::new)
                     .getAdjacentMatchedVertexValue();
 
-            if (entities.empty()) {
+            if (entities.isEmpty()) {
                 entities.add(new AbstractMap.SimpleEntry<Object, Set<Entity>>(matchedVertexValue, Sets.newHashSet()));
             } else {
                 final Object root = entities.peek().getKey();
@@ -306,13 +306,13 @@ public class Walk implements Iterable<Set<Edge>> {
         }
 
         public Builder entity(final Entity entity) {
-            if (!edges.empty()) {
+            if (!edges.isEmpty()) {
                 final Object root = edges.peek().stream().findAny().orElseThrow(RuntimeException::new).getAdjacentMatchedVertexValue();
 
                 verifyEntity(root, entity);
             }
 
-            if (!entities.empty()) {
+            if (!entities.isEmpty()) {
                 final Object root = entities.peek().getKey();
 
                 verifyEntity(root, entity);
@@ -344,12 +344,12 @@ public class Walk implements Iterable<Set<Edge>> {
 
             final Entity entity = entities.iterator().next();
 
-            if (!edges.empty()) {
+            if (!edges.isEmpty()) {
                 final Object root = edges.peek().stream().findAny().orElseThrow(RuntimeException::new).getAdjacentMatchedVertexValue();
                 verifyEntity(root, entity);
             }
 
-            if (!this.entities.empty()) {
+            if (!this.entities.isEmpty()) {
                 final Object root = this.entities.peek().getKey();
 
                 verifyEntity(root, entity);

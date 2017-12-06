@@ -34,7 +34,7 @@ public class EntityMap {
     /**
      * Backing object used to store the EntityMap representation.
      */
-    private final SetMultimap<Object, Entity> entityMap = HashMultimap.create();
+    private final SetMultimap<Object, Entity> backingMap = HashMultimap.create();
 
     /**
      * Add an entity to this EntityMap instance.
@@ -46,7 +46,7 @@ public class EntityMap {
      * {@code false}
      */
     public boolean putEntity(final Object vertex, final Entity entity) {
-        return entityMap.put(vertex, entity);
+        return backingMap.put(vertex, entity);
     }
 
     /**
@@ -59,7 +59,7 @@ public class EntityMap {
      * {@code false}
      */
     public boolean putEntities(final Object vertex, final Set<Entity> entities) {
-        return entityMap.putAll(vertex, entities);
+        return backingMap.putAll(vertex, entities);
     }
 
     /**
@@ -70,7 +70,7 @@ public class EntityMap {
      * @return the {@link Set} of edge objects relating to the specified vertex
      */
     public Set<Entity> get(final Object vertex) {
-        return entityMap.get(vertex);
+        return backingMap.get(vertex);
     }
 
     /**
@@ -79,7 +79,7 @@ public class EntityMap {
      * @return a {@link Set} containing all of the vertices
      */
     public Set<Object> getVertices() {
-        return Collections.unmodifiableSet(entityMap.keySet());
+        return Collections.unmodifiableSet(backingMap.keySet());
     }
 
     /**
@@ -90,7 +90,7 @@ public class EntityMap {
      * {@code false}
      */
     public boolean containsVertex(final Object vertex) {
-        return entityMap.containsKey(vertex);
+        return backingMap.containsKey(vertex);
     }
 
     public String toStringFull() {
@@ -99,7 +99,7 @@ public class EntityMap {
 
     @Override
     public String toString() {
-        return entityMap.asMap().entrySet().stream()
+        return backingMap.asMap().entrySet().stream()
                 .map(e -> e.getKey() + ": " + e.getValue())
                 .collect(Collectors.joining(", ", "{", "}"));
     }

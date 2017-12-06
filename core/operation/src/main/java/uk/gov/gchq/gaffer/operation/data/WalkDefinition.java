@@ -40,8 +40,8 @@ import static java.util.stream.Collectors.toList;
 @JsonPropertyOrder({"preFilters", "operation", "postFilters"})
 public class WalkDefinition implements Cloneable {
 
-    private final OperationChain<? extends Iterable<ElementId>> preFilters;
-    private final OperationChain<? extends Iterable<ElementId>> postFilters;
+    private final OperationChain<Iterable<ElementId>> preFilters;
+    private final OperationChain<Iterable<ElementId>> postFilters;
     private final GetElements operation;
 
     public WalkDefinition(final Builder builder) {
@@ -58,16 +58,15 @@ public class WalkDefinition implements Cloneable {
      * @param operation   the GetElements operation
      */
     @JsonCreator
-    public WalkDefinition(@JsonProperty("preFilters") final OperationChain<? extends Iterable<ElementId>> preFilters,
-                          @JsonProperty("postFilters") final OperationChain<? extends Iterable<ElementId>> postFilters,
+    public WalkDefinition(@JsonProperty("preFilters") final OperationChain<Iterable<ElementId>> preFilters,
+                          @JsonProperty("postFilters") final OperationChain<Iterable<ElementId>> postFilters,
                           @JsonProperty("operation") final GetElements operation) {
         this.preFilters = (null != preFilters) ? preFilters : new OperationChain<>();
         this.postFilters = (null != postFilters) ? postFilters : new OperationChain<>();
-        ;
         this.operation = operation;
     }
 
-    public OperationChain<? extends Iterable<? extends ElementId>> getPostFilters() {
+    public OperationChain<Iterable<ElementId>> getPostFilters() {
         return postFilters;
     }
 
@@ -75,7 +74,7 @@ public class WalkDefinition implements Cloneable {
         return operation;
     }
 
-    public OperationChain<? extends Iterable<ElementId>> getPreFilters() {
+    public OperationChain<Iterable<ElementId>> getPreFilters() {
         return preFilters;
     }
 
@@ -97,7 +96,7 @@ public class WalkDefinition implements Cloneable {
     }
 
     @JsonIgnore
-    public OperationChain<? extends Iterable<ElementId>> asChain() {
+    public OperationChain<Iterable<ElementId>> asChain() {
         return new OperationChain<>(asList());
     }
 
@@ -116,13 +115,10 @@ public class WalkDefinition implements Cloneable {
         private OperationChain<? extends Iterable<ElementId>> preFilters;
         private OperationChain<? extends Iterable<ElementId>> postFilters;
 
-        private OperationChain.OutputBuilder<? extends Iterable<ElementId>> preFiltersBuilder;
-        private OperationChain.OutputBuilder<? extends Iterable<ElementId>> postFiltersBuilder;
+        private OperationChain.OutputBuilder<Iterable<ElementId>> preFiltersBuilder;
+        private OperationChain.OutputBuilder<Iterable<ElementId>> postFiltersBuilder;
 
         private GetElements operation;
-
-        public Builder() {
-        }
 
         public Builder preFilter(final Operation operation) {
             if (null == preFiltersBuilder) {
