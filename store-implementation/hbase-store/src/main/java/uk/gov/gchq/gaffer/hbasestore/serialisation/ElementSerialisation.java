@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
+import uk.gov.gchq.gaffer.commonutil.LongUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.EdgeDirection;
@@ -335,15 +336,16 @@ public class ElementSerialisation {
     }
 
     public long getTimestamp(final Properties properties) throws SerialisationException {
+        Long timestamp = null;
         if (null != timestampProperty) {
-            final Object property = properties.get(timestampProperty);
-            if (null == property) {
-                return System.currentTimeMillis();
-            } else {
-                return (Long) property;
-            }
+            timestamp = (Long) properties.get(timestampProperty);
         }
-        return System.currentTimeMillis();
+
+        if (null == timestamp) {
+            timestamp = LongUtil.getTimeBasedRandom();
+        }
+
+        return timestamp;
     }
 
     /**
@@ -465,7 +467,7 @@ public class ElementSerialisation {
     }
 
     public Pair<Put, Put> getPuts(final Element element, final Pair<byte[], byte[]> row, final byte[] cq) throws SerialisationException {
-        final long ts = getTimestamp(element.getProperties());
+        final long ts = getTimestamp(element);
         final byte[] value = getValue(element);
         final String visibilityStr = Bytes.toString(getColumnVisibility(element));
         final CellVisibility cellVisibility = visibilityStr.isEmpty() ? null : new CellVisibility(visibilityStr);

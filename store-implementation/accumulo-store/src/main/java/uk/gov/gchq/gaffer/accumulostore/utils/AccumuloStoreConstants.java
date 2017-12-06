@@ -40,6 +40,11 @@ public final class AccumuloStoreConstants {
     // The value must match the key used in Schema class: "timestampProperty"
     public static final String TIMESTAMP_PROPERTY = "timestampProperty";
 
+    /**
+     * The default timestamp value to use if it has not been populated.
+     */
+    public static final long DEFAULT_TIMESTAMP = 1L;
+
     // Iterator options
     public static final String VIEW = "View";
     public static final String SCHEMA = "Schema";

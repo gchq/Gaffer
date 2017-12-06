@@ -42,8 +42,8 @@ import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.types.function.FreqMapAggregator;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -176,7 +176,6 @@ public class ElementSerialisationTest {
                 .build();
 
         final Pair<byte[], byte[]> keys = serialisation.getRowKeys(edge);
-        final Map<String, String> options = new HashMap<>();
 
         // When
         final Edge newEdge = (Edge) serialisation.getPartialElement(TestGroups.EDGE, keys.getSecond(), false);
@@ -347,13 +346,10 @@ public class ElementSerialisationTest {
                 .build());
 
         final long propertyTimestamp = 10L;
-        final Properties properties = new Properties() {
-            {
-                put(HBasePropertyNames.COLUMN_QUALIFIER, 1);
-                put(HBasePropertyNames.PROP_1, 2);
-                put(HBasePropertyNames.TIMESTAMP, propertyTimestamp);
-            }
-        };
+        final Properties properties = new Properties();
+        properties.put(HBasePropertyNames.COLUMN_QUALIFIER, 1);
+        properties.put(HBasePropertyNames.PROP_1, 2);
+        properties.put(HBasePropertyNames.TIMESTAMP, propertyTimestamp);
 
         // When
         final long timestamp = serialisation.getTimestamp(properties);
@@ -363,49 +359,45 @@ public class ElementSerialisationTest {
     }
 
     @Test
-    public void shouldBuildTimestampFromDefaultTimeWhenPropertyIsNull() throws Exception {
+    public void shouldBuildRandomTimeBasedTimestampWhenPropertyIsNull() throws Exception {
         // Given
         // add extra timestamp property to schema
         final Schema schema = new Schema.Builder().json(StreamUtil.schemas(getClass())).build();
         serialisation = new ElementSerialisation(new Schema.Builder(schema)
-                .type("timestamp", Long.class)
-                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .property(HBasePropertyNames.TIMESTAMP, "timestamp")
-                        .build())
                 .config(HBaseStoreConstants.TIMESTAMP_PROPERTY, TestPropertyNames.TIMESTAMP)
                 .build());
 
         final Long propertyTimestamp = null;
-        final Properties properties = new Properties() {
-            {
-                put(HBasePropertyNames.COLUMN_QUALIFIER, 1);
-                put(HBasePropertyNames.PROP_1, 2);
-                put(HBasePropertyNames.TIMESTAMP, propertyTimestamp);
-            }
-        };
+        final Properties properties = new Properties();
+        properties.put(HBasePropertyNames.TIMESTAMP, propertyTimestamp);
 
         // When
-        final long timestamp = serialisation.getTimestamp(properties);
+        final int n = 100;
+        final Set<Long> timestamps = new HashSet<>(n);
+        for (int i = 0; i < n; i++) {
+            timestamps.add(serialisation.getTimestamp(properties));
+        }
 
         // Then
-        assertNotNull(timestamp);
+        assertEquals(n, timestamps.size());
     }
 
     @Test
-    public void shouldBuildTimestampFromDefaultTime() throws Exception {
+    public void shouldBuildRandomTimeBasedTimestamp() throws Exception {
         // Given
-        final Properties properties = new Properties() {
-            {
-                put(HBasePropertyNames.COLUMN_QUALIFIER, 1);
-                put(HBasePropertyNames.PROP_1, 2);
-            }
-        };
+        final Properties properties = new Properties();
+        properties.put(HBasePropertyNames.COLUMN_QUALIFIER, 1);
+        properties.put(HBasePropertyNames.PROP_1, 2);
 
         // When
-        final long timestamp = serialisation.getTimestamp(properties);
+        final int n = 100;
+        final Set<Long> timestamps = new HashSet<>(n);
+        for (int i = 0; i < n; i++) {
+            timestamps.add(serialisation.getTimestamp(properties));
+        }
 
         // Then
-        assertNotNull(timestamp);
+        assertEquals(n, timestamps.size());
     }
 
     @Test
@@ -486,10 +478,10 @@ public class ElementSerialisationTest {
         // Given 
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                        .vertex("string")
-                        .property(HBasePropertyNames.PROP_1, "map")
-                        .property(HBasePropertyNames.PROP_2, "map")
-                        .build()
+                                .vertex("string")
+                                .property(HBasePropertyNames.PROP_1, "map")
+                                .property(HBasePropertyNames.PROP_2, "map")
+                                .build()
                 )
                 .type("string", String.class)
                 .type("map", new TypeDefinition.Builder()

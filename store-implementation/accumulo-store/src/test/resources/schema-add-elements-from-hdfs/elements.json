@@ -12,7 +12,7 @@
         "property3": "simpleProperty",
         "property4": "simpleProperty",
         "count": "simpleProperty",
-        "visibility": "visibility"
+        "timestamp": "timestamp"
       },
       "groupBy": [
         "columnQualifier",
@@ -37,7 +37,7 @@
         "property3": "simpleProperty",
         "property4": "simpleProperty",
         "count": "simpleProperty",
-        "visibility": "visibility"
+        "timestamp": "timestamp"
       },
       "groupBy": [
         "columnQualifier",
@@ -57,27 +57,15 @@
         "property3": "simpleProperty",
         "property4": "simpleProperty",
         "count": "simpleProperty",
-        "visibility": "visibility"
+        "timestamp": "timestamp"
       },
       "groupBy": [
         "columnQualifier"
       ]
-    },
-    "BasicEdge3": {
-      "source": "vertex.string",
-      "destination": "vertex.string",
-      "directed": "directed.either",
-      "properties": {
-        "columnQualifier": "colQualProperty",
-        "property1": "simpleProperty",
-        "property2": "simpleProperty",
-        "property3": "simpleProperty",
-        "property4": "simpleProperty",
-        "count": "simpleProperty",
-        "visibility": "visibility"
-      },
-      "aggregate": false
     }
   },
-  "visibilityProperty": "visibility"
+  "vertexSerialiser": {
+    "class": "uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser"
+  },
+  "timestampProperty": "timestamp"
 }

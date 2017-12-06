@@ -36,6 +36,7 @@ import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -108,6 +109,7 @@ public class AddElementsFromHdfsIT {
                         .destination(defaultEdge1.getDestination())
                         .directed(defaultEdge1.getDirected())
                         .properties(defaultEdge1.getPropertyMap())
+                        .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP)
                         .aggregate(false)
                         .build())
                 .build();
@@ -211,9 +213,9 @@ public class AddElementsFromHdfsIT {
         inputMappers.put(new Path(inputDir).toString(), TextMapperGeneratorImpl.class.getName());
         inputMappers.put(new Path(inputDir2).toString(), TextMapperGeneratorImpl.class.getName());
 
-        createInputFile(inputDir, 0, 1000);
-        createInputFile(inputDir2, 1000, 2000);
-        createInputFile(inputDir3, 2000, 3000);
+        createInputFile(inputDir, 0, NUM_ELEMENTS);
+        createInputFile(inputDir2, NUM_ELEMENTS, 2 * NUM_ELEMENTS);
+        createInputFile(inputDir3, 2 * NUM_ELEMENTS, 3 * NUM_ELEMENTS);
 
         final Graph graph = new Graph.Builder()
                 .store(createStore(ClassicKeyPackage.class))
@@ -234,18 +236,20 @@ public class AddElementsFromHdfsIT {
         // Then
         final CloseableIterable<? extends Element> elements = graph.execute(new GetAllElements(), new User());
         final List<Element> expectedElements = new ArrayList<>(NUM_ELEMENTS);
-        for (int i = 0; i < 3000; i++) {
+        for (int i = 0; i < 3 * NUM_ELEMENTS; i++) {
             expectedElements.add(new Entity.Builder()
                     .group(TestGroups.ENTITY)
                     .vertex(VERTEX_ID_PREFIX + i)
-                    .property(TestPropertyNames.COUNT, 2)
+                    .property(TestPropertyNames.COUNT, 3)
+                    .property(TestPropertyNames.TIMESTAMP, 2L)
                     .build());
             expectedElements.add(new Edge.Builder()
                     .group(TestGroups.EDGE)
                     .source(VERTEX_ID_PREFIX + i)
                     .dest(VERTEX_ID_PREFIX + (i + 1))
                     .directed(true)
-                    .property(TestPropertyNames.COUNT, 2)
+                    .property(TestPropertyNames.COUNT, 3)
+                    .property(TestPropertyNames.TIMESTAMP, 2L)
                     .build());
         }
         ElementUtil.assertElementEquals(expectedElements, elements);
@@ -273,7 +277,7 @@ public class AddElementsFromHdfsIT {
 
     private void addElementsFromHdfs(final AccumuloStore store, final int expectedSplits, final boolean fullyAggregated) throws Exception {
         // Given
-        createInputFile(inputDir, 0, 1000);
+        createInputFile(inputDir, 0, NUM_ELEMENTS);
         final Graph graph = new Graph.Builder()
                 .store(store)
                 .build();
@@ -293,24 +297,42 @@ public class AddElementsFromHdfsIT {
         final CloseableIterable<? extends Element> elements = graph.execute(new GetAllElements(), new User());
         final List<Element> expectedElements = new ArrayList<>(NUM_ELEMENTS);
         for (int i = 0; i < NUM_ELEMENTS; i++) {
-            expectedElements.add(new Entity.Builder()
+            final Entity entity = new Entity.Builder()
                     .group(TestGroups.ENTITY)
                     .vertex(VERTEX_ID_PREFIX + i)
-                    .property(TestPropertyNames.COUNT, 2)
-                    .build());
+                    .property(TestPropertyNames.COUNT, 3)
+                    .property(TestPropertyNames.TIMESTAMP, 2L)
+                    .build();
             final Edge edge = new Edge.Builder()
                     .group(TestGroups.EDGE)
                     .source(VERTEX_ID_PREFIX + i)
                     .dest(VERTEX_ID_PREFIX + (i + 1))
                     .directed(true)
-                    .property(TestPropertyNames.COUNT, 2)
+                    .property(TestPropertyNames.COUNT, 3)
+                    .property(TestPropertyNames.TIMESTAMP, 2L)
                     .build();
             if (fullyAggregated) {
+                expectedElements.add(entity);
                 expectedElements.add(edge);
             } else {
+                // Entities were aggregated
+                expectedElements.add(entity);
+
+                // Edges were not aggregated
                 edge.putProperty(TestPropertyNames.COUNT, 1);
+                edge.putProperty(TestPropertyNames.TIMESTAMP, 1L);
                 expectedElements.add(edge);
                 expectedElements.add(edge);
+
+                final Edge edge2 = new Edge.Builder()
+                        .group(edge.getGroup())
+                        .source(edge.getSource())
+                        .dest(edge.getDestination())
+                        .directed(edge.isDirected())
+                        .property(TestPropertyNames.COUNT, 1)
+                        .property(TestPropertyNames.TIMESTAMP, 2L)
+                        .build();
+                expectedElements.add(edge2);
             }
         }
         ElementUtil.assertElementEquals(expectedElements, elements);
@@ -325,12 +347,16 @@ public class AddElementsFromHdfsIT {
 
         try (final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fs.create(inputFilePath, true)))) {
             for (int i = start; i < end; i++) {
-                writer.write(TestGroups.ENTITY + "," + VERTEX_ID_PREFIX + i + "\n");
-                writer.write(TestGroups.EDGE + "," + VERTEX_ID_PREFIX + i + "," + VERTEX_ID_PREFIX + (i + 1) + "\n");
+                writer.write(TestGroups.ENTITY + "," + VERTEX_ID_PREFIX + i + ",1\n");
+                writer.write(TestGroups.EDGE + "," + VERTEX_ID_PREFIX + i + "," + VERTEX_ID_PREFIX + (i + 1) + ",1\n");
 
                 // Add deduplicates
-                writer.write(TestGroups.ENTITY + "," + VERTEX_ID_PREFIX + i + "\n");
-                writer.write(TestGroups.EDGE + "," + VERTEX_ID_PREFIX + i + "," + VERTEX_ID_PREFIX + (i + 1) + "\n");
+                writer.write(TestGroups.ENTITY + "," + VERTEX_ID_PREFIX + i + ",1\n");
+                writer.write(TestGroups.EDGE + "," + VERTEX_ID_PREFIX + i + "," + VERTEX_ID_PREFIX + (i + 1) + ",1\n");
+
+                // Add data with different timestamp
+                writer.write(TestGroups.ENTITY + "," + VERTEX_ID_PREFIX + i + ",2\n");
+                writer.write(TestGroups.EDGE + "," + VERTEX_ID_PREFIX + i + "," + VERTEX_ID_PREFIX + (i + 1) + ",2\n");
             }
         }
     }
@@ -349,7 +375,7 @@ public class AddElementsFromHdfsIT {
     }
 
     private Schema getSchema() {
-        return Schema.fromJson(StreamUtil.schemas(getClass()));
+        return Schema.fromJson(StreamUtil.openStreams(getClass(), "schema-add-elements-from-hdfs"));
     }
 
     private AccumuloStore createStore(final Class<? extends AccumuloKeyPackage> keyPackageClass, final Schema schema) throws Exception {
@@ -373,11 +399,12 @@ public class AddElementsFromHdfsIT {
         @Override
         public Element _apply(final String domainObject) {
             final String[] parts = domainObject.split(",");
-            if (2 == parts.length) {
+            if (3 == parts.length) {
                 return new Entity.Builder()
                         .group(parts[0])
                         .vertex(parts[1])
                         .property(TestPropertyNames.COUNT, 1)
+                        .property(TestPropertyNames.TIMESTAMP, Long.parseLong(parts[2]))
                         .build();
             }
 
@@ -387,6 +414,7 @@ public class AddElementsFromHdfsIT {
                     .dest(parts[2])
                     .directed(true)
                     .property(TestPropertyNames.COUNT, 1)
+                    .property(TestPropertyNames.TIMESTAMP, Long.parseLong(parts[3]))
                     .build();
         }
     }
