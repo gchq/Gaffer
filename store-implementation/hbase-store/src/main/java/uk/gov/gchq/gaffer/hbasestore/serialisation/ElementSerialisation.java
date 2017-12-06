@@ -52,9 +52,11 @@ public class ElementSerialisation {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementSerialisation.class);
 
     private final Schema schema;
+    private final String timestampProperty;
 
     public ElementSerialisation(final Schema schema) {
         this.schema = schema;
+        this.timestampProperty = null != schema ? schema.getConfig(HBaseStoreConstants.TIMESTAMP_PROPERTY) : null;
     }
 
     public byte[] getValue(final Element element) throws SerialisationException {
@@ -335,8 +337,8 @@ public class ElementSerialisation {
 
     public long getTimestamp(final Properties properties) throws SerialisationException {
         Long timestamp = null;
-        if (null != schema.getTimestampProperty()) {
-            timestamp = (Long) properties.get(schema.getTimestampProperty());
+        if (null != timestampProperty) {
+            timestamp = (Long) properties.get(timestampProperty);
         }
 
         if (null == timestamp) {
@@ -366,8 +368,8 @@ public class ElementSerialisation {
 
         final Properties properties = new Properties();
         // If the element group requires a timestamp property then add it.
-        if (null != schema.getTimestampProperty() && elementDefinition.containsProperty(schema.getTimestampProperty())) {
-            properties.put(schema.getTimestampProperty(), timestamp);
+        if (null != timestampProperty && elementDefinition.containsProperty(timestampProperty)) {
+            properties.put(timestampProperty, timestamp);
         }
         return properties;
     }
@@ -545,7 +547,7 @@ public class ElementSerialisation {
 
     private boolean isStoredInValue(final String propertyName, final SchemaElementDefinition elementDef) {
         return !elementDef.getGroupBy().contains(propertyName)
-                && !propertyName.equals(schema.getTimestampProperty());
+                && (null == timestampProperty || !propertyName.equals(timestampProperty));
     }
 
     private void writeBytes(final byte[] bytes, final ByteArrayOutputStream out)

@@ -360,7 +360,7 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .property(AccumuloPropertyNames.TIMESTAMP, "timestamp")
                         .build())
-                .timestampProperty(AccumuloPropertyNames.TIMESTAMP)
+                .config(AccumuloStoreConstants.TIMESTAMP_PROPERTY, TestPropertyNames.TIMESTAMP)
                 .build());
 
         final long propertyTimestamp = 10L;
@@ -402,7 +402,7 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .property(AccumuloPropertyNames.TIMESTAMP, "timestamp")
                         .build())
-                .timestampProperty(AccumuloPropertyNames.TIMESTAMP)
+                .config(AccumuloStoreConstants.TIMESTAMP_PROPERTY, TestPropertyNames.TIMESTAMP)
                 .build());
 
         final long timestamp = System.currentTimeMillis();
@@ -424,7 +424,7 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
                 .json(StreamUtil.schemas(getClass()))
                 .build();
         converter = createConverter(new Schema.Builder(schema)
-                .timestampProperty(AccumuloPropertyNames.TIMESTAMP)
+                .config(AccumuloStoreConstants.TIMESTAMP_PROPERTY, TestPropertyNames.TIMESTAMP)
                 .build());
 
         final long timestamp = System.currentTimeMillis();
@@ -471,10 +471,10 @@ public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloEle
         // Given 
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                        .vertex("string")
-                        .property(TestPropertyNames.PROP_1, "map")
-                        .property(TestPropertyNames.PROP_2, "map")
-                        .build()
+                                .vertex("string")
+                                .property(TestPropertyNames.PROP_1, "map")
+                                .property(TestPropertyNames.PROP_2, "map")
+                                .build()
                 )
                 .type("string", String.class)
                 .type("map", new TypeDefinition.Builder()

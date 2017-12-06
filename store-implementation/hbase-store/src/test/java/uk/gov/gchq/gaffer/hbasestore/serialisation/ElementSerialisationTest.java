@@ -21,6 +21,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.EdgeDirection;
@@ -341,7 +342,7 @@ public class ElementSerialisationTest {
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .property(HBasePropertyNames.TIMESTAMP, "timestamp")
                         .build())
-                .timestampProperty(HBasePropertyNames.TIMESTAMP)
+                .config(HBaseStoreConstants.TIMESTAMP_PROPERTY, TestPropertyNames.TIMESTAMP)
                 .build());
 
         final long propertyTimestamp = 10L;
@@ -363,7 +364,7 @@ public class ElementSerialisationTest {
         // add extra timestamp property to schema
         final Schema schema = new Schema.Builder().json(StreamUtil.schemas(getClass())).build();
         serialisation = new ElementSerialisation(new Schema.Builder(schema)
-                .timestampProperty(HBasePropertyNames.TIMESTAMP)
+                .config(HBaseStoreConstants.TIMESTAMP_PROPERTY, TestPropertyNames.TIMESTAMP)
                 .build());
 
         final Long propertyTimestamp = null;
@@ -409,7 +410,7 @@ public class ElementSerialisationTest {
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .property(HBasePropertyNames.TIMESTAMP, "timestamp")
                         .build())
-                .timestampProperty(HBasePropertyNames.TIMESTAMP)
+                .config(HBaseStoreConstants.TIMESTAMP_PROPERTY, TestPropertyNames.TIMESTAMP)
                 .build());
 
         final long timestamp = System.currentTimeMillis();
@@ -429,7 +430,7 @@ public class ElementSerialisationTest {
         // add timestamp property name but don't add the property to the edge group
         final Schema schema = new Schema.Builder().json(StreamUtil.schemas(getClass())).build();
         serialisation = new ElementSerialisation(new Schema.Builder(schema)
-                .timestampProperty(HBasePropertyNames.TIMESTAMP)
+                .config(HBaseStoreConstants.TIMESTAMP_PROPERTY, TestPropertyNames.TIMESTAMP)
                 .build());
 
         final long timestamp = System.currentTimeMillis();
@@ -477,10 +478,10 @@ public class ElementSerialisationTest {
         // Given 
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                        .vertex("string")
-                        .property(HBasePropertyNames.PROP_1, "map")
-                        .property(HBasePropertyNames.PROP_2, "map")
-                        .build()
+                                .vertex("string")
+                                .property(HBasePropertyNames.PROP_1, "map")
+                                .property(HBasePropertyNames.PROP_2, "map")
+                                .build()
                 )
                 .type("string", String.class)
                 .type("map", new TypeDefinition.Builder()
