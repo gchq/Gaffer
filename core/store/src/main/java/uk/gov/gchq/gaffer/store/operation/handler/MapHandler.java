@@ -46,18 +46,23 @@ public class MapHandler<I, O> implements OutputOperationHandler<Map<I, O>, O> {
             throw new OperationException("Operation cannot be null");
         }
 
-        final I input = operation.getInput();
+        Object input = operation.getInput();
 
         if (null == input) {
             throw new OperationException("Input cannot be null");
         }
 
-        final Function<I, O> function = operation.getFunction();
+        try {
+            for (Function function : operation.getFunctions()) {
+                if (null == function) {
+                    throw new OperationException("Function cannot be null");
+                }
 
-        if (null == function) {
-            throw new OperationException("Function cannot be null");
+                input = function.apply(input);
+            }
+            return (O) input;
+        } catch (final ClassCastException c) {
+            throw new OperationException("", c)
         }
-
-        return function.apply(input);
     }
 }
