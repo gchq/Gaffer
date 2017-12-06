@@ -26,33 +26,23 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.graph.Walk;
-import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.data.graph.function.IterableFunction;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Map;
-import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
-import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
-import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
 import uk.gov.gchq.gaffer.user.User;
-import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 
 public class MapHandlerTest {
@@ -266,52 +256,58 @@ public class MapHandlerTest {
         assertEquals(Arrays.asList(1, 2, 3, 4), Lists.newArrayList(result));
     }
 
-//    @Test
-//    public void shouldReturnIterableFromOperation() throws OperationException {
-//        // Given
-//        final Iterable<Iterable<Integer>> input = Arrays.asList(
-//                Arrays.asList(1, 2, 3),
-//                Arrays.asList(4, 5, 6),
-//                Arrays.asList(7, 8, 9));
-//
-//        final MapHandler<Iterable<Iterable<Integer>>, Iterable<Integer>> handler = new MapHandler<>();
-//
-//        final Map<Iterable<Iterable<Integer>>, Iterable<Integer>> operation = new Map.Builder<Iterable<Iterable<Integer>>, Iterable<Integer>>()
-//                .input(input)
-//                .first(new IterableFunction<>(new NthItem<>(1)))
-//                .build();
-//
-//        // When
-//        final Iterable<Integer> results = handler.doOperation(operation, context, store);
-//
-//        // Then
-//        assertNotNull(results);
-//        assertEquals(Arrays.asList(2, 5, 8), Lists.newArrayList(results));
-//    }
-//
-//    @Test
-//    public void shouldProcessWalkObjects() throws OperationException {
-//        // Given
-//        final Iterable<Iterable<Set<Edge>>> walks = Arrays.asList(walk, walk1);
-//
-//        final Map<Iterable<Iterable<Set<Edge>>>, Iterable<Set<Edge>>> firstMap = new Map.Builder<Iterable<Iterable<Set<Edge>>>, Iterable<Set<Edge>>>()
-//                .input(walks)
-//                .first(new IterableFunction<>(new FirstItem<>()))
-//                .build();
-//
-//        final MapHandler<Iterable<Iterable<Set<Edge>>>, Iterable<Set<Edge>>> handler = new MapHandler<>();
-//
-//        // When
-//        final Iterable<Set<Edge>> results = handler.doOperation(firstMap, context, store);
-//
-//        final Iterable<Iterable<Edge>> expectedResults = Arrays.asList(
-//                Sets.newHashSet(EDGE_AB),
-//                Sets.newHashSet(EDGE_CB));
-//
-//        // Then
-//        assertNotNull(results);
-//        assertEquals(expectedResults, Lists.newArrayList(results));
-//    }
+    @Test
+    public void shouldReturnIterableFromOperation() throws OperationException {
+        // Given
+        final Iterable<Iterable<Integer>> input = Arrays.asList(
+                Arrays.asList(1, 2, 3),
+                Arrays.asList(4, 5, 6),
+                Arrays.asList(7, 8, 9));
+
+        final MapHandler<Iterable<Iterable<Integer>>, Iterable<Integer>> handler = new MapHandler<>();
+
+        final Map<Iterable<Iterable<Integer>>, String> operation = new Map.Builder<Iterable<Iterable<Integer>>>()
+                .input(input)
+                .first(new IterableFunction.Builder<Iterable<Integer>>()
+                        .first(new NthItem<>(1))
+                        .then(Object::toString)
+                        .build())
+                .then(new NthItem<>())
+                .build();
+
+        // When
+        final Iterable<Integer> results = handler.doOperation(operation, context, store);
+
+        // Then
+        assertNotNull(results);
+        assertEquals(Arrays.asList(2, 5, 8), Lists.newArrayList(results));
+    }
+
+    @Test
+    public void shouldProcessWalkObjects() throws OperationException {
+        // Given
+        final Iterable<Iterable<Set<Edge>>> walks = Arrays.asList(walk, walk1);
+
+        final Map<Iterable<Iterable<Set<Edge>>>, Iterable<Set<Edge>>> firstMap = new Map.Builder<Iterable<Iterable<Set<Edge>>>>()
+                .input(walks)
+                .first(new IterableFunction.Builder<Iterable<Set<Edge>>>()
+                        .first(new FirstItem<>())
+                        .build())
+                .build();
+
+        final MapHandler<Iterable<Iterable<Set<Edge>>>, Iterable<Set<Edge>>> handler = new MapHandler<>();
+
+        // When
+        final Iterable<Set<Edge>> results = handler.doOperation(firstMap, context, store);
+
+        final Iterable<Iterable<Edge>> expectedResults = Arrays.asList(
+                Sets.newHashSet(EDGE_AB),
+                Sets.newHashSet(EDGE_CB));
+
+        // Then
+        assertNotNull(results);
+        assertEquals(expectedResults, Lists.newArrayList(results));
+    }
 //
 //    @Test
 //    public void shouldProcessWalksInOperationChain() throws OperationException {
@@ -352,24 +348,6 @@ public class MapHandlerTest {
 //        // Then
 //        assertThat(results, containsInAnyOrder("A", "C"));
 //    }
-
-    // To be removed after Koryphe 1.1.0
-    private static class IterableFunction<I_ITEM, O_ITEM> implements Function<Iterable<I_ITEM>, Iterable<O_ITEM>> {
-        Function delegateFunction;
-
-        public IterableFunction(final Function... functions) {
-            delegateFunction = functions[0];
-
-            for (int i = 1; i < functions.length; i++) {
-                delegateFunction = delegateFunction.andThen(functions[i]);
-            }
-        }
-
-        @Override
-        public Iterable<O_ITEM> apply(final Iterable<I_ITEM> items) {
-            return IterableUtil.applyFunction(items, delegateFunction);
-        }
-    }
 
     // To be removed after Koryphe 1.1.0
     private static class IterableConcat<I_ITEM> implements Function<Iterable<Iterable<I_ITEM>>, Iterable<I_ITEM>> {

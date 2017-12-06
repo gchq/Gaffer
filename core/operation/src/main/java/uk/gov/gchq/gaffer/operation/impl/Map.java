@@ -22,11 +22,9 @@ import org.apache.commons.lang3.exception.CloneFailedException;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
-import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
@@ -123,10 +121,6 @@ public class Map<I, O> implements InputOutput<I, O> {
         }
 
         public <NEXT> OutputBuilder<I, NEXT> then(final Function<? super O, NEXT> function) {
-            return new OutputBuilder(function, _getOp());
-        }
-
-        public <NEXT> OutputBuilder<I, NEXT> thenTypeUnsafe(final Function<?, NEXT> function) {
             return new OutputBuilder(function, _getOp());
         }
     }
