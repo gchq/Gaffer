@@ -61,6 +61,7 @@ import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
+import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
@@ -179,6 +180,7 @@ public class AccumuloStore extends Store {
         } else {
             super.initialise(graphId, schema, getProperties());
         }
+
         final String keyPackageClass = getProperties().getKeyPackageClass();
         try {
             this.keyPackage = Class.forName(keyPackageClass).asSubclass(AccumuloKeyPackage.class).newInstance();
@@ -211,7 +213,7 @@ public class AccumuloStore extends Store {
     @Override
     protected void validateSchema(final ValidationResult validationResult, final Serialiser serialiser) {
         super.validateSchema(validationResult, serialiser);
-        final String timestampProperty = getSchema().getTimestampProperty();
+        final String timestampProperty = getSchema().getConfig(AccumuloStoreConstants.TIMESTAMP_PROPERTY);
         if (null != timestampProperty) {
             final Iterable<SchemaElementDefinition> defs = new ChainedIterable<>(getSchema().getEntities().values(), getSchema().getEdges().values());
             for (final SchemaElementDefinition def : defs) {
@@ -219,7 +221,7 @@ public class AccumuloStore extends Store {
                 if (null != typeDef && null != typeDef.getAggregateFunction() && !(typeDef.getAggregateFunction() instanceof Max)) {
                     validationResult.addError("The aggregator for the " + timestampProperty + " property must be set to: "
                             + Max.class.getName()
-                            + " this cannot be overridden for this Accumulo Store");
+                            + " this cannot be overridden for this Accumulo Store, as you have told Accumulo to store this property in the timestamp column.");
                 }
             }
         }

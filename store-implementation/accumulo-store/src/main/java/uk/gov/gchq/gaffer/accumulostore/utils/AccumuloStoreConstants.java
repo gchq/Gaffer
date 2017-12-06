@@ -34,6 +34,13 @@ public final class AccumuloStoreConstants {
     public static final String ACCUMULO_ELEMENT_CONVERTER_CLASS = "accumulostore.key.element_converter";
 
     /**
+     * Schema configuration property to set the timestamp property used in a schema that should be assigned to the timestamp column in Accumulo.
+     * This is an advanced feature - if you use it then make sure you really understand it.
+     */
+    // The value must match the key used in Schema class: "timestampProperty"
+    public static final String TIMESTAMP_PROPERTY = "timestampProperty";
+
+    /**
      * The default timestamp value to use if it has not been populated.
      */
     public static final long DEFAULT_TIMESTAMP = 1L;
