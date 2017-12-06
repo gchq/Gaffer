@@ -28,7 +28,11 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * A {@code WalkDefinition} describes how to carry out a single step in a {@link uk.gov.gchq.gaffer.data.graph.Walk}.
@@ -57,8 +61,9 @@ public class WalkDefinition implements Cloneable {
     public WalkDefinition(@JsonProperty("preFilters") final OperationChain<? extends Iterable<ElementId>> preFilters,
                           @JsonProperty("postFilters") final OperationChain<? extends Iterable<ElementId>> postFilters,
                           @JsonProperty("operation") final GetElements operation) {
-        this.preFilters = (null != preFilters) ? preFilters: new OperationChain<>();
-        this.postFilters =  (null != postFilters) ? postFilters: new OperationChain<>();;
+        this.preFilters = (null != preFilters) ? preFilters : new OperationChain<>();
+        this.postFilters = (null != postFilters) ? postFilters : new OperationChain<>();
+        ;
         this.operation = operation;
     }
 
@@ -82,6 +87,18 @@ public class WalkDefinition implements Cloneable {
     @JsonIgnore
     public List<Operation> getPostFiltersList() {
         return postFilters.getOperations();
+    }
+
+    @JsonIgnore
+    public List<Operation> asList() {
+        return Stream.of(getPostFiltersList(), Collections.singletonList(operation), getPostFiltersList())
+                .flatMap(List::stream)
+                .collect(toList());
+    }
+
+    @JsonIgnore
+    public OperationChain<? extends Iterable<ElementId>> asChain() {
+        return new OperationChain<>(asList());
     }
 
     @Override

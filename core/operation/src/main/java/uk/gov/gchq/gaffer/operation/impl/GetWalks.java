@@ -39,6 +39,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -171,16 +172,12 @@ public class GetWalks implements
         this.resultsLimit = resultsLimit;
     }
 
-    // TODO: Refactor?
     @Override
     public Collection<Operation> getOperations() {
-        return walkDefinitions.stream().flatMap(wd -> {
-         final List<Operation> operations = new ArrayList<>();
-            operations.addAll(wd.getPreFilters().getOperations());
-            operations.add(wd.getOperation());
-            operations.addAll(wd.getPostFilters().getOperations());
-            return operations.stream();
-        }).collect(toList());
+        return walkDefinitions.stream()
+                .map(WalkDefinition::asList)
+                .flatMap(List::stream)
+                .collect(toList());
     }
 
     public static final class Builder
