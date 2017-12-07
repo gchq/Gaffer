@@ -20,17 +20,18 @@ import com.google.common.collect.Lists;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.data.WalkDefinition;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.Matchers.comparesEqualTo;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
@@ -49,9 +50,7 @@ public class GetWalksTest extends OperationTest<GetWalks> {
         // Given
         final GetWalks getWalks = new GetWalks.Builder()
                 .input(new EntitySeed("1"), new EntitySeed("2"))
-                .walkDefinitions(new WalkDefinition.Builder()
-                        .operation(new GetElements())
-                        .build())
+                .operations(new GetElements())
                 .resultsLimit(100)
                 .build();
 
@@ -59,7 +58,7 @@ public class GetWalksTest extends OperationTest<GetWalks> {
         assertThat(getWalks.getInput(), is(notNullValue()));
         assertThat(getWalks.getInput(), iterableWithSize(2));
         assertThat(getWalks.getResultsLimit(), is(equalTo(100)));
-        assertThat(getWalks.getWalkDefinitions(), iterableWithSize(1));
+        assertThat(getWalks.getOperations(), iterableWithSize(1));
         assertThat(getWalks.getInput(), containsInAnyOrder(new EntitySeed("1"), new EntitySeed("2")));
     }
 
@@ -79,21 +78,19 @@ public class GetWalksTest extends OperationTest<GetWalks> {
         // Given
         final GetWalks getWalks = new GetWalks.Builder()
                 .input(new EntitySeed("1"), new EntitySeed("2"))
-                .walkDefinition(new WalkDefinition.Builder()
-                        .operation(new GetElements.Builder()
+                .operations(
+                        new GetElements.Builder()
                                 .view(new View.Builder()
                                         .edge(TestGroups.EDGE)
                                         .build())
-                                .build())
-                        .build())
-                .walkDefinition(new WalkDefinition.Builder()
-                        .operation(new GetElements.Builder()
+                                .build(),
+                        new GetElements.Builder()
                                 .input(new EntitySeed("seed"))
                                 .view(new View.Builder()
                                         .edge(TestGroups.EDGE)
                                         .build())
-                                .build())
-                        .build())
+                                .build()
+                )
                 .build();
 
         // Then
@@ -105,12 +102,10 @@ public class GetWalksTest extends OperationTest<GetWalks> {
         // Given
         final GetWalks getWalks = new GetWalks.Builder()
                 .input(new EntitySeed("1"), new EntitySeed("2"))
-                .walkDefinitions(new WalkDefinition.Builder()
-                        .operation(new GetElements.Builder()
-                                .input()
-                                .view(new View.Builder()
-                                        .edge(TestGroups.EDGE)
-                                        .build())
+                .operations(new GetElements.Builder()
+                        .input(new EntitySeed("some value"))
+                        .view(new View.Builder()
+                                .edge(TestGroups.EDGE)
                                 .build())
                         .build())
                 .build();
@@ -124,9 +119,10 @@ public class GetWalksTest extends OperationTest<GetWalks> {
         // Given
         final GetWalks getWalks = new GetWalks.Builder()
                 .input(new EntitySeed("1"), new EntitySeed("2"))
-                .walkDefinitions(new WalkDefinition.Builder()
-                        .preFilter(new ScoreOperationChain())
-                        .operation(new GetElements.Builder()
+                .operations(new OperationChain.Builder()
+                        .first(new ScoreOperationChain())
+                        .then(new DiscardOutput())
+                        .then(new GetElements.Builder()
                                 .input()
                                 .view(new View.Builder()
                                         .edge(TestGroups.EDGE)
@@ -138,41 +134,17 @@ public class GetWalksTest extends OperationTest<GetWalks> {
         // Then
         final ValidationResult result = getWalks.validate();
         assertFalse(result.isValid());
-        assertTrue(result.getErrorString().contains("The pre operation filter " +
-                "uk.gov.gchq.gaffer.operation.impl.ScoreOperationChain does not accept an input."));
-    }
-
-    @Test
-    public void shouldValidateWhenPostFiltersContainsAnOperationWhichDoesNotAllowAnInput() {
-        // Given
-        final GetWalks getWalks = new GetWalks.Builder()
-                .input(new EntitySeed("1"), new EntitySeed("2"))
-                .walkDefinitions(new WalkDefinition.Builder()
-                        .postFilter(new ScoreOperationChain())
-                        .operation(new GetElements.Builder()
-                                .input()
-                                .view(new View.Builder()
-                                        .edge(TestGroups.EDGE)
-                                        .build())
-                                .build())
-                        .build())
-                .build();
-
-        // Then
-        final ValidationResult result = getWalks.validate();
-        assertFalse(result.isValid());
-        assertTrue(result.getErrorString().contains("The post operation filter " +
-                "uk.gov.gchq.gaffer.operation.impl.ScoreOperationChain does not accept an input."));
+        assertTrue(result.getErrorString(), result.getErrorString().contains("The first operation in operation chain 0: " + ScoreOperationChain.class.getName() + " is not be able to accept the input seeds."));
     }
 
     @Override
     public void shouldShallowCloneOperation() {
         // Given
         final List<EntitySeed> input = Lists.newArrayList(new EntitySeed("1"), new EntitySeed("2"));
-        final List<WalkDefinition> walkDefinitions = Lists.newArrayList(new WalkDefinition.Builder().operation(new GetElements()).build());
+        final GetElements getElements = new GetElements();
         final GetWalks getWalks = new GetWalks.Builder()
                 .input(input)
-                .walkDefinitions(walkDefinitions)
+                .operations(getElements)
                 .build();
 
         // When
@@ -182,22 +154,9 @@ public class GetWalksTest extends OperationTest<GetWalks> {
         assertNotSame(getWalks, clone);
         assertEquals(input, Lists.newArrayList(clone.getInput()));
         int i = 0;
-        for (final WalkDefinition walkDef : clone.getWalkDefinitions()) {
-
-            final WalkDefinition original = walkDefinitions.get(i);
-            final GetElements originalOp = original.getOperation();
-
-            assertNotSame(original, clone);
-            assertEquals(original.getPostFilters(), walkDef.getPostFilters());
-            assertEquals(original.getPreFilters(), walkDef.getPreFilters());
-
-            assertEquals(originalOp.getSeedMatching(), walkDef.getOperation().getSeedMatching());
-            assertEquals(originalOp.getDirectedType(), walkDef.getOperation().getDirectedType());
-            assertEquals(originalOp.getView(), walkDef.getOperation().getView());
-            assertEquals(originalOp.getIncludeIncomingOutGoing(), walkDef.getOperation().getIncludeIncomingOutGoing());
-            assertEquals(originalOp.getInput(), walkDef.getOperation().getInput());
-            assertEquals(originalOp.getOptions(), walkDef.getOperation().getOptions());
-
+        for (final Output<Iterable<Element>> operation : clone.getOperations()) {
+            assertNotSame(getElements, operation);
+            assertEquals(getElements.getClass(), operation.getClass());
             i++;
         }
     }
@@ -205,11 +164,9 @@ public class GetWalksTest extends OperationTest<GetWalks> {
     @Override
     protected GetWalks getTestObject() {
         return new GetWalks.Builder()
-                .walkDefinition(new WalkDefinition.Builder()
-                        .operation(new GetElements.Builder()
-                                .view(new View.Builder()
-                                        .edge(TestGroups.EDGE)
-                                        .build())
+                .operations(new GetElements.Builder()
+                        .view(new View.Builder()
+                                .edge(TestGroups.EDGE)
                                 .build())
                         .build())
                 .build();

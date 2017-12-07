@@ -20,13 +20,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.graph.Walk;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.data.WalkDefinition;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
@@ -36,7 +33,6 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
 
 public class GetWalksHandlerTest {
-
     @Test
     public void shouldHandleNullInput() throws Exception {
         // Given
@@ -46,9 +42,7 @@ public class GetWalksHandlerTest {
                         .build())
                 .build();
         final GetWalks operation = new GetWalks.Builder()
-                .walkDefinitions(new WalkDefinition.Builder()
-                        .operation(getElements)
-                        .build())
+                .operations(getElements)
                 .build();
 
         final GetWalksHandler handler = new GetWalksHandler();
@@ -58,11 +52,6 @@ public class GetWalksHandlerTest {
 
         // Then
         assertThat(result, is(nullValue()));
-    }
-
-    @Test
-    public void shouldBeAbleToModifyWalkDefinitionsInGraph() {
-
     }
 
     @Test
@@ -78,5 +67,4 @@ public class GetWalksHandlerTest {
         // Then
         assertNotNull(deserialisedObj);
     }
-
 }

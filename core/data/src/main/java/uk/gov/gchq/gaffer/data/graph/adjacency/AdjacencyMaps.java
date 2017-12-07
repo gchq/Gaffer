@@ -40,7 +40,6 @@ public interface AdjacencyMaps extends Iterable<AdjacencyMap> {
      * Retrieve the nth {@link AdjacencyMap}.
      *
      * @param n the index of the adjacency map to retrieve
-     *
      * @return the nth AdjacencyMap
      */
     default AdjacencyMap get(final int n) {
@@ -69,6 +68,7 @@ public interface AdjacencyMaps extends Iterable<AdjacencyMap> {
     default boolean empty() {
         return asList().isEmpty();
     }
+
     /**
      * Print the {@code AdjacencyMaps} object in an easily readable format.
      *

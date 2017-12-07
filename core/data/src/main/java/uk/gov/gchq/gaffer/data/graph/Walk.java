@@ -101,7 +101,6 @@ public class Walk implements Iterable<Set<Edge>> {
      * walk.
      *
      * @param vertex the vertex of interest
-     *
      * @return a {@link Set} of all of the entities associated with the vertex
      */
     @JsonIgnore
@@ -118,7 +117,6 @@ public class Walk implements Iterable<Set<Edge>> {
      *
      * @param n the distance from the start of the walk (in terms of the number
      *          of edges that would have to be traversed)
-     *
      * @return the entities at the specified distance
      */
     @JsonIgnore
@@ -241,13 +239,13 @@ public class Walk implements Iterable<Set<Edge>> {
 
         public Builder edge(final Edge edge) {
             if (entities.isEmpty()) {
-                entities.add(new AbstractMap.SimpleEntry<Object, Set<Entity>>(edge.getMatchedVertexValue(), Sets.newHashSet()));
+                entities.add(new AbstractMap.SimpleEntry<>(edge.getMatchedVertexValue(), Sets.newHashSet()));
             } else {
-                verifyEdge(entities.peek().getKey(), edge);
+                verifyEdge(entities.getLast().getKey(), edge);
             }
 
             edges.add(Sets.newHashSet(edge));
-            entities.add(new AbstractMap.SimpleEntry<Object, Set<Entity>>(edge.getAdjacentMatchedVertexValue(), Sets.newHashSet()));
+            entities.add(new AbstractMap.SimpleEntry<>(edge.getAdjacentMatchedVertexValue(), Sets.newHashSet()));
 
             return this;
         }
@@ -285,9 +283,9 @@ public class Walk implements Iterable<Set<Edge>> {
                     .getAdjacentMatchedVertexValue();
 
             if (entities.isEmpty()) {
-                entities.add(new AbstractMap.SimpleEntry<Object, Set<Entity>>(matchedVertexValue, Sets.newHashSet()));
+                entities.add(new AbstractMap.SimpleEntry<>(matchedVertexValue, Sets.newHashSet()));
             } else {
-                final Object root = entities.peek().getKey();
+                final Object root = entities.getLast().getKey();
 
                 if (!Objects.equals(root, matchedVertexValue)) {
                     throw new IllegalArgumentException("Edge must continue the current walk.");
@@ -295,7 +293,7 @@ public class Walk implements Iterable<Set<Edge>> {
             }
 
             this.edges.add(edges);
-            entities.add(new AbstractMap.SimpleEntry<Object, Set<Entity>>(adjacentMatchedVertexValue, Sets.newHashSet()));
+            entities.add(new AbstractMap.SimpleEntry<>(adjacentMatchedVertexValue, Sets.newHashSet()));
 
             return this;
         }
@@ -307,24 +305,22 @@ public class Walk implements Iterable<Set<Edge>> {
 
         public Builder entity(final Entity entity) {
             if (!edges.isEmpty()) {
-                final Object root = edges.peek().stream().findAny().orElseThrow(RuntimeException::new).getAdjacentMatchedVertexValue();
+                final Object root = edges.getLast().stream().findAny().orElseThrow(RuntimeException::new).getAdjacentMatchedVertexValue();
 
                 verifyEntity(root, entity);
             }
 
             if (!entities.isEmpty()) {
-                final Object root = entities.peek().getKey();
+                final Object root = entities.getLast().getKey();
 
                 verifyEntity(root, entity);
 
-                final Entry<Object, Set<Entity>> entry = entities.pop();
+                final Entry<Object, Set<Entity>> entry = entities.getLast();
                 final Set<Entity> currentEntities = entry.getValue();
                 currentEntities.add(entity);
                 entry.setValue(currentEntities);
-                entities.push(entry);
             } else {
-                entities.push(new AbstractMap.SimpleEntry<Object, Set<Entity>>(entity.getVertex(), Sets.newHashSet(entity)));
-
+                entities.push(new AbstractMap.SimpleEntry<>(entity.getVertex(), Sets.newHashSet(entity)));
             }
             return this;
         }
@@ -345,22 +341,20 @@ public class Walk implements Iterable<Set<Edge>> {
             final Entity entity = entities.iterator().next();
 
             if (!edges.isEmpty()) {
-                final Object root = edges.peek().stream().findAny().orElseThrow(RuntimeException::new).getAdjacentMatchedVertexValue();
+                final Object root = edges.getLast().stream().findAny().orElseThrow(RuntimeException::new).getAdjacentMatchedVertexValue();
                 verifyEntity(root, entity);
             }
 
             if (!this.entities.isEmpty()) {
-                final Object root = this.entities.peek().getKey();
-
+                final Entry<Object, Set<Entity>> entry = this.entities.getLast();
+                final Object root = entry.getKey();
                 verifyEntity(root, entity);
 
-                final Entry<Object, Set<Entity>> entry = this.entities.pop();
                 final Set<Entity> currentEntities = entry.getValue();
                 currentEntities.addAll(Lists.newArrayList(entities));
                 entry.setValue(currentEntities);
-                this.entities.push(entry);
             } else {
-                this.entities.push(new AbstractMap.SimpleEntry<Object, Set<Entity>>(entity.getVertex(), Sets.newHashSet(entities)));
+                this.entities.push(new AbstractMap.SimpleEntry<>(entity.getVertex(), Sets.newHashSet(entities)));
             }
 
             return this;

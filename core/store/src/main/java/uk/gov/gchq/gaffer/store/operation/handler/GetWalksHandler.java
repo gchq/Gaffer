@@ -19,11 +19,12 @@ package uk.gov.gchq.gaffer.store.operation.handler;
 import com.google.common.collect.Lists;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.graph.GraphWindow;
 import uk.gov.gchq.gaffer.data.graph.Walk;
 import uk.gov.gchq.gaffer.data.graph.adjacency.AdjacencyMap;
@@ -33,14 +34,12 @@ import uk.gov.gchq.gaffer.data.graph.adjacency.SimpleAdjacencyMaps;
 import uk.gov.gchq.gaffer.data.graph.entity.EntityMap;
 import uk.gov.gchq.gaffer.data.graph.entity.EntityMaps;
 import uk.gov.gchq.gaffer.data.graph.entity.SimpleEntityMaps;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.data.WalkDefinition;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
-import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
 import uk.gov.gchq.gaffer.operation.io.Input;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
@@ -84,9 +83,6 @@ import java.util.stream.Collectors;
  * {@link Edge}s.
  */
 public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterable<Walk>> {
-
-    private long hops;
-
     private Integer maxHops = null;
 
     private boolean prune = true;
@@ -99,15 +95,15 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
             return null;
         }
 
-        // Check walk definitions input
-        if (null != getWalks.getWalkDefinitions()) {
-
-            hops = getWalks.getWalkDefinitions().stream()
-                    .filter(wd -> wd.getOperation().getView().hasEdges())
-                    .count();
-        } else {
+        // Check there are some operations
+        if (null == getWalks.getOperations()) {
             return new EmptyClosableIterable<>();
         }
+
+        final Integer resultLimit = getWalks.getResultsLimit();
+        final int hops = getWalks.getNumberOfGetEdgeOperations();
+
+        final List<EntityId> originalInput = Lists.newArrayList(new LimitedCloseableIterable<>(getWalks.getInput(), 0, resultLimit, false));
 
         // Check hops and maxHops (if set)
         if (hops == 0) {
@@ -119,42 +115,38 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
         final AdjacencyMaps adjacencyMaps = prune ? new PrunedAdjacencyMaps() : new SimpleAdjacencyMaps();
         final EntityMaps entityMaps = new SimpleEntityMaps();
 
-        List<Element> results = null;
+        List<Object> seeds = null;
 
-        // Execute the walk definitions
-        for (final WalkDefinition walkDefinition : getWalks.getWalkDefinitions()) {
-            results = executeWalkDefinition(walkDefinition, getWalks, context, store, results);
+        // Execute the operations
+        for (final Output<Iterable<Element>> operation : getWalks.getOperations()) {
+            final Iterable<Element> results = executeOperation(operation, originalInput, seeds, resultLimit, context, store);
 
             final AdjacencyMap adjacencyMap = new AdjacencyMap();
             final EntityMap entityMap = new EntityMap();
 
-            boolean edges = false;
-            boolean entities = false;
-
+            final List<Object> nextSeeds = new ArrayList<>();
             for (final Element e : results) {
-
                 if (e instanceof Edge) {
                     final Edge edge = (Edge) e;
-                    adjacencyMap.putEdge(edge.getMatchedVertexValue(), edge.getAdjacentMatchedVertexValue(), edge);
-                    edges = true;
+                    final Object nextSeed = edge.getAdjacentMatchedVertexValue();
+                    nextSeeds.add(nextSeed);
+                    adjacencyMap.putEdge(edge.getMatchedVertexValue(), nextSeed, edge);
                 } else {
                     final Entity entity = (Entity) e;
                     entityMap.putEntity(entity.getVertex(), entity);
-                    entities = true;
                 }
             }
 
-            if (edges) {
-                if (entityMaps.empty() || (entityMaps.size() == adjacencyMaps.size())) {
-                    entityMaps.add(new EntityMap());
+            if (nextSeeds.isEmpty()) {
+                if (entityMaps.size() > adjacencyMaps.size()) {
+                    adjacencyMaps.add(adjacencyMap);
                 }
-
+            } else {
                 adjacencyMaps.add(adjacencyMap);
             }
+            entityMaps.add(entityMap);
 
-            if (entities) {
-                entityMaps.add(entityMap);
-            }
+            seeds = nextSeeds;
         }
 
         // Must add an empty entity map at the end if one has not been explicitly
@@ -166,8 +158,8 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
         final GraphWindow graphWindow = new GraphWindow(adjacencyMaps, entityMaps);
 
         // Track/recombine the edge objects and convert to return type
-        return Streams.toStream(getWalks.getInput())
-                .flatMap(seed -> walk(seed.getVertex(), null, graphWindow, new LinkedList<>(), new LinkedList<>()).stream())
+        return Streams.toStream(originalInput)
+                .flatMap(seed -> walk(seed.getVertex(), null, graphWindow, new LinkedList<>(), new LinkedList<>(), hops).stream())
                 .collect(Collectors.toList());
     }
 
@@ -187,55 +179,37 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
         this.prune = prune;
     }
 
-    private List<Element> executeWalkDefinition(final WalkDefinition walkDef,
-                                                final GetWalks getWalks,
-                                                final Context context,
-                                                final Store store,
-                                                final List<Element> results) throws OperationException {
+    private Iterable<Element> executeOperation(final Output<Iterable<Element>> operation,
+                                               final Iterable<? extends EntityId> originalSeeds,
+                                               final List<Object> seeds,
+                                               final Integer resultLimit,
+                                               final Context context,
+                                               final Store store) throws OperationException {
 
-        final OperationChain.OutputBuilder<? extends Iterable<? extends ElementId>> opChainBuilder;
+        final Output<Iterable<Element>> convertedOp;
 
-        if (null == results) {
-            walkDef.getOperation().setInput(getWalks.getInput());
-            if (!walkDef.getPreFilters().getOperations().isEmpty()) {
-                ((Input) walkDef.getPreFilters().getOperations().get(0)).setInput(getWalks.getInput());
-                opChainBuilder = new OperationChain.Builder()
-                        .first(walkDef.getPreFilters())
-                        .then(walkDef.getOperation());
+        if (null == seeds) {
+            if (operation instanceof OperationChain) {
+                ((Input) ((OperationChain) operation).getOperations().get(0)).setInput(originalSeeds);
             } else {
-                opChainBuilder = new OperationChain.Builder()
-                        .first(walkDef.getOperation());
+                ((Input) operation).setInput(originalSeeds);
             }
+            convertedOp = operation;
         } else {
-
-            opChainBuilder = new OperationChain.Builder()
-                    .first(new ToVertices.Builder()
-                            .input(results)
-                            .useMatchedVertex(ToVertices.UseMatchedVertex.OPPOSITE)
+            convertedOp = new OperationChain.Builder()
+                    .first(new ToEntitySeeds.Builder()
+                            .input(seeds)
                             .build())
-                    .then(new ToEntitySeeds());
-
-            if (null != walkDef.getPreFilters()) {
-                for (final Operation op : walkDef.getPreFilters().getOperations()) {
-                    opChainBuilder.then((Input) op);
-                }
-            }
-
-            opChainBuilder.then(walkDef.getOperation());
-        }
-
-        if (!walkDef.getPostFilters().getOperations().isEmpty()) {
-            for (final Operation op : walkDef.getPostFilters().getOperations()) {
-                opChainBuilder.then((Input) op);
-            }
+                    .then(OperationChain.wrap(operation))
+                    .build();
         }
 
         // Execute an the operation chain on the supplied store and cache
-        // the results in memory using an ArrayList.
-        return Lists.newArrayList((Iterable<Edge>) store.execute(opChainBuilder.build(), context));
+        // the seeds in memory using an ArrayList.
+        return new LimitedCloseableIterable<>(store.execute(convertedOp, context), 0, resultLimit, false);
     }
 
-    private List<Walk> walk(final Object curr, final Object prev, final GraphWindow graphWindow, final LinkedList<Set<Edge>> edgeQueue, final LinkedList<Set<Entity>> entityQueue) {
+    private List<Walk> walk(final Object curr, final Object prev, final GraphWindow graphWindow, final LinkedList<Set<Edge>> edgeQueue, final LinkedList<Set<Entity>> entityQueue, final int hops) {
         final List<Walk> walks = new ArrayList<>();
 
         if (null != prev && hops != edgeQueue.size()) {
@@ -263,7 +237,7 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
             walks.add(walk);
         } else {
             for (final Object obj : graphWindow.getAdjacencyMaps().get(edgeQueue.size()).getDestinations(curr)) {
-                walks.addAll(walk(obj, curr, graphWindow, edgeQueue, entityQueue));
+                walks.addAll(walk(obj, curr, graphWindow, edgeQueue, entityQueue, hops));
             }
         }
 

@@ -25,5 +25,8 @@ public class AccumuloStoreITs extends AbstractStoreITs {
 
     public AccumuloStoreITs() {
         super(STORE_PROPERTIES);
+        singleTest(GraphAlgorithmsIT.class, "shouldGetPaths");
+        singleTest(GraphAlgorithmsIT.class);
+        singleTest(GraphAlgorithmsIT.class, "shouldGetPathsWithEntities");
     }
 }

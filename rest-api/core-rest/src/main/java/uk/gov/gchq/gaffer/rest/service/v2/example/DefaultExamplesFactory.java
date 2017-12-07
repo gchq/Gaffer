@@ -32,7 +32,6 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.data.WalkDefinition;
 import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -468,12 +467,11 @@ public class DefaultExamplesFactory implements ExamplesFactory {
 
         return new GetWalks.Builder()
                 .input(entityId)
-                .walkDefinitions(new WalkDefinition.Builder()
-                        .operation(new GetElements.Builder()
-                                .view(new View.Builder()
-                                        .edge(edges.size() > 1 ? edges.get(1) : edges.get(0))
-                                        .build())
-                                .build()).build())
+                .operations(new GetElements.Builder()
+                        .view(new View.Builder()
+                                .edge(edges.size() > 1 ? edges.get(1) : edges.get(0))
+                                .build())
+                        .build())
                 .resultsLimit(10000)
                 .build();
     }

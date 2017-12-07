@@ -22,9 +22,6 @@ import java.util.List;
 /**
  * A {@code SimpleEntityMaps} object represents a collection of {@link
  * EntityMaps}s containing graph entity information.
- *
- * @param <V> the type of object representing the vertices
- * @param <EN> the type of object representing the entities
  */
 public class SimpleEntityMaps implements EntityMaps {
 

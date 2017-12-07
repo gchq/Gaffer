@@ -24,9 +24,6 @@ import java.util.List;
  * An {@code EntityMaps} object contains a number of {@link EntityMap}
  * objects and can be used to represent the changes in an EntityMap over time
  * or to track the entities of a graph over some other metric.
- *
- * @param <V>  the type of object representing the vertices
- * @param <EN> the type of object representing the entities
  */
 public interface EntityMaps extends Iterable<EntityMap> {
 
@@ -43,7 +40,6 @@ public interface EntityMaps extends Iterable<EntityMap> {
      * Retrieve the nth {@link EntityMap}.
      *
      * @param n the index of the adjacency map to retrieve
-     *
      * @return the nth entityMap
      */
     default EntityMap get(final int n) {
