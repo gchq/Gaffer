@@ -26,6 +26,9 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 
+/**
+ * Operation Handler for {@code GetAllNamedViews} which returns all NamedViews from the cache.
+ */
 public class GetAllNamedViewsHandler implements OutputOperationHandler<GetAllNamedViews, CloseableIterable<NamedView>> {
     private final NamedViewCache cache;
 
@@ -37,6 +40,15 @@ public class GetAllNamedViewsHandler implements OutputOperationHandler<GetAllNam
         this.cache = cache;
     }
 
+    /**
+     * Gets all NamedViews from the NamedViewCache.
+     *
+     * @param operation the {@link GetAllNamedViews} {@link uk.gov.gchq.gaffer.operation.Operation}
+     * @param context   the {@link Context}
+     * @param store     the {@link Store} the operation should be run on
+     * @return namedViews the {@link CloseableIterable} of {@link NamedView}s in the NamedViewCache
+     * @throws OperationException if the GetAllNamedViews Operation fails
+     */
     @Override
     public CloseableIterable<NamedView> doOperation(final GetAllNamedViews operation, final Context context, final Store store) throws OperationException {
         try {

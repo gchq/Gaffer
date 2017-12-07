@@ -26,6 +26,10 @@ import uk.gov.gchq.gaffer.operation.io.Output;
 
 import java.util.Map;
 
+/**
+ * A {@link GetAllNamedViews} is an {@link uk.gov.gchq.gaffer.operation.Operation}
+ * for retrieving all {@link NamedView}s associated with a Gaffer graph.
+ */
 public class GetAllNamedViews implements Output<CloseableIterable<NamedView>> {
     private Map<String, String> options;
 

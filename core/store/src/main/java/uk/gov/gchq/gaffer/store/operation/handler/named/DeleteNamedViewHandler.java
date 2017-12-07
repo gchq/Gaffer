@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 
 /**
- * Operation Handler for DeleteNamedView.
+ * Operation Handler for {@code DeleteNamedView} which removes a NamedView from the cache.
  */
 public class DeleteNamedViewHandler implements OperationHandler<DeleteNamedView> {
     private final NamedViewCache cache;
@@ -39,12 +39,12 @@ public class DeleteNamedViewHandler implements OperationHandler<DeleteNamedView>
     }
 
     /**
-     * Deletes a NamedView from the cache specified in the Properties file.
+     * Deletes a NamedView from the NamedViewCache.
      * The user needs only to provide the name of the NamedView they
      * want to delete.
      *
-     * @param namedViewOp the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView} to be executed
-     * @param context     the operation chain context, containing the user who executed the operation
+     * @param namedViewOp the {@link uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView} to be removed
+     * @param context     the {@link Context}
      * @param store       the {@link Store} the operation should be run on
      * @return null (as output of this operation is void)
      * @throws OperationException thrown if the delete from cache fails

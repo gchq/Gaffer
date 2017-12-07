@@ -25,6 +25,9 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 
+/**
+ * Operation handler for {@link AddNamedView} which adds a NamedView to the cache.
+ */
 public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
     private final NamedViewCache cache;
 
@@ -37,6 +40,17 @@ public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
         this.cache = cache;
     }
 
+    /**
+     * Adds a {@link NamedView} to the NamedViewCache.  If no cache is specified it will created a new {@link NamedViewCache}.
+     * The {@link AddNamedView} name field must be set and cannot be left empty, or the build() method will fail and a runtime exception will be
+     * thrown. The handler then adds/overwrites the {@link NamedView} according to an overwrite flag.
+     *
+     * @param operation the {@link uk.gov.gchq.gaffer.operation.Operation} containing the {@link NamedView} to be added to cache
+     * @param context   the {@link Context}
+     * @param store     the {@link Store} the operation should be run on
+     * @return null (since the output is void)
+     * @throws OperationException if the addition to the cache fails
+     */
     @Override
     public Object doOperation(final AddNamedView operation, final Context context, final Store store) throws OperationException {
         validate(operation);

@@ -30,6 +30,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A {@code NamedView} extends a {@link View}, defining the {@link uk.gov.gchq.gaffer.data.element.Element}s to be returned for an operation.
+ * On top of the @{link View}, it contains a name for the {@link View} that is defined.  It also holds a list of {@code NamedView} names,
+ * containing all the names of {@code NamedView}'s that have been merged to define the {@code NamedView}.
+ *
+ * @see Builder
+ * @see View
+ */
 @JsonDeserialize(builder = NamedView.Builder.class)
 public class NamedView extends View {
 

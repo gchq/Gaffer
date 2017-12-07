@@ -23,6 +23,10 @@ import uk.gov.gchq.gaffer.operation.Operation;
 
 import java.util.Map;
 
+/**
+ * A {@code AddNamedView} is an {@link Operation} for adding a {@link NamedView}
+ * to a Gaffer graph.
+ */
 public class AddNamedView implements Operation {
     private NamedView namedView = null;
     private String description;
