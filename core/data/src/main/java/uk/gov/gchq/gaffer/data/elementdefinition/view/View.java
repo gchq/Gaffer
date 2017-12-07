@@ -386,6 +386,10 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         @Override
         @JsonIgnore
         public CHILD_CLASS merge(final View view) {
+            if (view instanceof NamedView && !(getThisView() instanceof NamedView)) {
+                throw new IllegalArgumentException("A NamedView cannot be merged into a View. If the name is required consider" +
+                        " merging a NamedView into another NamedView, if not use two Views.");
+            }
             if (null != view) {
                 if (getThisView().getEntities().isEmpty()) {
                     getThisView().getEntities().putAll(view.getEntities());

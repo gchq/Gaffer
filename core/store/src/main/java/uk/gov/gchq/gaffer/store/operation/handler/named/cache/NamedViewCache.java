@@ -27,7 +27,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * /**
  * Wrapper around the {@link CacheServiceLoader} to provide an interface for handling
  * the {@link NamedView}s for a Gaffer graph.
  */
