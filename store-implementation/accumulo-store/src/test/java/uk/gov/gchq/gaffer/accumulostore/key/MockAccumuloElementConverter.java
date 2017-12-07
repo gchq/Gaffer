@@ -136,8 +136,8 @@ public class MockAccumuloElementConverter implements AccumuloElementConverter {
     }
 
     @Override
-    public long buildTimestamp(final Properties properties) {
-        return mock.buildTimestamp(properties);
+    public long buildTimestamp(final String group, final Properties properties) {
+        return mock.buildTimestamp(group, properties);
     }
 
     @Override

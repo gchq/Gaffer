@@ -28,6 +28,13 @@ public final class HBaseStoreConstants {
         return Bytes.copy(COL_FAM);
     }
 
+    /**
+     * Schema configuration property to set the timestamp property used in a schema that should be assigned to the timestamp column in Accumulo.
+     * This is an advanced feature - if you use it then make sure you really understand it.
+     */
+    // The value must match the key used in Schema class: "timestampProperty"
+    public static final String TIMESTAMP_PROPERTY = "timestampProperty";
+
     // Coprocessor options
     public static final String VIEW = "View";
     public static final String SCHEMA = "Schema";

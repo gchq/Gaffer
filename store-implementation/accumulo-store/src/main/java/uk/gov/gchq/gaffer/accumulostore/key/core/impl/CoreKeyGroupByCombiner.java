@@ -289,7 +289,7 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
                 topKey = new Key(workKey.getRowData().getBackingArray(), columnFamily,
                         elementConverter.buildColumnQualifier(group, properties),
                         elementConverter.buildColumnVisibility(group, properties),
-                        elementConverter.buildTimestamp(properties));
+                        elementConverter.buildTimestamp(group, properties));
             } catch (final AccumuloElementConversionException e) {
                 throw new RuntimeException(e);
             }
