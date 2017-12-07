@@ -80,11 +80,7 @@ import java.util.stream.Collectors;
  * Currently the handler only supports creating {@link Walk}s which contain {@link Edge}s.
  */
 public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterable<Walk>> {
-
-    private int hops;
-
     private Integer maxHops = null;
-
     private boolean prune = true;
 
     @Override
@@ -96,6 +92,7 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
         }
 
         // Check operations input
+        int hops;
         if (null != getWalks.getOperations()) {
             hops = getWalks.getOperations().size();
         } else {
@@ -128,7 +125,7 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
 
         // Track/recombine the edge objects and convert to return type
         return Streams.toStream(getWalks.getInput())
-                .map(seed -> walk(seed.getVertex(), null, adjacencyMaps, new LinkedList<>()))
+                .map(seed -> walk(seed.getVertex(), null, adjacencyMaps, new LinkedList<>(), hops))
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
     }
@@ -192,7 +189,7 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
         return Lists.newArrayList((Iterable<Edge>) store.execute(opChain, context));
     }
 
-    private List<Walk> walk(final Object curr, final Object prev, final AdjacencyMaps<Object, Edge> adjacencyMaps, final LinkedList<Set<Edge>> queue) {
+    private List<Walk> walk(final Object curr, final Object prev, final AdjacencyMaps<Object, Edge> adjacencyMaps, final LinkedList<Set<Edge>> queue, final int hops) {
         final List<Walk> walks = new ArrayList<>();
 
         if (null != prev && hops != queue.size()) {
@@ -208,7 +205,7 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
             walks.add(walk);
         } else {
             for (final Object obj : adjacencyMaps.get(queue.size()).getDestinations(curr)) {
-                walks.addAll(walk(obj, curr, adjacencyMaps, queue));
+                walks.addAll(walk(obj, curr, adjacencyMaps, queue, hops));
             }
         }
 
