@@ -57,14 +57,14 @@ public class NamedViewResolver implements GraphHook {
         return null;
     }
 
-    private void resolveViewsInOperations(Operations<?> operations) {
-        List<Operation> updatedOperations = new ArrayList<>(operations.getOperations().size());
-        for (Operation operation : operations.getOperations()) {
+    private void resolveViewsInOperations(final Operations<?> operations) {
+        final List<Operation> updatedOperations = new ArrayList<>(operations.getOperations().size());
+        for (final Operation operation : operations.getOperations()) {
             if (operation instanceof OperationView) {
                 if (((OperationView) operation).getView() instanceof NamedView) {
-                    NamedView resolvedNamedView = resolveNamedViewInOperation((NamedView) ((OperationView) operation).getView());
+                    final NamedView resolvedNamedView = resolveNamedViewInOperation((NamedView) ((OperationView) operation).getView());
 
-                    NamedView mergedNamedView = new NamedView.Builder().name(resolvedNamedView.getName()).merge(resolvedNamedView).merge(((OperationView) operation).getView()).build();
+                    final NamedView mergedNamedView = new NamedView.Builder().name(resolvedNamedView.getName()).merge(resolvedNamedView).merge(((OperationView) operation).getView()).build();
                     ((OperationView) operation).setView(mergedNamedView);
                 }
             }
@@ -74,15 +74,16 @@ public class NamedViewResolver implements GraphHook {
         operations.getOperations().addAll((List) updatedOperations);
     }
 
-    private NamedView resolveNamedViewInOperation(NamedView opView) {
-        NamedView.Builder newNamedView = null;
+    private NamedView resolveNamedViewInOperation(final NamedView opView) {
+        NamedView.Builder newNamedView;
         try {
             newNamedView = new NamedView.Builder().name(opView.getName()).merge(cache.getNamedView(opView.getName()));
-            for (String name : opView.getMergedNamedViewNames()) {
+            for (final String name : opView.getMergedNamedViewNames()) {
                 newNamedView.merge(cache.getNamedView(name));
             }
         } catch (final CacheOperationFailedException e) {
-
+            // failed to find the namedView in the cache
+            throw new RuntimeException(e);
         }
         return newNamedView.build();
     }
