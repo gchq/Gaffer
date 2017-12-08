@@ -138,7 +138,9 @@ public class NamedView extends View {
                         if (null == self().getElementDefs().getName() || self().getElementDefs().getName().isEmpty()) {
                             self().name(namedViewInstance.getName());
                         } else {
-                            self().getElementDefs().getMergedNamedViewNames().add(namedViewInstance.getName());
+                            if (self().getElementDefs().getName() != ((NamedView) view).getName()) {
+                                self().getElementDefs().getMergedNamedViewNames().add(namedViewInstance.getName());
+                            }
                         }
                     }
                     if (null != namedViewInstance.getMergedNamedViewNames() && !namedViewInstance.getMergedNamedViewNames().isEmpty()) {

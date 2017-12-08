@@ -33,13 +33,16 @@ import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 import uk.gov.gchq.gaffer.user.User;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class NamedViewResolverTest {
 
     private static final String NAMED_VIEW_NAME = "namedViewName";
+    private static final String NESTED_NAMED_VIEW_NAME = "nestedNamedViewName";
     private static final NamedViewCache CACHE = mock(NamedViewCache.class);
+    private static final Context CONTEXT = new Context(mock(User.class));
     private static final NamedViewResolver RESOLVER = new NamedViewResolver(CACHE);
     private static final NamedView FULL_NAMED_VIEW = new NamedView.Builder()
             .name(NAMED_VIEW_NAME)
@@ -65,7 +68,7 @@ public class NamedViewResolverTest {
                 .build();
 
         // When
-        RESOLVER.preExecute(opChain, new Context(mock(User.class)));
+        RESOLVER.preExecute(opChain, CONTEXT);
         GetElements getElements = (GetElements) opChain.getOperations().get(0);
 
         // Then
@@ -89,7 +92,7 @@ public class NamedViewResolverTest {
         final NamedView namedViewMerged = new NamedView.Builder().merge(FULL_NAMED_VIEW).merge(viewToMerge).build();
 
         // When
-        RESOLVER.preExecute(opChain, new Context(mock(User.class)));
+        RESOLVER.preExecute(opChain, CONTEXT);
         GetElements getElements = (GetElements) opChain.getOperations().get(0);
 
         // Then
@@ -114,10 +117,50 @@ public class NamedViewResolverTest {
         final NamedView namedViewMerged = new NamedView.Builder().merge(FULL_NAMED_VIEW).merge(namedViewToMerge).build();
 
         // When
-        RESOLVER.preExecute(opChain, new Context(mock(User.class)));
+        RESOLVER.preExecute(opChain, CONTEXT);
         GetElements getElements = (GetElements) opChain.getOperations().get(0);
 
         // Then
         assertEquals(namedViewMerged, getElements.getView());
+    }
+
+    @Test
+    public void shouldResolveNestedNamedViews() throws CacheOperationFailedException {
+        // Given
+        final NamedView nestedNamedView1 = new NamedView.Builder().name(NESTED_NAMED_VIEW_NAME + 1).entity(TestGroups.ENTITY_2).build();
+        final NamedView nestedNamedView = new NamedView.Builder().name(NESTED_NAMED_VIEW_NAME).edge(TestGroups.EDGE).merge(nestedNamedView1).build();
+        NamedView namedViewWithNestedNamedView = new NamedView.Builder()
+                .name(NAMED_VIEW_NAME)
+                .merge(nestedNamedView)
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .preAggregationFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_1)
+                                .execute(new ExampleFilterFunction())
+                                .build())
+                        .build())
+                .build();
+
+        assertTrue(namedViewWithNestedNamedView.getMergedNamedViewNames().size() == 2);
+        assertTrue(namedViewWithNestedNamedView.getMergedNamedViewNames().contains(NESTED_NAMED_VIEW_NAME));
+        assertTrue(namedViewWithNestedNamedView.getMergedNamedViewNames().contains(NESTED_NAMED_VIEW_NAME + 1));
+
+        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(namedViewWithNestedNamedView);
+        given(CACHE.getNamedView(NESTED_NAMED_VIEW_NAME)).willReturn(nestedNamedView);
+        given(CACHE.getNamedView(NESTED_NAMED_VIEW_NAME + 1)).willReturn(nestedNamedView1);
+
+        final OperationChain<?> opChain = new OperationChain.Builder()
+                .first(new GetElements.Builder()
+                        .view(new NamedView.Builder()
+                                .name(NAMED_VIEW_NAME)
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        RESOLVER.preExecute(opChain, CONTEXT);
+        GetElements getElements = (GetElements) opChain.getOperations().get(0);
+
+        // Then
+        assertEquals(namedViewWithNestedNamedView, getElements.getView());
     }
 }

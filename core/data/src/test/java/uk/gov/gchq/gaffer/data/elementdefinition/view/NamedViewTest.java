@@ -322,4 +322,22 @@ public class NamedViewTest {
             assertTrue(e.getMessage().contains("A NamedView cannot be merged into a View."));
         }
     }
+
+    @Test
+    public void shouldNotAddNameToMergedNamedViewsListIfNameIsTheSameAsTheNamedViewName() {
+        final String namedViewName = "namedViewName";
+
+        final NamedView namedViewToMerge = new NamedView.Builder()
+                .name(namedViewName)
+                .edge(TestGroups.EDGE)
+                .build();
+
+        final NamedView namedViewMerged = new NamedView.Builder()
+                .name(namedViewName)
+                .merge(namedViewToMerge)
+                .build();
+
+        assertTrue(namedViewMerged.getMergedNamedViewNames().isEmpty());
+        JsonAssert.assertEquals(namedViewToMerge.toCompactJson(), namedViewMerged.toCompactJson());
+    }
 }
