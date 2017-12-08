@@ -15,8 +15,11 @@
  */
 package uk.gov.gchq.gaffer.hbasestore.operation.hdfs.mapper;
 
-import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
+import org.apache.hadoop.hbase.mapreduce.CellCreator;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -26,21 +29,24 @@ import uk.gov.gchq.gaffer.hdfs.operation.mapper.GafferMapper;
 import java.io.IOException;
 
 public class AddElementsFromHdfsMapper<KEY_IN, VALUE_IN>
-        extends GafferMapper<KEY_IN, VALUE_IN, ImmutableBytesWritable, Put> {
+        extends GafferMapper<KEY_IN, VALUE_IN, ImmutableBytesWritable, KeyValue> {
     private ElementSerialisation serialisation;
+    private CellCreator kvCreator;
 
     @Override
     protected void setup(final Context context) {
         super.setup(context);
         serialisation = new ElementSerialisation(schema);
+        Configuration conf = context.getConfiguration();
+        this.kvCreator = new CellCreator(conf);
     }
 
     @Override
     protected void map(final Element element, final Context context) throws IOException, InterruptedException {
-        final Pair<Put, Put> puts = serialisation.getPuts(element);
-        context.write(new ImmutableBytesWritable(puts.getFirst().getRow()), puts.getFirst());
-        if (null != puts.getSecond()) {
-            context.write(new ImmutableBytesWritable(puts.getSecond().getRow()), puts.getSecond());
+        final Pair<Cell, Cell> cells = serialisation.getCells(element, kvCreator);
+        context.write(new ImmutableBytesWritable(((KeyValue) cells.getFirst()).getKey()), (KeyValue) cells.getFirst());
+        if (null != cells.getSecond()) {
+            context.write(new ImmutableBytesWritable(((KeyValue) cells.getSecond()).getKey()), (KeyValue) cells.getSecond());
         }
 
         context.getCounter("Bulk import", element.getClass().getSimpleName() + " count").increment(1L);
