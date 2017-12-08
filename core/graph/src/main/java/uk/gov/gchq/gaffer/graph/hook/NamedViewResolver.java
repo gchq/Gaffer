@@ -92,7 +92,6 @@ public class NamedViewResolver implements GraphHook {
                     .merge(cachedNamedView);
 
             for (final String name : cachedNamedView.getMergedNamedViewNames()) {
-                //resolveNamedViewInOperation(cache.getNamedView(name));
                 newNamedView.merge(cache.getNamedView(name));
             }
         } catch (final CacheOperationFailedException e) {
