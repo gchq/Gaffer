@@ -47,6 +47,11 @@ public class AddNamedViewHandlerTest {
     private final String testNamedViewName = "testNamedViewName";
     private final String testUserId = "testUser";
     private final Map<String, ViewParameterDetail> testParameters = new HashMap<>();
+    private static final ViewParameterDetail TEST_PARAM_VALUE = new ViewParameterDetail.Builder()
+            .defaultValue(1L)
+            .description("Limit param")
+            .valueClass(Long.class)
+            .build();
 
     private Context context = new Context(new User.Builder()
             .userId(testUserId)
@@ -60,7 +65,7 @@ public class AddNamedViewHandlerTest {
 
     @Before
     public void before() {
-        testParameters.put("testParam", mock(ViewParameterDetail.class));
+        testParameters.put("testParam", TEST_PARAM_VALUE);
 
         namedView = new NamedView.Builder()
                 .name(testNamedViewName)

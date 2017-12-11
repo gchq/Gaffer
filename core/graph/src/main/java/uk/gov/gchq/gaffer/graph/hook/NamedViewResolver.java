@@ -67,12 +67,12 @@ public class NamedViewResolver implements GraphHook {
                     final NamedView resolvedNamedView = resolveNamedViewInOperation((NamedView) ((OperationView) operation).getView());
                     resolvedNamedView.setName(null);
                     ((NamedView) ((OperationView) operation).getView()).setName(null);
-                    final View ViewMergedWithOriginalView = new View.Builder()
+                    final View viewMergedWithOriginalView = new View.Builder()
                             .merge(resolvedNamedView)
                             .merge(((OperationView) operation).getView())
                             .build();
 
-                    ((OperationView) operation).setView(ViewMergedWithOriginalView);
+                    ((OperationView) operation).setView(viewMergedWithOriginalView);
                 }
             } else {
                 if (operation instanceof Operations) {
