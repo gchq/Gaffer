@@ -45,7 +45,7 @@ public class NamedView extends View {
     private String name;
     @JsonIgnore
     private List<String> mergedNamedViewNames;
-    private Map<String, Object> parameters;
+    private Map<String, ViewParameterDetail> parameters;
 
     public NamedView() {
         this.name = "";
@@ -77,7 +77,7 @@ public class NamedView extends View {
         return mergedNamedViewNames;
     }
 
-    public void setParameters(final Map<String, Object> parameters) {
+    public void setParameters(final Map<String, ViewParameterDetail> parameters) {
         if (parameters != null) {
             if (null != this.parameters) {
                 this.parameters.putAll(parameters);
@@ -87,14 +87,18 @@ public class NamedView extends View {
         }
     }
 
-    public Map<String, Object> getParameters() {
+    public Map<String, ViewParameterDetail> getParameters() {
         return parameters;
     }
 
     @Override
     public boolean canMerge(final View addingView, final View srcView) {
         if (addingView instanceof NamedView && !(srcView instanceof NamedView)) {
-            return false;
+            if (((NamedView) addingView).getName() != null) {
+                if (!((NamedView) addingView).getName().isEmpty()) {
+                    return false;
+                }
+            }
         }
         return true;
     }
@@ -114,7 +118,7 @@ public class NamedView extends View {
             return self();
         }
 
-        public CHILD_CLASS parameters(final Map<String, Object> parameters) {
+        public CHILD_CLASS parameters(final Map<String, ViewParameterDetail> parameters) {
             getElementDefs().setParameters(parameters);
             return self();
         }

@@ -42,8 +42,8 @@ public class NamedViewTest {
 
     private static final String TEST_VIEW_NAME = "testViewName";
     private static final String TEST_PARAM_KEY = "testParamKey";
-    private static final String TEST_PARAM_VALUE = "testParamValue";
-    private final Map<String, Object> testParameters = new HashMap<>();
+    private static final ViewParameterDetail TEST_PARAM_VALUE = new ViewParameterDetail.Builder().description("testParam").build();
+    private final Map<String, ViewParameterDetail> testParameters = new HashMap<>();
     private final ViewElementDefinition edgeDef1 = new ViewElementDefinition();
     private final ViewElementDefinition entityDef1 = new ViewElementDefinition();
     private final ViewElementDefinition edgeDef2 = new ViewElementDefinition.Builder().groupBy(TestGroups.EDGE).build();
@@ -313,11 +313,22 @@ public class NamedViewTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenMergingANamedViewIntoAView() {
+    public void showAllowMergingOfNamedViewIntoAViewWhenNameIsEmpty() {
         //When / Then
         try {
             new View.Builder().merge(new NamedView()).build();
-            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            fail("Exception not expected");
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenMergingNamedViewIntoAViewWhenNameIsSet() {
+        // Given
+        final NamedView namedView = new NamedView.Builder().name(TEST_VIEW_NAME).build();
+        //When / Then
+        try {
+            new View.Builder().merge(namedView).build();
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("A NamedView cannot be merged into a View"));
         }

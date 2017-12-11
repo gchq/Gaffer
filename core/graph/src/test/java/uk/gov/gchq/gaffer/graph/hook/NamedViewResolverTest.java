@@ -72,7 +72,7 @@ public class NamedViewResolverTest {
         GetElements getElements = (GetElements) opChain.getOperations().get(0);
 
         // Then
-        assertEquals(FULL_NAMED_VIEW, getElements.getView());
+        assertNamedViewAndViewEqual(FULL_NAMED_VIEW, getElements.getView());
     }
 
     @Test
@@ -96,7 +96,7 @@ public class NamedViewResolverTest {
         GetElements getElements = (GetElements) opChain.getOperations().get(0);
 
         // Then
-        assertEquals(namedViewMerged, getElements.getView());
+        assertNamedViewAndViewEqual(namedViewMerged, getElements.getView());
     }
 
     @Test
@@ -121,7 +121,7 @@ public class NamedViewResolverTest {
         GetElements getElements = (GetElements) opChain.getOperations().get(0);
 
         // Then
-        assertEquals(namedViewMerged, getElements.getView());
+        assertNamedViewAndViewEqual(namedViewMerged, getElements.getView());
     }
 
     @Test
@@ -161,6 +161,14 @@ public class NamedViewResolverTest {
         GetElements getElements = (GetElements) opChain.getOperations().get(0);
 
         // Then
-        assertEquals(namedViewWithNestedNamedView, getElements.getView());
+        assertNamedViewAndViewEqual(namedViewWithNestedNamedView, getElements.getView());
+    }
+
+    private void assertNamedViewAndViewEqual(NamedView namedView, View view) {
+        assertEquals(namedView.getGlobalElements(), view.getGlobalElements());
+        assertEquals(namedView.getGlobalEntities(), view.getGlobalEntities());
+        assertEquals(namedView.getGlobalEdges(), view.getGlobalEdges());
+        assertEquals(namedView.getEdges(), view.getEdges());
+        assertEquals(namedView.getEntities(), view.getEntities());
     }
 }

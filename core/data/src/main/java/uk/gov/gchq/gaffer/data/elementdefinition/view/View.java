@@ -393,7 +393,6 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         @Override
         @JsonIgnore
         public CHILD_CLASS merge(final View view) {
-            getThisView().canMerge(view, getThisView());
             if (!(getThisView().canMerge(view, getThisView()) && view.canMerge(view, getThisView()))) {
                 throw new IllegalArgumentException("A " + view.getClass().getSimpleName() +
                         " cannot be merged into a " + getThisView().getClass().getSimpleName());

@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -64,13 +65,14 @@ public class NamedViewResolver implements GraphHook {
             if (operation instanceof OperationView) {
                 if (((OperationView) operation).getView() instanceof NamedView) {
                     final NamedView resolvedNamedView = resolveNamedViewInOperation((NamedView) ((OperationView) operation).getView());
-                    final NamedView namedViewMergedWithOriginalView = new NamedView.Builder()
-                            .name(resolvedNamedView.getName())
+                    resolvedNamedView.setName(null);
+                    ((NamedView) ((OperationView) operation).getView()).setName(null);
+                    final View ViewMergedWithOriginalView = new View.Builder()
                             .merge(resolvedNamedView)
                             .merge(((OperationView) operation).getView())
                             .build();
 
-                    ((OperationView) operation).setView(namedViewMergedWithOriginalView);
+                    ((OperationView) operation).setView(ViewMergedWithOriginalView);
                 }
             } else {
                 if (operation instanceof Operations) {
