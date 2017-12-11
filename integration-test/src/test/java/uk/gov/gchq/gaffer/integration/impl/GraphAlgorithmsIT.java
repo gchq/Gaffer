@@ -147,6 +147,7 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
 
         final GetElements getElements = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
+                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .edge(TestGroups.EDGE)
@@ -387,7 +388,7 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
 
         final GetWalks op = new GetWalks.Builder()
                 .input(seed)
-                .operations(operationChain, operationChain)
+                .operations(operation, operationChain)
                 .build();
 
         // When

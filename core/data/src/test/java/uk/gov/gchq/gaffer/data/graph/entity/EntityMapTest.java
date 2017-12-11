@@ -46,7 +46,7 @@ public class EntityMapTest {
     @Test
     public void shouldGetEmptyEntitySet() {
         // Given
-        final EntityMap entityMap = getEntityMap();
+        final EntityMap entityMap = new EntityMap();
 
         // When
         final Set<Object> results = entityMap.getVertices();

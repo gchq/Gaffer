@@ -29,9 +29,6 @@ import java.util.Set;
  * added map. Any entries in the preceding map which do not join up with a
  * source vertex in the new map are deemed to be orphaned paths, and are
  * removed.
- *
- * @param <Object>  the type of object representing the vertices
- * @param <Edge> the type of object representing the edges
  */
 public class PrunedAdjacencyMaps implements AdjacencyMaps {
 

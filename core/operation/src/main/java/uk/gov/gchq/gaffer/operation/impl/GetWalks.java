@@ -91,7 +91,7 @@ public class GetWalks implements
             result.addError("No hops were provided. " + HOP_DEFINITION);
         } else {
             int i = 0;
-            for (Output<Iterable<Element>> operation : operations) {
+            for (final Output<Iterable<Element>> operation : operations) {
                 if (operation instanceof OperationChain) {
                     if (((OperationChain) operation).getOperations().isEmpty()) {
                         result.addError("Operation chain " + i + " contains no operations");

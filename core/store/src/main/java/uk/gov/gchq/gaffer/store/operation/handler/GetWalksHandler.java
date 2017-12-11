@@ -219,21 +219,7 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
         entityQueue.offer(graphWindow.getEntityMaps().get(entityQueue.size()).get(curr));
 
         if (hops == edgeQueue.size()) {
-            final Walk.Builder builder = new Walk.Builder();
-
-            final Iterator<Set<Edge>> edgeIterator = edgeQueue.iterator();
-            final Iterator<Set<Entity>> entityIterator = entityQueue.iterator();
-
-            while (edgeIterator.hasNext() || entityIterator.hasNext()) {
-                if (entityIterator.hasNext()) {
-                    builder.entities(entityIterator.next());
-                }
-                if (edgeIterator.hasNext()) {
-                    builder.edges(edgeIterator.next());
-                }
-            }
-
-            final Walk walk = builder.build();
+            final Walk walk = buildWalk(edgeQueue, entityQueue);
             walks.add(walk);
         } else {
             for (final Object obj : graphWindow.getAdjacencyMaps().get(edgeQueue.size()).getDestinations(curr)) {
@@ -250,5 +236,23 @@ public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterabl
         }
 
         return walks;
+    }
+
+    private Walk buildWalk(final LinkedList<Set<Edge>> edgeQueue, final LinkedList<Set<Entity>> entityQueue) {
+        final Walk.Builder builder = new Walk.Builder();
+
+        final Iterator<Set<Edge>> edgeIterator = edgeQueue.iterator();
+        final Iterator<Set<Entity>> entityIterator = entityQueue.iterator();
+
+        while (edgeIterator.hasNext() || entityIterator.hasNext()) {
+            if (entityIterator.hasNext()) {
+                builder.entities(entityIterator.next());
+            }
+            if (edgeIterator.hasNext()) {
+                builder.edges(edgeIterator.next());
+            }
+        }
+
+        return builder.build();
     }
 }
