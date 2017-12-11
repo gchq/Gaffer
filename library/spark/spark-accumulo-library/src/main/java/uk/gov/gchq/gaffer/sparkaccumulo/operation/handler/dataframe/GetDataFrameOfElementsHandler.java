@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class GetDataFrameOfElementsHandler implements OutputOperationHandler<GetDataFrameOfElements, Dataset<Row>> {
 

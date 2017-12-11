@@ -34,6 +34,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -143,6 +144,15 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
                 || hasEdgeFilters(ViewElementDefinition::hasPreAggregationFilters);
     }
 
+    @JsonIgnore
+    public Map<String, ViewElementDefinition> getElements() {
+        final Map<String, ViewElementDefinition> elements = new HashMap<>();
+
+        elements.putAll(getEntities());
+        elements.putAll(getEdges());
+
+        return elements;
+    }
 
     @SuppressWarnings("CloneDoesntCallSuperClone")
     @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Only inherits from Object")

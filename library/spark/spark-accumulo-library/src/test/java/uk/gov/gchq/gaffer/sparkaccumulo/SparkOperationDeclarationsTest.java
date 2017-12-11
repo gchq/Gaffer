@@ -55,7 +55,7 @@ public class SparkOperationDeclarationsTest {
                 .deserialise(StreamUtil.openStream(getClass(), ACCUMULO_OP_DECLARATIONS_JSON_PATH), OperationDeclarations.class);
 
         // Then
-        assertEquals(11, deserialised.getOperations().size());
+        assertEquals(10, deserialised.getOperations().size());
 
         final OperationDeclaration od0 = deserialised.getOperations().get(0);
         assertEquals(GetJavaRDDOfElements.class, od0.getOperation());
