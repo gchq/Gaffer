@@ -145,7 +145,7 @@ public class GetWalks implements
         if (op instanceof Operations) {
             hops += getNumberOfGetEdgeOperations(((Operations<?>) op).getOperations());
         } else if (op instanceof GetElements) {
-            final GetElements getElements = ((GetElements) op);
+            final GetElements getElements = (GetElements) op;
             if (getElements.getView().hasEdges()) {
                 hops += 1;
             }
