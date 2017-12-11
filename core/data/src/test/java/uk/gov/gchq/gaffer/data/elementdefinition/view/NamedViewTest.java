@@ -39,10 +39,13 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class NamedViewTest {
-
     private static final String TEST_VIEW_NAME = "testViewName";
     private static final String TEST_PARAM_KEY = "testParamKey";
-    private static final ViewParameterDetail TEST_PARAM_VALUE = new ViewParameterDetail.Builder().description("testParam").build();
+    private static final ViewParameterDetail TEST_PARAM = new ViewParameterDetail.Builder()
+            .defaultValue(1L)
+            .description("Limit param")
+            .valueClass(Long.class)
+            .build();
     private final Map<String, ViewParameterDetail> testParameters = new HashMap<>();
     private final ViewElementDefinition edgeDef1 = new ViewElementDefinition();
     private final ViewElementDefinition entityDef1 = new ViewElementDefinition();
@@ -98,7 +101,7 @@ public class NamedViewTest {
     @Test
     public void shouldBuildFullNamedView() {
         // Given
-        testParameters.put(TEST_PARAM_KEY, TEST_PARAM_VALUE);
+        testParameters.put(TEST_PARAM_KEY, TEST_PARAM);
 
         // When
         NamedView namedView = new NamedView.Builder()
@@ -158,7 +161,7 @@ public class NamedViewTest {
     @Test
     public void shouldJsonSerialiseAndDeserialise() {
         // Given
-        testParameters.put(TEST_PARAM_KEY, TEST_PARAM_VALUE);
+        testParameters.put(TEST_PARAM_KEY, TEST_PARAM);
         NamedView namedView = new NamedView.Builder()
                 .edge(TestGroups.EDGE, edgeDef1)
                 .entity(TestGroups.ENTITY, entityDef1)
@@ -182,7 +185,7 @@ public class NamedViewTest {
     @Test
     public void shouldMergeNamedViews() {
         // Given / When
-        testParameters.put(TEST_PARAM_KEY, TEST_PARAM_VALUE);
+        testParameters.put(TEST_PARAM_KEY, TEST_PARAM);
 
         NamedView namedView = new NamedView.Builder()
                 .edge(TestGroups.EDGE, edgeDef1)
@@ -209,7 +212,7 @@ public class NamedViewTest {
     @Test
     public void shouldMergeEmptyNamedViewWithPopulatedNamedView() {
         // Given / When
-        testParameters.put(TEST_PARAM_KEY, TEST_PARAM_VALUE);
+        testParameters.put(TEST_PARAM_KEY, TEST_PARAM);
 
         NamedView namedView = new NamedView.Builder()
                 .edge(TestGroups.EDGE, edgeDef1)
@@ -236,7 +239,7 @@ public class NamedViewTest {
             edgeGroups.add(TestGroups.EDGE + i);
         }
 
-        testParameters.put(TEST_PARAM_KEY, TEST_PARAM_VALUE);
+        testParameters.put(TEST_PARAM_KEY, TEST_PARAM);
 
         // When
         NamedView namedView1 = new NamedView.Builder()
@@ -281,7 +284,7 @@ public class NamedViewTest {
             edgeGroups.add(TestGroups.EDGE + i);
         }
 
-        testParameters.put(TEST_PARAM_KEY, TEST_PARAM_VALUE);
+        testParameters.put(TEST_PARAM_KEY, TEST_PARAM);
 
         // When
         View view = new View.Builder()
