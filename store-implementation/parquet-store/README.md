@@ -101,7 +101,8 @@ Graph graph = new Graph.Builder()
       .storeProperties(storeProperties)
       .build();
 ```
-Note that the `ParquetStore` currently does not make use of the `timestampProperty`. Also to get the best performance you should allow Gaffer to detect the best serialiser or provide a serialiser class that implements `ParquetSerialisation`.
+
+To get the best performance you should allow Gaffer to detect the best serialiser or provide a serialiser class that implements `ParquetSerialisation`.
 
 ## Inserting data
 

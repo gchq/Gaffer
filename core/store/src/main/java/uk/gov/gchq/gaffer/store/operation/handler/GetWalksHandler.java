@@ -84,7 +84,6 @@ import java.util.stream.Collectors;
  */
 public class GetWalksHandler implements OutputOperationHandler<GetWalks, Iterable<Walk>> {
     private Integer maxHops = null;
-
     private boolean prune = true;
 
     @Override

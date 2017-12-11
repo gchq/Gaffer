@@ -160,7 +160,7 @@ See [the aggregation example](https://gchq.github.io/gaffer-doc/getting-started/
 Timestamp
 -----------------------------------------------
 
-HBase keys have a timestamp field. The user can specify which property is used for this by setting "timestampProperty" in the schema, however we strongly recommend you do not use it with this store.
+HBase keys have a timestamp field. The user can specify which property is used for this by adding a config setting in the schema, key = "timestampProperty", value = `name of the property`, however we strongly recommend you do not use it with this store.
 If the timestamp is not set then it will be populated automatically to a time based random value.
 
 ### Important note

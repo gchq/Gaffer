@@ -322,6 +322,7 @@ public class SchemaTest {
                         .build())
                 .visibilityProperty(TestPropertyNames.VISIBILITY)
                 .timestampProperty(TestPropertyNames.TIMESTAMP)
+                .config("key", "value")
                 .build();
     }
 
@@ -395,7 +396,11 @@ public class SchemaTest {
                 "    }%n" +
                 "  },%n" +
                 "  \"visibilityProperty\" : \"visibility\",%n" +
-                "  \"timestampProperty\" : \"timestamp\"%n" +
+                "  \"timestampProperty\" : \"timestamp\",%n" +
+                "  \"config\" : {\n" +
+                "    \"key\" : \"value\",\n" +
+                "    \"timestampProperty\" : \"timestamp\"\n" +
+                "  }" +
                 "}"), new String(schema.toJson(true)));
     }
 
@@ -460,6 +465,9 @@ public class SchemaTest {
 
         assertEquals(TestPropertyNames.VISIBILITY, deserialisedSchema.getVisibilityProperty());
         assertEquals(TestPropertyNames.TIMESTAMP, deserialisedSchema.getTimestampProperty());
+        assertEquals(2, deserialisedSchema.getConfig().size());
+        assertEquals("value", deserialisedSchema.getConfig("key"));
+        assertEquals(TestPropertyNames.TIMESTAMP, deserialisedSchema.getConfig("timestampProperty"));
     }
 
     @Test
@@ -476,6 +484,7 @@ public class SchemaTest {
                 .vertexSerialiser(vertexSerialiser)
                 .type(TestTypes.PROP_STRING, String.class)
                 .visibilityProperty(TestPropertyNames.VISIBILITY)
+                .config("key", "value")
                 .build();
 
         // Then
@@ -491,6 +500,7 @@ public class SchemaTest {
         assertSame(vertexSerialiser, schema.getVertexSerialiser());
 
         assertEquals(TestPropertyNames.VISIBILITY, schema.getVisibilityProperty());
+        assertEquals("value", schema.getConfig("key"));
     }
 
     @Test
@@ -511,6 +521,8 @@ public class SchemaTest {
                 .type(typeShared, Long.class)
                 .type(type1, Integer.class)
                 .visibilityProperty(TestPropertyNames.VISIBILITY)
+                .config("key1a", "value1a")
+                .config("key1b", "value1b")
                 .build();
 
         final Schema schema2 = new Schema.Builder()
@@ -522,6 +534,8 @@ public class SchemaTest {
                         .build())
                 .type(type2, String.class)
                 .type(typeShared, Long.class)
+                .config("key1b", "value1c")
+                .config("key2", "value2")
                 .build();
 
         // When
@@ -549,6 +563,9 @@ public class SchemaTest {
         assertEquals(String.class, mergedSchema.getType(type2).getClazz());
         assertSame(vertexSerialiser, mergedSchema.getVertexSerialiser());
         assertEquals(TestPropertyNames.VISIBILITY, mergedSchema.getVisibilityProperty());
+        assertEquals("value1a", mergedSchema.getConfig("key1a"));
+        assertEquals("value1c", mergedSchema.getConfig("key1b"));
+        assertEquals("value2", mergedSchema.getConfig("key2"));
     }
 
     @Test
@@ -1351,7 +1368,7 @@ public class SchemaTest {
                 .build();
 
         // When
-        graphLibrary.addSchema("TEST_SCHEMA_ID_merged",schema);
+        graphLibrary.addSchema("TEST_SCHEMA_ID_merged", schema);
 
         // Then - no exceptions
     }
