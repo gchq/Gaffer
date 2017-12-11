@@ -319,7 +319,7 @@ public class NamedViewTest {
             new View.Builder().merge(new NamedView()).build();
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("A NamedView cannot be merged into a View."));
+            assertTrue(e.getMessage().contains("A NamedView cannot be merged into a View"));
         }
     }
 

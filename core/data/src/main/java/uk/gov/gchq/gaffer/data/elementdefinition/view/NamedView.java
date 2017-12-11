@@ -91,6 +91,14 @@ public class NamedView extends View {
         return parameters;
     }
 
+    @Override
+    public boolean canMerge(final View addingView, final View srcView) {
+        if (addingView instanceof NamedView && !(srcView instanceof NamedView)) {
+            return false;
+        }
+        return true;
+    }
+
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>> extends View.BaseBuilder<CHILD_CLASS> {
 
         public BaseBuilder() {
