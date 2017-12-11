@@ -16,10 +16,12 @@
 
 package uk.gov.gchq.gaffer.spark.operation.graphframe;
 
+import org.hamcrest.core.StringContains;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.koryphe.ValidationResult;
@@ -31,6 +33,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.notNullValue;
+import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -72,6 +75,27 @@ public class GetGraphFrameOfElementsTest extends OperationTest<GetGraphFrameOfEl
 
         // Then
         assertTrue(validationResult.isValid());
+    }
+
+    @Test
+    public void shouldValidateOperationWhenViewContainsElementsWithReservedPropertyNames() {
+        // Given
+        final Operation op = new GetGraphFrameOfElements.Builder()
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                                .properties("vertex")
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        final ValidationResult validationResult = op.validate();
+
+        // Then
+        assertFalse(validationResult.isValid());
+        assertThat(validationResult.getErrorString(),
+                containsString("Cannot create a GraphFrame using the current View " +
+                        "- the properties: vertex are reserved and must not be in the View."));
     }
 
     @Override
