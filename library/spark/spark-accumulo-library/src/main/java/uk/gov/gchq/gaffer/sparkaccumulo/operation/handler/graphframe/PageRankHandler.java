@@ -29,18 +29,25 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
  *
  * The options are retrieved from the operation object and the operation is simply
  * delegated to the GraphFrames library.
+ *
+ * The default behaviour of this implementation of the PageRank operation is to
+ * calculate a PageRank entry in the resulting GraphFrame for each of the Entities
+ * in the preceding GraphFrame. Since PageRank values are calculated using vertices
+ * and the connections between vertices (along Edges), the PageRank values for Entities
+ * which share a common vertex will be the same.
  */
 public class PageRankHandler implements OutputOperationHandler<PageRank, GraphFrame> {
 
-    private static final double RESET_PROBABILITY = 0.15;
-
     @Override
     public GraphFrame doOperation(final PageRank operation, final Context context, final Store store) throws OperationException {
+
         if (null == operation.getInput()) {
             throw new OperationException("Input must not be null.");
         }
 
-        org.graphframes.lib.PageRank pageRank = operation.getInput().pageRank().resetProbability(RESET_PROBABILITY);
+        org.graphframes.lib.PageRank pageRank = operation.getInput()
+                .pageRank()
+                .resetProbability(operation.getResetProbability());
 
         if (null != operation.getMaxIterations()) {
             pageRank = pageRank.maxIter(operation.getMaxIterations());

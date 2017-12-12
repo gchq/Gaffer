@@ -56,7 +56,7 @@ public class GetGraphFrameOfElementsHandlerTest {
     private static final int NUM_ELEMENTS = 10;
 
     @Test
-    public void checkGetCorrectElementsInGraphFrame() throws OperationException {
+    public void shouldGetCorrectElementsInGraphFrame() throws OperationException {
         final Graph graph = getGraph("/schema-GraphFrame/elements.json", getElements());
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
@@ -99,7 +99,7 @@ public class GetGraphFrameOfElementsHandlerTest {
     }
 
     @Test
-    public void checkGetCorrectElementsInGraphFrameWithMultipleGroups() throws OperationException {
+    public void shouldGetCorrectElementsInGraphFrameWithMultipleGroups() throws OperationException {
         final Graph graph = getGraph("/schema-GraphFrame/elements.json", getElements());
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
 
@@ -142,7 +142,7 @@ public class GetGraphFrameOfElementsHandlerTest {
     }
 
     @Test
-    public void checkGetCorrectElementsInGraphFrameWithVertexProperty() throws OperationException {
+    public void shouldGetCorrectElementsInGraphFrameWithVertexProperty() throws OperationException {
 
         final List<Element> elements = getElements();
 
@@ -173,7 +173,7 @@ public class GetGraphFrameOfElementsHandlerTest {
     }
 
     @Test
-    public void checkGetCorrectElementsInGraphFrameWithNoEdges() throws OperationException {
+    public void shouldGetCorrectElementsInGraphFrameWithNoEdges() throws OperationException {
 
         final Graph graph = getGraph("/schema-GraphFrame/elements.json", getElements());
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
@@ -195,7 +195,7 @@ public class GetGraphFrameOfElementsHandlerTest {
     }
 
     @Test
-    public void checkBehaviourInGraphFrameWithNoEntities() throws OperationException {
+    public void shouldBehaviourInGraphFrameWithNoEntities() throws OperationException {
 
         final Graph graph = getGraph("/schema-GraphFrame/elementsWithVertexProperty.json", getElements());
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();
@@ -217,7 +217,7 @@ public class GetGraphFrameOfElementsHandlerTest {
     }
 
     @Test
-    public void checkGetCorrectElementsInGraphFrameWithNoElements() throws OperationException {
+    public void shouldGetCorrectElementsInGraphFrameWithNoElements() throws OperationException {
 
         final Graph graph = getGraph("/schema-GraphFrame/elementsWithVertexProperty.json", new ArrayList<>());
         final SparkSession sparkSession = SparkSessionProvider.getSparkSession();

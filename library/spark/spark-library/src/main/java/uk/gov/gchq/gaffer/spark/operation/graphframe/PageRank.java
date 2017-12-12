@@ -44,8 +44,24 @@ public class PageRank implements
 
     public GraphFrame input;
     public Map<String, String> options;
+
+    /**
+     * The desired precision of the PageRank values. Cannot
+     * be used in conjunction with the maxIterations field.
+     */
     private Double tolerance;
+
+    /**
+     * The maximum number of iterations before terminating the operation. Cannot
+     * be used in conjunction with the tolerance field.
+     */
     private Integer maxIterations;
+
+    /**
+     * The probability the algorithm starts from a node chosen uniformly at random
+     * among all nodes in the network. (Also known as the damping factor.
+     */
+    private Double resetProbability = 0.15d;
 
     @Override
     public GraphFrame getInput() {
@@ -66,7 +82,7 @@ public class PageRank implements
         }
 
         if (null == maxIterations && null == tolerance) {
-            result.addError("One of maxIter or tol must be specified.");
+            result.addError("One of maxIterations or tolerance must be specified.");
         }
 
         return result;
@@ -83,6 +99,7 @@ public class PageRank implements
                 .input(input)
                 .maxIterations(maxIterations)
                 .tolerance(tolerance)
+                .resetProbability(resetProbability)
                 .options(options)
                 .build();
     }
@@ -113,6 +130,14 @@ public class PageRank implements
         this.tolerance = tolerance;
     }
 
+    public Double getResetProbability() {
+        return resetProbability;
+    }
+
+    public void setResetProbability(final Double resetProbability) {
+        this.resetProbability = resetProbability;
+    }
+
     public static class Builder extends Operation.BaseBuilder<PageRank, Builder>
             implements InputOutput.Builder<PageRank, GraphFrame, GraphFrame, Builder> {
 
@@ -127,6 +152,11 @@ public class PageRank implements
 
         public Builder tolerance(final Double tolerance) {
             _getOp().setTolerance(tolerance);
+            return _self();
+        }
+
+        public Builder resetProbability(final Double resetProbability) {
+            _getOp().setResetProbability(resetProbability);
             return _self();
         }
     }
