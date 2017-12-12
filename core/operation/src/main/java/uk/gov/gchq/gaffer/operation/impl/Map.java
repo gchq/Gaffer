@@ -25,6 +25,8 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
@@ -43,6 +45,10 @@ public class Map<I, O> implements InputOutput<I, O> {
 
     public Map() {
         this(new ArrayList<>());
+    }
+
+    public Map(final Function function) {
+        this(Collections.singletonList(function));
     }
 
     public Map(final List<Function> functions) {

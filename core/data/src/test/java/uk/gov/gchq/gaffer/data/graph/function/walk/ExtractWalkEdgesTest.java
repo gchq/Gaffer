@@ -13,22 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.data.graph.function;
+package uk.gov.gchq.gaffer.data.graph.function.walk;
 
+import com.google.common.collect.Sets;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.graph.Walk;
+import uk.gov.gchq.gaffer.data.graph.function.walk.ExtractWalkEdges;
 
 import java.util.Set;
 import java.util.function.Function;
 
-import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 
-public class ExtractWalkEdgesFromHopTest {
+public class ExtractWalkEdgesTest {
     private static final Edge EDGE_AB = new Edge.Builder().group(TestGroups.EDGE).source("A").dest("B").directed(true).build();
     private static final Edge EDGE_BC = new Edge.Builder().group(TestGroups.EDGE).source("B").dest("C").directed(true).build();
     private static final Edge EDGE_CA = new Edge.Builder().group(TestGroups.EDGE).source("C").dest("A").directed(true).build();
@@ -39,7 +41,7 @@ public class ExtractWalkEdgesFromHopTest {
     @Test
     public void shouldReturnEdgesFromWalkObject() {
         // Given
-        final Function<Walk, Set<Edge>> function = new ExtractWalkEdgesFromHop(1);
+        final Function<Walk, Iterable<Set<Edge>>> function = new ExtractWalkEdges();
         final Walk walk = new Walk.Builder()
                 .edge(EDGE_AB)
                 .entity(ENTITY_B)
@@ -49,9 +51,11 @@ public class ExtractWalkEdgesFromHopTest {
                 .build();
 
         // When
-        final Set<Edge> results = function.apply(walk);
+        final Iterable<Set<Edge>> results = function.apply(walk);
 
         // Then
-        assertThat(results, contains(EDGE_BC));
+        assertThat(results, containsInAnyOrder(Sets.newHashSet(EDGE_AB),
+                Sets.newHashSet(EDGE_BC),
+                Sets.newHashSet(EDGE_CA)));
     }
 }

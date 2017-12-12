@@ -13,25 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.data.graph.function;
+package uk.gov.gchq.gaffer.data.graph.function.walk;
 
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.graph.Walk;
+import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 import java.util.Set;
-import java.util.function.Function;
 
 /**
- * An {@code ExtractWalkEntities} is a utility {@link Function} for extracting the {@link java.util.List} of
+ * An {@code ExtractWalkEntities} is a utility {@link KorypheFunction} for extracting the {@link java.util.List} of
  * {@link Set}s of Gaffer {@link Entity}s, from a provided {@link Walk} object.
  */
-public class ExtractWalkEntities implements Function<Walk, Iterable<Set<Entity>>> {
-    public ExtractWalkEntities() {
-        // empty
-    }
-
+public class ExtractWalkEntities extends KorypheFunction<Walk, Iterable<Set<Entity>>> {
     @Override
     public Iterable<Set<Entity>> apply(final Walk walk) {
+        if (null == walk) {
+            throw new IllegalArgumentException("Walk cannot be null");
+        }
         return walk.getEntities();
     }
 }

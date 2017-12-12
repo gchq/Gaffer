@@ -13,26 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.data.graph.function;
+package uk.gov.gchq.gaffer.data.graph.function.walk;
 
-import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.graph.Walk;
+import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 import java.util.Set;
-import java.util.function.Function;
 
 /**
- * An {@code ExtractWalkEntitiesFromHop} is a utility {@link Function} for extracting the {@link Set} of
- * Gaffer {@link Entity}s from a provided {@link Walk} object, for a given hop.
+ * An {@code ExtractWalkEdgesFromHop} is a utility {@link KorypheFunction} for extracting the {@link Set} of
+ * Gaffer {@link Edge}s from a provided {@link Walk} object, at a given hop.
  */
-public class ExtractWalkEntitiesFromHop implements Function<Walk, Set<Entity>> {
+public class ExtractWalkEdgesFromHop extends KorypheFunction<Walk, Set<Edge>> {
     private int hop;
 
-    public ExtractWalkEntitiesFromHop() {
+    public ExtractWalkEdgesFromHop() {
         // empty
     }
 
-    public ExtractWalkEntitiesFromHop(final int hop) {
+    public ExtractWalkEdgesFromHop(final int hop) {
         this.hop = hop;
     }
 
@@ -45,7 +45,10 @@ public class ExtractWalkEntitiesFromHop implements Function<Walk, Set<Entity>> {
     }
 
     @Override
-    public Set<Entity> apply(final Walk walk) {
-        return walk.getEntities().get(hop);
+    public Set<Edge> apply(final Walk walk) {
+        if (null == walk) {
+            throw new IllegalArgumentException("Walk cannot be null");
+        }
+        return walk.getEdges().get(hop);
     }
 }
