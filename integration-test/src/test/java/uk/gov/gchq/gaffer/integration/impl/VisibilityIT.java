@@ -37,6 +37,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
@@ -198,7 +199,7 @@ public class VisibilityIT extends AbstractStoreIT {
         final CloseableIterable<? extends Element> iterable = graph.execute(get, USER_DEFAULT);
 
         final List<Element> results = Lists.newArrayList(iterable);
-        
+
         // Check for all entities which should be visible
         assertThat("Results do not contain all expected entities.", results, hasSize(1));
 
@@ -341,7 +342,7 @@ public class VisibilityIT extends AbstractStoreIT {
                         .build())
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex(TestTypes.ID_STRING)
-                        .property(TestPropertyNames.STRING, TestTypes.PROP_STRING)
+                        .property(TestPropertyNames.SET, TestTypes.PROP_SET_STRING)
                         .property(TestTypes.VISIBILITY, TestTypes.VISIBILITY)
                         .groupBy(TestPropertyNames.INT)
                         .build())
@@ -356,6 +357,10 @@ public class VisibilityIT extends AbstractStoreIT {
                         .build())
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex(TestTypes.ID_STRING)
+                        .build())
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .source(TestTypes.ID_STRING)
+                        .destination(TestTypes.ID_STRING)
                         .build())
                 .build();
     }

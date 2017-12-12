@@ -20,12 +20,14 @@ import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.domain.DomainObject;
 import uk.gov.gchq.gaffer.integration.domain.EdgeDomainObject;
@@ -42,6 +44,7 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -116,11 +119,8 @@ public class GeneratorsIT extends AbstractStoreIT {
         expectedEdge.putProperty(TestPropertyNames.COUNT, 1L);
 
         final Entity expectedEntity = new Entity(TestGroups.ENTITY, NEW_VERTEX);
-        expectedEntity.putProperty(TestPropertyNames.STRING, "1");
+        expectedEntity.putProperty(TestPropertyNames.SET, CollectionUtil.treeSet("1"));
 
-        assertNotNull(results);
-        assertEquals(2, results.size());
-        assertThat(results, IsCollectionContaining.hasItems(new Element[]{
-                expectedEntity, expectedEdge}));
+        ElementUtil.assertElementEquals(Arrays.asList(expectedEntity, expectedEdge), results);
     }
 }

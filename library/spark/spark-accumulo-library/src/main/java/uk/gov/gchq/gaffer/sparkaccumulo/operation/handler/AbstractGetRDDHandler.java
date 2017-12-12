@@ -56,6 +56,7 @@ public abstract class AbstractGetRDDHandler<OP extends Output<O> & GraphFilters,
     public static final String HADOOP_CONFIGURATION_KEY = "Hadoop_Configuration_Key";
     public static final String USE_RFILE_READER_RDD = "gaffer.accumulo.spark.directrdd.use_rfile_reader";
     public static final String VIEW = "gaffer.accumulo.spark.directrdd.view";
+    public static final String USE_BATCH_SCANNER_RDD = "gaffer.accumulo.spark.rdd.use_batch_scanner";
 
     public void addIterators(final AccumuloStore accumuloStore,
                              final Configuration conf,

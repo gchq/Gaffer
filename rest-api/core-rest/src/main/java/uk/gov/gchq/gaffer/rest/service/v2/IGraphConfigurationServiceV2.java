@@ -21,6 +21,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ResponseHeader;
 
 import uk.gov.gchq.gaffer.store.StoreTrait;
 
@@ -35,6 +36,8 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.CLASS_NOT_FOUND;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.FUNCTION_NOT_FOUND;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER;
+import static uk.gov.gchq.gaffer.rest.ServiceConstants.GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.INTERNAL_SERVER_ERROR;
 import static uk.gov.gchq.gaffer.rest.ServiceConstants.OK;
 
@@ -50,22 +53,39 @@ public interface IGraphConfigurationServiceV2 {
 
     @GET
     @Path("/schema")
-    @ApiOperation(value = "Gets the schema", response = String.class, responseContainer = "list", produces = APPLICATION_JSON)
+    @ApiOperation(value = "Gets the schema",
+            response = String.class,
+            responseContainer = "list",
+            produces = APPLICATION_JSON,
+            responseHeaders = {
+                    @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
+            })
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
     Response getSchema();
 
     @GET
     @Path("/filterFunctions")
-    @ApiOperation(value = "Gets available filter functions.", response = String.class, responseContainer = "list",
-            produces = APPLICATION_JSON)
+    @ApiOperation(value = "Gets available filter functions.",
+            response = String.class,
+            responseContainer = "list",
+            produces = APPLICATION_JSON,
+            responseHeaders = {
+                    @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
+            })
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
     Response getFilterFunction();
 
     @GET
     @Path("/filterFunctions/{inputClass}")
-    @ApiOperation(value = "Gets available filter functions for the given input class is provided.", response = String.class, responseContainer = "list", produces = APPLICATION_JSON)
+    @ApiOperation(value = "Gets available filter functions for the given input class is provided.",
+            response = String.class,
+            responseContainer = "list",
+            produces = APPLICATION_JSON,
+            responseHeaders = {
+                    @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
+            })
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
             @ApiResponse(code = 404, message = FUNCTION_NOT_FOUND),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
@@ -73,35 +93,65 @@ public interface IGraphConfigurationServiceV2 {
 
     @GET
     @Path("/transformFunctions")
-    @ApiOperation(value = "Gets available transform functions", response = String.class, responseContainer = "list", produces = APPLICATION_JSON)
+    @ApiOperation(value = "Gets available transform functions",
+            response = String.class,
+            responseContainer = "list",
+            produces = APPLICATION_JSON,
+            responseHeaders = {
+                    @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
+            })
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
     Response getTransformFunctions();
 
     @GET
     @Path("/elementGenerators")
-    @ApiOperation(value = "Gets available element generators", response = String.class, responseContainer = "list", produces = APPLICATION_JSON)
+    @ApiOperation(value = "Gets available element generators",
+            response = String.class,
+            responseContainer = "list",
+            produces = APPLICATION_JSON,
+            responseHeaders = {
+                    @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
+            })
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
     Response getElementGenerators();
 
     @GET
     @Path("/objectGenerators")
-    @ApiOperation(value = "Gets available object generators", response = String.class, responseContainer = "list", produces = APPLICATION_JSON)
+    @ApiOperation(value = "Gets available object generators",
+            response = String.class,
+            responseContainer = "list",
+            produces = APPLICATION_JSON,
+            responseHeaders = {
+                    @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
+            })
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
     Response getObjectGenerators();
 
     @GET
     @Path("/storeTraits")
-    @ApiOperation(value = "Gets all supported store traits", response = StoreTrait.class, responseContainer = "list", produces = APPLICATION_JSON)
+    @ApiOperation(value = "Gets all supported store traits",
+            response = StoreTrait.class,
+            responseContainer = "list",
+            produces = APPLICATION_JSON,
+            responseHeaders = {
+                    @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
+            })
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
     Response getStoreTraits();
 
     @GET
     @Path("/serialisedFields/{className}")
-    @ApiOperation(value = "Gets all serialised fields for a given java class.", response = String.class, responseContainer = "list", produces = APPLICATION_JSON)
+    @ApiOperation(value = "Gets all serialised fields for a given java class.",
+            response = String.class,
+            responseContainer = "list",
+            produces = APPLICATION_JSON,
+            responseHeaders = {
+                    @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
+            })
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
             @ApiResponse(code = 404, message = CLASS_NOT_FOUND),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
@@ -110,7 +160,12 @@ public interface IGraphConfigurationServiceV2 {
     @GET
     @Path("/description")
     @Produces(TEXT_PLAIN)
-    @ApiOperation(value = "Gets the Graph description", response = String.class, produces = TEXT_PLAIN)
+    @ApiOperation(value = "Gets the Graph description",
+            response = String.class,
+            produces = TEXT_PLAIN,
+            responseHeaders = {
+                    @ResponseHeader(name = GAFFER_MEDIA_TYPE_HEADER, description = GAFFER_MEDIA_TYPE_HEADER_DESCRIPTION)
+            })
     @ApiResponses(value = {@ApiResponse(code = 200, message = OK),
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)})
     Response getDescription();

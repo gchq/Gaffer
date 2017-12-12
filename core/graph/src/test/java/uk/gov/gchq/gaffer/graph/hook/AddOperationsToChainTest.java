@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
-import uk.gov.gchq.gaffer.operation.impl.SplitStore;
+import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -62,7 +62,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
         AddOperationsToChain hook = fromJson(ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH);
 
         Operation discardOutput = new DiscardOutput();
-        Operation splitStore = new SplitStore();
+        Operation splitStore = new SplitStoreFromFile();
         Operation validate = new Validate();
         Operation getAdjacentIds = new GetAdjacentIds();
         Operation count = new Count<>();
@@ -106,7 +106,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
         User user = new User.Builder().opAuths("auth1", "auth2").build();
 
         Operation discardOutput = new DiscardOutput();
-        Operation splitStore = new SplitStore();
+        Operation splitStore = new SplitStoreFromFile();
         Operation getAdjacentIds = new GetAdjacentIds();
         Operation getElements = new GetElements();
         Operation getAllElements = new GetAllElements();
@@ -138,7 +138,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
 
         User user = new User.Builder().opAuths("auth2").build();
 
-        Operation splitStore = new SplitStore();
+        Operation splitStore = new SplitStoreFromFile();
         Operation validate = new Validate();
         Operation getAdjacentIds = new GetAdjacentIds();
         Operation countGroups = new CountGroups();
@@ -176,7 +176,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
         final AddOperationsToChain hook = fromJson(bytes);
 
         Operation discardOutput = new DiscardOutput();
-        Operation splitStore = new SplitStore();
+        Operation splitStore = new SplitStoreFromFile();
         Operation validate = new Validate();
         Operation getAdjacentIds = new GetAdjacentIds();
         Operation count = new Count<>();
@@ -262,7 +262,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
         hook.setAfter(null);
 
         Operation discardOutput = new DiscardOutput();
-        Operation splitStore = new SplitStore();
+        Operation splitStore = new SplitStoreFromFile();
         Operation count = new Count<>();
         Operation getElements = new GetElements();
 
@@ -289,7 +289,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
         AddOperationsToChain hook = fromJson(ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH);
 
         Operation discardOutput = new DiscardOutput();
-        Operation splitStore = new SplitStore();
+        Operation splitStore = new SplitStoreFromFile();
         Operation validate = new Validate();
         Operation getAdjacentIds = new GetAdjacentIds();
         Operation count = new Count<>();
@@ -335,7 +335,7 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
         AddOperationsToChain hook = fromJson(ADD_OPERATIONS_TO_CHAIN_RESOURCE_PATH);
 
         Operation discardOutput = new DiscardOutput();
-        Operation splitStore = new SplitStore();
+        Operation splitStore = new SplitStoreFromFile();
         Operation validate = new Validate();
         Operation getAdjacentIds = new GetAdjacentIds();
         Operation count = new Count<>();

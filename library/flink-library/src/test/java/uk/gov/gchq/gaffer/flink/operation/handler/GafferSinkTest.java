@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.flink.operation.handler;
 
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
+import uk.gov.gchq.gaffer.data.element.Element;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -42,11 +42,12 @@ public class GafferSinkTest {
         // Given
         final GafferAdder adder = mock(GafferAdder.class);
         final GafferSink sink = new GafferSink(adder);
+        final Element element = mock(Element.class);
 
         // When
-        sink.invoke(FlinkTest.EXPECTED_ELEMENTS);
+        sink.invoke(element);
 
         // Then
-        verify(adder).add(FlinkTest.EXPECTED_ELEMENTS);
+        verify(adder).add(element);
     }
 }

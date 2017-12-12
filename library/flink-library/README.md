@@ -26,7 +26,7 @@ In order to make use of the flink libraries you will need to include this librar
 </dependency>
 ```
 
-You will then need to register the flink operations and their handlers with your store.
+You will then need to register the Flink operations and their handlers with your store.
 You just need to add the following to your store properties file.
 ```
 gaffer.store.operation.declarations=FlinkOperationDeclarations.json

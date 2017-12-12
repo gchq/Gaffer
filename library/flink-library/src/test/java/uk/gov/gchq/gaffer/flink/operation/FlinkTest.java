@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.flink.operation;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.util.ElementUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -35,10 +36,6 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
-
-import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
 
 public abstract class FlinkTest {
     public static final Schema SCHEMA = new Schema.Builder()
@@ -53,27 +50,63 @@ public abstract class FlinkTest {
                     .vertex(TestTypes.ID_STRING)
                     .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
                     .build())
+            .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
+                    .vertex(TestTypes.ID_STRING)
+                    .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
+                    .aggregate(false)
+                    .build())
             .build();
 
-    public static final java.util.HashSet<Entity> EXPECTED_ELEMENTS = Sets.newHashSet(
+    public static final java.util.List<? extends Element> EXPECTED_ELEMENTS = Lists.newArrayList(
             new Entity.Builder()
                     .group(TestGroups.ENTITY)
                     .vertex("1")
-                    .property(TestPropertyNames.COUNT, 1L)
+                    .property(TestPropertyNames.COUNT, 3L)
                     .build(),
             new Entity.Builder()
                     .group(TestGroups.ENTITY)
                     .vertex("2")
-                    .property(TestPropertyNames.COUNT, 1L)
+                    .property(TestPropertyNames.COUNT, 2L)
                     .build(),
             new Entity.Builder()
                     .group(TestGroups.ENTITY)
                     .vertex("3")
                     .property(TestPropertyNames.COUNT, 1L)
+                    .build(),
+
+            new Entity.Builder()
+                    .group(TestGroups.ENTITY_2)
+                    .vertex("1")
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .build(),
+            new Entity.Builder()
+                    .group(TestGroups.ENTITY_2)
+                    .vertex("1")
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .build(),
+            new Entity.Builder()
+                    .group(TestGroups.ENTITY_2)
+                    .vertex("1")
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .build(),
+            new Entity.Builder()
+                    .group(TestGroups.ENTITY_2)
+                    .vertex("2")
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .build(),
+            new Entity.Builder()
+                    .group(TestGroups.ENTITY_2)
+                    .vertex("2")
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .build(),
+            new Entity.Builder()
+                    .group(TestGroups.ENTITY_2)
+                    .vertex("3")
+                    .property(TestPropertyNames.COUNT, 1L)
                     .build()
     );
 
-    public static final java.util.HashSet<Entity> EXPECTED_ELEMENTS_2 = Sets.newHashSet(
+    public static final java.util.List<? extends Element> EXPECTED_ELEMENTS_2 = Lists.newArrayList(
             new Entity.Builder()
                     .group(TestGroups.ENTITY)
                     .vertex("4")
@@ -91,8 +124,7 @@ public abstract class FlinkTest {
                     .build()
     );
 
-
-    public static final String[] DATA_VALUES = {"1", "2", "3"};
+    public static final String[] DATA_VALUES = {"1", "1", "2", "3", "1", "2"};
     public static final String DATA = StringUtils.join(DATA_VALUES, "\n");
     public static final byte[] DATA_BYTES = StringUtil.toBytes(DATA);
 
@@ -109,7 +141,7 @@ public abstract class FlinkTest {
     public static void verifyElements(final Graph graph) throws OperationException, InterruptedException {
         // Wait for the elements to be ingested.
         Thread.sleep(2000);
-        final Set<Element> allElements = Sets.newHashSet(graph.execute(new GetAllElements(), new User()));
-        assertEquals(EXPECTED_ELEMENTS, allElements);
+        final Iterable<? extends Element> allElements = graph.execute(new GetAllElements(), new User());
+        ElementUtil.assertElementEquals(EXPECTED_ELEMENTS, allElements);
     }
 }
