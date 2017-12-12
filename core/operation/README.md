@@ -264,11 +264,11 @@ Some stores (like Accumulo) store the properties in different columns and lazily
 deserialise a column as properties in that column are requested. So if you limit
 your filters to just 1 column then less data needs to be deserialised. For 
 Accumulo and HBase the columns are split up depending on whether the property is 
-a groupBy property, the timestampProperty, the visibilityProperty and the remaining. 
+a groupBy property, the visibilityProperty and the remaining. 
 So if you want to execute a time window query and your timestamp is a groupBy 
-property or the special timestampProperty then depending on the store you are
+property then depending on the store you are
 running against this may be optimised. On Accumulo this will be fast as it 
-doesn't need to deserialise the entire Value, just the column qualifier or timestamp column
+doesn't need to deserialise the entire Value, just the column qualifier
 containing your timestamp property.
 
 Also, when defining the order of Predicates in a Filter, the order is important.
@@ -292,8 +292,8 @@ You can do most of the validation you require in your ElementGenerator class whe
 you generate your elements. The validation you provide in the schema should be 
 just the validation that you actually have to have, because this may be run A LOT.
 On Accumulo - it is run in major/minor compactions and for every query. 
-If you can, just validate properties that are in the groupBy or just the 
-timestampProperty, this will mean that the store may not need to deserialise 
+If you can, just validate properties that are in the groupBy,
+this will mean that the store may not need to deserialise 
 all of the other properties just to perform the validation.
 
 

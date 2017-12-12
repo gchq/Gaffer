@@ -221,11 +221,11 @@ public interface AccumuloElementConverter {
      * Creates a timestamp based on the provided {@link Properties}
      * will return a default value if properties do not have a valid timestamp value
      *
+     * @param group      the element group
      * @param properties the element properties
      * @return the timestamp
      */
-    long buildTimestamp(final Properties properties);
-
+    long buildTimestamp(final String group, final Properties properties);
 
     /**
      * Creates a properties object based on the provided timestamp and group.
