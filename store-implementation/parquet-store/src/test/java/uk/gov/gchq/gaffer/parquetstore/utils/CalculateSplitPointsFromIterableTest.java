@@ -22,7 +22,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import scala.Tuple2;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.CalculateSplitPointsFromIterable;

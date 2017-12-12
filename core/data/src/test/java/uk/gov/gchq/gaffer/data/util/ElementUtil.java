@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.data.util;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -25,21 +24,34 @@ import uk.gov.gchq.gaffer.data.element.comparison.ElementComparator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ElementUtil {
     public static void assertElementEquals(final Iterable<? extends Element> expected, final Iterable<? extends Element> result) {
-        final Set<Element> expectedSet = Sets.newHashSet(expected);
-        final Set<Element> resultSet = Sets.newHashSet(result);
+        assertElementEquals(expected, result, false);
+    }
+
+    public static void assertElementEquals(final Iterable<? extends Element> expected, final Iterable<? extends Element> result, final boolean ignoreDuplicates) {
+        final List<Element> expectedCache = Lists.newArrayList(expected);
+        final List<Element> resultCache = Lists.newArrayList(result);
         try {
-            assertEquals(expectedSet, resultSet);
+            assertEquals(expectedCache, resultCache);
         } catch (final AssertionError err) {
-            final List<Element> expectedList = Lists.newArrayList(expectedSet);
-            final List<Element> resultList = Lists.newArrayList(resultSet);
-            expectedList.removeAll(resultSet);
-            resultList.removeAll(expectedSet);
+            final List<Element> expectedList = Lists.newArrayList(expectedCache);
+            final List<Element> resultList = Lists.newArrayList(resultCache);
+            if (ignoreDuplicates) {
+                expectedList.removeAll(resultCache);
+                resultList.removeAll(expectedCache);
+            } else {
+                for (final Element element : resultCache) {
+                    expectedList.remove(element);
+                }
+                for (final Element element : expectedCache) {
+                    resultList.remove(element);
+                }
+            }
 
             final ElementComparator elementComparator = (element1, element2) -> {
                 final String elementStr1 = null == element1 ? "" : element1.toString();
@@ -69,11 +81,12 @@ public class ElementUtil {
                 }
             }
 
-            assertEquals("\nMissing entities:\n" + missingEntities.toString()
+            assertTrue("\nMissing entities:\n" + missingEntities.toString()
                             + "\nUnexpected entities:\n" + incorrectEntities.toString()
                             + "\nMissing edges:\n" + missingEdges.toString()
                             + "\nUnexpected edges:\n" + incorrectEdges.toString(),
-                    expectedSet, resultSet);
+                    missingEntities.isEmpty() && incorrectEntities.isEmpty()
+                            && missingEdges.isEmpty() && incorrectEdges.isEmpty());
         }
     }
 }

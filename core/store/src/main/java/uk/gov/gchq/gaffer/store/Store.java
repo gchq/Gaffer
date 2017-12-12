@@ -42,6 +42,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
+import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -84,7 +85,9 @@ import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DiscardOutputHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.GetSchemaHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.GetWalksHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.LimitHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.MapHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationChainHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
@@ -764,9 +767,11 @@ public abstract class Store {
         addOperationHandler(GetExports.class, new GetExportsHandler());
 
         // Jobs
-        addOperationHandler(GetJobDetails.class, new GetJobDetailsHandler());
-        addOperationHandler(GetAllJobDetails.class, new GetAllJobDetailsHandler());
-        addOperationHandler(GetJobResults.class, new GetJobResultsHandler());
+        if (null != getJobTracker()) {
+            addOperationHandler(GetJobDetails.class, new GetJobDetailsHandler());
+            addOperationHandler(GetAllJobDetails.class, new GetAllJobDetailsHandler());
+            addOperationHandler(GetJobResults.class, new GetJobResultsHandler());
+        }
 
         // Output
         addOperationHandler(ToArray.class, new ToArrayHandler<>());
@@ -795,6 +800,9 @@ public abstract class Store {
         addOperationHandler(OperationChain.class, getOperationChainHandler());
         addOperationHandler(OperationChainDAO.class, getOperationChainHandler());
 
+        // Walk tracking
+        addOperationHandler(GetWalks.class, new GetWalksHandler());
+
         // Other
         addOperationHandler(GenerateElements.class, new GenerateElementsHandler<>());
         addOperationHandler(GenerateObjects.class, new GenerateObjectsHandler<>());
@@ -804,6 +812,7 @@ public abstract class Store {
         addOperationHandler(Limit.class, new LimitHandler());
         addOperationHandler(DiscardOutput.class, new DiscardOutputHandler());
         addOperationHandler(GetSchema.class, new GetSchemaHandler());
+        addOperationHandler(uk.gov.gchq.gaffer.operation.impl.Map.class, new MapHandler());
 
         // Function
         addOperationHandler(Filter.class, new FilterHandler());

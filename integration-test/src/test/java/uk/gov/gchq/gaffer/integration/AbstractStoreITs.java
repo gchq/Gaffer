@@ -45,6 +45,7 @@ public abstract class AbstractStoreITs {
     private final Schema schema;
     private final Collection<Class<? extends AbstractStoreIT>> extraTests;
     private final Map<Class<? extends AbstractStoreIT>, String> skipTests = new HashMap<>();
+    private final Map<Class<? extends AbstractStoreIT>, Map<String, String>> skipTestMethods = new HashMap<>();
     private Class<? extends AbstractStoreIT> singleTestClass;
     private String singleTestMethod;
 
@@ -95,8 +96,21 @@ public abstract class AbstractStoreITs {
         return skipTests;
     }
 
+    public Map<? extends Class<? extends AbstractStoreIT>, Map<String, String>> getSkipTestMethods() {
+        return skipTestMethods;
+    }
+
     protected void skipTest(final Class<? extends AbstractStoreIT> testClass, final String justification) {
         skipTests.put(testClass, justification);
+    }
+
+    protected void skipTestMethod(final Class<? extends AbstractStoreIT> testClass, final String method, final String justification) {
+        Map<String, String> methods = skipTestMethods.get(testClass);
+        if (null == methods) {
+            methods = new HashMap<>();
+            skipTestMethods.put(testClass, methods);
+        }
+        methods.put(method, justification);
     }
 
     public static class StoreTestSuite extends Suite {
@@ -114,6 +128,7 @@ public abstract class AbstractStoreITs {
             AbstractStoreIT.setStoreSchema(storeSchema);
             AbstractStoreIT.setStoreProperties(runner.getStoreProperties());
             AbstractStoreIT.setSkipTests(runner.getSkipTests());
+            AbstractStoreIT.setSkipTestMethods(runner.getSkipTestMethods());
             AbstractStoreIT.setSingleTestMethod(runner.singleTestMethod);
         }
 

@@ -21,7 +21,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>store-implementation</artifactId>
-        <version>1.0.3-SNAPSHOT</version>
+        <version>1.1.3-SNAPSHOT</version>
     </parent>
 
     <artifactId>hbase-store</artifactId>
@@ -119,6 +119,7 @@
                     <groupId>javax.servlet</groupId>
                     <artifactId>servlet-api</artifactId>
                 </exclusion>
+                <!-- The hdfs library includes org.apache.hadoop.hdfs.web.resources.UserProvider class that has a strong dependency on Jersey 1.x -->
                 <exclusion>
                     <groupId>org.apache.hadoop</groupId>
                     <artifactId>hadoop-hdfs</artifactId>
@@ -177,6 +178,13 @@
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>integration-test</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>hdfs-library</artifactId>
             <version>${project.parent.version}</version>
             <type>test-jar</type>
             <scope>test</scope>

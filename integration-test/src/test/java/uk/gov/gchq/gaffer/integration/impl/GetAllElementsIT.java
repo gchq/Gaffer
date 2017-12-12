@@ -177,7 +177,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                                 .transientProperty(TestPropertyNames.TRANSIENT_1, String.class)
                                 .transformer(new ElementTransformer.Builder()
                                         .select(IdentifierType.VERTEX.name(),
-                                                TestPropertyNames.STRING)
+                                                TestPropertyNames.SET)
                                         .execute(new Concat())
                                         .project(TestPropertyNames.TRANSIENT_1)
                                         .build())
@@ -191,7 +191,10 @@ public class GetAllElementsIT extends AbstractStoreIT {
         // Then
         final List<Element> resultList = Lists.newArrayList(results);
         assertEquals(1, resultList.size());
-        assertEquals("A1,3", resultList.get(0).getProperties().get(TestPropertyNames.TRANSIENT_1));
+        assertEquals(
+                "A1,[3]",
+                resultList.get(0).getProperties().get(TestPropertyNames.TRANSIENT_1)
+        );
     }
 
     protected void shouldGetAllElements(final boolean includeEntities, final boolean includeEdges, final DirectedType directedType) throws Exception {

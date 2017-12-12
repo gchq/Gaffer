@@ -65,7 +65,7 @@ public class Aggregate implements Function,
     }
 
     @Override
-    public Operation shallowClone() throws CloneFailedException {
+    public Aggregate shallowClone() throws CloneFailedException {
         return new Aggregate.Builder()
                 .input(input)
                 .options(options)

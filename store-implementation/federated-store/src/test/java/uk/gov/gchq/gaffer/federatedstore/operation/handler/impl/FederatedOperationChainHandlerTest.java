@@ -59,7 +59,7 @@ import static uk.gov.gchq.gaffer.federatedstore.FederatedStoreConstants.KEY_OPER
 
 public class FederatedOperationChainHandlerTest {
 
-    public static final String GRAPH_IDS = PredefinedFederatedStore.MAP_GRAPH + "," + PredefinedFederatedStore.ACCUMULO_GRAPH;
+    public static final String GRAPH_IDS = PredefinedFederatedStore.ACCUMULO_GRAPH_WITH_ENTITIES + "," + PredefinedFederatedStore.ACCUMULO_GRAPH_WITH_EDGES;
     private Element[] elements = new Element[]{
             new Entity.Builder()
                     .group(TestGroups.ENTITY)

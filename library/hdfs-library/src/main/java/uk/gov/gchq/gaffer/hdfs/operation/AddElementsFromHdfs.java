@@ -74,7 +74,14 @@ public class AddElementsFromHdfs implements
     private Integer minMapTasks;
     private Integer maxMapTasks;
 
+    /**
+     * @deprecated the number of reduce tasks should not be set.  By default the number of reduce tasks should
+     * match the number of tablets.  Use minimum and maximum reduce tasks to specify boundaries for the number
+     * of reduce tasks.
+     */
+    @Deprecated
     private Integer numReduceTasks;
+
     private Integer minReduceTasks;
     private Integer maxReduceTasks;
 

@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.rest.service.v2.example;
 
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
@@ -88,25 +89,36 @@ public interface ExamplesFactory {
 
     /**
      * Generates an example for the {@link Sort} operation.
+     *
      * @return the example class
      */
     Sort sort();
 
     /**
      * Generates an example for the {@link Max} operation.
+     *
      * @return the example class
      */
     Max max();
 
     /**
      * Generates an example for the {@link Min} operation.
+     *
      * @return the example class
      */
     Min min();
 
     /**
      * Generates an example for the {@link ToMap} operation.
+     *
      * @return the example class
      */
     ToMap toMap();
+
+    /**
+     * Generates an example for the {@link GetWalks} operation.
+     *
+     * @return the example class
+     */
+    GetWalks getWalks();
 }

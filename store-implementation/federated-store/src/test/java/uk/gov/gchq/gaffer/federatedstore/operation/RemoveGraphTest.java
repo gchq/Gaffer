@@ -35,7 +35,7 @@ public class RemoveGraphTest extends OperationTest<RemoveGraph> {
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException, JsonProcessingException {
 
         RemoveGraph op = new Builder()
-                .setGraphId(EXPECTED_GRAPH_ID)
+                .graphId(EXPECTED_GRAPH_ID)
                 .build();
 
         byte[] serialise = toJson(op);
@@ -52,7 +52,7 @@ public class RemoveGraphTest extends OperationTest<RemoveGraph> {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         RemoveGraph op = new Builder()
-                .setGraphId(EXPECTED_GRAPH_ID)
+                .graphId(EXPECTED_GRAPH_ID)
                 .build();
 
         Assert.assertEquals(EXPECTED_GRAPH_ID, op.getGraphId());
