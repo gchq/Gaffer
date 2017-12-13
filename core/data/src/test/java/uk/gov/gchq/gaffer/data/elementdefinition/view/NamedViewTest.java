@@ -16,16 +16,19 @@
 
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
+import com.google.common.collect.Maps;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,6 +37,9 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -353,5 +359,92 @@ public class NamedViewTest {
 
         assertTrue(namedViewMerged.getMergedNamedViewNames().isEmpty());
         JsonAssert.assertEquals(namedViewToMerge.toCompactJson(), namedViewMerged.toCompactJson());
+    }
+
+    @Test
+    public void shouldGetNamedViewWithResolvedParameters() {
+        // Given
+        ViewParameterDetail param = new ViewParameterDetail.Builder()
+                .defaultValue(TestGroups.EDGE_2)
+                .description("edge name param")
+                .valueClass(String.class)
+                .build();
+
+        Map<String, ViewParameterDetail> paramDetailMap = Maps.newHashMap();
+        paramDetailMap.put("EDGE_NAME", param);
+
+        // When - full NamedView created with params
+        final NamedView extendedNamedView = new NamedView.Builder()
+                .name(TEST_VIEW_NAME)
+                .edge("${EDGE_NAME}", new ViewElementDefinition.Builder().preAggregationFilter(new ElementFilter.Builder()
+                        .select(IdentifierType.VERTEX.name())
+                        .execute(new ExampleFilterFunction())
+                        .build()).build())
+                .parameters(paramDetailMap)
+                .build();
+
+        // Then - assert NamedView contains the param name and not resolved param
+        assertNotNull(extendedNamedView.getElement("${EDGE_NAME}"));
+        assertNull(extendedNamedView.getElement(TestGroups.EDGE));
+
+        // When - resolve it with default params
+        NamedView namedViewWithResolvedDefaultParams = extendedNamedView.getNamedView();
+
+        // Then - assert resolved NamedView contains resolved default param and not the param name
+        assertNull(namedViewWithResolvedDefaultParams.getElement("${EDGE_NAME}"));
+        assertTrue(new String(namedViewWithResolvedDefaultParams.toCompactJson()).contains(TestGroups.EDGE_2));
+
+        // When - resolve it with specified params
+        Map<String, Object> paramMap = Maps.newHashMap();
+        paramMap.put("EDGE_NAME", TestGroups.EDGE);
+        extendedNamedView.setParameterValues(paramMap);
+        NamedView namedViewWithResolvedParams = extendedNamedView.getNamedView();
+
+        // Then - assert resolved NamedView contains resolved param and not the param name
+        assertNotNull(namedViewWithResolvedParams.getElement(TestGroups.EDGE));
+        assertNull(namedViewWithResolvedParams.getElement("${EDGE_NAME}"));
+    }
+
+    @Test
+    public void shouldGetNamedViewWithResolvedParametersToMakeCompleteFilter() {
+        // Given
+        ViewParameterDetail param = new ViewParameterDetail.Builder()
+                .defaultValue(2L)
+                .description("more than filter")
+                .valueClass(Long.class)
+                .build();
+
+        Map<String, ViewParameterDetail> paramDetailMap = Maps.newHashMap();
+        paramDetailMap.put("IS_MORE_THAN_X", param);
+
+        // When - full NamedView created with params
+        final NamedView extendedNamedView = new NamedView.Builder()
+                .name(TEST_VIEW_NAME)
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder().preAggregationFilter(new ElementFilter.Builder()
+                        .select("count")
+                        .execute(new IsMoreThan("${IS_MORE_THAN_X}"))
+                        .build()).build())
+                .parameters(paramDetailMap)
+                .build();
+
+        // Then - assert NamedView contains the param name and not resolved param
+        assertTrue(new String(extendedNamedView.toCompactJson()).contains("\"value\":\"${IS_MORE_THAN_X}\""));
+
+        // When - resolve it with default params
+        NamedView namedViewWithResolvedDefaultParams = extendedNamedView.getNamedViewWithDefaultParams();
+
+        // Then - assert resolved NamedView contains resolved default param and not the param name
+        assertFalse(new String(namedViewWithResolvedDefaultParams.toCompactJson()).contains("${IS_MORE_THAN_X"));
+        assertTrue(new String(namedViewWithResolvedDefaultParams.toCompactJson()).contains("\"value\":2"));
+
+        // When - resolve it with specified params
+        Map<String, Object> paramMap = Maps.newHashMap();
+        paramMap.put("IS_MORE_THAN_X", 7L);
+        extendedNamedView.setParameterValues(paramMap);
+        NamedView namedViewWithResolvedParams = extendedNamedView.getNamedView();
+
+        // Then - assert resolved NamedView contains resolved param and not the param name
+        assertFalse(new String(namedViewWithResolvedParams.toCompactJson()).contains("${IS_MORE_THAN_X"));
+        assertTrue(new String(namedViewWithResolvedParams.toCompactJson()).contains("\"value\":7"));
     }
 }

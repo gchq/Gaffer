@@ -16,14 +16,17 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
+import com.google.common.collect.Maps;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -31,6 +34,9 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.operation.handler.named.cache.NamedViewCache;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
+
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -164,11 +170,127 @@ public class NamedViewResolverTest {
         assertNamedViewAndViewEqual(namedViewWithNestedNamedView, getElements.getView());
     }
 
+    @Test
+    public void shouldResolveNamedViewWithParameter() throws CacheOperationFailedException {
+        Map<String, Object> paramMap = Maps.newHashMap();
+        paramMap.put("EDGE_NAME", TestGroups.EDGE_2);
+
+        ViewParameterDetail param = new ViewParameterDetail.Builder()
+                .defaultValue(TestGroups.EDGE)
+                .description("edge name param")
+                .valueClass(String.class)
+                .build();
+
+        Map<String, ViewParameterDetail> paramDetailMap = Maps.newHashMap();
+        paramDetailMap.put("EDGE_NAME", param);
+
+        // Make a real NamedView with a parameter
+        final NamedView extendedNamedView = new NamedView.Builder()
+                .name(NAMED_VIEW_NAME)
+                .edge("${EDGE_NAME}", new ViewElementDefinition.Builder().preAggregationFilter(new ElementFilter.Builder()
+                        .select(IdentifierType.VERTEX.name())
+                        .execute(new ExampleFilterFunction())
+                        .build()).build())
+                .parameters(paramDetailMap)
+                .build();
+
+        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(extendedNamedView);
+
+        final OperationChain<?> opChain = new OperationChain.Builder()
+                .first(new GetElements.Builder()
+                        .view(new NamedView.Builder()
+                                .name(NAMED_VIEW_NAME)
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        RESOLVER.preExecute(opChain, CONTEXT);
+        GetElements getElements = (GetElements) opChain.getOperations().get(0);
+
+        // Then
+        assertTrue(getElements.getView().getEdge(TestGroups.EDGE) != null);
+
+        final OperationChain<?> opChain1 = new OperationChain.Builder()
+                .first(new GetElements.Builder()
+                        .view(new NamedView.Builder()
+                                .name(NAMED_VIEW_NAME)
+                                .parameterValues(paramMap)
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        RESOLVER.preExecute(opChain1, CONTEXT);
+        GetElements getElements1 = (GetElements) opChain1.getOperations().get(0);
+
+        // Then
+        assertTrue(getElements1.getView().getEdge(TestGroups.EDGE_2) != null);
+    }
+
+    @Test
+    public void shouldResolveNamedViewWithParametersToMakeCompleteFilter() throws CacheOperationFailedException {
+        Map<String, Object> paramMap = Maps.newHashMap();
+        paramMap.put("IS_MORE_THAN_X", 7L);
+
+        ViewParameterDetail param = new ViewParameterDetail.Builder()
+                .defaultValue(2L)
+                .description("more than filter")
+                .valueClass(Long.class)
+                .build();
+
+        Map<String, ViewParameterDetail> paramDetailMap = Maps.newHashMap();
+        paramDetailMap.put("IS_MORE_THAN_X", param);
+
+        // Make a real NamedView with a parameter
+        final NamedView extendedNamedView = new NamedView.Builder()
+                .name(NAMED_VIEW_NAME)
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder().preAggregationFilter(new ElementFilter.Builder()
+                        .select(IdentifierType.VERTEX.name())
+                        .execute(new IsMoreThan("${IS_MORE_THAN_X}"))
+                        .build()).build())
+                .parameters(paramDetailMap)
+                .build();
+
+        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(extendedNamedView);
+
+        final OperationChain<?> opChain = new OperationChain.Builder()
+                .first(new GetElements.Builder()
+                        .view(new NamedView.Builder()
+                                .name(NAMED_VIEW_NAME)
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        RESOLVER.preExecute(opChain, CONTEXT);
+        GetElements getElements = (GetElements) opChain.getOperations().get(0);
+
+        // Then
+        assertTrue(new String(getElements.getView().toCompactJson()).contains("\"value\":2"));
+
+        final OperationChain<?> opChain1 = new OperationChain.Builder()
+                .first(new GetElements.Builder()
+                        .view(new NamedView.Builder()
+                                .name(NAMED_VIEW_NAME)
+                                .parameterValues(paramMap)
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        RESOLVER.preExecute(opChain1, CONTEXT);
+        GetElements getElements1 = (GetElements) opChain1.getOperations().get(0);
+
+        // Then
+        assertTrue(new String(getElements1.getView().toCompactJson()).contains("\"value\":7"));
+    }
+
     private void assertNamedViewAndViewEqual(NamedView namedView, View view) {
         assertEquals(namedView.getGlobalElements(), view.getGlobalElements());
         assertEquals(namedView.getGlobalEntities(), view.getGlobalEntities());
         assertEquals(namedView.getGlobalEdges(), view.getGlobalEdges());
-        assertEquals(namedView.getEdges(), view.getEdges());
-        assertEquals(namedView.getEntities(), view.getEntities());
+        assertEquals(namedView.getEdges().toString(), view.getEdges().toString());
+        assertEquals(namedView.getEntities().toString(), view.getEntities().toString());
     }
 }

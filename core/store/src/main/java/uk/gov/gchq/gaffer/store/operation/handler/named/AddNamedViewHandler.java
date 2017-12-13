@@ -73,5 +73,15 @@ public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
         if (null == op.getNamedView().getName()) {
             throw new IllegalArgumentException("NamedView name must be set");
         }
+
+        /*if (null != op.getParameters()) {
+            String operationString = op.getNamedView().getParameters();
+            for (final Map.Entry<String, ParameterDetail> parameterDetail : op.getParameters().entrySet()) {
+                String varName = "${" + parameterDetail.getKey() + "}";
+                if (!operationString.contains(varName)) {
+                    throw new OperationException("Parameter specified in NamedOperation doesn't occur in OperationChain string for " + varName);
+                }
+            }
+        }*/
     }
 }

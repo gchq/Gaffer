@@ -20,15 +20,20 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
+import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A {@code NamedView} extends a {@link View}, defining the {@link uk.gov.gchq.gaffer.data.element.Element}s to be returned for an operation.
@@ -45,7 +50,10 @@ public class NamedView extends View {
     private String name;
     @JsonIgnore
     private List<String> mergedNamedViewNames;
+    @JsonIgnore
+    private Map<String, Object> parameterValues;
     private Map<String, ViewParameterDetail> parameters;
+    private static final String CHARSET_NAME = CommonConstants.UTF_8;
 
     public NamedView() {
         this.name = "";
@@ -91,6 +99,20 @@ public class NamedView extends View {
         return parameters;
     }
 
+    public void setParameterValues(final Map<String, Object> parameterValues) {
+        if (parameterValues != null) {
+            if (null != this.parameterValues) {
+                this.parameterValues.putAll(parameterValues);
+            } else {
+                this.parameterValues = parameterValues;
+            }
+        }
+    }
+
+    public Map<String, Object> getParameterValues() {
+        return parameterValues;
+    }
+
     @Override
     public boolean canMerge(final View addingView, final View srcView) {
         if (addingView instanceof NamedView && !(srcView instanceof NamedView)) {
@@ -102,6 +124,128 @@ public class NamedView extends View {
         }
         return true;
     }
+
+    @JsonIgnore
+    public NamedView getNamedViewWithDefaultParams() {
+        String viewString = new String(this.toCompactJson());
+
+        if (null != parameters) {
+            for (final Map.Entry<String, ViewParameterDetail> parameterDetailPair : parameters.entrySet()) {
+                String paramKey = parameterDetailPair.getKey();
+
+                try {
+                    viewString = viewString.replace(buildParamNameString(paramKey),
+                            new String(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue(), CHARSET_NAME), CHARSET_NAME));
+                } catch (final SerialisationException | UnsupportedEncodingException e) {
+                    throw new IllegalArgumentException(e.getMessage());
+                }
+            }
+        }
+        NamedView namedView;
+
+        try {
+            namedView = JSONSerialiser.deserialise(viewString.getBytes(CHARSET_NAME), NamedView.class);
+        } catch (final Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+
+        return namedView;
+    }
+
+    @JsonIgnore
+    public NamedView getNamedView() {
+        String thisViewString = new String(this.toCompactJson());
+
+        if (null != parameters) {
+            Set<String> paramKeys = parameters.keySet();
+
+            for (String paramKey : paramKeys) {
+                Object paramValueObj;
+
+                if (null != parameterValues && parameterValues.keySet().contains(paramKey)) {
+                    paramValueObj = parameterValues.get(paramKey);
+                } else {
+                    if (parameters.get(paramKey).getDefaultValue() != null && !parameters.get(paramKey).isRequired()) {
+                        paramValueObj = parameters.get(paramKey).getDefaultValue();
+                    } else {
+                        throw new IllegalArgumentException("Missing parameter " + paramKey + " with no default");
+                    }
+                }
+                try {
+                    thisViewString = thisViewString.replace(buildParamNameString(paramKey),
+                            new String(JSONSerialiser.serialise(paramValueObj, CHARSET_NAME), CHARSET_NAME));
+                } catch (final SerialisationException | UnsupportedEncodingException e) {
+                    throw new IllegalArgumentException(e.getMessage());
+                }
+            }
+        }
+
+        NamedView namedView;
+
+        try {
+            namedView = JSONSerialiser.deserialise(thisViewString.getBytes(CHARSET_NAME), NamedView.class);
+        } catch (final Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+
+        return namedView;
+    }
+
+    public NamedView getNamedView(final Map<String, Object> executionParams) {
+        // TODO
+        // check params are expected param names
+        // check if has a default value
+        // check if has an overridden value
+        // if neither throw exception
+        // substitute the values
+
+        String viewString = new String(this.toCompactJson());
+
+        // First check all the parameters supplied are expected parameter names
+        if (null != parameters) {
+            if (null != executionParams) {
+                Set<String> paramDetailKeys = parameters.keySet();
+                Set<String> paramKeys = executionParams.keySet();
+
+                if (!paramDetailKeys.containsAll(paramKeys)) {
+                    throw new IllegalArgumentException("Unexpected parameter name in NamedView");
+                }
+            }
+
+            for (final Map.Entry<String, ViewParameterDetail> parameterDetailPair : parameters.entrySet()) {
+                String paramKey = parameterDetailPair.getKey();
+                try {
+                    if (null != executionParams && executionParams.containsKey(paramKey)) {
+                        Object paramObj = JSONSerialiser.deserialise(JSONSerialiser.serialise(executionParams.get(paramKey)), parameterDetailPair.getValue().getValueClass());
+
+                        viewString = viewString.replace(buildParamNameString(paramKey),
+                                new String(JSONSerialiser.serialise(paramObj, CHARSET_NAME), CHARSET_NAME));
+                    } else if (!parameterDetailPair.getValue().isRequired()) {
+                        viewString = viewString.replace(buildParamNameString(paramKey),
+                                new String(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue(), CHARSET_NAME), CHARSET_NAME));
+                    } else {
+                        throw new IllegalArgumentException("Missing parameter " + paramKey + " with no default");
+                    }
+                } catch (final SerialisationException | UnsupportedEncodingException e) {
+                    throw new IllegalArgumentException(e.getMessage());
+                }
+            }
+        }
+        NamedView namedView;
+
+        try {
+            namedView = JSONSerialiser.deserialise(viewString.getBytes(CHARSET_NAME), NamedView.class);
+        } catch (final Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+
+        return namedView;
+    }
+
+    private String buildParamNameString(final String paramKey) {
+        return "\"${" + paramKey + "}\"";
+    }
+
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>> extends View.BaseBuilder<CHILD_CLASS> {
 
@@ -120,6 +264,11 @@ public class NamedView extends View {
 
         public CHILD_CLASS parameters(final Map<String, ViewParameterDetail> parameters) {
             getElementDefs().setParameters(parameters);
+            return self();
+        }
+
+        public CHILD_CLASS parameterValues(final Map<String, Object> parameterValues) {
+            getElementDefs().setParameterValues(parameterValues);
             return self();
         }
 
