@@ -111,7 +111,7 @@ public class Map<I, O> implements InputOutput<I, O> {
             super(new Map<>());
         }
 
-        public <O> OutputBuilder<I, O> first(final Function<I, O> function) {
+        public <O> OutputBuilder<I, O> first(final Function<? extends I, O> function) {
             return new OutputBuilder<>(function, _getOp());
         }
     }
@@ -119,7 +119,7 @@ public class Map<I, O> implements InputOutput<I, O> {
     public static final class OutputBuilder<I, O> extends
             Operation.BaseBuilder<Map<I, O>, OutputBuilder<I, O>> implements
             InputOutput.Builder<Map<I, O>, I, O, OutputBuilder<I, O>> {
-        private OutputBuilder(final Function<I, O> function, final Map<I, ?> operation) {
+        private OutputBuilder(final Function<? extends I, O> function, final Map<I, ?> operation) {
             super((Map) operation);
             if (null == operation.functions) {
                 operation.functions = new ArrayList<>();
@@ -127,7 +127,8 @@ public class Map<I, O> implements InputOutput<I, O> {
             operation.functions.add(function);
         }
 
-        public <NEXT> OutputBuilder<I, NEXT> then(final Function<? super O, NEXT> function) {
+        public <NEXT> OutputBuilder<I, NEXT> then(final Function<? extends O, NEXT> function) {
+
             return new OutputBuilder(function, _getOp());
         }
     }
