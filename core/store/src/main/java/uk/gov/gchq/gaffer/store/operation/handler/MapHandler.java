@@ -31,7 +31,7 @@ import java.util.function.Function;
 public class MapHandler<I, O> implements OutputOperationHandler<Map<I, O>, O> {
 
     /**
-     * Handles the {@link Map} operation. Applies the function contained within the Map operation
+     * Handles the {@link Map} operation. Applies the function(s) contained within the Map operation
      * and returns the resulting object.
      *
      * @param operation the {@link uk.gov.gchq.gaffer.operation.Operation} to be executed
@@ -46,18 +46,23 @@ public class MapHandler<I, O> implements OutputOperationHandler<Map<I, O>, O> {
             throw new OperationException("Operation cannot be null");
         }
 
-        final I input = operation.getInput();
+        Object input = operation.getInput();
 
         if (null == input) {
             throw new OperationException("Input cannot be null");
         }
 
-        final Function<I, O> function = operation.getFunction();
+        try {
+            for (final Function function : operation.getFunctions()) {
+                if (null == function) {
+                    throw new OperationException("Function cannot be null");
+                }
 
-        if (null == function) {
-            throw new OperationException("Function cannot be null");
+                input = function.apply(input);
+            }
+            return (O) input;
+        } catch (final ClassCastException c) {
+            throw new OperationException("The input/output types of the functions were incompatible", c);
         }
-
-        return function.apply(input);
     }
 }
