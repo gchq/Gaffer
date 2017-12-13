@@ -17,10 +17,10 @@ package uk.gov.gchq.gaffer.hbasestore.operation.hdfs.handler.job.factory;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HConstants;
-import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.HFileOutputFormat2;
-import org.apache.hadoop.hbase.mapreduce.PutSortReducer;
+import org.apache.hadoop.io.RawComparator;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.mapper.AddElementsFromHdfsMapper;
+import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.reducer.AddElementsFromHdfsReducer;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
@@ -79,8 +80,23 @@ public class HBaseAddElementsFromHdfsJobFactory implements AddElementsFromHdfsJo
         job.setJobName(getJobName(mapperGeneratorClassName, operation.getOutputPath()));
 
         setupMapper(job);
-        setupReducer(job);
         setupOutput(job, operation, (HBaseStore) store);
+        job.setSortComparatorClass(HBaseComparator.class);
+        setupReducer(job);
+    }
+
+    public static class HBaseComparator implements RawComparator<ImmutableBytesWritable> {
+        private static final int LENGTH_BYTES = 4;
+
+        @Override
+        public int compare(final byte[] b1, final int s1, final int l1, final byte[] b2, final int s2, final int l2) {
+            return KeyValue.COMPARATOR.compare(b1, s1 + LENGTH_BYTES, l1 - LENGTH_BYTES, b2, s2 + LENGTH_BYTES, l2 - LENGTH_BYTES);
+        }
+
+        @Override
+        public int compare(final ImmutableBytesWritable b1, final ImmutableBytesWritable b2) {
+            return KeyValue.COMPARATOR.compare(b1.get(), b1.getOffset(), b1.getLength(), b2.get(), b2.getOffset(), b2.getLength());
+        }
     }
 
     protected String getJobName(final String mapperGenerator, final String outputPath) {
@@ -90,11 +106,11 @@ public class HBaseAddElementsFromHdfsJobFactory implements AddElementsFromHdfsJo
     protected void setupMapper(final Job job) {
         job.setMapperClass(AddElementsFromHdfsMapper.class);
         job.setMapOutputKeyClass(ImmutableBytesWritable.class);
-        job.setMapOutputValueClass(Put.class);
+        job.setMapOutputValueClass(KeyValue.class);
     }
 
     protected void setupReducer(final Job job) {
-        job.setReducerClass(PutSortReducer.class);
+        job.setReducerClass(AddElementsFromHdfsReducer.class);
     }
 
     protected void setupOutput(final Job job, final AddElementsFromHdfs operation, final HBaseStore store) throws IOException {
