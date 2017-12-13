@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.accumulostore.integration;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
-import uk.gov.gchq.gaffer.integration.impl.GraphAlgorithmsIT;
 
 public class AccumuloStoreITs extends AbstractStoreITs {
     private static final AccumuloProperties STORE_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreITs.class));

@@ -69,8 +69,9 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
 
-public class GraphAlgorithmsIT extends AbstractStoreIT {
+public class GetWalksIT extends AbstractStoreIT {
 
     @Override
     @Before
@@ -460,6 +461,14 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
         final GetElements operation = new GetElements.Builder()
                 .directedType(DirectedType.DIRECTED)
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                                .preAggregationFilter(new ElementFilter.Builder()
+                                        .select(TestPropertyNames.COUNT)
+                                        .execute(new IsMoreThan(0L))
+                                        .build())
+                                .build())
+                        .build())
                 .build();
 
         final GetWalks op = new GetWalks.Builder()
@@ -471,7 +480,7 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, user);
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AAA,AAE,AAB,AED,AEF,ABC")));
+        assertThat(getPaths(results), is(equalTo("AED,ABC")));
     }
 
     @Test
@@ -504,7 +513,7 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
         final Iterable<Walk> results = graph.execute(op, user);
 
         // Then
-        assertThat(getPaths(results), is(equalTo("AED")));
+        assertEquals(1, Lists.newArrayList(results).size());
     }
 
     @Test
@@ -512,7 +521,7 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
         // Given
         final AddOperationsToChain graphHook = new AddOperationsToChain();
         final java.util.Map<String, List<Operation>> graphHookConfig = new HashMap<>();
-        graphHookConfig.put("uk.gov.gchq.gaffer.operation.impl.get.GetElements", Lists.newArrayList(new Limit.Builder<>().resultLimit(1).build()));
+        graphHookConfig.put(GetElements.class.getName(), Lists.newArrayList(new Limit.Builder<>().resultLimit(1).build()));
         graphHook.setAfter(graphHookConfig);
 
         withGraphHook(graphHook);
@@ -779,7 +788,7 @@ public class GraphAlgorithmsIT extends AbstractStoreIT {
     }
 
     public void withGraphHook(final GraphHook graphHook) throws OperationException {
-        final GraphConfig graphConfig =  new GraphConfig.Builder().addHook(graphHook).graphId("integrationTest").build();
+        final GraphConfig graphConfig = new GraphConfig.Builder().addHook(graphHook).graphId("integrationTest").build();
         addGraphConfig(graphConfig);
 
         addDefaultElements();

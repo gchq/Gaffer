@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.mapstore.integration;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
-import uk.gov.gchq.gaffer.integration.impl.GraphAlgorithmsIT;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 
 public class MapStoreITs extends AbstractStoreITs {
