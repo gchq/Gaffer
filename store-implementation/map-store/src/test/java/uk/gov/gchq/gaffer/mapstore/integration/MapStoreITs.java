@@ -26,6 +26,5 @@ public class MapStoreITs extends AbstractStoreITs {
 
     public MapStoreITs() {
         super(STORE_PROPERTIES);
-        skipTest(GraphAlgorithmsIT.class, "shouldGetPathsWithPreFiltering_1 & shouldGetPathsWithPreFiltering_2");
     }
 }
