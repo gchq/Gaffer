@@ -99,6 +99,7 @@ public class NamedView extends View {
         return parameters;
     }
 
+    @JsonIgnore
     public void setParameterValues(final Map<String, Object> parameterValues) {
         if (parameterValues != null) {
             if (null != this.parameterValues) {
@@ -109,11 +110,13 @@ public class NamedView extends View {
         }
     }
 
+    @JsonIgnore
     public Map<String, Object> getParameterValues() {
         return parameterValues;
     }
 
     @Override
+    @JsonIgnore
     public boolean canMerge(final View addingView, final View srcView) {
         if (addingView instanceof NamedView && !(srcView instanceof NamedView)) {
             if (((NamedView) addingView).getName() != null) {

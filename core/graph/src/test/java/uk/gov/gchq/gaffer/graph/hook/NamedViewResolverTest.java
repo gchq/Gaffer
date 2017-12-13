@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.graph.hook;
 import com.google.common.collect.Maps;
 import org.junit.Test;
 
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
@@ -27,7 +28,9 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -38,7 +41,6 @@ import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -61,7 +63,7 @@ public class NamedViewResolverTest {
             .build();
 
     @Test
-    public void shouldResolveNamedView() throws CacheOperationFailedException {
+    public void shouldResolveNamedView() throws CacheOperationFailedException, SerialisationException {
         // Given
         given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(FULL_NAMED_VIEW);
 
@@ -82,7 +84,7 @@ public class NamedViewResolverTest {
     }
 
     @Test
-    public void shouldResolveNamedViewAndMergeAnotherView() throws CacheOperationFailedException {
+    public void shouldResolveNamedViewAndMergeAnotherView() throws CacheOperationFailedException, SerialisationException {
         // Given
         given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(FULL_NAMED_VIEW);
         final View viewToMerge = new View.Builder().edge(TestGroups.EDGE).build();
@@ -106,7 +108,7 @@ public class NamedViewResolverTest {
     }
 
     @Test
-    public void shouldResolveNamedViewAndMergeAnotherNamedView() throws CacheOperationFailedException {
+    public void shouldResolveNamedViewAndMergeAnotherNamedView() throws CacheOperationFailedException, SerialisationException {
         // Given
         given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(FULL_NAMED_VIEW);
         final NamedView namedViewToMerge = new NamedView.Builder().name(NAMED_VIEW_NAME + 1).edge(TestGroups.EDGE).build();
@@ -131,7 +133,7 @@ public class NamedViewResolverTest {
     }
 
     @Test
-    public void shouldResolveNestedNamedViews() throws CacheOperationFailedException {
+    public void shouldResolveNestedNamedViews() throws CacheOperationFailedException, SerialisationException {
         // Given
         final NamedView nestedNamedView1 = new NamedView.Builder().name(NESTED_NAMED_VIEW_NAME + 1).entity(TestGroups.ENTITY_2).build();
         final NamedView nestedNamedView = new NamedView.Builder().name(NESTED_NAMED_VIEW_NAME).edge(TestGroups.EDGE).merge(nestedNamedView1).build();
@@ -286,11 +288,11 @@ public class NamedViewResolverTest {
         assertTrue(new String(getElements1.getView().toCompactJson()).contains("\"value\":7"));
     }
 
-    private void assertNamedViewAndViewEqual(NamedView namedView, View view) {
-        assertEquals(namedView.getGlobalElements(), view.getGlobalElements());
-        assertEquals(namedView.getGlobalEntities(), view.getGlobalEntities());
-        assertEquals(namedView.getGlobalEdges(), view.getGlobalEdges());
-        assertEquals(namedView.getEdges().toString(), view.getEdges().toString());
-        assertEquals(namedView.getEntities().toString(), view.getEntities().toString());
+    private void assertNamedViewAndViewEqual(NamedView namedView, View view) throws SerialisationException {
+        JsonAssert.assertEquals(JSONSerialiser.serialise(namedView.getGlobalElements()), JSONSerialiser.serialise(view.getGlobalElements()));
+        JsonAssert.assertEquals(JSONSerialiser.serialise(namedView.getGlobalEntities()), JSONSerialiser.serialise(view.getGlobalEntities()));
+        JsonAssert.assertEquals(JSONSerialiser.serialise(namedView.getGlobalEdges()), JSONSerialiser.serialise(view.getGlobalEdges()));
+        JsonAssert.assertEquals(JSONSerialiser.serialise(namedView.getEdges()), JSONSerialiser.serialise(view.getEdges()));
+        JsonAssert.assertEquals(JSONSerialiser.serialise(namedView.getEntities()), JSONSerialiser.serialise(view.getEntities()));
     }
 }
