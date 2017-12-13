@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.operation.impl;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.graph.Walk;
@@ -51,10 +52,10 @@ import java.util.stream.Collectors;
 public class GetWalks implements
         InputOutput<Iterable<? extends EntityId>, Iterable<Walk>>,
         MultiInput<EntityId>,
-        Operations<Output<Iterable<Element>>> {
+        Operations<OperationChain<Iterable<Element>>> {
 
     public static final String HOP_DEFINITION = "A hop is a GetElements operation that selects at least 1 edge group.";
-    private List<Output<Iterable<Element>>> operations = new ArrayList<>();
+    private List<OperationChain<Iterable<Element>>> operations = new ArrayList<>();
     private Iterable<? extends EntityId> input;
     private Map<String, String> options;
     private Integer resultsLimit = 1000000;
@@ -70,7 +71,7 @@ public class GetWalks implements
     }
 
     @Override
-    public List<Output<Iterable<Element>>> getOperations() {
+    public List<OperationChain<Iterable<Element>>> getOperations() {
         return operations;
     }
 
@@ -80,35 +81,34 @@ public class GetWalks implements
     }
 
     public void addOperations(final List<Output<Iterable<Element>>> operations) {
-        this.operations.addAll(operations);
+        operations.forEach(op -> this.operations.add(OperationChain.wrap(op)));
     }
 
     @Override
     public ValidationResult validate() {
         final ValidationResult result = InputOutput.super.validate();
 
-        if (getNumberOfGetEdgeOperations() < 1) {
+        final int getEdgeOperations = getNumberOfGetEdgeOperations();
+
+        if (getEdgeOperations < 1) {
             result.addError("No hops were provided. " + HOP_DEFINITION);
+        } else if (getEdgeOperations > operations.size()) {
+            result.addError("One or more operation chains contains multiple hops. " +
+                    "Each hop should be defined in a separate operation chain object");
         } else {
             int i = 0;
-            for (final Output<Iterable<Element>> operation : operations) {
-                if (operation instanceof OperationChain) {
-                    if (((OperationChain) operation).getOperations().isEmpty()) {
-                        result.addError("Operation chain " + i + " contains no operations");
-                    } else {
-                        final Operation firstOp = ((OperationChain<?>) operation).getOperations().get(0);
-                        if (firstOp instanceof Input) {
-                            if (null != ((Input) firstOp).getInput()) {
-                                result.addError("The input for operations must be null.");
-                            }
-                        } else {
-                            result.addError("The first operation in operation chain " + i + ": " + firstOp.getClass().getName() + " is not be able to accept the input seeds. It must implement " + Input.class.getName());
+            for (final OperationChain<Iterable<Element>> operation : operations) {
+                if (operation.getOperations().isEmpty()) {
+                    result.addError("Operation chain " + i + " contains no operations");
+                } else {
+                    final Operation firstOp = operation.getOperations().get(0);
+                    if (firstOp instanceof Input) {
+                        if (null != ((Input) firstOp).getInput()) {
+                            result.addError("The input for operations must be null.");
                         }
+                    } else {
+                        result.addError("The first operation in operation chain " + i + ": " + firstOp.getClass().getName() + " is not be able to accept the input seeds. It must implement " + Input.class.getName());
                     }
-                } else if (!(operation instanceof Input)) {
-                    result.addError("The operation " + i + ": " + operation.getClass().getName() + " is not be able to accept the input seeds. It must implement " + Input.class.getName());
-                } else if (null != ((Input) operation).getInput()) {
-                    result.addError("The input for operations must be null.");
                 }
 
                 if (getNumberOfGetEdgeOperations(operation) < 1 && i < (operations.size() - 1)) {
@@ -125,19 +125,7 @@ public class GetWalks implements
 
     @JsonIgnore
     public int getNumberOfGetEdgeOperations() {
-        int hops = 0;
-        int i = 0;
-        for (final Operation op : operations) {
-            final int opHops = getNumberOfGetEdgeOperations(op);
-            if (opHops > 1) {
-                throw new IllegalArgumentException(
-                        "Operation chain " + i + " contains multiple hops. " +
-                                "Each hop should be defined in a separate operation chain object");
-            }
-            hops += opHops;
-            i++;
-        }
-        return hops;
+        return getNumberOfGetEdgeOperations(operations);
     }
 
     private int getNumberOfGetEdgeOperations(final Operation op) {
@@ -146,7 +134,7 @@ public class GetWalks implements
             hops += getNumberOfGetEdgeOperations(((Operations<?>) op).getOperations());
         } else if (op instanceof GetElements) {
             final GetElements getElements = (GetElements) op;
-            if (getElements.getView().hasEdges()) {
+            if (null != getElements.getView() && getElements.getView().hasEdges()) {
                 hops += 1;
             }
         }
@@ -154,12 +142,9 @@ public class GetWalks implements
     }
 
     private int getNumberOfGetEdgeOperations(final Iterable<? extends Operation> ops) {
-        int hops = 0;
-        for (final Operation op : ops) {
-            hops += getNumberOfGetEdgeOperations(op);
-        }
-
-        return hops;
+        return Streams.toStream(ops)
+                .mapToInt(this::getNumberOfGetEdgeOperations)
+                .sum();
     }
 
     @Override

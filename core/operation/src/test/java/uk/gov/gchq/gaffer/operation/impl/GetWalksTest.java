@@ -21,10 +21,12 @@ import org.junit.Test;
 
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.koryphe.ValidationResult;
@@ -78,8 +80,7 @@ public class GetWalksTest extends OperationTest<GetWalks> {
         // Given
         final GetWalks getWalks = new GetWalks.Builder()
                 .input(new EntitySeed("1"), new EntitySeed("2"))
-                .operations(
-                        new GetElements.Builder()
+                .addOperations(new GetElements.Builder()
                                 .view(new View.Builder()
                                         .edge(TestGroups.EDGE)
                                         .build())
@@ -89,8 +90,7 @@ public class GetWalksTest extends OperationTest<GetWalks> {
                                 .view(new View.Builder()
                                         .edge(TestGroups.EDGE)
                                         .build())
-                                .build()
-                )
+                                .build())
                 .build();
 
         // Then
@@ -137,6 +137,75 @@ public class GetWalksTest extends OperationTest<GetWalks> {
         assertTrue(result.getErrorString(), result.getErrorString().contains("The first operation in operation chain 0: " + ScoreOperationChain.class.getName() + " is not be able to accept the input seeds."));
     }
 
+    @Test
+    public void shouldValidateWhenOperationListContainsAnEmptyOperationChain() {
+        // Given
+        final GetWalks getWalks = new GetWalks.Builder()
+                .input(new EntitySeed("1"), new EntitySeed("2"))
+                .operations(new GetElements.Builder().input((Iterable<? extends ElementId>) null)
+                        .view(new View.Builder()
+                                .edge(TestGroups.EDGE)
+                                .build())
+                        .build(), new OperationChain())
+                .build();
+
+        // Then
+        final ValidationResult result = getWalks.validate();
+        assertFalse(result.isValid());
+        assertTrue(result.getErrorString(), result.getErrorString().contains("Operation chain 1 contains no operations"));
+    }
+
+    @Test
+    public void shouldValidateWhenOperationListDoesNotContainAGetElementsOperation() {
+        // Given
+        final GetWalks getWalks = new GetWalks.Builder()
+                .input(new EntitySeed("1"), new EntitySeed("2"))
+                .operations(new GetElements.Builder().input((Iterable<? extends ElementId>) null)
+                                .view(new View.Builder()
+                                        .edge(TestGroups.EDGE)
+                                        .build())
+                                .build(),
+                        new OperationChain.Builder()
+                                .first(new AddElements())
+                                .build(),
+                        new GetElements.Builder().input((Iterable<? extends ElementId>) null)
+                                .view(new View.Builder()
+                                        .edge(TestGroups.EDGE)
+                                        .build())
+                                .build())
+                .build();
+
+        // Then
+        final ValidationResult result = getWalks.validate();
+        assertFalse(result.isValid());
+        assertTrue(result.getErrorString(), result.getErrorString().contains("All operations must contain a single hop. Operation 1 does not contain a hop."));
+    }
+
+    @Test
+    public void shouldValidateWhenOperationContainsMultipleHops() {
+        // Given
+        final GetWalks getWalks = new GetWalks.Builder()
+                .input(new EntitySeed("1"), new EntitySeed("2"))
+                .operations(new OperationChain.Builder()
+                        .first(new GetElements.Builder().input((Iterable<? extends ElementId>) null)
+                                .view(new View.Builder()
+                                        .edge(TestGroups.EDGE)
+                                        .build())
+                                .build())
+                        .then(new GetElements.Builder().input((Iterable<? extends ElementId>) null)
+                                .view(new View.Builder()
+                                        .edge(TestGroups.EDGE)
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+
+        // Then
+        final ValidationResult result = getWalks.validate();
+        assertFalse(result.isValid());
+        assertTrue(result.getErrorString(), result.getErrorString().contains("One or more operation chains contains multiple hops."));
+    }
+
     @Override
     public void shouldShallowCloneOperation() {
         // Given
@@ -156,7 +225,7 @@ public class GetWalksTest extends OperationTest<GetWalks> {
         int i = 0;
         for (final Output<Iterable<Element>> operation : clone.getOperations()) {
             assertNotSame(getElements, operation);
-            assertEquals(getElements.getClass(), operation.getClass());
+            assertEquals(OperationChain.class, operation.getClass());
             i++;
         }
     }
