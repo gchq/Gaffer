@@ -431,7 +431,7 @@ public class NamedViewTest {
         assertTrue(new String(extendedNamedView.toCompactJson()).contains("\"value\":\"${IS_MORE_THAN_X}\""));
 
         // When - resolve it with default params
-        NamedView namedViewWithResolvedDefaultParams = extendedNamedView.getNamedViewWithDefaultParams();
+        NamedView namedViewWithResolvedDefaultParams = extendedNamedView.getNamedView();
 
         // Then - assert resolved NamedView contains resolved default param and not the param name
         assertFalse(new String(namedViewWithResolvedDefaultParams.toCompactJson()).contains("${IS_MORE_THAN_X"));

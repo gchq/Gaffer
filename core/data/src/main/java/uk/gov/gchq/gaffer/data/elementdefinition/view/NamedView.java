@@ -126,33 +126,6 @@ public class NamedView extends View {
     }
 
     @JsonIgnore
-    public NamedView getNamedViewWithDefaultParams() {
-        String viewString = new String(this.toCompactJson());
-
-        if (null != parameters) {
-            for (final Map.Entry<String, ViewParameterDetail> parameterDetailPair : parameters.entrySet()) {
-                String paramKey = parameterDetailPair.getKey();
-
-                try {
-                    viewString = viewString.replace(buildParamNameString(paramKey),
-                            new String(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue(), CHARSET_NAME), CHARSET_NAME));
-                } catch (final SerialisationException | UnsupportedEncodingException e) {
-                    throw new IllegalArgumentException(e.getMessage());
-                }
-            }
-        }
-        NamedView namedView;
-
-        try {
-            namedView = JSONSerialiser.deserialise(viewString.getBytes(CHARSET_NAME), NamedView.class);
-        } catch (final Exception e) {
-            throw new IllegalArgumentException(e.getMessage());
-        }
-
-        return namedView;
-    }
-
-    @JsonIgnore
     public NamedView getNamedView() {
         String thisViewString = new String(this.toCompactJson());
 
@@ -191,61 +164,9 @@ public class NamedView extends View {
         return namedView;
     }
 
-    public NamedView getNamedView(final Map<String, Object> executionParams) {
-        // TODO
-        // check params are expected param names
-        // check if has a default value
-        // check if has an overridden value
-        // if neither throw exception
-        // substitute the values
-
-        String viewString = new String(this.toCompactJson());
-
-        // First check all the parameters supplied are expected parameter names
-        if (null != parameters) {
-            if (null != executionParams) {
-                Set<String> paramDetailKeys = parameters.keySet();
-                Set<String> paramKeys = executionParams.keySet();
-
-                if (!paramDetailKeys.containsAll(paramKeys)) {
-                    throw new IllegalArgumentException("Unexpected parameter name in NamedView");
-                }
-            }
-
-            for (final Map.Entry<String, ViewParameterDetail> parameterDetailPair : parameters.entrySet()) {
-                String paramKey = parameterDetailPair.getKey();
-                try {
-                    if (null != executionParams && executionParams.containsKey(paramKey)) {
-                        Object paramObj = JSONSerialiser.deserialise(JSONSerialiser.serialise(executionParams.get(paramKey)), parameterDetailPair.getValue().getValueClass());
-
-                        viewString = viewString.replace(buildParamNameString(paramKey),
-                                new String(JSONSerialiser.serialise(paramObj, CHARSET_NAME), CHARSET_NAME));
-                    } else if (!parameterDetailPair.getValue().isRequired()) {
-                        viewString = viewString.replace(buildParamNameString(paramKey),
-                                new String(JSONSerialiser.serialise(parameterDetailPair.getValue().getDefaultValue(), CHARSET_NAME), CHARSET_NAME));
-                    } else {
-                        throw new IllegalArgumentException("Missing parameter " + paramKey + " with no default");
-                    }
-                } catch (final SerialisationException | UnsupportedEncodingException e) {
-                    throw new IllegalArgumentException(e.getMessage());
-                }
-            }
-        }
-        NamedView namedView;
-
-        try {
-            namedView = JSONSerialiser.deserialise(viewString.getBytes(CHARSET_NAME), NamedView.class);
-        } catch (final Exception e) {
-            throw new IllegalArgumentException(e.getMessage());
-        }
-
-        return namedView;
-    }
-
     private String buildParamNameString(final String paramKey) {
         return "\"${" + paramKey + "}\"";
     }
-
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>> extends View.BaseBuilder<CHILD_CLASS> {
 
