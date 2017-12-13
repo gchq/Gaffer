@@ -135,7 +135,7 @@ public class NamedView extends View {
         if (null != parameters) {
             Set<String> paramKeys = parameters.keySet();
 
-            for (String paramKey : paramKeys) {
+            for (final String paramKey : paramKeys) {
                 Object paramValueObj;
 
                 if (null != parameterValues && parameterValues.keySet().contains(paramKey)) {
