@@ -41,7 +41,9 @@ import uk.gov.gchq.koryphe.impl.function.FirstItem;
 import uk.gov.gchq.koryphe.impl.function.IterableConcat;
 import uk.gov.gchq.koryphe.impl.function.IterableFunction;
 import uk.gov.gchq.koryphe.impl.function.NthItem;
+import uk.gov.gchq.koryphe.impl.function.ToString;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -54,6 +56,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -404,5 +407,30 @@ public class MapHandlerTest {
 
         // Then
         assertThat(results, contains("B"));
+    }
+
+    @Test
+    public void shouldBuildWithInvalidArgumentsAndFailExecution() throws OperationException {
+        final List<Function> functions = new ArrayList<>();
+        final Function<Long, Double> func = Double::longBitsToDouble;
+        final Function<String, Integer> func1 = Integer::valueOf;
+
+        functions.add(new ToString());
+        functions.add(func);
+        functions.add(func1);
+
+        final Map map = new Map();
+        map.setInput(3);
+        map.setFunctions(functions);
+
+        final MapHandler handler = new MapHandler();
+
+        // When / Then
+        try {
+            final Object result = handler.doOperation(map, context, store);
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains("The input/output types of the functions were incompatible"));
+        }
     }
 }
