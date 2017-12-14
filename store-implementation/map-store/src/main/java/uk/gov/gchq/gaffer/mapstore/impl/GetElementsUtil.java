@@ -61,7 +61,7 @@ public final class GetElementsUtil {
         Predicate<Element> isFiltered = e -> !groups.contains(e.getGroup());
 
         if (elementId instanceof EntityId) {
-            final Collection<Element> elements = mapImpl.lookup((EntityId) elementId);
+            final Collection<Element> elements = mapImpl.lookup(new EntitySeed(((EntityId) elementId).getVertex()));
             if (elements.isEmpty()) {
                 return Collections.emptySet();
             }

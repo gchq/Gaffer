@@ -24,11 +24,14 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Function;
 
 /**
  * A {@code Map} is a Gaffer {@link Operation} which maps an input I to an output O
- * by applying a supplied {@link Function}.
+ * by applying a supplied {@link Function} or {@link List} of {@link Function}s.
  *
  * @param <I> the type of the input object
  * @param <O> the type of the output object
@@ -37,7 +40,19 @@ public class Map<I, O> implements InputOutput<I, O> {
     private I input;
     private java.util.Map<String, String> options;
     @Required
-    private Function<I, O> function;
+    private List<Function> functions;
+
+    public Map() {
+        this(new ArrayList<>());
+    }
+
+    public Map(final Function function) {
+        this(Collections.singletonList(function));
+    }
+
+    public Map(final List<Function> functions) {
+        this.functions = functions;
+    }
 
     @Override
     public I getInput() {
@@ -56,11 +71,13 @@ public class Map<I, O> implements InputOutput<I, O> {
 
     @Override
     public Map<I, O> shallowClone() throws CloneFailedException {
-        return new Map.Builder<I, O>()
-                .input(input)
-                .options(options)
-                .function(function)
-                .build();
+        final Map<I, O> clone = new Map<>();
+        for (final Function func : functions) {
+            clone.getFunctions().add(func);
+        }
+        clone.setInput(input);
+        clone.setOptions(options);
+        return clone;
     }
 
     @Override
@@ -74,24 +91,45 @@ public class Map<I, O> implements InputOutput<I, O> {
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public Function<I, O> getFunction() {
-        return function;
+    public List<Function> getFunctions() {
+        return functions;
     }
 
-    public void setFunction(final Function<I, O> function) {
-        this.function = function;
+    public void setFunctions(final List<Function> funcs) {
+        this.functions = funcs;
     }
 
-    public static final class Builder<I, O> extends
-            Operation.BaseBuilder<Map<I, O>, Builder<I, O>> implements
-            InputOutput.Builder<Map<I, O>, I, O, Builder<I, O>> {
+    public void setFunction(final Function function) {
+        this.functions = new ArrayList<>();
+        functions.add(function);
+    }
+
+    public static final class Builder<I> extends
+            Operation.BaseBuilder<Map<I, Object>, Builder<I>> implements
+            InputOutput.Builder<Map<I, Object>, I, Object, Builder<I>> {
         public Builder() {
             super(new Map<>());
         }
 
-        public Builder<I, O> function(final Function func) {
-            _getOp().setFunction(func);
-            return _self();
+        public <O> OutputBuilder<I, O> first(final Function<? extends I, O> function) {
+            return new OutputBuilder<>(function, _getOp());
+        }
+    }
+
+    public static final class OutputBuilder<I, O> extends
+            Operation.BaseBuilder<Map<I, O>, OutputBuilder<I, O>> implements
+            InputOutput.Builder<Map<I, O>, I, O, OutputBuilder<I, O>> {
+        private OutputBuilder(final Function<? extends I, O> function, final Map<I, ?> operation) {
+            super((Map) operation);
+            if (null == operation.functions) {
+                operation.functions = new ArrayList<>();
+            }
+            operation.functions.add(function);
+        }
+
+        public <NEXT> OutputBuilder<I, NEXT> then(final Function<? extends O, NEXT> function) {
+
+            return new OutputBuilder(function, _getOp());
         }
     }
 }
