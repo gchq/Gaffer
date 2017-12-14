@@ -15,17 +15,16 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.graph.Walk;
+import uk.gov.gchq.gaffer.data.graph.function.walk.ExtractWalkEdgesFromHop;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Map;
@@ -38,19 +37,26 @@ import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
+import uk.gov.gchq.koryphe.impl.function.FirstItem;
+import uk.gov.gchq.koryphe.impl.function.IterableConcat;
+import uk.gov.gchq.koryphe.impl.function.IterableFunction;
+import uk.gov.gchq.koryphe.impl.function.NthItem;
+import uk.gov.gchq.koryphe.impl.function.ToString;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -61,12 +67,12 @@ public class MapHandlerTest {
     private Function<Integer, Integer> function;
     private Integer input;
 
-    private final Edge EDGE_AB = new Edge.Builder().group(TestGroups.EDGE).source("A").dest("B").directed(true).build();
-    private final Edge EDGE_BC = new Edge.Builder().group(TestGroups.EDGE).source("B").dest("C").directed(true).build();
-    private final Edge EDGE_BD = new Edge.Builder().group(TestGroups.EDGE).source("B").dest("D").directed(true).build();
-    private final Edge EDGE_CA = new Edge.Builder().group(TestGroups.EDGE).source("C").dest("A").directed(true).build();
-    private final Edge EDGE_CB = new Edge.Builder().group(TestGroups.EDGE).source("C").dest("B").directed(true).build();
-    private final Edge EDGE_DA = new Edge.Builder().group(TestGroups.EDGE).source("D").dest("A").directed(true).build();
+    private static final Edge EDGE_AB = new Edge.Builder().group(TestGroups.EDGE).source("A").dest("B").directed(true).build();
+    private static final Edge EDGE_BC = new Edge.Builder().group(TestGroups.EDGE).source("B").dest("C").directed(true).build();
+    private static final Edge EDGE_BD = new Edge.Builder().group(TestGroups.EDGE).source("B").dest("D").directed(true).build();
+    private static final Edge EDGE_CA = new Edge.Builder().group(TestGroups.EDGE).source("C").dest("A").directed(true).build();
+    private static final Edge EDGE_CB = new Edge.Builder().group(TestGroups.EDGE).source("C").dest("B").directed(true).build();
+    private static final Edge EDGE_DA = new Edge.Builder().group(TestGroups.EDGE).source("D").dest("A").directed(true).build();
 
     private static final Entity ENTITY_B = new Entity.Builder().group(TestGroups.ENTITY).vertex("B").build();
     private static final Entity ENTITY_C = new Entity.Builder().group(TestGroups.ENTITY).vertex("C").build();
@@ -121,9 +127,9 @@ public class MapHandlerTest {
         // Given
         final MapHandler<Integer, Integer> handler = new MapHandler<>();
 
-        final Map<Integer, Integer> operation = new Map.Builder<Integer, Integer>()
+        final Map<Integer, Integer> operation = new Map.Builder<Integer>()
                 .input(null)
-                .function(function)
+                .first(function)
                 .build();
 
         // When / Then
@@ -139,9 +145,11 @@ public class MapHandlerTest {
         // Given
         final MapHandler<Integer, Integer> handler = new MapHandler<>();
 
-        final Map<Integer, Integer> operation = new Map.Builder<Integer, Integer>()
+        function = null;
+
+        final Map<Integer, Integer> operation = new Map.Builder<Integer>()
                 .input(input)
-                .function(null)
+                .first(function)
                 .build();
 
         // When / Then
@@ -157,9 +165,9 @@ public class MapHandlerTest {
         // Given
         final MapHandler<Integer, Integer> handler = new MapHandler<>();
 
-        final Map<Integer, Integer> operation = new Map.Builder<Integer, Integer>()
+        final Map<Integer, Integer> operation = new Map.Builder<Integer>()
                 .input(input)
-                .function(function)
+                .first(function)
                 .build();
 
         // When
@@ -175,9 +183,9 @@ public class MapHandlerTest {
         // Given
         final MapHandler<Integer, String> handler = new MapHandler<>();
 
-        final Map<Integer, String> operation = new Map.Builder<Integer, String>()
+        final Map<Integer, String> operation = new Map.Builder<Integer>()
                 .input(7)
-                .function(Object::toString)
+                .first(Object::toString)
                 .build();
 
         // When
@@ -193,9 +201,9 @@ public class MapHandlerTest {
         // Given
         final MapHandler<Iterable<Integer>, String> handler = new MapHandler<>();
 
-        final Map<Iterable<Integer>, String> operation = new Map.Builder<Iterable<Integer>, String>()
+        final Map<Iterable<Integer>, String> operation = new Map.Builder<Iterable<Integer>>()
                 .input(Arrays.asList(1, 2))
-                .function(Object::toString)
+                .first(Object::toString)
                 .build();
 
         // When
@@ -211,9 +219,9 @@ public class MapHandlerTest {
         // Given
         final MapHandler<Iterable<Integer>, Iterable<String>> handler = new MapHandler<>();
 
-        final Map<Iterable<Integer>, Iterable<String>> operation = new Map.Builder<Iterable<Integer>, Iterable<String>>()
+        final Map<Iterable<Integer>, Iterable<String>> operation = new Map.Builder<Iterable<Integer>>()
                 .input(Arrays.asList(1, 2))
-                .function(new IterableFunction<>(Object::toString))
+                .first(new IterableFunction<Integer, String>(Object::toString))
                 .build();
 
         // When
@@ -229,11 +237,11 @@ public class MapHandlerTest {
         // Given
         final MapHandler<Iterable<Iterable<Integer>>, Iterable<Integer>> handler = new MapHandler<>();
 
-        final Map<Iterable<Iterable<Integer>>, Iterable<Integer>> operation = new Map.Builder<Iterable<Iterable<Integer>>, Iterable<Integer>>()
+        final Map<Iterable<Iterable<Integer>>, Iterable<Integer>> operation = new Map.Builder<Iterable<Iterable<Integer>>>()
                 .input(Arrays.asList(
                         Arrays.asList(1, 2),
                         Arrays.asList(3, 4)))
-                .function(new FirstItem<>())
+                .first(new FirstItem<>())
                 .build();
 
         // When
@@ -249,11 +257,11 @@ public class MapHandlerTest {
         // Given
         final MapHandler<Iterable<Iterable<Integer>>, Iterable<Integer>> handler = new MapHandler<>();
 
-        final Map<Iterable<Iterable<Integer>>, Iterable<Integer>> operation = new Map.Builder<Iterable<Iterable<Integer>>, Iterable<Integer>>()
+        final Map<Iterable<Iterable<Integer>>, Iterable<Integer>> operation = new Map.Builder<Iterable<Iterable<Integer>>>()
                 .input(Arrays.asList(
                         Arrays.asList(1, 2),
                         Arrays.asList(3, 4)))
-                .function(new IterableConcat<>())
+                .first(new IterableConcat<>())
                 .build();
 
         // When
@@ -272,19 +280,23 @@ public class MapHandlerTest {
                 Arrays.asList(4, 5, 6),
                 Arrays.asList(7, 8, 9));
 
-        final MapHandler<Iterable<Iterable<Integer>>, Iterable<Integer>> handler = new MapHandler<>();
+        final MapHandler<Iterable<Iterable<Integer>>, String> handler = new MapHandler<>();
 
-        final Map<Iterable<Iterable<Integer>>, Iterable<Integer>> operation = new Map.Builder<Iterable<Iterable<Integer>>, Iterable<Integer>>()
+        final Map<Iterable<Iterable<Integer>>, String> operation = new Map.Builder<Iterable<Iterable<Integer>>>()
                 .input(input)
-                .function(new IterableFunction<>(new NthItem<>(1)))
+                .first(new IterableFunction.Builder<Iterable<Integer>>()
+                        .first(new NthItem<>(1))
+                        .then(Object::toString)
+                        .build())
+                .then(new NthItem<>(2))
                 .build();
 
         // When
-        final Iterable<Integer> results = handler.doOperation(operation, context, store);
+        final String results = handler.doOperation(operation, context, store);
 
         // Then
         assertNotNull(results);
-        assertEquals(Arrays.asList(2, 5, 8), Lists.newArrayList(results));
+        assertEquals("8", results);
     }
 
     @Test
@@ -292,15 +304,17 @@ public class MapHandlerTest {
         // Given
         final Iterable<Iterable<Set<Edge>>> walks = Arrays.asList(walk, walk1);
 
-        final Map<Iterable<Iterable<Set<Edge>>>, Iterable<Set<Edge>>> firstMap = new Map.Builder<Iterable<Iterable<Set<Edge>>>, Iterable<Set<Edge>>>()
+        final Map<Iterable<Iterable<Set<Edge>>>, Iterable<Set<Edge>>> map = new Map.Builder<Iterable<Iterable<Set<Edge>>>>()
                 .input(walks)
-                .function(new IterableFunction<>(new FirstItem<>()))
+                .first(new IterableFunction.Builder<Iterable<Set<Edge>>>()
+                        .first(new FirstItem<>())
+                        .build())
                 .build();
 
         final MapHandler<Iterable<Iterable<Set<Edge>>>, Iterable<Set<Edge>>> handler = new MapHandler<>();
 
         // When
-        final Iterable<Set<Edge>> results = handler.doOperation(firstMap, context, store);
+        final Iterable<Set<Edge>> results = handler.doOperation(map, context, store);
 
         final Iterable<Iterable<Edge>> expectedResults = Arrays.asList(
                 Sets.newHashSet(EDGE_AB),
@@ -314,15 +328,14 @@ public class MapHandlerTest {
     @Test
     public void shouldProcessWalksInOperationChain() throws OperationException {
         // Given
-        final Iterable<Walk> walks = Arrays.asList(walk, walk1);
+        final Iterable<Iterable<Set<Edge>>> walks = Arrays.asList(walk, walk1);
 
-        final Map<Iterable<Walk>, Walk> firstMap = new Map.Builder<Iterable<Walk>, Walk>()
+        final Map<Iterable<Iterable<Set<Edge>>>, Iterable<Edge>> map = new Map.Builder<Iterable<Iterable<Set<Edge>>>>()
                 .input(walks)
-                .function(new IterableFunction<>(new FirstItem<>()))
-                .build();
-
-        final Map<Walk, Set<Edge>> secondMap = new Map.Builder<Walk, Set<Edge>>()
-                .function(new IterableFunction<>(new FirstItem<>()))
+                .first(new IterableFunction.Builder<Iterable<Set<Edge>>>()
+                        .first(new FirstItem<>())
+                        .then(new FirstItem<>())
+                        .build())
                 .build();
 
         final ToVertices toVertices = new ToVertices.Builder()
@@ -332,8 +345,7 @@ public class MapHandlerTest {
         final ToSet<Object> toSet = new ToSet<>();
 
         final OperationChain<Set<?>> opChain = new OperationChain.Builder()
-                .first(firstMap)
-                .then(secondMap)
+                .first(map)
                 .then(toVertices)
                 .then(toSet)
                 .build();
@@ -344,10 +356,7 @@ public class MapHandlerTest {
 
         final OperationChainHandler<Set<?>> opChainHandler = new OperationChainHandler<>(opChainValidator, opChainOptimisers);
 
-        given(store.handleOperation(firstMap, context)).willReturn(Arrays.asList(
-                Sets.newHashSet(EDGE_AB),
-                Sets.newHashSet(EDGE_CB)));
-        given(store.handleOperation(secondMap, context)).willReturn(Arrays.asList(EDGE_AB, EDGE_CB));
+        given(store.handleOperation(map, context)).willReturn(Arrays.asList(EDGE_AB, EDGE_CB));
         given(store.handleOperation(toVertices, context)).willReturn(Arrays.asList("A", "C"));
         given(store.handleOperation(toSet, context)).willReturn(Sets.newHashSet("A", "C"));
 
@@ -358,95 +367,70 @@ public class MapHandlerTest {
         assertThat(results, containsInAnyOrder("A", "C"));
     }
 
-    // To be removed after Koryphe 1.1.0
-    private static class IterableFunction<I_ITEM, O_ITEM> implements Function<Iterable<I_ITEM>, Iterable<O_ITEM>> {
-        final Function<I_ITEM, O_ITEM> delegateFunction;
+    @Test
+    public void shouldProcessWalksWithEdgeExtraction() throws OperationException {
+        // Given
+        final Iterable<Walk> walks = Arrays.asList(walk, walk1);
 
-        public IterableFunction(final Function<I_ITEM, O_ITEM> delegateFunction) {
-            this.delegateFunction = delegateFunction;
-        }
+        final Map<Iterable<Walk>, Iterable<Edge>> map = new Map.Builder<Iterable<Walk>>()
+                .input(walks)
+                .first(new IterableFunction.Builder<Walk>()
+                        .first(new ExtractWalkEdgesFromHop(1))
+                        .then(new FirstItem<>())
+                        .build())
+                .build();
 
-        @Override
-        public Iterable<O_ITEM> apply(final Iterable<I_ITEM> items) {
-            return IterableUtil.applyFunction(items, delegateFunction);
-        }
+        final ToVertices toVertices = new ToVertices.Builder()
+                .edgeVertices(ToVertices.EdgeVertices.SOURCE)
+                .build();
+
+        final ToSet<Object> toSet = new ToSet<>();
+
+        final OperationChain<Set<?>> opChain = new OperationChain.Builder()
+                .first(map)
+                .then(toVertices)
+                .then(toSet)
+                .build();
+
+        final OperationChainValidator opChainValidator = mock(OperationChainValidator.class);
+        final List<OperationChainOptimiser> opChainOptimisers = Collections.emptyList();
+        given(opChainValidator.validate(any(), any(), any())).willReturn(new ValidationResult());
+
+        final OperationChainHandler<Set<?>> opChainHandler = new OperationChainHandler<>(opChainValidator, opChainOptimisers);
+
+        given(store.handleOperation(map, context)).willReturn(Arrays.asList(EDGE_BC, EDGE_BD));
+        given(store.handleOperation(toVertices, context)).willReturn(Arrays.asList("B", "B"));
+        given(store.handleOperation(toSet, context)).willReturn(Sets.newHashSet("B", "B"));
+
+        // When
+        final Iterable<?> results = opChainHandler.doOperation(opChain, context, store);
+
+        // Then
+        assertThat(results, contains("B"));
     }
 
-    // To be removed after Koryphe 1.1.0
-    private static class IterableConcat<I_ITEM> implements Function<Iterable<Iterable<I_ITEM>>, Iterable<I_ITEM>> {
-        @Override
-        public Iterable<I_ITEM> apply(final Iterable<Iterable<I_ITEM>> items) {
-            return Iterables.concat(items);
-        }
-    }
+    @Test
+    public void shouldBuildWithInvalidArgumentsAndFailExecution() throws OperationException {
+        final List<Function> functions = new ArrayList<>();
+        final Function<Long, Double> func = Double::longBitsToDouble;
+        final Function<String, Integer> func1 = Integer::valueOf;
 
-    // To be removed after Koryphe 1.1.0
-    private static class FirstItem<T> implements Function<Iterable<T>, T> {
-        @Override
-        public T apply(final Iterable<T> input) {
-            if (null == input) {
-                throw new IllegalArgumentException("Input cannot be null");
-            }
-            try {
-                return Iterables.getFirst(input, null);
-            } finally {
-                CloseableUtil.close(input);
-            }
-        }
-    }
+        functions.add(new ToString());
+        functions.add(func);
+        functions.add(func1);
 
-    // To be removed after Koryphe 1.1.0
-    private static class NthItem<T> implements Function<Iterable<T>, T> {
-        public int getSelection() {
-            return selection;
-        }
+        final Map map = new Map();
+        map.setInput(3);
+        map.setFunctions(functions);
 
-        public void setSelection(final int selection) {
-            this.selection = selection;
-        }
+        final MapHandler handler = new MapHandler();
 
-        public NthItem() {
-            // Empty
-        }
-
-        public NthItem(final int selection) {
-            this.selection = selection;
-        }
-
-        private int selection;
-
-        @Override
-        public T apply(final Iterable<T> input) {
-            if (null == input) {
-                throw new IllegalArgumentException("Input cannot be null");
-            }
-            try {
-                return Iterables.get(input, selection);
-            } finally {
-                CloseableUtil.close(input);
-            }
-        }
-    }
-
-    private static class IterableUtil {
-        private IterableUtil() {
-            // Empty
-        }
-
-        public static <I_ITEM, O_ITEM> Iterable<O_ITEM> applyFunction(final Iterable<I_ITEM> input, final Function<I_ITEM, O_ITEM> function) {
-            return () -> new Iterator<O_ITEM>() {
-                Iterator<? extends I_ITEM> iterator = input.iterator();
-
-                @Override
-                public boolean hasNext() {
-                    return iterator.hasNext();
-                }
-
-                @Override
-                public O_ITEM next() {
-                    return function.apply(iterator.next());
-                }
-            };
+        // When / Then
+        try {
+            final Object result = handler.doOperation(map, context, store);
+            fail("Exception expected");
+        } catch (final OperationException e) {
+            assertTrue(e.getMessage().contains("The input/output types of the functions were incompatible"));
         }
     }
 }

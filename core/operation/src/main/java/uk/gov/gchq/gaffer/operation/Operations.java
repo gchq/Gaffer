@@ -34,6 +34,18 @@ public interface Operations<T extends Operation> {
     Collection<T> getOperations();
 
     /**
+     * Updates the operations using the provided collection.
+     * By default this will just clear the current operations collection
+     * and add all the new operations.
+     *
+     * @param operations the new operations.
+     */
+    default void updateOperations(final Collection<T> operations) {
+        getOperations().clear();
+        getOperations().addAll(operations);
+    }
+
+    /**
      * The class of the operations. By default this will return the
      * {@link Operation} class.
      *
