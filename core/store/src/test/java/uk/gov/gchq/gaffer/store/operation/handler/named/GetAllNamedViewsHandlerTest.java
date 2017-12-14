@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.named.view.GetAllNamedViews;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -55,6 +56,7 @@ public class GetAllNamedViewsHandlerTest {
             .build();
 
     private AddNamedView addNamedView = new AddNamedView.Builder()
+            .name(namedView.getName())
             .namedView(namedView)
             .overwrite(false)
             .build();
@@ -65,6 +67,7 @@ public class GetAllNamedViewsHandlerTest {
             .build();
 
     private AddNamedView addNamedView2 = new AddNamedView.Builder()
+            .name(namedView.getName())
             .namedView(namedView2)
             .overwrite(false)
             .build();
@@ -86,7 +89,7 @@ public class GetAllNamedViewsHandlerTest {
 
         // when
         GetAllNamedViewsHandler getAllNamedViewsHandler = new GetAllNamedViewsHandler(namedViewCache);
-        CloseableIterable<NamedView> namedViewList = getAllNamedViewsHandler.doOperation(getAllNamedViews, context, store);
+        CloseableIterable<NamedViewDetail> namedViewList = getAllNamedViewsHandler.doOperation(getAllNamedViews, context, store);
 
         // Then
         assertEquals(2, Iterables.size(namedViewList));

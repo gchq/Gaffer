@@ -20,20 +20,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * A {@code NamedView} extends a {@link View}, defining the {@link uk.gov.gchq.gaffer.data.element.Element}s to be returned for an operation.
@@ -49,16 +44,14 @@ public class NamedView extends View {
     @Required
     private String name;
     @JsonIgnore
-    private List<String> mergedNamedViewNames;
-    @JsonIgnore
     private Map<String, Object> parameterValues;
-    private Map<String, ViewParameterDetail> parameters;
-    private static final String CHARSET_NAME = CommonConstants.UTF_8;
+    @JsonIgnore
+    private List<String> mergedNamedViewNames;
 
     public NamedView() {
         this.name = "";
-        this.mergedNamedViewNames = new ArrayList<>();
-        this.parameters = new HashMap<>();
+        parameterValues = new HashMap<>();
+        mergedNamedViewNames = new ArrayList<>();
     }
 
     public void setName(final String viewName) {
@@ -69,7 +62,6 @@ public class NamedView extends View {
         return this.name;
     }
 
-    @JsonIgnore
     public void setMergedNamedViewNames(final List<String> mergedNamedViewNames) {
         if (mergedNamedViewNames != null) {
             if (this.mergedNamedViewNames != null) {
@@ -80,23 +72,8 @@ public class NamedView extends View {
         }
     }
 
-    @JsonIgnore
     public List<String> getMergedNamedViewNames() {
         return mergedNamedViewNames;
-    }
-
-    public void setParameters(final Map<String, ViewParameterDetail> parameters) {
-        if (parameters != null) {
-            if (null != this.parameters) {
-                this.parameters.putAll(parameters);
-            } else {
-                this.parameters = parameters;
-            }
-        }
-    }
-
-    public Map<String, ViewParameterDetail> getParameters() {
-        return parameters;
     }
 
     @JsonIgnore
@@ -128,49 +105,6 @@ public class NamedView extends View {
         return true;
     }
 
-    @JsonIgnore
-    public NamedView getNamedView() {
-        String thisViewString = new String(this.toCompactJson());
-
-        if (null != parameters) {
-            Set<String> paramKeys = parameters.keySet();
-
-            for (final String paramKey : paramKeys) {
-                Object paramValueObj;
-
-                if (null != parameterValues && parameterValues.keySet().contains(paramKey)) {
-                    paramValueObj = parameterValues.get(paramKey);
-                } else {
-                    if (parameters.get(paramKey).getDefaultValue() != null && !parameters.get(paramKey).isRequired()) {
-                        paramValueObj = parameters.get(paramKey).getDefaultValue();
-                    } else {
-                        throw new IllegalArgumentException("Missing parameter " + paramKey + " with no default");
-                    }
-                }
-                try {
-                    thisViewString = thisViewString.replace(buildParamNameString(paramKey),
-                            new String(JSONSerialiser.serialise(paramValueObj, CHARSET_NAME), CHARSET_NAME));
-                } catch (final SerialisationException | UnsupportedEncodingException e) {
-                    throw new IllegalArgumentException(e.getMessage());
-                }
-            }
-        }
-
-        NamedView namedView;
-
-        try {
-            namedView = JSONSerialiser.deserialise(thisViewString.getBytes(CHARSET_NAME), NamedView.class);
-        } catch (final Exception e) {
-            throw new IllegalArgumentException(e.getMessage());
-        }
-
-        return namedView;
-    }
-
-    private String buildParamNameString(final String paramKey) {
-        return "\"${" + paramKey + "}\"";
-    }
-
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>> extends View.BaseBuilder<CHILD_CLASS> {
 
         public BaseBuilder() {
@@ -183,11 +117,6 @@ public class NamedView extends View {
 
         public CHILD_CLASS name(final String name) {
             getElementDefs().setName(name);
-            return self();
-        }
-
-        public CHILD_CLASS parameters(final Map<String, ViewParameterDetail> parameters) {
-            getElementDefs().setParameters(parameters);
             return self();
         }
 
@@ -231,8 +160,8 @@ public class NamedView extends View {
                     if (null != namedViewInstance.getMergedNamedViewNames() && !namedViewInstance.getMergedNamedViewNames().isEmpty()) {
                         self().getElementDefs().setMergedNamedViewNames(namedViewInstance.getMergedNamedViewNames());
                     }
-                    if (null != namedViewInstance.getParameters() && !namedViewInstance.getParameters().isEmpty()) {
-                        self().parameters(namedViewInstance.getParameters());
+                    if (null != namedViewInstance.getParameterValues() && !namedViewInstance.getParameterValues().isEmpty()) {
+                        self().parameterValues(namedViewInstance.getParameterValues());
                     }
                 }
                 super.merge(view);

@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.exception.OverwritingException;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 
 import java.util.Properties;
@@ -43,6 +44,18 @@ public class NamedViewCacheTest {
     private static final String EXCEPTION_EXPECTED = "Exception expected";
     private NamedView standardNamedView = new NamedView.Builder().name("standardView").build();
     private NamedView alternativeNamedView = new NamedView.Builder().name("alternativeView").edge(TestGroups.EDGE).build();
+
+    private NamedViewDetail standard = new NamedViewDetail.Builder()
+            .name(standardNamedView.getName())
+            .description("standard NamedView")
+            .namedView(standardNamedView)
+            .build();
+
+    private NamedViewDetail alternative = new NamedViewDetail.Builder()
+            .name(alternativeNamedView.getName())
+            .description("alternative NamedView")
+            .namedView(alternativeNamedView)
+            .build();
 
     @BeforeClass
     public static void setUp() {
@@ -59,17 +72,17 @@ public class NamedViewCacheTest {
 
     @Test
     public void shouldAddNamedView() throws CacheOperationFailedException {
-        cache.addNamedView(standardNamedView, false);
-        NamedView namedViewFromCache = cache.getNamedView(standardNamedView.getName());
+        cache.addNamedView(standard, false);
+        NamedViewDetail namedViewFromCache = cache.getNamedView(standard.getName());
 
         assertEquals(standardNamedView, namedViewFromCache);
     }
 
     @Test
     public void shouldThrowExceptionIfNamedViewAlreadyExists() throws CacheOperationFailedException {
-        cache.addNamedView(standardNamedView, false);
+        cache.addNamedView(standard, false);
         try {
-            cache.addNamedView(standardNamedView, false);
+            cache.addNamedView(standard, false);
             fail(EXCEPTION_EXPECTED);
         } catch (OverwritingException e) {
             assertTrue(e.getMessage().equals("Cache entry already exists for key: " + standardNamedView.getName()));
@@ -96,16 +109,16 @@ public class NamedViewCacheTest {
 
     @Test
     public void shouldReturnEmptySetIfThereAreNoOperationsInTheCache() throws CacheOperationFailedException {
-        CloseableIterable<NamedView> views = cache.getAllNamedViews();
+        CloseableIterable<NamedViewDetail> views = cache.getAllNamedViews();
         assertEquals(0, Iterables.size(views));
     }
 
     @Test
     public void shouldBeAbleToReturnAllNamedViewsFromCache() throws CacheOperationFailedException {
-        cache.addNamedView(standardNamedView, false);
-        cache.addNamedView(alternativeNamedView, false);
+        cache.addNamedView(standard, false);
+        cache.addNamedView(alternative, false);
 
-        Set<NamedView> allViews = Sets.newHashSet(cache.getAllNamedViews());
+        Set<NamedViewDetail> allViews = Sets.newHashSet(cache.getAllNamedViews());
 
         assertTrue(allViews.contains(standardNamedView));
         assertTrue(allViews.contains(alternativeNamedView));

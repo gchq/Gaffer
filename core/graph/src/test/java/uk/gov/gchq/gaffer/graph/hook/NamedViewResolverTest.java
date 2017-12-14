@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
@@ -64,11 +65,15 @@ public class NamedViewResolverTest {
                             .build())
                     .build())
             .build();
+    private static final NamedViewDetail FULL_NAMED_VIEW_DETAIL = new NamedViewDetail.Builder()
+            .name(FULL_NAMED_VIEW.getName())
+            .namedView(FULL_NAMED_VIEW)
+            .build();
 
     @Test
     public void shouldResolveNamedView() throws CacheOperationFailedException, SerialisationException {
         // Given
-        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(FULL_NAMED_VIEW);
+        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(FULL_NAMED_VIEW_DETAIL);
 
         final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
@@ -89,7 +94,7 @@ public class NamedViewResolverTest {
     @Test
     public void shouldResolveNamedViewAndMergeAnotherView() throws CacheOperationFailedException, SerialisationException {
         // Given
-        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(FULL_NAMED_VIEW);
+        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(FULL_NAMED_VIEW_DETAIL);
         final View viewToMerge = new View.Builder().edge(TestGroups.EDGE).build();
 
         final OperationChain<?> opChain = new OperationChain.Builder()
@@ -113,9 +118,10 @@ public class NamedViewResolverTest {
     @Test
     public void shouldResolveNamedViewAndMergeAnotherNamedView() throws CacheOperationFailedException, SerialisationException {
         // Given
-        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(FULL_NAMED_VIEW);
+        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(FULL_NAMED_VIEW_DETAIL);
         final NamedView namedViewToMerge = new NamedView.Builder().name(NAMED_VIEW_NAME + 1).edge(TestGroups.EDGE).build();
-        given(CACHE.getNamedView(NAMED_VIEW_NAME + 1)).willReturn(namedViewToMerge);
+        final NamedViewDetail namedViewDetailToMerge = new NamedViewDetail.Builder().name(namedViewToMerge.getName()).namedView(namedViewToMerge).build();
+        given(CACHE.getNamedView(NAMED_VIEW_NAME + 1)).willReturn(namedViewDetailToMerge);
 
         final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
@@ -139,8 +145,10 @@ public class NamedViewResolverTest {
     public void shouldResolveNestedNamedViews() throws CacheOperationFailedException, SerialisationException {
         // Given
         final NamedView nestedNamedView1 = new NamedView.Builder().name(NESTED_NAMED_VIEW_NAME + 1).entity(TestGroups.ENTITY_2).build();
+        final NamedViewDetail nestedNamedView1Detail = new NamedViewDetail.Builder().name(nestedNamedView1.getName()).namedView(nestedNamedView1).build();
         final NamedView nestedNamedView = new NamedView.Builder().name(NESTED_NAMED_VIEW_NAME).edge(TestGroups.EDGE).merge(nestedNamedView1).build();
-        NamedView namedViewWithNestedNamedView = new NamedView.Builder()
+        final NamedViewDetail nestedNamedViewDetail = new NamedViewDetail.Builder().name(nestedNamedView.getName()).namedView(nestedNamedView).build();
+        final NamedView namedViewWithNestedNamedView = new NamedView.Builder()
                 .name(NAMED_VIEW_NAME)
                 .merge(nestedNamedView)
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
@@ -150,14 +158,15 @@ public class NamedViewResolverTest {
                                 .build())
                         .build())
                 .build();
+        final NamedViewDetail namedViewWithNestedNamedViewDetail = new NamedViewDetail.Builder().name(namedViewWithNestedNamedView.getName()).namedView(namedViewWithNestedNamedView).build();
 
         assertTrue(namedViewWithNestedNamedView.getMergedNamedViewNames().size() == 2);
         assertTrue(namedViewWithNestedNamedView.getMergedNamedViewNames().contains(NESTED_NAMED_VIEW_NAME));
         assertTrue(namedViewWithNestedNamedView.getMergedNamedViewNames().contains(NESTED_NAMED_VIEW_NAME + 1));
 
-        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(namedViewWithNestedNamedView);
-        given(CACHE.getNamedView(NESTED_NAMED_VIEW_NAME)).willReturn(nestedNamedView);
-        given(CACHE.getNamedView(NESTED_NAMED_VIEW_NAME + 1)).willReturn(nestedNamedView1);
+        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(namedViewWithNestedNamedViewDetail);
+        given(CACHE.getNamedView(NESTED_NAMED_VIEW_NAME)).willReturn(nestedNamedViewDetail);
+        given(CACHE.getNamedView(NESTED_NAMED_VIEW_NAME + 1)).willReturn(nestedNamedView1Detail);
 
         final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
@@ -192,14 +201,20 @@ public class NamedViewResolverTest {
         // Make a real NamedView with a parameter
         final NamedView extendedNamedView = new NamedView.Builder()
                 .name(NAMED_VIEW_NAME)
-                .edge("${"+EDGE_NAME_PARAM_KEY + "}", new ViewElementDefinition.Builder().preAggregationFilter(new ElementFilter.Builder()
+                .edge("${" + EDGE_NAME_PARAM_KEY + "}", new ViewElementDefinition.Builder().preAggregationFilter(new ElementFilter.Builder()
                         .select(IdentifierType.VERTEX.name())
                         .execute(new ExampleFilterFunction())
                         .build()).build())
+                .parameterValues(paramMap)
+                .build();
+
+        final NamedViewDetail extendedNamedViewDetail = new NamedViewDetail.Builder()
+                .name(extendedNamedView.getName())
+                .namedView(extendedNamedView)
                 .parameters(paramDetailMap)
                 .build();
 
-        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(extendedNamedView);
+        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(extendedNamedViewDetail);
 
         final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
@@ -254,10 +269,16 @@ public class NamedViewResolverTest {
                         .select(IdentifierType.VERTEX.name())
                         .execute(new IsMoreThan("${" + IS_MORE_THAN_X_PARAM_KEY + "}"))
                         .build()).build())
+                .parameterValues(paramMap)
+                .build();
+
+        final NamedViewDetail extendedNamedViewDetail = new NamedViewDetail.Builder()
+                .name(extendedNamedView.getName())
+                .namedView(extendedNamedView)
                 .parameters(paramDetailMap)
                 .build();
 
-        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(extendedNamedView);
+        given(CACHE.getNamedView(NAMED_VIEW_NAME)).willReturn(extendedNamedViewDetail);
 
         final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()

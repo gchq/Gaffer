@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -88,14 +89,18 @@ public class NamedViewResolver implements GraphHook {
     private NamedView resolveNamedViewInOperation(final NamedView namedView) {
         NamedView.Builder newNamedView;
         try {
-            NamedView cachedNamedView = cache.getNamedView(namedView.getName());
-            cachedNamedView.setParameterValues(namedView.getParameterValues());
+            NamedViewDetail cachedNamedView = cache.getNamedView(namedView.getName());
+            NamedView resolvedCachedNamedView = cachedNamedView.getNamedView(namedView.getParameterValues());
             newNamedView = new NamedView.Builder()
                     .name(namedView.getName())
-                    .merge(cachedNamedView.getNamedView());
+                    .merge(resolvedCachedNamedView);
 
-            for (final String name : cachedNamedView.getMergedNamedViewNames()) {
-                newNamedView.merge(cache.getNamedView(name));
+            if (null != cachedNamedView.getMergedNamedViewNames()) {
+                for (final String name : cachedNamedView.getMergedNamedViewNames()) {
+                    final NamedViewDetail nestedCachedNamedView = cache.getNamedView(name);
+                    final NamedView resolvedNestedCacheNamedView = nestedCachedNamedView.getNamedView(namedView.getParameterValues());
+                    newNamedView.merge(resolvedNestedCacheNamedView);
+                }
             }
         } catch (final CacheOperationFailedException e) {
             // failed to find the namedView in the cache

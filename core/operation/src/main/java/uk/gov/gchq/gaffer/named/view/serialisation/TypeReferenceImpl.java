@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.named.view.serialisation;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 
 /**
  * {@link TypeReference} objects for named views.
@@ -29,6 +29,6 @@ public final class TypeReferenceImpl {
         // Private constructor to prevent instantiation.
     }
 
-    public static class IterableNamedView extends TypeReference<CloseableIterable<NamedView>> {
+    public static class IterableNamedView extends TypeReference<CloseableIterable<NamedViewDetail>> {
     }
 }

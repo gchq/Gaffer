@@ -18,10 +18,15 @@ package uk.gov.gchq.gaffer.named.view;
 
 import org.apache.commons.lang3.exception.CloneFailedException;
 
+import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 
+import java.io.UnsupportedEncodingException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,18 +34,41 @@ import java.util.Map;
  * to a Gaffer graph.
  */
 public class AddNamedView implements Operation {
-    private NamedView namedView = null;
+    private static final String CHARSET_NAME = CommonConstants.UTF_8;
+    private String name;
+    private String namedView;
     private String description;
     private Map<String, ViewParameterDetail> parameters;
+    private List<String> mergedNamedViewNames;
     private boolean overwriteFlag = false;
     private Map<String, String> options;
 
-    public void setNamedView(final NamedView namedView) {
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setNamedView(final String namedView) {
         this.namedView = namedView;
     }
 
-    public NamedView getNamedView() {
+    public void setNamedView(final NamedView namedView) {
+        this.namedView = new String(namedView.toCompactJson());
+    }
+
+    public String getNamedViewAsString() {
         return namedView;
+    }
+
+    public NamedView getNamedView() {
+        try {
+            return JSONSerialiser.deserialise(namedView.getBytes(CHARSET_NAME), NamedView.class);
+        } catch (final UnsupportedEncodingException | SerialisationException e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 
     public String getDescription() {
@@ -59,6 +87,13 @@ public class AddNamedView implements Operation {
         return parameters;
     }
 
+    public List<String> getMergedNamedViewNames() {
+        return mergedNamedViewNames;
+    }
+
+    public void setMergedNamedViewNames(List<String> mergedNamedViewNames) {
+        this.mergedNamedViewNames = mergedNamedViewNames;
+    }
 
     public void setOverwriteFlag(final boolean overwriteFlag) {
         this.overwriteFlag = overwriteFlag;
@@ -81,9 +116,11 @@ public class AddNamedView implements Operation {
     @Override
     public AddNamedView shallowClone() throws CloneFailedException {
         return new AddNamedView.Builder()
+                .name(name)
                 .namedView(namedView)
                 .description(description)
                 .parameters(parameters)
+                .mergedNamedViewNames(mergedNamedViewNames)
                 .overwrite(overwriteFlag)
                 .options(options)
                 .build();
@@ -92,6 +129,16 @@ public class AddNamedView implements Operation {
     public static class Builder extends BaseBuilder<AddNamedView, Builder> {
         public Builder() {
             super(new AddNamedView());
+        }
+
+        public Builder name(final String name) {
+            _getOp().setName(name);
+            return _self();
+        }
+
+        public Builder namedView(final String namedView) {
+            _getOp().setNamedView(namedView);
+            return _self();
         }
 
         public Builder namedView(final NamedView namedView) {
@@ -109,13 +156,14 @@ public class AddNamedView implements Operation {
             return _self();
         }
 
-        public Builder overwrite(final boolean overwriteFlag) {
-            _getOp().setOverwriteFlag(overwriteFlag);
+        public Builder mergedNamedViewNames(final List<String> mergedNamedViewNames) {
+            _getOp().setMergedNamedViewNames(mergedNamedViewNames);
             return _self();
         }
 
-        public Builder overwrite() {
-            return overwrite(true);
+        public Builder overwrite(final boolean overwriteFlag) {
+            _getOp().setOverwriteFlag(overwriteFlag);
+            return _self();
         }
     }
 }

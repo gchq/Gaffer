@@ -21,9 +21,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
-import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
@@ -70,11 +70,12 @@ public class AddNamedViewHandlerTest {
         namedView = new NamedView.Builder()
                 .name(testNamedViewName)
                 .edge(TestGroups.EDGE)
-                .parameters(testParameters)
                 .build();
 
         addNamedView = new AddNamedView.Builder()
+                .name(namedView.getName())
                 .namedView(namedView)
+                .parameters(testParameters)
                 .overwrite(false)
                 .build();
 
@@ -92,12 +93,12 @@ public class AddNamedViewHandlerTest {
     public void shouldAddNamedViewCorrectly() throws OperationException, CacheOperationFailedException {
         handler.doOperation(addNamedView, context, store);
 
-        final NamedView result = namedViewCache.getNamedView(testNamedViewName);
+        final NamedViewDetail result = namedViewCache.getNamedView(testNamedViewName);
 
         assertTrue(cacheContains(testNamedViewName));
         assertEquals(addNamedView.getNamedView().getName(), result.getName());
-        assertEquals(addNamedView.getNamedView().getParameters(), result.getParameters());
-        JsonAssert.assertEquals(addNamedView.getNamedView().toCompactJson(), result.toCompactJson());
+        assertEquals(addNamedView.getParameters(), result.getParameters());
+        assertEquals(new String(addNamedView.getNamedView().toCompactJson()), result.getNamedView());
 
     }
 
@@ -113,8 +114,8 @@ public class AddNamedViewHandlerTest {
     }
 
     private boolean cacheContains(final String namedViewName) throws CacheOperationFailedException {
-        Iterable<NamedView> namedViews = namedViewCache.getAllNamedViews();
-        for (final NamedView namedView : namedViews) {
+        Iterable<NamedViewDetail> namedViews = namedViewCache.getAllNamedViews();
+        for (final NamedViewDetail namedView : namedViews) {
             if (namedView.getName().equals(namedViewName)) {
                 return true;
             }

@@ -24,6 +24,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
@@ -68,11 +69,12 @@ public class DeleteNamedViewHandlerTest {
         namedView = new NamedView.Builder()
                 .name(testNamedViewName)
                 .edge(TestGroups.EDGE)
-                .parameters(testParameters)
                 .build();
 
         addNamedView = new AddNamedView.Builder()
+                .name(namedView.getName())
                 .namedView(namedView)
+                .parameters(testParameters)
                 .overwrite(false)
                 .build();
 
@@ -118,8 +120,8 @@ public class DeleteNamedViewHandlerTest {
     }
 
     private boolean cacheContains(final String namedViewName) throws CacheOperationFailedException {
-        Iterable<NamedView> namedViews = namedViewCache.getAllNamedViews();
-        for (final NamedView namedView : namedViews) {
+        Iterable<NamedViewDetail> namedViews = namedViewCache.getAllNamedViews();
+        for (final NamedViewDetail namedView : namedViews) {
             if (namedView.getName().equals(namedViewName)) {
                 return true;
             }

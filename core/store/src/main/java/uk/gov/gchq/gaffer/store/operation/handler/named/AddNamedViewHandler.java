@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.store.operation.handler.named;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedViewDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -55,10 +56,12 @@ public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
     public Object doOperation(final AddNamedView operation, final Context context, final Store store) throws OperationException {
         validate(operation);
 
-        final NamedView namedView = new NamedView.Builder()
-                .name(operation.getNamedView().getName())
-                .merge(operation.getNamedView())
+        final NamedViewDetail namedView = new NamedViewDetail.Builder()
+                .name(operation.getName())
+                .namedView(operation.getNamedView())
+                .description(operation.getDescription())
                 .parameters(operation.getParameters())
+                .mergedNamedViewNames(operation.getMergedNamedViewNames())
                 .build();
 
         try {
@@ -70,18 +73,8 @@ public class AddNamedViewHandler implements OperationHandler<AddNamedView> {
     }
 
     private void validate(final AddNamedView op) {
-        if (null == op.getNamedView().getName()) {
+        if (null == op.getName()) {
             throw new IllegalArgumentException("NamedView name must be set");
         }
-
-        /*if (null != op.getParameters()) {
-            String operationString = op.getNamedView().getParameters();
-            for (final Map.Entry<String, ParameterDetail> parameterDetail : op.getParameters().entrySet()) {
-                String varName = "${" + parameterDetail.getKey() + "}";
-                if (!operationString.contains(varName)) {
-                    throw new OperationException("Parameter specified in NamedOperation doesn't occur in OperationChain string for " + varName);
-                }
-            }
-        }*/
     }
 }
