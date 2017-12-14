@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.named.view;
 import org.apache.commons.lang3.exception.CloneFailedException;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
 
 import java.util.Map;
@@ -30,7 +31,7 @@ import java.util.Map;
 public class AddNamedView implements Operation {
     private NamedView namedView = null;
     private String description;
-    private Map<String, Object> parameters;
+    private Map<String, ViewParameterDetail> parameters;
     private boolean overwriteFlag = false;
     private Map<String, String> options;
 
@@ -50,11 +51,11 @@ public class AddNamedView implements Operation {
         this.description = description;
     }
 
-    public void setParameters(final Map<String, Object> parameters) {
+    public void setParameters(final Map<String, ViewParameterDetail> parameters) {
         this.parameters = parameters;
     }
 
-    public Map<String, Object> getParameters() {
+    public Map<String, ViewParameterDetail> getParameters() {
         return parameters;
     }
 
@@ -103,7 +104,7 @@ public class AddNamedView implements Operation {
             return _self();
         }
 
-        public Builder parameters(final Map<String, Object> parameters) {
+        public Builder parameters(final Map<String, ViewParameterDetail> parameters) {
             _getOp().setParameters(parameters);
             return _self();
         }

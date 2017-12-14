@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.named.view;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
-import uk.gov.gchq.gaffer.named.operation.ParameterDetail;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import java.util.HashMap;
@@ -38,12 +38,12 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
             .name(TEST_NAMED_VIEW_NAME)
             .edge(TestGroups.EDGE)
             .build();
-    Map<String, Object> parameters = new HashMap<>();
+    Map<String, ViewParameterDetail> parameters = new HashMap<>();
 
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
-        parameters.put("testParameter", mock(ParameterDetail.class));
+        parameters.put("testParameter", mock(ViewParameterDetail.class));
 
         AddNamedView addNamedView = new AddNamedView.Builder()
                 .namedView(NAMED_VIEW)
@@ -61,7 +61,7 @@ public class AddNamedViewTest extends OperationTest<AddNamedView> {
     @Override
     public void shouldShallowCloneOperation() {
         // Given
-        parameters.put("testParameter", mock(ParameterDetail.class));
+        parameters.put("testParameter", mock(ViewParameterDetail.class));
 
         AddNamedView addNamedView = new AddNamedView.Builder()
                 .namedView(NAMED_VIEW)

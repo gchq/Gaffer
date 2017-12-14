@@ -20,15 +20,20 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
+import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A {@code NamedView} extends a {@link View}, defining the {@link uk.gov.gchq.gaffer.data.element.Element}s to be returned for an operation.
@@ -45,7 +50,10 @@ public class NamedView extends View {
     private String name;
     @JsonIgnore
     private List<String> mergedNamedViewNames;
-    private Map<String, Object> parameters;
+    @JsonIgnore
+    private Map<String, Object> parameterValues;
+    private Map<String, ViewParameterDetail> parameters;
+    private static final String CHARSET_NAME = CommonConstants.UTF_8;
 
     public NamedView() {
         this.name = "";
@@ -77,7 +85,7 @@ public class NamedView extends View {
         return mergedNamedViewNames;
     }
 
-    public void setParameters(final Map<String, Object> parameters) {
+    public void setParameters(final Map<String, ViewParameterDetail> parameters) {
         if (parameters != null) {
             if (null != this.parameters) {
                 this.parameters.putAll(parameters);
@@ -87,8 +95,80 @@ public class NamedView extends View {
         }
     }
 
-    public Map<String, Object> getParameters() {
+    public Map<String, ViewParameterDetail> getParameters() {
         return parameters;
+    }
+
+    @JsonIgnore
+    public void setParameterValues(final Map<String, Object> parameterValues) {
+        if (parameterValues != null) {
+            if (null != this.parameterValues) {
+                this.parameterValues.putAll(parameterValues);
+            } else {
+                this.parameterValues = parameterValues;
+            }
+        }
+    }
+
+    @JsonIgnore
+    public Map<String, Object> getParameterValues() {
+        return parameterValues;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean canMerge(final View addingView, final View srcView) {
+        if (addingView instanceof NamedView && !(srcView instanceof NamedView)) {
+            if (((NamedView) addingView).getName() != null) {
+                if (!((NamedView) addingView).getName().isEmpty()) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    @JsonIgnore
+    public NamedView getNamedView() {
+        String thisViewString = new String(this.toCompactJson());
+
+        if (null != parameters) {
+            Set<String> paramKeys = parameters.keySet();
+
+            for (final String paramKey : paramKeys) {
+                Object paramValueObj;
+
+                if (null != parameterValues && parameterValues.keySet().contains(paramKey)) {
+                    paramValueObj = parameterValues.get(paramKey);
+                } else {
+                    if (parameters.get(paramKey).getDefaultValue() != null && !parameters.get(paramKey).isRequired()) {
+                        paramValueObj = parameters.get(paramKey).getDefaultValue();
+                    } else {
+                        throw new IllegalArgumentException("Missing parameter " + paramKey + " with no default");
+                    }
+                }
+                try {
+                    thisViewString = thisViewString.replace(buildParamNameString(paramKey),
+                            new String(JSONSerialiser.serialise(paramValueObj, CHARSET_NAME), CHARSET_NAME));
+                } catch (final SerialisationException | UnsupportedEncodingException e) {
+                    throw new IllegalArgumentException(e.getMessage());
+                }
+            }
+        }
+
+        NamedView namedView;
+
+        try {
+            namedView = JSONSerialiser.deserialise(thisViewString.getBytes(CHARSET_NAME), NamedView.class);
+        } catch (final Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+
+        return namedView;
+    }
+
+    private String buildParamNameString(final String paramKey) {
+        return "\"${" + paramKey + "}\"";
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>> extends View.BaseBuilder<CHILD_CLASS> {
@@ -106,8 +186,13 @@ public class NamedView extends View {
             return self();
         }
 
-        public CHILD_CLASS parameters(final Map<String, Object> parameters) {
+        public CHILD_CLASS parameters(final Map<String, ViewParameterDetail> parameters) {
             getElementDefs().setParameters(parameters);
+            return self();
+        }
+
+        public CHILD_CLASS parameterValues(final Map<String, Object> parameterValues) {
+            getElementDefs().setParameterValues(parameterValues);
             return self();
         }
 
@@ -138,7 +223,9 @@ public class NamedView extends View {
                         if (null == self().getElementDefs().getName() || self().getElementDefs().getName().isEmpty()) {
                             self().name(namedViewInstance.getName());
                         } else {
-                            self().getElementDefs().getMergedNamedViewNames().add(namedViewInstance.getName());
+                            if (self().getElementDefs().getName() != ((NamedView) view).getName()) {
+                                self().getElementDefs().getMergedNamedViewNames().add(namedViewInstance.getName());
+                            }
                         }
                     }
                     if (null != namedViewInstance.getMergedNamedViewNames() && !namedViewInstance.getMergedNamedViewNames().isEmpty()) {

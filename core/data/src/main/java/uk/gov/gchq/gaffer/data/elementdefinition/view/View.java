@@ -260,6 +260,13 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         return false;
     }
 
+    public boolean canMerge(final View addingView, final View srcView) {
+        if (addingView instanceof View && !(srcView instanceof View)) {
+            return false;
+        }
+        return true;
+    }
+
     @Override
     public boolean equals(final Object obj) {
         if (this == obj) {
@@ -386,6 +393,10 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         @Override
         @JsonIgnore
         public CHILD_CLASS merge(final View view) {
+            if (!(getThisView().canMerge(view, getThisView()) && view.canMerge(view, getThisView()))) {
+                throw new IllegalArgumentException("A " + view.getClass().getSimpleName() +
+                        " cannot be merged into a " + getThisView().getClass().getSimpleName());
+            }
             if (null != view) {
                 if (getThisView().getEntities().isEmpty()) {
                     getThisView().getEntities().putAll(view.getEntities());

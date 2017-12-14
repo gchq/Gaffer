@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.NamedView;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewParameterDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.exception.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.view.AddNamedView;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -45,7 +46,12 @@ public class AddNamedViewHandlerTest {
     private final AddNamedViewHandler handler = new AddNamedViewHandler(namedViewCache);
     private final String testNamedViewName = "testNamedViewName";
     private final String testUserId = "testUser";
-    private final Map<String, Object> testParameters = new HashMap<>();
+    private final Map<String, ViewParameterDetail> testParameters = new HashMap<>();
+    private static final ViewParameterDetail TEST_PARAM_VALUE = new ViewParameterDetail.Builder()
+            .defaultValue(1L)
+            .description("Limit param")
+            .valueClass(Long.class)
+            .build();
 
     private Context context = new Context(new User.Builder()
             .userId(testUserId)
@@ -59,7 +65,7 @@ public class AddNamedViewHandlerTest {
 
     @Before
     public void before() {
-        testParameters.put("testParam", "testKey");
+        testParameters.put("testParam", TEST_PARAM_VALUE);
 
         namedView = new NamedView.Builder()
                 .name(testNamedViewName)
@@ -105,7 +111,6 @@ public class AddNamedViewHandlerTest {
             assertTrue(e.getMessage().equals("NamedView name must be set"));
         }
     }
-
 
     private boolean cacheContains(final String namedViewName) throws CacheOperationFailedException {
         Iterable<NamedView> namedViews = namedViewCache.getAllNamedViews();
