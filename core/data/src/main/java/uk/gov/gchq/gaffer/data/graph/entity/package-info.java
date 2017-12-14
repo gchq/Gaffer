@@ -14,29 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.data.graph.adjacency;
-
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * A {@code SimpleAdjacencyMaps} object represents a collection of {@link
- * AdjacencyMap}s containing graph adjacency information.
+ * Data objects used by Gaffer which are related to graph entity caching.
  */
-public class SimpleAdjacencyMaps implements AdjacencyMaps {
-
-    /**
-     * The backing list.
-     */
-    private final List<AdjacencyMap> adjacencyMaps = new ArrayList<>();
-
-    @Override
-    public List<AdjacencyMap> asList() {
-        return adjacencyMaps;
-    }
-
-    @Override
-    public String toString() {
-        return prettyPrint();
-    }
-}
+package uk.gov.gchq.gaffer.data.graph.entity;

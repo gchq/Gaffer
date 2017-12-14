@@ -14,54 +14,53 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.data.graph.adjacency;
+package uk.gov.gchq.gaffer.data.graph.entity;
 
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 /**
- * An {@code AdjacencyMaps} object contains a number of {@link AdjacencyMap}
- * objects and can be used to represent the changes in an AdjacencyMap over time
- * or to track the adjacency components of a graph over some other metric.
+ * An {@code EntityMaps} object contains a number of {@link EntityMap}
+ * objects and can be used to represent the changes in an EntityMap over time
+ * or to track the entities of a graph over some other metric.
  */
-public interface AdjacencyMaps extends Iterable<AdjacencyMap> {
+public interface EntityMaps extends Iterable<EntityMap> {
 
     /**
-     * Add a new {@link AdjacencyMap}.
+     * Add a new {@link EntityMap}.
      *
-     * @param adjacencyMap the AdjacencyMap to add
+     * @param entityMap the entityMap to add
      */
-    default void add(final AdjacencyMap adjacencyMap) {
-        asList().add(adjacencyMap);
+    default void add(final EntityMap entityMap) {
+        asList().add(entityMap);
     }
 
     /**
-     * Retrieve the nth {@link AdjacencyMap}.
+     * Retrieve the nth {@link EntityMap}.
      *
      * @param n the index of the adjacency map to retrieve
-     * @return the nth AdjacencyMap
+     * @return the nth entityMap
      */
-    default AdjacencyMap get(final int n) {
+    default EntityMap get(final int n) {
         return asList().get(n);
     }
 
     /**
-     * Return the number of {@link AdjacencyMap}s present in the AdjacencyMaps
-     * object.
+     * Return the number of {@link EntityMap} present in the entityMaps object.
      * <p>
      * Depending on the context, this could refer to the number of hops present,
      * or the number of timesteps etc.
      *
-     * @return the size of the AdjacencyMaps object
+     * @return the size of the entityMaps object
      */
     default int size() {
         return asList().size();
     }
 
-
     /**
-     * Return {@code true} if this AdjacencyMaps object is empty, otherwise {@code false}.
+     * Return {@code true} if this EntityMaps object is empty, otherwise {@code
+     * false}.
      *
      * @return the empty state of this object
      */
@@ -70,25 +69,24 @@ public interface AdjacencyMaps extends Iterable<AdjacencyMap> {
     }
 
     /**
-     * Print the {@code AdjacencyMaps} object in an easily readable format.
+     * Print the {@code EntityMap} object in an easily readable format.
      *
-     * @return a prettily printed {@link String} representation of the
-     * AdjacencyMap object.
+     * @return a prettily printed {@link String} representation of the entityMap
+     * object.
      */
     default String prettyPrint() {
         return this.getClass().getName() + '@' + Integer.toHexString(this.hashCode()) + Arrays.toString(asList().toArray());
     }
 
+    /**
+     * Get a representation of the current EntityMaps object as a {@link List}.
+     *
+     * @return a {@link List} representation of the current entityMaps object
+     */
+    List<EntityMap> asList();
+
     @Override
-    default Iterator<AdjacencyMap> iterator() {
+    default Iterator<EntityMap> iterator() {
         return asList().iterator();
     }
-
-    /**
-     * Get a representation of the current AdjacencyMaps object as a {@link
-     * List}.
-     *
-     * @return a {@link List} representation of the current AdjacencyMaps object
-     */
-    List<AdjacencyMap> asList();
 }

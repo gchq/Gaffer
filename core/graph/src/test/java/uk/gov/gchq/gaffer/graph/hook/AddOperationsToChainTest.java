@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
 import sun.misc.IOUtils;
 
@@ -29,6 +30,7 @@ import uk.gov.gchq.gaffer.operation.TestUnmodifiableOperationsImpl;
 import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
+import uk.gov.gchq.gaffer.operation.impl.GetWalks;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.SplitStoreFromFile;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
@@ -41,6 +43,7 @@ import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -54,6 +57,45 @@ public class AddOperationsToChainTest extends GraphHookTest<AddOperationsToChain
 
     public AddOperationsToChainTest() {
         super(AddOperationsToChain.class);
+    }
+
+    @Test
+    public void shouldAddAllOperationsToGetWalksOperation() throws SerialisationException {
+        // Given
+        final AddOperationsToChain hook = new AddOperationsToChain();
+        final java.util.Map<String, List<Operation>> after = new HashMap<>();
+        after.put(GetElements.class.getName(), Lists.newArrayList(new Limit()));
+        hook.setAfter(after);
+        hook.setEnd(Lists.newArrayList(new Limit()));
+
+        final GetElements getElements = new GetElements();
+        final Limit limit = new Limit();
+
+        final OperationChain getWalksOperations = new OperationChain.Builder()
+                .first(getElements)
+                .build();
+
+        final GetWalks getWalks = new GetWalks.Builder()
+                .operations(getWalksOperations)
+                .build();
+
+        final OperationChain opChain = new OperationChain.Builder()
+                .first(getWalks)
+                .build();
+
+        // When
+        hook.preExecute(opChain, new Context(new User()));
+
+        // Then
+        final GetWalks expectedGetWalks = new GetWalks.Builder()
+                .operations(new OperationChain(getElements, limit))
+                .build();
+
+        final OperationChain expectedOpChain = new OperationChain.Builder()
+                .first(expectedGetWalks)
+                .then(limit)
+                .build();
+        JsonAssert.assertEquals(JSONSerialiser.serialise(expectedOpChain), JSONSerialiser.serialise(opChain));
     }
 
     @Test

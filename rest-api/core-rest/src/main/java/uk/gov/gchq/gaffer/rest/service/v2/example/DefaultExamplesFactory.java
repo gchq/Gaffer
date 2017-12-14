@@ -69,8 +69,8 @@ import static java.lang.reflect.Modifier.isStatic;
 
 /**
  * Default implementation of the {@link uk.gov.gchq.gaffer.rest.service.v2.example.ExamplesFactory}
- * interface. Required to be registered with HK2 to allow the correct {@link uk.gov.gchq.gaffer.rest.factory.GraphFactory}
- * object to be injected.
+ * interface. Required to be registered with HK2 to allow the correct {@link
+ * uk.gov.gchq.gaffer.rest.factory.GraphFactory} object to be injected.
  */
 public class DefaultExamplesFactory implements ExamplesFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultExamplesFactory.class);
@@ -467,12 +467,7 @@ public class DefaultExamplesFactory implements ExamplesFactory {
 
         return new GetWalks.Builder()
                 .input(entityId)
-                .operation(new GetElements.Builder()
-                        .view(new View.Builder()
-                                .edge(edges.get(0))
-                                .build())
-                        .build())
-                .operation(new GetElements.Builder()
+                .operations(new GetElements.Builder()
                         .view(new View.Builder()
                                 .edge(edges.size() > 1 ? edges.get(1) : edges.get(0))
                                 .build())

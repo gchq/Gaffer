@@ -339,6 +339,11 @@ public class OperationChain<OUT> implements Output<OUT>,
             return new OutputBuilder<>(ops, options);
         }
 
+        public <NEXT_OUT> OutputBuilder<NEXT_OUT> then(final OperationChain<NEXT_OUT> op) {
+            ops.add(op);
+            return new OutputBuilder(ops, options);
+        }
+
         /**
          * <p>
          * Adds the provided operation to the operation chain.
