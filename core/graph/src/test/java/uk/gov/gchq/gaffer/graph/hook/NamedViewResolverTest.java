@@ -49,6 +49,9 @@ public class NamedViewResolverTest {
 
     private static final String NAMED_VIEW_NAME = "namedViewName";
     private static final String NESTED_NAMED_VIEW_NAME = "nestedNamedViewName";
+    private static final String IS_MORE_THAN_X_PARAM_KEY = "IS_MORE_THAN_X";
+    private static final String EDGE_NAME_PARAM_KEY = "EDGE_NAME";
+    private static final String VALUE_JSON_STRING = "\"value\":";
     private static final NamedViewCache CACHE = mock(NamedViewCache.class);
     private static final Context CONTEXT = new Context(mock(User.class));
     private static final NamedViewResolver RESOLVER = new NamedViewResolver(CACHE);
@@ -175,7 +178,7 @@ public class NamedViewResolverTest {
     @Test
     public void shouldResolveNamedViewWithParameter() throws CacheOperationFailedException {
         Map<String, Object> paramMap = Maps.newHashMap();
-        paramMap.put("EDGE_NAME", TestGroups.EDGE_2);
+        paramMap.put(EDGE_NAME_PARAM_KEY, TestGroups.EDGE_2);
 
         ViewParameterDetail param = new ViewParameterDetail.Builder()
                 .defaultValue(TestGroups.EDGE)
@@ -184,12 +187,12 @@ public class NamedViewResolverTest {
                 .build();
 
         Map<String, ViewParameterDetail> paramDetailMap = Maps.newHashMap();
-        paramDetailMap.put("EDGE_NAME", param);
+        paramDetailMap.put(EDGE_NAME_PARAM_KEY, param);
 
         // Make a real NamedView with a parameter
         final NamedView extendedNamedView = new NamedView.Builder()
                 .name(NAMED_VIEW_NAME)
-                .edge("${EDGE_NAME}", new ViewElementDefinition.Builder().preAggregationFilter(new ElementFilter.Builder()
+                .edge("${"+EDGE_NAME_PARAM_KEY + "}", new ViewElementDefinition.Builder().preAggregationFilter(new ElementFilter.Builder()
                         .select(IdentifierType.VERTEX.name())
                         .execute(new ExampleFilterFunction())
                         .build()).build())
@@ -233,7 +236,7 @@ public class NamedViewResolverTest {
     @Test
     public void shouldResolveNamedViewWithParametersToMakeCompleteFilter() throws CacheOperationFailedException {
         Map<String, Object> paramMap = Maps.newHashMap();
-        paramMap.put("IS_MORE_THAN_X", 7L);
+        paramMap.put(IS_MORE_THAN_X_PARAM_KEY, 7L);
 
         ViewParameterDetail param = new ViewParameterDetail.Builder()
                 .defaultValue(2L)
@@ -242,14 +245,14 @@ public class NamedViewResolverTest {
                 .build();
 
         Map<String, ViewParameterDetail> paramDetailMap = Maps.newHashMap();
-        paramDetailMap.put("IS_MORE_THAN_X", param);
+        paramDetailMap.put(IS_MORE_THAN_X_PARAM_KEY, param);
 
         // Make a real NamedView with a parameter
         final NamedView extendedNamedView = new NamedView.Builder()
                 .name(NAMED_VIEW_NAME)
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder().preAggregationFilter(new ElementFilter.Builder()
                         .select(IdentifierType.VERTEX.name())
-                        .execute(new IsMoreThan("${IS_MORE_THAN_X}"))
+                        .execute(new IsMoreThan("${" + IS_MORE_THAN_X_PARAM_KEY + "}"))
                         .build()).build())
                 .parameters(paramDetailMap)
                 .build();
@@ -269,7 +272,7 @@ public class NamedViewResolverTest {
         GetElements getElements = (GetElements) opChain.getOperations().get(0);
 
         // Then
-        assertTrue(new String(getElements.getView().toCompactJson()).contains("\"value\":2"));
+        assertTrue(new String(getElements.getView().toCompactJson()).contains(VALUE_JSON_STRING + 2));
 
         final OperationChain<?> opChain1 = new OperationChain.Builder()
                 .first(new GetElements.Builder()
@@ -285,7 +288,7 @@ public class NamedViewResolverTest {
         GetElements getElements1 = (GetElements) opChain1.getOperations().get(0);
 
         // Then
-        assertTrue(new String(getElements1.getView().toCompactJson()).contains("\"value\":7"));
+        assertTrue(new String(getElements1.getView().toCompactJson()).contains(VALUE_JSON_STRING + 7));
     }
 
     private void assertNamedViewAndViewEqual(NamedView namedView, View view) throws SerialisationException {

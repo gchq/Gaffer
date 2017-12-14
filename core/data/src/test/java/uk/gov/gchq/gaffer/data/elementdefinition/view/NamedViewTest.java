@@ -364,22 +364,24 @@ public class NamedViewTest {
     @Test
     public void shouldGetNamedViewWithResolvedParameters() {
         // Given
-        ViewParameterDetail param = new ViewParameterDetail.Builder()
+        ViewParameterDetail viewParameterDetail = new ViewParameterDetail.Builder()
                 .defaultValue(TestGroups.EDGE_2)
                 .description("edge name param")
                 .valueClass(String.class)
                 .build();
 
         Map<String, ViewParameterDetail> paramDetailMap = Maps.newHashMap();
-        paramDetailMap.put("EDGE_NAME", param);
+        paramDetailMap.put("EDGE_NAME", viewParameterDetail);
 
         // When - full NamedView created with params
         final NamedView extendedNamedView = new NamedView.Builder()
                 .name(TEST_VIEW_NAME)
-                .edge("${EDGE_NAME}", new ViewElementDefinition.Builder().preAggregationFilter(new ElementFilter.Builder()
-                        .select(IdentifierType.VERTEX.name())
-                        .execute(new ExampleFilterFunction())
-                        .build()).build())
+                .edge("${EDGE_NAME}", new ViewElementDefinition.Builder()
+                        .preAggregationFilter(new ElementFilter.Builder()
+                                .select(IdentifierType.VERTEX.name())
+                                .execute(new ExampleFilterFunction())
+                                .build())
+                        .build())
                 .parameters(paramDetailMap)
                 .build();
 
@@ -395,9 +397,9 @@ public class NamedViewTest {
         assertTrue(new String(namedViewWithResolvedDefaultParams.toCompactJson()).contains(TestGroups.EDGE_2));
 
         // When - resolve it with specified params
-        Map<String, Object> paramMap = Maps.newHashMap();
-        paramMap.put("EDGE_NAME", TestGroups.EDGE);
-        extendedNamedView.setParameterValues(paramMap);
+        Map<String, Object> paramValueMap = Maps.newHashMap();
+        paramValueMap.put("EDGE_NAME", TestGroups.EDGE);
+        extendedNamedView.setParameterValues(paramValueMap);
         NamedView namedViewWithResolvedParams = extendedNamedView.getNamedView();
 
         // Then - assert resolved NamedView contains resolved param and not the param name
@@ -420,10 +422,12 @@ public class NamedViewTest {
         // When - full NamedView created with params
         final NamedView extendedNamedView = new NamedView.Builder()
                 .name(TEST_VIEW_NAME)
-                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder().preAggregationFilter(new ElementFilter.Builder()
-                        .select("count")
-                        .execute(new IsMoreThan("${IS_MORE_THAN_X}"))
-                        .build()).build())
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .preAggregationFilter(new ElementFilter.Builder()
+                                .select("count")
+                                .execute(new IsMoreThan("${IS_MORE_THAN_X}"))
+                                .build())
+                        .build())
                 .parameters(paramDetailMap)
                 .build();
 
@@ -446,5 +450,35 @@ public class NamedViewTest {
         // Then - assert resolved NamedView contains resolved param and not the param name
         assertFalse(new String(namedViewWithResolvedParams.toCompactJson()).contains("${IS_MORE_THAN_X"));
         assertTrue(new String(namedViewWithResolvedParams.toCompactJson()).contains("\"value\":7"));
+    }
+
+    @Test
+    public void shouldThrowExceptionWithNoParamsValueSetAndNoDefault() {
+        ViewParameterDetail param = new ViewParameterDetail.Builder()
+                .description("more than filter")
+                .valueClass(Long.class)
+                .build();
+
+        Map<String, ViewParameterDetail> paramDetailMap = Maps.newHashMap();
+        paramDetailMap.put("IS_MORE_THAN_X", param);
+
+        // When - full NamedView created with params
+        final NamedView extendedNamedView = new NamedView.Builder()
+                .name(TEST_VIEW_NAME)
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .preAggregationFilter(new ElementFilter.Builder()
+                                .select("count")
+                                .execute(new IsMoreThan("${IS_MORE_THAN_X}"))
+                                .build())
+                        .build())
+                .parameters(paramDetailMap)
+                .build();
+
+        try {
+            extendedNamedView.getNamedView();
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Missing parameter IS_MORE_THAN_X with no default"));
+        }
     }
 }
